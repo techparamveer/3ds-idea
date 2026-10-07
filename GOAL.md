@@ -33,6 +33,14 @@ service gates and portfolio content differences remain explicit adaptations
 or blockers. Keep every 3DS session muted; audio acceptance remains open.
 Do not claim global 1:1 or audio verification from this animation work.
 
+Current checkpoint: separate-window Azahar touch is recovered. Normal-speed
+Manual, Notifications and folder entry/Back/re-entry captures now exist, but
+corrupt and nonmonotonic native readbacks, unresolved HOME-key delivery and
+unexplained animation differences still prevent completion. The decoded
+Friends/Notifications public-asset decision remains pending. Continue from
+[the evidence checkpoint](docs/animation-fidelity-workflow-2026-10-07.md#native-touch-recovery-and-fixed-stage-diagnostics),
+not the earlier failed touchscreen attempts.
+
 The hardware requirements below remain unchanged. The current animation goal
 supersedes older execution queues and checkout references in this document.
 

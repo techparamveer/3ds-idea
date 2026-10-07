@@ -1,5 +1,15 @@
 # Verification and evidence architecture
 
+[7 October native touch recovery](../animation-fidelity-workflow-2026-10-07.md#native-touch-recovery-and-fixed-stage-diagnostics)
+obtains normal-speed native opening and folder samples through a separate
+Azahar render window. Count actual own PNGs, preserve file/mtime chronology,
+exclude visibly corrupt readbacks and retain duplicates/stale frames explicitly.
+Manual's clear-before-partial anomaly must not be reordered. Native upper
+exposure before lower-belt clearing is not proof of independent LCD clocks or
+epochs. Fixed first-observed stages and source-pose browser receipts are
+diagnostics only until their input, timing and publication are matched.
+An empty cartridge placeholder is not a valid Create Folder fixture.
+
 [HOME launch onset](../home-launch-onset-2026-10-03.md) now has continuous
 native pre-A/feedback/fade/logo evidence. Distinguish first Open pressed
 feedback from footer SceneOut, and last pre-fade banner from disappearance.

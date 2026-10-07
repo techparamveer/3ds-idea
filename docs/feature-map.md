@@ -17,8 +17,16 @@ with two publication-only skips. Controller/live-render and affected checks
 pass 45 and 55 separately. Composition remains unstaged and unserved.
 Public asset export is pending explicit user approval after tool review rejected
 it. Private fixture checks do not establish delivery or visible/native fidelity.
-The preview remains on `98342a8`. The new muted Azahar observation encountered a
-touchscreen-coordinate mapping failure and produced no incoming capture.
+The preview remains on `98342a8`. Separate-window native touch is recovered.
+Normal-speed Manual, Notifications and folder captures now exist. Manual's
+full cover matches both browser cycles at threshold2 with an empty mask;
+incoming diagnostic pairs differ by11520 upper/74833 lower pixels and ready
+Contents by446/1038. The new folder panel-completion diagnostic differs
+by37226/8007. Native corruption and Manual clear-before-partial ordering remain
+explicit; no phase/epoch repair or timing acceptance is claimed. Native upper
+exposure before lower-belt clearing does not prove separate LCD clocks.
+Mapped HOME/A taps left Health unchanged, so those are input diagnostics only.
+[Recovered touch and fixed comparisons](animation-fidelity-workflow-2026-10-07.md#native-touch-recovery-and-fixed-stage-diagnostics).
 [Current preparation boundary](animation-fidelity-workflow-2026-10-07.md#incoming-plain-label-preparation).
 
 Latest runtime `98342a8`, collector `9882f97`: original HOME suspended-window

@@ -523,3 +523,86 @@ the private scenario matrix are unchanged. All four whole animation scenarios
 remain fail. Next: authorized publication, strict helper/caller integration,
 all supporting checks, visible chronological recapture, and matched native
 comparison without pose searching or guessed phase lock.
+
+### Native touch recovery and fixed stage diagnostics
+
+The later native continuation restored coordinate input by turning off only
+the isolated Azahar Single Window Mode. Its separate800x1024 render window
+mapped the lower LCD at x80/y544 with2x pixels. Exact-path binding, volume0,
+Null output1, Static input2, screenshot factor1 and normal100% were verified.
+This replaces the earlier input failure, not its preserved evidence.
+The native-manual-slow process exited134 after GUI Quit/Yes; the subsequent
+native-folder-slow process exited0. Both PID absences were verified. Production
+3021 still serves `98342a8`; no incoming public pack or new runtime was delivered.
+
+All paths below are under the private
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/` root.
+
+- Friends report: `friends-touch-recovery-analysis-20261007/native-friends-touch-recovery-index.json`,
+  SHA `3c7e65104d118f3c59dd48e16fd6978dcae53adb7dfa2d4a4c25467f7bfa9518`.
+  Its48 own PNGs include outgoing partial/full cover, then first-use help and
+  restriction/no-Mii notices. No partial incoming or successful Close/HOME
+  transition was captured. One corrupted readback remains invalid.
+- Manual report: `manual-notifications-touch-recovery-analysis-20261007/native-manual-touch-recovery-index.json`,
+  SHA `3d013fd8fb4662a5c2951e092453d9eddc370c48814ddcfb3fce33f81b0ee4ab`.
+  Its172 own PNGs include cold/warm opening and closing; four are invalid.
+  Warm100 requests produced66 PNGs. First full cover is21.26.23.729,
+  SHA `2c1738dd4099858798ccdc3a5cd6d937f3526e060f5d6ba0632f2aa08c6f4880`.
+  First clear Contents27.316 precedes captured partial27.317. Preserve this
+  unexplained ordering; do not sort by visual progress or assign source frames.
+- Notifications report: `manual-notifications-touch-recovery-analysis-20261007/native-notifications-touch-recovery-index.json`,
+  SHA `4547bc6ab835aba9d93c07971c6ba780d4d7bc02acf49aff1dc43f2e761a99fd`.
+  Its128 PNGs include79 continuous opening samples and48 Close samples.
+  Two corrupt samples remain invalid. Predeclared first full cover is21.27.55.042,
+  first destination-under-cover56.237, upper-exposed/lower-clearing56.55 and
+  cover/belt-clear56.759. Different LCD clearing does not establish independent
+  clocks or epochs; the original curves may differ within one update schedule.
+  The native9-unread versus portfolio8-unread difference remains an adaptation.
+- Health diagnostics: `manual-notifications-touch-recovery-analysis-20261007/native-health-input-diagnostics-index.json`,
+  SHA `49927db8efec185a901483a5f001be25bc2bbc264c29921aca1fff5e561fbeec`.
+  Actual HOME-launched Health reached its menu. Mapped HOME B and A taps left
+  it there. These104 PNGs do not establish controller delivery or AN-04 motion.
+- Folder report: `native-folder-slow/folder-touch-recovery-index-20261007.json`,
+  SHA `d5f624d2e0498f54122f20c967badcf097ddf88afdcbfc2cb2bf930f6852d5e9`.
+  Its180 PNGs separate fixture setup, first entry, Back and re-entry. Four
+  density taps prepare six rows; ordinary empty136,160 and Create Folder
+  at210,226 create the default folder without a keyboard. The earlier grey slot
+  was the cartridge placeholder, not an ordinary empty slot. Entry uses136,160;
+  Back uses approximately59,56.5. First complete child panel is index61,
+  at21.35.09.774, SHA `30312bf41ded2225d60c833fdab58cd40b90c4f194d4d523ff8060d00b2e4afb`.
+  Repeat panel is139,21.36.25.989; cursor first appears141. Corrupt62 and
+  duplicate/stale99/100 remain explicit. These are panel selectors, not native
+  readiness, source-frame or duration assignments.
+
+The new production captures in `touch-recovery-98342a8/` have200/211 Manual
+pairs and84 six-row folder pairs, all without page errors. Three console views
+were opened and nonblank checks recorded. Manual's repeat console and six repeat
+contact sheets are byte-identical to the inspected first-cycle images.
+`manual-browser-selection.json` SHA `1d9eeb6edb7d8b883323cfdc2da8285e8c89553067e360e1cb115ba4b2e1f45c`
+declares first valid paired out20/in1/ready as36/39/75 and34/37/83 before diffing.
+The ready receipt has no applet owner; same-owner sequencing through in20 is
+recorded separately, not invented into that receipt. Any generation-time text
+that the native index is pending is superseded by the final index above.
+
+Fixed empty-mask comparisons in `manual-comparisons/` yield0/0 for full cover,
+11520/74833 for first incoming diagnostics and446/1038 for first ready Contents
+in both cycles. `manual-comparison-results.json` SHA
+`e91be3e6c1c94f450b9b264e18ca918716ab00b6d508c4306f66162ad4d9e142`
+records all six reports. These are threshold2 static diagnostics; no native
+epoch equates the partial samples. The folder's predeclared native panel61
+versus first valid browser folder16, index19/capture8 at714.5ms, differs by
+37226/8007. Its report SHA is
+`50afdc6392d9fe36f40096a9cb71f6518825949bc7f52d10babaead38d68a396`.
+Both folder LCD sheets were opened. Upper root pose/yaw, lower cursor,
+wallpaper/HUD and native-versus-portfolio population differences remain.
+
+Independent evidence review cleared this checkpoint with no acceptance claim.
+Capture identity is served runtime `98342a8`, not worker `d63dcf1` or source
+HEAD `71ee784`. Delivered common/Manual pack contentIndex/contentId fields
+remain null; original content0 identities in the selector's handoff records are
+separate evidence, not populated pack fields. All native scenes stay muted,
+audio is unverified, and AN-01 through AN-04 whole scenarios remain fail.
+Asset export still awaits explicit approval. The next bounded folder check
+tests whether original lower cursor producer values explain the observed
+bracket difference; measured green extents do not support a simple smaller
+native scale. No fitted scale or guessed timing is authorized.

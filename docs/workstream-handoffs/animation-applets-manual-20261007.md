@@ -112,6 +112,47 @@ Nonincremental typecheck, relative-link validation and `git diff --check` also
 passed. The coordinator owns the full suite/build and actual recapture.
 Dependencies are a read-only symlink to the existing project installation.
 
+## Review correction
+
+The first cover pair used to mark the stock screen ready, permitting an early
+second A or slot touch to enter drawing and retire the cover. The Notes-only
+readiness gate now stays loading until the same owner/ticket's terminal cover
+pair receives a valid render acknowledgement. Existing loading-input quarantine
+continues to handle held A and touch releases; HOME, power and recovery are
+unchanged. The metadata-ready posed path keeps its existing readiness behavior.
+
+Canvas composition and the two outward LCD copies only stage a candidate.
+`presentNotesBootCover(state: MenuState): boolean` validates current Notes owner,
+main screen, no suspended software, visible browser state and the loaded native
+renderer instance before accepting it. `revokeNotesBootCoverCandidate(): void`
+clears the candidate and terminal receipt, and rebases the cover clock. The
+`screens.ts` changes are solely forwarding these two methods. Worker B owns the
+required `console-scene.ts` calls after successful `renderer.render` in the
+existing valid-publication branch, in its invalid branch and in the existing
+terminal-publication revocation hook. This worker has not edited that file.
+
+Cover progress requires acknowledgement of its current pair. The nominal 60 Hz
+host clock permits at most one source update per acknowledged pair and discards
+additional stalled updates instead of jumping to the endpoint. Visibility-change
+events rebase the clock even when no render callback samples the hidden interval.
+Inactive/resources-pending samples do not consume time. This is an explicit
+browser scheduling adaptation, not native easing or a measured wall-clock
+duration; low LCD/render cadence can extend the opening. Original source poses,
+group bindings and the update-after-frame-20 completion rule are unchanged.
+
+Focused regression coverage adds early A/slot-touch behavior through the real
+native input gate and system reducer, terminal Canvas-only rejection, failed
+render acknowledgement, stale owner/ticket/source receipt rejection, hidden and
+main-thread stall resumption, delayed successful render acknowledgement, disposal,
+recovery and the metadata-ready path.
+The expanded command adds `tests/stock-screen-preparation.test.mjs` and
+`tests/native-screen-input.test.mjs` to the focused command above. The coordinator
+still owns build, live render-hook validation and matched native/browser recapture.
+
+The expanded selected suite passed 63 tests. Nonincremental typecheck and
+`git diff --check` passed. No build, GUI or native acceptance run was performed
+by the worker.
+
 ## Remaining failures
 
 AN-01 remains fail. There is no new matched native/browser pair, mask or diff

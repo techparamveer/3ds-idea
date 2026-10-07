@@ -39,6 +39,8 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    signal.throwIfAborted();return metadata;
   },
  }),notesIntro=createNotesIntroSession(),notesBootCover=createNotesBootCoverSession();
+ const pauseNotesBootCover=()=>notesBootCover.pause();
+ document.addEventListener('visibilitychange',pauseNotesBootCover);
  function syncNotesIntro(state:MenuState,view:AppView|null|undefined,packs:Record<string,NativePack|undefined>|undefined):NotesIntroPaint|undefined{
   const s=state.system,meta=notesMetadata.getState(),data=view?.data??{};
   const sources=packs?notesIntroSourcesFromPacks(packs):undefined;
@@ -47,7 +49,7 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
   const noSoftware=notes?.appId==='game-notes'&&!notes.closing&&!s?.runtime.application;
   const bootCover=notesBootCover.sync({
    owner:noSoftware?notes.id:null,now:host,
-   paused:!s||!!s.sleeping||!!s.preferences||!!s.dialog||view?.appId!=='game-notes',
+   paused:document.hidden||!s||!!s.sleeping||!!s.preferences||!!s.dialog||view?.appId!=='game-notes',
    reducedMotion:options.reducedMotion?.()??false,sources:packs?notesBootCoverSourcesFromPacks(packs):undefined,
   });
   notesIntro.sync({
@@ -74,15 +76,23 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
   const view=owner?getActiveAppView(state):undefined;
   if(owner&&context&&view){
    const native=stockScreens.prepare(view,owner,nativeFonts.get(context));
-   syncNotesIntro(state,view,native.status==='ready'?native.assets.renderer.packs:undefined);
-  }else syncNotesIntro(state,view,undefined);
+   return syncNotesIntro(state,view,native.status==='ready'?native.assets.renderer.packs:undefined);
+  }else return syncNotesIntro(state,view,undefined);
  }
  function stockStatus(state:MenuState,context:C){
-  syncStockView(state,context);
+  const notesPaint=syncStockView(state,context);
   const s=state.system,view=getActiveAppView(state);
   return s&&(s.phase==='launch'||s.phase==='app')&&!s.sleeping&&!s.preferences&&!s.dialog&&s.runtime.active&&view
-   ?stockScreens.status(view,s.runtime.active,nativeFonts.get(context)):'inactive' as const;
+   ?stockScreens.status(view,s.runtime.active,nativeFonts.get(context),notesPaint):'inactive' as const;
  }
+ function presentNotesBootCover(state:MenuState):boolean{
+  const s=state.system,view=getActiveAppView(state);
+  if(document.hidden||!s||s.phase!=='app'||s.sleeping||s.preferences||s.dialog||s.runtime.application
+   ||!s.runtime.active||view?.appId!=='game-notes'||view.screen!=='main')return false;
+  const now=view.data?.notesHostMs;
+  return stockScreens.presentNotesBootCover(s.runtime.active,pair=>notesBootCover.present(pair,typeof now==='number'&&Number.isFinite(now)?now:0));
+ }
+ function revokeNotesBootCoverCandidate(){stockScreens.revokeNotesBootCoverCandidate();notesBootCover.pause();}
  const menuIcons=new Map<string,HTMLCanvasElement>();
  const images=new Map<string,HTMLImageElement>();
  // HOME needs the menu icons before its first paint. Entry photos appear only
@@ -193,5 +203,5 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    t.fillStyle=b.fillStyle=`rgba(0,0,0,${alpha})`;t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
   }
  }
- return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,readSuspendedCapture:suspendedCapture.read,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){stockScreens.dispose();notesIntro.dispose();notesBootCover.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
+ return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,presentNotesBootCover,revokeNotesBootCoverCandidate,readSuspendedCapture:suspendedCapture.read,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){document.removeEventListener('visibilitychange',pauseNotesBootCover);stockScreens.dispose();notesIntro.dispose();notesBootCover.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
 }

@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import ts from 'typescript';
+import {createNativeScreenInputGate} from '../src/os/native-screen-input.ts';
+import {createPortfolioState,tickSystem,launch,dispatchSystemEvent,getActiveAppView} from '../src/os/system.ts';
 const url=source=>'data:text/javascript;base64,'+Buffer.from(source).toString('base64');
 const compile=name=>ts.transpileModule(readFileSync(new URL('../src/os/'+name+'.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
 const calls=[];
@@ -19,6 +21,7 @@ source=source.replace("'./stock-native-services'",JSON.stringify(url('export con
 source=source.replace("'./stock-native-helpers'",JSON.stringify(url('export const nativeHelperView=()=>null;export const drawNativeHelperFrame=()=>false;')));
 source=source.replace("'./stock-native-selectors'",JSON.stringify(url('export const nativeSelectorView=()=>null;export const drawNativeSelectorFrame=()=>false;')));
 source=source.replace("'./native-screen-input'",JSON.stringify(url(compile('native-screen-input'))));
+source=source.replace("'./notes-boot-cover'",JSON.stringify(new URL('../src/os/notes-boot-cover.ts',import.meta.url).href));
 const {createStockScreenPresentation,drawStockMediaImage}=await import(url(source));
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 const view=appId=>({appId,screen:'main',heading:'',rows:[],selection:0,footer:{}});
@@ -70,6 +73,86 @@ function paintFixture(options={}){
  return {screen,v,font,top,bottom,draw,drawAt,dispose(){screen.dispose();globalThis.document=old;delete globalThis.__nativeTestDraw;}};
 }
 const nativeAssets=()=>({renderer:{},diagnostics:[],disposals:0,dispose(){this.disposals++;}});
+const notesCover=(owner,steps=0,ticket=1)=>({status:'boot-cover',owner,ticket,steps,upper:{},lower:{},scene9Draw:steps<=20,scene10Draw:steps<=20});
+async function notesFixture(){
+ const f=paintFixture();
+ let state=tickSystem(launch(tickSystem(createPortfolioState(),3001),'game-notes',3010),6200);
+ const owner=state.system.runtime.active,v=getActiveAppView(state),cover=notesCover(owner),terminal=notesCover(owner,21);
+ const draw=pair=>f.screen.draw(f.top,f.bottom,v,owner,f.font,undefined,undefined,0,pair);
+ const status=pair=>f.screen.status(v,owner,f.font,pair);
+ draw(cover);await flush();
+ const assets=nativeAssets();assets.renderer={packs:{'notes-messages':{messages:{}}},draw:()=>true,drawLayout:()=>true};
+ calls[0].resolve(assets);await flush();
+ const present=()=>f.screen.presentNotesBootCover(owner,()=>true);
+ return {...f,owner,v,cover,terminal,draw,status,present,assets,getState:()=>state,dispatch:event=>{state=dispatchSystemEvent(state,event,6300);}};
+}
+for(const activation of ['A','slot touch'])test(`Notes ${activation} before cover completion cannot enter drawing or carry into readiness`,async()=>{
+ const f=await notesFixture(),gate=createNativeScreenInputGate();
+ const button=phase=>({type:'button',command:'open',phase,source:'key-a'});
+ const touch=phase=>({type:'touch',phase,x:42,y:42,pointerId:3});
+ const event=phase=>activation==='A'?button(phase):touch(phase);
+ const send=(input,pair)=>{const decision=gate(input,f.status(pair));if(decision==='pass')f.dispatch(input);return decision;};
+ try{
+  assert.equal(f.draw(f.cover),true,String(f.screen.getFailure()));
+  assert.equal(f.status(f.cover),'loading','a complete covered pair is not input-ready');
+  assert.equal(send(event('down'),f.cover),'block');
+  assert.equal(getActiveAppView(f.getState()).screen,'main');
+  assert.equal(gate({type:'button',command:'home',phase:'down',source:'home'},f.status(f.cover)),'home');
+  assert.equal(gate({type:'button',command:'power',phase:'down',source:'power'},f.status(f.cover)),'pass');
+  assert.equal(f.status(f.terminal),'loading','sampling the terminal does not publish it');
+  f.draw(f.terminal);assert.equal(f.status(f.terminal),'loading','the Canvas terminal still awaits valid renderFrame');
+  assert.equal(f.present(),true);assert.equal(f.status(f.terminal),'ready');
+  assert.equal(send(event('up'),f.terminal),'block','loading input is quarantined through release');
+  assert.equal(getActiveAppView(f.getState()).screen,'main');
+  assert.equal(send(event('down'),f.terminal),'pass');
+  if(activation==='slot touch')assert.equal(send(event('up'),f.terminal),'pass');
+  assert.equal(getActiveAppView(f.getState()).screen,'drawing');
+ }finally{f.dispose();}
+});
+test('Notes terminal input receipt waits for both outward LCD copies, rejects a new ticket, and preserves recovery',async()=>{
+ const f=await notesFixture();
+ try{
+  f.draw(f.cover);
+  const copy=f.bottom.drawImage;f.bottom.drawImage=()=>{throw Error('LCD copy failed');};
+  assert.throws(()=>f.draw(f.terminal),/LCD copy failed/);
+  assert.equal(f.status(f.terminal),'loading');
+  assert.equal(f.present(),false);
+  f.bottom.drawImage=copy;f.draw(f.terminal);assert.equal(f.status(f.terminal),'loading');
+  assert.equal(f.screen.presentNotesBootCover('game-notes:old',()=>true),false);
+  assert.equal(f.screen.presentNotesBootCover(f.owner,()=>false),false,'failed render acknowledgement cannot release input');
+  assert.equal(f.status(f.terminal),'loading');
+  assert.equal(f.present(),true);assert.equal(f.status(f.terminal),'ready');
+  assert.equal(f.present(),false,'a successful candidate receipt is consumed once');
+  f.screen.revokeNotesBootCoverCandidate();assert.equal(f.status(f.terminal),'loading');
+  f.draw(f.terminal);assert.equal(f.present(),true);assert.equal(f.status(f.terminal),'ready');
+  const next=notesCover(f.owner,0,2);assert.equal(f.status(next),'loading');
+  f.assets.renderer.draw=()=>false;
+  assert.equal(f.draw(next),false);assert.equal(f.status(next),'error','recovery readiness supersedes the Notes gate');
+  assert.equal(createNativeScreenInputGate()({type:'command',command:'open'},f.status(next)),'retry');
+ }finally{f.dispose();}
+});
+test('Notes metadata-ready posed publication keeps its existing readiness path',async()=>{
+ const f=await notesFixture();
+ try{
+  f.draw(f.cover);assert.equal(f.status(f.cover),'loading');
+  const posed={status:'posed',title:{},upper:{},lower:{},scene9Draw:true,scene10Draw:true,titleUserVisible:false,ticket:3,steps:0};
+  f.draw(posed);assert.equal(f.status(posed),'ready');
+ }finally{f.dispose();}
+});
+test('Notes receipt cannot survive resource owner teardown or acknowledge after disposal',async()=>{
+ const f=await notesFixture();
+ try{
+  f.draw(f.terminal);
+  f.screen.sync(null);
+  let accepted=0;
+  assert.equal(f.screen.presentNotesBootCover(f.owner,()=>{accepted++;return true;}),false);
+  assert.equal(accepted,0);assert.equal(f.assets.disposals,1);
+  assert.equal(f.status(f.terminal),'loading');
+  f.screen.dispose();
+  assert.equal(f.screen.presentNotesBootCover(f.owner,()=>{accepted++;return true;}),false);
+  assert.equal(accepted,0);
+ }finally{f.dispose();}
+});
 test('absent font and repeated deferred paints show only source black, then publish both native screens',async()=>{
  const f=paintFixture();
  try{

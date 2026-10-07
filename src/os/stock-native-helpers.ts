@@ -305,7 +305,7 @@ function validateApplicationManualRowNumber(layout:NativeLayout,bodyY:number,col
   for(const index of [1,2]){
     const material=layout.materials[index];
     if(!material||keys(material)!=='bufferColor,constantColors,coordinateGenerators,flags,name,tevStages,textureMaps,textureMatrices,textureOnly,unsupported'
-      ||material.name!==(index===1?'PageTitleNumBase':'TextBox_Num')||material.flags!==(index===1?21:0)||material.textureOnly!==false
+      ||material.name!==(index===1?'PageTitleNumBase':'TextBox_Num')||!('flags' in material)||material.flags!==(index===1?21:0)||material.textureOnly!==false
       ||!same(material.bufferColor,index===1?color:[0,0,0,0])||material.constantColors.length!==6
       ||material.constantColors.some(value=>!same(value,[255,255,255,255]))||material.tevStages.length||material.unsupported.length)return fail();
     if(index===2){if(material.textureMaps.length||material.textureMatrices.length||material.coordinateGenerators.length)return fail();continue;}
@@ -313,7 +313,7 @@ function validateApplicationManualRowNumber(layout:NativeLayout,bodyY:number,col
     if(material.textureMaps.length!==1||!map||keys(map)!=='magFilter,minFilter,texture,wrapS,wrapT'
       ||map.texture!==2||map.magFilter!==1||map.minFilter!==1||map.wrapS!==2||map.wrapT!==2||layout.textures[2]!=='BtnPageTitleHead.bclim'
       ||material.textureMatrices.length!==1||!matrix||keys(matrix)!=='rotation,scale,translation'||matrix.rotation!==0||!same(matrix.scale,[1,1])||!same(matrix.translation,[0,0])
-      ||material.coordinateGenerators.length!==1||!generator||keys(generator)!=='reserved,source,type'||generator.reserved!==0||generator.source!==0||generator.type!==0)return fail();
+      ||material.coordinateGenerators.length!==1||!generator||keys(generator)!=='reserved,source,type'||!('reserved' in generator)||generator.reserved!==0||generator.source!==0||generator.type!==0)return fail();
   }
 }
 function prepareApplicationManualRows(renderer:NativeLayoutRenderer,bottom?:CanvasRenderingContext2D){

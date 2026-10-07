@@ -179,3 +179,29 @@ and inspected LCD sheets remain required. Existing own-card/portfolio content,
 destinations remain unchanged adaptations. Native timing, component activation,
 pixels and muted audio remain unaccepted. This is a bounded visible incoming
 cover correction, not universal native applet sequencing or a1:1 claim.
+
+## Material closure correction
+
+Review of helper `72d88effdb36a3b6dfa5c3b25a826b15d6744c49` found that changed
+background/belt picture material indices and some original material fields
+could still pass validation. Those indices feed the actual renderer, so the
+selected pack could produce altered pixels despite passing the helper gate.
+
+The follow-up pins each selected layout's complete original decoded material
+array and exact texture ordering. It covers buffer/constant colors, original
+TEV records and raw words, coordinate generators, blend/alpha comparison,
+texture indices/wrap/filter, transforms and flags. The upper has one material;
+the lower has six. Picture records now require original material indices 0
+for backgrounds, 1 for belt, 4 for applet icon and 2 for HOME icon, plus exact
+UVs and vertex colors. Text material indices remain 5 and 3 respectively.
+Notifications' icon texture ordering differs from Friends and is checked
+against its own source. These constants validate the unchanged resource;
+they never construct or substitute a render material.
+
+The same private-fixture command now passes 43 tests, 0 failures and 0 skips.
+Two new title regressions each reject 37 mutations, including every reported
+review probe. Each mutation also calls the actual helper and proves rejection
+before either LCD draw. Public output, source hashes, plain-text writer,
+controller receipts and all adaptations remain unchanged. Typecheck still
+reports only the previously documented root-owned diagnostics union boundary.
+Publication approval and native comparison remain pending.

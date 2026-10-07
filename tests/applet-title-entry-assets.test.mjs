@@ -139,4 +139,55 @@ for (const appId of ['friends', 'notifications']) {
     assert.deepEqual(styleTable(source).unsupported, [{ kind: 'styleFields', offsets: [0, 4, 8, 12, 16, 20, 40] }]);
     assert.equal(source.incomingTextBinding.styleApplied, false);
   });
+
+  test(appId + ' every selected picture binding and original material record rejects visible mutations before either LCD draw', () => {
+    const upper = pack => pack.layouts[selection.upper], lower = pack => pack.layouts[selection.lower];
+    const mutations = [
+      ['lower background material', pack => pane(lower(pack), 'P_Bg_D_00').picture.material = 1],
+      ['lower belt material', pack => pane(lower(pack), 'P_Belt_00').picture.material = 0],
+      ['upper background material', pack => pane(upper(pack), 'P_Bg_U_00').picture.material = 1],
+      ['applet icon material', pack => pane(lower(pack), 'P_Aplt_00').picture.material = 2],
+      ['HOME icon material', pack => pane(lower(pack), 'P_Home_00').picture.material = 4],
+      ['applet text material', pack => pane(lower(pack), 'T_Aplt_00').text.material = 3],
+      ['HOME text material', pack => pane(lower(pack), 'T_Home_00').text.material = 5],
+      ['lower background buffer', pack => lower(pack).materials[0].bufferColor[0] += 1],
+      ['upper background buffer', pack => upper(pack).materials[0].bufferColor[0] += 1],
+      ['belt texture binding', pack => lower(pack).materials[1].textureMaps[0].texture = 0],
+      ['lower background vertex color', pack => pane(lower(pack), 'P_Bg_D_00').picture.colors[0][0] -= 1],
+      ['upper background vertex color', pack => pane(upper(pack), 'P_Bg_U_00').picture.colors[2][0] += 1],
+      ['belt vertex color', pack => pane(lower(pack), 'P_Belt_00').picture.colors[0][3] = 0],
+      ['applet icon vertex color', pack => pane(lower(pack), 'P_Aplt_00').picture.colors[0][0] -= 1],
+      ['HOME icon vertex color', pack => pane(lower(pack), 'P_Home_00').picture.colors[0][3] = 0],
+      ['lower background constant color', pack => lower(pack).materials[0].constantColors[0][0] += 1],
+      ['upper background constant color', pack => upper(pack).materials[0].constantColors[1][0] += 1],
+      ['belt constant color', pack => lower(pack).materials[1].constantColors[0][0] += 1],
+      ['belt buffer color', pack => lower(pack).materials[1].bufferColor[0] += 1],
+      ['lower background matrix', pack => lower(pack).materials[0].textureMatrices[1].translation[0] = .25],
+      ['upper background matrix', pack => upper(pack).materials[0].textureMatrices[0].scale[0] = 2],
+      ['belt matrix', pack => lower(pack).materials[1].textureMatrices[1].translation[1] = .5],
+      ['belt coordinate generator', pack => lower(pack).materials[1].coordinateGenerators[1].source = 1],
+      ['background coordinate generator', pack => upper(pack).materials[0].coordinateGenerators[1].source = 0],
+      ['belt TEV', pack => lower(pack).materials[1].tevStages[0].color.sources[0] = 0],
+      ['upper background TEV', pack => upper(pack).materials[0].tevStages[3].color.sources[0] = 0],
+      ['lower background TEV', pack => lower(pack).materials[0].tevStages[0].alpha.mode = 1],
+      ['background blend', pack => lower(pack).materials[0].colorBlend.sourceFactor = 1],
+      ['belt alpha compare', pack => lower(pack).materials[1].alphaCompare.reference = 1],
+      ['belt texture wrapping', pack => lower(pack).materials[1].textureMaps[1].wrapT = 0],
+      ['background texture filtering', pack => upper(pack).materials[0].textureMaps[0].minFilter = 0],
+      ['icon texture filtering', pack => lower(pack).materials[4].textureMaps[0].magFilter = 0],
+      ['icon TEV addition', pack => lower(pack).materials[4].tevStages.push(structuredClone(lower(pack).materials[1].tevStages[0]))],
+      ['text texture-only flag', pack => lower(pack).materials[5].textureOnly = true],
+      ['background record addition', pack => upper(pack).materials[0].extra = true],
+      ['material array addition', pack => lower(pack).materials.push(structuredClone(lower(pack).materials[0]))],
+      ['texture closure ordering', pack => lower(pack).textures.reverse()],
+    ];
+    for (const [name, mutate] of mutations) {
+      const pack = structuredClone(source); mutate(pack);
+      assert.throws(() => validateAppletTitleEntryAssets(pack, appId), /Unsupported/, name);
+      let draws = 0;
+      const renderer = { packs: { [selection.alias]: pack }, draw() { draws++; return true; } };
+      assert.throws(() => drawAppletTitleEntry(renderer, {}, {}, { appId, frame: 0 }), /Unsupported/, name);
+      assert.equal(draws, 0, name + ' cannot partially draw a changed source closure');
+    }
+  });
 }

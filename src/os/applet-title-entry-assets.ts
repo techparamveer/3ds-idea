@@ -94,6 +94,50 @@ function validateTracks(clip: NativeAnimation, lower: boolean, appId: AppletTitl
     throw Error('Unsupported title incoming tracks or bindings');
 }
 
+function validateMaterials(layout: NativeLayout, lower: boolean, appId: AppletTitleEntryAppId) {
+  // Exact decoded source records for validation, never replacement materials.
+  const colors = (first: number[], second = [255, 255, 255, 255]) => [first, second, ...Array.from({ length: 4 }, () => [255, 255, 255, 255])];
+  const matrix = (scale = [1, 1], translation = [0, 0]) => ({ rotation: 0, scale, translation });
+  const map = (texture: number, wrapS: number, wrapT: number) => ({ magFilter: 1, minFilter: 1, texture, wrapS, wrapT });
+  const generator = (source: number) => ({ reserved: 0, source, type: 0 });
+  const combiner = (mode: number, sources: number[], operands = [0, 0, 0]) => ({ mode, operands, savePrevious: false, scale: 1, sources });
+  const blend = { destinationFactor: 5, logic: 0, operation: 1, sourceFactor: 4 }, alphaCompare = { function: 7, reference: 0 };
+  const backgroundStages = [
+    { alpha: combiner(0, [0, 4, 4]), color: combiner(0, [0, 4, 4]), constantSelectors: 17, rawWords: [1088, 1088, 17] },
+    { alpha: combiner(4, [4, 7, 6]), color: combiner(4, [4, 7, 6]), constantSelectors: 17, rawWords: [67110516, 67110516, 17] },
+    { alpha: combiner(1, [5, 6, 6]), color: combiner(4, [4, 6, 1], [0, 0, 2]), constantSelectors: 34, rawWords: [69206372, 16778853, 34] },
+    ...(lower ? [] : [{ alpha: combiner(0, [6, 6, 6]), color: combiner(4, [4, 6, 5]), constantSelectors: 34, rawWords: [67110244, 1638, 34] }]),
+  ];
+  const background = {
+    alphaCompare, bufferColor: [210, 210, 200, 0], colorBlend: blend,
+    constantColors: colors([225, 225, 230, 255], [245, 245, 245, 255]), coordinateGenerators: [generator(0), generator(1)],
+    flags: lower ? 1770 : 1834, name: lower ? 'P_Bg_D_00' : 'P_Bg_U_00', tevStages: backgroundStages,
+    textureMaps: [map(1, 0, 1), map(0, 2, 2)], textureMatrices: [matrix(), matrix()], textureOnly: false, unsupported: [],
+  };
+  const belt = {
+    alphaCompare, bufferColor: [0, 0, 0, 0], colorBlend: blend, constantColors: colors([160, 160, 160, 255]),
+    coordinateGenerators: [generator(0), generator(0), generator(0)], flags: 1727, name: 'P_Belt_00',
+    tevStages: [
+      { alpha: combiner(1, [0, 2, 4]), color: combiner(4, [4, 0, 1], [0, 0, 2]), constantSelectors: 17, rawWords: [69206276, 16778272, 17] },
+      { alpha: combiner(1, [5, 6, 6]), color: combiner(1, [5, 6, 6]), constantSelectors: 17, rawWords: [16778853, 16778853, 17] },
+    ],
+    textureMaps: [map(2, 0, 0), map(3, 0, 2), map(4, 0, 0)], textureMatrices: [matrix(), matrix([1, 2], [0, .625]), matrix()], textureOnly: false, unsupported: [],
+  };
+  const icon = (name: string, bufferColor: number[], texture: number, wrapT: number) => ({
+    bufferColor, constantColors: colors([255, 255, 255, 255]), coordinateGenerators: [generator(0)], flags: 21, name,
+    tevStages: [], textureMaps: [map(texture, 2, wrapT)], textureMatrices: [matrix()], textureOnly: false, unsupported: [],
+  });
+  const text = (name: string) => ({
+    bufferColor: [0, 0, 0, 0], constantColors: colors([50, 50, 50, 255]), coordinateGenerators: [], flags: 0, name,
+    tevStages: [], textureMaps: [], textureMatrices: [], textureOnly: false, unsupported: [],
+  });
+  const materials = lower ? [background, belt, icon('P_Home_00', [160, 160, 160, 0], appId === 'friends' ? 6 : 5, 2), text('T_Home_00'),
+    icon('P_Aplt_00', appId === 'friends' ? [230, 135, 60, 0] : [55, 205, 165, 0], appId === 'friends' ? 5 : 6, 0), text('T_Aplt_00')] : [background];
+  const textures = ['BgLgt.bclim', 'BgLine.bclim', ...(lower ? ['LncApltBelt_00.bclim', 'LncApltBeltLine_00.bclim', 'LncApltBeltMask_00.bclim',
+    ...(appId === 'friends' ? ['LncApltPictFrd_00.bclim', 'LncApltPictHome_00.bclim'] : ['LncApltPictHome_00.bclim', 'LncApltPictNews_00.bclim'])] : [])];
+  if (!exactMetadata(layout.materials, materials) || !exactMetadata(layout.textures, textures)) throw Error('Unsupported title incoming original material closure');
+}
+
 function validateGeometry(layout: NativeLayout, lower: boolean, appId: AppletTitleEntryAppId) {
   const width = lower ? 320 : 400, background = lower ? 'P_Bg_D_00' : 'P_Bg_U_00';
   const group = lower ? 'G_Scene_00' : 'Group_00', names = lower ? [background, 'P_Belt_00', 'P_Aplt_00', 'T_Aplt_00', 'P_Home_00', 'T_Home_00'] : [background];
@@ -109,23 +153,25 @@ function validateGeometry(layout: NativeLayout, lower: boolean, appId: AppletTit
   const root = nativePane('RootPane', ['RootPane'], [width, 240], [0, 0, 0], 4, 1);
   const bg = nativePane(background, ['RootPane', background], [width, 240], [0, 0, 0], 4, 1);
   if (layout.roots.length !== 1 || !exactMetadata(root.children.map(child => child.name), lower ? [background, 'P_Belt_00'] : [background]) || bg.children.length
-    || !bg.picture || !exactMetadata(bg.picture.uvSets, [[0, 0, 1, 0, 0, 30, 1, 30], [0, 0, 2, 0, 0, 2, 2, 2]])
-    || !exactMetadata(bg.picture.colors, [[255, 255, 255, 255], [255, 255, 255, 255], lower ? [255, 255, 255, 255] : [0, 0, 0, 255], lower ? [255, 255, 255, 255] : [0, 0, 0, 255]]))
+    || !exactMetadata(bg.picture, { material: 0, uvSets: [[0, 0, 1, 0, 0, 30, 1, 30], [0, 0, 2, 0, 0, 2, 2, 2]],
+      colors: [[255, 255, 255, 255], [255, 255, 255, 255], lower ? [255, 255, 255, 255] : [0, 0, 0, 255], lower ? [255, 255, 255, 255] : [0, 0, 0, 255]] }))
     throw Error('Unsupported title incoming background geometry');
   if (!lower) return;
   const belt = nativePane('P_Belt_00', ['RootPane', 'P_Belt_00'], [480, 64], [0, -4, 0], 4, 3);
-  if (!belt.picture || !exactMetadata(belt.children.map(child => child.name), ['P_Aplt_00', 'P_Home_00'])
-    || !exactMetadata(belt.picture.uvSets, [[0, 0, 1, 0, 0, 1, 1, 1]])) throw Error('Unsupported title incoming belt geometry');
+  if (!exactMetadata(belt.children.map(child => child.name), ['P_Aplt_00', 'P_Home_00'])
+    || !exactMetadata(belt.picture, { material: 1, uvSets: [[0, 0, 1, 0, 0, 1, 1, 1]], colors: Array.from({ length: 4 }, () => [255, 255, 255, 255]) }))
+    throw Error('Unsupported title incoming belt geometry');
   for (const name of ['P_Aplt_00', 'P_Home_00']) {
     const textName = name === 'P_Aplt_00' ? 'T_Aplt_00' : 'T_Home_00';
     const icon = nativePane(name, ['RootPane', 'P_Belt_00', name], [32, 32], [-152, 4, 0], 3, name === 'P_Aplt_00' ? 0 : 1);
     const title = nativePane(textName, ['RootPane', 'P_Belt_00', name, textName], [270, 32], [34, 0, 0], 3, 1);
     if (!icon.picture || !exactMetadata(icon.children.map(child => child.name), [textName]) || title.children.length
-      || !exactMetadata(icon.picture.uvSets, [[0, 0, 2, 0, 0, 1, 2, 1]])) throw Error('Unsupported title incoming icon geometry');
+      || !exactMetadata(icon.picture, { material: name === 'P_Aplt_00' ? 4 : 2, uvSets: [[0, 0, 2, 0, 0, 1, 2, 1]], colors: Array.from({ length: 4 }, () => [255, 255, 255, 255]) }))
+      throw Error('Unsupported title incoming icon geometry');
     const text = title.text, material = layout.materials[icon.picture.material], textMaterial = text && layout.materials[text.material];
     const texture = name === 'P_Aplt_00' ? (appId === 'friends' ? 'LncApltPictFrd_00.bclim' : 'LncApltPictNews_00.bclim') : 'LncApltPictHome_00.bclim';
     const tint = name === 'P_Aplt_00' ? (appId === 'friends' ? [230, 135, 60, 0] : [55, 205, 165, 0]) : [160, 160, 160, 0];
-    if (!text || text.font !== 0 || !exactMetadata(text.size, [22.5, 27]) || text.alignment !== 3 || text.lineAlignment !== 0
+    if (!text || text.material !== (name === 'P_Aplt_00' ? 5 : 3) || text.font !== 0 || !exactMetadata(text.size, [22.5, 27]) || text.alignment !== 3 || text.lineAlignment !== 0
       || text.characterSpacing !== 0 || text.lineSpacing !== 0 || text.messageStyle !== undefined
       || !exactMetadata(text.topColor, [255, 255, 255, 255]) || !exactMetadata(text.bottomColor, [255, 255, 255, 255])
       || !textMaterial || !exactMetadata(textMaterial.constantColors[0], [50, 50, 50, 255])
@@ -177,6 +223,7 @@ export function validateAppletTitleEntryAssets(pack: NativePack, appId: AppletTi
       || !('sourceFrameRange' in clip) || !Array.isArray(clip.sourceFrameRange) || clip.sourceFrameRange.length !== 2
       || clip.sourceFrameRange[0] !== 20 || clip.sourceFrameRange[1] !== 40) throw Error(`Unsupported title incoming clip ${name}`);
     validateTracks(clip, width === 320, appId);
+    validateMaterials(layout, width === 320, appId);
     validateGeometry(layout, width === 320, appId);
     if (!exactMetadata(clip.groups, [width === 320 ? 'G_Scene_00' : 'Group_00'])) throw Error('Unsupported title incoming clip group');
     if (width === 320) {

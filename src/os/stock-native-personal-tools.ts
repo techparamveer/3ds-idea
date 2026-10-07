@@ -8,10 +8,11 @@ import { nativeMessageOverride, sampleNativeTrack, type NativePack, type NativeP
 import { notesCaptureView, NOTES_SWITCH_LAST_FRAME } from './stock-screen-layout';
 
 const notesPrefix='packs/game-notes/';
+const notesEmptyThumbnail='runtime-empty-note-thumbnail';
 export const personalNotesPacks:readonly NativeTitlePackRequest[]=[
   {url:notesPrefix+'memo-Bg_U_00-arc-l.json',alias:'notes-upper',layouts:['Bg_U_00'],animations:[]},
   {url:notesPrefix+'memo-Bg_D_00-arc-l.json',alias:'notes-lower',layouts:['Bg_D_00'],animations:[]},
-  {url:notesPrefix+'memo-MemoListDown-arc-l.json',alias:'notes-list',layouts:['MemoListDown'],animations:['MemoListDown_Base','MemoListDown_SceneIn']},
+  {url:notesPrefix+'contents/0000-00000007/memo-MemoListDown-empty-thumbnail.json',alias:'notes-list',layouts:['MemoListDown'],animations:['MemoListDown_Base','MemoListDown_SceneIn'],textures:[notesEmptyThumbnail]},
   {url:notesPrefix+'memo-MemoTutorialUp-arc-l.json',alias:'notes-help',layouts:['MemoTutorialUp'],animations:['MemoTutorialUp_Base','MemoTutorialUp_SceneIn']},
   {url:notesPrefix+'memo-ApltBoot_U_00-arc-l.json',alias:'notes-aplt-u',layouts:['ApltBoot_U_00'],animations:['ApltBoot_U_00_SceneIn']},
   {url:notesPrefix+'memo-ApltBoot_D_00-arc-l.json',alias:'notes-aplt-d',layouts:['ApltBoot_D_00'],animations:['ApltBoot_D_00_SceneIn']},
@@ -268,7 +269,7 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
   if(view.appId!=='game-notes'||view.screen!=='main')return false;
   const message=(label:string)=>nativeMessageOverride(renderer.packs['notes-messages'],'message',label,'');
   const selection=Math.max(0,Math.min(15,Math.floor(view.selection))),column=selection%4,row=Math.floor(selection/4);
-  const overrides:PaneOverrides={
+  const overrides:PaneOverrides={...notesEmptyThumbnailOverrides(renderer.packs['notes-list']),
     T_BtnB_00:message('0100Exitbtn'),T_BtnF_00:message('0100Exitbtn'),
     N_CsrMemo:{translation:[-118+column*79,90-row*51,0]},
   };
@@ -283,6 +284,17 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
   else if(options.notesIntro?.status==='pending')
     okay=renderer.draw(bottom,'notes-aplt-d','ApltBoot_D_00',{bindings:[{name:'ApltBoot_D_00_SceneIn',frame:0}],overrides:{T_Aplt_00:message('lau_title_memo')}})&&okay;
   return okay;
+}
+
+/** 0x1037ec initializes all 16 slots; 0x13d578/0x13d580 replaces their
+ * archive dummy sampler with each initialized runtime thumbnail buffer. */
+export function notesEmptyThumbnailOverrides(list:NativePack):PaneOverrides{
+  const texture=list?.textures?.[notesEmptyThumbnail];
+  if(!texture||texture.width!==128||texture.height!==64||texture.picaFormat!==3)
+    throw new Error('Missing or unsupported native Notes empty thumbnail');
+  return Object.fromEntries(Array.from({length:16},(_,slot)=>[
+    'P_BtnMemoThum'+String(slot).padStart(2,'0'),{textureBindings:{0:notesEmptyThumbnail}},
+  ]));
 }
 
 /** Live list upper: composed title/HUD under ApltBoot while scene-10 draw is

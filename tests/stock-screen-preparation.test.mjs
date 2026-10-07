@@ -90,7 +90,7 @@ function paintFixture(options={}){
 }
 const nativeAssets=()=>({renderer:{},diagnostics:[],disposals:0,dispose(){this.disposals++;}});
 const notesPack=name=>JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/game-notes/'+name,import.meta.url),'utf8'));
-const notesAssets=()=>{const assets=nativeAssets();assets.renderer={packs:{'notes-messages':notesPack('messages-and-loose.json'),'notes-image':notesPack('memo-ImageScreenUp-arc-l.json'),'notes-hud-messages':notesPack('contents/0000-00000007/hud-messages.json')},draw:()=>true,drawLayout:()=>true};return assets;};
+const notesAssets=()=>{const assets=nativeAssets();assets.renderer={packs:{'notes-list':notesPack('contents/0000-00000007/memo-MemoListDown-empty-thumbnail.json'),'notes-messages':notesPack('messages-and-loose.json'),'notes-image':notesPack('memo-ImageScreenUp-arc-l.json'),'notes-hud-messages':notesPack('contents/0000-00000007/hud-messages.json')},draw:()=>true,drawLayout:()=>true};return assets;};
 const notesCover=(owner,steps=0,ticket=1)=>({status:'boot-cover',owner,ticket,steps,upper:{},lower:{},scene9Draw:steps<=20,scene10Draw:steps<=20});
 async function notesFixture(){
  const f=paintFixture();

@@ -28,6 +28,7 @@ const json = path => JSON.parse(read(path));
 const pickup = { url: 'packs/home/launcher.json', alias: 'pickup', layouts: ['LncIconPickUp_00'], animations: ['LncIconPickUp_00_Scale'] };
 const blank = { ...pickup, alias: 'blank', layouts: ['LncIconPickUpBlank_00'], animations: ['LncIconPickUpBlank_00_Scale'] };
 const banner = { url: 'packs/home/banner.json', alias: 'banner', layouts: ['BnrDsTitle_00'], animations: [] };
+const emptyNotes = { url: 'packs/game-notes/contents/0000-00000007/memo-MemoListDown-empty-thumbnail.json', alias: 'notes-list', layouts: ['MemoListDown'], animations: ['MemoListDown_Base', 'MemoListDown_SceneIn'], textures: ['runtime-empty-note-thumbnail'] };
 const deferred = () => { let resolve, reject; const promise = new Promise((a, b) => { resolve = a; reject = b; }); return { promise, resolve, reject }; };
 function font() { return { disposals: 0, dispose() { this.disposals++; } }; }
 async function fixture(run) {
@@ -50,6 +51,27 @@ async function fixture(run) {
   };
   try { await run(context); } finally { globalThis.fetch = oldFetch; }
 }
+
+test('Notes derived empty thumbnail is loaded before readiness and missing selected bytes fail', async () => {
+  await fixture(async f => {
+    const resources = await f.load([emptyNotes], undefined, '0004003000009c02');
+    const name = emptyNotes.textures[0], record = f.pack(emptyNotes.url).textures[name];
+    assert.ok(f.fetched.some(entry => entry.path === record.url));
+    assert.deepEqual([...resources.renderer.textures['notes-list'].get(name).data.slice(0, 4)], [231, 231, 231, 255]);
+    resources.dispose();
+  });
+  await fixture(async f => {
+    delete f.pack(emptyNotes.url).textures[emptyNotes.textures[0]];
+    await assert.rejects(f.load([emptyNotes], undefined, '0004003000009c02'), /Missing native title texture notes-list\/runtime-empty-note-thumbnail/);
+    assert.ok(!f.fetched.some(entry => entry.path.startsWith('textures/')));
+  });
+  await fixture(async f => {
+    const record = f.pack(emptyNotes.url).textures[emptyNotes.textures[0]];
+    f.hook = (entry, fallback) => entry.path === record.url ? new Response(null, { status: 404 }) : fallback();
+    await assert.rejects(f.load([emptyNotes], undefined, '0004003000009c02'), /Native title texture HTTP 404/);
+    assert.ok(f.fetched.every(entry => entry.signal.aborted));
+  });
+});
 
 test('real resources load only explicit views/animations, deduplicate packs and all14 pickup textures, and dispose idempotently', async () => {
   await fixture(async f => {

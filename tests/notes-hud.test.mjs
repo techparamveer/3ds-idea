@@ -107,7 +107,7 @@ test('selected HUD message loss and an unsupported calendar format fail without 
 test('a failed own-HUD draw fails the pair while independent covers and capture selection stay unchanged', () => {
   const top = {}, bottom = {}, calls = [];
   const image = json('packs/game-notes/memo-ImageScreenUp-arc-l.json');
-  const renderer = { packs: { 'notes-hud-messages': messages, 'notes-image': image, 'notes-messages': json('packs/game-notes/messages-and-loose.json') },
+  const renderer = { packs: { 'notes-list': json('packs/game-notes/contents/0000-00000007/memo-MemoListDown-empty-thumbnail.json'), 'notes-hud-messages': messages, 'notes-image': image, 'notes-messages': json('packs/game-notes/messages-and-loose.json') },
     draw(ctx, alias) { calls.push([ctx, alias]); return alias !== 'notes-hud'; },
     drawLayout(ctx, alias) { calls.push([ctx, alias]); return true; } };
   const intro = { status: 'boot-cover', owner: 'notes:1', steps: 8, ticket: 1, upper: {}, lower: {}, scene9Draw: true, scene10Draw: true };

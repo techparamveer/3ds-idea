@@ -172,3 +172,120 @@ the original settled HUD SceneIn endpoint; its independent entry timing remains
 open. Common outgoing-HOME/loading cover ordering and timing remain the other
 worker's scope. Lower note-face brightness remains an unexplained failure.
 Strict 1:1 AN-01 acceptance is not claimed.
+
+## Empty Thumbnail Follow-Up
+
+This is the single bounded source-to-visible slice authorized after the HUD
+chain was integrated as `0281758` and `21d4329`. Worker base is `1a3816a`;
+the HUD-only source gap above records the earlier audit, not this follow-up's
+result. The original firmware input hash remains unchanged.
+
+Coordinator production runtime `61f8b4ee9318b929f9b944eac59592e7c05e328a`
+captured two ordinary Notes opens (92/95 pairs) and inspected the console.
+First-ready pair 035 uses the same immutable native endpoint above. The
+empty-mask static comparison is
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/comparisons/notes-list-61f8b4e/report.json`,
+SHA-256 `1bdfe323dd97209cec70a6451d4813fda34d00e9a68748c3c8e8bcba368aa794`.
+Coordinator inspected both sheets. Upper fell from 9,198 to 1,263 changed
+pixels, all remaining live calendar/network/battery state; its body is unchanged.
+Lower remains 46,427 above threshold 2, maximum delta 31, byte-identical
+browser SHA-256 `2ea6c8ec63de1a85035e22af2ee21be72da514317e8777d85b6569267e7876a8`.
+This retained lower defect is the follow-up target, not a color input.
+
+### Established Original Bytes
+
+The same verified Notes code establishes the initialized empty buffer:
+
+| Source Address | Binding / Byte Rule |
+| --- | --- |
+| `0x13a008..0x13a044`, item constructor `0x189980` | Context owns 16 eight-byte items at `+0x48 + slot*8`; each starts with null full/thumbnail pointers. |
+| `0x1037ec..0x103824` | Iterates all 16 items, obtains allocation size from `0x109728`, and invokes initializer `0x109584` at `0x103808`. |
+| `0x109584..0x109718` | Assigns full-note pointer at item +0, thumbnail pointer at +4, then halfword-fills both complete padded allocations with `0xe73c`. Full loop is `0x109650..0x1096a0`; thumbnail loop is `0x1096c8..0x109714`. |
+| `0x10971c`, `0x109720`, `0x109724` | Original literals are pixel type `0x8363`, format `0x6754`, fill `0xe73c`; ExeFS code offsets are `0x971c`, `0x9720`, `0x9724`. |
+| `0x15881c..0x1588ec` | Format `0x6754` and type `0x8363` use the packed RGB565 two-byte path. |
+| `0x158900..0x158948`, table `0x1aac20` | Rounds dimensions upward through 8,16,32,64,128,256,512,1024. Thumbnail logical size 68 by 42 becomes storage 128 by 64; full note 320 by 216 becomes 512 by 256. Table ExeFS offset is `0xaac20`. |
+| `0x14ef50..0x14ef58` | Getter returns context +0x48 +slot*8, without synthesizing colors. |
+| `0x13d4e8..0x13d654`, binder `0x14ead0..0x14ec10` | Fetches item +4 and binds its original thumbnail to `P_BtnMemoThum%02d`; full note binding follows. The binder retains logical and padded dimensions and uploads the runtime bytes. |
+| `0x103880..0x103968` | Later `memo%02d` persisted-note reads may replace initialized buffers through `0x116800`. This delivery never reads or publishes those private saved bytes. |
+
+`publish_notes_empty_thumbnail.py` hash-gates the complete original code before
+reading its literal/table bytes. It reproduces the initializer's uniform little-
+endian halfwords `3c e7`, not ARM execution or captured memory. Initialized
+thumbnail bytes SHA-256 is
+`bc25313ab62de0cf272c48ed57aeb681e156e08ca596cd3ec589677a9317ba76`.
+Existing `texture.py` RGB565 decoding replicates channel bits: red/blue 28 map
+to `(28 << 3) | (28 >> 2)` = 231, green 57 maps to `(57 << 2) | (57 >> 4)` =
+231, alpha 255. Every delivered texel is therefore `(231,231,231,255)`.
+No native PNG color or measured delta participates in this algorithm.
+
+### Delivery and Painter
+
+| Visible Element | Manifest Key and Source | Delivery SHA-256 |
+| --- | --- | --- |
+| Original list layout/clips plus one initialized runtime texture descriptor | `packs/game-notes/contents/0000-00000007/memo-MemoListDown-empty-thumbnail.json`; original `memo/MemoListDown.arc.l` and `ExeFS/code.bin` | `34da4da5a90b2bb632529dcbd49c4e783c0babdb6f5286eda022ad26f877ec48` |
+| All 16 initial `P_BtnMemoThum00..15` faces | `textures/game-notes/contents/0000-00000007/empty-note-thumbnail.png`; `ExeFS/code.bin` initializer/literal/table above | `a8524f50ce85f1024d992f01c0fc425639b8904d41a7e247ef3c84c5a8fb05a6` |
+
+Source archive SHA-256 is
+`8a52b8cec00b99c4d68fe0ec6dc6d99908ed825bcec9c29aab5a1fa5a428edfe`.
+Original delivery SHA-256 is
+`6718e7beb40be0079a49fae9e5c2552b35a741028a5cab15f720ce995b3d118d`.
+The derived pack copies its layout, all clips, messages and existing texture
+mappings unchanged. Existing public resources and their manifest records are
+untouched. Only a new Notes pack binding and two new records are added; other
+title metadata and global manifest fields are unchanged. Both records identify
+the original title/version/content, code hash and conversion routine, including
+source address and file-offset fields. No executable is public.
+
+The converter is `ctr-native-web` 1.5.4 with the existing texture decoder script
+hash `399be43d43fc6d92363386c0a5347135e875ec35edca8d1a1e36145366aed38f`.
+Runtime binding converter is `notes-initial-empty-thumbnail-rgb565` version 1,
+publisher SHA-256 `cd23016f1ddd743f77564bbb212329a1bfe87deff282b480e5c11236fc891274`.
+Result manifest SHA-256 is
+`4036c07ede0996fe97875b318a0bd1cf005a2be9a63c591fab1681e878e2ec71`.
+Private publication report is
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/notes-empty-thumbnail-residual/notes-empty-thumbnail-publication.json`,
+SHA-256 `ed85e97aad6385a18996bcd4cc029806067582e8dcdfda4a0aa199683a33163d`.
+
+The Notes readiness descriptor explicitly requests `runtime-empty-note-thumbnail`
+from the derived list pack. Missing texture metadata or PNG transport fails
+before a usable renderer/pair; wrong storage dimensions or format also fail
+in the painter helper. The list draw clones only sampler 0 for the 16 original
+thumbnail panes. Original geometry, vertex colors, alpha, cursor, source clips,
+upper content and scene-9/scene-10 ordering remain unchanged. Drawing and
+suspended capture behavior remain unchanged. No shared scene/screen/controller
+file or publication receipt API changes, and no further integration hook is needed.
+
+### Verification and Boundary
+
+113 focused Node tests pass, including real title preparation, selected texture
+loss/HTTP404 failure, exact source-buffer PNG bytes, all 16 posed samplers,
+unmodified source geometry/colors, failed list pair and cover ordering. Six
+Python tests pass with the private code path supplied: hash rejection, exact
+full/thumbnail initialized bytes, original layout/clip preservation, provenance,
+no writes on wrong code, and idempotent additive publication. The four HUD
+publication tests, nonincremental typecheck and diff checks also pass.
+Two related Camera/eShop lifecycle test transports failed before execution
+because their personal-tools stubs omitted the earlier HUD delivery's
+`notesHudClock` export. Coordinator already fixed these in `59fb1d5`; that
+reviewed commit is the fixture dependency on this worker branch. Duplicate
+worker edits were removed. The thumbnail commit does not author fixture or
+Camera/eShop runtime changes; their focused rerun passes 12 additional tests.
+
+```sh
+node --test --test-reporter=spec --test-skip-pattern='source-render specimens' tests/notes-empty-thumbnail.test.mjs tests/notes-hud.test.mjs tests/notes-boot-cover.test.mjs tests/notes-lower-intro.test.mjs tests/notes-no-software-list.test.mjs tests/stock-screen-preparation.test.mjs tests/native-title-assets.test.mjs tests/notes-suspended-capture.test.mjs tests/notes-capture-switch.test.mjs
+NOTES_SOURCE_CODE=/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/notes-no-software-audit/exefs/code.bin python3 -B tests/test_notes_empty_thumbnail.py
+python3 -B tests/test_notes_hud.py
+node --test --test-reporter=spec tests/camera-gallery-lifecycle.test.mjs tests/eshop-welcome-lifecycle.test.mjs
+node node_modules/typescript/bin/tsc --noEmit --incremental false
+git diff --check
+```
+
+Source-identified, delivered, implemented and focused-tested are established.
+This delivery is not browser-inspected or native-compared by the worker. No GUI,
+server, full suite or build was run. Coordinator must recapture first-ready
+against the immutable native endpoint with the empty mask and inspect the
+result. Exact residual counts and native sampling parity remain unproven.
+The source gap for initial empty bytes is closed; persisted/nonempty thumbnails
+and legacy stroke-to-thumbnail conversion remain unsupported adaptations, not
+claimed native functionality. Existing history, profile/clock and capture
+adaptations remain. Strict whole-scenario AN-01 acceptance is still open.

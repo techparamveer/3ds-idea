@@ -31,7 +31,7 @@ const graphicsDependencies={
  './bitmap-font':'export const measureBitmapText=()=>({width:0});',
  './notes-suspended-capture':"export const createSuspendedApplicationCapture=()=>({sync(){},record(){},read:()=>({status:'none'}),dispose(){}});",
  './notes-metadata-session':"export const createNotesMetadataSession=()=>({sync(){},getState:()=>({status:'none'}),dispose(){}});",
- './notes-intro-publication':'export const notesIntroSourcesFromPacks=()=>undefined;',
+ './notes-intro-publication':'export const notesIntroSourcesFromPacks=packs=>packs?{}:undefined;',
  './notes-intro-session':'export const createNotesIntroSession=()=>({sync(){},compose(){},getState:()=>({}),dispose(){}});',
 };
 for(const [dependency,stub]of Object.entries(graphicsDependencies))graphicsSource=graphicsSource.replace(`'${dependency}'`,JSON.stringify(url(stub)));
@@ -104,6 +104,43 @@ async function notesFixture(){
  const present=()=>f.screen.presentNotesBootCover(owner,()=>true);
  return {...f,owner,v,cover,terminal,draw,status,present,assets,getState:()=>state,dispatch:event=>{state=dispatchSystemEvent(state,event,6300);}};
 }
+test('prepared Notes pair is independent of local input readiness but requires both outward copies and current resources',async()=>{
+ const f=await notesFixture();
+ try{
+  assert.equal(f.screen.preparedPair(f.owner),undefined);
+  f.draw(f.cover);const first=f.screen.preparedPair(f.owner);assert.ok(first);assert.equal(f.status(f.cover),'loading');
+  assert.equal(f.screen.preparedPair('game-notes:old'),undefined);
+  f.draw(f.cover);assert.notEqual(f.screen.preparedPair(f.owner),first,'even a cached paint binds the current pair copies');
+  const copy=f.bottom.drawImage;f.bottom.drawImage=()=>{throw Error('copy failed');};
+  assert.throws(()=>f.draw(f.cover),/copy failed/);assert.equal(f.screen.preparedPair(f.owner),undefined);
+  f.bottom.drawImage=copy;f.draw(f.cover);assert.ok(f.screen.preparedPair(f.owner));
+  f.assets.renderer.draw=()=>false;assert.equal(f.draw(notesCover(f.owner,1)),false);assert.equal(f.screen.preparedPair(f.owner),undefined);
+  assert.equal(f.screen.retry(),true);assert.equal(f.screen.preparedPair(f.owner),undefined);
+  f.screen.sync(null);assert.equal(f.screen.preparedPair(f.owner),undefined);
+  f.screen.dispose();assert.equal(f.screen.preparedPair(f.owner),undefined);
+ }finally{f.dispose();}
+});
+test('actual graphics pause Notes local source tracks beneath common cover and expose a prepared pair without consuming the local gate',async()=>{
+ const f=paintFixture();Object.assign(globalThis.document,{hidden:false,addEventListener(){},removeEventListener(){}});
+ const graphics=createPortfolioGraphics();let state=tickSystem(launch(tickSystem(createPortfolioState(),3001),'game-notes',3010),6200);
+ const owner=state.system.runtime.active,layouts=[];
+ const at=host=>{const runtime=state.system.runtime,instance=runtime.instances[owner];state={...state,system:{...state.system,runtime:{...runtime,instances:{...runtime.instances,[owner]:{...instance,state:{...instance.state,notesHostMs:host}}}}}};};
+ const draw=()=>graphics.overlay(f.top,f.bottom,state,6200,false,new Date(2026,8,22,20,18));
+ setPortfolioFont(f.top,f.font);setPortfolioFont(f.bottom,f.font);
+ try{
+  graphics.setAppletEntryCovered(owner);graphics.stockStatus(state,f.top);await flush();
+  const assets=notesAssets();Object.assign(assets.renderer.packs,{'notes-aplt-u':notesPack('memo-ApltBoot_U_00-arc-l.json'),'notes-aplt-d':notesPack('memo-ApltBoot_D_00-arc-l.json')});
+  assets.renderer.drawLayout=(_ctx,alias,_name,layout)=>{if(alias==='notes-aplt-u')layouts.push(layout);return true;};
+  calls[0].resolve(assets);await flush();
+  for(let step=0;step<25;step++){at(step*1000/60);draw();assert.ok(graphics.preparedStockPair(state));assert.equal(graphics.presentNotesBootCover(state),false);}
+  assert.equal(layouts.length,0,'paused local controller emits no source pose beneath the common cover');
+  at(5000);graphics.setAppletEntryCovered(null);draw();const first=layouts.at(-1);assert.ok(first);
+  assert.equal(graphics.stockStatus(state,f.top),'loading');assert.ok(graphics.preparedStockPair(state),'local input readiness cannot deadlock the outer handoff');
+  assert.equal(graphics.presentNotesBootCover(state),true);at(5000+1000/60+.01);draw();assert.notDeepEqual(layouts.at(-1),first);
+  graphics.setAppletEntryCovered(owner);at(10000);draw();assert.equal(graphics.presentNotesBootCover(state),false);
+  graphics.setAppletEntryCovered(null);draw();assert.deepEqual(layouts.at(-1),layouts.at(-2),'hidden interval repeats the last source pose');
+ }finally{graphics.dispose();setPortfolioFont(f.top);setPortfolioFont(f.bottom);f.dispose();}
+});
 test('Notes HUD clock repaints a settled pair only when visible calendar or charging phase changes',async()=>{
  const f=await notesFixture();let draws=0;
  f.assets.renderer.draw=(_ctx,alias)=>{if(alias==='notes-hud')draws++;return true;};

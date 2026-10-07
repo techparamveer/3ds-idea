@@ -39,6 +39,7 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    signal.throwIfAborted();return metadata;
   },
  }),notesIntro=createNotesIntroSession(),notesBootCover=createNotesBootCoverSession();
+ let appletCoveredOwner:string|null=null;
  const pauseNotesBootCover=()=>notesBootCover.pause();
  document.addEventListener('visibilitychange',pauseNotesBootCover);
  function syncNotesIntro(state:MenuState,view:AppView|null|undefined,packs:Record<string,NativePack|undefined>|undefined):NotesIntroPaint|undefined{
@@ -47,15 +48,16 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
   const host=typeof data.notesHostMs==='number'&&Number.isFinite(data.notesHostMs)?data.notesHostMs:0;
   const notes=s?.runtime.systemApplet?s.runtime.instances[s.runtime.systemApplet]:undefined;
   const noSoftware=notes?.appId==='game-notes'&&!notes.closing&&!s?.runtime.application;
+  const commonCovered=notes?.id===appletCoveredOwner;
   const bootCover=notesBootCover.sync({
    owner:noSoftware?notes.id:null,now:host,
-   paused:document.hidden||!s||!!s.sleeping||!!s.preferences||!!s.dialog||view?.appId!=='game-notes',
+   paused:commonCovered||document.hidden||!s||!!s.sleeping||!!s.preferences||!!s.dialog||view?.appId!=='game-notes',
    reducedMotion:options.reducedMotion?.()??false,sources:packs?notesBootCoverSourcesFromPacks(packs):undefined,
   });
   notesIntro.sync({
    owner:meta.status==='ready'?{notesOwner:meta.notesOwner,applicationOwner:meta.applicationOwner,captureGeneration:meta.captureGeneration,titleId:meta.titleId}:undefined,
    metadata:meta,assetsReady:!!sources,
-   paused:!s||!!s.sleeping||!!s.preferences||!!s.dialog||view?.appId!=='game-notes',
+   paused:commonCovered||!s||!!s.sleeping||!!s.preferences||!!s.dialog||view?.appId!=='game-notes',
    startup:'nonzero-history',now:host,screen:typeof view?.screen==='string'?view.screen:'main',
    sources,
   });
@@ -87,7 +89,7 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
  }
  function presentNotesBootCover(state:MenuState):boolean{
   const s=state.system,view=getActiveAppView(state);
-  if(document.hidden||!s||s.phase!=='app'||s.sleeping||s.preferences||s.dialog||s.runtime.application
+  if(appletCoveredOwner===s?.runtime.active||document.hidden||!s||s.phase!=='app'||s.sleeping||s.preferences||s.dialog||s.runtime.application
    ||!s.runtime.active||view?.appId!=='game-notes'||view.screen!=='main')return false;
   const now=view.data?.notesHostMs;
   return stockScreens.presentNotesBootCover(s.runtime.active,pair=>notesBootCover.present(pair,typeof now==='number'&&Number.isFinite(now)?now:0));
@@ -99,6 +101,13 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    &&notesBootCover.pending(notes.id);
  }
  function revokeNotesBootCoverCandidate(){stockScreens.revokeNotesBootCoverCandidate();notesBootCover.pause();}
+ function setAppletEntryCovered(owner:string|null){
+  if(owner!==appletCoveredOwner){appletCoveredOwner=owner;revokeNotesBootCoverCandidate();}
+ }
+ function preparedStockPair(state:MenuState):object|undefined{
+  const s=state.system;
+  return s?.phase==='app'&&s.runtime.active?stockScreens.preparedPair(s.runtime.active):undefined;
+ }
  const menuIcons=new Map<string,HTMLCanvasElement>();
  const images=new Map<string,HTMLImageElement>();
  // HOME needs the menu icons before its first paint. Entry photos appear only
@@ -209,5 +218,5 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    t.fillStyle=b.fillStyle=`rgba(0,0,0,${alpha})`;t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
   }
  }
- return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,presentNotesBootCover,notesBootCoverActive,revokeNotesBootCoverCandidate,readSuspendedCapture:suspendedCapture.read,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){document.removeEventListener('visibilitychange',pauseNotesBootCover);stockScreens.dispose();notesIntro.dispose();notesBootCover.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
+ return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,setAppletEntryCovered,preparedStockPair,presentNotesBootCover,notesBootCoverActive,revokeNotesBootCoverCandidate,readSuspendedCapture:suspendedCapture.read,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){document.removeEventListener('visibilitychange',pauseNotesBootCover);stockScreens.dispose();notesIntro.dispose();notesBootCover.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
 }

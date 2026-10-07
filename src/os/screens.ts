@@ -31,6 +31,8 @@ import type { HomeBannerHostView } from './home-banner-host';
 import type { HomeBannerMotion } from './home-banner-lifecycle';
 import { createManualEntryPresentation, sameManualEntryIdentity, type ManualEntryIdentity, type ManualEntryPose } from './manual-entry-presentation';
 import { manualEntryIdentity, manualEntryEligible, manualEntryOrigin, sameManualEntryOrigin, manualEntryBackingMatches, type ManualEntryOrigin } from './manual-entry-identity';
+import { createAppletEntryPresentation, appletEntryIdentity, appletEntryEligible, appletEntryHomePair, sameAppletEntryHomePair,
+ sameAppletEntryIdentity, appletEntryBackingMatches, type AppletEntryIdentity, type AppletEntryHomePair, type AppletEntryPose } from './applet-entry-presentation';
 import { createHomeFolderEntryBanner, homeFolderEntryBannerSource, homeFolderEntryBannerDestinationReady, type HomeFolderEntryBannerOwner,
  type HomeFolderEntryBannerPose, type HomeFolderEntryBannerSource, type HomeFolderEntryBannerRelease } from './home-folder-entry-banner';
 import { homeApplicationTransitionFooterReturn, homeApplicationTransitionPresentation, type HomeApplicationTransition } from './home-application-transition';
@@ -51,7 +53,7 @@ type SystemWithHomeApplicationTransition = NonNullable<MenuState['system']> & {
  homeApplicationTransition?:HomeApplicationTransition|null;
 };
 type NativeHome=ReturnType<typeof createFirmwareHome>;
-type ScreenPaintResult={homeWallpaper?:boolean;healthBanner?:boolean;nativeSystem?:true;entryMotion?:{folder:HomeFolderEntryPose|null;pauseFrame:number|null};manualEntry?:{phase:'out'|'in';frame:number;owner:string}};
+type ScreenPaintResult={homeWallpaper?:boolean;healthBanner?:boolean;nativeSystem?:true;entryMotion?:{folder:HomeFolderEntryPose|null;pauseFrame:number|null};manualEntry?:{phase:'out'|'in';frame:number;owner:string};appletEntry?:{kind:'cover'|'handoff';frame:number|null;owner:string}};
 const fonts = new WeakMap<Context, BitmapFont>();
 let systemFont: Promise<void> | undefined;
 function loadSystemFont() {
@@ -327,6 +329,43 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   return !disposed&&!panelFailure&&manualEntryEligible(state)&&graphics.stockFailure()===null
    &&manualPresentation.active(manualEntryIdentity(state,manualGeneration),graphics.stockStatus(state,t)==='ready');
  }
+ const appletPresentation=createAppletEntryPresentation();
+ const appletCanvases=[400,320,400,320].map(width=>{const canvas=document.createElement('canvas');canvas.width=width;canvas.height=240;return canvas;});
+ const [appletHomeUpper,appletHomeLower,appletBackingUpper,appletBackingLower]=appletCanvases;
+ let appletGeneration=0,appletHomeOrigin:AppletEntryHomePair|null=null,appletBackingIdentity:AppletEntryIdentity|null=null;
+ let appletSourceCandidate:{source:AppletEntryHomePair|null;generation:number;application:string|null}|null=null,appletCandidate:AppletEntryPose|undefined,appletCoverPainted=false;
+ let coveredAppletOwner:string|null=null;
+ function setAppletEntryCovered(owner:string|null){if(owner!==coveredAppletOwner){coveredAppletOwner=owner;graphics.setAppletEntryCovered(owner);}}
+ function revokeAppletEntryCandidate(){appletPresentation.revoke();appletCandidate=undefined;appletSourceCandidate=null;}
+ function resetAppletEntry(){appletGeneration++;appletPresentation.reset();appletCandidate=undefined;appletSourceCandidate=null;appletBackingIdentity=null;appletHomeOrigin=null;appletCoverPainted=false;setAppletEntryCovered(null);}
+ function presentAppletEntry(state:MenuState,elapsedMs:number):boolean{
+  const source=appletSourceCandidate;appletSourceCandidate=null;
+  if(disposed)return false;
+  const current=appletEntryHomePair(state,appletGeneration);
+  if(source&&state.system?.phase==='home'&&appletEntryEligible(state)&&source.generation===appletGeneration&&source.application===state.system.runtime.application
+    &&(source.source===null&&current===null||sameAppletEntryHomePair(source.source,current))){
+   if(source.source)for(const [target,image] of [[appletHomeUpper,native],[appletHomeLower,bottom]]){const ctx=target.getContext('2d')!;ctx.resetTransform();ctx.clearRect(0,0,target.width,240);ctx.drawImage(image,0,0);}
+   appletHomeOrigin=source.source;
+  }
+  const candidate=appletCandidate;appletCandidate=undefined;
+  if(!candidate)return false;
+  if(!appletPresentation.present(candidate,appletEntryIdentity(state,appletGeneration),elapsedMs,appletEntryEligible(state)&&!panelFailure&&graphics.stockFailure()===null,graphics.preparedStockPair(state))){revokeAppletEntryCandidate();return false;}
+  return true;
+ }
+ function appletEntryActive(state:MenuState):boolean{
+  const identity=appletEntryIdentity(state,appletGeneration);if(!identity)return false;
+  return !disposed&&!panelFailure&&appletEntryEligible(state)&&graphics.stockFailure()===null
+   &&appletPresentation.active(identity,graphics.preparedStockPair(state));
+ }
+ function presentNotesBootCover(state:MenuState):boolean{
+  const identity=appletEntryIdentity(state,appletGeneration);
+  return !appletCoverPainted&&(!identity||appletPresentation.ready(identity))&&graphics.presentNotesBootCover(state);
+ }
+ function skipAppletEntryForAccessibilityShortcut(state:MenuState):boolean{
+  const identity=appletEntryIdentity(state,appletGeneration);
+  if(disposed||!identity||identity.caller!==null||!appletEntryEligible(state))return false;
+  revokeAppletEntryCandidate();appletPresentation.skipAccessibilityShortcut(identity);setAppletEntryCovered(null);return true;
+ }
  const sprite=new Image();sprite.src='/os/home-toolbar.png';
  const themeSprite=new Image();themeSprite.src='/os/change-theme.png';
  const shopSprite=new Image();shopSprite.src='/os/theme-shop.png';
@@ -359,25 +398,31 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  const panelKey=(state:MenuState)=>homeSoftwareClosingDialogKey(state)??homeSoftwareDialogKey(state)??(state.system&&!state.system.sleeping&&['boot','launch','power','shutdown'].includes(state.system.phase)
   ?JSON.stringify(['system',state.system.phase,state.system.since,state.system.returnPhase,state.system.app,state.system.runtime.application,state.system.runtime.active])
   :manualEntryIdentity(state,manualGeneration)&&manualEntryEligible(state)?JSON.stringify(['manual-entry',manualEntryIdentity(state,manualGeneration)])
+  :appletEntryIdentity(state,appletGeneration)&&appletEntryEligible(state)?JSON.stringify(['applet-entry',appletEntryIdentity(state,appletGeneration)])
   :state.system?.phase==='home'&&state.opened&&nativeHome&&!state.system.sleeping&&!state.system.preferences&&!state.system.dialog&&!state.panel
   ?JSON.stringify(['folder-entry',getHomeFolderIdentity(state,state.selected)])
   :state.system?.phase==='home'&&!state.system.sleeping&&!state.system.preferences&&!state.system.dialog&&(state.panel==='settings'||state.panel==='home-layouts'||state.panel==='folder-settings'||state.panel==='folder-not-empty')
   ?JSON.stringify([state.panel,state.panelChoice,state.panelScroll??0,state.homeLayoutSlot??0,state.homeLayoutAction??null,state.homeLayoutConfirm??false]):retainedSuspendedApplication(state)?JSON.stringify([retainedSuspendedApplication(state)!.id,!!selectedSuspendedApplication(state)]):null);
  function stockStatus(state:MenuState){
   const key=panelKey(state);
+  if(key&&panelPublished!==key)return 'loading';
+  if(key&&panelFailure)return 'error';
+  const source=appletEntryHomePair(state,appletGeneration);
+  // Quarantine rapid activation until the selected HOME pair is rendered.
+  if(nativeHome&&source&&!sameAppletEntryHomePair(source,appletHomeOrigin))return 'loading';
   if(!key)return graphics.stockStatus(state,t);
-  if(panelPublished!==key)return 'loading';
-  if(panelFailure)return 'error';
   // Browser receipt quarantine, not a recovered native input epoch.
   if(state.opened&&nativeHome&&options.getHomeBanner&&folderEntryEligible(state)
    &&!folderEntryBanner.complete(folderEntryBannerOwner(state)))return 'loading';
   const manual=manualEntryIdentity(state,manualGeneration);
   if(manual&&manualEntryEligible(state)){const status=graphics.stockStatus(state,t);return status==='error'?'error':status==='ready'&&manualPresentation.ready(manual)?'ready':'loading';}
+  const applet=appletEntryIdentity(state,appletGeneration);
+  if(applet&&appletEntryEligible(state)){const status=graphics.stockStatus(state,t);return status==='error'?'error':status==='ready'&&appletPresentation.ready(applet)?'ready':'loading';}
   // Successful source launch chrome cannot hide the destination screen's own
   // loading/failure contract. Its B/HOME escape remains available until ready.
   return state.system?.phase==='launch'?graphics.stockStatus(state,t):'ready';
  }
- function retryStockScreen(){revokeManualEntryCandidate();if(panelFailure){revokeHomeEntryMotionCandidate();panelFailure=undefined;panelPublished=null;return true;}return graphics.retryStockScreen();}
+ function retryStockScreen(){revokeAppletEntryCandidate();revokeManualEntryCandidate();if(panelFailure){revokeHomeEntryMotionCandidate();panelFailure=undefined;panelPublished=null;return true;}return graphics.retryStockScreen();}
  function panelRecovery(state:MenuState){
   // Authored host recovery, never substituted as a native firmware screen.
   for(const ctx of [t,b]){ctx.resetTransform();ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.fillStyle='#000';ctx.fillRect(0,0,ctx.canvas.width,240);}
@@ -395,7 +440,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  }
  const useFont=(font:BitmapFont)=>{for(const ctx of [t,b]){fonts.set(ctx,font);setPortfolioFont(ctx,font);}};
  if(options.font)useFont(options.font);
- function setFirmwareAssets(assets:FirmwarePresentationAssets){if(disposed){assets.dispose();return;}if(firmwareAssets&&firmwareAssets!==assets)firmwareAssets.dispose();resetManualEntry();firmwareAssets=assets;nativeHome=createFirmwareHome(assets);layoutManager=createHomeLayoutManager(assets.renderer);folderCapture=undefined;layoutCapture=undefined;suspendedMetadata=undefined;resetHomeEntryMotion();homeEntryPresentation=createHomeEntryPresentation();homeEntryFooterCandidate=undefined;homeEntryFooterReleaseCandidate=undefined;homeEntryBannerCandidate=undefined;homeEntryNoBannerCandidate=undefined;applicationTransitionCapture=undefined;softwareDialogIcons=undefined;panelFailure=undefined;panelPublished=null;useFont(assets.sharedFont);}
+ function setFirmwareAssets(assets:FirmwarePresentationAssets){if(disposed){assets.dispose();return;}if(firmwareAssets&&firmwareAssets!==assets)firmwareAssets.dispose();resetManualEntry();resetAppletEntry();firmwareAssets=assets;nativeHome=createFirmwareHome(assets);layoutManager=createHomeLayoutManager(assets.renderer);folderCapture=undefined;layoutCapture=undefined;suspendedMetadata=undefined;resetHomeEntryMotion();homeEntryPresentation=createHomeEntryPresentation();homeEntryFooterCandidate=undefined;homeEntryFooterReleaseCandidate=undefined;homeEntryBannerCandidate=undefined;homeEntryNoBannerCandidate=undefined;applicationTransitionCapture=undefined;softwareDialogIcons=undefined;panelFailure=undefined;panelPublished=null;useFont(assets.sharedFont);}
  if(options.firmwareAssets)setFirmwareAssets(options.firmwareAssets);
  const captureCanvas=document.createElement('canvas');captureCanvas.width=320;captureCanvas.height=240;
  const captureContext=captureCanvas.getContext('2d',{willReadFrequently:true})!;
@@ -493,17 +538,18 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   * background sampled by the latest cadence paint, if it is at most this old.
   * The background then advances only on the LCD cadence, as without the paint.
   * manualEntryObservedElapsedMs uses the fresh render-receipt clock origin;
-  * only Manual consumes it, without making the paint diagnostic. */
+  * Manual and outgoing applet entry consume it without making the paint diagnostic. */
  function paint(state:MenuState,date=new Date(),elapsedMs=0,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;homeCursorLoopFrame?:number;reuseHomeBackgroundMs?:number;manualEntryObservedElapsedMs?:number}):ScreenPaintResult|undefined{
   if(disposed)return;
   entryMotionCandidate=undefined;
   rootFolderBannerCandidate=undefined;folderEntryBannerCandidate=null;folderEntryBannerReleaseCandidate=undefined;
   manualCandidate=undefined;manualSourceCandidate=null;
+  appletCandidate=undefined;appletSourceCandidate=null;appletCoverPainted=false;
   const key=panelKey(state);
   if(key!==panelPublished)panelFailure=undefined;
-  if(key&&panelFailure){revokeHomeEntryMotionCandidate();revokeManualEntryCandidate();panelRecovery(state);return;}
+  if(key&&panelFailure){revokeHomeEntryMotionCandidate();revokeManualEntryCandidate();revokeAppletEntryCandidate();panelRecovery(state);return;}
   try{const result=paintPair(state,date,elapsedMs,verification);panelPublished=key;return result;}
-  catch(error){revokeHomeEntryMotionCandidate();revokeManualEntryCandidate();if(!key)throw error;panelFailure=error instanceof Error?error:new Error(String(error));panelRecovery(state);panelPublished=key;}
+  catch(error){revokeHomeEntryMotionCandidate();revokeManualEntryCandidate();revokeAppletEntryCandidate();if(!key)throw error;panelFailure=error instanceof Error?error:new Error(String(error));panelRecovery(state);panelPublished=key;}
  }
  function paintPair(state:MenuState,date:Date,elapsedMs:number,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;homeCursorLoopFrame?:number;reuseHomeBackgroundMs?:number;manualEntryObservedElapsedMs?:number}):ScreenPaintResult|undefined{
   if(disposed)return;
@@ -513,6 +559,23 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    &&(verification.sampleCalendar!==undefined||verification.homeHudSample!==undefined||verification.homeWallpaperFrame!==undefined||verification.homeCursorLoopFrame!==undefined);
   if(!diagnosticPaint&&!state.opened)folderEntryBanner.leave();
   const manualIdentity=manualEntryIdentity(state,manualGeneration);
+  const appletIdentity=appletEntryIdentity(state,appletGeneration);
+  if(diagnosticPaint||!appletIdentity||!appletEntryEligible(state))revokeAppletEntryCandidate();
+  const appletOwner=state.system?.runtime.systemApplet;
+  if(!appletIdentity&&(!appletOwner||!state.system?.runtime.instances[appletOwner])){appletPresentation.reset();appletBackingIdentity=null;}
+  let appletPose:AppletEntryPose|undefined;
+  if(appletIdentity&&appletEntryEligible(state)&&!diagnosticPaint){
+   if(!appletPresentation.ready(appletIdentity)){
+    if(!nativeHome)throw Error('Native applet entry cover unavailable');
+    if(!sameAppletEntryIdentity(appletBackingIdentity,appletIdentity)){
+     if(!appletEntryBackingMatches(appletHomeOrigin,appletIdentity))throw Error('Applet entry has no matching presented HOME pair');
+     for(const [target,image] of [[appletBackingUpper,appletHomeUpper],[appletBackingLower,appletHomeLower]]){const ctx=target.getContext('2d')!;ctx.resetTransform();ctx.clearRect(0,0,target.width,240);ctx.drawImage(image,0,0);}
+     appletBackingIdentity=Object.freeze({...appletIdentity});appletPresentation.reset();
+    }
+   }
+   appletPose=appletPresentation.sample({identity:appletIdentity,elapsedMs:verification?.manualEntryObservedElapsedMs??elapsedMs,eligible:true,pair:graphics.preparedStockPair(state),reducedMotion:reduced});
+  }
+  setAppletEntryCovered(appletPose?.kind==='cover'?appletIdentity!.owner:null);
   if(diagnosticPaint||!manualIdentity||!manualEntryEligible(state))revokeManualEntryCandidate();
   const manualOwner=state.system?.runtime.systemApplet;
   if(!manualIdentity&&(!manualOwner||state.system?.runtime.instances[manualOwner]?.appId!=='manual')){manualPresentation.reset();manualBackingIdentity=null;}
@@ -544,7 +607,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const verificationPaint=verification?.homeWallpaperFrame===undefined?undefined:{homeWallpaper:false,healthBanner:false};
   graphics.syncStockView(state,t);
   t.resetTransform();t.clearRect(0,0,400,240);b.clearRect(0,0,320,240);
-  if(!state.powered){if(!diagnosticPaint){resetHomeEntryMotion();resetManualEntry();}t.fillStyle=b.fillStyle='#101318';t.fillRect(0,0,800,240);b.fillRect(0,0,320,240);output.drawImage(native,0,0,800,240);return;}
+  if(!state.powered){if(!diagnosticPaint){resetHomeEntryMotion();resetManualEntry();resetAppletEntry();}t.fillStyle=b.fillStyle='#101318';t.fillRect(0,0,800,240);b.fillRect(0,0,320,240);output.drawImage(native,0,0,800,240);return;}
   const view=getHomePresentation(state);
   const launchCandidate=getHomeLaunchPresentation(state,elapsedMs,reduced);
   const time=reduced?0:elapsedMs;if(verification?.homeCursorLoopFrame!==undefined&&(!Number.isInteger(verification.homeCursorLoopFrame)||verification.homeCursorLoopFrame<0||verification.homeCursorLoopFrame>=60))throw new Error('HOME cursor loop frame must be an integer from 0 to 59');const palette=themes[state.theme];background(t,state,time);if(state.theme==='white'){const drawn=options.drawHomeBackground?.(t,time,reduced,verification?.homeWallpaperFrame,verification?.reuseHomeBackgroundMs);if(verificationPaint)verificationPaint.homeWallpaper=drawn===true;if(state.panel==='home-layouts'&&drawn!==true)throw new Error('Native HOME layout preview wallpaper unavailable');}
@@ -765,7 +828,24 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
     }
    }
   }
+  if(appletPose&&appletIdentity){
+   if(graphics.stockFailure()!==null){revokeAppletEntryCandidate();appletPose=undefined;}
+   else{
+    const pair=graphics.preparedStockPair(state);
+    if(appletPose.kind==='handoff'){
+     if(pair)appletPose=appletPresentation.bindPreparedPair(pair);
+     else{revokeAppletEntryCandidate();appletPose=appletPresentation.sample({identity:appletIdentity,elapsedMs:verification?.manualEntryObservedElapsedMs??elapsedMs,eligible:true,reducedMotion:reduced});setAppletEntryCovered(appletIdentity.owner);}
+    }
+    if(appletPose?.kind==='cover'){
+     for(const [ctx,image] of [[t,appletBackingUpper],[b,appletBackingLower]] as const){ctx.resetTransform();ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.clearRect(0,0,ctx.canvas.width,240);ctx.drawImage(image,0,0);}
+     if(!nativeHome!.appletEntry(t,b,{appId:appletIdentity.appId,frame:appletPose.frame}))throw Error('Native applet entry paired cover unavailable');
+     appletCoverPainted=true;graphics.revokeNotesBootCoverCandidate();
+    }
+    appletCandidate=appletPose;
+   }
+  }
   output.imageSmoothingEnabled=false;output.clearRect(0,0,800,240);output.drawImage(native,0,0,800,240);
+  if(!diagnosticPaint&&state.system?.phase==='home'&&appletEntryEligible(state)&&nativeHome&&nativeStatus!=='error'&&nativeStatus!=='loading')appletSourceCandidate={source:appletEntryHomePair(state,appletGeneration),application:state.system.runtime.application,generation:appletGeneration};
   if(!diagnosticPaint&&!manualIdentity&&nativeHome&&nativeStatus!=='error'&&nativeStatus!=='loading'){const source=manualEntryOrigin(state,manualGeneration);if(source&&(source.kind==='home'||nativeStatus==='ready'))manualSourceCandidate=source;}
   if(!diagnosticPaint){
    const folderNeeds=folderMotion&&(!homeEntryMotionMatches(folderEntryMotion,folderIdentity)||folderEntryNeedsRebase||homeEntryMotionActive(folderEntryMotion)||!!pendingFolderEntryMotion||!!folderEntryBannerCandidate);
@@ -786,8 +866,8 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const visiblePauseEntry=suspended&&!applicationTransitionPresentation?pauseEntry:null;
   const entryMotion=visibleFolderEntry||visiblePauseEntry
    ?{folder:visibleFolderEntry,pauseFrame:visiblePauseEntry?.material[0].frame??null}:undefined;
-  return nativeSystem||verificationPaint||entryMotion||manualPose
-   ?{...(verificationPaint??{}),...(nativeSystem?{nativeSystem:true as const}:{}),...(entryMotion?{entryMotion}:{}),...(manualPose?{manualEntry:{phase:manualPose.phase,frame:manualPose.frame,owner:manualPose.identity.owner}}:{})}:undefined;
+  return nativeSystem||verificationPaint||entryMotion||manualPose||appletPose
+   ?{...(verificationPaint??{}),...(nativeSystem?{nativeSystem:true as const}:{}),...(entryMotion?{entryMotion}:{}),...(manualPose?{manualEntry:{phase:manualPose.phase,frame:manualPose.frame,owner:manualPose.identity.owner}}:{}),...(appletPose?{appletEntry:{kind:appletPose.kind,frame:appletPose.kind==='cover'?appletPose.frame:null,owner:appletPose.identity.owner}}:{})}:undefined;
  }
  function presentHomeEntryFooterRelease(){
   const candidate=homeEntryFooterReleaseCandidate;homeEntryFooterReleaseCandidate=undefined;
@@ -816,5 +896,6 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  function homeEntryActivationReady(state:MenuState){
   return homeEntryBannerActivationDue(sampleHomeEntryPresentation(homeEntryPresentation,state,reduced));
  }
- return {top,nativeTop:native,bottom,paint,stockStatus,retryStockScreen,stockFailure:()=>panelFailure??graphics.stockFailure(),setFirmwareAssets,prepareFolderBannerLabel:(name:string)=>nativeHome?.folderBannerLabel(name),homeEntryFooterReadiness:()=>getHomeEntryFooterReadiness(homeEntryPresentation),homeEntryActivationReady,presentHomeEntryMotion,homeEntryMotionActive:isHomeEntryMotionActive,homeEntryMotionPublicationPending:()=>!!entryMotionCandidate,revokeHomeEntryMotionCandidate,presentManualEntry,revokeManualEntryCandidate,manualEntryActive,presentHomeEntryFooterRelease,presentHomeEntryFooterTerminal,presentHomeEntryBanner,presentHomeEntryWithoutNativeBanner,notesBootCoverActive:(state:MenuState)=>graphics.notesBootCoverActive(state),presentNotesBootCover:(state:MenuState)=>graphics.presentNotesBootCover(state),revokeNotesBootCoverCandidate:()=>graphics.revokeNotesBootCoverCandidate(),revokeHomeEntryFooterCandidate(){homeEntryFooterCandidate=undefined;homeEntryFooterReleaseCandidate=undefined;},revokeHomeEntryBannerCandidate(){homeEntryBannerCandidate=undefined;},revokeHomeEntryNoBannerCandidate(){homeEntryNoBannerCandidate=undefined;},dispose(){if(disposed)return;disposed=true;resetManualEntry();manualPresentation.dispose();for(const canvas of manualCanvases)canvas.width=canvas.height=0;panelFailure=undefined;panelPublished=null;folderCapture=undefined;layoutCapture=undefined;suspendedMetadata=undefined;resetHomeEntryMotion();homeEntryPresentation=createHomeEntryPresentation();homeEntryFooterCandidate=undefined;homeEntryFooterReleaseCandidate=undefined;homeEntryBannerCandidate=undefined;homeEntryNoBannerCandidate=undefined;applicationTransitionCapture=undefined;softwareDialogIcons=undefined;captureCanvas.width=captureCanvas.height=0;graphics.dispose();firmwareAssets?.dispose();fonts.delete(t);fonts.delete(b);setPortfolioFont(t);setPortfolioFont(b);},setReducedMotion(value:boolean){if(reduced!==value){revokeHomeEntryMotionCandidate();revokeManualEntryCandidate();}reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
+ return {top,nativeTop:native,bottom,paint,stockStatus,retryStockScreen,stockFailure:()=>panelFailure??graphics.stockFailure(),setFirmwareAssets,prepareFolderBannerLabel:(name:string)=>nativeHome?.folderBannerLabel(name),homeEntryFooterReadiness:()=>getHomeEntryFooterReadiness(homeEntryPresentation),homeEntryActivationReady,presentHomeEntryMotion,homeEntryMotionActive:isHomeEntryMotionActive,homeEntryMotionPublicationPending:()=>!!entryMotionCandidate,revokeHomeEntryMotionCandidate,presentManualEntry,revokeManualEntryCandidate,manualEntryActive,presentAppletEntry,revokeAppletEntryCandidate,appletEntryActive,skipAppletEntryForAccessibilityShortcut,presentHomeEntryFooterRelease,presentHomeEntryFooterTerminal,presentHomeEntryBanner,presentHomeEntryWithoutNativeBanner,
+  notesBootCoverActive:(state:MenuState)=>{const identity=appletEntryIdentity(state,appletGeneration);return (!identity||appletPresentation.ready(identity))&&graphics.notesBootCoverActive(state);},presentNotesBootCover,revokeNotesBootCoverCandidate:()=>graphics.revokeNotesBootCoverCandidate(),revokeHomeEntryFooterCandidate(){homeEntryFooterCandidate=undefined;homeEntryFooterReleaseCandidate=undefined;},revokeHomeEntryBannerCandidate(){homeEntryBannerCandidate=undefined;},revokeHomeEntryNoBannerCandidate(){homeEntryNoBannerCandidate=undefined;},dispose(){if(disposed)return;disposed=true;resetAppletEntry();appletPresentation.dispose();for(const canvas of appletCanvases)canvas.width=canvas.height=0;resetManualEntry();manualPresentation.dispose();for(const canvas of manualCanvases)canvas.width=canvas.height=0;panelFailure=undefined;panelPublished=null;folderCapture=undefined;layoutCapture=undefined;suspendedMetadata=undefined;resetHomeEntryMotion();homeEntryPresentation=createHomeEntryPresentation();homeEntryFooterCandidate=undefined;homeEntryFooterReleaseCandidate=undefined;homeEntryBannerCandidate=undefined;homeEntryNoBannerCandidate=undefined;applicationTransitionCapture=undefined;softwareDialogIcons=undefined;captureCanvas.width=captureCanvas.height=0;graphics.dispose();firmwareAssets?.dispose();fonts.delete(t);fonts.delete(b);setPortfolioFont(t);setPortfolioFont(b);},setReducedMotion(value:boolean){if(reduced!==value){revokeHomeEntryMotionCandidate();revokeManualEntryCandidate();revokeAppletEntryCandidate();}reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
 }

@@ -213,6 +213,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
   const images=new Map<string,HTMLImageElement>(),nativeImages=new Map<string,NativePixels>();let owner:string|null=null,disposed=false;
   let identity='',failure:unknown=null,recoveryPublished=false,deadline:ReturnType<typeof setTimeout>|undefined;
   let published:NativeLayoutRenderer|undefined;
+  let preparedPair:Readonly<{owner:string;renderer:NativeLayoutRenderer;key:string}>|undefined;
   const notesBootGate=createNotesBootCoverPublicationGate();
   let notesBootCandidate:{owner:string;pair:NotesBootCoverPaint;renderer:NativeLayoutRenderer}|undefined;
   let roomReady=true;
@@ -227,12 +228,13 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
   const upperContext=upper.getContext('2d')!,lowerContext=lower.getContext('2d')!;
   const clearDeadline=()=>{if(deadline!==undefined)clearTimeout(deadline);deadline=undefined;};
   function fail(error:unknown){
+    preparedPair=undefined;
     notesBootCandidate=undefined;notesBootGate.revoke();
     options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);roomReady=true;clearDeadline();failure=error??new Error('Native screen preparation failed');recoveryPublished=false;published=undefined;
     // Invalidates the generation as well as aborting a cooperative loader.
     session.update(null);changed();
   }
-  function reset(){notesBootCandidate=undefined;options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);roomReady=true;clearDeadline();identity='';failure=null;recoveryPublished=false;published=undefined;session.update(null);painted='';}
+  function reset(){preparedPair=undefined;notesBootCandidate=undefined;options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);roomReady=true;clearDeadline();identity='';failure=null;recoveryPublished=false;published=undefined;session.update(null);painted='';}
   function releaseImages(){for(const image of images.values()){image.onload=null;image.onerror=null;image.src='';}images.clear();nativeImages.clear();}
   function sourceImage(url:string){
     let im=images.get(url);
@@ -298,6 +300,11 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
   }
   return {
     sync,prepare,status,
+    preparedPair(nextOwner:string):object|undefined{
+      const state=session.getState();
+      return !disposed&&!failure&&complete&&owner===nextOwner&&state.status==='ready'&&roomReady
+        &&published===state.assets.renderer&&preparedPair?.owner===nextOwner&&preparedPair.renderer===published&&preparedPair.key===painted?preparedPair:undefined;
+    },
     presentNotesBootCover(nextOwner:string,accept:(pair:NotesBootCoverPaint)=>boolean):boolean{
       const candidate=notesBootCandidate,state=session.getState();
       if(disposed||failure||!candidate||candidate.owner!==nextOwner||owner!==nextOwner||state.status!=='ready'
@@ -309,7 +316,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     /** True only when the published pair is this owner's complete application frame. */
     draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont,suspendedCapture?:SuspendedCapture,date=new Date(),elapsedMs=0,notesIntro?:NotesIntroPaint,verification?:{sampleCalendar?:boolean}):boolean{
       if(disposed)return false;
-      notesBootCandidate=undefined;
+      preparedPair=undefined;notesBootCandidate=undefined;
       // Pixels stay out of the key; one frozen capture has one generation.
       const capture=suspendedCapture?.status==='ready'?[suspendedCapture.owner,suspendedCapture.generation]:suspendedCapture?.status??null;
       const reducedMotion=options.reducedMotion?.()??false;
@@ -375,12 +382,13 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         painted=key;paintedFont=font;
       }
       top.drawImage(upper,0,0);bottom.drawImage(lower,0,0);
+      if(complete&&!failure&&state.status==='ready')preparedPair=Object.freeze({owner:nextOwner,renderer:state.assets.renderer,key:painted});
       if(failure)recoveryPublished=true;
       else if(complete&&state.status==='ready'&&view.appId==='game-notes'&&notesIntro?.status==='boot-cover')notesBootCandidate={owner:nextOwner,pair:notesIntro,renderer:state.assets.renderer};
       return complete&&!failure;
     },
     getState:session.getState,
     getFailure:()=>failure,
-    dispose(){if(disposed)return;disposed=true;clearDeadline();session.dispose();options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);releaseImages();owner=null;healthEntry=null;notesBootCandidate=undefined;notesBootGate.reset();published=undefined;upper.width=upper.height=lower.width=lower.height=0;},
+    dispose(){if(disposed)return;disposed=true;preparedPair=undefined;clearDeadline();session.dispose();options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);releaseImages();owner=null;healthEntry=null;notesBootCandidate=undefined;notesBootGate.reset();published=undefined;upper.width=upper.height=lower.width=lower.height=0;},
   };
 }

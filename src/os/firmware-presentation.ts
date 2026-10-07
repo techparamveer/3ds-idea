@@ -24,6 +24,7 @@ import { sampleSystemHomeApplicationTransition } from './system-home-application
 import type { HomeFolderEntryPose } from './home-entry-motion';
 import { validateHomeFolderEntryAssets } from './home-folder-entry-assets';
 import { manualEntryBindings, validateManualEntryAssets } from './manual-entry-assets';
+import { appletEntryBindings, appletEntryOverrides, validateAppletEntryAssets, type AppletEntryAppId } from './applet-entry-assets';
 import type { ManualEntryPose } from './manual-entry-presentation';
 
 type Context=CanvasRenderingContext2D;
@@ -548,5 +549,12 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   if(!renderer.draw(top,'common','CmnFade_U_00',{bindings:bindings.upper}))return false;
   return renderer.draw(bottom,'common','CmnFade_D_00',{bindings:bindings.lower,overrides:{T_Aplt_00:label}});
  }
- return {manualEntry,hud,upperBase,settingsUpper,settingsLower,folderSettingsLower,folderNotEmptyLower,folderBalloon,folderBannerLabel,appletBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,ordinaryTitleIcon,suspendedIcon,captureFolder,empty,cursor,cursorAt,cursorEffectAt,launchCursorEffectAt,arrows,pickup,pickupAt,pickupBlankAt,liftedSource,pressOffset,rows:rowCount};
+ const validatedApplets=new Set<AppletEntryAppId>();
+ function appletEntry(top:Context,bottom:Context,pose:{appId:AppletEntryAppId;frame:number}):boolean{
+  if(!validatedApplets.has(pose.appId)){validateAppletEntryAssets(renderer.packs.common,pose.appId);validatedApplets.add(pose.appId);}
+  const bindings=appletEntryBindings({...pose,phase:'out'}),overrides=appletEntryOverrides(renderer.packs.messages,pose.appId);
+  if(!renderer.draw(top,'common','CmnFade_U_00',{bindings:bindings.upper}))return false;
+  return renderer.draw(bottom,'common','CmnFade_D_00',{bindings:bindings.lower,overrides});
+ }
+ return {appletEntry,manualEntry,hud,upperBase,settingsUpper,settingsLower,folderSettingsLower,folderNotEmptyLower,folderBalloon,folderBannerLabel,appletBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,ordinaryTitleIcon,suspendedIcon,captureFolder,empty,cursor,cursorAt,cursorEffectAt,launchCursorEffectAt,arrows,pickup,pickupAt,pickupBlankAt,liftedSource,pressOffset,rows:rowCount};
 }

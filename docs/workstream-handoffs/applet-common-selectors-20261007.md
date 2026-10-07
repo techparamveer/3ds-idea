@@ -149,7 +149,7 @@ the common bank, using the returned upper/lower bindings and lower overrides.
 Do not supply material, UV, visibility or tint overrides. Only a successfully
 published paired render may acknowledge a transition pose.
 
-The coordinator retains lifecycle ownership, outgoing HOME snapshot, opaque
+The coordinator retains lifecycle ownership, outgoing HOME snapshot, source-terminal
 hold/readiness, input quarantine and escapes, valid-render receipts, visibility/
 stall rebasing and existing transition paint cadence. Source SceneOut/In each
 has21 poses; ranges are [-20,0] and [20,40]. The generic dispatch/completion
@@ -187,3 +187,129 @@ no further worker change. Existing local Browser/Miiverse content, reference
 status/time, nonzero Notes history/capture and host-clock timing adaptations
 remain outside this selector helper. The common-cover resource selection is
 source-backed; visible integration and matched native motion remain pending.
+
+## Outgoing runtime delivery
+
+The follow-up implements only outgoing common SceneOut0..20, then hands off
+the destination's existing entry path. It does not implement common SceneIn
+or claim a recovered caller dispatch epoch. Source identities, decoded assets,
+manifest records, layout geometry, curves, tints and UVs above are unchanged.
+
+The runtime starts from the matching last valid WebGL-presented HOME LCD pair.
+The source identity includes selected toolbar applet, HOME selection revision,
+runtime application and firmware generation. Canvas-only paints cannot supply
+it. A valid grid HOME receipt clears an old toolbar source. Before a matching
+selected source receipt, the existing native-screen input gate quarantines
+rapid second touch, keyboard A and physical A. A fresh activation after that
+receipt opens normally; HOME/power remain available. This is browser publication
+readiness, not a recovered native input epoch.
+
+The dedicated presentation identity binds applet owner, app ID, caller, request,
+runtime application and firmware generation. Each source pose needs a valid
+paired render receipt. Multiple paints before that receipt retain the same
+pose. Hidden/context/sleep/failure/Retry revocation repeats the last acknowledged
+pose. A clock stall does not permit source-frame catch-up. Normal motion consumes
+at most one source pose per receipt. Reduced motion requires a valid source20
+receipt before a separate destination handoff receipt.
+
+The source20 hold is rendered over the retained HOME pair with the exact source
+geometry and material alpha. There is no forced opaque fill. Source pane alpha
+alone is not a native opacity/dispatch proof for every caller. A failed native
+title preparation/draw exposes the existing explicit browser recovery pair and
+stops transition cadence; a pending pair retains the common source terminal.
+Retry rebases; it neither changes native source resources nor invents a pose.
+
+`stockScreens.preparedPair(owner)` is an opaque token for the current native
+title renderer, paint key, complete pair and successful outward LCD copies.
+It is not a WebGL publication receipt and does not bypass local input readiness.
+The token clears before every outward copy attempt, failure, replacement and
+disposal. A destination handoff candidate is rebound to the actual pair drawn
+on that pass and accepts only that same current token after a valid render.
+Invalid handoff publication retains/rebases source20 instead of releasing it.
+
+Notes' local scenes9/10 pause while the common cover owns the visible pair.
+The title's prepared-pair token is separate from `NotesBootGate.ready`, avoiding
+a readiness deadlock. Hidden Notes poses cannot receive local receipts, even
+in the render that acknowledges common source20. The painted-cover flag survives
+that acknowledgement. The subsequent destination handoff makes the existing
+Notes scene9/10 path visible, and its own terminal gate still quarantines input.
+Suspended title metadata/capture, local list/HUD/thumbnail painting and the
+declared nonzero-history adaptation are unchanged.
+
+The existing sr-only direct applet buttons are an explicit accessibility
+adaptation. They have no selected HOME render, so their exact presentation
+identity skips the common cover without fabricating a backing pair. Only those
+five callbacks call `skipAppletEntryForAccessibilityShortcut`. Physical/touch/
+keyboard routes still require matching source backing. A successful same-owner
+resume/title retry remains completed as for a completed visual entry; another
+owner/request/application/generation cannot inherit the exception. Reset/dispose
+clear it, and post-dispose calls cannot resurrect readiness. Notes' local gate
+remains unchanged for accessibility opens. This is not native visual acceptance.
+
+Scene integration calls `presentAppletEntry(state, performance.now()-start)`
+after successful `renderer.render` under the existing powered/open/visible/
+awake/live-context guards, before Notes' local receipt. Sampling uses the same
+fresh clock origin through the existing `manualEntryObservedElapsedMs` field,
+not a potentially older rAF timestamp. `appletEntryActive` joins the existing
+transition LCD paint budget only; render-quality budgets do not change.
+The 60Hz host observation policy and >100ms stall rebase reuse Manual's browser
+scheduling adaptation, not a sourced native duration, rate or easing.
+
+Diagnostics add `screenPaint.appletEntry` with kind, source frame or null, and
+owner. `screenPresented.paint` retains that record behind validPublication.
+No collector script is changed by this runtime delivery.
+
+## Runtime checks and review
+
+170 focused tests pass across the new helper, actual screen/painter/scene
+adapters, prepared-pair lifecycle, existing Manual/folder paths, Notes local
+boot/metadata paths, native session ownership and input recovery. Typecheck
+and diff checks pass. The existing `source-render specimens` Notes test is
+excluded because it writes private artifacts to the old DeveloperStorage
+root. An earlier unfiltered run failed that producer with EPERM; no private
+artifact was written. No test assertions or files were changed to mask it.
+
+```sh
+node --test --test-skip-pattern='source-render specimens' --test-reporter=spec tests/applet-entry-assets.test.mjs tests/applet-entry-presentation.test.mjs tests/applet-entry-live.test.mjs tests/applet-entry-painter.test.mjs tests/applet-entry-scene-policy.test.mjs tests/manual-entry-assets.test.mjs tests/manual-entry-presentation.test.mjs tests/manual-entry-live.test.mjs tests/manual-entry-clock-scene-policy.test.mjs tests/home-folder-entry-assets.test.mjs tests/home-folder-entry-banner.test.mjs tests/home-folder-entry-banner-live.test.mjs tests/home-entry-motion-scene-policy.test.mjs tests/notes-boot-cover.test.mjs tests/notes-intro-clock.test.mjs tests/notes-intro-session.test.mjs tests/notes-intro-publication.test.mjs tests/stock-screen-preparation.test.mjs tests/native-title-session.test.mjs tests/native-screen-input.test.mjs
+node node_modules/typescript/bin/tsc --noEmit --incremental false
+git diff --check
+```
+
+Dependency commits are the already-integrated selector5513268 and root folder
+0128f2f/diagnostics52af0c5, locally8f089c0/7750042. Deliver only the runtime
+follow-up, not those dependencies. STATUS stays dirty and excluded. B's later
+folder-only query/selection/hide changes remain independently owned; preserve
+both workers' return-object hooks during sequential integration.
+
+Independent precommit review found and corrected the direct accessibility
+shortcut regression, rapid activation before source receipt, source checks
+under a suspended-owner panel key, stale same-applet HOME revision reuse and
+post-dispose shortcut resurrection. Final immutable-commit review remains
+required before integration. No GUI/server/build/full suite was run by A.
+
+## Visible evidence still required
+
+The coordinator's immutable normal-speed native index/unique sheets are under
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/`:
+`notifications-normal-native-index.json`, `friends-normal-native-index.json`,
+`browser-normal-native-index.json` and `miiverse-normal-native-index.json`.
+The coordinator inspected preceding partial and complete source covers. Named
+complete targets include Friends `_07.10.26_16.52.12.016.png` prefix SHAa241e1f9,
+Browser `_07.10.26_17.02.23.21.png` prefix SHA09df5cc3 and Miiverse
+`_07.10.26_17.05.24.701.png` prefix SHAe013d5b3. These are reference data only,
+never inputs for assets/colors/curves. Full hashes are in their private indexes.
+
+After runtime integration, select the first valid chronological source20
+browser pair, compare raw400x240/320x240 against those immutable own400x480
+native PNGs with empty masks, and inspect both comparison sheets. Repeat each
+top-row entry, Notes no-software and suspended-owner paths, reduced motion,
+and affected Manual/folder regression sequences. Root alone owns that work.
+
+Miiverse's current pack pose deliberately retains the authored text alpha1
+and logo with no invented `lau_title_mvs`. The native complete cover shows only
+the graphical wordmark, no visible placeholder. Pack-pose validation is not
+proof of the native caller's text binding. A visible placeholder residual must
+remain fail until its original writer/binding is established or a permitted
+decoded-pane adaptation is labelled. Common incoming SceneIn dispatch, caller
+epoch/rate, matched timing, input/audio acceptance, live HUD state and existing
+destination adaptations remain open. Whole AN01 and strict1:1 are not passed.

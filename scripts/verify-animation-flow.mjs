@@ -114,6 +114,31 @@ try {
     await page.waitForFunction(menu => document.querySelector('.console-stage').dataset.menu === menu, values.scenario === 'pause' ? 'app' : 'home');
     await page.waitForTimeout(500);
   }
+  let folderPreparation = null;
+  if (values.scenario === 'folder') {
+    const observedAt = await page.evaluate(() => performance.now());
+    await page.waitForFunction(({ folderIdentity, folderSelection, observedAt }) => {
+      const host = document.querySelector('.console-stage'), data = host.dataset;
+      const view = JSON.parse(data.folderBanner ?? 'null');
+      const receipt = JSON.parse(data.screenPresented ?? 'null');
+      const primary = view?.primary, ticket = view?.resourceTicket;
+      return data.menu === 'home' && data.selected === folderSelection
+        && data.folderBannerFallback === 'false' && !data.nativeScreenFailure
+        && view?.status === 'active' && view.stage === 'active'
+        && view.selection.kind === 'folder' && view.selection.key === folderIdentity
+        && primary?.selection.kind === 'folder' && primary.selection.key === folderIdentity
+        && primary.motion.visible && primary.motion.requestedVisible
+        && primary.generation === view.generation && ticket?.generation === primary.generation
+        && ticket.requestEpoch === primary.requestEpoch
+        && receipt?.validPublication === true && receipt.paint?.at >= observedAt
+        && receipt.paint.phase === 'home' && receipt.paint.cursor?.selectedSlot === Number(folderSelection);
+    }, { folderIdentity, folderSelection, observedAt }, { timeout: 10000 });
+    folderPreparation = {
+      observedAt,
+      method: 'Wait for matching active native folder model and a fresh valid paired WebGL root receipt before input.',
+      adaptation: 'Browser fixture preparation wait; not a recovered native input epoch or duration.',
+    };
+  }
   const before = await state();
   if (values.scenario === 'folder') {
     assert.equal(before.menu, 'home');
@@ -163,7 +188,7 @@ try {
   await page.screenshot({ path: join(output, `${cycle ? `repeat-${cycle}-` : ''}console.png`) });
   const result = { valid: false, durationMs, scenario: values.scenario, title: ['manual', 'pause'].includes(values.scenario) ? title : values.scenario, commit: values.commit, commitAttestation: 'Coordinator-supplied served-build identity; not independently discovered by this script.', cycle, activation: values.activation, folderFixture: values['folder-fixture'], reducedMotion: values['reduced-motion'], url: values.url, viewport: page.viewportSize(), muted: true,
     method: 'Actual browser inputs; chronological raw screen paints. No diagnostic repaint or closest-pose search.',
-    initial, before, inputs, cycleInputs: inputs.slice(cycleInputOffset), after, frames: reports, errors, nativeCompared: false };
+    initial, before, folderPreparation, inputs, cycleInputs: inputs.slice(cycleInputOffset), after, frames: reports, errors, nativeCompared: false };
   await writeFile(join(output, `${cycle ? `repeat-${cycle}-` : ''}capture.json`), JSON.stringify(result, null, 2) + '\n');
   assert.ok(frames.length > 2, 'Transition has chronological raw LCD paints');
   assert.deepEqual(errors, [], 'No browser page errors');

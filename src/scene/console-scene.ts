@@ -577,7 +577,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     lastBootPresentedIdentity=validPublication?lastBootPaintIdentity:null;
     lastLaunchPresentedIdentity=validPublication?lastLaunchPaintIdentity:null;
     lastShutdownPresentedIdentity=validPublication?lastShutdownPaintIdentity:null;
-    if(diagnostics)host.dataset.screenPresented=JSON.stringify({at:performance.now(),frame,paint:JSON.parse(host.dataset.screenPaint??'null')});
+    if(diagnostics)host.dataset.screenPresented=JSON.stringify({at:performance.now(),frame,validPublication,paint:JSON.parse(host.dataset.screenPaint??'null')});
   }
   function animate(now:number){
     if(disposed)return;const dt=Math.min((now-last)/1000,.05);last=now;const elapsed=(now-start)/1000;

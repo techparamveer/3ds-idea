@@ -10,6 +10,7 @@ test('HOME entry and Notes receipts follow a successful visible renderer publica
   assert.match(render, /const validPublication=!document\.hidden&&state\.powered&&!state\.system!\.sleeping&&angle>12&&topScreen\.visible&&touchScreen\.visible&&!renderer\.getContext\(\)\.isContextLost\(\);/);
   assert.match(render, /if\(validPublication\)\{[^}]*screens\.presentHomeEntryMotion\(state\);screens\.presentNotesBootCover\(state\);screens\.presentManualEntry\(state,performance\.now\(\)-start\);\}/);
   assert.match(render, /else\{[^}]*screens\.revokeHomeEntryMotionCandidate\(\);screens\.revokeNotesBootCoverCandidate\(\);screens\.revokeManualEntryCandidate\(\);\}/);
+  assert.match(render, /host\.dataset\.screenPresented=JSON\.stringify\(\{at:performance\.now\(\),frame,validPublication,paint:/);
 });
 
 test('context and hidden revocation include the new paired candidates', () => {

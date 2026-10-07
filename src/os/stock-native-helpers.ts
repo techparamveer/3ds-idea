@@ -221,9 +221,9 @@ function drawManual(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,b
  * LCD. A page row advances 54px and a category band 34px. */
 export const APPLICATION_MANUAL_SLOTS={firstRow:86,row:54,category:34,categoryOffset:-10,contentsCentre:42} as const;
 /** Component-level capture fit against the same settled native frame. These
- * values retain the delivered layouts: they position the row body and footer
- * panes, and compensate the source blue register for BtnShdw00's later blend. */
-export const APPLICATION_MANUAL_LOWER_FIT={rowBodyY:2,secondCategoryRegister:[118,183,218] as [number,number,number],languageGlyphX:-43,languageLabelX:13} as const;
+ * values retain the delivered layouts: they position the row body and
+ * compensate the source blue register for BtnShdw00's later blend. */
+export const APPLICATION_MANUAL_LOWER_FIT={rowBodyY:2,secondCategoryRegister:[118,183,218] as [number,number,number]} as const;
 /** Applet `IndexNull` (layout/IndexNull.arc/blyt/IndexNull.bclyt, SHA-256
  * af65d3ac00782bdd74f2c09ea36a61d739650bab5da39602acca4be9d85443c9)
  * holds `SoftTitleHead` at Y+262 of its 400×480 dual-screen root,
@@ -369,6 +369,77 @@ function prepareApplicationManualCategory(renderer:NativeLayoutRenderer){
   preparedApplicationManualCategories.add(renderer);
 }
 
+/** Manual 0x13b324 calls 0x16da3c after the named-style writer. Its paired
+ * label/pictogram placer measures float32 advances, adds 8px, then truncates
+ * X toward zero. The four original Y/Z coordinates are not rounded. */
+function applicationManualLanguageOverrides(renderer:NativeLayoutRenderer):PaneOverrides{
+  const fail=()=>{throw new Error('Unsupported Manual Contents language footer source');};
+  const same=(value:unknown,expected:readonly number[])=>Array.isArray(value)&&value.length===expected.length&&value.every((item,index)=>item===expected[index]);
+  const pack=renderer.packs['manual-footer-language'],layout=pack?.layouts.BtnLngSel00,clip=pack?.animations.BtnLngSel00_SceneIn;
+  const messages=renderer.packs['helper-messages'],bank=messages?.messages.ebird,table=bank?.styleTable?messages.styles?.[bank.styleTable]:undefined;
+  if(!layout||layout.unsupported.length||layout.canvas.width!==320||layout.canvas.height!==240||layout.canvas.origin!==1||layout.fonts.length!==1||layout.fonts[0]!=='cbf_std.bcfnt'
+    ||!clip||!('unsupported' in clip)||!Array.isArray(clip.unsupported)||clip.unsupported.length||clip.frames!==21||!bank||bank.styleTable!=='message/EU_English/RI.mstl'
+    ||!('version' in bank)||bank.version!==3||!('unsupported' in bank)||!Array.isArray(bank.unsupported)||bank.unsupported.length
+    ||!table||!('recordSize' in table)||table.recordSize!==44||!('unsupported' in table)||!Array.isArray(table.unsupported)||table.unsupported.length!==1)return fail();
+  const diagnostic=table.unsupported[0];
+  if(!diagnostic||typeof diagnostic!=='object'||!('kind' in diagnostic)||diagnostic.kind!=='styleFields'
+    ||!('offsets' in diagnostic)||!same(diagnostic.offsets,[0,4,8,12,16,20,40])||Object.keys(diagnostic).sort().join(',')!=='kind,offsets')return fail();
+  const selected=[['BtnLngSel',4,19,'Language',Math.fround(.7),123],['BtnLngSel_Picto',5,18,'\ue003',Math.fround(.765),27]] as const;
+  for(const [label,index,styleIndex,value,scale,width] of selected){
+    const message=bank.messages[index],style=table.styles[styleIndex],words=style?.unresolvedWords;
+    if(bank.labels[label]!==index||!message||message.text!==value||message.styleIndex!==styleIndex||message.tokens.length!==1
+      ||!message.tokens[0]||typeof message.tokens[0]!=='object'||Object.keys(message.tokens[0]).join(',')!=='text'||!('text' in message.tokens[0])||message.tokens[0].text!==value
+      ||!style||Object.keys(style).sort().join(',')!=='characterSpacing,fontScale,lineSpacing,unresolvedWords'||!same(style.fontScale,[scale,scale])||style.characterSpacing!==0||style.lineSpacing!==0
+      ||!words||Object.keys(words).sort().join(',')!=='0,12,16,20,4,40,8'||words[0]!==width||words[4]!==1||words[8]!==0||words[12]!==0||words[16]!==0||words[20]!==0||words[40]!==4)return fail();
+  }
+  const font=renderer.getFontManifest('cbf_std.bcfnt');
+  if(!font||font.sourceSha256!=='95d5a675ae14cc22b84b5b89c8d10cc894f1e2dfaf00a1168545fe76fb1eb581'
+    ||font.colorMode!=='alpha'||font.width!==25||font.height!==30||font.ascent!==25||font.baseline!==25||font.lineFeed!==30)return fail();
+  for(const [character,advance] of [['L',15],['a',14],['n',15],['g',16],['u',15],['e',15],['\ue003',24]] as const){
+    if(font.glyphs[String(character.charCodeAt(0))]?.advance!==advance)return fail();
+  }
+  const specs=[
+    ['T_BtnB_Text',23.5,[123,21],[17.5,21],3,18,'Language'],
+    ['T_BtnF_Text',25,[123,21],[17.5,21],4,18,'Language'],
+    ['T_BtnB_Pict',24.5,[26.75,22.5],[19.125,22.94999885559082],5,6,'\ue003 '],
+    ['T_BtnF_Pict',26,[26.75,22.5],[19.25,23.200000762939453],6,6,'\ue003 '],
+  ] as const;
+  const validate=(selectedLayout:NativeLayout)=>{
+    const counts=new Map<string,number>();
+    const visit=(panes:NativePane[])=>{for(const pane of panes){counts.set(pane.name,(counts.get(pane.name)??0)+1);visit(pane.children);}};
+    visit(selectedLayout.roots);
+    for(const [name,y,size,fontSize,materialIndex,capacity,value] of specs){
+      const path=nativePaneParentPath(selectedLayout,name);
+      if(!path||path.map(pane=>pane.name).join('/')!==`RootPane/BtnLngSel_00/P_Btn_02/${name}`)return fail();
+      for(const [index,pane] of path.entries()){
+        if(counts.get(pane.name)!==1||pane.kind!==(index===3?'txt1':index===2?'pic1':'pan1')||pane.flags!==(index===1?3:1)||pane.alpha!==255
+          ||pane.origin!==(index===3?1:index===2?7:4)||pane.unsupported?.length||pane.part||pane.window||index!==2&&pane.picture||index!==3&&pane.text||!same(pane.rotation,[0,0,0])||!same(pane.scale,[1,1])
+          ||!same(pane.translation,index===3?[0,y,0]:index===2?[80,-120,0]:[0,0,0])||!same(pane.size,index===3?size:index===2?[160,28]:index===1?[10,10]:[320,240]))return fail();
+      }
+      const pane=path[3],text=pane.text;
+      if(pane.children.length||pane.picture||!text||text.font!==0||text.material!==materialIndex||text.alignment!==4||text.lineAlignment!==0
+        ||!('flags' in text)||text.flags!==0||!('capacity' in text)||text.capacity!==capacity||!('length' in text)||text.length!==capacity||text.value!==value
+        ||!same(text.size,fontSize)||text.characterSpacing!==0||text.lineSpacing!==0||!same(text.topColor,[255,255,255,255])||!same(text.bottomColor,[255,255,255,255])
+        ||Object.keys(text).sort().join(',')!=='alignment,bottomColor,capacity,characterSpacing,flags,font,length,lineAlignment,lineSpacing,material,size,topColor,value')return fail();
+      const material=selectedLayout.materials[materialIndex],color=name.includes('BtnB')?255:50;
+      if(!material||Object.keys(material).sort().join(',')!=='bufferColor,constantColors,coordinateGenerators,flags,name,tevStages,textureMaps,textureMatrices,textureOnly,unsupported'
+        ||material.name!==name||!('flags' in material)||material.flags!==0||material.textureOnly!==false||!same(material.bufferColor,[0,0,0,0])
+        ||material.constantColors.length!==6||!same(material.constantColors[0],[color,color,color,255])||material.constantColors.slice(1).some(item=>!same(item,[255,255,255,255]))
+        ||material.textureMaps.length||material.textureMatrices.length||material.coordinateGenerators.length||material.tevStages.length||material.unsupported.length)return fail();
+    }
+  };
+  validate(layout);validate(poseNativeLayout(layout,pack.animations,[{name:'BtnLngSel00_SceneIn',frame:20}]));
+  const measure=(value:string,scale:number)=>Array.from(value).reduce((width,character)=>Math.fround(width+Math.fround(font.glyphs[String(character.charCodeAt(0))].advance*scale)),0);
+  const labelWidth=measure('Language',Math.fround(.7)),pictogramWidth=measure('\ue003',Math.fround(.765));
+  const labelOffset=Math.fround(Math.fround(pictogramWidth+8)*.5),pictogramOffset=Math.fround(labelWidth*.5);
+  return Object.fromEntries(specs.map(([name])=>{
+    const pane=nativePaneParentPath(layout,name)!.at(-1)!,pictogram=name.endsWith('Pict');
+    const override=nativeMessageOverride(messages,'ebird',pictogram?'BtnLngSel_Picto':'BtnLngSel','');
+    const x=Math.trunc(Math.fround(pane.translation[0]+(pictogram?-pictogramOffset:labelOffset)));
+    return [name,{...override,translation:[x,pane.translation[1],pane.translation[2]]}];
+  }));
+}
+
 /** Application manual Contents. Rows come only from
  * the application's source Index.bclyt; titles, numbers and order are source
  * data. All visible chrome below is decoded from the Manual applet packs. */
@@ -378,6 +449,7 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
   if(view.screen==='document')return drawApplicationManualPage(renderer,top,bottom,view,options);
   prepareApplicationManualCategory(renderer);
   prepareApplicationManualRows(renderer,bottom);
+  const languageOverrides=applicationManualLanguageOverrides(renderer);
   const entries=manualContents(index);
   const message=(label:string)=>nativeMessageOverride(renderer.packs['helper-messages'],'ebird',label,'');
   let okay=true;
@@ -419,7 +491,7 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
   draw(bottom,'manual-cursor','CsrHeadLine00',{center:[160,APPLICATION_MANUAL_SLOTS.firstRow+4],bindings:[{name:'CsrHeadLine00_Wait',frame:22}],clip:APPLICATION_MANUAL_LIST_CLIP});
   draw(bottom,'manual-footer-shadow','BtnShdw00',{bindings:[{name:'BtnShdw00_SceneIn',frame:20}]});
   draw(bottom,'manual-footer-close','BtnCloseLng00',{textSampling:'lcd-source-size',bindings:[{name:'BtnCloseLng00_SceneIn',frame:20}],overrides:{T_BtnB_01:message('BtnCloseLng'),T_BtnF_01:message('BtnCloseLng')}});
-  draw(bottom,'manual-footer-language','BtnLngSel00',{textSampling:'lcd-source-size',bindings:[{name:'BtnLngSel00_SceneIn',frame:20}],overrides:{T_BtnB_Text:{...message('BtnLngSel'),translation:[APPLICATION_MANUAL_LOWER_FIT.languageLabelX,23.5,0]},T_BtnF_Text:{...message('BtnLngSel'),translation:[APPLICATION_MANUAL_LOWER_FIT.languageLabelX,25,0]},T_BtnB_Pict:{...message('BtnLngSel_Picto'),translation:[APPLICATION_MANUAL_LOWER_FIT.languageGlyphX,24.5,0]},T_BtnF_Pict:{...message('BtnLngSel_Picto'),translation:[APPLICATION_MANUAL_LOWER_FIT.languageGlyphX,26,0]}}});
+  draw(bottom,'manual-footer-language','BtnLngSel00',{textSampling:'lcd-source-size',bindings:[{name:'BtnLngSel00_SceneIn',frame:20}],overrides:languageOverrides});
   return okay;
 }
 

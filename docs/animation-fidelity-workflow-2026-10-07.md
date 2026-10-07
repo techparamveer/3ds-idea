@@ -602,7 +602,143 @@ HEAD `71ee784`. Delivered common/Manual pack contentIndex/contentId fields
 remain null; original content0 identities in the selector's handoff records are
 separate evidence, not populated pack fields. All native scenes stay muted,
 audio is unverified, and AN-01 through AN-04 whole scenarios remain fail.
-Asset export still awaits explicit approval. The next bounded folder check
-tests whether original lower cursor producer values explain the observed
-bracket difference; measured green extents do not support a simple smaller
-native scale. No fitted scale or guessed timing is authorized.
+Asset export still awaits explicit approval. The bounded folder cursor audit
+found no fixed geometry defect. Browser19 records Scale1, Select0 and Loop1
+at center76,137. `screens.ts` forwards these applied frames to `cursorAt` in
+`firmware-presentation.ts`; the source `W_CsrF_00` pose is95x95, scale1,1,
+translation0,-1. Folder16's child-parent path has identity transforms and
+alpha255. Original `LncCsr_00_Loop` animates texture translation and glow,
+not pane geometry. Native green extent is80x80 versus browser76x76, with832
+versus856 covered pixels in the fixed ROI. The corners differ, but a smaller
+native whole-cursor scale is not supported. `home-controls.ts` advances the
+retained lower Loop independently of the upper child-banner activation gate.
+Native61's applied Scale/Loop and visibility epoch remain unknown. All relevant
+source files are unchanged from served98342a8;29 focused cursor tests pass.
+No resize, phase reset, closest-frame fit or other helper change was made.
+
+The bounded Manual ready-screen audit also found no source-proven correction.
+Its446 upper residual pixels separate into400 icon and46 scrollbar pixels.
+The1038 lower pixels separate into457 first-row glyphs,319 second-row glyphs
+and262 footer pixels. The footer contains256 Language pictogram pixels and6
+label-stem pixels. Both repeat sheets and relevant code/assets are unchanged
+from98342a8. `stock-native-helpers.ts` requests `textSampling:'lcd'` for the
+original row text, but its alignment0/lineAlignment0 falls back to pane raster
+and fractional Canvas blitting in `native-renderer.ts`. The existing direct
+top-left sampler is not selected. A sampler change needs the original row
+writer's branch; the visible residual alone does not prove that branch.
+The traced scrollbar resize at0x139de4 to0x143074 lacks the Camera Contents
+owner/count/geometry. The icon's original SMDH UV/mask/linear-filter bindings
+remain intact, with a known sampling/combiner gap. Footer writer/style
+application and coverage remain unproven. No offsets, alternate sampling,
+scrollbar resize, new asset or source code change followed this audit.
+The follow-up bounded row-writer trace verified Manual0004003000009b02/v5120,
+content0/id0000000a and NCCH SHA
+`c493384988edd28b723b69b77f8406eaca4cf54e55446f4f5977a40e0d70c92a`.
+The pinned decoded executable `cf4658f9...` and row disassembly are unavailable;
+a read-only no-file decompression attempt failed. Layout alignment0/0, font
+17.5x21, zero spacing and fractional Y1.53999996 do not prove the original
+Camera row constructor/string-writer/render branch. The worker stopped with
+that source gap and made no source or asset edit.
+
+## Held-HOME recovery and fixed pause diagnostics
+
+GitHub was fetched again; origin/main remains `5ee6fd7`. Source HEAD is
+`55a4531`, production3021 still serves `98342a8`. No runtime, public asset or
+build changed in this capture checkpoint. The incoming export decision is
+still pending and was not bypassed.
+
+The coordinator used the private `native-folder-slow/Azahar.app`, executable
+SHA `3dfdfbed147cfb420f224385e832191833d07b0951d4b86326ab193e2deb3b21`,
+and HOME00009802/content00000082.app SHA
+`c622d1c5584d7fae6622b6c20b258e93f7924b294651d669a539da2955d9521d`.
+All paths below are under the private animation artifact root. The copy has
+no user-profile symlinks or custom storage. Volume0, Null output1, Static input2,
+normal100%, screenshot factor1 and separate-window mode remained unchanged.
+The UI confirmed volume0%. No system/Spotify/default-profile change occurred.
+
+The persistent `cua_driver` route supplies explicit render-window IDs and
+modifier-held dragging. Background and foreground Health touches initially
+did nothing. An unsaved Preferences inspection exposed a hidden direct-launch
+camera-emulation warning omitted from the window inventory. Canceling
+Preferences and dismissing its actual OK control made the same Health tile
+input work. No touch mapping was changed. This isolates this run's blocked
+prefix, not the cause of every historical input failure.
+
+HOME alone was temporarily bound from B66/default=true to QtShift16777248/
+default=false; the screenshot path was also isolated. Foreground upper-LCD
+gestures requested500ms and20 steps with Shift held. Health suspended, its
+actual Resume footer reopened Health, and the same gesture suspended again.
+Pinned Azahar's Qt press/release path, focus-out clearing and APT rising-edge
+poll at16666us explain the supported route. Requested500ms is not a measured
+native key duration or animation epoch. A cross-controller100-request burst
+was refused before execution, then state was refreshed. Later20,40 and25
+screenshot requests produced12,18 and25 PNGs, plus one baseline. Do not count
+the refused burst as100 delivered frames or interpret the25-request29.5s
+tool loop as renderer cadence.
+
+`native-folder-slow/home-hold-analysis-20261007/home-hold-index.json` SHA
+`1e6f3bef9a4c6e9784ab1fa1508efd8924464b93485645c71146fdd8ed924706`
+indexes all56 originals,46 unique and10 duplicates. Resume13 repeats the
+previous PNG and remains explicitly possibly stale. Native source frame and
+activation epoch remain null. The predeclared first/repeat complete suspended
+pairs are index1/31,22.07.39.845/22.09.07.685, SHA
+`825a0f7447288a641aeb390a8d274725dae00bd8c3ba1f90440321fb104d0f43` /
+`52a924849fe02f7feeba286b1b03d1361b27c4ecb2f70e4cfcc76d7f7c69fd3f`.
+Index24 is the first visually full-size resumed Health pair, not readiness.
+The56-frame sheet and both own400x480 suspended PNGs were opened. The entry
+bursts are settled-only; resume intermediates do not prove suspension motion.
+
+Config backups are `native-folder-slow/home-hold-preflight-config-20261007.ini`
+SHA `ccd30d00e84d47d682ca7cfc0c530b6839a8ee127e5e51b67208c7e8ba0a6f8c`
+and `home-hold-post-quit-config-20261007.ini` SHA
+`a4183c4a6e1e21bb24136fd32b72e31ce9e775cdddffa21af2c48af3b23c7f30`.
+The coordinator observed prelaunch live config SHA `2a6ef549...`; that live
+version was not separately preserved. `home-hold-launch-20261007.log` SHA
+`f7793881e51125296973f7a73183778310bb6cce4e975aa96fca643ebe974d16`
+records the run. GUI Quit/Yes exited139; PID66315 absence was verified before
+restoring only HOME and screenshot path. Restored live config SHA is
+`ffab8532528ce61e2dfc6a653369354e185d96cf7b74b07178f31a9a683f0404`.
+GUI-normalized window geometry was preserved rather than overwritten by backup.
+
+Production `touch-recovery-98342a8/pause-health-physical-native-hold-diagnostic/`
+contains79/82 raw pairs without page errors. The collector was the unchanged
+current file, last changed at `9882f97`, SHA
+`dd79180970e55e39693e5e52e2091081880b6ce2accb1fc7b80f4f248a51ee90`.
+It differs from the script at served98342a8; no execution hash is embedded in
+the ledger, so this is coordinator attestation. All322 raw PNG hashes and
+dimensions were verified. Browser input was a physical HOME click, with no
+measured hold duration, after keyboard title selection; native used touch
+selection and the held Shift gesture. These inputs are not matched.
+
+The original browser selector incorrectly named requested native500ms as
+`nativeHeldHomeDurationMs`. Review caught this. The original remains unchanged;
+`touch-recovery-98342a8/pause-browser-selection-corrected.json` SHA
+`31298b909e342b527f2676547bce33d26fcfe78e613a2472fb6ccf4397bf8557`
+changes only that provenance to requested500ms/measured-null. First eligible
+same-paint paired pause20 remains cycle0 index22 at722.2ms/receipt374 and
+cycle1 index24 at648.1ms/receipt487. Each sequence includes pause0..20 in
+order. HOME banner identity is recorded, but the private pause owner and
+capture generation are not exposed and remain null. Do not substitute the
+banner's identity for them.
+
+Fresh corrected comparisons pin that corrected selector without changing
+either selected pair. `touch-recovery-98342a8/pause-fixed-terminal-comparisons-corrected/pause-comparison-results.json`
+SHA `fdfbb5d49410a9d389b288dc722201a07a5fcbe1ffd2357fd1d46d5ce6e900e4`
+links both selectors, LCD hashes, runtime98342a8, comparator and empty mask.
+Cycle0 report SHA `124ded6709e89d9d2079abe201e9ac1a0c0974c9b5173023ac76ae18ea75d780`
+differs17487 upper/37604 lower pixels above delta2. Cycle1 report SHA
+`822bb92bec51b6fff838d5661e921afe7f9e9ba7b2ff0a262c3cf1f9e3cffebe`
+differs12408/37748. All four corrected sheets were opened. The terminal window
+geometry is similar, but frozen Health phase, title/icon/caption edges, HUD,
+cursor, footer and population differ. The eight portfolio apps are an explicit
+content adaptation, not a blanket mask for unrelated native residuals. Both
+complete console views were opened and their nonblank statistics are in
+`touch-recovery-98342a8/pause-console-inspection-checks.json`, SHA
+`5e1072580271c9c510d40cbdde12706789a6294ed68eb0d12013b96d4e18330c`.
+
+Native and browser processes used for these captures are closed; the3021
+preview remains running. Audio is muted and unverified. AN-01 through AN-04
+remain fail. Next is an explicitly recorded browser HOME hold while paints
+continue, followed by native entry recapture through the recovered route.
+Neither this terminal comparison nor the source audits authorize a fitted
+phase, cursor resize or unproven Manual sampler change.

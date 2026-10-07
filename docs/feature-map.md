@@ -25,7 +25,16 @@ Contents by446/1038. The new folder panel-completion diagnostic differs
 by37226/8007. Native corruption and Manual clear-before-partial ordering remain
 explicit; no phase/epoch repair or timing acceptance is claimed. Native upper
 exposure before lower-belt clearing does not prove separate LCD clocks.
-Mapped HOME/A taps left Health unchanged, so those are input diagnostics only.
+Earlier mapped HOME/A taps left Health unchanged and remain input diagnostics.
+The later held-HOME run dismisses a hidden startup warning, launches Health,
+suspends, resumes and suspends again. Its56 own PNGs establish the route, not
+entry cadence. Production pause79/82 pairs are error-free. Predeclared settled
+pause comparisons differ by17487/37604 and12408/37748 above delta2, with empty
+masks. Requested native hold500ms is not measured native input duration; the
+browser comparison used a click. No fixed cursor defect or source-proven
+Manual sampling correction emerged from the bounded audits. Next is recorded
+held-input browser collection and native entry recapture, not a fitted fix.
+[Held-HOME evidence](animation-fidelity-workflow-2026-10-07.md#held-home-recovery-and-fixed-pause-diagnostics).
 [Recovered touch and fixed comparisons](animation-fidelity-workflow-2026-10-07.md#native-touch-recovery-and-fixed-stage-diagnostics).
 [Current preparation boundary](animation-fidelity-workflow-2026-10-07.md#incoming-plain-label-preparation).
 

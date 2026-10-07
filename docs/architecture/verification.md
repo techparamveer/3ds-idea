@@ -10,6 +10,16 @@ epochs. Fixed first-observed stages and source-pose browser receipts are
 diagnostics only until their input, timing and publication are matched.
 An empty cartridge placeholder is not a valid Create Folder fixture.
 
+[Held-HOME recovery](../animation-fidelity-workflow-2026-10-07.md#held-home-recovery-and-fixed-pause-diagnostics)
+establishes native Health suspend/resume/repeat through a requested500ms
+foreground Shift gesture. Record requested host hold separately from measured
+input duration and native activation epoch. Native screenshot request count is
+not delivered PNG count or renderer cadence. The new first chronological valid
+suspended pairs and browser first same-paint paired pause20 are fixed static
+diagnostics. Browser banner identity does not identify the private pause owner
+or capture generation; absent fields remain null. Do not infer matching motion
+from terminal window geometry or mask population differences wholesale.
+
 [HOME launch onset](../home-launch-onset-2026-10-03.md) now has continuous
 native pre-A/feedback/fade/logo evidence. Distinguish first Open pressed
 feedback from footer SceneOut, and last pre-fade banner from disappearance.

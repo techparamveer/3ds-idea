@@ -111,10 +111,31 @@ export async function holdPauseHome(page, activation, requestedHoldDurationMs, i
       }));
     }
   }
+  return input;
+}
+
+export function validatePauseHomeHold(input, durationMs, frames) {
   assert.ok(input.down && input.up, 'HOME hold has matching observed host down/up events');
+  assert.ok(Number.isFinite(input.down.atMs) && input.down.atMs >= 0
+    && Number.isFinite(input.up.atMs) && input.up.atMs >= input.down.atMs && input.up.atMs <= durationMs,
+  'Observed HOME down/up must be inside the declared capture window');
   assert.ok(Number.isFinite(input.observedHostDurationMs) && input.observedHostDurationMs >= 0,
     'HOME hold has a monotonic observed host duration');
-  return input;
+  assert.ok(Number.isInteger(input.collectedFrameCountDuringHold) && input.collectedFrameCountDuringHold > 0
+    && Number.isInteger(input.collectedPaintCountDuringHold) && input.collectedPaintCountDuringHold > 0
+    && input.collectedPaintCountDuringHold <= input.collectedFrameCountDuringHold,
+  'HOME hold requires positive captured frame and distinct-paint counts');
+  const heldFrames = frames.filter(frame => frame.homeHoldActive
+    && frame.at >= input.down.atMs && frame.at <= input.up.atMs);
+  assert.equal(input.collectedFrameCountDuringHold, heldFrames.length, 'HOME held-frame count matches retained evidence');
+  assert.equal(input.collectedPaintCountDuringHold, new Set(heldFrames.map(frame => frame.data.screenPaint)).size,
+    'HOME held-paint count matches retained evidence');
+}
+
+export async function writeInitialCapture(path, result) {
+  await writeFile(path, JSON.stringify(result, null, 2) + '\n');
+  if (result.pauseHomeHoldFailure) throw new Error(result.pauseHomeHoldFailure);
+  if (result.pauseHomeHold) validatePauseHomeHold(result.pauseHomeHold, result.durationMs, result.frames);
 }
 
 async function main() {
@@ -280,8 +301,11 @@ try {
     assert.equal(selection.key, folderIdentity);
   }
   await page.evaluate(collectAnimationFrames, durationMs);
-  let pauseHomeHold = null;
-  if (values.scenario === 'pause' && homeHoldMs !== null) pauseHomeHold = await holdPauseHome(page, values.activation, homeHoldMs, inputs);
+  let pauseHomeHold = null, pauseHomeHoldFailure = null;
+  if (values.scenario === 'pause' && homeHoldMs !== null) {
+    try { pauseHomeHold = await holdPauseHome(page, values.activation, homeHoldMs, inputs); }
+    catch (error) { pauseHomeHold = inputs.at(-1) ?? null; pauseHomeHoldFailure = String(error); }
+  }
   else if (values.scenario === 'pause') values.activation === 'physical' ? await physical('HOME') : await key('h');
   else if (values.scenario === 'manual') await touch(50, 226);
   else if (values.activation === 'tile') await touch(136, 160);
@@ -307,8 +331,9 @@ try {
   const result = { valid: false, durationMs, scenario: values.scenario, title: ['manual', 'pause'].includes(values.scenario) ? title : values.scenario, commit: values.commit, commitAttestation: 'Coordinator-supplied served-build identity; not independently discovered by this script.', cycle, activation: values.activation, folderFixture: values['folder-fixture'], reducedMotion: values['reduced-motion'], url: values.url, viewport: page.viewportSize(), muted: true,
     method: 'Actual browser inputs; chronological raw screen paints. No diagnostic repaint or closest-pose search.',
     ...(values.activation === 'accessible' ? { adaptation: 'Keyboard activation of the existing screen-reader shortcut from the grid; not a native toolbar input or animation-acceptance scenario.' } : {}),
-    initial, before, folderPreparation, pausePreparation, ...(pauseHomeHold ? { pauseHomeHold } : {}), inputs, cycleInputs: inputs.slice(cycleInputOffset), after, frames: reports, errors, nativeCompared: false };
-  await writeFile(join(output, `${cycle ? `repeat-${cycle}-` : ''}capture.json`), JSON.stringify(result, null, 2) + '\n');
+    initial, before, folderPreparation, pausePreparation, ...(pauseHomeHold ? { pauseHomeHold } : {}),
+    ...(pauseHomeHoldFailure ? { pauseHomeHoldFailure } : {}), inputs, cycleInputs: inputs.slice(cycleInputOffset), after, frames: reports, errors, nativeCompared: false };
+  await writeInitialCapture(join(output, `${cycle ? `repeat-${cycle}-` : ''}capture.json`), result);
   assert.ok(frames.length > 2, 'Transition has chronological raw LCD paints');
   assert.deepEqual(errors, [], 'No browser page errors');
   assert.ok(frames.every(frame => frame.data.nativeScreen !== 'error'), 'No native screen recovery during the captured transition');

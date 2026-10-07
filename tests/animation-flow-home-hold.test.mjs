@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createContext, runInContext } from 'node:vm';
-import { collectAnimationFrames, holdPauseHome, parsePauseHomeHold } from '../scripts/verify-animation-flow.mjs';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { collectAnimationFrames, holdPauseHome, parsePauseHomeHold, validatePauseHomeHold, writeInitialCapture } from '../scripts/verify-animation-flow.mjs';
 
-function browserFixture({ releaseLatencyMs = 0, waitFailure = false, suppressDown = false } = {}) {
+function browserFixture({ releaseLatencyMs = 0, setupLatencyMs = 0, paintChanges = true, waitFailure = false, suppressDown = false } = {}) {
   let now = 100, paint = 0, raf = [], held = false;
   const listeners = new Map(), canvas = { tagName: 'CANVAS', id: 'lcd' };
   const host = { tagName: 'DIV', id: 'console', contains: target => target === host || target === canvas,
@@ -33,8 +36,10 @@ function browserFixture({ releaseLatencyMs = 0, waitFailure = false, suppressDow
     const end = now + durationMs;
     while (now < end) {
       now = Math.min(now + 50, end);
-      host.dataset.screenPaint = String(++paint);
-      host.dataset.screenPresented = JSON.stringify({ paint, validPublication: true });
+      if (paintChanges) {
+        host.dataset.screenPaint = String(++paint);
+        host.dataset.screenPresented = JSON.stringify({ paint, validPublication: true });
+      }
       const callbacks = raf;
       raf = [];
       for (const callback of callbacks) callback();
@@ -47,7 +52,7 @@ function browserFixture({ releaseLatencyMs = 0, waitFailure = false, suppressDow
   };
   const up = type => { advance(releaseLatencyMs); event(type); held = false; };
   const page = { evaluate, viewportSize: () => ({ width: 800, height: 600 }),
-    locator: () => ({ focus: async () => {}, evaluate: async (fn, value) => fn(host, value) }),
+    locator: () => ({ focus: async () => advance(setupLatencyMs), evaluate: async (fn, value) => { advance(setupLatencyMs); return fn(host, value); } }),
     keyboard: { down: async () => down('keydown'), up: async () => up('keyup') },
     mouse: { move: async () => {}, down: async () => down('pointerdown'), up: async () => up('pointerup') },
     waitForTimeout: async durationMs => {
@@ -60,7 +65,7 @@ function browserFixture({ releaseLatencyMs = 0, waitFailure = false, suppressDow
     listenerCount: () => [...listeners.values()].reduce((sum, handlers) => sum + handlers.size, 0) };
 }
 
-test('HOME hold is opt-in and rejects unsupported paths or release outside the capture window', () => {
+test('HOME hold is opt-in and rejects unsupported paths or requested intervals at least as long as capture', () => {
   const pause = { scenario: 'pause', activation: 'key', durationMs: 1000 };
   assert.equal(parsePauseHomeHold(undefined, pause), null);
   assert.equal(parsePauseHomeHold('500', pause), 500);
@@ -81,6 +86,7 @@ for (const activation of ['key', 'physical']) {
     await browser.page.evaluate(collectAnimationFrames, 1000);
     const input = await holdPauseHome(browser.page, activation, 500, inputs);
     browser.advance(63);
+    validatePauseHomeHold(input, 1000, browser.window.animationCapture.frames);
     assert.equal(input.requestedHoldDurationMs, 500);
     assert.equal(input.observedHostDurationMs, 537);
     assert.equal(input.down.performanceNowMs, 100);
@@ -127,10 +133,11 @@ for (const activation of ['key', 'physical']) {
   });
 }
 
-test('missing DOM delivery fails without synthesizing a down, up or measured interval', async () => {
+test('missing DOM delivery stays unacknowledged and is retained before rejection', async t => {
   const browser = browserFixture({ suppressDown: true }), inputs = [];
   await browser.page.evaluate(collectAnimationFrames, 1000);
-  await assert.rejects(holdPauseHome(browser.page, 'key', 500, inputs), /matching observed host down\/up/);
+  const input = await holdPauseHome(browser.page, 'key', 500, inputs);
+  assert.throws(() => validatePauseHomeHold(input, 1000, browser.window.animationCapture.frames), /matching observed host down\/up/);
   assert.equal(inputs[0].requestedHoldDurationMs, 500);
   assert.equal(inputs[0].down, null);
   assert.equal(inputs[0].up, null);
@@ -140,6 +147,76 @@ test('missing DOM delivery fails without synthesizing a down, up or measured int
   assert.equal(browser.window.animationCapture.frames.length, 11);
   assert.equal(browser.held(), false);
   assert.equal(browser.listenerCount(), 0);
+  const dir = await mkdtemp(join(tmpdir(), 'animation-home-hold-missing-event-'));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const path = join(dir, 'capture.json');
+  await assert.rejects(writeInitialCapture(path, { valid: false, durationMs: 1000, pauseHomeHold: input,
+    frames: Array.from(browser.window.animationCapture.frames) }), /matching observed host down\/up/);
+  const retained = JSON.parse(await readFile(path, 'utf8'));
+  assert.equal(retained.valid, false);
+  assert.equal(retained.pauseHomeHold.down, null);
+  assert.equal(retained.frames.length, 11);
+});
+
+for (const activation of ['key', 'physical']) {
+  for (const latency of [{ setupLatencyMs: 600 }, { releaseLatencyMs: 600 }]) {
+    test(`${activation} ${latency.setupLatencyMs ? 'setup' : 'release'} latency rejects observed window overrun after writing its ledger`, async t => {
+      const browser = browserFixture(latency), inputs = [];
+      await browser.page.evaluate(collectAnimationFrames, 1000);
+      const input = await holdPauseHome(browser.page, activation, parsePauseHomeHold('500',
+        { scenario: 'pause', activation, durationMs: 1000 }), inputs);
+      assert.equal(input.up.atMs, 1100);
+      assert.equal(input.down.atMs, latency.setupLatencyMs ?? 0);
+      assert.equal(browser.window.animationCapture.done, true);
+      const dir = await mkdtemp(join(tmpdir(), 'animation-home-hold-overrun-'));
+      t.after(() => rm(dir, { recursive: true, force: true }));
+      const path = join(dir, 'capture.json');
+      const result = { valid: false, durationMs: 1000, pauseHomeHold: input,
+        frames: Array.from(browser.window.animationCapture.frames) };
+      await assert.rejects(writeInitialCapture(path, result), /inside the declared capture window/);
+      const retained = JSON.parse(await readFile(path, 'utf8'));
+      assert.equal(retained.valid, false);
+      assert.equal(retained.pauseHomeHold.up.atMs, 1100);
+      assert.equal(retained.pauseHomeHold.requestedHoldDurationMs, 500);
+      assert.equal(retained.frames.at(-1).at, 1000);
+      assert.equal(retained.frames[0].top, 'top-pair');
+      assert.equal(retained.frames[0].bottom, 'bottom-pair');
+      assert.equal(browser.held(), false);
+      assert.equal(browser.listenerCount(), 0);
+    });
+  }
+
+  test(`${activation} matching HOME events with no collected paint are rejected after retaining the ledger`, async t => {
+    const browser = browserFixture({ paintChanges: false }), inputs = [];
+    await browser.page.evaluate(collectAnimationFrames, 1000);
+    const input = await holdPauseHome(browser.page, activation, 500, inputs);
+    assert.equal(input.down.atMs, 0);
+    assert.equal(input.up.atMs, 500);
+    assert.equal(input.collectedFrameCountDuringHold, 0);
+    assert.equal(input.collectedPaintCountDuringHold, 0);
+    const dir = await mkdtemp(join(tmpdir(), 'animation-home-hold-no-paint-'));
+    t.after(() => rm(dir, { recursive: true, force: true }));
+    const path = join(dir, 'capture.json');
+    await assert.rejects(writeInitialCapture(path, { valid: false, durationMs: 1000, pauseHomeHold: input,
+      frames: Array.from(browser.window.animationCapture.frames) }), /positive captured frame and distinct-paint counts/);
+    const retained = JSON.parse(await readFile(path, 'utf8'));
+    assert.equal(retained.valid, false);
+    assert.equal(retained.pauseHomeHold.collectedPaintCountDuringHold, 0);
+    assert.equal(retained.frames.length, 1);
+    assert.equal(browser.held(), false);
+    assert.equal(browser.listenerCount(), 0);
+  });
+}
+
+test('HOME count inconsistencies and negative observed starts are rejected from retained frames', async () => {
+  const browser = browserFixture(), inputs = [];
+  await browser.page.evaluate(collectAnimationFrames, 1000);
+  const input = await holdPauseHome(browser.page, 'key', 500, inputs);
+  const frames = browser.window.animationCapture.frames;
+  assert.throws(() => validatePauseHomeHold({ ...input, down: { ...input.down, atMs: -1 } }, 1000, frames), /inside the declared capture window/);
+  assert.throws(() => validatePauseHomeHold({ ...input, collectedFrameCountDuringHold: 9 }, 1000, frames), /positive captured/);
+  assert.throws(() => validatePauseHomeHold({ ...input, collectedFrameCountDuringHold: 11 }, 1000, frames), /held-frame count matches/);
+  assert.throws(() => validatePauseHomeHold({ ...input, collectedPaintCountDuringHold: 9 }, 1000, frames), /held-paint count matches/);
 });
 
 test('ordinary capture keeps its original frame shape when no HOME hold was requested', async () => {

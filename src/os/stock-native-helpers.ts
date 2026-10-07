@@ -296,7 +296,8 @@ function validateApplicationManualRowNumber(layout:NativeLayout,bodyY:number,col
   const picture=path[2].picture,text=path[3].text;
   if(!picture||keys(picture)!=='colors,material,uvSets'||picture.material!==1||picture.colors.length!==4
     ||picture.colors.some(value=>!same(value,[255,255,255,255]))||picture.uvSets.length!==1||!same(picture.uvSets[0],[0,0,2,0,0,2,2,2]))return fail();
-  if(!text||path[3].children.length||text.font!==0||text.material!==2||text.alignment!==4||text.lineAlignment!==2
+  if(!text||keys(text)!=='alignment,bottomColor,capacity,characterSpacing,flags,font,length,lineAlignment,lineSpacing,material,size,topColor,value'
+    ||text.value!=='0'||path[3].children.length||text.font!==0||text.material!==2||text.alignment!==4||text.lineAlignment!==2
     ||text.characterSpacing!==0||text.lineSpacing!==0||!('flags' in text)||text.flags!==0
     ||!('capacity' in text)||text.capacity!==4||!('length' in text)||text.length!==4||!same(text.size,[15.75,19.5])
     ||!same(text.topColor,[255,255,255,255])||!same(text.bottomColor,[255,255,255,255])

@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import { dirname, isAbsolute, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
+import { folderCapturePrecondition } from './reference/folder-capture-precondition.mjs';
 
 const { values } = parseArgs({ options: {
   'playwright-module': { type: 'string' }, 'browser-executable': { type: 'string' },
@@ -116,26 +117,16 @@ try {
   }
   let folderPreparation = null;
   if (values.scenario === 'folder') {
-    const observedAt = await page.evaluate(() => performance.now());
-    await page.waitForFunction(({ folderIdentity, folderSelection, observedAt }) => {
-      const host = document.querySelector('.console-stage'), data = host.dataset;
-      const view = JSON.parse(data.folderBanner ?? 'null');
-      const receipt = JSON.parse(data.screenPresented ?? 'null');
-      const primary = view?.primary, ticket = view?.resourceTicket;
-      return data.menu === 'home' && data.selected === folderSelection
-        && data.folderBannerFallback === 'false' && !data.nativeScreenFailure
-        && view?.status === 'active' && view.stage === 'active'
-        && view.selection.kind === 'folder' && view.selection.key === folderIdentity
-        && primary?.selection.kind === 'folder' && primary.selection.key === folderIdentity
-        && primary.motion.visible && primary.motion.requestedVisible
-        && primary.generation === view.generation && ticket?.generation === primary.generation
-        && ticket.requestEpoch === primary.requestEpoch
-        && receipt?.validPublication === true && receipt.paint?.at >= observedAt
-        && receipt.paint.phase === 'home' && receipt.paint.cursor?.selectedSlot === Number(folderSelection);
-    }, { folderIdentity, folderSelection, observedAt }, { timeout: 10000 });
+    const active = await page.waitForFunction(folderCapturePrecondition,
+      { folderIdentity, folderSelection }, { timeout: 10000 });
+    const identity = await active.jsonValue();
+    await active.dispose();
+    const prepared = await page.waitForFunction(folderCapturePrecondition,
+      { folderIdentity, folderSelection, after: identity }, { timeout: 10000 });
+    await prepared.dispose();
     folderPreparation = {
-      observedAt,
-      method: 'Wait for matching active native folder model and a fresh valid paired WebGL root receipt before input.',
+      identity,
+      method: 'Snapshot matching active native folder generation/request/activation, then wait for a later fresh valid paired WebGL root receipt while that identity remains current.',
       adaptation: 'Browser fixture preparation wait; not a recovered native input epoch or duration.',
     };
   }

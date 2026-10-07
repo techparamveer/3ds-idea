@@ -1,5 +1,5 @@
 import type { AppView } from './app-types';
-import { REFERENCE_DEVICE_STATUS, deviceStatusBatteryFrame } from './device-status-profile';
+import { REFERENCE_DEVICE_STATUS, deviceStatusBatteryFrame, hudColonVisible } from './device-status-profile';
 import type { NativeDrawOptions, NativeLayoutRenderer } from './native-renderer';
 import type { NativeTitlePackRequest } from './native-title-assets';
 import type { NotesIntroPaint, StockScreenPaintOptions } from './stock-screen-presentation';
@@ -15,6 +15,8 @@ export const personalNotesPacks:readonly NativeTitlePackRequest[]=[
   {url:notesPrefix+'memo-MemoTutorialUp-arc-l.json',alias:'notes-help',layouts:['MemoTutorialUp'],animations:['MemoTutorialUp_Base','MemoTutorialUp_SceneIn']},
   {url:notesPrefix+'memo-ApltBoot_U_00-arc-l.json',alias:'notes-aplt-u',layouts:['ApltBoot_U_00'],animations:['ApltBoot_U_00_SceneIn']},
   {url:notesPrefix+'memo-ApltBoot_D_00-arc-l.json',alias:'notes-aplt-d',layouts:['ApltBoot_D_00'],animations:['ApltBoot_D_00_SceneIn']},
+  {url:notesPrefix+'contents/0000-00000007/memo-HudMenuAplt_00-arc-l.json',alias:'notes-hud',layouts:['HudMenuAplt_00'],animations:['HudMenuAplt_00_SceneIn','HudMenuAplt_00_Bat','HudMenuAplt_00_NetMode','HudMenuAplt_00_NetAtn']},
+  {url:notesPrefix+'contents/0000-00000007/hud-messages.json',alias:'notes-hud-messages',layouts:[],animations:[]},
   {url:notesPrefix+'messages-and-loose.json',alias:'notes-messages',layouts:[],animations:[]},
 ];
 export const personalSelectedNotePacks:readonly NativeTitlePackRequest[]=[
@@ -37,6 +39,40 @@ export const personalNotificationPacks:readonly NativeTitlePackRequest[]=[
   {url:'packs/notifications/messages-and-loose.json',alias:'notification-messages',layouts:[],animations:[]},
 ];
 const WEEKDAYS=['sun','mon','tue','wed','thu','fri','sat'] as const;
+/** Notes 0x196f8c toggles T_TimeC_00 after one second; 0x197364 selects
+ * charging Bat = 4 + that visibility. Calendar parity is the existing host
+ * clock-phase adaptation, not a native SysTick/scene-start measurement. */
+export function notesHudClock(date:Date){
+  return {year:date.getFullYear(),month:date.getMonth()+1,day:date.getDate(),
+    hour:date.getHours(),minute:date.getMinutes(),colonVisible:hudColonVisible(date.getSeconds()),
+    batteryFrame:deviceStatusBatteryFrame(REFERENCE_DEVICE_STATUS,date.getSeconds())};
+}
+export function notesHudPaintOptions(messages:NativePack,date:Date):NativeDrawOptions{
+  const bank=messages.messages.hud;
+  const message=(label:string)=>{
+    const index=bank?.labels[label];
+    if(index===undefined||!bank?.messages[index])throw new Error('Missing native Notes HUD message: '+label);
+    return nativeMessageOverride(messages,'hud',label,'');
+  };
+  const dateText=message('lau_date'),hours=message('lau_hours'),minutes=message('lau_minutes');
+  if(dateText.text!=='%d/%M (%w)'||!['%I','%H'].includes(hours.text??'')||minutes.text!=='%m')
+    throw new Error('Unsupported native Notes HUD calendar format');
+  const clock=notesHudClock(date),status=REFERENCE_DEVICE_STATUS;
+  dateText.text=dateText.text.replace('%d',message('day_'+clock.day).text??'')
+    .replace('%M',message('month_'+clock.month).text??'')
+    .replace('%w',message('week_'+WEEKDAYS[date.getDay()]).text??'');
+  return {bindings:[
+    {name:'HudMenuAplt_00_SceneIn',frame:20},
+    {name:'HudMenuAplt_00_NetMode',frame:status.netModeFrame},
+    {name:'HudMenuAplt_00_NetAtn',frame:status.netAtnFrame},
+    {name:'HudMenuAplt_00_Bat',frame:clock.batteryFrame},
+  ],overrides:{T_NetMode_00:message(status.networkMessage),T_Date_00:dateText,
+    T_TimeL_00:{text:String(clock.hour).padStart(hours.text==='%I'?2:1,'0')},
+    T_TimeC_00:{visible:clock.colonVisible},T_TimeR_00:{text:String(clock.minute).padStart(2,'0')}}};
+}
+function drawNotesHud(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,date:Date):boolean{
+  return renderer.draw(top,'notes-hud','HudMenuAplt_00',notesHudPaintOptions(renderer.packs['notes-hud-messages'],date));
+}
 /** N_Scene_00 default alpha is 0. SceneIn last key is frame 40 (HOME idle is
  * also 40). WalkCoin is not started. The native still shows no steps/coins,
  * but P_Walk_00 is visible by layout default, so hiding Walk/Coin below is a
@@ -287,6 +323,7 @@ function drawNotesMainUpper(renderer:NativeLayoutRenderer,top:CanvasRenderingCon
   const intro=options.notesIntro,capture=options.suspendedCapture??{status:'none'};
   if(intro?.status==='posed'){
     let okay=renderer.drawLayout(top,'notes-image','ImageScreenUp',intro.title,notesIntroTitleOptions(intro,capture));
+    okay=drawNotesHud(renderer,top,options.date??new Date())&&okay;
     if(intro.scene10Draw)okay=renderer.drawLayout(top,'notes-aplt-u','ApltBoot_U_00',intro.upper)&&okay;
     return okay;
   }
@@ -295,6 +332,7 @@ function drawNotesMainUpper(renderer:NativeLayoutRenderer,top:CanvasRenderingCon
   let okay=intro?.status==='boot-cover'&&capture.status==='none'
     ?renderer.draw(top,'notes-image','ImageScreenUp',{overrides:notesNoSoftwareListOverrides(renderer.packs['notes-image'],renderer.packs['notes-messages'])})
     :renderer.draw(top,'notes-help','MemoTutorialUp',{bindings:[{name:'MemoTutorialUp_Base',frame:1},{name:'MemoTutorialUp_SceneIn',frame:20}],overrides:{T_PartsTxt00b:message('1000Help_WelcomeP1')}});
+  okay=drawNotesHud(renderer,top,options.date??new Date())&&okay;
   if(intro?.status==='boot-cover'&&intro.scene10Draw)okay=renderer.drawLayout(top,'notes-aplt-u','ApltBoot_U_00',intro.upper)&&okay;
   return okay;
 }

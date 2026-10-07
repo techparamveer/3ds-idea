@@ -90,7 +90,7 @@ function paintFixture(options={}){
 }
 const nativeAssets=()=>({renderer:{},diagnostics:[],disposals:0,dispose(){this.disposals++;}});
 const notesPack=name=>JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/game-notes/'+name,import.meta.url),'utf8'));
-const notesAssets=()=>{const assets=nativeAssets();assets.renderer={packs:{'notes-messages':notesPack('messages-and-loose.json'),'notes-image':notesPack('memo-ImageScreenUp-arc-l.json')},draw:()=>true,drawLayout:()=>true};return assets;};
+const notesAssets=()=>{const assets=nativeAssets();assets.renderer={packs:{'notes-messages':notesPack('messages-and-loose.json'),'notes-image':notesPack('memo-ImageScreenUp-arc-l.json'),'notes-hud-messages':notesPack('contents/0000-00000007/hud-messages.json')},draw:()=>true,drawLayout:()=>true};return assets;};
 const notesCover=(owner,steps=0,ticket=1)=>({status:'boot-cover',owner,ticket,steps,upper:{},lower:{},scene9Draw:steps<=20,scene10Draw:steps<=20});
 async function notesFixture(){
  const f=paintFixture();
@@ -104,6 +104,18 @@ async function notesFixture(){
  const present=()=>f.screen.presentNotesBootCover(owner,()=>true);
  return {...f,owner,v,cover,terminal,draw,status,present,assets,getState:()=>state,dispatch:event=>{state=dispatchSystemEvent(state,event,6300);}};
 }
+test('Notes HUD clock repaints a settled pair only when visible calendar or charging phase changes',async()=>{
+ const f=await notesFixture();let draws=0;
+ f.assets.renderer.draw=(_ctx,alias)=>{if(alias==='notes-hud')draws++;return true;};
+ const draw=date=>f.screen.draw(f.top,f.bottom,f.v,f.owner,f.font,undefined,date,0,f.terminal);
+ try{
+  assert.equal(draw(new Date(2026,8,22,20,18,0)),true);assert.equal(draws,1);
+  assert.equal(draw(new Date(2026,8,22,20,18,2)),true);assert.equal(draws,1);
+  assert.equal(draw(new Date(2026,8,22,20,18,3)),true);assert.equal(draws,2);
+  assert.equal(draw(new Date(2026,8,22,20,19,3)),true);assert.equal(draws,3);
+  assert.equal(draw(new Date(2027,8,22,20,19,3)),true);assert.equal(draws,4);
+ }finally{f.dispose();}
+});
 for(const activation of ['A','slot touch'])test(`Notes ${activation} before cover completion cannot enter drawing or carry into readiness`,async()=>{
  const f=await notesFixture(),gate=createNativeScreenInputGate();
  const button=phase=>({type:'button',command:'open',phase,source:'key-a'});

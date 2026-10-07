@@ -14,7 +14,7 @@ import { drawNativeSoundFrame, soundHudTimeKey, soundScreenPacks } from './stock
 import { drawNativeCameraFrame, cameraScreenPacks } from './stock-native-camera';
 import { healthEntrySceneInFrame, healthTopLoopFrame } from './stock-health-scroll';
 import { drawNativeHealthFrame, healthScreenPacks } from './stock-native-health';
-import { drawNativePersonalToolFrame, nativePersonalToolView, notificationsHudClock } from './stock-native-personal-tools';
+import { drawNativePersonalToolFrame, nativePersonalToolView, notificationsHudClock, notesHudClock } from './stock-native-personal-tools';
 import { drawNativeWebFrame, browserHudClock, browserScreenPacks, miiverseScreenPacks } from './stock-native-web';
 import { NATIVE_RECOVERY_TARGETS } from './native-screen-input';
 import { stockScreenTargets } from './stock-screen-layout';
@@ -343,6 +343,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       const eshopHudKey=eshop?eshopHudClock(date):null;
       // notificationsHudClock includes batteryFrame so 0x181018 1 Hz Bat republishes.
       const notificationsHudKey=view.appId==='notifications'?notificationsHudClock(date):null;
+      const notesHudKey=view.appId==='game-notes'?notesHudClock(date):null;
       // browserHudClock includes batteryFrame and colonVisible so Battery_Bat / TimeC 1 Hz republishes.
       const browserHudKey=view.appId==='browser'?browserHudClock(date):null;
       const healthElapsed=typeof data.healthElapsedMs==='number'&&Number.isFinite(data.healthElapsedMs)?Math.max(0,data.healthElapsedMs):0;
@@ -353,7 +354,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         ?(reducedMotion||healthEntry!.complete?20:healthEntry!.origin===null?0:healthEntrySceneInFrame(healthElapsed-healthEntry!.origin))
         :undefined;
       const healthPaintKey=view.appId==='health-safety'?[healthTopLoopFrame(healthElapsed,reducedMotion),healthEntryFrame]:null;
-      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,notificationsHudKey,browserHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey]);
+      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,notificationsHudKey,notesHudKey,browserHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey]);
       if(painted!==key||paintedFont!==font){
         complete=false;
         black();

@@ -392,7 +392,7 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
   draw(top,'manual-index-root','IndexNull',{center:[200,240-262],bindings:[{name:'IndexNull_Wait',frame:1}]});
   const sourceIcon=options?.nativeImage?.(source.iconUrl);
   const icon=sourceIcon&&sourceIcon.width===48&&sourceIcon.height===48?applicationManualIconPixels(sourceIcon):undefined;
-  draw(top,'manual-SoftTitleHeader','SoftTitleHeader',{center:APPLICATION_MANUAL_HEADER_CENTRE,textSampling:'lcd-source-size',textures:icon?{'IconBlank.bclim':icon}:undefined,overrides:{TextBoxTxt_00:{text:source.heading},...(!icon&&{P_Icon_00:{visible:false}})}});
+  draw(top,'manual-SoftTitleHeader','SoftTitleHeader',{center:APPLICATION_MANUAL_HEADER_CENTRE,pictureSampling:'lcd',textSampling:'lcd-source-size',textures:icon?{'IconBlank.bclim':icon}:undefined,overrides:{TextBoxTxt_00:{text:source.heading},...(!icon&&{P_Icon_00:{visible:false}})}});
   draw(top,'manual-scroll','ScrollIndicator',{center:[392,32],pictureSampling:'lcd',bindings:[{name:'ScrollIndicator_Wait',frame:5}]});
   draw(bottom,'manual-IndexBase00','IndexBase00',{center:[160,0]});
   draw(bottom,'manual-ContentsTxt','ContentsTxt',{center:[160,APPLICATION_MANUAL_SLOTS.contentsCentre],textSampling:'lcd',overrides:{Contents_Txt:message('ContentsText')}});

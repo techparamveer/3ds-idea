@@ -63,6 +63,11 @@ for(const titleId of [settings,camera,browser])test(`Contents ${titleId} binds o
   const number=nativePaneParentPath(posed,'TextBox_Num').at(-1).text;
   assert.deepEqual([number.alignment,number.lineAlignment,number.size],[4,2,[15.75,19.5]]);
  }
+ const header=f.calls.find(call=>call.pack==='manual-SoftTitleHeader');
+ assert.equal(header.options.pictureSampling,'lcd');
+ assert.equal(header.options.textSampling,'lcd-source-size');
+ assert.deepEqual(header.options.center,[200,-22]);
+ assert.equal(header.options.overrides.TextBoxTxt_00.text,{[settings]:'System Settings',[camera]:'Nintendo 3DS Camera',[browser]:'Internet Browser'}[titleId]);
  for(const call of f.calls.filter(call=>call.pack!=='manual-row')){
   assert.notEqual(call.options.textSampling,'lcd-source-size-left',call.pack);
   assert.equal(call.options.textSamplingPanes,undefined,call.pack);

@@ -57,6 +57,8 @@ export function notesHudPaintOptions(messages:NativePack,date:Date):NativeDrawOp
   const dateText=message('lau_date'),hours=message('lau_hours'),minutes=message('lau_minutes');
   if(dateText.text!=='%d/%M (%w)'||!['%I','%H'].includes(hours.text??'')||minutes.text!=='%m')
     throw new Error('Unsupported native Notes HUD calendar format');
+  // Notes 0x196cdc..0x196d28 uses custom tokens: %I -> %02d, %H -> %d,
+  // both with the unchanged 0..23 hour. These are not strftime semantics.
   const clock=notesHudClock(date),status=REFERENCE_DEVICE_STATUS;
   dateText.text=dateText.text.replace('%d',message('day_'+clock.day).text??'')
     .replace('%M',message('month_'+clock.month).text??'')

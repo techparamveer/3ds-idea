@@ -83,6 +83,16 @@ test('clock identity tracks only visible calendar and original charging/colon po
   assert.equal(tools.notesHudPaintOptions(messages, even).overrides.T_TimeL_00.text, '09');
 });
 
+test('Notes custom %I pads the unchanged 24-hour value while %H leaves it unpadded', () => {
+  const unpadded = structuredClone(messages);
+  unpadded.messages.hud.messages[unpadded.messages.hud.labels.lau_hours].text = '%H';
+  for (const [hour, expected] of [[0, '00'], [9, '09'], [12, '12'], [13, '13'], [20, '20'], [23, '23']]) {
+    const date = new Date(2026, 8, 22, hour, 18);
+    assert.equal(tools.notesHudPaintOptions(messages, date).overrides.T_TimeL_00.text, expected);
+    assert.equal(tools.notesHudPaintOptions(unpadded, date).overrides.T_TimeL_00.text, String(hour));
+  }
+});
+
 test('selected HUD message loss and an unsupported calendar format fail without placeholders', () => {
   const date = new Date(2026, 8, 22);
   for (const label of ['lau_date', 'lau_hours', 'lau_minutes', 'day_22', 'month_9', 'week_tue', 'lau_connect0']) {

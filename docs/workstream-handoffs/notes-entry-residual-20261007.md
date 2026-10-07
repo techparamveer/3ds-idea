@@ -109,9 +109,16 @@ Event handler `0x19683c` initializes timestamp/colon visibility, calendar and
 SceneIn. `0x196f8c..0x196fac` toggles `T_TimeC_00` after a 1000 ms SysTick
 interval; `0x197364..0x19737c` selects charging battery frame 4 plus that visibility.
 `0x196d74..0x196dcc` selects `lau_connect%d` and the NetMode frame.
-`0x196fec..0x197240` composes original day/month/weekday message parts;
-`0x196ccc..0x196d40` supplies zero-padded `%I` or unpadded `%H` hours and `%m`
-minutes. Source text styles, fonts, colors and pane geometry remain unchanged.
+`0x196fec..0x197240` composes original day/month/weekday message parts.
+Notes' hour tokens are **custom, not strftime**: `0x196cdc..0x196d28` maps `%H`
+to UTF-16 `%d` at `0x1aa60c`, and `%I` to UTF-16 `%02d` at `0x1aa614`.
+Both branches pass the same unchanged mod-24 hour through r8 at `0x196d00`
+and `0x196d24`. The hour getter `0x197b4c` returns 0..23, stored in r7 at
+`0x196bf0` and loaded through the clock-value table at `0x196c88`.
+There is no 12-hour conversion in the `%I` branch. Native `20:18` corroborates
+this path. Boundary tests retain `%I` outputs `00`, `09`, `12`, `13`, `20`,
+`23`, and unpadded `%H` outputs for the same hour values. `%m` minutes are
+zero-padded. Source text styles, fonts, colors and pane geometry remain unchanged.
 
 ## Lower Brightness Boundary
 
@@ -137,7 +144,7 @@ source/delivery gap for the exact runtime empty-note thumbnail contents.
 ## Verification and Remaining Work
 
 Source-identified, asset-delivered and painter-implemented are established.
-Focused tests pass: 106 Node tests across Notes HUD/boot cover/lower intro,
+Focused tests pass: 107 Node tests across Notes HUD/boot cover/lower intro,
 no-software list, preparation, asset loading, suspended capture and capture switch;
 four Python publication/provenance tests; nonincremental TypeScript typecheck;
 and `git diff --check`. The first HUD readiness regression failed before the

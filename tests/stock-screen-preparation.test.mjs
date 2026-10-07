@@ -89,6 +89,8 @@ function paintFixture(options={}){
  return {screen,v,font,top,bottom,draw,drawAt,dispose(){screen.dispose();globalThis.document=old;delete globalThis.__nativeTestDraw;}};
 }
 const nativeAssets=()=>({renderer:{},diagnostics:[],disposals:0,dispose(){this.disposals++;}});
+const notesPack=name=>JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/game-notes/'+name,import.meta.url),'utf8'));
+const notesAssets=()=>{const assets=nativeAssets();assets.renderer={packs:{'notes-messages':notesPack('messages-and-loose.json'),'notes-image':notesPack('memo-ImageScreenUp-arc-l.json')},draw:()=>true,drawLayout:()=>true};return assets;};
 const notesCover=(owner,steps=0,ticket=1)=>({status:'boot-cover',owner,ticket,steps,upper:{},lower:{},scene9Draw:steps<=20,scene10Draw:steps<=20});
 async function notesFixture(){
  const f=paintFixture();
@@ -97,7 +99,7 @@ async function notesFixture(){
  const draw=pair=>f.screen.draw(f.top,f.bottom,v,owner,f.font,undefined,undefined,0,pair);
  const status=pair=>f.screen.status(v,owner,f.font,pair);
  draw(cover);await flush();
- const assets=nativeAssets();assets.renderer={packs:{'notes-messages':{messages:{}}},draw:()=>true,drawLayout:()=>true};
+ const assets=notesAssets();
  calls[0].resolve(assets);await flush();
  const present=()=>f.screen.presentNotesBootCover(owner,()=>true);
  return {...f,owner,v,cover,terminal,draw,status,present,assets,getState:()=>state,dispatch:event=>{state=dispatchSystemEvent(state,event,6300);}};
@@ -173,7 +175,7 @@ test('Notes transition cadence stops for failed load/draw and resumes only after
  const f=paintFixture();Object.assign(globalThis.document,{hidden:false,addEventListener(){},removeEventListener(){}});
  const graphics=createPortfolioGraphics(),state=tickSystem(launch(tickSystem(createPortfolioState(),3001),'game-notes',3010),6200);
  setPortfolioFont(f.top,f.font);setPortfolioFont(f.bottom,f.font);
- const readyAssets=()=>{const assets=nativeAssets();assets.renderer={packs:{'notes-messages':{messages:{}}},draw:()=>true,drawLayout:()=>true};return assets;};
+ const readyAssets=notesAssets;
  try{
   assert.equal(graphics.notesBootCoverActive(state),true);
   assert.equal(graphics.stockStatus(state,f.top),'loading');await flush();

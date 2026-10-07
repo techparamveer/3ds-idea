@@ -298,3 +298,80 @@ orange Friend List belt and destination. The destination automatically
 displays service error002-0121. No account, agreement or network action was
 taken. Volume0/outputNull remain verified; the dedicated native process closed0.
 Capture gaps and pipeline loading still prevent exact epoch/duration acceptance.
+
+### Outgoing covers and folder child-host gates
+
+Reviewed runtime7d57ece and handoff18d3fa3 bind each top-row app's original
+HOME CmnFade_U/D SceneOut0..20 over the last matching, actually presented
+selected HOME pair. Owner, selection revision, generation, prepared destination
+identity and valid paired WebGL receipt guard every handoff. Covered Notes
+does not consume its hidden title-local poses. Endpoint20 holds until the exact
+prepared destination can be published. Source asset/selector mapping is in
+[the common-cover handoff](workstream-handoffs/applet-common-selectors-20261007.md).
+The sr-only shortcut bypasses only the selected-HOME presentation prerequisite
+for the current existing identity; it remains an accessibility adaptation.
+No universal incoming fade or invented Miiverse writer was added.
+
+Runtime18d3fa3 normal repeats, raw pairs: Friends97/101, Notifications97/99,
+Browser108/151, Miiverse101/96, Notes123/125; reduced mobile Notes71/71/71.
+All six full-console views and their nonblank statistics were inspected.
+The native first chronological complete cover and browser first valid paired
+outgoing20 were declared before diffing. Empty-mask U/L results: Notes0/0,
+Friends0/17, Notifications0/0, Browser0/5, Miiverse0/0. Friends17 and Browser5
+are single text-edge columns, unexplained and unmasked. Ten LCD sheets were
+opened. Complete capture/selection/hash/report identities are under
+`comparisons/<app>-common-cover-18d3fa3/`; the native selections are in
+`top-row-normal-native-complete-cover-selections.json`. Static threshold
+matches do not prove the whole incoming/outgoing sequence or its duration.
+
+Native normal Browser92 and Miiverse100 own PNGs supplement Friends128.
+Each immutable index hashes the muted isolated config, executable, HOME
+content, CTM and400x480 PNGs. Browser opens before its update-required gate;
+Miiverse's authored wordmark appears before error022-5362. The local service
+destinations remain adaptations; no update, account or network action was
+taken. Native processes are closed. There is no shared input/frame epoch.
+
+Reviewed fixture-only93407fa corrects four stale exact scene-hook assertions
+with six additive expectations in three files;16/16 focused pass. A new full
+suite removes only those stale failures, leaving the absent historical Camera
+PNG. This did not alter served runtime or weaken publication guards.
+
+Folder shrink-out05f16ed starts the original root visibility producer after
+the acknowledged lower16, but its first recapture exposed an already-grown
+child. Reviewed0a0109a integrates8558a1e: defer the real child request until
+same-owner lower16, and activate only after the actual root-hidden receipt
+without a rebase. Keep original host service, generation, loading, failure and
+escape paths. Exact owner/navigation identity remains guarded through the first
+child release receipt. Source ordering is identified; lower-terminal scheduling,
+receipt epochs and host cadence remain explicitly adapted. Provenance is in
+[the folder handoff](workstream-handoffs/animation-folder-home-20261007.md).
+
+Runtime8558a1e full2439 tests:2341 pass,1 historical Camera private PNG ENOENT,
+96 skip,1 TODO; typecheck/build pass. Folder desktop88/91, reduced mobile
+11/10/12, physical-HOME Health80/83, reduced Camera Manual70/71 and Notes
+118/119 raw pairs are error-free. All five existing accessibility shortcuts
+repeat to exact destination/paired readiness: Friends70/71, Notes93/95,
+Notifications72/73, Browser71/71, Miiverse73/72. These are browser adaptation
+checks, not native toolbar acceptance. Ten console views are inspected with
+hashes/statistics in `integrated-8558a1e/console-nonblank-checks.json`.
+
+The repeat folder first valid lower16 is index22 at525.1ms. Root shrink then
+blank are visible; the child first appears at source scale0.8, then0.95, then1
+at indices35..37. The declared lower16 comparison against native15.11.14.196
+SHA25643ec0 is57578 upper/7606 lower above delta2, empty mask; both LCD sheets
+opened in `comparisons/folder-reentry-frame16-8558a1e/report/`. Browser upper
+SHAb5b2aefb, lower0afdf685 and complete identities are in selection.json.
+Native has already begun shrinking at that sample; the browser root is full.
+Do not replace it with a nearest-pose frame. Wallpaper/HUD/cursor and title
+fixture residuals also remain. Whole AN-03 remains fail.
+
+Pinned Azahar9e6f523 supports true video-frame advance, but its own screenshot
+action resumes execution. The Mac build disables OpenGL; Vulkan/Software
+have no video-dump producer. Its supported Dump Video menu therefore does not
+unlock a pause-preserving per-renderer-frame PNG/video loop. Source verified
+against pinned Git blobs; no executable/profile patch or futile dump was run.
+Native HOME key-hold capture remains open. Notifications' title-owned incoming
+draw/start ordering and the suspended-window entry controller are the next
+bounded source boundaries. All four whole scenarios remain fail and muted
+audio remains unverified. Production3021 serves8558a1e; user3000/system audio
+are untouched.

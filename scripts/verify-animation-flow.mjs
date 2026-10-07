@@ -19,7 +19,8 @@ const { values } = parseArgs({ options: {
 } });
 for (const key of ['playwright-module', 'browser-executable', 'output']) assert.ok(isAbsolute(values[key] ?? ''), key);
 assert.ok(['notes', 'friends', 'notifications', 'browser', 'miiverse', 'manual', 'folder', 'pause'].includes(values.scenario));
-assert.ok(['key', 'touch', 'physical', 'tile'].includes(values.activation));
+assert.ok(['key', 'touch', 'physical', 'tile', 'accessible'].includes(values.activation));
+if (values.activation === 'accessible') assert.ok(['notes', 'friends', 'notifications', 'browser', 'miiverse'].includes(values.scenario), 'Accessible shortcut is top-row-only');
 assert.match(values.commit ?? '', /^[a-f0-9]{40}$/, 'Runtime commit must be supplied');
 const title = values.title ?? (values.scenario === 'manual' ? 'settings' : 'health');
 if (values.scenario === 'manual') assert.ok(['settings', 'camera', 'health'].includes(title));
@@ -62,6 +63,13 @@ const key = async value => {
   await page.locator('.console-stage').focus();
   await page.keyboard.press(value);
 };
+const appletLabels = { notes: 'Game Notes', friends: 'Friend List', notifications: 'Notifications', browser: 'Internet Browser', miiverse: 'Miiverse' };
+const accessible = async () => {
+  const label = appletLabels[values.scenario];
+  inputs.push({ kind: 'accessible-shortcut', label: `Open ${label}`, at: Date.now() });
+  await page.getByRole('button', { name: `Open ${label}`, exact: true }).focus();
+  await page.keyboard.press('Enter');
+};
 const selectTitle = async () => {
   const slot = { portfolio: 0, health: 8, settings: 9, camera: 10, sound: 7 }[title];
   for (let n = 0; n < Math.floor(slot / 2); n++) { await key('ArrowRight'); await page.waitForTimeout(180); }
@@ -103,7 +111,7 @@ try {
     const created = JSON.parse((await state()).folderBanner).selection;
     assert.equal(created?.kind, 'folder');
     folderIdentity = created.key;
-  } else {
+  } else if (values.activation !== 'accessible') {
     const x = { notes: 70, friends: 105, notifications: 145, browser: 190, miiverse: 235 }[values.scenario];
     await touch(x, 16);
     await page.waitForTimeout(300);
@@ -159,6 +167,7 @@ try {
   if (values.scenario === 'pause') values.activation === 'physical' ? await physical('HOME') : await key('h');
   else if (values.scenario === 'manual') await touch(50, 226);
   else if (values.activation === 'tile') await touch(136, 160);
+  else if (values.activation === 'accessible') await accessible();
   else if (values.activation === 'physical') await physical('A');
   else if (values.activation === 'touch') await touch(160, 226);
   else await key('Enter');
@@ -179,6 +188,7 @@ try {
   await page.screenshot({ path: join(output, `${cycle ? `repeat-${cycle}-` : ''}console.png`) });
   const result = { valid: false, durationMs, scenario: values.scenario, title: ['manual', 'pause'].includes(values.scenario) ? title : values.scenario, commit: values.commit, commitAttestation: 'Coordinator-supplied served-build identity; not independently discovered by this script.', cycle, activation: values.activation, folderFixture: values['folder-fixture'], reducedMotion: values['reduced-motion'], url: values.url, viewport: page.viewportSize(), muted: true,
     method: 'Actual browser inputs; chronological raw screen paints. No diagnostic repaint or closest-pose search.',
+    ...(values.activation === 'accessible' ? { adaptation: 'Keyboard activation of the existing screen-reader shortcut from the grid; not a native toolbar input or animation-acceptance scenario.' } : {}),
     initial, before, folderPreparation, inputs, cycleInputs: inputs.slice(cycleInputOffset), after, frames: reports, errors, nativeCompared: false };
   await writeFile(join(output, `${cycle ? `repeat-${cycle}-` : ''}capture.json`), JSON.stringify(result, null, 2) + '\n');
   assert.ok(frames.length > 2, 'Transition has chronological raw LCD paints');
@@ -186,7 +196,8 @@ try {
   assert.ok(frames.every(frame => frame.data.nativeScreen !== 'error'), 'No native screen recovery during the captured transition');
   assert.equal(after.menu, values.scenario === 'folder' ? 'folder' : values.scenario === 'pause' ? 'home' : 'app', 'Scenario reaches its expected menu');
   assert.notEqual(after.nativeScreen, 'error', `Native screen recovery: ${after.nativeScreenFailure}`);
-  if (!['folder', 'pause'].includes(values.scenario)) assert.equal(after.nativeScreen, 'ready', 'Destination reaches paired native readiness');
+  if (values.scenario !== 'pause') assert.equal(after.nativeScreen, 'ready', 'Destination reaches paired native readiness');
+  if (Object.hasOwn(appletLabels, values.scenario)) assert.equal(after.announcement?.split('. ')[0], appletLabels[values.scenario], 'Requested applet is the active destination');
   if (values.scenario === 'folder') assert.equal(after.selected, folderSelection);
   result.valid = true;
   await writeFile(join(output, `${cycle ? `repeat-${cycle}-` : ''}capture.json`), JSON.stringify(result, null, 2) + '\n');

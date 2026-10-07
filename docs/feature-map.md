@@ -5,6 +5,26 @@ for top-row opening, Manual opening, folder entry and HOME suspension. GitHub
 restart base is `5ee6fd7`; the historical static queue below is preserved.
 All four motion flows are currently fail pending matched frame-sequence proof.
 
+Latest runtime `8558a1e`: reviewed outgoing top-row covers and folder child-host
+gates are integrated. Folder repeat now visibly shrinks the retained root,
+shows the blank interval and grows the child through its original producer;
+it no longer reveals an already-grown child. Full2341 tests pass,1 historical
+Camera PNG fixture fails,96 skip,1 TODO; typecheck/build pass. Desktop folder
+88/91 pairs, reduced mobile11/10/12, physical-HOME Health80/83, reduced Camera
+Manual70/71 and Notes118/119 complete without errors. All five accessibility
+shortcuts reach their exact destination and paired readiness; those shortcuts
+remain an explicit browser adaptation. Ten console views are inspected.
+
+Declared first complete outgoing covers at runtime18d3fa3, empty masks, U/L:
+Notes0/0, Friends0/17, Notifications0/0, Browser0/5, Miiverse0/0. All ten LCD
+sheets are inspected; these are static diagnostics, not native timing proof.
+Latest strict repeat folder lower16 is57578/7606 against the immutable native
+reference; both sheets are inspected. Native motion order/epochs, title-owned
+incoming covers and exact HOME-hold input remain open. Notifications incoming
+draw/start order and suspended-window entry tracks are the current source
+boundaries. [Current evidence](animation-fidelity-workflow-2026-10-07.md#outgoing-covers-and-folder-child-host-gates)
+records identities, adaptations and next work. Earlier checkpoints follow.
+
 Animation runtime `2169497`: Notes source boot-cover and no-software body are
 visible; folder/pause receipt guards are integrated. Empty-mask diagnostics:
 Notes complete cover0/0, first-ready9198/46427; folder re-entry first terminal
@@ -37,8 +57,9 @@ WebGL root receipt; earlier race-limited setup records stay preserved.
 Reviewed top-row source selectors are integrated07c9f2c; runtime outgoing
 cover wiring and retained folder source hide are assigned in separate worktrees.
 Friends128 own PNGs show entry before the native service-error boundary.
-Next: reviewed visible outgoing common cover and native folder hide, then
-production recapture. Exact motion epochs and muted audio remain unaccepted.
+Historical next at52af0c5 was outgoing common cover and folder hide; those
+corrections are now integrated and recaptured above. Exact motion epochs and
+muted audio remain unaccepted.
 See [the current evidence and limitations](animation-fidelity-workflow-2026-10-07.md#integrated-corrections-and-recapture).
 
 6 October 2026. Checkout `f53fbeef` (`codex/home-fidelity-20261001`). This index is the queue. Evidence: [leftover queue](feature-map/leftover-queue-2026-10-05.md), [STATUS.md](../STATUS.md), [progress](progress-2026-09-24.md). If they disagree, evidence wins.

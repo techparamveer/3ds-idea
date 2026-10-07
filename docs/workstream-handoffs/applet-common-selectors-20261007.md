@@ -1,11 +1,14 @@
 # Applet common-cover selectors
 
-Worker base `19ee552a0b9dbbfbdf38c660e289a8337c44c464`, branch
+Initial selector base `19ee552a0b9dbbfbdf38c660e289a8337c44c464`, branch
 `codex/applet-common-cover-20261007`, assigned checkout
 `/Users/paramveer/.codex/worktrees/3ds-applet-common-cover-20261007/3ds-idea`.
-Only the new helper, its focused test and this handoff are delivered. Existing
-Manual helper/lifecycle, Notes painter/scene-9/10 sequence, HOME composition,
-scene, system, manifest and assets are unchanged. Dirty STATUS stays unstaged.
+Initial selector commit `5513268` delivered only the helper, its focused test
+and this handoff, without runtime wiring. Runtime follow-up `6030ef2` adds the
+outgoing presentation, HOME paired backing/readiness, screen/scene receipt and
+cadence hooks, and the Notes common-cover pause described below. Existing
+Manual/folder source paths, Notes painter/scene-9/10 clips, system, manifest
+and assets are unchanged. Dirty STATUS stays unstaged.
 
 ## Visible target and evidence tier
 
@@ -18,11 +21,12 @@ PNGs are under `native-manual-slow/screenshots-notifications-normal` in that
 artifact root. Browser replay `integrated-19ee552/notifications-before-common`
 is coordinator-owned. The existing browser omits this common cover.
 
-This slice is source-identified and helper-tested, not a wired visible change.
-It creates no capture-pixel asset and no private artifact. Native/browser epochs,
-rates, input parity and audio are unaccepted. Whole AN-01 remains fail. The
-next action is coordinator wiring and visible recapture, not another source-only
-slice. The source helper does not assign milliseconds or easing.
+The initial selector slice was source-identified and helper-tested, not wired.
+The runtime delivery below now supplies the outgoing cover wiring. Neither
+delivery creates a capture-pixel asset or private artifact. Native/browser
+epochs, rates, input parity and audio are unaccepted. Whole AN-01 remains fail.
+The next action is coordinator runtime integration and visible recapture, not
+another source-only slice. The source helper assigns no milliseconds or easing.
 
 ## Selector contract
 
@@ -284,8 +288,10 @@ both workers' return-object hooks during sequential integration.
 Independent precommit review found and corrected the direct accessibility
 shortcut regression, rapid activation before source receipt, source checks
 under a suspended-owner panel key, stale same-applet HOME revision reuse and
-post-dispose shortcut resurrection. Final immutable-commit review remains
-required before integration. No GUI/server/build/full suite was run by A.
+post-dispose shortcut resurrection. Independent immutable review of `6030ef2`
+found no source/runtime behavioral blocker and requested this handoff scope
+correction. Native pixel/timing acceptance remains pending; review clearance
+does not establish it. No GUI/server/build/full suite was run by A.
 
 ## Visible evidence still required
 

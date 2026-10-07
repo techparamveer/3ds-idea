@@ -1,5 +1,5 @@
 import type { NativePixels } from '../os/native-layout';
-import type { HomeApplicationTransitionPresentation } from '../os/home-application-transition';
+import type { HomeSuspendedBackgroundPresentation } from '../os/home-entry-motion';
 import type { FirmwareModelAsset, FirmwareModelPlayback } from './firmware-model';
 
 const SCENE_IN = 'BannerBG_SceneIn';
@@ -22,18 +22,24 @@ function hasSourceCurve(clip: ReturnType<typeof nativeClip>, target: string, pri
 }
 
 /** Maps the pure HOME controller sample to the ordered source animation stack. */
-export function suspendedBackgroundPlayback(presentation: HomeApplicationTransitionPresentation | null = null): FirmwareModelPlayback {
+export function suspendedBackgroundPlayback(presentation: HomeSuspendedBackgroundPresentation | null = null): FirmwareModelPlayback {
   if (!presentation) return {
     skeletal: [{ name: SCENE_IN, frame: 20 }],
     material: [{ name: APP_PAUSE, frame: 20 }],
   };
-  const sceneIn = presentation.skeletal[0], appPause = presentation.material[0], appQuit = presentation.material[1];
-  if (presentation.skeletal.length !== 1 || presentation.material.length !== 2
+  const sceneIn = presentation.skeletal[0], appPause = presentation.material[0];
+  if (presentation.skeletal.length !== 1 || (presentation.material.length !== 1 && presentation.material.length !== 2)
     || sceneIn?.clip !== SCENE_IN || sceneIn.frame !== 20
-    || appPause?.clip !== APP_PAUSE || appPause.frame !== 20
-    || appQuit?.clip !== APP_QUIT || !Number.isInteger(appQuit.frame) || appQuit.frame < 0 || appQuit.frame > 20) {
+    || appPause?.clip !== APP_PAUSE || !Number.isInteger(appPause.frame) || appPause.frame < 0 || appPause.frame > 20) {
     throw new Error('Unsupported native suspended presentation');
   }
+  if (presentation.material.length === 1) return {
+    skeletal: [{ name: sceneIn.clip, frame: sceneIn.frame }],
+    material: [{ name: appPause.clip, frame: appPause.frame }],
+  };
+  const appQuit = presentation.material[1];
+  if (appPause.frame !== 20 || appQuit?.clip !== APP_QUIT || !Number.isInteger(appQuit.frame)
+    || appQuit.frame < 0 || appQuit.frame > 20) throw new Error('Unsupported native suspended presentation');
   // Order is significant: AppQuit is authored as an override of AppPause.
   return {
     skeletal: [{ name: sceneIn.clip, frame: sceneIn.frame }],

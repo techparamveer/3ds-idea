@@ -1060,6 +1060,44 @@ function home() {
 function controls(state, patch) {
   return { ...state, system: { ...state.system, homeControls: { ...state.system.homeControls, ...patch } } };
 }
+
+test('live folder entry shares source poses across capture, chrome and both child paths',async()=>{
+ const base=home(),root={...base,folders:{19:'Folder'},system:{...base.system,folderLayouts:{19:{2:'work'}}}};
+ const entered=enterHomeFolder(root,19);
+ const at=updateCount=>({...entered,system:{...entered.system,homeClock:{...entered.system.homeClock,updateCount}}});
+ await withScreens(({screens,paint,events})=>{
+  const pose=()=>events.find(event=>event.name==='folderChrome').args.at(-1);
+  paint(at(100));assert.deepEqual(pose(),{folderFrame:0,captureFrame:0});
+  paint(at(105));assert.deepEqual(pose(),{folderFrame:5,captureFrame:5});
+  assert.deepEqual(events.find(event=>event.name==='folderBackdrop').args.at(-1),pose());
+  const children=events.filter(event=>event.name==='entry-child');
+  assert.ok(children.some(event=>event.args[1]===true)&&children.some(event=>event.args[1]===false));
+  assert.ok(children.every(event=>JSON.stringify(event.args[0])===JSON.stringify(pose())));
+  paint(at(105));assert.deepEqual(pose(),{folderFrame:5,captureFrame:5});
+  screens.paint(at(115),new Date(0),1200,{homeCursorLoopFrame:0});
+  paint(at(106));assert.deepEqual(pose(),{folderFrame:6,captureFrame:6},'diagnostic paint does not replace the live observation');
+  paint(at(120));assert.deepEqual(pose(),{folderFrame:16,captureFrame:8});
+  paint({...root,system:{...root.system,homeClock:{...root.system.homeClock,updateCount:121}}});
+  paint(at(122));assert.deepEqual(pose(),{folderFrame:0,captureFrame:0},'re-entry restarts the source clips');
+ },{presenterPatch:{folderChild(ctx,_state,empty,draw,_reduced,entry){ctx.record('entry-child',[entry,empty]);draw(1);}}});
+});
+
+test('live HOME suspension binds AppPause from the complete capture and keeps failed or diagnostic paints out of its clock',async()=>{
+ const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',3010),6500),'home',6600);
+ const at=updateCount=>({...suspended,system:{...suspended.system,homeClock:{...suspended.system.homeClock,updateCount}}});
+ let fail=true;
+ await withScreens(({screens,paint,events})=>{
+  const frame=()=>events.find(event=>event.name==='pause-backdrop').args[0].material[0].frame;
+  paint(at(100));assert.equal(frame(),0);assert.equal(screens.stockStatus(at(100)),'error');
+  fail=false;screens.retryStockScreen();
+  paint(at(104));assert.equal(frame(),0,'failed paired paint did not acquire the pause origin');
+  paint(at(109));assert.equal(frame(),5);
+  screens.paint(at(120),new Date(0),1200,{homeCursorLoopFrame:0});
+  paint(at(110));assert.equal(frame(),6,'diagnostic paint did not advance live motion');
+  paint(at(130));assert.equal(frame(),20);
+ },{screenOptions:{drawSuspendedBackground(ctx,_capture,presentation){ctx.record('pause-backdrop',[presentation]);return !fail;}}});
+});
+
 function canvas(events) {
   const surface = { width: 0, height: 0 }, stack = [];
   let clips = [], path = [];

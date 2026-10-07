@@ -203,6 +203,21 @@ function suspendedCaptureTexture(group){
  let image;group.traverse(node=>{if(node.isMesh&&node.material.uniforms.tex0?.value?.image?.width===256&&node.material.uniforms.tex0.value.image.height===512)image=node.material.uniforms.tex0.value.image;});
  assert.ok(image,'suspended capture texture is bound');return image;
 }
+test('suspended AppPause entry changes source scale and tint while retaining the capture texture',async t=>{
+ const h=setup(t);await h.banner.ready;const capture=suspendedCapture();
+ const presentation=frame=>({skeletal:[{clip:'BannerBG_SceneIn',frame:20}],material:[{clip:'BannerBG_AppPause',frame}]});
+ assert.equal(h.banner.drawSuspendedBackground(h.ctx,capture,presentation(0)),true);
+ const group=h.draws.at(-1).scene.children[0],initial=snapshot(group),texture=suspendedCaptureTexture(group),draws=h.draws.length;
+ assert.equal(h.banner.drawSuspendedBackground(h.ctx,capture,presentation(0)),true);
+ assert.equal(h.draws.length,draws,'same source pose reuses raster bytes');
+ assert.equal(h.banner.drawSuspendedBackground(h.ctx,capture,presentation(10)),true);
+ assert.notDeepEqual(snapshot(group),initial,'AppPause source channels reach the model');
+ assert.equal(suspendedCaptureTexture(group),texture,'frame changes retain the owned capture binding');
+ assert.equal(h.banner.drawSuspendedBackground(h.ctx,capture,presentation(20)),true);
+ const terminal=snapshot(group);
+ assert.equal(h.banner.drawSuspendedBackground(h.ctx,capture,null),true);
+ assert.deepEqual(snapshot(group),terminal,'entry endpoint equals the existing settled suspension');
+});
 test('suspended background cache keys source motion without reallocating its capture texture',async t=>{
  const h=setup(t);await h.banner.ready;const capture=suspendedCapture();
  assert.equal(h.banner.status().suspendedBackgroundReady,true);

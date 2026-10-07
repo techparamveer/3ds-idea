@@ -1,4 +1,37 @@
-# Goal: a faithful silver Nintendo 3DS XL portfolio
+# Goal: finish the four remaining native animation flows
+
+Updated 7 October 2026 after fetching GitHub. Starting version:
+`5ee6fd7a42b0239c5f55f375f85593289a0ff532` on `origin/main`.
+
+Finish the opening animations for the HOME top-row apps, opening Manual,
+entering folders, and suspending a game or app with HOME. Preserve the user's
+latest design and the original silver 2012 Nintendo 3DS XL. Target EUR
+10.7.0-32E in original-hardware mode with English UI.
+
+Use the decrypted pinned firmware for native layouts, textures, animation
+tracks and sounds. Record each element's manifest and dump-source identity.
+Use isolated, muted Azahar to establish the visible sequence and verify the
+integrated production browser through the same inputs. Compare complete raw
+LCD frame sequences, including pressed feedback, intermediate poses, ordering,
+duration and the final screen. A matching endpoint or passing tests does not
+establish matching motion.
+
+Work in separate branches and worktrees with at most two GPT-6.1 Sol workers
+at extra-high reasoning. The coordinator alone controls Azahar and the shared
+browser, integrates reviewed commits, and repeats capture, diff and correction.
+A reviewer uses a different model. Run focused tests, the integrated full test
+suite, typecheck and production build. Preserve failure evidence and rerun
+affected flows after every integration. Follow the
+[animation workflow](docs/animation-fidelity-workflow-2026-10-07.md).
+
+Completion requires matched native/browser input and frame-sequence evidence
+for every listed flow, with no unexplained animation differences. Native
+service gates and portfolio content differences remain explicit adaptations
+or blockers. Keep every 3DS session muted; audio acceptance remains open.
+Do not claim global 1:1 or audio verification from this animation work.
+
+The hardware requirements below remain unchanged. The current animation goal
+supersedes older execution queues and checkout references in this document.
 
 > Current scope: [portfolio UI scope](docs/portfolio-ui-scope.md) supersedes
 > earlier broad firmware behaviour and historical empty-content rules.

@@ -3,7 +3,9 @@
 Rewrite this file whenever `HEAD` moves or localhost starts or stops.
 If this SHA disagrees with `git rev-parse HEAD`, git wins; rewrite this file before any worker.
 
-Updated: 6 October 2026.
+Updated: 7 October 2026. GitHub fetched; local main and origin/main both
+`5ee6fd7a42b0239c5f55f375f85593289a0ff532`. The former fidelity checkout is
+absent. The fresh animation checkout below is authoritative.
 
 ## Product
 
@@ -17,9 +19,9 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 
 | Field | Value |
 | --- | --- |
-| Path | `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001` |
-| Branch | `codex/home-fidelity-20261001` |
-| HEAD | `3b2655a15fd791402bfd40a172bd828b11fc2242` (Settings pairs re-dated). U23 title sampling `73db7a2b` + U23R `30ca4634` on top of Grok native-pair docs `35171903`. `:3000` rebuilt at `a1ee775a` after the Grok coordinator stopped; integration preview at `:3001` from `/Users/paramveer/.codex/worktrees/3ds-integration-preview` |
+| Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
+| Branch | `codex/animation-fidelity-20261007` |
+| HEAD | `5ee6fd7a42b0239c5f55f375f85593289a0ff532` (GitHub animation restart base). After this documentation commit, Git wins over this recorded base SHA. |
 
 Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9ddf309`. Date-group bind `5c0199f4` recaptured (fill `(255,161,0)`). Slider source-gap `e6bcca9f` (Grok 4.6 **APPROVE** `90be3135`). Photo-crop source-gap `b75f275d` (Grok 4.6 **APPROVE** `9d3237b6`). Date-text source-gap `82a16d1c` (Grok 4.6 **APPROVE** `62457c68`). Selection source-gap `9c431d1d` (Grok 4.6 **APPROVE** `43173720`). Settings-footer X-scale `99a4362e` (Grok 4.6 **APPROVE**; recapture `d6ce9913` Settings **954→630**). Remaining Settings third then `TxtSet` source-size `9580641b` (Grok 4.6 **APPROVE** `3e9c5170`; recapture `3bdc3192` Settings **630→0**). Welcome p5 live-feed source-gap `679db045` (Grok 4.6 **APPROVE** `f14c2241`). Sound Next `Guid1TxtW` source-size `269e8757` (Grok 4.6 **APPROVE**; recapture `a5b8aa9e` interior **195→0**). Sound volume live-slider source-gap `11f3cb3c` (Grok 4.6 **APPROVE** `c4f0fb90`). Sound Span live-spectrum source-gap `57b04572` (Grok 4.6 **APPROVE** `7614c291`). Sound birds held-offset source-gap `9e335f3a` (Grok 4.6 **APPROVE** `f67628f3`). Sound battery underbar-partition source-gap `76a3635a` (Grok 4.6 **APPROVE** `684a3418`). Sound UnderBar Line01 partition source-gap `6db7e7ef` (Grok 4.6 **APPROVE** `d0d96201`). Sound empty-entry row 1916 source-gap (Grok 4.6 **APPROVE** `2807aeb5`). Sound first-run guide perimeter compositor source-gap `02a60c52` (Grok 4.6 **APPROVE** `6cc31903`). Sound empty-entry mid `S_BG` constant source-gap `636976ad` **REJECTED** by Grok 4.6 (native is dump `S_BG_Grid` ETC1 checker `(223,215,206)`/`(231,223,215)`, bound on library path only); grid bind `603c5388` (Opus 5.5) recaptured: empty-entry lower **16021→7216**, mid **2255→0** / **1024→0**; Grok 4.6 **APPROVE-WITH-NITS** `de5c6445`. Leftover queue `cccf162e`. Camera Welcome p3 `TxtDlg` **1079** source-gap `57af95dd` (Grok 4.6 **APPROVE-WITH-NITS** `7e8e13a1`; host-gate probe `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`). Sound upper 316 labelled `14533857` (volume overhang **42** + `S_Back_U` **274**; Grok 4.6 **APPROVE** `daa93bca`). Camera large thumbs `PicL_SD` bind `89efb7a3` (recapture `6499f0af` lower **10158→8958**). Camera Slideshow header source-size `04f3d6bf` (recapture `5d25e2a5` header **837→0**). Camera thumb interiors 56×42 sample source-gap `84d636e3` (Grok 4.6 **APPROVE** `2258268a`). Product `acabb7af` kept. y=177 `22e8b0a4` (Grok 4.6 **APPROVE** `9fe268f8`). Slider 57 (Grok 4.7 **APPROVE-WITH-NITS** `444ba8e0`). GitHub `/Volumes/DeveloperStorage/GitHub/3ds-idea` on `dev-size-opt` is not this site.
 
@@ -27,15 +29,22 @@ Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` /
 
 ## Serving
 
+7 October restart: no new server or Azahar session has been launched. Recheck
+the historical serving details below before using them. The user previously
+authorized the full Mac when Sidecar is absent; current native capture uses
+the Mac display. Keep Azahar volume zero and test browsers audio-muted.
+New evidence belongs under `/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/`
+when writable; use `/private/tmp/3ds-animation-20261007/` for bounded scratch.
+
 `127.0.0.1:3000` `LCD_CAPTURE_OUTPUT_ROOT=/Volumes/Sandisk1/3ds-fidelity-artifacts/lcd-export-20261006 npm run start:verify` listen 98253 from this checkout at `a1ee775a` build. Playwright reinstalled at `/Users/paramveer/.codex/3ds-artifact-overflow/claude-browser`. No Sidecar attached (built-in display only). Isolated Azahar **not running** since ~17:05 BST (was pid 1137; `./Azahar.app/Contents/MacOS/azahar` from `/Volumes/Sandisk1/3ds-portfolio-azahar-isolated-20260926`). SHA `3dfdfbed…`. Never `/Applications/Azahar.app`. One isolated NAND only. Volume 0. Nintendo Zone skipped. Pixel acceptance remains Azahar own 400×480 vs raw browser 400×240 / 320×240.
 
 ## Seats
 
 | Seat | Who | Cap |
 | --- | --- | --- |
-| Coordinator | Claude Opus 5.5, T3 `mcp:2b23e5fb` (sole live coordinator). Grok 4.6 Cursor session `agent-36cc596c` stopped ~17:05 BST (Cursor app closed; last edit committed in `6d89c7d6`). Subagents via `cursor-agent -p` CLI (T3 delegate_task returns `parent_not_active`) | one |
-| Worker | none running. Next U25 Settings Manual p0 (`ScrollIndicator` bind + text raster) waits on an official native Manual p0 | two |
-| Reviewer | U20R–U23R Claude Opus 5.5 **APPROVE-WITH-NITS**; U24R2 Grok 4.7 xhigh **APPROVE-WITH-NITS** `8dc8c1c6` (Claude rate-limited; T3 delegate_task `parent_not_active` → subagents via `cursor-agent -p` CLI, outputs in `/Volumes/Sandisk1/3ds-fidelity-artifacts/agent-runs-20261006/`). Nits logged, not fixed | one, different model from the worker |
+| Coordinator | This Codex chat. Only coordinator drives Azahar and shared browser, edits shared composition and integrates. | one |
+| Worker | Two bounded animation lanes to be dispatched from the reconciled GitHub base. GPT-6.1 Sol, extra-high reasoning, as requested on 7 October. | two |
+| Reviewer | Different model from workers; independent source, regression and evidence review. No GUI ownership. | one |
 
 ## Evidence on this tree (static stills; input, motion and audio not compared)
 
@@ -68,6 +77,13 @@ Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` /
 Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camera Slideshow header 0. Camera Settings third 0. Welcome p5 **7615** live-feed source-gap **APPROVE**. Volume **130** live-slider source-gap **APPROVE**. Span **2314**/**2442** live-spectrum source-gap **APPROVE**. Birds **1558** held-offset source-gap **APPROVE**. Battery `[45,216,85,240]` **1** underbar-partition source-gap **APPROVE**. Line01 `(92,220)` partition source-gap **APPROVE**. Empty-entry row **1916** **APPROVE**. Thumb interiors **846/918** **APPROVE**. Guide perimeter **6072** = **860** dimmed grid + **4416** half + **728** (**144** row + **53** footer + **531** within 2) + **68** fringe; veil **REJECT** `be862ce6`; subsets **APPROVE-WITH-NITS** `d72ab4b1`. Empty-mid **2255**/**1024** → **0**/**0** by grid bind `603c5388` **APPROVE-WITH-NITS** `de5c6445`. p3 `TxtDlg` **1079→1078** after host-gate `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`. Sound upper 316 labelled `14533857` **APPROVE** `daa93bca`. y=177 **320** labelled `22e8b0a4` **APPROVE** `9fe268f8`. Slider **57** **APPROVE-WITH-NITS** `444ba8e0`. Plus-tint strip **1992** kept `ed55865e` **APPROVE** `b6620fa4`. HOME 1-row tail **291** **APPROVE** `f72296ff`. HOME idle Health 1-row left-anchor **23182 / 14754** empty mask (title/wallpaper **12255**, vacant-vs-Settings **7045**, HUD **2328**). **Static still only.** Whole scenarios still fail.
 
 ## Next
+
+The latest user request supersedes the historical queue below. Follow
+[the animation workflow](docs/animation-fidelity-workflow-2026-10-07.md):
+top-row app opening, Manual opening, folder entry, and HOME suspension.
+First inspect existing source-backed paths and capture each current visible
+sequence. Workers own disjoint helpers/tests; shared rendering/state wiring
+stays with the coordinator. The 6 October queue remains historical evidence.
 
 Queue: [feature map](docs/feature-map.md). Health General **23993 / 0**. Health held-down **0 / 19206** (frame 292; lower = held-key scroll distance). Settings Internet **4899 / 1008**, Data root **4956 / 177**, Software empty **6011 / 22**, Extra Data **6989 / 51927**, Parental intro **4595 / 0**, Transfer **22816 / 76797**, exact Other p1 **217 / 0**, NNID unsigned-in **82096 / 74907**. Browser start menu **blocked** (update gate `e8562da9…`). Coordinator Next: recover isolated Azahar AX (window 7112 unresolved inside Camera shoot; did not Shoot) then Camera folder native / Notifications scroll native / Sound p2/p3 native. Notes editor browser `50cb7097…` / `33daea28…` and Friends card `04afa1ba…` / `4c78b5cb…` kept. N057 owed. Do not A excluded. No PIN. Zone skipped. Do not stop. Not 1:1.
 

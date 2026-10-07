@@ -1,5 +1,10 @@
 # Feature map — 1:1 queue
 
+7 October priority override: finish [AN-01 through AN-04](animation-fidelity-workflow-2026-10-07.md)
+for top-row opening, Manual opening, folder entry and HOME suspension. GitHub
+restart base is `5ee6fd7`; the historical static queue below is preserved.
+All four motion flows are currently fail pending matched frame-sequence proof.
+
 6 October 2026. Checkout `f53fbeef` (`codex/home-fidelity-20261001`). This index is the queue. Evidence: [leftover queue](feature-map/leftover-queue-2026-10-05.md), [STATUS.md](../STATUS.md), [progress](progress-2026-09-24.md). If they disagree, evidence wins.
 
 Pixel-tier **0/0 is not pass**. Whole scenarios still **fail** on input, motion, and audio unless a row says otherwise. Tests, source renders, and browser inspection are not acceptance.

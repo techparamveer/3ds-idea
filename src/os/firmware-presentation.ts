@@ -22,6 +22,7 @@ import { HOME_ENTRY_FOOTER_LAST_FRAME, HOME_ENTRY_HUD_LAST_FRAME } from './home-
 import { homeApplicationTransitionFooterExit, homeApplicationTransitionFooterReturn } from './home-application-transition';
 import { sampleSystemHomeApplicationTransition } from './system-home-application-transition';
 import type { HomeFolderEntryPose } from './home-entry-motion';
+import { validateHomeFolderEntryAssets } from './home-folder-entry-assets';
 
 type Context=CanvasRenderingContext2D;
 export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;titleIcons:Map<string,HTMLImageElement>;titleIconPixels:Map<string,NativePixels>;titleDescriptions:Map<string,string>;settingsBalloonText:string|null;healthBalloonText:string|null;soundBalloonText:string|null;cameraBalloonText:string|null;diagnostics:string[];dispose():void};
@@ -288,6 +289,7 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   return renderer.draw(ctx,'launcher','LncPlt_00',{bindings:[binding('LncPlt_00_PaletteOut',11)],overrides:{W_Plt_00:{translation:[panel.x,-92,0],size:[panel.width,175]},W_Shdw_00:{translation:[panel.x,-102,0],size:[panel.shadowWidth,193]}}});
  }
  function folderBackdrop(ctx:Context,capture:NativePixels,state:MenuState,reduced=false,entry:HomeFolderEntryPose|null=null){
+  if(entry)validateHomeFolderEntryAssets(renderer.packs.launcher);
   const close=sampleSystemHomeFolderClose(state),frame=reduced?8:close?.controller.phase==='closing'?close.controller.capture.appliedFrame??8:entry?.captureFrame??8;
   // PicUp's authored endpoint applies P_Capture_01's full-LCD multiply material.
   // The controller call site remains unresolved, so select that decoded endpoint
@@ -300,16 +302,22 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  }
  function folderChrome(ctx:Context,state:MenuState,reduced=false,entry:HomeFolderEntryPose|null=null){
   const panel=getNativeFolderPanel(state);if(!panel)return false;
+  if(entry)validateHomeFolderEntryAssets(renderer.packs.launcher);
   const close=sampleSystemHomeFolderClose(state),frame=reduced?16:close?.controller.phase==='closing'?close.controller.folder.appliedFrame??16:entry?.folderFrame??16;
   const gesture=state.system?.homeNavigation.gesture;
   const pressed=ownedHomeFolderBackContact(state,gesture);
   return renderer.draw(ctx,'launcher','LncFolder_00',{bindings:[binding('LncFolder_00_FadeIn',frame),binding('LncFolder_00_Select',pressed?1:0,['G_Btn_00'])],overrides:{W_Plt_00:{translation:[panel.x,-16,0],size:[panel.width,144]},W_Shdw_00:{translation:[panel.x,-20,0],size:[panel.shadowWidth,164]}}});
  }
  function folderChild(ctx:Context,state:MenuState,empty:boolean,draw:(alpha:number)=>void,reduced=false,entry:HomeFolderEntryPose|null=null){
+  if(entry)validateHomeFolderEntryAssets(renderer.packs.launcher);
   const close=sampleSystemHomeFolderClose(state);
-  if(reduced||!state.opened||close?.controller.phase!=='closing'&&!entry){draw(1);return;}
+  if(reduced||!state.opened||close?.controller.phase!=='closing'&&!entry){draw(1);return true;}
   const frame=close?.controller.phase==='closing'?close.controller.folder.appliedFrame??16:entry?.folderFrame??16;
-  if(!renderer.withPaneParent(ctx,'launcher','LncFolder_00',empty?'N_BlankAnime_00':'N_Dlg_00',[binding('LncFolder_00_FadeIn',frame)],draw))draw(1);
+  if(!renderer.withPaneParent(ctx,'launcher','LncFolder_00',empty?'N_BlankAnime_00':'N_Dlg_00',[binding('LncFolder_00_FadeIn',frame)],draw)){
+   if(entry)throw Error('Native folder entry parent unavailable');
+   draw(1);
+  }
+  return true;
  }
  function footer(ctx:Context,state:MenuState,reduced=false,entrySceneInFrame?:number,launchSceneOutFrame?:number,launchDecideFrame?:number){
   if(entrySceneInFrame!==undefined&&(!Number.isInteger(entrySceneInFrame)||entrySceneInFrame<0||entrySceneInFrame>HOME_ENTRY_FOOTER_LAST_FRAME))throw new RangeError('Invalid HOME footer SceneIn frame');

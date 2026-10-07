@@ -7,18 +7,39 @@ const APP_PAUSE = 'BannerBG_AppPause';
 const APP_QUIT = 'BannerBG_AppQuit';
 
 function nativeClip(asset: FirmwareModelAsset, kind: 'skeletalAnimations' | 'materialAnimations', name: string) {
-  return asset.data[kind].find(clip => clip.Name === name);
+  const clips = asset.data[kind].filter(clip => clip.Name === name);
+  return clips.length === 1 ? clips[0] : undefined;
 }
 
 function hasSourceCurve(clip: ReturnType<typeof nativeClip>, target: string, primitive: string, channel: string,
-  interpolation: string, keyFrames: readonly (readonly [number, number])[]) {
-  const curve = clip?.Elements.find(element => element.Name === 'mt_BG'
-    && element.TargetType === target && element.PrimitiveType === primitive)?.Content[channel];
-  return !!curve && curve.StartFrame === 0 && curve.EndFrame === 20
+  interpolation: string, keyFrames: readonly (readonly [number, number])[], endFrame = 20) {
+  const elements = clip?.Elements.filter(element => element.Name === 'mt_BG' && element.TargetType === target);
+  const curve = elements?.length === 1 && elements[0].PrimitiveType === primitive ? elements[0].Content[channel] : undefined;
+  return !!curve && 'Exists' in curve && curve.Exists === true && curve.StartFrame === 0 && curve.EndFrame === endFrame
     && curve.InterpolationType === interpolation && curve.PreRepeat === 'None' && curve.PostRepeat === 'None'
     && curve.KeyFrames.length === keyFrames.length
     && curve.KeyFrames.every((key, index) => key.Frame === keyFrames[index][0]
       && key.Value === keyFrames[index][1] && key.InSlope === 0 && key.OutSlope === 0);
+}
+
+function hasAppPauseCurves(clip: ReturnType<typeof nativeClip>): boolean {
+  if (clip?.Elements.length !== 6) return false;
+  for (const [target, start, end] of [
+    ['MaterialConstant0', [1, 1, 1], [.4, .45, .5]],
+    ['MaterialConstant1', [0, 0, 0], [0, .1, .2]],
+  ] as const) {
+    for (const [index, channel] of ['R', 'G', 'B'].entries()) {
+      if (!hasSourceCurve(clip, target, 'RGBA', channel, 'Hermite', [[0, start[index]], [20, end[index]]])) return false;
+    }
+  }
+  for (const [target, end] of [['MaterialTexCoord0Scale', 19], ['MaterialTexCoord1Scale', 20]] as const) {
+    for (const channel of ['X', 'Y']) {
+      if (!hasSourceCurve(clip, target, 'Vector2D', channel, 'Linear',
+        [[0, 1], [1, 1.002], [2, 1], [5, .98], [10, .93], [15, .89], [end, .87]], end)) return false;
+    }
+  }
+  return hasSourceCurve(clip, 'MaterialConstant4', 'RGBA', 'A', 'Hermite', [[0, 0]], 0)
+    && ['X', 'Y'].every(channel => hasSourceCurve(clip, 'MaterialTexCoord1Trans', 'Vector2D', channel, 'Hermite', [[0, 0]], 0));
 }
 
 /** Maps the pure HOME controller sample to the ordered source animation stack. */
@@ -58,6 +79,7 @@ export function suspendedBackgroundAsset(asset: FirmwareModelAsset): FirmwareMod
     || data.models.length !== 1 || model.name !== 'BannerBG' || model.materials.length !== 1
     || sceneIn?.FramesCount !== 20 || sceneIn.AnimationFlags !== '0'
     || appPause?.FramesCount !== 20 || appPause.AnimationFlags !== '0'
+    || !hasAppPauseCurves(appPause)
     || appQuit?.FramesCount !== 20 || appQuit.AnimationFlags !== '0'
     || !hasSourceCurve(appQuit, 'MaterialConstant4', 'RGBA', 'A', 'Hermite', [[0, 0], [20, 1]])
     || !hasSourceCurve(appQuit, 'MaterialTexCoord0Scale', 'Vector2D', 'X', 'Step', [[0, .87], [20, 1]])

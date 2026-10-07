@@ -26,6 +26,30 @@ function sameIdentity(a: HomeEntryMotionIdentity, b: HomeEntryMotionIdentity): b
     : b.kind === 'pause' && a.owner === b.owner && a.captureGeneration === b.captureGeneration;
 }
 
+export function homeEntryMotionMatches(motion: HomeEntryMotion | null, identity: HomeEntryMotionIdentity | null): boolean {
+  return !!motion && !!identity && sameIdentity(motion.identity, identity);
+}
+
+export function homeEntryMotionActive(motion: HomeEntryMotion | null, reduced = false): boolean {
+  return !reduced && !!motion && motion.elapsedUpdates < (motion.identity.kind === 'folder'
+    ? HOME_FOLDER_ENTRY_LAST_FRAME : HOME_PAUSE_ENTRY_LAST_FRAME);
+}
+
+/** A successful Canvas pair stays selected until its render receipt. */
+export function sampleHomeEntryMotionCandidate(presented: HomeEntryMotion | null, pending: HomeEntryMotion | null,
+  identity: HomeEntryMotionIdentity | null, updateCount: number, eligible: boolean): HomeEntryMotion | null {
+  const sample = sampleHomeEntryMotion(presented, identity, updateCount, eligible);
+  return homeEntryMotionMatches(pending, identity) ? pending : sample;
+}
+
+/** Receipt rebasing never spends the time that the pair waited offscreen. */
+export function acknowledgeHomeEntryMotionCandidate(candidate: HomeEntryMotion | null,
+  identity: HomeEntryMotionIdentity | null, updateCount: number, eligible: boolean): HomeEntryMotion | null {
+  if (!Number.isSafeInteger(updateCount) || updateCount < 0) throw new RangeError('Invalid HOME entry-motion receipt count');
+  if (!eligible || !candidate || !homeEntryMotionMatches(candidate, identity) || updateCount < candidate.observedUpdate) return null;
+  return Object.freeze({ ...candidate, observedUpdate: updateCount });
+}
+
 /** Samples the existing HOME clock. First successful live pair owns frame zero;
  * one eligible HOME update per source frame is a host scheduling adaptation. */
 export function sampleHomeEntryMotion(current: HomeEntryMotion | null,

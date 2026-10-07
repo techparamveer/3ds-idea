@@ -1107,9 +1107,9 @@ test('mid-entry folder stalls retain the last paired pose and failure or diagnos
  await withScreens(({screens,paint,events})=>{
   const pose=()=>events.find(event=>event.name==='folderChrome').args.at(-1);
   paint(at(100));paint(at(103));assert.deepEqual(pose(),{folderFrame:3,captureFrame:3});
-  fail=true;assert.throws(()=>paint(at(107)),/folder entry fixture failure/);fail=false;
+  fail=true;paint(at(107));assert.equal(screens.stockStatus(at(107)),'error');fail=false;screens.retryStockScreen();
   paint(at(104));assert.deepEqual(pose(),{folderFrame:4,captureFrame:4},'failed pair cannot advance or rebase the live observation');
-  fail=true;assert.throws(()=>paint(at(499)),/folder entry fixture failure/);fail=false;
+  fail=true;paint(at(499));assert.equal(screens.stockStatus(at(499)),'error');fail=false;screens.retryStockScreen();
   paint(at(105));assert.deepEqual(pose(),{folderFrame:5,captureFrame:5},'failed stalled pair cannot commit its rebase');
   paint(at(500));assert.deepEqual(pose(),{folderFrame:5,captureFrame:5},'large live jump retains the last visible midpoint');
   paint(at(500));assert.deepEqual(pose(),{folderFrame:5,captureFrame:5},'same update repeats the same pose');
@@ -1138,6 +1138,75 @@ test('mid-entry HOME pause stalls retain the complete capture pose through faile
   paint(at(1000));assert.equal(frame(),6);
   paint(at(1003));assert.equal(frame(),9,'normal three-update sampling resumes after the successful rebase');
  },{screenOptions:{drawSuspendedBackground(ctx,_capture,presentation){ctx.record('pause-backdrop',[presentation]);return !fail;}}});
+});
+
+test('folder entry keeps frame zero and terminal pairs pending until matching render receipts',async()=>{
+ const base=home(),root={...base,folders:{19:'Folder',20:'Other'}},entered=enterHomeFolder(root,19);
+ const at=updateCount=>({...entered,system:{...entered.system,homeClock:{...entered.system.homeClock,updateCount}}});
+ await withScreens(({screens,paint,events})=>{
+  const pose=()=>events.find(event=>event.name==='folderChrome').args.at(-1);
+  paint(at(100),1000,false);assert.deepEqual(pose(),{folderFrame:0,captureFrame:0});
+  paint(at(103),1000,false);assert.deepEqual(pose(),{folderFrame:0,captureFrame:0});
+  paint(at(500),1000,false);assert.deepEqual(pose(),{folderFrame:0,captureFrame:0},'offscreen stall cannot overwrite frame zero');
+  assert.equal(screens.homeEntryMotionPublicationPending(),true);
+  assert.equal(screens.presentHomeEntryMotion(at(500)),true);
+  assert.equal(screens.presentHomeEntryMotion(at(500)),false,'receipt is one-shot');
+  paint(at(503),1000,false);assert.deepEqual(pose(),{folderFrame:3,captureFrame:3});
+  screens.revokeHomeEntryMotionCandidate();assert.equal(screens.presentHomeEntryMotion(at(503)),false);
+  paint(at(900),1000,false);assert.deepEqual(pose(),{folderFrame:3,captureFrame:3},'revocation retains the unpresented source pose');
+  assert.equal(screens.presentHomeEntryMotion({...at(900),system:{...at(900).system,sleeping:true}}),false);
+  paint(at(903),1000,false);assert.deepEqual(pose(),{folderFrame:3,captureFrame:3});
+  assert.equal(screens.presentHomeEntryMotion(at(903)),true);
+  for(const update of [906,909,912,915])paint(at(update));
+  paint(at(918),1000,false);assert.deepEqual(pose(),{folderFrame:16,captureFrame:8});
+  assert.equal(screens.homeEntryMotionActive(at(918)),true,'terminal remains active until render receipt');
+  paint(at(1000),1000,false);assert.deepEqual(pose(),{folderFrame:16,captureFrame:8});
+  assert.equal(screens.presentHomeEntryMotion(at(1000)),true);
+  assert.equal(screens.homeEntryMotionActive(at(1000)),false,'settled entry releases transition cadence');
+  paint(at(1001),1000,false);assert.equal(screens.homeEntryMotionPublicationPending(),false);
+  assert.equal(screens.presentHomeEntryMotion(enterHomeFolder(root,20)),false,'different folder cannot consume an old candidate');
+ });
+});
+
+test('HOME pause receipts reject diagnostics, replacement owners and asset/disposal revocation',async()=>{
+ const base=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',3010),6500),'home',6600);
+ const at=updateCount=>({...base,system:{...base.system,homeClock:{...base.system.homeClock,updateCount}}});
+ await withScreens(({screens,paint,events,presenter})=>{
+  const frame=()=>events.find(event=>event.name==='pause-backdrop').args[0].material[0].frame;
+  paint(at(100),1000,false);paint(at(103),1000,false);assert.equal(frame(),0);
+  screens.paint(at(500),new Date(0),1200,{homeCursorLoopFrame:0});
+  assert.equal(screens.presentHomeEntryMotion(at(500)),false,'synthetic canvas cannot receive a live render receipt');
+  paint(at(600),1000,false);assert.equal(frame(),0);
+  const different={...at(600),system:{...at(600).system,runtime:{...base.system.runtime,application:'other:1',homeReturn:'other:1',instances:{'other:1':{...base.system.runtime.instances[base.system.runtime.application],id:'other:1'}}}}};
+  assert.equal(screens.presentHomeEntryMotion(different),false);
+  paint(at(603),1000,false);assert.equal(frame(),0);assert.equal(screens.presentHomeEntryMotion(at(603)),true);
+  paint(at(606),1000,false);assert.equal(frame(),3);
+  screens.setFirmwareAssets({presenter,sharedFont:{draw(){}},dispose(){},diagnostics:[]});
+  assert.equal(screens.presentHomeEntryMotion(at(606)),false,'asset replacement revokes the old pair generation');
+  paint(at(610),1000,false);assert.equal(frame(),0);
+  screens.dispose();assert.equal(screens.presentHomeEntryMotion(at(610)),false);
+ },{screenOptions:{drawSuspendedBackground(ctx,_capture,presentation){ctx.record('pause-backdrop',[presentation]);return true;}}});
+});
+
+test('unsupported folder capture, chrome and child draws recover both LCDs without a motion receipt',async()=>{
+ const root=home(),state=enterHomeFolder({...root,folders:{19:'Folder'}},19);
+ for(const name of ['folderBackdrop','folderChrome','folderChild']){
+  await withScreens(({screens,paint,events})=>{
+   paint(state,1000,false);assert.equal(screens.stockStatus(state),'error',name);
+   assert.equal(screens.homeEntryMotionActive(state),false,'failed native pair releases transition cadence');
+   assert.equal(screens.presentHomeEntryMotion(state),false,name);
+   assert.ok(events.filter(event=>event.name==='fillRect').some(event=>event.context.canvas.width===400));
+   assert.ok(events.filter(event=>event.name==='fillRect').some(event=>event.context.canvas.width===320));
+  },{presenterPatch:{[name](){return false;}}});
+ }
+});
+
+test('source folder parent rejection never draws an untransformed entry child',()=>{
+ const state=enterHomeFolder({...home(),folders:{19:'Folder'}},19);
+ const homePresenter=createFirmwareHome({renderer:{packs:{launcher:pack},withPaneParent(){return false;},draw(){return true;}}});
+ let draws=0;
+ for(const empty of [false,true])assert.throws(()=>homePresenter.folderChild({},state,empty,()=>draws++,false,{folderFrame:0,captureFrame:0}),/Native folder entry parent unavailable/);
+ assert.equal(draws,0);
 });
 
 function canvas(events) {
@@ -1182,15 +1251,16 @@ async function withScreens(run, { native = true, legacyCursorDrawn = true, realT
     toolbar(ctx, ...args) { ctx.record('toolbar', args); return realToolbar ? actual.toolbar(ctx, ...args) : true; },
     folderBannerLabel(text) { events.push({ name: 'banner-label', args: [text] }); },
     appletBannerLabel(key) { events.push({ name: 'applet-label', args: [key] }); },
-    folderChild(ctx, _state, _empty, draw) { ctx.record('folderChild'); draw(1); },
+    folderChild(ctx, _state, _empty, draw) { ctx.record('folderChild'); draw(1); return true; },
     cursor(ctx, ...args) { ctx.record('cursor', args); return legacyCursorDrawn; },
     ...presenterPatch,
   }, { get: (target, key) => key in target ? target[key] : ((ctx, ...args) => { ctx.record(key, args); return true; }) });
   const diagnostics = [];
   const screens = createScreens({ drawHomeBackground:()=>true, ...(native ? { firmwareAssets: { presenter, sharedFont: { draw() {} }, diagnostics, dispose() {}, ...firmwarePatch } } : {}), ...screenOptions });
-  const paint = (state, elapsed = 1000) => {
+  const paint = (state, elapsed = 1000, receipt = true) => {
     events.length = 0; screens.bottom.getContext('2d').curves.length = 0;
     screens.paint(state, new Date(0), elapsed);
+    if(receipt)screens.presentHomeEntryMotion(state);
     return events;
   };
   const cursorCalls = () => events.filter(event => nativeCursorNames.has(event.name));

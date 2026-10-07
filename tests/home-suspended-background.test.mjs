@@ -56,6 +56,29 @@ test('suspended close playback preserves the source override order and bounded f
   }), /Unsupported native suspended presentation/);
 });
 
+test('pinned AppPause tint and both texture-scale channels reject source mutations', () => {
+  const channels = [
+    ...['MaterialConstant0', 'MaterialConstant1'].flatMap(target => ['R', 'G', 'B'].map(channel => [target, channel])),
+    ...['MaterialTexCoord0Scale', 'MaterialTexCoord1Scale'].flatMap(target => ['X', 'Y'].map(channel => [target, channel])),
+  ];
+  for (const [target, channel] of channels) {
+    for (const mutate of [curve => { curve.KeyFrames.at(-1).Value += .01; }, curve => { curve.Exists = false; },
+      curve => { curve.EndFrame += 1; }, curve => { curve.InterpolationType = 'Step'; },
+      curve => { curve.PostRepeat = 'Repeat'; }, curve => { curve.KeyFrames[0].OutSlope = .1; }]) {
+      const input = asset(), clip = input.data.materialAnimations.find(clip => clip.Name === 'BannerBG_AppPause');
+      mutate(clip.Elements.find(element => element.TargetType === target).Content[channel]);
+      assert.throws(() => suspendedBackgroundAsset(input), /Unsupported native suspended background/, `${target}/${channel}`);
+    }
+  }
+  for (const mutate of [clip => { clip.Elements.splice(0, 1); }, clip => { clip.Elements.push(structuredClone(clip.Elements[0])); },
+    clip => { clip.Elements[0].Name = 'other'; }, clip => { clip.Elements[0].PrimitiveType = 'Vector2D'; }]) {
+    const input = asset(); mutate(input.data.materialAnimations.find(clip => clip.Name === 'BannerBG_AppPause'));
+    assert.throws(() => suspendedBackgroundAsset(input), /Unsupported native suspended background/);
+  }
+  const duplicate = asset(); duplicate.data.materialAnimations.push(structuredClone(duplicate.data.materialAnimations.find(clip => clip.Name === 'BannerBG_AppPause')));
+  assert.throws(() => suspendedBackgroundAsset(duplicate), /Unsupported native suspended background/);
+});
+
 test('pinned AppQuit source channels are the alpha reveal and step-scale override', () => {
   const quit = data.materialAnimations.find(clip => clip.Name === 'BannerBG_AppQuit');
   const alpha = quit.Elements.find(element => element.TargetType === 'MaterialConstant4').Content.A;

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { sampleHomeEntryMotion, homeFolderEntryPose, homePauseEntryPresentation, HOME_ENTRY_MAX_OBSERVED_UPDATE_GAP } from '../src/os/home-entry-motion.ts';
+import { sampleHomeEntryMotion, sampleHomeEntryMotionCandidate, acknowledgeHomeEntryMotionCandidate, homeEntryMotionActive, homeFolderEntryPose, homePauseEntryPresentation, HOME_ENTRY_MAX_OBSERVED_UPDATE_GAP } from '../src/os/home-entry-motion.ts';
 import { poseNativeLayout, nativePaneParentPath } from '../src/os/native-layout.ts';
 import { suspendedBackgroundPlayback } from '../src/scene/home-suspended-background.ts';
 
@@ -103,6 +103,24 @@ test('reduced motion chooses source endpoints without mutating the normal sample
   assert.equal(homePauseEntryPresentation(pauseMotion).material[0].frame, 0);
   assert.equal(homeFolderEntryPose(pauseMotion), null);
   assert.equal(homePauseEntryPresentation(folderMotion), null);
+});
+
+test('owner-bound candidates retain the selected pair until receipt and drop offscreen elapsed time', () => {
+  for (const identity of [folder, pause]) {
+    const candidate = sampleHomeEntryMotionCandidate(null, null, identity, 100, true);
+    for (const update of [103, 500, 5000]) assert.equal(sampleHomeEntryMotionCandidate(null, candidate, identity, update, true), candidate);
+    assert.equal(acknowledgeHomeEntryMotionCandidate(candidate, identity, 5000, false), null);
+    assert.equal(acknowledgeHomeEntryMotionCandidate(candidate, identity, 99, true), null);
+    const other = identity.kind === 'folder' ? { ...identity, folder: 'other' } : { ...identity, captureGeneration: 9 };
+    assert.equal(acknowledgeHomeEntryMotionCandidate(candidate, other, 5000, true), null);
+    const presented = acknowledgeHomeEntryMotionCandidate(candidate, identity, 5000, true);
+    assert.equal(presented.elapsedUpdates, 0);
+    assert.equal(presented.observedUpdate, 5000);
+    assert.equal(homeEntryMotionActive(presented), true);
+    const next = sampleHomeEntryMotionCandidate(presented, null, identity, 5001, true);
+    assert.equal(next.elapsedUpdates, 1, 'only the HOME update after publication spends phase');
+    assert.equal(homeEntryMotionActive(next, true), false);
+  }
 });
 
 test('invalid clocks, owners and mixed pause-close stacks fail explicitly', () => {

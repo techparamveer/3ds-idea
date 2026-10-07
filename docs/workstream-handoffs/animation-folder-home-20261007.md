@@ -113,13 +113,16 @@ still reports its existing mode0 lifecycle; this bounded patch supplies the
 source AppPause pose to the separate suspended-background renderer. It does
 not claim a complete native mode-dispatch integration.
 
-**Host scheduling adaptation:** the first successful live paired paint binds
-frame0; each eligible existing HOME logical update selects the next source
-frame. Missing readiness, failed paint, diagnostic paint and inhibition cannot
-spend motion. Repeated same-update paints retain the pose. Folder identity and
-complete capture owner/generation distinguish entries; asset replacement,
-power-off and disposal clear presentation samples. Exact native input epoch,
-task order, LCD publication cadence and stop/idle gates remain unproved.
+**Host scheduling adaptation:** a successful live Canvas pair creates an
+owner-bound candidate, beginning at frame0. The selected pair stays unchanged
+until a successful visible, context-live `renderer.render` acknowledges it.
+That receipt commits the selected source pose and rebases the observed HOME
+count; time waiting offscreen cannot become catch-up motion. The next eligible
+HOME updates select a new candidate. Failed/diagnostic paints cannot publish a
+receipt; hidden, sleeping and lost-context paths revoke candidates. Folder
+identity and complete capture owner/generation distinguish entries; asset
+replacement, power-off and disposal invalidate old receipts. Exact native input
+epoch, task order, LCD publication cadence and stop/idle gates remain unproved.
 No duration, easing or native sound was guessed.
 
 **Browser stall policy follow-up:** `HOME_ENTRY_MAX_OBSERVED_UPDATE_GAP=6`
@@ -129,34 +132,54 @@ unobserved HOME-clock jump is treated as inhibited: retain the last paired
 pose, rebase observedUpdate only after a successful live pair, then spend only
 subsequent ordinary updates. This threshold is an explicit browser resilience
 policy, not a source duration, source gate or cadence claim. It does not slow
-every paint to one frame or alter System/scene clocks and LCD cadence.
+every paint to one frame or alter System/scene clocks.
 Mid-entry stall tests cover both folder and pause, failed advancement and failed
 rebasing, diagnostic rebasing, repeated same-update painting, reset/re-entry and
-new capture identity. No scene cadence boost was added.
+new capture identity. Eligible pending HOME entry and Notes covers now request
+the existing transition LCD paint budget. Render-quality budgets are unchanged;
+lower-budget renders may sample multiple HOME updates and skip intermediate
+poses. That remains a browser scheduling adaptation pending native comparison,
+not a new native FPS or duration claim.
+
+**Resource and publication guards:** entry requires the decoded FadeIn17/Fade9
+nonlooping clips, original source ranges/groups, visible unique parent panes,
+child-parent relationship and required nonempty Hermite tracks. Missing parent,
+capture, chrome or child drawing fails both LCDs through the existing explicit
+recovery/Retry path; no native-looking fallback is published. AppPause requires
+the pinned MaterialConstant0/1 tint and TexCoord0/1 scale curves, interpolation,
+key times/values and fixed auxiliary channels, alongside the existing model,
+capture and AppQuit validation. Mutation tests exercise malformed selected
+resources. Receipt tests cover frame0, delayed/one-shot publication, terminal
+retention, wrong owners, failed/diagnostic draws and teardown.
 
 ## Integration and Checks
 
-Cherry-pick the coherent commit containing this handoff into the coordinator's
-animation-fidelity checkout. All permitted wiring is included; no manual
-`system.ts` hunk is required. Owned files:
+Integration order: A originals `d937cf3`, `295d029`, `44ec0bf`, `884fc11`, then
+B `b9134fd`, `894d1fe`, then this publication/resource follow-up. The A originals
+are already cherry-picked in this worker for interface verification; do not
+also cherry-pick their worker-local copied hashes. All permitted wiring is
+included; no manual `system.ts` hunk is required. Owned files:
 
-- `src/os/home-entry-motion.ts`: pure owner-relative source-pose sampler.
+- `src/os/home-entry-motion.ts`: pure owner-relative source-pose sampler and receipts.
+- `src/os/home-folder-entry-assets.ts`: selected folder clip/parent validation.
 - `src/os/firmware-presentation.ts`: source folder entry bindings and child parents.
 - `src/os/screens.ts`: live clock/readiness/paired-paint binding and close precedence.
 - `src/scene/home-suspended-background.ts` and `firmware-banner.ts`: validated
   AppPause-only playback alongside unchanged AppQuit override stack.
-- `src/scene/console-scene.ts`: `screenPaint.entryMotion` diagnostic record,
+- `src/scene/console-scene.ts`: valid render receipts and existing transition
+  cadence for HOME entry/Notes, plus `screenPaint.entryMotion` diagnostics
   inherited by `screenPresented.paint`, without a second clock.
-- `tests/home-entry-motion.test.mjs`, `native-home-controls-paint.test.mjs`,
-  `firmware-banner.test.mjs`: pure, live painter and actual model regressions.
+- Pure source, live painter, malformed resource, actual model and scene-policy
+  regression tests listed below. Notes forwarding signatures are coordinated
+  with Worker A; no portfolio/stock module was manually edited by B.
 
 Focused verification command:
 
 ```sh
-node --test --test-reporter=spec tests/home-entry-motion.test.mjs tests/native-home-controls-paint.test.mjs tests/firmware-banner.test.mjs tests/home-suspended-background.test.mjs tests/home-folder-close.test.mjs tests/home-suspended-presentation.test.mjs
+node --test --test-reporter=spec tests/home-entry-motion.test.mjs tests/home-folder-entry-assets.test.mjs tests/native-home-controls-paint.test.mjs tests/home-suspended-background.test.mjs tests/home-entry-motion-scene-policy.test.mjs tests/boot-publication-scene-policy.test.mjs tests/application-close-scene-policy.test.mjs tests/home-entry-banner-scene-policy.test.mjs tests/render-quality.test.mjs tests/notes-boot-cover.test.mjs tests/stock-screen-preparation.test.mjs tests/firmware-banner.test.mjs tests/home-folder-close.test.mjs tests/home-suspended-presentation.test.mjs
 ```
 
-Result:210 pass,0 fail,0 skipped. TypeScript `tsc --noEmit --incremental false`
+Result:292 pass,0 fail,0 skipped. TypeScript `tsc --noEmit --incremental false`
 passes. `git diff --check` and relative handoff links pass. Existing dependencies
 were reused read-only; no packages installed. No full build/test suite, shader
 change, worker GUI, server, new browser capture, native diff or audio inspection.

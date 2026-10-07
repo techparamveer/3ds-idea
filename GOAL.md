@@ -51,10 +51,18 @@ Physical, keyboard and reduced-mobile repeated captures record matching DOM
 down/up events while raw LCD paints continue. Fixed pause diagnostics still
 differ, and the shorter native attempt still captured only settled frames.
 Continue from [the recorded holds](docs/animation-fidelity-workflow-2026-10-07.md#recorded-browser-home-holds).
-The exact Manual executable has been recovered privately. Independent source
-review supports a narrow common-Contents row sampler candidate, not visual
-acceptance. Review its guards/tests and verify it from the separate served-base
-worktree without pulling in pending incoming assets. No phase or cursor fit.
+The reviewed Manual Contents row correction is integrated as `6f022e3` and
+`3c83fcd`; caller-validating capture checks are committed as `6a58c50`.
+The separate served-base branch runs committed source `f9dd707` on port 3022,
+with exact existing model LFS objects restored to their tracked OIDs/sizes.
+Nine entry/re-entry cycles and both Page/Contents round-trips pass browser
+checks. Fixed Camera ready diagnostics improve the lower mismatch from 1,038
+to 368 in both cycles. The upper mismatch of 446 and incoming mismatches of
+11,520/74,833 remain. No timing, private caller, native
+input, audio or whole-animation acceptance follows. Continue from
+[the Manual row checkpoint](docs/animation-fidelity-workflow-2026-10-07.md#manual-contents-row-correction-and-visible-verification).
+Unresolved native capture latency and incoming dependencies remain open;
+do not repeat late entry bursts or fit a source clock from stale readbacks.
 
 The hardware requirements below remain unchanged. The current animation goal
 supersedes older execution queues and checkout references in this document.

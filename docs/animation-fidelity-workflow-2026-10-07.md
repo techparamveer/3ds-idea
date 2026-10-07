@@ -849,3 +849,121 @@ audio remains muted and unverified. The goal is active subject to the user's
 75%-remaining stop condition. Next: guarded Manual correction, clean build,
 visible regression capture and native comparison, then the unresolved native
 entry clock and pending title-specific incoming dependency boundary.
+
+### Manual Contents row correction and visible verification
+
+Reviewed worker commits `7bc4f42`/`cbe89a6` integrate as `6f022e3`/`3c83fcd`.
+Only common Contents `TextBox_Txt` uses the existing uncentered final-LCD
+source-size sampler. Exact pane/material 0/Wait/font/transform guards reject
+unsupported replacements; the new read-only renderer font query changes no
+font, cache or ownership. Number, header, category, footer and Page draw paths
+stay unchanged. Original static constructor/writer/render-chain proof is tested;
+the prior Unicorn SIGILL still supplies no executed ARM/GPU evidence.
+
+The row maps through `manual-row` to manifest resource
+`packs/manual/layout-BtnHeadLineTxt.json`, SHA
+`9c0c0fb055d3b15311c0f0210bf3a89314c64edfab54a7596adc3878e1a3ca7a`.
+Its source member is `layout/BtnHeadLineTxt.arc/blyt/BtnHeadLineTxt.bclyt`, SHA
+`c41c54be9f004b98714ff8b9dc941b09386de50cd9215894d1ac6fe95181dca2`,
+Manual `0004003000009b02/v5120`, resource content 0/id `0000000a`. The existing
+converter record is `ctr-native-web 1.2.0` with its historical `CTRTool 1.3.0`
+extraction record. That is distinct from the new private executable recovery
+using `CTRTool 1.2.0`. The unchanged shared font source is
+`0004009b00014002/cbf_std.bcfnt.lz`, SHA
+`95d5a675ae14cc22b84b5b89c8d10cc894f1e2dfaf00a1168545fe76fb1eb581`.
+The prior `touch-recovery-98342a8/manual-browser-selection.json` retains the
+full source/converter mapping and explicitly unsupported fields. No new native
+asset, font, graphics reconstruction or public export occurred.
+
+Root committed collector `6a58c50`, file SHA
+`6b9e761cd3971cb4e3fce567bb470f907a929c639e3b3e26e2ce1961c0a98d53`.
+Review caught and removed Health's false Manual route. Every cycle now checks
+HOME origin, Settings 9/Camera 10 grid focus or Browser toolbar focus 4, then the
+exact requested Manual heading. The actual Browser toolbar/footer touch is
+used; six new route/negative tests and eighteen hold tests pass. Private Manual
+title/caller/generation are not exposed and remain null. HOME's Browser-focus
+announcement still names Work; no exact Browser announcement restoration is
+claimed. Exposed `manual:1/2` tokens are diagnostic owners, not private proof.
+
+Root full tests at `3c83fcd` with private fixtures: 2,523 total, 2,423 pass,
+1 unchanged historical Camera `lower.png` ENOENT, 98 skips, 1 TODO. Log SHA
+`af6025450c942faf4c34c214c0264bfd3b9ba9b6c197f0cb2e4ea34406c6f4ae`;
+typecheck passes with incoming caller WIP present. Root did not build or serve
+that WIP. Verification branch `codex/manual-row-visible-20261007` starts from
+served `98342a8` and includes only reviewed Manual source commits, now `f9dd707`.
+Focused checks pass 89/89. Full tests report 2,465 total, 2,367 pass, 1 historical
+failure, 96 skips and 1 TODO. Typecheck and production build pass.
+Build ID `55d5JVdwwPl4kp4ZVGPyW`; build log SHA
+`90137f717d852926527bfc1d63e33a7361763e471fbbec6efa28d8f9abfab14d`.
+Final served verification report SHA
+`bb8dd8624b6e08a80d06ab65c9af36b08acf5adf525f225c837bc2af912eb819`.
+The first full run's 40 additional LFS-pointer failures remain preserved.
+Only the 77 existing GLBs were restored locally, 7,581,105,252 bytes, each
+matching the HEAD OID/size. Inventory SHA
+`9f13eb43df60a524ff9ab8b21c159ce634e5c237f11f5f150fbc5f7bd97c26c4`.
+The serving working tree has those 77 materialized files and STATUS unstaged;
+the reviewed authored source is clean. No network, new model or native export.
+Root starts port 3022/session 20481; HTTP 200 verified. Old 3021 and user 3000
+are untouched.
+
+Private artifacts are under `animation-20261007/manual-row-f9dd707/` and
+`manual-selector-f9dd707-worker-a-20261007/` in the Sandisk1 artifact root.
+Muted normal Camera 153/166, Settings 155/155, Browser 155/154 and reduced-mobile
+Camera 71/71/70 cycles complete with no page errors. All 1,150 paired receipts
+and 2,300 raw PNGs are rehashed/decoded with correct dimensions, valid same-paint
+publication and no orphans. All 9 console views were opened; supporting SHA
+`ae0ef8212cf19d30eae827bf5f0522b847fc60fff8ca7b4ef1b3f9cc423222b7`.
+Reduced intermediate source poses are absent intentionally, an accessibility
+adaptation. A's independent frozen selectors retain PNG CRCs and chronological
+source stages, not closest pixels. Camera out/intermediate/in20/ready indices
+are 41/44/86/87 and 48/52/101/102. Camera selector SHA
+`7e3b86b6d6bcc5f76df00e1f91f8fcf4fbf750ce45ece050491e91797b1df3ec`;
+Settings `039e22a0`, Browser `f4475d82`, reduced `3c908f07`. Final policy
+`abc689ab` and selector driver `d1d74a51` are frozen before comparison.
+
+Two separately reviewed actual-input Page/Contents round-trips retain 30/31
+Settings and 31/32 Browser paired paints. Every phase requires an in-window
+same-paint valid terminal plus visible lower change; document terminal matches
+return baseline and returned lower equals the original Contents pixels. All
+248 raw PNGs are rehashed/decoded, and all 4 console views were opened. Roundtrip
+SHAs are `7d618846` and `e9fe636a`; supporting `103f09fe`. Driver SHA
+`c966ca1e992b2eb5268f2d5ebebc1226aaff713dc62efcc615d807e1a415d357`.
+These prove a browser-visible round-trip through the source route, not private
+page identity or native comparison. Original Page fits/inert controls remain.
+
+Fixed Camera comparisons reuse the immutable native warm selector `3d013fd8`,
+empty mask `dc4b320b` and comparator `5ad566e1`. Both cycles have cover 0/0,
+incoming 11,520/74,833 and ready 446/368, compared with prior ready 446/1,038.
+All 12 contact sheets were opened. Result SHA
+`f838599f0d6e59f586abdd99e9fa66d0084534df3306e86e39f6ab33eaf909d0`;
+comparison driver SHA
+`10b7934137dcf3cd001490797a53766d9e591b8e4d51e1eac9f3d2217af7a270`.
+Fixed-band row residuals 457/319 become 24/82; footer 262 and other 0 are unchanged.
+Old-to-new browser differences are 439/233 within the row bands and 0 elsewhere.
+Residual report SHA
+`79bfa855b975ebac776335b02d955556388f28afd1639c5bae80355e3c29a82d`;
+driver SHA
+`a193d837ba03672f33cc4b8fbdf2ef43d622ef20c8b6af1509e707e6324e9fed`.
+These bands attribute a static improvement, not original glyph execution.
+Upper 446 remains unexplained, with left/right regions containing 400/46
+differing pixels. This partition does not source-identify their components or
+establish a source gap. Native clear-before-partial chronology,
+unmatched source/input epochs and capture latency remain unresolved; no native
+recapture or timing/audio acceptance occurred in this slice.
+
+All four whole animation scenarios remain fail. Existing body/category/clip/
+truncation/placement and shared-clock fits are adaptations; portfolio content,
+reference fixture population/HUD and inert/local services remain scoped
+differences. Muted audio is unverified. Incoming export approval remains pending
+and root caller WIP SHA `172ec978` is unchanged/unserved. The private scenario
+matrix and default profile/system/Spotify audio were not changed. Next: the
+remaining static row/footer/upper mismatches and native input/LCD clock
+evidence, without fitting phases or repeating late native bursts. Weekly
+allowance is 84% at the 8 October documentation closeout; stop all seats and
+pause the active goal at 75% remaining. STATUS records later readings.
+
+The frozen private sidecar `manual-row-f9dd707/orchestration-provenance.json`,
+SHA `328b3177ca84c64129a2bc35507606884fd643a7ce333be680ea3e9dae7bc912`,
+pins 22 drivers/results/selectors/build-inventory identities and the collector,
+retains the full unchanged asset mapping and its unsupported fields, and
+labels execution identity as attested rather than self-discovered.

@@ -5,7 +5,20 @@ for top-row opening, Manual opening, folder entry and HOME suspension. GitHub
 restart base is `5ee6fd7`; the historical static queue below is preserved.
 All four motion flows are currently fail pending matched frame-sequence proof.
 
-Current supporting checkpoint `2431ed5`: reviewed optional held-HOME collector
+Current Manual checkpoint: reviewed row-only correction `6f022e3`/`3c83fcd`
+and capture caller guards `6a58c50` are integrated. Port 3022 serves committed
+Manual source `f9dd707`, with existing model LFS bytes verified against HEAD.
+Nine entry/re-entry cycles yield 1,150 valid paired paints, 2,300 decoded raw PNGs
+and no page errors. Settings/Browser Page/Contents round-trips restore exact
+lower pixels. Both fixed Camera ready diagnostics improve from 446/1,038 to
+446/368. Row-band mismatches drop from 457/319 to 24/82; the footer's 262
+differing pixels stay unchanged. Cover 0/0 holds; incoming 11,520/74,833,
+native epochs and all four whole-animation failures remain.
+No pending decoded assets or caller WIP are served. Weekly remaining is 84% at
+this checkpoint; stop and pause at 75%. See the
+[Manual visible checkpoint](animation-fidelity-workflow-2026-10-07.md#manual-contents-row-correction-and-visible-verification).
+
+Earlier supporting checkpoint `2431ed5`: reviewed optional held-HOME collector
 and type-only receipt fix are integrated. Private full tests pass 2,410 with
 the unchanged missing historical Camera PNG failure, 98 skips and one TODO.
 Clean worker typecheck/build pass; root caller WIP remains unstaged/unserved.

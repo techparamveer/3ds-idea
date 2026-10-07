@@ -133,6 +133,18 @@ a `sourceSheet ?? sheet` fallback. See the [HUD delivery note](../hud-font-sourc
 
 ## Runtime resource boundaries
 
+Manual Contents opts only `TextBox_Txt` into the existing
+`lcd-source-size-left` sampler. Its source member, material 0, bound native font,
+Wait pose, single-line capacity and lower-LCD transform must satisfy the exact
+reviewed guard before drawing. Unsupported selected data fails explicitly.
+`getFontManifest` exposes read-only bound metadata; it does not replace a font,
+change cache ownership or relax disposal. Number/header/category/footer and
+Page title/body paths remain unchanged. Existing placement, clipping and
+truncation fits remain adaptations. The
+[source and visible checkpoint](../animation-fidelity-workflow-2026-10-07.md#manual-contents-row-correction-and-visible-verification)
+records improved but still failing fixed-pair counts; static source evidence is
+not original GPU execution or native motion acceptance.
+
 Power's lower label opts into existing final-LCD alpha glyph sampling through
 an explicit `textSamplingPanes` allowlist. Missing, duplicate or invalid selected
 pane names fail the draw; sibling text and other call sites retain their prior

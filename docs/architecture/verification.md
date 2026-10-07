@@ -30,6 +30,18 @@ Browser DOM timing does not measure native hold or source activation epochs.
 Preserve default tap fields and reduced-motion accessibility labels. A shorter
 native gesture whose tool returns after entry remains settled-only evidence.
 
+[Manual capture caller checks](../animation-fidelity-workflow-2026-10-07.md#manual-contents-row-correction-and-visible-verification)
+permit only delivered Settings/Camera/Browser manuals. Before every cycle,
+require the requested grid slot or Browser toolbar focus 4, then the exact
+application Manual heading at readiness. Health's Open is not a Manual route.
+These visible attestations do not expose the private Manual title/caller or
+capture generation. Page/Contents supporting captures require a valid paired
+terminal inside the recorded window, a changed lower hash on each input and
+exact Contents-to-document-to-Contents hash closure. A late ready state or an
+ignored touch cannot validate the captured phase. Still inspect the console
+images, preserve raw ledgers and freeze selector/driver hashes before diffs.
+Reduced intermediate absence is an accessibility adaptation, not native motion.
+
 [HOME launch onset](../home-launch-onset-2026-10-03.md) now has continuous
 native pre-A/feedback/fade/logo evidence. Distinguish first Open pressed
 feedback from footer SceneOut, and last pre-fade banner from disappearance.

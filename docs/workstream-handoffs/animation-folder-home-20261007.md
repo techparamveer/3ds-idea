@@ -226,3 +226,152 @@ no substitute native graphics or cues and does not excuse their residuals.
 Muted audio remains unverified. Source-identified and implemented/tested are
 complete for this bounded correction; integrated, browser-inspected and
 native-compared are coordinator follow-up, not worker acceptance.
+
+## AN-03 Upper Departure Follow-up
+
+This 7 October bounded correction targets the premature upper folder departure,
+not Manual, Notes, folder close, reducers, scene cadence or wider composition.
+Worker base is reviewed `3651b39d681db9914920e37178e0c1d66b4fac67`, plus the
+approved local dependency `bd6622bc21d045b29d7ee53ebbb5cb8844ab8eb5` (A original
+`fd56dd4`, failed-folder B/HOME escape). **Do not integrate that dependency
+again:** coordinator already has it as `c8e1e93`. Git wins over this worker's
+inherited STATUS SHA; coordinator-authored dirty STATUS remains untouched and
+unstaged. Coordinator's reported code checkpoint is `59fb1d5`; served runtime
+is `61f8b4e`. The commit carrying this section contains only the new folder
+helper, folder-only screens binding, focused tests and this handoff.
+
+### Captured Defect
+
+Immutable native ownPNG:
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/native-folder-slow/screenshots-folder/_07.10.26_15.11.14.196.png`,
+SHA-256 `25643ec0b93be0c860d78b16fe2960542b665a35e57c81460804caf8bddb235c`.
+Its lower entry is complete while the upper still shows the folder banner;
+the later native `15.11.14.657.png` shows the default banner. These slow-motion
+observations prove ordering, not normal-speed duration.
+
+The first chronological browser folderFrame16 is repeat1 index020, runtime
+`2169497`, at 466.7ms. Raw copies and inspected sheets are under
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/comparisons/folder-reentry-frame16-2169497/`.
+Selection JSON SHA-256:
+`620cbb0ce1bfc4ee5f599dea9915b2d4787082b65862d67b7c2662ea6893e198`.
+Browser upper SHA-256:
+`157f5b802ee06f28e8dcc528874a7f327ac98849140aceb9b7a453107b28edcb`;
+lower `c32677f1295aa06cad6bc84f71a63badc174553face3f121a5a1969791402bb8`.
+Empty mask `dc4b320b16c2dd2d560b4bae62d9d061b0d93c83496c3c0902df1e3233b36e95`;
+report `08626b745f521ad07c8e57cb18c30ffeb12da4d92a56a7236a10f483162e6626`.
+At RGB delta threshold2 the baseline differs by **61126 upper / 7478 lower**
+pixels. This worker created no new captures or private evidence.
+
+### Ordering Evidence
+
+One read-only source pass used the same pinned HOME decrypted code.bin above.
+Disassembly SHA-256:
+`656187735b0ac3f3352e060308bf65ff54d0c460c581d6ee6c851cbaadd770b5`.
+At `0x29b954`, r5 is r4+e30. `0x29b9bc..0x29b9cc` reads that object's +14
+status and returns while it is1 or2. This comparison does **not** independently
+check a second folder status. The successful ordinary path later requests mode0
+via `0x1e8f38` at `0x29bb54..0x29bb5c`; mode0 `0x29a184` prepares selection/host
+and calls banner refresh `0x1e0f44` at `0x29a4dc`. Child refresh is therefore
+downstream of successful lower-controller completion. See
+[banner targets](../native-banner-targets.md) and
+[folder source boundary](../native-folder-close-boundary.md).
+
+Source does not prove that browser FadeIn16 receipt equals the native status
+boundary, or that banner manager/global-3D clocks are phase-locked to lower
+publication. This delivery applies the bounded ordering adaptation: retain the
+last successfully presented matching root-folder primary and label through the
+acknowledged lower terminal, then permit the already-requested native child on
+the next eligible paint. Its first successful paired WebGL receipt retires the
+old source permanently. The early child-host request remains unchanged and is
+an adaptation, not a recovered native request epoch.
+
+### Resource Mapping
+
+Unchanged upper folder -> `manifest.models.folder` ->
+`models/folder/model.json` SHA-256
+`9518fc61118875d7989e84b4b5d15ae32a9bd495f73fbdff87ada5d14c376015`
+-> HOME v24576 content0/00000082 `romfs/3D/BannerFolder_LZ.bin`, compressed
+SHA-256 `6414be9d3752a1cd541f97ad47ae67ad852bbe6e041956ab542ea6831b978ecd`,
+decoded CGFX `28f62936179fe1e0787080e62ac7b4d5d3e8e279cb4bbccb9c8fd2a47c799305`.
+Both native BannerFolder skeletal/material clips are looping600-frame resources.
+They are evaluated by the existing lifecycle and model renderer; no copied LCD,
+new geometry, label fit, texture, font, visual asset or sound was introduced.
+
+The label retains `BannerFolder/mt_Text`, `manifest.home.banner` ->
+`packs/home/banner.json` SHA-256
+`44622f5f4607489a9ab7788d528faa63bb093bd80a8785411c4bcdc7835357aa`,
+`romfs/banner_LZ.bin` SHA-256
+`5ed6d1edc6daed5decdf1425832be8567e54e809f9b81278b1275381d86e2fc3`,
+layout `BnrDsTitle_00`, and unchanged `manifest.fonts.shared` ->
+`fonts/shared/font.json` SHA-256
+`d48b661f446e3e581abeceb62b86312a6fea6c8120cd1214ba76b298f94c9f27`.
+Font title `0004009b00014002`, `cbf_std.bcfnt.lz` SHA-256
+`95d5a675ae14cc22b84b5b89c8d10cc894f1e2dfaf00a1168545fe76fb1eb581`.
+Banner pack lacks per-member resourceSources; that provenance limitation remains
+explicit. Original label binding/metrics are in the
+[folder label source record](../native-folder-label-2026-09-22.md).
+
+The returning empty-slot child remains `manifest.models.bannerDefault` ->
+`models/banner-default/model.json` SHA-256
+`d0d771a36fe3cc054db94582bd6c7ebbec2d2c9eedbba9a09946c20e3488dfb6`
+-> `romfs/3D/BannerDef_LZ.bin`, SHA-256
+`4833f9e4ac3bfb59c046f6df47c32cc72dd1a3b21868d4b60bb19e455068d165`.
+Shared frame is `manifest.models.bannerFrame` -> `models/banner-frame/model.json`
+SHA-256 `61f4e90b11e341ba857edd73e5d0ce3eba8fbc5a2aff9a03bb0581f402c9fd83`
+-> `romfs/3D/BannerFrame_LZ.bin` SHA-256
+`794bfb7f116c5686e44bc5701b4ea715c32f169e76306a272926d5d979a7e9ba`.
+These models share unchanged converter `ctr-cgfx-web`1.3.0, wrapper
+`76e55cdf027b8a0a8d647f873e8dd89e81dd08478a588bbdaa91a03315b72da6`,
+exporter `0a450efe7fbdba7a3bda05635c7abe9448080b719f9703e728efd46cc189a7d4`.
+Lower capture/FadeIn and wallpaper/HUD mappings above remain unchanged.
+
+### Lifecycle and Checks
+
+The root source is staged only after a successful native draw, then stored only
+through the existing valid-render hook with exact primary generation/request/
+activation and application/firmware/System guards. Entry requires the immediately
+preceding root selectionRevision+1. Active lower receipts require that exact
+entry revision. Folder readiness quarantines child input through the paired
+terminal receipt; B/HOME/power recovery remains available. This input gate is a
+browser presentation adaptation, not proven native input timing. After release,
+ordinary child revisions are free; existing close sequence identity prevents a
+completed Back/re-entry from reusing the previous root receipt.
+
+Every pending pair stays selected until a valid receipt. At most one existing
+banner manager/clip pass accompanies each advancing lower source pose. No
+elapsed catch-up, timer or render-budget override was added. Hidden/sleep/
+diagnostic/context/failure/Retry revocation discards unpresented candidates and
+rebases the last presented pose. Terminal source remains until a current native
+child draw and matching child receipt succeed. Once retired, later revocations
+cannot resurrect the folder banner. Reduced motion selects the terminal source
+and still needs its receipt; existing reduced HOME paint scheduling is unchanged.
+Missing retained label/model or selected child draw uses paired host recovery.
+Wallpaper/HUD stay live; only the native primary/label lifecycle is retained.
+Asset replacement, power-off, root return and disposal invalidate owned data.
+
+Selected verification (no full suite/build/server/GUI):
+
+```sh
+node --test --test-reporter=spec tests/home-folder-entry-banner.test.mjs tests/home-folder-entry-banner-live.test.mjs tests/home-entry-motion.test.mjs tests/home-folder-entry-assets.test.mjs tests/native-home-controls-paint.test.mjs tests/home-banner-host.test.mjs tests/home-banner-service.test.mjs tests/home-banner-lifecycle.test.mjs tests/firmware-banner.test.mjs tests/home-entry-motion-scene-policy.test.mjs tests/home-entry-banner-scene-policy.test.mjs tests/home-folder-close.test.mjs tests/native-screen-input.test.mjs tests/render-quality.test.mjs tests/manual-entry-live.test.mjs tests/lcd-capture.test.mjs
+npm run typecheck -- --incremental false
+git diff --check
+```
+
+Tests cover all lower poses and terminal retention, stale/no-paint re-entry,
+foreign/replaced/unpresented root, current-child release/failure/retargeting,
+monotonic retry, context/sleep/diagnostic/reduced rebasing, ordinary child input,
+normal Back, firmware replacement and disposal. Existing held-pickup fixture now
+publishes a real root/entry sequence before testing its settled visibility policy.
+Result: **364 pass, 0 fail, 0 skip, 0 TODO**. Nonincremental TypeScript and
+`git diff --check` pass. Dependencies were reused without installs.
+
+Coordinator must integrate only the new folder commit, run full checks and
+recapture the immutable one-row re-entry route with normal/reduced desktop/mobile
+repeats, early B/HOME, restored context and failed resources. Retain chronological
+terminal and first-child receipt samples, compare raw LCDs with the empty mask,
+and inspect sheets. Source ordering is identified and the correction is delivered/
+implemented/tested; updated browser inspection/native comparison remains pending.
+AN-03 stays **fail** until recapture explains the baseline upper/lower residuals.
+Exact native clock/gate alignment, frame cadence, timing and muted audio remain
+unaccepted. Existing font raster/overlay transfer, viewport/footer fits, portfolio
+content and other previously documented non-native adaptations are unchanged.

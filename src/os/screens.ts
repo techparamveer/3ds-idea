@@ -8,7 +8,7 @@ import { createNativeChrome } from './native-chrome';
 import { createPortfolioGraphics, setPortfolioFont } from './portfolio-screens';
 import { getApp } from './apps';
 import { getTitle } from './app-registry';
-import { getHomePageBoundary, leaveHomeFolder, saveHomeView } from './home-navigation';
+import { getHomeNavigation, getHomePageBoundary, leaveHomeFolder, saveHomeView } from './home-navigation';
 import { getHomeFooter, getHomeLaunchPresentation, getHomePresentation, type HomePresentation, type HomeLaunchPresentation } from './home-presentation';
 import { type MenuState, type Theme, isFolder, pageStart, rowCount, slotCount, themeChoices } from './state';
 import { type BitmapFont } from './bitmap-font';
@@ -31,6 +31,8 @@ import type { HomeBannerHostView } from './home-banner-host';
 import type { HomeBannerMotion } from './home-banner-lifecycle';
 import { createManualEntryPresentation, sameManualEntryIdentity, type ManualEntryIdentity, type ManualEntryPose } from './manual-entry-presentation';
 import { manualEntryIdentity, manualEntryEligible, manualEntryOrigin, sameManualEntryOrigin, manualEntryBackingMatches, type ManualEntryOrigin } from './manual-entry-identity';
+import { createHomeFolderEntryBanner, homeFolderEntryBannerSource, homeFolderEntryBannerDestinationReady, type HomeFolderEntryBannerOwner,
+ type HomeFolderEntryBannerPose, type HomeFolderEntryBannerSource, type HomeFolderEntryBannerRelease } from './home-folder-entry-banner';
 import { homeApplicationTransitionFooterReturn, homeApplicationTransitionPresentation, type HomeApplicationTransition } from './home-application-transition';
 export { loadFirmwarePresentationAssets, type FirmwarePresentationAssets } from './firmware-presentation';
 type Context = CanvasRenderingContext2D;
@@ -331,16 +333,21 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  const fontReady=loadSystemFont();
  let firmwareAssets:FirmwarePresentationAssets|undefined,nativeHome:NativeHome|undefined,layoutManager:ReturnType<typeof createHomeLayoutManager>|undefined,disposed=false;
  let folderCapture:{identity:string;pixels:NativePixels}|undefined;
+ const folderEntryBanner=createHomeFolderEntryBanner();let folderEntryBannerGeneration=0;
+ let rootFolderBannerCandidate:{generation:number;source:HomeFolderEntryBannerSource|null}|undefined;
+ let folderEntryBannerCandidate:HomeFolderEntryBannerPose|null=null;
+ let folderEntryBannerReleaseCandidate:{release:HomeFolderEntryBannerRelease;identity:HomeEntryBannerIdentity}|undefined;
  let layoutCapture:{identity:string;preview:HomeLayoutPreview}|undefined;
  let suspendedMetadata:{owner:string;metadata:SuspendedWindowMetadata}|undefined;
  let suspendedPresentation=createHomeSuspendedPresentation();
  let folderEntryMotion:HomeEntryMotion|null=null,pauseEntryMotion:HomeEntryMotion|null=null;
+ let folderEntryMotionKey:string|null=null;
  let pendingFolderEntryMotion:HomeEntryMotion|null=null,pendingPauseEntryMotion:HomeEntryMotion|null=null;
  let folderEntryNeedsRebase=false,pauseEntryNeedsRebase=false;
  let entryMotionGeneration=0;
- let entryMotionCandidate:{generation:number;folder:HomeEntryMotion|null;pause:HomeEntryMotion|null}|undefined;
- function revokeHomeEntryMotionCandidate(){entryMotionGeneration++;pendingFolderEntryMotion=null;pendingPauseEntryMotion=null;entryMotionCandidate=undefined;folderEntryNeedsRebase=true;pauseEntryNeedsRebase=true;}
- function resetHomeEntryMotion(){revokeHomeEntryMotionCandidate();folderEntryMotion=null;pauseEntryMotion=null;folderEntryNeedsRebase=false;pauseEntryNeedsRebase=false;}
+ let entryMotionCandidate:{generation:number;folder:HomeEntryMotion|null;folderNavigationRevision:number;pause:HomeEntryMotion|null}|undefined;
+ function revokeHomeEntryMotionCandidate(){entryMotionGeneration++;pendingFolderEntryMotion=null;pendingPauseEntryMotion=null;entryMotionCandidate=undefined;folderEntryNeedsRebase=true;pauseEntryNeedsRebase=true;folderEntryBanner.revoke();rootFolderBannerCandidate=undefined;folderEntryBannerCandidate=null;folderEntryBannerReleaseCandidate=undefined;}
+ function resetHomeEntryMotion(){revokeHomeEntryMotionCandidate();folderEntryMotion=null;folderEntryMotionKey=null;pauseEntryMotion=null;folderEntryNeedsRebase=false;pauseEntryNeedsRebase=false;folderEntryBannerGeneration++;if(disposed)folderEntryBanner.dispose();else folderEntryBanner.reset();}
  let homeEntryPresentation=createHomeEntryPresentation();
  let homeEntryFooterCandidate:{sample:ReturnType<typeof sampleHomeEntryPresentation>;state:MenuState}|undefined;
  let homeEntryFooterReleaseCandidate:{sample:ReturnType<typeof sampleHomeEntryPresentation>;state:MenuState}|undefined;
@@ -361,6 +368,9 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   if(!key)return graphics.stockStatus(state,t);
   if(panelPublished!==key)return 'loading';
   if(panelFailure)return 'error';
+  // Browser receipt quarantine, not a recovered native input epoch.
+  if(state.opened&&nativeHome&&options.getHomeBanner&&folderEntryEligible(state)
+   &&!folderEntryBanner.complete(folderEntryBannerOwner(state)))return 'loading';
   const manual=manualEntryIdentity(state,manualGeneration);
   if(manual&&manualEntryEligible(state)){const status=graphics.stockStatus(state,t);return status==='error'?'error':status==='ready'&&manualPresentation.ready(manual)?'ready':'loading';}
   // Successful source launch chrome cannot hide the destination screen's own
@@ -423,6 +433,12 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  function folderEntryIdentity(state:MenuState):HomeEntryMotionIdentity|null {
   return state.powered&&state.opened?{kind:'folder',folder:getHomeFolderIdentity(state,state.selected)??`slot:${state.selected}`}:null;
  }
+ function folderEntryBannerOwner(state:MenuState):HomeFolderEntryBannerOwner|null {
+  const folder=getHomeFolderIdentity(state,state.selected),system=state.system;
+  return folder&&system?{folder,firmwareGeneration:folderEntryBannerGeneration,
+   systemGeneration:system.homeFolderClose.generation,application:system.runtime.application,
+   navigationRevision:getHomeNavigation(state).selectionRevision,closeSequence:system.homeFolderClose.nextTransitionId}:null;
+ }
  function folderEntryEligible(state:MenuState):boolean {
   return !!state.system&&state.powered&&state.system.phase==='home'&&!state.system.sleeping&&!state.system.preferences&&!state.system.dialog&&!state.panel&&!isSystemHomeFolderClosing(state);
  }
@@ -438,12 +454,30 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   return !!retainedSuspendedApplication(state)&&!state.system?.dialog&&!state.system?.homeApplicationTransition;
  }
  function presentHomeEntryMotion(state:MenuState):boolean {
+  const root=rootFolderBannerCandidate;rootFolderBannerCandidate=undefined;
+  if(!disposed&&root&&root.generation===entryMotionGeneration&&!state.opened&&folderEntryEligible(state)&&!panelFailure){
+   const current=homeEntryBannerIdentity(options.getHomeBanner?.());
+   const primary=root.source?.primary;
+   folderEntryBanner.presentRoot(primary&&current&&current.generation===primary.generation&&current.requestEpoch===primary.requestEpoch
+    &&current.activationEpoch===primary.activationEpoch?root.source:null,folderEntryBannerOwner(state));
+  }
+  const release=folderEntryBannerReleaseCandidate;folderEntryBannerReleaseCandidate=undefined;
+  if(!disposed&&release){
+   const view=options.getHomeBanner?.(),current=homeEntryBannerIdentity(view);
+   if(panelFailure||!folderEntryEligible(state)||!homeFolderEntryBannerDestinationReady(view)||!current
+    ||current.generation!==release.identity.generation||current.requestEpoch!==release.identity.requestEpoch||current.activationEpoch!==release.identity.activationEpoch
+    ||!folderEntryBanner.presentRelease(release.release,folderEntryBannerOwner(state))){revokeHomeEntryMotionCandidate();return false;}
+  }
   const candidate=entryMotionCandidate;entryMotionCandidate=undefined;
-  if(disposed||!candidate||candidate.generation!==entryMotionGeneration)return false;
+  if(disposed||!candidate||candidate.generation!==entryMotionGeneration)return !!release&&!disposed;
   const update=state.system?.homeClock.updateCount??0;
-  const folder=acknowledgeHomeEntryMotionCandidate(candidate.folder,folderEntryIdentity(state),update,folderEntryEligible(state));
+  const folder=acknowledgeHomeEntryMotionCandidate(candidate.folder,folderEntryIdentity(state),update,
+   folderEntryEligible(state)&&candidate.folderNavigationRevision===getHomeNavigation(state).selectionRevision);
   const pause=acknowledgeHomeEntryMotionCandidate(candidate.pause,pauseEntryIdentity(state),update,pauseEntryEligible(state));
-  if(folder){folderEntryMotion=folder;pendingFolderEntryMotion=null;folderEntryNeedsRebase=false;}
+  if(folder){
+   if(folderEntryBannerCandidate&&!folderEntryBanner.present(folderEntryBannerCandidate,folderEntryBannerOwner(state),folder)){revokeHomeEntryMotionCandidate();return false;}
+   folderEntryMotion=folder;pendingFolderEntryMotion=null;folderEntryNeedsRebase=false;folderEntryBannerCandidate=null;
+  }
   if(pause){pauseEntryMotion=pause;pendingPauseEntryMotion=null;pauseEntryNeedsRebase=false;}
   if(!folder&&!pause)revokeHomeEntryMotionCandidate();
   return !!folder||!!pause;
@@ -451,6 +485,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  function isHomeEntryMotionActive(state:MenuState):boolean {
   if(disposed||panelFailure)return false;
   const folder=folderEntryIdentity(state),pause=pauseEntryIdentity(state);
+  if(folder&&nativeHome&&options.getHomeBanner&&folderEntryEligible(state)&&!folderEntryBanner.complete(folderEntryBannerOwner(state)))return true;
   return !!folder&&folderEntryEligible(state)&&(!!pendingFolderEntryMotion||!homeEntryMotionMatches(folderEntryMotion,folder)||homeEntryMotionActive(folderEntryMotion,reduced))
    ||!!pause&&pauseEntryEligible(state)&&(!!pendingPauseEntryMotion||!homeEntryMotionMatches(pauseEntryMotion,pause)||homeEntryMotionActive(pauseEntryMotion,reduced));
  }
@@ -462,6 +497,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  function paint(state:MenuState,date=new Date(),elapsedMs=0,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;homeCursorLoopFrame?:number;reuseHomeBackgroundMs?:number;manualEntryObservedElapsedMs?:number}):ScreenPaintResult|undefined{
   if(disposed)return;
   entryMotionCandidate=undefined;
+  rootFolderBannerCandidate=undefined;folderEntryBannerCandidate=null;folderEntryBannerReleaseCandidate=undefined;
   manualCandidate=undefined;manualSourceCandidate=null;
   const key=panelKey(state);
   if(key!==panelPublished)panelFailure=undefined;
@@ -475,6 +511,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const homeEntry=sampleHomeEntryPresentation(homeEntryPresentation,state,reduced);
   const diagnosticPaint=verification!==undefined
    &&(verification.sampleCalendar!==undefined||verification.homeHudSample!==undefined||verification.homeWallpaperFrame!==undefined||verification.homeCursorLoopFrame!==undefined);
+  if(!diagnosticPaint&&!state.opened)folderEntryBanner.leave();
   const manualIdentity=manualEntryIdentity(state,manualGeneration);
   if(diagnosticPaint||!manualIdentity||!manualEntryEligible(state))revokeManualEntryCandidate();
   const manualOwner=state.system?.runtime.systemApplet;
@@ -482,6 +519,12 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   if(diagnosticPaint||!folderEntryEligible(state)||pauseEntryOwner(state)&&(!pauseEntryEligible(state)||!pauseEntryIdentity(state)))revokeHomeEntryMotionCandidate();
   const homeUpdate=state.system?.homeClock.updateCount??0;
   const folderIdentity=folderEntryIdentity(state);
+  if(!diagnosticPaint&&nativeHome&&options.getHomeBanner){
+   const owner=state.opened?folderEntryBannerOwner(state):null,key=owner?JSON.stringify(owner):null;
+   if(key!==folderEntryMotionKey&&!folderEntryBanner.complete(owner)){
+    folderEntryMotion=null;pendingFolderEntryMotion=null;folderEntryNeedsRebase=false;folderEntryMotionKey=key;
+   }
+  }
   if(!diagnosticPaint){entryMotionCandidate=undefined;if(!folderIdentity){folderEntryMotion=null;pendingFolderEntryMotion=null;}}
   const folderMotion=sampleHomeEntryMotionCandidate(folderEntryMotion,pendingFolderEntryMotion,folderIdentity,homeUpdate,folderEntryEligible(state),folderEntryNeedsRebase,reduced);
   const folderEntry=homeFolderEntryPose(folderMotion,reduced);
@@ -552,6 +595,17 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const toolbarUnavailable=hostedToolbar&&toolbarUnavailableByFocus[hostedToolbar.focus];
   if(hostedToolbar&&toolbarFailure&&toolbarUnavailable&&firmwareAssets&&!firmwareAssets.diagnostics.includes(toolbarUnavailable))firmwareAssets.diagnostics.push(toolbarUnavailable);
   if(!hideHeldRootBanner){
+  if(!diagnosticPaint&&nativeHome&&options.getHomeBanner&&!state.opened&&folderEntryEligible(state))rootFolderBannerCandidate={generation:entryMotionGeneration,source:null};
+  let retainedFolderBanner:HomeFolderEntryBannerPose|null=null;
+  if(!diagnosticPaint&&nativeHome&&options.getHomeBanner&&state.opened&&folderMotion&&folderEntryEligible(state)){
+   const owner=folderEntryBannerOwner(state);if(!owner)throw Error('Native folder-entry banner identity unavailable');
+   retainedFolderBanner=folderEntryBanner.sample(owner,folderMotion,homeFolderEntryBannerDestinationReady(hostedBanner));
+  }
+  if(retainedFolderBanner){
+   const label=nativeHome?.folderBannerLabel(retainedFolderBanner.primary.selection.label);
+   if(!label||options.drawFolderBannerFrame?.(t,retainedFolderBanner.primary.motion,label)!==true)throw Error('Native retained folder-entry banner unavailable');
+   folderEntryBannerCandidate=retainedFolderBanner;
+  }else{
   const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&!hostedToolbar&&!(hasHomeTitleBanner(app.id)&&hostedBanner?.selection?.kind==='app'&&hostedBanner.selection.id===app.id))graphics.banner(t,app,time,reduced);
   if(hostedBanner&&hostedBanner.status!=='unsupported'){
    // Pending/hidden native instances are handled without painting the incoming fallback.
@@ -581,6 +635,8 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
     }else{
      const label=nativeHome?.folderBannerLabel(selection.label);
      const drawn=options.drawFolderBannerFrame?.(t,motion,label)===true;homeEntryBannerDrawn=drawn;
+     const owner=rootFolderBannerCandidate?folderEntryBannerOwner(state):null;
+     if(owner&&drawn&&label)rootFolderBannerCandidate={generation:entryMotionGeneration,source:homeFolderEntryBannerSource(owner,hostedBanner,homeUpdate)};
      if(!drawn){
       folder(t,200,115,91*(reduced?1:motion.scale),selection.label,reduced?0:motion.yawRadians);
       if(selection.label){rounded(t,85,181,230,30,10,'#ffffffbc');text(t,selection.label,200,196,16,palette.ink,'center');}
@@ -594,6 +650,14 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    folder(t,200,115+Math.sin(time/800)*2,91,state.folders[state.selected],Math.sin(time/1500)*.32);t.restore();
    if(firmwareAssets&&!firmwareAssets.diagnostics.includes('Native folder model unavailable; drawing reconstructed fallback.'))firmwareAssets.diagnostics.push('Native folder model unavailable; drawing reconstructed fallback.');}
    if(name&&(!nativeDrawn||!label)){rounded(t,85,181,230,30,10,'#ffffffbc');text(t,name,200,196,16,palette.ink,'center');}
+  }
+  if(!diagnosticPaint&&state.opened&&folderEntryEligible(state)&&!retainedFolderBanner){
+   const owner=folderEntryBannerOwner(state),release=owner?folderEntryBanner.sampleRelease(owner):null;
+   if(release){
+    if(!homeEntryBannerDrawn||!homeEntryDrawnBannerIdentity||!homeFolderEntryBannerDestinationReady(hostedBanner))throw Error('Native folder-entry child banner unavailable');
+    folderEntryBannerReleaseCandidate={release,identity:homeEntryDrawnBannerIdentity};
+   }
+  }
   }
   }
   if(state.panel&&state.panel!=='settings'&&state.panel!=='home-layouts'&&state.panel!=='folder-settings'&&state.panel!=='folder-not-empty'){
@@ -703,11 +767,12 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   output.imageSmoothingEnabled=false;output.clearRect(0,0,800,240);output.drawImage(native,0,0,800,240);
   if(!diagnosticPaint&&!manualIdentity&&nativeHome&&nativeStatus!=='error'&&nativeStatus!=='loading'){const source=manualEntryOrigin(state,manualGeneration);if(source&&(source.kind==='home'||nativeStatus==='ready'))manualSourceCandidate=source;}
   if(!diagnosticPaint){
-   const folderNeeds=folderMotion&&(!homeEntryMotionMatches(folderEntryMotion,folderIdentity)||folderEntryNeedsRebase||homeEntryMotionActive(folderEntryMotion)||!!pendingFolderEntryMotion);
+   const folderNeeds=folderMotion&&(!homeEntryMotionMatches(folderEntryMotion,folderIdentity)||folderEntryNeedsRebase||homeEntryMotionActive(folderEntryMotion)||!!pendingFolderEntryMotion||!!folderEntryBannerCandidate);
    const pauseNeeds=pauseMotion&&(!homeEntryMotionMatches(pauseEntryMotion,pauseIdentity)||pauseEntryNeedsRebase||homeEntryMotionActive(pauseEntryMotion)||!!pendingPauseEntryMotion);
    pendingFolderEntryMotion=folderNeeds?folderMotion:null;pendingPauseEntryMotion=pauseNeeds?pauseMotion:null;
    if(folderEntryEligible(state)&&folderNeeds||suspended&&pauseNeeds&&!applicationTransitionPresentation){
-    entryMotionCandidate={generation:entryMotionGeneration,folder:folderEntryEligible(state)?pendingFolderEntryMotion:null,pause:suspended&&!applicationTransitionPresentation?pendingPauseEntryMotion:null};
+    entryMotionCandidate={generation:entryMotionGeneration,folder:folderEntryEligible(state)?pendingFolderEntryMotion:null,
+     folderNavigationRevision:getHomeNavigation(state).selectionRevision,pause:suspended&&!applicationTransitionPresentation?pendingPauseEntryMotion:null};
    }
   }
   if(!diagnosticPaint&&homeEntryFooterTerminalDrawn)homeEntryFooterCandidate={sample:homeEntry,state};

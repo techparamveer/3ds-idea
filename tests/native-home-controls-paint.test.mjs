@@ -6,7 +6,7 @@ import { createPortfolioState, dispatchSystemEvent, launchHomeShortcut, tickSyst
 import { createHomeInputAdapter } from '../src/os/home-input-adapter.ts';
 import { createHomeInputProducer } from '../src/os/home-input-producer.ts';
 import { createHomeCursorPresentation, getHomeToolbarCursorAnchor } from '../src/os/home-cursor-presentation.ts';
-import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostView, resolveHomeBannerHostObservation } from '../src/os/home-banner-host.ts';
+import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostView, resolveHomeBannerHostObservation, resolveHomeBannerHostSelection } from '../src/os/home-banner-host.ts';
 import { commitHomeScroll, enterHomeFolder, getHomeNavigation, writeHomeNavigation, selectHomeSlot, setHomeDensity, settleHomeNavigation } from '../src/os/home-navigation.ts';
 import { advanceSystemHomeFolderCloseNative, beginSystemHomeFolderClose, isSystemHomeFolderClosing } from '../src/os/home-folder-close-system.ts';
 import { getHomeFooter, getHomePresentation } from '../src/os/home-presentation.ts';
@@ -1362,25 +1362,35 @@ test('all five hosted toolbar resources stay blank while pending and report only
 });
 
 test('held pickup hides both footers while root visibility history suppresses its upper banner after re-entry',async()=>{
- const selection={kind:'app',id:'health-safety'},motion={visible:true,scale:1,yawRadians:0,
+ const selection={kind:'app',id:'health-safety'},motion={visible:true,requestedVisible:true,scale:1,yawRadians:0,
   skeletal:{frame:123},material:{frame:0}};
  const hosted={status:'active',selection,generation:'held-test',requestEpoch:1,
   resourceTicket:{generation:'held-test',requestEpoch:1},stage:'active',waitUpdates:0,
   primary:{generation:'held-test',requestEpoch:1,activationEpoch:1,selection,motion}};
+ let currentHost=hosted;
  const pickup=(source,density,center)=>createHomeTilePickup(source,density,center,{x:244,y:137},{x:0,y:0});
  await withScreens(({paint,events})=>{
   const initial=home(),rootHeld=freeze(controls(initial,{tilePickup:pickup({folder:20,slot:1},5,{x:59,y:54})}));
   paint(rootHeld);assert.equal(events.filter(e=>e.name==='stock-title-banner').length,0);assert.equal(events.filter(e=>e.name==='footer').length,0);
   paint(freeze(controls(rootHeld,{tilePickup:null})));assert.equal(events.filter(e=>e.name==='stock-title-banner').length,1);assert.equal(events.filter(e=>e.name==='footer').length,1);
   const childId=initial.system.layout[1];
-  let folder=selectHomeSlot(enterHomeFolder({...initial,folders:{20:'A'},system:{...initial.system,folderLayouts:{20:{1:childId}}}},20),1);
+  const caller=selectHomeSlot({...initial,folders:{20:'A'},system:{...initial.system,folderLayouts:{20:{1:childId}}}},20);
+  const inputs={managerInhibited:false,sceneInhibited:false,loadInhibited:false,nativeWorkerReady:true,resourceReady:null};
+  let host=createHomeBannerHost({generation:'held-entry',updateCount:0},inputs);
+  host=crossHomeBannerBoundary(host,host.clock,{selection:resolveHomeBannerHostSelection(caller)});
+  host=crossHomeBannerBoundary(host,host.clock,{inputs:{...inputs,resourceReady:getHomeBannerHostView(host).resourceTicket}});
+  currentHost=getHomeBannerHostView(crossHomeBannerBoundary(host,{...host.clock,updateCount:20}));paint(caller);
+  currentHost=hosted;
+  let folder=enterHomeFolder(caller,20);
+  for(let updateCount=1;updateCount<=17;updateCount++){folder={...folder,system:{...folder.system,homeClock:{...folder.system.homeClock,updateCount}}};paint(folder);}
+  folder=selectHomeSlot(folder,1);
   folder=freeze(controls(folder,{tilePickup:pickup({folder:20,slot:1},1,{x:244,y:137})}));
   paint(folder);assert.equal(events.filter(e=>e.name==='stock-title-banner').length,1);assert.equal(events.filter(e=>e.name==='footer').length,0);
   const reentered=freeze(controls(folder,{tilePickup:markHomeTilePickupRootVisit(folder.system.homeControls.tilePickup)}));
   paint(reentered);assert.equal(events.filter(e=>e.name==='stock-title-banner').length,0);assert.equal(events.filter(e=>e.name==='footer').length,0);
   paint(freeze(controls(folder,{tilePickup:null})));assert.equal(events.filter(e=>e.name==='stock-title-banner').length,1);assert.equal(events.filter(e=>e.name==='footer').length,1);
- },{presenterPatch:{footer(ctx,state){if(getHomeFooter(state))ctx.record('footer');return true;}},screenOptions:{
-  getHomeBanner:()=>hosted,drawStockTitleBannerFrame:ctx=>{ctx.record('stock-title-banner');return true;},
+ },{presenterPatch:{footer(ctx,state){if(getHomeFooter(state))ctx.record('footer');return true;},folderBannerLabel:()=>({width:1,height:1,data:new Uint8ClampedArray(4)})},screenOptions:{
+  getHomeBanner:()=>currentHost,drawFolderBannerFrame:()=>true,drawStockTitleBannerFrame:ctx=>{ctx.record('stock-title-banner');return true;},
  }});
 });
 

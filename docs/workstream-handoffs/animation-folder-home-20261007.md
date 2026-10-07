@@ -375,3 +375,115 @@ AN-03 stays **fail** until recapture explains the baseline upper/lower residuals
 Exact native clock/gate alignment, frame cadence, timing and muted audio remain
 unaccepted. Existing font raster/overlay transfer, viewport/footer fits, portfolio
 content and other previously documented non-native adaptations are unchanged.
+
+## AN-03 Trailing Native Hide Follow-up
+
+Base: reviewed worker `132fcd5f6493711d381f5f1cb9c5891875cda58e` (root integration
+`52af0c5bf111947b9b0d2f95ce45b2c8b1c81f6c`). This bounded follow-up adds the
+missing native upper hide producer. It does not change lower resources, native
+host requests/load gates, scene, reducers, Manual or applet lifecycle. Shared
+screens edits are only the approved folder sampler, hidden-resource guard and
+folder active query, coordinated with the applet worker. STATUS stays untouched.
+
+### New Visible Baseline
+
+Coordinator inspected the continuous native sequence: `15.11.13.222` root folder
+full with lower pressed feedback; `13.702` lower partial/root full; `14.196`
+lower complete/root shrinking; `14.657` no folder. No screenshot-derived scale
+or geometry is implemented. The first fix retained the folder but kept scale1
+until abruptly handing off the already-hosted child.
+
+Current immutable comparison:
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/comparisons/folder-reentry-frame16-52af0c5/`.
+Selection JSON SHA-256
+`8851aa296812bc79ab20045d6f5c651263bbcd2cfdca89dcdd104617ff1f78a6`;
+`report/report.json` SHA-256
+`1e2bbdd6e7a9ff17f0b9a6ce9862e7a7523bb6ec6dcaf10138d19d9fa38df068`.
+The same native `14.196` ownPNG hash and empty mask above are retained. Browser
+first valid presented lower16 is repeat1 index23 at537.8ms; upper SHA-256
+`b4298fe627a950a1fd4b3348d9b22d36e8690b5f6cbad44614fe221897cf4dcc`,
+lower `bed1b01bdca456c050fd56a7d683dd677e797da593338954957eba8e6d6b6960`.
+Empty-mask delta2 report is **57999 upper / 7450 lower**, previously61126/7478.
+Presence improved, but the missing hide transition is an active native mismatch.
+The root source wait is recorded browser fixture preparation, not native input
+epoch or duration. No new worker capture or private evidence was written.
+
+### Original Producer and API
+
+The pinned HOME title/version/content, model, textures, font and converter mapping
+in the previous section is unchanged. Original `code.bin` is SHA-256
+`243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9`.
+The existing [native banner lifecycle](../native-banner-lifecycle.md) identifies
+normal requested visibility at `0x1f9e64`, separate requested/actual visibility
+and float32 scale at `0x1fa344`, manager yaw at `0x24e0c0`, and visible-only clip
+passes at `0x24f300/0x24f484/0x103850/0x10b3d0`. Original isolated ARM golden
+results are already tested by `home-banner-lifecycle.test.mjs`; no fresh ARM
+execution or general source archaeology was performed. The historical private
+`presentation/folder-lifecycle` directory is unavailable at its recorded path in
+this worker environment; the pinned-source documentation and committed golden
+tests, not a newly generated native execution, support this reuse.
+
+After a valid lower16 receipt, the retained source's next eligible sample calls
+the existing `setHomeBannerVisibility(lifecycle,false)` and one existing
+`advanceHomeBannerManager` plus `advanceHomeBannerClips` pass. Successive visible
+producer outputs are the original float32 .95/.90/.85/.80 samples; the separate
+next call actually detaches. No curve, scale, easing, count-derived milliseconds,
+new banner target, replacement activation or loader wait was invented. Hidden
+source frames still use the renderer's existing handled-hidden/resource check;
+they do not require or repaint a visible label. Missing/disposed resources remain
+paired failures. The hidden producer output itself requires a valid receipt
+before a child pair can be staged; current-child receipt guards still retire the
+old source permanently.
+
+`sample(owner,motion,destinationReady,reducedMotion=false)` preserves its first
+three parameters; poses expose `phase: entry|hiding|hidden`. `complete(owner)`
+now requires acknowledged actual hidden state, or an already-retired source.
+`active(owner)` stays true through trailing hide and pending child release, even
+though the lower visible selectors remain FadeIn16/Fade8. It requires a matching
+retained source or entry; missing/reset/foreign ownership cannot hold cadence.
+The existing folder
+readiness gate therefore quarantines child input through the hidden receipt;
+B/HOME/power escapes remain available. Exact navigation revision remains required
+until that endpoint; ordinary post-endpoint child selection and existing close
+sequence guards are preserved. Cadence requests the unchanged existing transition
+budget via the helper's active query, without a scene or quality-budget override.
+
+Reduced motion first publishes the retained visible upper with lower16 and needs
+that pair's receipt, including a mid-entry reduced toggle. Only the following
+candidate seeks the source detach endpoint by executing that same visibility
+producer; the hidden endpoint then needs its own receipt. It never fabricates a
+receipt and does not reissue a hide request when already hidden. Disabling reduced
+motion after a presented hidden endpoint cannot replay a previous shrink pose. Revocation before
+endpoint publication rebases the last receipt-backed phase. Failed/offscreen/
+diagnostic/context/sleep/stalled samples cannot advance the committed producer;
+Retry repeats the presented pose before subsequent ordinary source steps resume.
+The existing receipt-relative lower observation cursor continues beyond16 while
+its visible lower selectors stay16/8; no second timer or shared clock was added.
+
+### Verification and Acceptance
+
+Run the same selected verification command above. Added checks compare every hide
+motion to the original lifecycle producer, reject release before actual detach
+receipt, keep cadence through trailing hide, exercise mid-hide three-update LCD
+cadence/stall/failure/diagnostic/context/retry, reject stale hidden receipt after
+rapid no-paint Back/re-entry, and retain child failure/release/reduced/disposal
+coverage. The held-pickup fixture now completes the full entry/hide publication
+before its settled child interaction. Tests also cover reduced first-entry and
+mid-entry visible-terminal/hidden-endpoint receipt ordering, plus absent or reset
+source cadence ownership.
+Result: **367 pass, 0 fail, 0 skip, 0 TODO**. Nonincremental TypeScript and
+`git diff --check` pass. Relative handoff links resolve. No dependencies were
+installed and no full suite, build, server or GUI was run by this worker.
+
+The **lower16 receipt -> hide start**, one producer pass per eligible render
+receipt and input quarantine are explicit browser adaptations. Native ordering
+proves child refresh follows lower-controller completion, not this exact browser
+boundary, phase lock, duration or LCD cadence. In particular, the first lower16
+browser pair can still show scale1 while native `14.196` is already shrinking;
+this follow-up does not claim to resolve that epoch mismatch by fitting a scale.
+It delivers the missing original hide sequence and requires coordinator normal/
+reduced desktop/mobile recapture with retained first lower16, each upper hide
+pose, actual hidden endpoint and first-child paired receipts. Keep empty-mask
+diffs and inspected sheets; AN-03 remains **fail** until residuals are explained.
+Audio stays muted/unaccepted; all prior font/transport/viewport/portfolio and
+early child-host request adaptations remain explicit and unchanged.

@@ -485,7 +485,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  function isHomeEntryMotionActive(state:MenuState):boolean {
   if(disposed||panelFailure)return false;
   const folder=folderEntryIdentity(state),pause=pauseEntryIdentity(state);
-  if(folder&&nativeHome&&options.getHomeBanner&&folderEntryEligible(state)&&!folderEntryBanner.complete(folderEntryBannerOwner(state)))return true;
+  if(folder&&nativeHome&&options.getHomeBanner&&folderEntryEligible(state)&&folderEntryBanner.active(folderEntryBannerOwner(state)))return true;
   return !!folder&&folderEntryEligible(state)&&(!!pendingFolderEntryMotion||!homeEntryMotionMatches(folderEntryMotion,folder)||homeEntryMotionActive(folderEntryMotion,reduced))
    ||!!pause&&pauseEntryEligible(state)&&(!!pendingPauseEntryMotion||!homeEntryMotionMatches(pauseEntryMotion,pause)||homeEntryMotionActive(pauseEntryMotion,reduced));
  }
@@ -599,11 +599,12 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   let retainedFolderBanner:HomeFolderEntryBannerPose|null=null;
   if(!diagnosticPaint&&nativeHome&&options.getHomeBanner&&state.opened&&folderMotion&&folderEntryEligible(state)){
    const owner=folderEntryBannerOwner(state);if(!owner)throw Error('Native folder-entry banner identity unavailable');
-   retainedFolderBanner=folderEntryBanner.sample(owner,folderMotion,homeFolderEntryBannerDestinationReady(hostedBanner));
+   retainedFolderBanner=folderEntryBanner.sample(owner,folderMotion,homeFolderEntryBannerDestinationReady(hostedBanner),reduced);
   }
   if(retainedFolderBanner){
-   const label=nativeHome?.folderBannerLabel(retainedFolderBanner.primary.selection.label);
-   if(!label||options.drawFolderBannerFrame?.(t,retainedFolderBanner.primary.motion,label)!==true)throw Error('Native retained folder-entry banner unavailable');
+   const visible=retainedFolderBanner.primary.motion.visible;
+   const label=visible?nativeHome?.folderBannerLabel(retainedFolderBanner.primary.selection.label):undefined;
+   if(visible&&!label||options.drawFolderBannerFrame?.(t,retainedFolderBanner.primary.motion,label)!==true)throw Error('Native retained folder-entry banner unavailable');
    folderEntryBannerCandidate=retainedFolderBanner;
   }else{
   const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&!hostedToolbar&&!(hasHomeTitleBanner(app.id)&&hostedBanner?.selection?.kind==='app'&&hostedBanner.selection.id===app.id))graphics.banner(t,app,time,reduced);

@@ -1,5 +1,5 @@
 import type { HomeBannerHostView, HomeFolderBannerSelection } from './home-banner-host.ts';
-import { advanceHomeBannerClips, advanceHomeBannerManager, createHomeBannerLifecycle, HOME_BANNER_PERIOD,
+import { advanceHomeBannerClips, advanceHomeBannerManager, createHomeBannerLifecycle, setHomeBannerVisibility, HOME_BANNER_PERIOD,
   type HomeBannerLifecycle } from './home-banner-lifecycle.ts';
 import { HOME_FOLDER_ENTRY_LAST_FRAME, type HomeEntryMotion } from './home-entry-motion.ts';
 
@@ -11,7 +11,9 @@ type FolderPrimary = Extract<HomeBannerHostView, { status: 'active' }>['primary'
 export type HomeFolderEntryBannerSource = Readonly<{
   owner: HomeFolderEntryBannerOwner; primary: FolderPrimary; lifecycle: HomeBannerLifecycle;
 }>;
-export type HomeFolderEntryBannerPose = HomeFolderEntryBannerSource & Readonly<{ elapsedUpdates: number; ticket: number }>;
+export type HomeFolderEntryBannerPose = HomeFolderEntryBannerSource & Readonly<{
+  elapsedUpdates: number; ticket: number; phase: 'entry' | 'hiding' | 'hidden';
+}>;
 export type HomeFolderEntryBannerRelease = Readonly<{ owner: HomeFolderEntryBannerOwner; ticket: number }>;
 
 export function homeFolderEntryBannerDestinationReady(view: HomeBannerHostView | undefined): boolean {
@@ -53,6 +55,10 @@ export function homeFolderEntryBannerSource(owner: HomeFolderEntryBannerOwner, v
     || motion.material.duration !== HOME_BANNER_PERIOD || !motion.material.looping) {
     throw Error('Native folder-entry banner clips unavailable');
   }
+  // Original visible-in advances counter4 to5 before the following clamp call.
+  if (!Number.isSafeInteger(motion.visibilityCounter) || motion.visibilityCounter < 0 || motion.visibilityCounter > 5) {
+    throw Error('Native folder-entry visibility counter unavailable');
+  }
   const primary = Object.freeze({ ...view.primary, selection: Object.freeze({ ...view.primary.selection }),
     motion: Object.freeze({ ...motion, skeletal: Object.freeze({ ...motion.skeletal }), material: Object.freeze({ ...motion.material }) }) });
   const lifecycle: HomeBannerLifecycle = { ...createHomeBannerLifecycle(), phase: 'active',
@@ -64,8 +70,8 @@ export function homeFolderEntryBannerSource(owner: HomeFolderEntryBannerOwner, v
 }
 
 /** Source ordering puts child refresh after lower-controller completion.
- * Retaining through the lower terminal receipt, and one native banner pass per
- * successful lower source step, are explicit browser scheduling adaptations. */
+ * Lower-terminal receipt starts the original normal visibility producer. One
+ * producer pass per receipt and this start boundary are browser adaptations. */
 export function createHomeFolderEntryBanner() {
   let source: HomeFolderEntryBannerSource | null = null;
   let entry: HomeFolderEntryBannerSource | null = null, presented: HomeFolderEntryBannerPose | null = null;
@@ -73,15 +79,20 @@ export function createHomeFolderEntryBanner() {
   let release: HomeFolderEntryBannerRelease | null = null, releasedOwner: HomeFolderEntryBannerOwner | null = null;
   const revoke = () => { ticket++; pending = null; release = null; rebase = true; };
   const complete = (owner: HomeFolderEntryBannerOwner | null) => !disposed && (sameScope(releasedOwner, owner)
-    || sameScope(entry?.owner ?? null, owner) && !!presented && presented.elapsedUpdates >= HOME_FOLDER_ENTRY_LAST_FRAME);
+    || sameScope(entry?.owner ?? null, owner) && presented?.phase === 'hidden' && !presented.primary.motion.visible);
   return {
     complete,
+    active(owner: HomeFolderEntryBannerOwner | null): boolean {
+      return !disposed && !sameScope(releasedOwner, owner) && sameScope(entry?.owner ?? source?.owner ?? null, owner);
+    },
     presentRoot(candidate: HomeFolderEntryBannerSource | null, owner: HomeFolderEntryBannerOwner | null): boolean {
       if (disposed || candidate && !sameOwner(candidate.owner, owner)) return false;
       revoke(); source = candidate; entry = null; presented = null; releasedOwner = null; return !!candidate;
     },
-    sample(owner: HomeFolderEntryBannerOwner, motion: HomeEntryMotion, destinationReady = true): HomeFolderEntryBannerPose | null {
+    sample(owner: HomeFolderEntryBannerOwner, motion: HomeEntryMotion, destinationReady = true,
+      reducedMotion = false): HomeFolderEntryBannerPose | null {
       if (disposed) return null;
+      if (typeof reducedMotion !== 'boolean') throw Error('Invalid folder-entry reduced motion');
       if (motion.identity.kind !== 'folder' || motion.identity.folder !== owner.folder) throw Error('Stale folder-entry banner motion');
       if (sameScope(releasedOwner, owner)) return null;
       if (!sameOwner(entry?.owner ?? null, owner) && !complete(owner)) {
@@ -91,16 +102,26 @@ export function createHomeFolderEntryBanner() {
         revoke(); entry = { ...source, owner: Object.freeze({ ...owner }) }; source = null; presented = null;
       }
       if (!entry) throw Error('Folder entry has no retained banner');
-      if (presented && !rebase && presented.elapsedUpdates >= HOME_FOLDER_ENTRY_LAST_FRAME && destinationReady) return null;
+      if (complete(owner) && !rebase && destinationReady) return null;
       if (pending) return pending;
       const previous = presented ?? entry;
-      const advance = !!presented && !rebase && presented.elapsedUpdates < HOME_FOLDER_ENTRY_LAST_FRAME
-        && motion.elapsedUpdates > presented.elapsedUpdates;
-      const lifecycle = advance ? advanceHomeBannerClips(advanceHomeBannerManager(previous.lifecycle, 1), 1) : previous.lifecycle;
+      let lifecycle = previous.lifecycle, phase = presented?.phase ?? 'entry';
+      if (reducedMotion && (phase !== 'entry' || presented && presented.elapsedUpdates >= HOME_FOLDER_ENTRY_LAST_FRAME)) {
+        if (lifecycle.active?.motion?.requestedVisible) lifecycle = setHomeBannerVisibility(lifecycle, false);
+        // Accessibility seeks the real detach endpoint, without publishing it.
+        while (lifecycle.active?.motion?.visible) lifecycle = advanceHomeBannerClips(advanceHomeBannerManager(lifecycle, 1), 1);
+        phase = 'hidden';
+      } else if (!reducedMotion && presented && !rebase && motion.elapsedUpdates > presented.elapsedUpdates) {
+        if (phase === 'entry' && presented.elapsedUpdates >= HOME_FOLDER_ENTRY_LAST_FRAME) {
+          lifecycle = setHomeBannerVisibility(lifecycle, false); phase = 'hiding';
+        }
+        lifecycle = advanceHomeBannerClips(advanceHomeBannerManager(lifecycle, 1), 1);
+        if (phase === 'hiding' && !lifecycle.active?.motion?.visible) phase = 'hidden';
+      }
       const nextMotion = lifecycle.active?.motion;
       if (!nextMotion) throw Error('Native retained folder-entry banner unavailable');
       pending = Object.freeze({ owner: Object.freeze({ ...owner }), primary: Object.freeze({ ...entry.primary, motion: nextMotion }),
-        lifecycle, elapsedUpdates: motion.elapsedUpdates, ticket });
+        lifecycle, elapsedUpdates: motion.elapsedUpdates, phase, ticket });
       return pending;
     },
     present(candidate: HomeFolderEntryBannerPose, owner: HomeFolderEntryBannerOwner | null, motion: HomeEntryMotion): boolean {

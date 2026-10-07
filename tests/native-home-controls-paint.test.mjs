@@ -1382,7 +1382,7 @@ test('held pickup hides both footers while root visibility history suppresses it
   currentHost=getHomeBannerHostView(crossHomeBannerBoundary(host,{...host.clock,updateCount:20}));paint(caller);
   currentHost=hosted;
   let folder=enterHomeFolder(caller,20);
-  for(let updateCount=1;updateCount<=17;updateCount++){folder={...folder,system:{...folder.system,homeClock:{...folder.system.homeClock,updateCount}}};paint(folder);}
+  for(let updateCount=1;updateCount<=23;updateCount++){folder={...folder,system:{...folder.system,homeClock:{...folder.system.homeClock,updateCount}}};paint(folder);}
   folder=selectHomeSlot(folder,1);
   folder=freeze(controls(folder,{tilePickup:pickup({folder:20,slot:1},1,{x:244,y:137})}));
   paint(folder);assert.equal(events.filter(e=>e.name==='stock-title-banner').length,1);assert.equal(events.filter(e=>e.name==='footer').length,0);

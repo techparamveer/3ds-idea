@@ -144,10 +144,38 @@ suspended HOME; keep their captures invalid for AN-04. They do not override
 the earlier genuine held-HOME reference. Browser Health and portfolio HOME
 two-cycle/reduced captures completed, but cannot pass the native route alone.
 
-Current work: Manual outgoing/hold/incoming cover has a committed worker
-candidate pending independent review/integration/production recapture. A fresh
-Notes-residual worktree owns only original Notes HUD publication and the lower
-brightness diagnosis. Folder upper departure follows the visible Manual slice.
+Manual source cover commits `3ff5140` and `127da97` are reviewed, integrated,
+built and served. Full tests2247 pass,1 fail,96 skip,1 TODO; the same historical
+Camera PNG is missing. Typecheck/build pass. Production Camera Manual two
+cycles126/130 pairs and Settings Manual125/129 pairs include every outgoing
+and incoming source pose0..20. Their console views are inspected.
+
+Camera first outgoing20 at index46 is compared with native
+`_07.10.26_13.00.45.247.png` in `comparisons/manual-cover-127da97`: **0/0**
+pixels above delta2, empty mask, max errors1/2. The first ready pair index88
+versus `_07.10.26_13.01.11.964.png` is still **446/1038**, unchanged from the
+baseline. Both LCD sheets for both comparisons were opened. This establishes
+the opaque static cover, not matched motion timing or the native caller epoch.
+
+The first reduced mobile Camera Manual run has71 pairs per cycle. Its first
+cycle visibly enters recovery with `Manual entry clock moved backwards`;
+repeat reaches ready. Preserve those original collector records, which called
+the run valid because they checked only the app menu. They are not successful
+native-screen evidence. The collector now rejects recovery in any sampled
+frame and requires paired native readiness at app destinations. A fresh strict
+three-cycle run71/71/70 reached ready, but does not erase the intermittent
+first-run defect. Worker and reviewer traced mixed rAF versus post-render clock
+samples; its fix and another production recapture are required before moving on.
+
+Normal-speed native Manual observation collected44 own PNGs, all already
+settled. A fresh continuous96-command replay instead entered Camera because
+the retained HOME selection changed. Its route is invalid for Manual, and no
+Camera capture action was taken. Keep both attempts distinct from the existing
+successful delayed native Manual evidence. Native timing remains unaccepted.
+
+Current work: fix and recapture the Manual clock regression, then integrate
+the original Notes HUD publication after review. Lower Notes thumbnail buffer
+contents remain unresolved. Folder upper departure follows the visible Manual slice.
 Remaining applet common-cover callers are Notes0, Friends1, Notifications2,
 Browser3, Manual4 and Miiverse7. Miiverse uses its authored logo, not an invented
 lower text label. All four whole scenarios remain fail.

@@ -9,8 +9,12 @@ Animation runtime `2169497`: Notes source boot-cover and no-software body are
 visible; folder/pause receipt guards are integrated. Empty-mask diagnostics:
 Notes complete cover0/0, first-ready9198/46427; folder re-entry first terminal
 61126/7478; Camera Manual baseline endpoint446/1038. None passes the scenario.
-Next: reviewed Manual candidate, original Notes HUD/lower tile diagnosis,
-folder upper-banner departure, then the remaining top-row common-cover callers.
+Manual runtime `127da97` now has the source outgoing/hold/incoming cover.
+Opaque-cover static diagnostic0/0; first-ready446/1038 is unchanged. Camera
+and Settings desktop repeat captures reach ready, but the first reduced-mobile
+Camera run exposed mixed-clock recovery. All motion flows remain fail.
+Next: fix/recapture that Manual regression, review/integrate the original Notes
+HUD, then folder upper-banner departure and remaining top-row common callers.
 See [the current evidence and limitations](animation-fidelity-workflow-2026-10-07.md#integrated-corrections-and-recapture).
 
 6 October 2026. Checkout `f53fbeef` (`codex/home-fidelity-20261001`). This index is the queue. Evidence: [leftover queue](feature-map/leftover-queue-2026-10-05.md), [STATUS.md](../STATUS.md), [progress](progress-2026-09-24.md). If they disagree, evidence wins.

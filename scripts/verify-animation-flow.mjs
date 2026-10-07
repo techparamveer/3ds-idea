@@ -148,7 +148,10 @@ try {
   assert.ok(frames.length > 2, 'Transition has chronological raw LCD paints');
   const after = await state();
   assert.deepEqual(errors, [], 'No browser page errors');
+  assert.ok(frames.every(frame => frame.data.nativeScreen !== 'error'), 'No native screen recovery during the captured transition');
   assert.equal(after.menu, values.scenario === 'folder' ? 'folder' : values.scenario === 'pause' ? 'home' : 'app', 'Scenario reaches its expected menu');
+  assert.notEqual(after.nativeScreen, 'error', `Native screen recovery: ${after.nativeScreenFailure}`);
+  if (!['folder', 'pause'].includes(values.scenario)) assert.equal(after.nativeScreen, 'ready', 'Destination reaches paired native readiness');
   if (values.scenario === 'folder') assert.equal(after.selected, folderSelection);
   for (const [index, frame] of frames.entries()) {
     const id = String(index).padStart(3, '0'), files = {};

@@ -284,7 +284,13 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   // reuse the cadence's HOME background sample instead of a synchronous GPU
   // readback in the event handler, and leave the cadence clock alone, so the
   // background is sampled on the same LCD cadence as without input.
-  function paintScreens(now:number,stateDriven=false){if(!stateDriven)lastScreenPaint=now;lastBootPaintIdentity=null;lastLaunchPaintIdentity=null;lastShutdownPaintIdentity=null;const painted=screens.paint(state,new Date(),now-start,stateDriven?{reuseHomeBackgroundMs:1000/quality.screenFps}:undefined);recordScreenPaint(now-start,painted?.nativeSystem===true,painted?.entryMotion,painted?.manualEntry);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;schedule.invalidate();return painted;}
+  // rAF's timestamp can predate the previous render receipt. Manual samples
+  // share the fresh receipt clock; all other clocks retain the frame time.
+  function paintScreens(now:number,stateDriven=false){
+    if(!stateDriven)lastScreenPaint=now;
+    lastBootPaintIdentity=null;lastLaunchPaintIdentity=null;lastShutdownPaintIdentity=null;const painted=screens.paint(state,new Date(),now-start,{manualEntryObservedElapsedMs:performance.now()-start,...(stateDriven?{reuseHomeBackgroundMs:1000/quality.screenFps}:{})});
+    recordScreenPaint(now-start,painted?.nativeSystem===true,painted?.entryMotion,painted?.manualEntry);topTexture.needsUpdate=true;bottomTexture.needsUpdate=true;schedule.invalidate();return painted;
+  }
   const soundNames=new Set<string>(['select','open','open-effect','back','home','power','touch','grab','drop','folder-open','folder-close','scroll-invalid','toolbar-select']);
   function observeFolderBanner(clock=bannerClock(),selection?:HomeBannerHostSelection){
     const system=state.system!,switchPresentation=isHomeSwitchPresentationActive(state),inhibited=!state.powered||system.phase!=='home'||system.sleeping||!!system.dialog&&!switchPresentation||system.preferences||!!state.panel||homeClockSuspended;

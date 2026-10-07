@@ -456,8 +456,10 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  }
  /** reuseHomeBackgroundMs: an input-driven paint may recompose over the HOME
   * background sampled by the latest cadence paint, if it is at most this old.
-  * The background then advances only on the LCD cadence, as without the paint. */
- function paint(state:MenuState,date=new Date(),elapsedMs=0,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;homeCursorLoopFrame?:number;reuseHomeBackgroundMs?:number}):ScreenPaintResult|undefined{
+  * The background then advances only on the LCD cadence, as without the paint.
+  * manualEntryObservedElapsedMs uses the fresh render-receipt clock origin;
+  * only Manual consumes it, without making the paint diagnostic. */
+ function paint(state:MenuState,date=new Date(),elapsedMs=0,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;homeCursorLoopFrame?:number;reuseHomeBackgroundMs?:number;manualEntryObservedElapsedMs?:number}):ScreenPaintResult|undefined{
   if(disposed)return;
   entryMotionCandidate=undefined;
   manualCandidate=undefined;manualSourceCandidate=null;
@@ -467,7 +469,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   try{const result=paintPair(state,date,elapsedMs,verification);panelPublished=key;return result;}
   catch(error){revokeHomeEntryMotionCandidate();revokeManualEntryCandidate();if(!key)throw error;panelFailure=error instanceof Error?error:new Error(String(error));panelRecovery(state);panelPublished=key;}
  }
- function paintPair(state:MenuState,date:Date,elapsedMs:number,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;homeCursorLoopFrame?:number;reuseHomeBackgroundMs?:number}):ScreenPaintResult|undefined{
+ function paintPair(state:MenuState,date:Date,elapsedMs:number,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;homeCursorLoopFrame?:number;reuseHomeBackgroundMs?:number;manualEntryObservedElapsedMs?:number}):ScreenPaintResult|undefined{
   if(disposed)return;
   suspendedPresentation=syncHomeSuspendedPresentation(suspendedPresentation,state,reduced);
   const homeEntry=sampleHomeEntryPresentation(homeEntryPresentation,state,reduced);
@@ -690,7 +692,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
      for(const [target,image] of [[manualBackingUpper,lastPresentedUpper],[manualBackingLower,lastPresentedLower]]){const ctx=target.getContext('2d')!;ctx.resetTransform();ctx.clearRect(0,0,target.width,240);ctx.drawImage(image,0,0);}
      manualBackingIdentity=Object.freeze({...manualIdentity});manualPresentation.reset();
     }
-    manualPose=manualPresentation.sample({identity:manualIdentity,elapsedMs,eligible:true,destinationReady:nativeStatus==='ready',reducedMotion:reduced});
+    manualPose=manualPresentation.sample({identity:manualIdentity,elapsedMs:verification?.manualEntryObservedElapsedMs??elapsedMs,eligible:true,destinationReady:nativeStatus==='ready',reducedMotion:reduced});
     if(manualPose){
      if(manualPose.phase==='out'){for(const [ctx,image] of [[t,manualBackingUpper],[b,manualBackingLower]] as const){ctx.resetTransform();ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.clearRect(0,0,ctx.canvas.width,240);ctx.drawImage(image,0,0);}}
      if(!nativeHome.manualEntry(t,b,manualPose))throw Error('Native Manual entry paired cover unavailable');

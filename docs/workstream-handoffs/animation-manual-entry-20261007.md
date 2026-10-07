@@ -157,3 +157,54 @@ B/HOME/power, reduced motion and context/sleep resumes. Compare named native
 400x480 PNGs to raw400x240/320x240 LCD pairs using declared masks and inspected
 sheets. Pixel equivalence, caller start epoch, phase duration, cadence and audio
 acceptance remain open; tests and extracted source do not pass the scenario.
+
+## Mobile reduced-motion clock follow-up
+
+Starting worker HEAD is `476aee60cb7cbd7a048ddfc98b729b77bc9e46e6`.
+The dirty coordinator-authored STATUS update remains preserved and unstaged.
+Folder upper-departure work is paused for this bounded Manual regression fix.
+
+Production `127da9797f61dfefd83f8c84c1287585614113d3`, Camera Manual at
+390x844 with reduced motion, exposes the failure under
+`integrated-127da97/manual-camera-mobile-reduced/` in the private artifact root:
+
+- `capture.json`, SHA-256
+  `fcc3ff00fc8abf2ea7320dc993cb0c2109d427b0fa384dbc755d2279cfb2df5d`,
+  has 71 raw pairs. Pair001 presents outgoing20; pair003 enters paired recovery
+  with `Manual entry clock moved backwards`. Final nativeScreen is error.
+- `repeat-1-capture.json`, SHA-256
+  `88b530764d3d1ea86484742393e525aaafa6062d5a720b312ba83596ae46f9b5`,
+  has 71 pairs and reaches ready. It does not excuse the failed first cycle.
+- Visible recovery `console.png`, SHA-256
+  `606126624cbd195e6e6da0fffc258813be96dbed2c48c38181312474ac77d3d3`.
+
+The cadence painter sampled Manual from the rAF callback timestamp, while the
+render receipt used a fresh `performance.now() - start`. A subsequent rAF
+timestamp may predate that receipt and cross the previous adapted update
+boundary. The real-painter regression reproduced the exact error before the
+fix. This is a browser observation-order defect, not a source clip defect.
+
+`paintScreens` now passes a fresh `manualEntryObservedElapsedMs` option.
+Only live Manual sampling consumes it; all other system/HOME clocks, screen
+cadence bookkeeping and diagnostic frame metadata retain their existing frame
+timestamp. Manual receipts still require a successful valid WebGL publication
+and use the same monotonic clock origin. State-driven/context-restoration
+paints use the fresh field too; diagnostic finally paints already sample their
+fresh `restoredAt`. A field-only options object remains a live paint, not a
+diagnostic capture. Existing finite/nonnegative and genuine backwards guards,
+pending-pose identity, one-pose-per-receipt, rebase and reduced endpoint rules
+remain unchanged. No clamping, receipt backdating or synthetic acknowledgement
+was added. Source mappings above and all native resources are unchanged.
+
+Regression coverage includes stale rAF below the prior receipt with a fresh
+eligible observation, reduced first/repeat cycles, normal pending poses,
+context rebase and invalid/backwards fresh observations. The scene test
+executes its actual transpiled `paintScreens` function to check separate
+Manual/frame clocks for cadence, state-driven and restoration calls.
+The selected 16-file run passes **213 tests**; nonincremental typecheck and
+`git diff --check` pass. No worker full suite or production build was run.
+Coordinator must recapture both mobile reduced cycles and require nativeScreen
+ready rather than accepting menu=app alone. This fix has not been browser-
+inspected or native-compared by the worker. Mobile remains fail until that
+recapture; source rate/caller epoch, full native motion/pixels and audio remain
+unaccepted. The scheduling adaptations described above are unchanged.

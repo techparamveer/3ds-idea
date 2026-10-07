@@ -130,6 +130,53 @@ test('app-origin Manual retains its caller owner; reduced endpoints need receipt
  });
 });
 
+test('fresh Manual observations progress reduced first and repeat cycles when rAF predates the last receipt',async()=>{
+ await fixture(({screens,paint})=>{
+  let home=cameraHome();screens.setReducedMotion(true);
+  for(let cycle=0;cycle<2;cycle++){
+   const step=cycle*10,state=manual(home);paint(home,step);
+   const outgoing=screens.paint(state,new Date(0),ms(step+1),{manualEntryObservedElapsedMs:ms(step+2)});
+   assert.deepEqual(outgoing.manualEntry,{phase:'out',frame:20,owner:state.system.runtime.active});
+   assert.equal(screens.stockStatus(state),'loading');assert.equal(screens.presentManualEntry(state,ms(step+3)),true);
+   assert.ok(ms(step+2)<ms(step+3));
+   const incoming=screens.paint(state,new Date(0),ms(step+2),{manualEntryObservedElapsedMs:ms(step+4)});
+   assert.ok(incoming,String(screens.stockFailure()));
+   assert.deepEqual(incoming.manualEntry,{phase:'in',frame:20,owner:state.system.runtime.active});
+   assert.equal(screens.stockStatus(state),'loading');
+   assert.deepEqual(screens.paint(state,new Date(0),ms(step+3),{manualEntryObservedElapsedMs:ms(step+5)}).manualEntry,incoming.manualEntry);
+   assert.equal(screens.stockStatus(state),'loading');assert.equal(screens.presentManualEntry(state,ms(step+6)),true);
+   assert.equal(screens.stockStatus(state),'ready');assert.equal(screens.stockFailure(),null);
+   home=reduceSystem(state,'x',6500+cycle*100);assert.equal(home.system.phase,'home');
+  }
+ });
+});
+
+test('fresh Manual observations preserve normal pending poses and rebase context resume despite stale rAF',async()=>{
+ await fixture(({screens,paint})=>{
+  const home=cameraHome(),state=manual(home);paint(home,0);
+  const sample=(raf,observed)=>screens.paint(state,new Date(0),ms(raf),{manualEntryObservedElapsedMs:ms(observed)});
+  assert.equal(sample(1,2).manualEntry.frame,0);assert.equal(screens.presentManualEntry(state,ms(3)),true);
+  assert.equal(sample(2,4).manualEntry.frame,1);assert.equal(sample(3,5).manualEntry.frame,1);
+  assert.equal(screens.presentManualEntry(state,ms(6)),true);
+  assert.equal(sample(5,7).manualEntry.frame,2);screens.revokeManualEntryCandidate();
+  assert.equal(screens.presentManualEntry(state,ms(8)),false);
+  assert.equal(sample(5,9).manualEntry.frame,1);assert.equal(screens.presentManualEntry(state,ms(10)),true);
+  assert.equal(sample(9,11).manualEntry.frame,2);assert.equal(screens.presentManualEntry(state,ms(12)),true);
+  assert.equal(screens.stockStatus(state),'loading');assert.equal(screens.stockFailure(),null);
+ });
+});
+
+test('a genuinely backwards or invalid fresh Manual observation still publishes paired recovery',async()=>{
+ for(const observed of [ms(2),-1,NaN,Infinity])await fixture(({screens,paint})=>{
+  const home=cameraHome(),state=manual(home);paint(home,0);paint(state,1,false);
+  assert.equal(screens.presentManualEntry(state,ms(3)),true);
+  assert.equal(screens.paint(state,new Date(0),ms(4),{manualEntryObservedElapsedMs:observed}),undefined);
+  assert.equal(screens.stockStatus(state),'error');
+  assert.match(String(screens.stockFailure()),Number.isFinite(observed)&&observed>=0?/clock moved backwards/:/Invalid Manual entry timestamp/);
+  assert.equal(screens.presentManualEntry(state,ms(5)),false);
+ });
+});
+
 test('caller, title, generation and runtime application prevent stale outgoing backing reuse',()=>{
  for(const base of [cameraHome(),camera()]){
   const origin=manualEntryOrigin(base,1),identity=manualEntryIdentity(manual(base),1);assert.equal(manualEntryBackingMatches(origin,identity),true);

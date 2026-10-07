@@ -13,8 +13,15 @@ Manual runtime `127da97` now has the source outgoing/hold/incoming cover.
 Opaque-cover static diagnostic0/0; first-ready446/1038 is unchanged. Camera
 and Settings desktop repeat captures reach ready, but the first reduced-mobile
 Camera run exposed mixed-clock recovery. All motion flows remain fail.
-Next: fix/recapture that Manual regression, review/integrate the original Notes
-HUD, then folder upper-banner departure and remaining top-row common callers.
+Runtime `61f8b4e` fixes that clock regression and integrates the source Notes
+HUD. Repeated normal/reduced mobile Manual and Notes, Settings Manual, folder
+tile and physical-HOME browser captures complete without recovery. Notes
+first-ready diagnostic is now1263/46427; upper residual is live HUD state,
+lower empty-thumbnail brightness remains. Full tests2260 pass,1 historical
+Camera PNG failure,96 skip,1 TODO; typecheck/build pass.
+Next: source-derived empty Notes thumbnail binding, folder upper-banner
+terminal receipt, and remaining top-row common-cover callers. Exact native
+input epochs, timing and muted audio remain unverified.
 See [the current evidence and limitations](animation-fidelity-workflow-2026-10-07.md#integrated-corrections-and-recapture).
 
 6 October 2026. Checkout `f53fbeef` (`codex/home-fidelity-20261001`). This index is the queue. Evidence: [leftover queue](feature-map/leftover-queue-2026-10-05.md), [STATUS.md](../STATUS.md), [progress](progress-2026-09-24.md). If they disagree, evidence wins.

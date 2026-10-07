@@ -13,6 +13,7 @@ const { values } = parseArgs({ options: {
   activation: { type: 'string', default: 'key' }, cycles: { type: 'string', default: '1' },
   title: { type: 'string' }, commit: { type: 'string' },
   'folder-fixture': { type: 'string', default: 'baseline' },
+  'duration-ms': { type: 'string', default: '3500' },
   'reduced-motion': { type: 'boolean', default: false },
 } });
 for (const key of ['playwright-module', 'browser-executable', 'output']) assert.ok(isAbsolute(values[key] ?? ''), key);
@@ -31,6 +32,8 @@ if (values.activation === 'tile') {
   assert.equal(values['folder-fixture'], 'native-six-rows', 'Tile activation requires the captured six-row fixture');
 }
 for (const key of ['width', 'height']) assert.ok(Number.isInteger(Number(values[key])) && Number(values[key]) > 0, key);
+const durationMs = Number(values['duration-ms']);
+assert.ok(Number.isInteger(durationMs) && durationMs >= 1000 && durationMs <= 30000, 'Capture duration must be 1000..30000ms');
 const cycles = Number(values.cycles);
 assert.ok(Number.isInteger(cycles) && cycles >= 1 && cycles <= 3);
 const output = values.output;
@@ -119,7 +122,7 @@ try {
     assert.equal(selection?.kind, 'folder');
     assert.equal(selection.key, folderIdentity);
   }
-  await page.evaluate(() => {
+  await page.evaluate(durationMs => {
     const host = document.querySelector('.console-stage'), frames = [], start = performance.now();
     window.animationCapture = { frames, start, done: false };
     let lastPaint = null;
@@ -132,27 +135,20 @@ try {
           data: Object.fromEntries(['menu', 'phase', 'app', 'selected', 'rows', 'lastInput', 'nativeScreen', 'nativeScreenFailure', 'screenPaint', 'screenPresented', 'homeUpdates', 'folderClose', 'folderBanner', 'homeCursor'].map(k => [k, host.dataset[k]])),
           top: host.screenCanvases.top.toDataURL('image/png'), bottom: host.screenCanvases.bottom.toDataURL('image/png') });
       }
-      if (performance.now() - start < 3500) requestAnimationFrame(sample);
+      if (performance.now() - start < durationMs) requestAnimationFrame(sample);
       else window.animationCapture.done = true;
     };
     sample();
-  });
+  }, durationMs);
   if (values.scenario === 'pause') values.activation === 'physical' ? await physical('HOME') : await key('h');
   else if (values.scenario === 'manual') await touch(50, 226);
   else if (values.activation === 'tile') await touch(136, 160);
   else if (values.activation === 'physical') await physical('A');
   else if (values.activation === 'touch') await touch(160, 226);
   else await key('Enter');
-  await page.waitForFunction(() => window.animationCapture.done, { timeout: 10000 });
+  await page.waitForFunction(() => window.animationCapture.done, { timeout: durationMs + 10000 });
   const frames = await page.evaluate(() => window.animationCapture.frames), reports = [];
-  assert.ok(frames.length > 2, 'Transition has chronological raw LCD paints');
   const after = await state();
-  assert.deepEqual(errors, [], 'No browser page errors');
-  assert.ok(frames.every(frame => frame.data.nativeScreen !== 'error'), 'No native screen recovery during the captured transition');
-  assert.equal(after.menu, values.scenario === 'folder' ? 'folder' : values.scenario === 'pause' ? 'home' : 'app', 'Scenario reaches its expected menu');
-  assert.notEqual(after.nativeScreen, 'error', `Native screen recovery: ${after.nativeScreenFailure}`);
-  if (!['folder', 'pause'].includes(values.scenario)) assert.equal(after.nativeScreen, 'ready', 'Destination reaches paired native readiness');
-  if (values.scenario === 'folder') assert.equal(after.selected, folderSelection);
   for (const [index, frame] of frames.entries()) {
     const id = String(index).padStart(3, '0'), files = {};
     for (const screen of ['top', 'bottom']) {
@@ -165,9 +161,18 @@ try {
     reports.push({ index, at: frame.at, data: frame.data, files });
   }
   await page.screenshot({ path: join(output, `${cycle ? `repeat-${cycle}-` : ''}console.png`) });
-  const result = { valid: true, scenario: values.scenario, title: ['manual', 'pause'].includes(values.scenario) ? title : values.scenario, commit: values.commit, commitAttestation: 'Coordinator-supplied served-build identity; not independently discovered by this script.', cycle, activation: values.activation, folderFixture: values['folder-fixture'], reducedMotion: values['reduced-motion'], url: values.url, viewport: page.viewportSize(), muted: true,
+  const result = { valid: false, durationMs, scenario: values.scenario, title: ['manual', 'pause'].includes(values.scenario) ? title : values.scenario, commit: values.commit, commitAttestation: 'Coordinator-supplied served-build identity; not independently discovered by this script.', cycle, activation: values.activation, folderFixture: values['folder-fixture'], reducedMotion: values['reduced-motion'], url: values.url, viewport: page.viewportSize(), muted: true,
     method: 'Actual browser inputs; chronological raw screen paints. No diagnostic repaint or closest-pose search.',
     initial, before, inputs, cycleInputs: inputs.slice(cycleInputOffset), after, frames: reports, errors, nativeCompared: false };
+  await writeFile(join(output, `${cycle ? `repeat-${cycle}-` : ''}capture.json`), JSON.stringify(result, null, 2) + '\n');
+  assert.ok(frames.length > 2, 'Transition has chronological raw LCD paints');
+  assert.deepEqual(errors, [], 'No browser page errors');
+  assert.ok(frames.every(frame => frame.data.nativeScreen !== 'error'), 'No native screen recovery during the captured transition');
+  assert.equal(after.menu, values.scenario === 'folder' ? 'folder' : values.scenario === 'pause' ? 'home' : 'app', 'Scenario reaches its expected menu');
+  assert.notEqual(after.nativeScreen, 'error', `Native screen recovery: ${after.nativeScreenFailure}`);
+  if (!['folder', 'pause'].includes(values.scenario)) assert.equal(after.nativeScreen, 'ready', 'Destination reaches paired native readiness');
+  if (values.scenario === 'folder') assert.equal(after.selected, folderSelection);
+  result.valid = true;
   await writeFile(join(output, `${cycle ? `repeat-${cycle}-` : ''}capture.json`), JSON.stringify(result, null, 2) + '\n');
   console.log(JSON.stringify({ scenario: result.scenario, frames: reports.length, menu: result.after.menu, phase: result.after.phase, errors, output }));
   }

@@ -173,9 +173,38 @@ the retained HOME selection changed. Its route is invalid for Manual, and no
 Camera capture action was taken. Keep both attempts distinct from the existing
 successful delayed native Manual evidence. Native timing remains unaccepted.
 
-Current work: fix and recapture the Manual clock regression, then integrate
-the original Notes HUD publication after review. Lower Notes thumbnail buffer
-contents remain unresolved. Folder upper departure follows the visible Manual slice.
+Runtime `61f8b4e` fixes the Manual clock regression using fresh paint and
+receipt samples from the same clock. It does not clamp backwards samples or
+advance without a valid render. The original Notes HUD is integrated through
+`21d4329`; its custom `%I` token uses the source's 24-hour semantics.
+Fixture-only commit `59fb1d5` adds the required export to two unrelated test stubs.
+Full tests: 2260 pass, 1 historical Camera PNG failure, 96 skip, 1 TODO.
+Typecheck and production build pass.
+
+Production recaptures under `integrated-61f8b4e/` reach paired readiness
+without native-screen recovery: Camera Manual mobile normal113/116 pairs,
+mobile reduced70/72/72, Settings Manual213/213 with an8-second capture window,
+Notes desktop92/95 and mobile reduced74/75. Health physical-HOME79/80 and
+six-row folder tile80/81 also complete without page errors. Their console
+views were inspected and show the complete nonblank console. These are
+browser checks, not native motion acceptance.
+
+The declared first-ready Notes pair035 at704.7ms versus the unchanged native
+`_07.10.26_12.33.38.755.png` now differs by1263 upper /46427 lower pixels above
+delta2. Both empty-mask sheets in `comparisons/notes-list-61f8b4e` were opened.
+The upper body and HUD layout match; live clock/date, antenna phase and battery
+parity remain different. Lower empty thumbnails are still too bright.
+
+The collector now accepts a bounded `--duration-ms` and writes raw PNGs,
+console and `valid:false` metadata before its behavior assertions. An
+intentional1-second Manual collection in `collector-retention-short-manual`
+keeps44 raw pairs and its loading failure. The earlier3.5-second Settings
+collection also failed while loading; its separate failure record remains.
+Neither failed run is acceptance evidence.
+
+Current work: publish Notes empty-thumbnail buffers from the pinned code's
+RGB565 initializer, and retain the presented folder banner through the paired
+FadeIn terminal receipt. Native dispatch epochs and exact timing remain open.
 Remaining applet common-cover callers are Notes0, Friends1, Notifications2,
 Browser3, Manual4 and Miiverse7. Miiverse uses its authored logo, not an invented
 lower text label. All four whole scenarios remain fail.

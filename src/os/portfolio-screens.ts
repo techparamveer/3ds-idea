@@ -92,6 +92,12 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
   const now=view.data?.notesHostMs;
   return stockScreens.presentNotesBootCover(s.runtime.active,pair=>notesBootCover.present(pair,typeof now==='number'&&Number.isFinite(now)?now:0));
  }
+ function notesBootCoverActive(state:MenuState):boolean{
+  const s=state.system,view=getActiveAppView(state),notes=s?.runtime.systemApplet?s.runtime.instances[s.runtime.systemApplet]:undefined;
+  return !!s&&!document.hidden&&(s.phase==='launch'||s.phase==='app')&&!s.sleeping&&!s.preferences&&!s.dialog&&!s.runtime.application
+   &&notes?.appId==='game-notes'&&!notes.closing&&s.runtime.active===notes.id&&view?.appId==='game-notes'&&view.screen==='main'
+   &&notesBootCover.pending(notes.id);
+ }
  function revokeNotesBootCoverCandidate(){stockScreens.revokeNotesBootCoverCandidate();notesBootCover.pause();}
  const menuIcons=new Map<string,HTMLCanvasElement>();
  const images=new Map<string,HTMLImageElement>();
@@ -203,5 +209,5 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    t.fillStyle=b.fillStyle=`rgba(0,0,0,${alpha})`;t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
   }
  }
- return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,presentNotesBootCover,revokeNotesBootCoverCandidate,readSuspendedCapture:suspendedCapture.read,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){document.removeEventListener('visibilitychange',pauseNotesBootCover);stockScreens.dispose();notesIntro.dispose();notesBootCover.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
+ return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,presentNotesBootCover,notesBootCoverActive,revokeNotesBootCoverCandidate,readSuspendedCapture:suspendedCapture.read,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){document.removeEventListener('visibilitychange',pauseNotesBootCover);stockScreens.dispose();notesIntro.dispose();notesBootCover.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
 }

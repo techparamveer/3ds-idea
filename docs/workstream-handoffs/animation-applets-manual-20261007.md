@@ -153,6 +153,23 @@ The expanded selected suite passed 63 tests. Nonincremental typecheck and
 `git diff --check` passed. No build, GUI or native acceptance run was performed
 by the worker.
 
+### Transition cadence follow-up
+
+`graphics.notesBootCoverActive(state: MenuState): boolean` reports eligible
+no-software Notes entry only, including a new owner before first sync, every
+cover pose 0..20 and terminal pose 21 until valid presentation acknowledgement.
+It stops after the terminal receipt and excludes HOME, other applets, drawing,
+suspended-software Notes, hidden/sleeping and modal states. Worker B owns its
+single `screens.ts` forwarder and includes the query in the existing transition
+LCD paint cadence condition; render-quality budgets are unchanged. This avoids
+running the receipt-bound entry at the idle 12/20 Hz LCD cadence. The new pure
+query lifecycle regression covers loading, all source poses, pending terminal,
+receipt, revocation, replacement owner and disposal.
+The expanded selected suite now passes 64 tests; nonincremental typecheck and
+`git diff --check` passed again. The reviewer found no actionable defect in
+`295d029`'s Notes API/state correction and retained valid-render scene wiring
+as a hard integration dependency, not established publication.
+
 ## Remaining failures
 
 AN-01 remains fail. There is no new matched native/browser pair, mask or diff

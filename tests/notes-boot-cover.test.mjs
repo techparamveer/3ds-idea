@@ -124,6 +124,26 @@ test('a delayed successful render receipt rebases the failed-publication interva
   assert.equal(publish(session, { ...input, now: 1017 }).steps, 2);
 });
 
+test('transition cadence remains active for every source pose and the unacknowledged terminal', () => {
+  const session = createNotesBootCoverSession();
+  assert.equal(session.pending(input.owner), true, 'a newly eligible owner needs its first pair');
+  assert.equal(session.sync({ ...input, sources: undefined }), undefined);
+  assert.equal(session.pending(input.owner), true, 'resource loading cannot retire the transition');
+  for (let step = 0; step <= 20; step++) {
+    publish(session, { ...input, now: step * 1000 / 60 });
+    assert.equal(session.pending(input.owner), true, `source pose ${step} retains transition cadence`);
+  }
+  const terminal = session.sync({ ...input, now: 350 });
+  assert.equal(terminal.steps, 21);
+  assert.equal(session.pending(input.owner), true, 'Canvas terminal without valid render receipt remains pending');
+  assert.equal(session.present(terminal, 350), true);
+  assert.equal(session.pending(input.owner), false);
+  session.pause();assert.equal(session.pending(input.owner), true, 'revocation requires a replacement valid render');
+  publish(session, { ...input, now: 5000 });assert.equal(session.pending(input.owner), false);
+  assert.equal(session.pending('game-notes:2'), true, 'a replacement owner has no completed receipt');
+  session.dispose();assert.equal(session.pending(input.owner), false);
+});
+
 test('terminal readiness requires a matching owner/ticket receipt, not a sampled terminal', () => {
   const session = createNotesBootCoverSession(), gate = createNotesBootCoverPublicationGate();
   const first = session.sync(input), terminal = finish(session);

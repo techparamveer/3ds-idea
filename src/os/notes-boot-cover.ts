@@ -66,6 +66,9 @@ export function createNotesBootCoverSession() {
       presented = true;
       return true;
     },
+    pending(nextOwner: string): boolean {
+      return !disposed && (nextOwner !== owner || steps <= LAST_FRAME || !presented);
+    },
     pause: rebase,
     dispose() { disposed = true; owner = null; ticket++; steps = 0; rebase(); paint = paintSources = undefined; },
   };

@@ -53,7 +53,7 @@ type SystemWithHomeApplicationTransition = NonNullable<MenuState['system']> & {
  homeApplicationTransition?:HomeApplicationTransition|null;
 };
 type NativeHome=ReturnType<typeof createFirmwareHome>;
-type ScreenPaintResult={homeWallpaper?:boolean;healthBanner?:boolean;nativeSystem?:true;entryMotion?:{folder:HomeFolderEntryPose|null;pauseFrame:number|null};manualEntry?:{phase:'out'|'in';frame:number;owner:string};appletEntry?:{kind:'cover'|'handoff';frame:number|null;owner:string}};
+type ScreenPaintResult={homeWallpaper?:boolean;healthBanner?:boolean;nativeSystem?:true;entryMotion?:{folder:HomeFolderEntryPose|null;pauseFrame:number|null};manualEntry?:{phase:'out'|'in';frame:number;owner:string};appletEntry?:{kind:AppletEntryPose['kind'];frame:number|null;owner:string}};
 const fonts = new WeakMap<Context, BitmapFont>();
 let systemFont: Promise<void> | undefined;
 function loadSystemFont() {

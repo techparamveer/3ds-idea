@@ -205,6 +205,44 @@ Neither failed run is acceptance evidence.
 Current work: publish Notes empty-thumbnail buffers from the pinned code's
 RGB565 initializer, and retain the presented folder banner through the paired
 FadeIn terminal receipt. Native dispatch epochs and exact timing remain open.
+
+Reviewed Notes empty-thumbnail commit `61b220a` is integrated as `19ee552`.
+The pinned code initializes all16 thumbnail buffers with RGB565 `0xe73c`.
+The existing decoder produces231/231/231/255 texels in128x64 storage for the
+original68x42 logical panes. The additive pack retains original list geometry
+and clips. [The source handoff](workstream-handoffs/notes-entry-residual-20261007.md)
+records executable, literal, derived texture and converter hashes. Missing
+selected texture is an explicit readiness failure; saved/nonempty thumbnails
+remain unsupported, not reconstructed from private notes.
+
+Production `19ee552`: typecheck/build pass; full2266 pass,1 missing historical
+Camera PNG failure,96 skip,1 TODO. Six thumbnail source Python tests pass.
+Notes normal95/92 and reduced physical-mobile75/74 raw pairs reach readiness
+without errors. Both complete-console views and LCD comparison sheets were
+inspected. First-ready038 at737.6ms versus unchanged native12.33.38.755 gives
+1039 upper /731 lower above delta2, empty mask. Report is
+`comparisons/notes-list-19ee552/report/report.json`. Thumbnail interiors match;
+remaining lower differences are footer edge/text. Upper differences are live
+HUD state. Neither this static pair nor the browser motion passes AN-01.
+
+New native normal-speed Camera HOME Manual replay explicitly selects Health,
+then Camera, then Manual. `manual-selected-normal-native-index.json` hashes
+140 own PNGs; the chronological sheet shows HOME, source cover and Contents.
+The first complete cover at16.15.13.317 and first Contents at16.15.16.62 have
+the same bytes as the earlier slowed references. First browser out20 index39
+and first-ready77 are declared in `comparisons/manual-normal-cover-61f8b4e`
+and `manual-normal-first-ready-61f8b4e`: empty-mask0/0 and446/1038. All four
+LCD sheets were opened. Sparse normal-speed snapshots still miss individual
+source poses and do not establish a shared input epoch or exact duration.
+
+Notifications native normal-speed touch145,16 then CTM A produces94 own PNGs
+in `notifications-normal-native-index.json`. Its inspected chronological sheet
+shows the common cover over outgoing HOME before Notifications. Current
+browser `integrated-19ee552/notifications-before-common` has71/71 error-free
+pairs but skips that common cover. Its console was inspected. Native9 versus
+portfolio8 unread items is a content difference, not an animation mask.
+Selector bindings are the next bounded source slice; visible caller integration
+must follow it before further source-only work.
 Remaining applet common-cover callers are Notes0, Friends1, Notifications2,
 Browser3, Manual4 and Miiverse7. Miiverse uses its authored logo, not an invented
 lower text label. All four whole scenarios remain fail.

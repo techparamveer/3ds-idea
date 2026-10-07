@@ -22,6 +22,13 @@ Camera PNG failure,96 skip,1 TODO; typecheck/build pass.
 Next: source-derived empty Notes thumbnail binding, folder upper-banner
 terminal receipt, and remaining top-row common-cover callers. Exact native
 input epochs, timing and muted audio remain unverified.
+Reviewed source thumbnail runtime `19ee552` is now recaptured: first-ready
+1039/731, empty mask, down from46427 lower pixels. Tile interiors match;
+footer edge/text and live HUD state remain. Full2266 pass,1 historical PNG
+failure,96 skip,1 TODO; typecheck/build and6 source Python tests pass.
+Normal native Manual140 own PNGs reproduce cover0/0 and endpoint446/1038;
+Notifications94 own PNGs now show the missing outgoing-HOME common cover.
+Next: reviewed folder terminal-banner correction and top-row common callers.
 See [the current evidence and limitations](animation-fidelity-workflow-2026-10-07.md#integrated-corrections-and-recapture).
 
 6 October 2026. Checkout `f53fbeef` (`codex/home-fidelity-20261001`). This index is the queue. Evidence: [leftover queue](feature-map/leftover-queue-2026-10-05.md), [STATUS.md](../STATUS.md), [progress](progress-2026-09-24.md). If they disagree, evidence wins.

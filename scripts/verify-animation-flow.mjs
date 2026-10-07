@@ -7,6 +7,42 @@ import { parseArgs } from 'node:util';
 import { folderCapturePrecondition } from './reference/folder-capture-precondition.mjs';
 import { pauseCapturePrecondition } from './reference/pause-capture-precondition.mjs';
 
+export function manualCaptureHeading(title) {
+  const headings = { settings: 'System Settings', camera: 'Nintendo 3DS Camera', browser: 'Internet Browser' };
+  assert.ok(Object.hasOwn(headings, title), 'Manual requires a delivered application manual');
+  return headings[title];
+}
+
+export function validateManualCaptureOrigin(before, title) {
+  manualCaptureHeading(title);
+  assert.equal(before.menu, 'home', 'Manual begins from HOME');
+  const focus = JSON.parse(before.homeCursor ?? 'null')?.focus;
+  if (title === 'browser') {
+    assert.equal(focus?.toolbarActive, true, 'Browser Manual requires toolbar focus');
+    assert.equal(focus.currentFocus, 4, 'Browser remains the Manual caller');
+  } else {
+    assert.equal(focus?.toolbarActive, false, 'Application Manual requires grid focus');
+    assert.equal(before.selected, title === 'settings' ? '9' : '10', 'Requested application remains selected');
+  }
+}
+
+export function validateManualCaptureDestination(after, title) {
+  assert.equal(after.announcement?.split('. ')[0], manualCaptureHeading(title), 'Requested application Manual is the destination');
+}
+
+export async function selectAnimationTitle(title, { key, touch, wait }) {
+  if (title === 'browser') {
+    await touch(190, 16);
+    await wait(300);
+    return;
+  }
+  const slot = { portfolio: 0, health: 8, settings: 9, camera: 10, sound: 7 }[title];
+  assert.ok(Number.isInteger(slot), 'Supported title selection');
+  for (let n = 0; n < Math.floor(slot / 2); n++) { await key('ArrowRight'); await wait(180); }
+  if (slot % 2) await key('ArrowDown');
+  await wait(300);
+}
+
 export function parsePauseHomeHold(value, { scenario, activation, durationMs }) {
   if (value === undefined) return null;
   assert.equal(scenario, 'pause', 'HOME hold is pause-only');
@@ -165,7 +201,7 @@ assert.match(values.commit ?? '', /^[a-f0-9]{40}$/, 'Runtime commit must be supp
 const title = values.title ?? (values.scenario === 'manual' ? 'settings' : 'health');
 const pauseApp = { health: 'health-safety', camera: 'camera', sound: 'sound', portfolio: 'work' }[title];
 const pauseNativeStatus = title === 'portfolio' ? 'inactive' : 'ready';
-if (values.scenario === 'manual') assert.ok(['settings', 'camera', 'health'].includes(title));
+if (values.scenario === 'manual') manualCaptureHeading(title);
 if (values.scenario === 'pause') assert.ok(['health', 'camera', 'sound', 'portfolio'].includes(title));
 if (values.scenario === 'manual') assert.equal(values.activation, 'touch', 'Manual requires --activation touch');
 if (values.scenario === 'pause') assert.notEqual(values.activation, 'touch', 'Pause supports key or physical HOME');
@@ -213,12 +249,7 @@ const accessible = async () => {
   await page.getByRole('button', { name: `Open ${label}`, exact: true }).focus();
   await page.keyboard.press('Enter');
 };
-const selectTitle = async () => {
-  const slot = { portfolio: 0, health: 8, settings: 9, camera: 10, sound: 7 }[title];
-  for (let n = 0; n < Math.floor(slot / 2); n++) { await key('ArrowRight'); await page.waitForTimeout(180); }
-  if (slot % 2) await key('ArrowDown');
-  await page.waitForTimeout(300);
-};
+const selectTitle = () => selectAnimationTitle(title, { key, touch, wait: ms => page.waitForTimeout(ms) });
 try {
   await page.goto(values.url);
   await page.waitForSelector('.console-stage[data-ready="true"][data-intro="false"][data-menu="home"]', { timeout: 90000 });
@@ -294,6 +325,7 @@ try {
     };
   }
   const before = await state();
+  if (values.scenario === 'manual') validateManualCaptureOrigin(before, title);
   if (values.scenario === 'pause') {
     assert.equal(before.menu, 'app');
     assert.equal(before.app, pauseApp, 'Requested pause owner is foreground');
@@ -345,6 +377,7 @@ try {
   assert.equal(after.menu, values.scenario === 'folder' ? 'folder' : values.scenario === 'pause' ? 'home' : 'app', 'Scenario reaches its expected menu');
   assert.notEqual(after.nativeScreen, 'error', `Native screen recovery: ${after.nativeScreenFailure}`);
   if (values.scenario !== 'pause') assert.equal(after.nativeScreen, 'ready', 'Destination reaches paired native readiness');
+  if (values.scenario === 'manual') validateManualCaptureDestination(after, title);
   if (values.scenario === 'pause') assert.equal(after.app, pauseApp, 'HOME retains the requested suspended app');
   if (Object.hasOwn(appletLabels, values.scenario)) assert.equal(after.announcement?.split('. ')[0], appletLabels[values.scenario], 'Requested applet is the active destination');
   if (values.scenario === 'folder') assert.equal(after.selected, folderSelection);

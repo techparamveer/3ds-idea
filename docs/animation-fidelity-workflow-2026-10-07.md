@@ -67,3 +67,28 @@ Each flow remains fail while an unexplained animation mismatch exists. Record
 source gaps, adaptations and blocked native routes explicitly. Report
 implemented, tested, browser-inspected and native-compared separately. Muted
 audio stays unverified and prevents a global audiovisual 1:1 claim.
+
+## Captured baseline
+
+Runtime `5ee6fd7`, workflow `81f09bf`, production port 3021. The coordinator's
+`scripts/verify-animation-flow.mjs` records ordinary projected touch/keyboard
+inputs, chronological raw LCD paints, hashes, viewport and browser errors.
+Eight successful baseline runs cover all five top-row apps, Settings Manual,
+empty-folder entry and Health HOME suspension. These are browser evidence,
+not native acceptance. Invalid folder-creation-only and failed Health shortcut
+experiments remain retained separately.
+
+Artifact root: `/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/`.
+`baseline-index.json` identifies all eight runs. `notes-native-index.json`
+identifies the copied muted Azahar executable, HOME content, configuration,
+CTM and 99 own PNGs. The CTM holds A at samples 2340..2348 from a selected
+Notes seed; playback counter and emulation speed were observed. At 25% speed,
+the own PNGs show cover over outgoing HOME, held cover during pipeline loading,
+then cover clearing over Notes. Cold pipeline stalls prevent duration acceptance.
+The Notes no-software upper interior still differs from the browser tutorial;
+this is an unexplained native mismatch, not an intentional adaptation.
+
+Baseline checks: build passes; capture script syntax and all eight runs pass.
+Full tests: 2167 pass, 1 fail, 96 skip, 1 TODO. The failure is the unchanged
+`camera-date-group` private-pair check: its historical browser `lower.png` is
+absent. Logs are retained as `baseline-tests.log`; do not hide this failure.

@@ -3,6 +3,12 @@
 Updated 7 October 2026 after fetching GitHub. Starting version:
 `5ee6fd7a42b0239c5f55f375f85593289a0ff532` on `origin/main`.
 
+User stop condition: stop project work when the weekly allowance remaining
+reaches 75%. Check account usage between bounded work phases and before new
+worker assignments. At the threshold, checkpoint workers and the reviewer,
+release active test inputs, close test sessions, and pause the goal. Do not
+mark it complete. The latest reading and restart point belong in STATUS.
+
 Finish the opening animations for the HOME top-row apps, opening Manual,
 entering folders, and suspending a game or app with HOME. Preserve the user's
 latest design and the original silver 2012 Nintendo 3DS XL. Target EUR
@@ -40,9 +46,15 @@ unmatched native/browser input epochs and unexplained animation differences
 still prevent completion. The decoded Friends/Notifications public-asset
 decision remains pending. Continue from
 [the held-HOME checkpoint](docs/animation-fidelity-workflow-2026-10-07.md#held-home-recovery-and-fixed-pause-diagnostics).
-Next, record the same requested HOME hold while collecting browser paints,
-then recapture native entry through the recovered input path. Do not fit a
-phase, resize a cursor or switch Manual sampling without source evidence.
+The reviewed held-HOME collector is now integrated through `2431ed5`.
+Physical, keyboard and reduced-mobile repeated captures record matching DOM
+down/up events while raw LCD paints continue. Fixed pause diagnostics still
+differ, and the shorter native attempt still captured only settled frames.
+Continue from [the recorded holds](docs/animation-fidelity-workflow-2026-10-07.md#recorded-browser-home-holds).
+The exact Manual executable has been recovered privately. Independent source
+review supports a narrow common-Contents row sampler candidate, not visual
+acceptance. Review its guards/tests and verify it from the separate served-base
+worktree without pulling in pending incoming assets. No phase or cursor fit.
 
 The hardware requirements below remain unchanged. The current animation goal
 supersedes older execution queues and checkout references in this document.

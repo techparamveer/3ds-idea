@@ -5,6 +5,23 @@ for top-row opening, Manual opening, folder entry and HOME suspension. GitHub
 restart base is `5ee6fd7`; the historical static queue below is preserved.
 All four motion flows are currently fail pending matched frame-sequence proof.
 
+Current supporting checkpoint `2431ed5`: reviewed optional held-HOME collector
+and type-only receipt fix are integrated. Private full tests pass 2,410 with
+the unchanged missing historical Camera PNG failure, 98 skips and one TODO.
+Clean worker typecheck/build pass; root caller WIP remains unstaged/unserved.
+Physical, keyboard, default-tap and reduced-mobile repeats produce 481 valid
+paired raw captures with no page errors. Fixed held-HOME pause pairs still
+differ by17638/37574 and12510/37690, with empty masks. Native measured hold and
+entry epochs are unknown. The shorter native burst captured only settled HOME.
+Manual's exact private executable is now recovered and its original row
+writer is independently traced. A guarded common-Contents row-only sampler
+candidate is under implementation/review, then visible verification from a
+separate served98342a8-based worktree. No fitted phase/cursor change or pending
+incoming asset export is authorized. Stop and pause the goal when weekly
+allowance remaining reaches75%. See
+[recorded holds](animation-fidelity-workflow-2026-10-07.md#recorded-browser-home-holds).
+Earlier checkpoints below remain historical evidence.
+
 Incoming preparation: reviewed controller `df1da09` integrates as `aab39d7`,
 and source-only publisher/proof `363aee7` as `c08406d`. Private-fixture helper
 `72d88ef` integrates as `c771cff`; reviewed material/picture-closure correction

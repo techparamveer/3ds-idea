@@ -26,6 +26,12 @@ A reviewer uses a different model under the repository seat rule.
 Speed selection is not exposed by the
 delegation tools, so no Fast-mode setting is claimed verified.
 
+The user requests stopping when weekly allowance remaining reaches 75%.
+Check account usage between bounded phases and before new worker assignments.
+At the threshold, stop new work, checkpoint all seats, release active inputs,
+close test sessions and pause the goal. Keep the goal incomplete. STATUS records
+the latest reading; historical instructions not to stop do not override this.
+
 Worker A traces AN-01 and AN-02 and owns only separately assigned helpers,
 focused tests and its handoff. Worker B traces AN-03 and AN-04 with the same
 restriction. The coordinator reserves `system.ts`, `screens.ts`,
@@ -742,3 +748,104 @@ remain fail. Next is an explicitly recorded browser HOME hold while paints
 continue, followed by native entry recapture through the recovered route.
 Neither this terminal comparison nor the source audits authorize a fitted
 phase, cursor resize or unproven Manual sampler change.
+
+## Recorded browser HOME holds
+
+Source checkpoint `2431ed58fdab4dfd611fc5b958729433e3348b86` integrates the
+reviewed collector chain as `f19d705`, `7b1c6e2` and `2431ed5`. The optional
+`--home-hold-ms` accepts pause-only keyboard or physical HOME. It observes
+matching DOM down/up events and collects raw paints throughout the hold.
+Requests, observed duration and frame/distinct-paint counts remain separate.
+Observed events must be inside the capture window with positive retained
+held-paint counts. Failed observations retain their invalid ledger and PNGs
+before rejection; pre-input failures cannot borrow a prior launch or Resume.
+Without the option, the original input and ledger/frame shapes are preserved.
+Collector file SHA is
+`781409872fc684042ed4f9a7ee55817869eac1c72703ca5b024924398833e3fd`.
+Ledgers do not embed this execution hash; coordinator execution attestation
+and the independently verified clean collector identity are explicit.
+
+The reviewed one-line receipt type fix is `8ac6999`. Root typecheck includes
+unstaged incoming caller work, so it is not clean-HEAD evidence. The clean
+worker `69debd3` has identical committed UI/package/config to `2431ed5` and
+passes typecheck and production build after replacing only its own dependency
+symlink with a byte-verified APFS copy. The old symlink and failure logs remain
+preserved. The new build log SHA is
+`99baafa46f25cafaf36ea0197162fe8a64ee023f92e6bc967617446a5e59ad34`.
+Private full tests pass 2,410, with one unchanged missing historical Camera
+PNG failure, 98 skips and one TODO. HOME-hold/precondition checks pass 23.
+No shader/material changed. Production3021 still serves `98342a8`; no incoming
+asset export, root build or new served UI follows from these supporting checks.
+
+All paths below are under the private animation root. The new captures in
+`held-home-2431ed5/` use the unchanged served runtime and muted Chromium:
+
+| Route | Pairs by cycle | Observed DOM hold ms | Held distinct paints |
+| --- | --- | --- | --- |
+| Physical HOME, requested500ms | 71 / 75 | 590 / 569 | 11 / 14 |
+| Keyboard HOME, requested500ms | 79 / 79 | 549.8 / 541.5 | 16 / 17 |
+| Default keyboard tap, no option | 79 / 79 | Not recorded | Not recorded |
+| Reduced mobile keyboard, requested500ms | 7 / 6 / 6 | 542.8 / 533.3 / 523.2 | 2 / 1 / 1 |
+
+All nine cycles are valid and have no page errors. The supporting report
+`held-home-2431ed5/browser-supporting-checks.json`, SHA
+`8e338d80d6ac184af1a1313ffc81cd6d9ebc430a879d0a1a4476652ea9af0d36`,
+rehashes and decodes all 962 raw LCD PNGs from 481 paired receipts, verifies
+dimensions and same-paint valid publication, recomputes hold durations/counts,
+checks unchanged no-option fields and rejects orphan raw files. Nine console
+views were opened; they are nonblank and framed on desktop/mobile. Reduced
+terminal publication is an accessibility adaptation, not native motion proof.
+
+The independent selector
+`held-home-2431ed5/pause-browser-selection-index.json`, SHA
+`0be587a225da2b4f63a595451215b1337703510b6365efe08b7515b91fc3590b`,
+declares first valid same-paint pause20 at indices22/23 before comparison.
+Private pause owner, capture generation, native duration and native epoch
+remain absent/null; banner markers are not substitutes. The original56 native
+selectors1/31 are unchanged. Fixed empty-mask/delta2 comparisons in
+`held-home-2431ed5/physical-500-fixed-terminal/` differ **17638/37574** and
+**12510/37690** upper/lower pixels. Result manifest SHA is
+`85a65b5fd9742bca55f63510ccc2764cb9b16251a35bf9d8bfba00ce76cef867`;
+reports are `62a06448fba811f0d6a72a0011932c2cc2ef137f23e209c834229a67280aa32c`
+and `9221160a179a67700229934c7dd95ebb8da93bce880f75eef7bf808318742def`.
+All four sheets were opened. Frozen Health phase, icon/caption/HUD edges,
+cursor, footer and population still differ. Both host routes requested500ms,
+but only browser DOM duration is measured. Selection, host routes, fixtures
+and epochs differ, so these remain static diagnostics, not matched motion.
+
+The shorter native attempt requested a50ms/two-step Shift gesture. Its action
+tool returned after2205ms, before the screenshot burst could observe entry.
+All21 PNGs are valid/unique; sample0 is Health and1..20 are already suspended.
+The chronological index at
+`native-folder-slow/home-entry-analysis-20261007/home-entry-index.json` has SHA
+`1b685338fd46fb2a900bd840fd0b82585536441175f109104d8849f12772ca5b`.
+Root opened its sheet. Predeclared first full sample1 has SHA
+`df18404ef2cd06cc1348e5e83bcc7e3f9fbf7c2a7543a58a1a5d45212c296549`.
+The input receipt SHA is
+`18c0f3bdcc1023151678bc5693e352df0f912a8d91e4e6821eedbd6d922d8201`.
+GUI Quit/Yes exited0; PID89509 absence was verified. Only temporary HOME and
+screenshot path were restored, final config SHA
+`ccd30d00e84d47d682ca7cfc0c530b6839a8ee127e5e51b67208c7e8ba0a6f8c`.
+Volume0/Null1/Static2/normal100% remain unchanged. No native duration or entry
+cadence is inferred from tool round-trip time or settled screenshot timestamps.
+
+The earlier missing Manual executable gap is now historical. Private recovery
+verified the exact decoded `.code` SHA
+`cf4658f9f618a41f8d32ff7aed40d0ea565da78a2ace349cb93698ff5f7df5d8`
+inside Manual title0004003000009b02/v5120/content0/id0000000a, NCCH SHA
+`c493384988edd28b723b69b77f8406eaca4cf54e55446f4f5977a40e0d70c92a`.
+Actual recovery tool is CTRTool1.2.0, not the historical converter1.3.
+Independent static disassembly verifies the row constructor/string writer and
+uncentered glyph-render branch. It supports a common Manual Contents
+TextBox_Txt-only candidate with exact source/bound-font guards; runtime review
+and visible recapture are pending. A Unicorn attempt exited132/SIGILL before
+output, so no executed ARM/GPU claim follows. Existing provenance is preserved.
+
+The clean `manual-row-visible-20261007` worktree starts from served98342a8,
+with a real local dependency copy, and awaits only that reviewed Manual change.
+It excludes pending incoming assets/controller/caller work. Public export
+approval remains pending. All four whole animation scenarios remain fail;
+audio remains muted and unverified. The goal is active subject to the user's
+75%-remaining stop condition. Next: guarded Manual correction, clean build,
+visible regression capture and native comparison, then the unresolved native
+entry clock and pending title-specific incoming dependency boundary.

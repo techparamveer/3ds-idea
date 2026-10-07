@@ -20,6 +20,16 @@ diagnostics. Browser banner identity does not identify the private pause owner
 or capture generation; absent fields remain null. Do not infer matching motion
 from terminal window geometry or mask population differences wholesale.
 
+[Recorded browser HOME holds](../animation-fidelity-workflow-2026-10-07.md#recorded-browser-home-holds)
+use an optional capture-collector hold, not a runtime input change. Record
+requested duration, matching trusted DOM down/up observations, observed host
+duration and positive retained frame/distinct-paint counts separately. Validate
+observed boundaries against the capture window. Retain invalid ledgers and raw
+PNGs before rejection, and do not borrow a prior input when setup fails.
+Browser DOM timing does not measure native hold or source activation epochs.
+Preserve default tap fields and reduced-motion accessibility labels. A shorter
+native gesture whose tool returns after entry remains settled-only evidence.
+
 [HOME launch onset](../home-launch-onset-2026-10-03.md) now has continuous
 native pre-A/feedback/fade/logo evidence. Distinguish first Open pressed
 feedback from footer SceneOut, and last pre-fade banner from disappearance.

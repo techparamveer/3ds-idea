@@ -413,7 +413,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   if(!key)return graphics.stockStatus(state,t);
   // Browser receipt quarantine, not a recovered native input epoch.
   if(state.opened&&nativeHome&&options.getHomeBanner&&folderEntryEligible(state)
-   &&!folderEntryBanner.complete(folderEntryBannerOwner(state)))return 'loading';
+   &&(!folderEntryBanner.complete(folderEntryBannerOwner(state))||folderEntryBanner.active(folderEntryBannerOwner(state))))return 'loading';
   const manual=manualEntryIdentity(state,manualGeneration);
   if(manual&&manualEntryEligible(state)){const status=graphics.stockStatus(state,t);return status==='error'?'error':status==='ready'&&manualPresentation.ready(manual)?'ready':'loading';}
   const applet=appletEntryIdentity(state,appletGeneration);
@@ -533,6 +533,16 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   if(folder&&nativeHome&&options.getHomeBanner&&folderEntryEligible(state)&&folderEntryBanner.active(folderEntryBannerOwner(state)))return true;
   return !!folder&&folderEntryEligible(state)&&(!!pendingFolderEntryMotion||!homeEntryMotionMatches(folderEntryMotion,folder)||homeEntryMotionActive(folderEntryMotion,reduced))
    ||!!pause&&pauseEntryEligible(state)&&(!!pendingPauseEntryMotion||!homeEntryMotionMatches(pauseEntryMotion,pause)||homeEntryMotionActive(pauseEntryMotion,reduced));
+ }
+ function homeFolderBannerRequestReady(state:MenuState):boolean {
+  if(disposed)return false;
+  if(!state.opened||!nativeHome||!options.getHomeBanner)return true;
+  return !panelFailure&&folderEntryEligible(state)&&folderEntryBanner.requestReady(folderEntryBannerOwner(state));
+ }
+ function homeFolderBannerActivationReady(state:MenuState):boolean {
+  if(disposed)return false;
+  if(!state.opened||!nativeHome||!options.getHomeBanner)return true;
+  return !panelFailure&&folderEntryEligible(state)&&folderEntryBanner.activationReady(folderEntryBannerOwner(state));
  }
  /** reuseHomeBackgroundMs: an input-driven paint may recompose over the HOME
   * background sampled by the latest cadence paint, if it is at most this old.
@@ -896,6 +906,6 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  function homeEntryActivationReady(state:MenuState){
   return homeEntryBannerActivationDue(sampleHomeEntryPresentation(homeEntryPresentation,state,reduced));
  }
- return {top,nativeTop:native,bottom,paint,stockStatus,retryStockScreen,stockFailure:()=>panelFailure??graphics.stockFailure(),setFirmwareAssets,prepareFolderBannerLabel:(name:string)=>nativeHome?.folderBannerLabel(name),homeEntryFooterReadiness:()=>getHomeEntryFooterReadiness(homeEntryPresentation),homeEntryActivationReady,presentHomeEntryMotion,homeEntryMotionActive:isHomeEntryMotionActive,homeEntryMotionPublicationPending:()=>!!entryMotionCandidate,revokeHomeEntryMotionCandidate,presentManualEntry,revokeManualEntryCandidate,manualEntryActive,presentAppletEntry,revokeAppletEntryCandidate,appletEntryActive,skipAppletEntryForAccessibilityShortcut,presentHomeEntryFooterRelease,presentHomeEntryFooterTerminal,presentHomeEntryBanner,presentHomeEntryWithoutNativeBanner,
+ return {top,nativeTop:native,bottom,paint,stockStatus,retryStockScreen,stockFailure:()=>panelFailure??graphics.stockFailure(),setFirmwareAssets,prepareFolderBannerLabel:(name:string)=>nativeHome?.folderBannerLabel(name),homeEntryFooterReadiness:()=>getHomeEntryFooterReadiness(homeEntryPresentation),homeEntryActivationReady,homeFolderBannerRequestReady,homeFolderBannerActivationReady,presentHomeEntryMotion,homeEntryMotionActive:isHomeEntryMotionActive,homeEntryMotionPublicationPending:()=>!!entryMotionCandidate,revokeHomeEntryMotionCandidate,presentManualEntry,revokeManualEntryCandidate,manualEntryActive,presentAppletEntry,revokeAppletEntryCandidate,appletEntryActive,skipAppletEntryForAccessibilityShortcut,presentHomeEntryFooterRelease,presentHomeEntryFooterTerminal,presentHomeEntryBanner,presentHomeEntryWithoutNativeBanner,
   notesBootCoverActive:(state:MenuState)=>{const identity=appletEntryIdentity(state,appletGeneration);return (!identity||appletPresentation.ready(identity))&&graphics.notesBootCoverActive(state);},presentNotesBootCover,revokeNotesBootCoverCandidate:()=>graphics.revokeNotesBootCoverCandidate(),revokeHomeEntryFooterCandidate(){homeEntryFooterCandidate=undefined;homeEntryFooterReleaseCandidate=undefined;},revokeHomeEntryBannerCandidate(){homeEntryBannerCandidate=undefined;},revokeHomeEntryNoBannerCandidate(){homeEntryNoBannerCandidate=undefined;},dispose(){if(disposed)return;disposed=true;resetAppletEntry();appletPresentation.dispose();for(const canvas of appletCanvases)canvas.width=canvas.height=0;resetManualEntry();manualPresentation.dispose();for(const canvas of manualCanvases)canvas.width=canvas.height=0;panelFailure=undefined;panelPublished=null;folderCapture=undefined;layoutCapture=undefined;suspendedMetadata=undefined;resetHomeEntryMotion();homeEntryPresentation=createHomeEntryPresentation();homeEntryFooterCandidate=undefined;homeEntryFooterReleaseCandidate=undefined;homeEntryBannerCandidate=undefined;homeEntryNoBannerCandidate=undefined;applicationTransitionCapture=undefined;softwareDialogIcons=undefined;captureCanvas.width=captureCanvas.height=0;graphics.dispose();firmwareAssets?.dispose();fonts.delete(t);fonts.delete(b);setPortfolioFont(t);setPortfolioFont(b);},setReducedMotion(value:boolean){if(reduced!==value){revokeHomeEntryMotionCandidate();revokeManualEntryCandidate();revokeAppletEntryCandidate();}reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
 }

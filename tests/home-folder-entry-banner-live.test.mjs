@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import ts from 'typescript';
 import { createPortfolioState, reduceSystem, tickSystem } from '../src/os/system.ts';
 import { enterHomeFolder, selectHomeSlot } from '../src/os/home-navigation.ts';
-import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostView, resolveHomeBannerHostSelection } from '../src/os/home-banner-host.ts';
+import { createHomeBannerHost, crossHomeBannerBoundary, stepHomeBannerHost, getHomeBannerHostView, resolveHomeBannerHostSelection } from '../src/os/home-banner-host.ts';
 import { escapeUnreadyNativeScreen } from '../src/os/native-screen-system.ts';
 import { getHomeFolderIdentity } from '../src/os/home-folder-identity.ts';
 import { createNativeScreenInputGate } from '../src/os/native-screen-input.ts';
@@ -81,8 +81,71 @@ test('actual folder painter retains its source upper through FadeIn16, then hide
    assert.equal(banner(pair.events).args[0].visible,visible);assert.equal(banner(pair.events).args[0].scale,scale);
    assert.ok(!pair.events.some(e=>e.name==='default-banner'));assert.equal(screens.stockStatus(state),'loading');assert.equal(screens.homeEntryMotionActive(state),true);
   }
-  assert.equal(screens.presentHomeEntryMotion(pair.state),true);assert.equal(screens.stockStatus(state),'ready');
-  pair=paint(state,124);assert.ok(!banner(pair.events));assert.ok(pair.events.some(e=>e.name==='default-banner'));assert.equal(screens.homeEntryMotionActive(state),false);
+  assert.equal(screens.presentHomeEntryMotion(pair.state),true);assert.equal(screens.stockStatus(state),'loading');
+  pair=paint(state,124);assert.ok(!banner(pair.events));assert.ok(pair.events.some(e=>e.name==='default-banner'));assert.equal(screens.homeEntryMotionActive(state),false);assert.equal(screens.stockStatus(state),'ready');
+ });
+});
+
+test('real host defers child request and activation until source receipts, then grows a fresh native child without resets',async()=>{
+ for(const reduced of [false,true])await fixture(({screens,paint,setHost})=>{
+  const caller=root(),inputs={managerInhibited:false,sceneInhibited:false,loadInhibited:false,nativeWorkerReady:true,resourceReady:null};
+  let host=createHomeBannerHost({generation:'live-folder:1',updateCount:0},inputs);
+  host=crossHomeBannerBoundary(host,host.clock,{selection:resolveHomeBannerHostSelection(caller)});
+  host=crossHomeBannerBoundary(host,host.clock,{inputs:{...inputs,resourceReady:getHomeBannerHostView(host).resourceTicket}});
+  host=crossHomeBannerBoundary(host,{...host.clock,updateCount:100});setHost(getHomeBannerHostView(host));paint(caller,100);
+  let rootEpoch=getHomeBannerHostView(host).primary.activationEpoch,rootRequest=host.pending.requestEpoch;
+  let state=enterHomeFolder(caller,19);screens.setReducedMotion(reduced);
+  const advance=(count=3)=>{
+   for(let i=0;i<count;i++){
+    const selection=screens.homeFolderBannerRequestReady(state)?resolveHomeBannerHostSelection(state):undefined;
+    const ready={...host.inputs,activationReady:screens.homeEntryActivationReady(state)&&screens.homeFolderBannerActivationReady(state)};
+    host=stepHomeBannerHost(host,{...host.clock,updateCount:host.clock.updateCount+1},{beforeManager:{selection,inputs:ready}});
+    host=crossHomeBannerBoundary(host,host.clock,{selection,inputs:{...ready,resourceReady:getHomeBannerHostView(host).resourceTicket}});
+   }
+   setHost(getHomeBannerHostView(host));return host.clock.updateCount;
+  };
+  for(let cycle=0;cycle<2;cycle++){
+  const frames=reduced?[16]:Array.from({length:17},(_,i)=>i);
+  for(const frame of frames){
+   const pair=paint(state,advance(),frame!==16);assert.equal(lower(pair.events).folderFrame,frame);
+   assert.equal(host.selection.kind,'folder');assert.equal(host.pending.requestEpoch,rootRequest);
+   assert.equal(getHomeBannerHostView(host).primary.activationEpoch,rootEpoch);
+  }
+  advance(30);assert.equal(host.selection.kind,'folder','pending terminal is not a child request receipt');
+  paint(state,host.clock.updateCount,false);assert.equal(screens.presentHomeEntryMotion(at(state,host.clock.updateCount)),true);
+  assert.equal(screens.homeFolderBannerRequestReady(state),true);assert.equal(screens.homeFolderBannerActivationReady(state),false);
+  let pair;
+  do{
+   pair=paint(state,advance(),false);
+   assert.equal(host.selection.kind,'default');
+   assert.ok(!host.service.lifecycle.active||host.service.lifecycle.active.target.kind==='folder','no child instance or clips advance behind retained root');
+   if(banner(pair.events).args[0].visible)screens.presentHomeEntryMotion(pair.state);
+  }while(banner(pair.events).args[0].visible);
+  advance(30);assert.equal(host.service.stage,'loading');assert.equal(host.service.lifecycle.active,null);assert.equal(screens.stockStatus(state),'loading');
+  assert.equal(screens.homeFolderBannerActivationReady(state),false);
+  screens.revokeHomeEntryMotionCandidate();assert.equal(screens.homeFolderBannerRequestReady(state),false);
+  paint(state,advance(),false);assert.equal(host.service.lifecycle.active,null);
+  assert.equal(screens.presentHomeEntryMotion(at(state,host.clock.updateCount)),true);
+  for(let retry=0;!screens.homeFolderBannerActivationReady(state);retry++){
+   assert.ok(retry<3,'retry rebases the last receipt before finishing the native hide');
+   paint(state,advance());assert.equal(host.service.lifecycle.active,null);
+  }
+  assert.equal(screens.homeFolderBannerActivationReady(state),true);
+  pair=paint(state,advance());const child=getHomeBannerHostView(host).primary;
+  assert.equal(child.selection.kind,'default');assert.equal(child.activationEpoch,rootEpoch+1);
+  assert.equal(child.motion.visibilityCounter,3);assert.equal(child.motion.scale,.8999999761581421);
+  assert.equal(child.motion.skeletal.frame,3);assert.equal(child.motion.material.frame,3);
+  assert.ok(!banner(pair.events));assert.ok(pair.events.some(e=>e.name==='default-banner'));
+  assert.equal(screens.homeEntryMotionActive(state),false);assert.equal(screens.stockStatus(state),'ready');
+  advance();assert.equal(getHomeBannerHostView(host).primary.motion.scale,1);
+  if(cycle===0){
+   state=tickSystem(reduceSystem(at(state,host.clock.updateCount),'back',20000),21000);
+   assert.equal(state.opened,false);advance(20);
+   const returned=getHomeBannerHostView(host);assert.equal(returned.stage,'active');assert.equal(returned.primary.selection.kind,'folder');
+   paint(state,host.clock.updateCount);rootEpoch=returned.primary.activationEpoch;rootRequest=host.pending.requestEpoch;
+   state=enterHomeFolder(state,19);assert.equal(screens.homeFolderBannerRequestReady(state),false);assert.equal(screens.homeFolderBannerActivationReady(state),false);
+  }
+  }
  });
 });
 
@@ -162,7 +225,8 @@ test('folder input waits for the lower and native hide terminal receipts, then c
   for(let frame=1;frame<16;frame++)paint(state,101+frame);
   let pair=paint(state,117,false);assert.equal(screens.stockStatus(state),'loading');assert.equal(command('right'),'block');
   assert.equal(screens.presentHomeEntryMotion(pair.state),true);assert.equal(screens.stockStatus(state),'loading');assert.equal(command('right'),'block');
-  const hiddenAt=finishHide(state,paint,117);assert.equal(screens.stockStatus(state),'ready');assert.equal(command('right'),'pass');
+  const hiddenAt=finishHide(state,paint,117);assert.equal(screens.stockStatus(state),'loading');assert.equal(command('right'),'block');
+  paint(state,hiddenAt+1);assert.equal(screens.stockStatus(state),'ready');assert.equal(command('right'),'pass');
   const child=selectHomeSlot(pair.state,1);pair=paint(child,hiddenAt+1);assert.equal(screens.stockStatus(child),'ready');assert.equal(lower(pair.events).folderFrame,16);assert.ok(!banner(pair.events));
   const closing=reduceSystem(child,'back',7000);assert.equal(closing.system.homeFolderClose.nextTransitionId,child.system.homeFolderClose.nextTransitionId+1);
   const returned=tickSystem(closing,8000);assert.equal(returned.opened,false);
@@ -182,9 +246,9 @@ test('reduced motion publishes visible lower terminal and hidden endpoint separa
   pair=paint(state,102,false);assert.ok(banner(pair.events));assert.equal(screens.presentHomeEntryMotion(pair.state),true);
   assert.equal(screens.stockStatus(state),'loading');pair=paint(state,103,false);
   assert.equal(banner(pair.events).args[0].visible,false);assert.equal(banner(pair.events).args[1],undefined);assert.equal(screens.stockStatus(state),'loading');
-  assert.equal(screens.presentHomeEntryMotion(pair.state),true);assert.equal(screens.stockStatus(state),'ready');
+  assert.equal(screens.presentHomeEntryMotion(pair.state),true);assert.equal(screens.stockStatus(state),'loading');
   screens.setReducedMotion(false);pair=paint(state,104);assert.equal(lower(pair.events).folderFrame,16);assert.equal(banner(pair.events).args[0].visible,false);
-  pair=paint(state,105);assert.ok(!banner(pair.events));screens.dispose();assert.equal(screens.presentHomeEntryMotion(pair.state),false);
+  pair=paint(state,105);assert.ok(!banner(pair.events));assert.equal(screens.stockStatus(state),'ready');screens.dispose();assert.equal(screens.presentHomeEntryMotion(pair.state),false);
  });
 });
 
@@ -219,12 +283,39 @@ test('unready or failed child resources retain the terminal source, and a retarg
   const state=prepare(root(),setHost,paint);for(let frame=0;frame<=16;frame++)paint(state,101+frame);
   let update=finishHide(state,paint,117);
   const ready=activeView({kind:'default'});setHost({...ready,stage:'loading'});
-  let pair=paint(state,++update);assert.ok(banner(pair.events));assert.equal(lower(pair.events).folderFrame,16);
+  let pair=paint(state,++update);assert.ok(banner(pair.events));assert.equal(lower(pair.events).folderFrame,16);assert.equal(screens.stockStatus(state),'loading');
   setHost(ready);failDefault(true);paint(state,++update);assert.equal(screens.stockStatus(state),'error');assert.match(String(screens.stockFailure()),/child banner unavailable/);
   failDefault(false);screens.retryStockScreen();pair=paint(state,++update);assert.ok(banner(pair.events));
   pair=paint(state,++update,false);assert.ok(!banner(pair.events));setHost(activeView({kind:'default'},'folder-entry:2'));
-  assert.equal(screens.presentHomeEntryMotion(pair.state),false);pair=paint(state,++update);assert.ok(banner(pair.events));
-  pair=paint(state,++update);assert.ok(!banner(pair.events));screens.revokeHomeEntryMotionCandidate();pair=paint(state,++update);assert.ok(!banner(pair.events));
+  assert.equal(screens.presentHomeEntryMotion(pair.state),false);assert.equal(screens.stockStatus(state),'loading');pair=paint(state,++update);assert.ok(banner(pair.events));
+  pair=paint(state,++update);assert.ok(!banner(pair.events));assert.equal(screens.stockStatus(state),'ready');screens.revokeHomeEntryMotionCandidate();pair=paint(state,++update);assert.ok(!banner(pair.events));
+ });
+});
+
+test('acknowledged hidden root cannot release or authorize a rapid recovery re-entry before a child pair receipt',async()=>{
+ await fixture(({screens,paint,setHost})=>{
+  const state=prepare(root(),setHost,paint);screens.setReducedMotion(true);paint(state,101);paint(state,102);
+  assert.equal(screens.homeFolderBannerRequestReady(state),true);assert.equal(screens.homeFolderBannerActivationReady(state),true);
+  assert.equal(screens.stockStatus(state),'loading');
+  const pending=paint(state,103,false),escaped=escapeUnreadyNativeScreen(pending.state,7000),reentered=enterHomeFolder(escaped,19);
+  assert.equal(screens.homeFolderBannerRequestReady(reentered),false);assert.equal(screens.homeFolderBannerActivationReady(reentered),false);
+  assert.equal(screens.presentHomeEntryMotion(at(reentered,104)),false);
+  paint(reentered,104);assert.equal(screens.stockStatus(reentered),'error');assert.match(String(screens.stockFailure()),/matching presented root banner/);
+ });
+});
+
+test('folder host gates leave root policy unchanged and reject sleep, failures and firmware replacement',async()=>{
+ await fixture(({screens,paint,setHost,fail,assets})=>{
+  const caller=root(),state=prepare(caller,setHost,paint);
+  assert.equal(screens.homeFolderBannerRequestReady(caller),true);assert.equal(screens.homeFolderBannerActivationReady(caller),true);
+  screens.setReducedMotion(true);paint(state,101);paint(state,102);
+  for(const hidden of [{...state,system:{...state.system,sleeping:true}},{...state,powered:false},{...state,panel:'settings'}]){
+   assert.equal(screens.homeFolderBannerRequestReady(hidden),false);assert.equal(screens.homeFolderBannerActivationReady(hidden),false);
+  }
+  fail(true);screens.revokeHomeEntryMotionCandidate();paint(state,103);assert.equal(screens.stockStatus(state),'error');
+  assert.equal(screens.homeFolderBannerRequestReady(state),false);assert.equal(screens.homeFolderBannerActivationReady(state),false);
+  fail(false);screens.retryStockScreen();paint(state,104);assert.equal(screens.homeFolderBannerActivationReady(state),true);
+  screens.setFirmwareAssets(assets());assert.equal(screens.homeFolderBannerRequestReady(state),false);assert.equal(screens.homeFolderBannerActivationReady(state),false);
  });
 });
 

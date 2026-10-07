@@ -94,14 +94,17 @@ test('folder, application and generation replacements reject retained entry sour
  }
 });
 
-test('entry consumes only the immediately preceding root revision; child revisions are free after terminal but close identity is not',()=>{
+test('entry consumes only the immediately preceding root revision; child revisions are free only after child publication',()=>{
  const candidate=source().source,session=createHomeFolderEntryBanner();session.presentRoot(candidate,rootOwner);
  assert.throws(()=>session.sample({...owner,navigationRevision:owner.navigationRevision+2},motion(0)),/matching presented root banner/);
  const terminal=reducedHiddenCandidate(session);assert.equal(session.complete(owner),false);
  assert.equal(session.present(terminal,{...owner,navigationRevision:owner.navigationRevision+2},motion(16)),false);
  assert.equal(session.present(terminal,owner,motion(16)),true);assert.equal(session.complete(owner),true);
- const child={...owner,navigationRevision:owner.navigationRevision+1};assert.equal(session.sample(child,motion(17)),null);
- session.revoke();const resumed=session.sample(child,motion(16));assert.equal(session.present(resumed,child,motion(16)),true);
+ const child={...owner,navigationRevision:owner.navigationRevision+1};assert.equal(session.complete(child),false);
+ assert.equal(session.requestReady(child),false);assert.equal(session.activationReady(child),false);
+ assert.throws(()=>session.sample(child,motion(17)),/matching presented root banner/);
+ const release=session.sampleRelease(owner);session.presentRelease(release,owner);
+ assert.equal(session.sample(child,motion(17)),null);
  assert.equal(session.complete({...child,closeSequence:2}),false);
  assert.throws(()=>session.sample({...child,closeSequence:2},motion(0)),/matching presented root banner/);
 });
@@ -136,4 +139,26 @@ test('normal hide cannot start from an unacknowledged lower endpoint or spend in
  const failed=session.sample(owner,motion(18));session.revoke();assert.equal(session.present(failed,owner,motion(18)),false);
  const resumed=session.sample(owner,motion(17));assert.deepEqual(resumed.primary.motion,hiding.primary.motion);
  session.present(resumed,owner,motion(17));const next=session.sample(owner,motion(18));assert.deepEqual(next.primary.motion,failed.primary.motion);
+});
+
+test('child request and activation gates require distinct same-owner receipts and a valid rebase',()=>{
+ const session=createHomeFolderEntryBanner();
+ assert.equal(session.requestReady(owner),false);assert.equal(session.activationReady(owner),false);
+ session.presentRoot(source().source,rootOwner);
+ const lower=session.sample(owner,motion(16));
+ assert.equal(session.requestReady(owner),false);assert.equal(session.activationReady(owner),false);
+ session.present(lower,owner,motion(16));
+ assert.equal(session.requestReady(owner),true);assert.equal(session.activationReady(owner),false);
+ for(const next of [{...owner,firmwareGeneration:2},{...owner,systemGeneration:2},{...owner,application:'camera:1'},
+  {...owner,navigationRevision:7},{...owner,closeSequence:2}]){
+  assert.equal(session.requestReady(next),false);assert.equal(session.activationReady(next),false);
+ }
+ session.revoke();assert.equal(session.requestReady(owner),false);assert.equal(session.activationReady(owner),false);
+ session.present(session.sample(owner,motion(16)),owner,motion(16));
+ finishHide(session);assert.equal(session.requestReady(owner),true);assert.equal(session.activationReady(owner),true);
+ session.revoke();assert.equal(session.requestReady(owner),false);assert.equal(session.activationReady(owner),false);
+ session.present(session.sample(owner,motion(21)),owner,motion(21));
+ const release=session.sampleRelease(owner);session.presentRelease(release,owner);
+ assert.equal(session.requestReady({...owner,navigationRevision:6}),true);assert.equal(session.activationReady({...owner,navigationRevision:6}),true);
+ session.reset();assert.equal(session.requestReady(owner),false);assert.equal(session.activationReady(owner),false);
 });

@@ -79,9 +79,17 @@ export function createHomeFolderEntryBanner() {
   let release: HomeFolderEntryBannerRelease | null = null, releasedOwner: HomeFolderEntryBannerOwner | null = null;
   const revoke = () => { ticket++; pending = null; release = null; rebase = true; };
   const complete = (owner: HomeFolderEntryBannerOwner | null) => !disposed && (sameScope(releasedOwner, owner)
-    || sameScope(entry?.owner ?? null, owner) && presented?.phase === 'hidden' && !presented.primary.motion.visible);
+    || sameOwner(entry?.owner ?? null, owner) && presented?.phase === 'hidden' && !presented.primary.motion.visible);
   return {
     complete,
+    requestReady(owner: HomeFolderEntryBannerOwner | null): boolean {
+      return !disposed && (sameScope(releasedOwner, owner) || !rebase && !!presented
+        && presented.elapsedUpdates >= HOME_FOLDER_ENTRY_LAST_FRAME
+        && sameOwner(entry?.owner ?? null, owner));
+    },
+    activationReady(owner: HomeFolderEntryBannerOwner | null): boolean {
+      return !disposed && (sameScope(releasedOwner, owner) || !rebase && complete(owner));
+    },
     active(owner: HomeFolderEntryBannerOwner | null): boolean {
       return !disposed && !sameScope(releasedOwner, owner) && sameScope(entry?.owner ?? source?.owner ?? null, owner);
     },

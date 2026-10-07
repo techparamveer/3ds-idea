@@ -487,3 +487,114 @@ pose, actual hidden endpoint and first-child paired receipts. Keep empty-mask
 diffs and inspected sheets; AN-03 remains **fail** until residuals are explained.
 Audio stays muted/unaccepted; all prior font/transport/viewport/portfolio and
 early child-host request adaptations remain explicit and unchanged.
+
+## AN-03 Child Host Ordering Follow-up
+
+Base: reviewed worker `33a67ee0bce273edd21c750110a01c1284c91a50`, integrated by
+the coordinator as `05f16ed`. Git wins over inherited STATUS; its preexisting
+coordinator-authored dirty SHA remains untouched and unstaged. Coordinator HEAD
+at delivery preparation is `18d3fa32aabb80b25bc3155912737c2152ed30b9`, including
+the independent applet work. This worker does not cherry-pick or redeliver that
+work. This section supersedes the earlier early-child-request adaptation and
+hidden-receipt-only input boundary; prior evidence is preserved as history.
+
+### Captured Defect and Source
+
+The coordinator inspected runtime `05f16ed` at
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/integrated-05f16ed/folder-native-tile/repeat-terminal-hide-sheet.png`,
+SHA-256 `f9c249e7564df4e48afcf12dd500705b46a66f840f10c23d831e682b3b3e5fa2`.
+Root shrink is now present, but repeat1 index27 at692.8ms reveals the child already
+fully scaled and advanced immediately after hidden index26 at671.9ms. Capture
+JSON SHA-256 is `3a65ee51eeb77c2391082419a163b14dd3f0236df57ea9a44901aa896a1ea4d3`.
+Index27 raw upper is `d401986f796f1dabfcdb9d485fffe65789a2e78337424882c8fc98e74f557cf7`,
+lower `73f40b9bb630aedda8713a2567d9da0d1929ac9c21e3c4225d04603db8c2145c`;
+its hosted default primary is visibility scale1, skeletal/material frame21.
+The unchanged native continuous sequence has root full at13.702, shrinking at
+14.196, removed at14.657, then later child growth. No new pixel diff or timing
+acceptance is inferred from these sparse slow-speed samples. No worker GUI,
+capture, private evidence update or screenshot-derived geometry was used.
+
+One bounded read of the existing pinned disassembly confirmed the ordering
+already identified above: `0x29b954` establishes r5=r4+e30;
+`0x29b9bc..0x29b9cc` returns while that object's +14 status is1 or2. The successful
+path requests mode0 via `0x1e8f38` at `0x29bb54..0x29bb5c`; the mode0 selection/host
+preparation calls refresh `0x1e0f44` at `0x29a4dc`. This is child refresh downstream
+of lower-controller completion, not an independent check of two controllers,
+nor proof that browser lower16/hidden receipts equal native caller epochs.
+Code/disassembly SHA-256 and HOME title/version/content identities in the prior
+sections are unchanged. All visible elements still use the same mapped folder,
+default, Frame, label, lower capture/FadeIn, wallpaper and HUD resources and
+`ctr-cgfx-web`1.3.0 converter; no asset, visual producer, curve or cue was added.
+
+### Narrow Wiring Contract
+
+`createHomeFolderEntryBanner` now exposes `requestReady(owner)` after the same
+entry's valid lower16 receipt, and `activationReady(owner)` only after its valid
+actual-hidden receipt. Both reject a retained source in rebase, missing source,
+replacement firmware/application/System/close sequence and foreign navigation.
+Once the first child pair is acknowledged, ordinary child cursor revisions remain
+free. Before that release, even an acknowledged hidden source requires the exact
+entry revision: loading B/HOME escape does not allocate the normal close sequence,
+so rapid Back/re-entry without a new presented root cannot reuse that endpoint.
+
+The folder-only screen forwarders are `homeFolderBannerRequestReady(state)` and
+`homeFolderBannerActivationReady(state)`. Root/nonfolder behavior is unchanged;
+opened-folder eligibility, panel failure and disposal remain guarded. The scene's
+`observeFolderBanner` selection boundary and `advanceBeforeMutation` before/after
+manager observations use the request gate. Once it opens, the observer resolves
+the current child even if the original entry selection observation was withheld.
+Activation combines the new folder gate with the existing `homeEntryActivationReady`
+instead of replacing it. The original Host request, resource ticket, hide, worker
+wait, loading, activation, manager and clip sequencing remain untouched. No reset,
+new target/controller, guessed duration, counter override or host-clock rewrite
+was introduced. A child instance therefore cannot run its clips behind the
+retained visible root; it is activated by its original producer after hidden
+publication, and grows from that producer's original activation.
+
+The tiny folder-only `stockStatus` clause stays loading while the retained session
+is active, including hidden root and pending/unready child. Only the existing
+matching successful child draw plus paired WebGL release receipt makes it ready.
+Failure retains priority; B/HOME/power recovery remains available. Failed, foreign
+or unpresented child paints cannot release input. This clause is separate from
+the applet worker's stock source-readiness quarantine. Shared changes were
+coordinated: folder query return properties and only those host-boundary lines;
+the coordinator must retain both workers' return properties/activation factors
+and both independent `stockStatus` guards during sequential integration.
+
+### Checks and Open Acceptance
+
+Selected verification is the prior16-file command plus
+`tests/home-folder-entry-host-scene-policy.test.mjs`. Result: **372 pass, 0 fail,
+0 skip, 0 TODO**. Nonincremental typecheck, `git diff --check` and handoff relative
+links pass. Dependencies were reused read-only; no full suite, production build,
+server or GUI was run. Real `HomeBannerHost` plus actual screen composition tests
+cover normal/reduced two-cycle re-entry, three native host passes per LCD paint,
+unacknowledged lower/hidden endpoints, monotonic context/Retry rebase, original
+child activation and initial growth without resets. Focused helper/painter tests
+reject missing, foreign, failed and firmware-replaced readiness, stale child
+receipts and rapid recovery re-entry without an intervening root paint. Hidden
+loading input stays quarantined until child receipt; ordinary post-release input,
+Back and root policy remain covered. Static scene checks bind these tested gates
+to all live request/activation boundaries.
+
+The **lower16 receipt -> child request**, **hidden receipt -> activation** and
+**first child receipt -> input readiness** boundaries are browser presentation
+adaptations, supported by native ordering but not recovered native epochs. The
+retained root still takes one native producer pass per eligible receipt. The
+fresh child uses the unchanged native Host's HOME-update scheduling; with three
+updates between LCD paints, tests observe its original counter3/scale0.9/frame3
+first pair then scale1, not guaranteed capture of every source pose. There is no
+new timing, cadence or render-budget claim. Reduced mode still separately
+publishes visible lower16 and actual hidden endpoints, then lets the original
+host activate the child; it does not synthesize receipts or restart that producer.
+Existing font/transport/viewport/portfolio differences and muted audio remain.
+
+Integrate only this new follow-up commit atop the coordinator's existing folder
+chain, retaining the disjoint applet wiring. Run full checks and matched normal/
+reduced desktop/mobile recaptures, including repeated entry, early B/HOME and
+context/recovery. Keep chronological lower terminal, every upper hide, hidden and
+first child receipts plus current native ownPNGs, empty-mask raw LCD diffs and
+inspected sheets. Source ordering is identified and this correction is implemented
+and tested; new browser inspection/native comparison remains coordinator-owned.
+AN-03 stays **fail** until the active child-growth mismatch and prior residuals
+are explained. Exact native phase/duration/clock alignment and audio remain open.

@@ -270,7 +270,8 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   let lastBootPaintIdentity:BootTerminalIdentity|null=null,lastBootPresentedIdentity:BootTerminalIdentity|null=null;
   let lastLaunchPaintIdentity:LaunchTerminalIdentity|null=null,lastLaunchPresentedIdentity:LaunchTerminalIdentity|null=null;
   let lastShutdownPaintIdentity:ShutdownTerminalIdentity|null=null,lastShutdownPresentedIdentity:ShutdownTerminalIdentity|null=null;
-  const revokeTerminalPublications=()=>{lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastLaunchPaintIdentity=null;lastLaunchPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;screens.revokeHomeEntryFooterCandidate();screens.revokeHomeEntryBannerCandidate();screens.revokeHomeEntryNoBannerCandidate();screens.revokeHomeEntryMotionCandidate();screens.revokeNotesBootCoverCandidate();};
+  let entryPublicationRepaintPending=false;
+  const revokeTerminalPublications=()=>{entryPublicationRepaintPending=true;lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastLaunchPaintIdentity=null;lastLaunchPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;screens.revokeHomeEntryFooterCandidate();screens.revokeHomeEntryBannerCandidate();screens.revokeHomeEntryNoBannerCandidate();screens.revokeHomeEntryMotionCandidate();screens.revokeNotesBootCoverCandidate();};
   function recordScreenPaint(elapsedMs:number,nativeSystem=false,entryMotion?:NonNullable<ReturnType<typeof screens.paint>>['entryMotion']){
     const system=state.system!;lastBootPaintFrame=system.phase==='boot'?bootRevealFrame(elapsedMs-system.since,reduced):null;
     lastBootPaintIdentity=nativeSystem?bootTerminalIdentity(system,elapsedMs,reduced,contextGeneration):null;
@@ -557,13 +558,16 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     host.dataset.targets=JSON.stringify(targets);projectedTargetWidth=width;projectedTargetHeight=height;
   }
   function renderFrame(){
+    if(renderer.getContext().isContextLost()){revokeTerminalPublications();return;}
+    if(entryPublicationRepaintPending&&!document.hidden&&state.powered&&!state.system!.sleeping&&angle>12&&topScreen.visible&&touchScreen.visible){paintScreens(performance.now());entryPublicationRepaintPending=false;}
     const sample=poseSample(),plan=schedule.plan(sample);
     if(plan.shadows)renderer.shadowMap.needsUpdate=true;
     scene.updateMatrixWorld(true);fitConsole();camera.updateProjectionMatrix();publishProjectedTargets(plan.shadows);
-    renderer.render(scene,camera);frame++;schedule.presented(sample);lastBootPresentedFrame=lastBootPaintFrame;
+    try{renderer.render(scene,camera);}catch(error){entryPublicationRepaintPending=true;screens.revokeHomeEntryMotionCandidate();screens.revokeNotesBootCoverCandidate();throw error;}
+    frame++;schedule.presented(sample);lastBootPresentedFrame=lastBootPaintFrame;
     const validPublication=!document.hidden&&state.powered&&!state.system!.sleeping&&angle>12&&topScreen.visible&&touchScreen.visible&&!renderer.getContext().isContextLost();
     if(validPublication){screens.presentHomeEntryFooterTerminal();screens.presentHomeEntryFooterRelease();screens.presentHomeEntryBanner();screens.presentHomeEntryWithoutNativeBanner();screens.presentHomeEntryMotion(state);screens.presentNotesBootCover(state);}
-    else{screens.revokeHomeEntryFooterCandidate();screens.revokeHomeEntryBannerCandidate();screens.revokeHomeEntryNoBannerCandidate();screens.revokeHomeEntryMotionCandidate();screens.revokeNotesBootCoverCandidate();}
+    else{entryPublicationRepaintPending=true;screens.revokeHomeEntryFooterCandidate();screens.revokeHomeEntryBannerCandidate();screens.revokeHomeEntryNoBannerCandidate();screens.revokeHomeEntryMotionCandidate();screens.revokeNotesBootCoverCandidate();}
     lastBootPresentedIdentity=validPublication?lastBootPaintIdentity:null;
     lastLaunchPresentedIdentity=validPublication?lastLaunchPaintIdentity:null;
     lastShutdownPresentedIdentity=validPublication?lastShutdownPaintIdentity:null;

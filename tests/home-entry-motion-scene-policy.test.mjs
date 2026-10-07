@@ -18,6 +18,15 @@ test('context and hidden revocation include the new paired candidates', () => {
   assert.match(scene, /if\(document\.hidden\)\{homeClockSuspended=true;blur\(\);revokeTerminalPublications\(\);/);
 });
 
+test('a restored context repaints and rearms before its first valid render, and failed render revokes candidates', () => {
+  assert.match(scene, /const revokeTerminalPublications=\(\)=>\{entryPublicationRepaintPending=true;/);
+  assert.match(render, /if\(renderer\.getContext\(\)\.isContextLost\(\)\)\{revokeTerminalPublications\(\);return;\}/);
+  const repaint=render.indexOf('paintScreens(performance.now());entryPublicationRepaintPending=false;');
+  assert.ok(repaint>0&&repaint<render.indexOf('renderer.render(scene,camera)'));
+  assert.match(render, /if\(entryPublicationRepaintPending&&!document\.hidden&&state\.powered&&!state\.system!\.sleeping&&angle>12&&topScreen\.visible&&touchScreen\.visible\)/);
+  assert.match(render, /catch\(error\)\{entryPublicationRepaintPending=true;screens\.revokeHomeEntryMotionCandidate\(\);screens\.revokeNotesBootCoverCandidate\(\);throw error;\}/);
+});
+
 test('eligible HOME and Notes motion share the existing transition LCD budget', () => {
   assert.match(scene, /const entryActive=state\.powered&&angle>12&&!homeClockSuspended&&!document\.hidden&&!state\.system!\.sleeping&&topScreen\.visible&&touchScreen\.visible&&!renderer\.getContext\(\)\.isContextLost\(\)\s*&&\(screens\.homeEntryMotionActive\(state\)\|\|screens\.notesBootCoverActive\(state\)\);/);
   assert.match(scene, /const lcdFps=screenPaintFps\(quality,closeAdvanced\|\|entryActive\);/);

@@ -37,8 +37,11 @@ export function homeEntryMotionActive(motion: HomeEntryMotion | null, reduced = 
 
 /** A successful Canvas pair stays selected until its render receipt. */
 export function sampleHomeEntryMotionCandidate(presented: HomeEntryMotion | null, pending: HomeEntryMotion | null,
-  identity: HomeEntryMotionIdentity | null, updateCount: number, eligible: boolean): HomeEntryMotion | null {
-  const sample = sampleHomeEntryMotion(presented, identity, updateCount, eligible);
+  identity: HomeEntryMotionIdentity | null, updateCount: number, eligible: boolean,
+  rebase = false, reduced = false): HomeEntryMotion | null {
+  const sample = sampleHomeEntryMotion(presented, identity, updateCount, eligible && !(rebase && homeEntryMotionMatches(presented, identity)));
+  if (sample && eligible && reduced) return Object.freeze({ ...sample, elapsedUpdates: sample.identity.kind === 'folder'
+    ? HOME_FOLDER_ENTRY_LAST_FRAME : HOME_PAUSE_ENTRY_LAST_FRAME });
   return homeEntryMotionMatches(pending, identity) ? pending : sample;
 }
 
@@ -51,7 +54,7 @@ export function acknowledgeHomeEntryMotionCandidate(candidate: HomeEntryMotion |
 }
 
 /** Samples the existing HOME clock. First successful live pair owns frame zero;
- * one eligible HOME update per source frame is a host scheduling adaptation. */
+ * At most one source step per receipt is a browser scheduling adaptation. */
 export function sampleHomeEntryMotion(current: HomeEntryMotion | null,
   identity: HomeEntryMotionIdentity | null, updateCount: number, eligible: boolean): HomeEntryMotion | null {
   if (!Number.isSafeInteger(updateCount) || updateCount < 0) throw new RangeError('Invalid HOME entry-motion update count');
@@ -68,7 +71,7 @@ export function sampleHomeEntryMotion(current: HomeEntryMotion | null,
   if (updateCount === current.observedUpdate) return current;
   const updates = updateCount - current.observedUpdate;
   return Object.freeze({ ...current, observedUpdate: updateCount,
-    elapsedUpdates: current.elapsedUpdates + (eligible && updates <= HOME_ENTRY_MAX_OBSERVED_UPDATE_GAP ? updates : 0) });
+    elapsedUpdates: current.elapsedUpdates + (eligible && updates <= HOME_ENTRY_MAX_OBSERVED_UPDATE_GAP ? 1 : 0) });
 }
 
 export function homeFolderEntryPose(motion: HomeEntryMotion | null, reduced = false): HomeFolderEntryPose | null {

@@ -1068,18 +1068,18 @@ test('live folder entry shares source poses across capture, chrome and both chil
  await withScreens(({screens,paint,events})=>{
   const pose=()=>events.find(event=>event.name==='folderChrome').args.at(-1);
   paint(at(100));assert.deepEqual(pose(),{folderFrame:0,captureFrame:0});
-  paint(at(105));assert.deepEqual(pose(),{folderFrame:5,captureFrame:5});
+  paint(at(105));assert.deepEqual(pose(),{folderFrame:1,captureFrame:1});
   assert.deepEqual(events.find(event=>event.name==='folderBackdrop').args.at(-1),pose());
   const children=events.filter(event=>event.name==='entry-child');
   assert.ok(children.some(event=>event.args[1]===true)&&children.some(event=>event.args[1]===false));
   assert.ok(children.every(event=>JSON.stringify(event.args[0])===JSON.stringify(pose())));
-  paint(at(105));assert.deepEqual(pose(),{folderFrame:5,captureFrame:5});
-  screens.paint(at(115),new Date(0),1200,{homeCursorLoopFrame:0});
-  paint(at(106));assert.deepEqual(pose(),{folderFrame:6,captureFrame:6},'diagnostic paint does not replace the live observation');
-  for(const update of [109,112,115,118,120])paint(at(update));
+  paint(at(105));assert.deepEqual(pose(),{folderFrame:1,captureFrame:1});
+  screens.paint(at(106),new Date(0),1200,{homeCursorLoopFrame:0});
+  paint(at(107));assert.deepEqual(pose(),{folderFrame:1,captureFrame:1},'first pair after diagnostic pixels rebases the last receipt');
+  for(let update=108;update<=122;update++)paint(at(update));
   assert.deepEqual(pose(),{folderFrame:16,captureFrame:8});
-  paint({...root,system:{...root.system,homeClock:{...root.system.homeClock,updateCount:121}}});
-  paint(at(122));assert.deepEqual(pose(),{folderFrame:0,captureFrame:0},'re-entry restarts the source clips');
+  paint({...root,system:{...root.system,homeClock:{...root.system.homeClock,updateCount:123}}});
+  paint(at(124));assert.deepEqual(pose(),{folderFrame:0,captureFrame:0},'re-entry restarts the source clips');
  },{presenterPatch:{folderChild(ctx,_state,empty,draw,_reduced,entry){ctx.record('entry-child',[entry,empty]);draw(1);}}});
 });
 
@@ -1092,32 +1092,34 @@ test('live HOME suspension binds AppPause from the complete capture and keeps fa
   paint(at(100));assert.equal(frame(),0);assert.equal(screens.stockStatus(at(100)),'error');
   fail=false;screens.retryStockScreen();
   paint(at(104));assert.equal(frame(),0,'failed paired paint did not acquire the pause origin');
-  paint(at(109));assert.equal(frame(),5);
-  screens.paint(at(120),new Date(0),1200,{homeCursorLoopFrame:0});
-  paint(at(110));assert.equal(frame(),6,'diagnostic paint did not advance live motion');
-  for(const update of [113,116,119,122,125,128,130])paint(at(update));
+  paint(at(109));assert.equal(frame(),1);
+  screens.paint(at(110),new Date(0),1200,{homeCursorLoopFrame:0});
+  paint(at(111));assert.equal(frame(),1,'diagnostic pixels require a rebase receipt');
+  for(let update=112;update<=130;update++)paint(at(update));
   assert.equal(frame(),20);
  },{screenOptions:{drawSuspendedBackground(ctx,_capture,presentation){ctx.record('pause-backdrop',[presentation]);return !fail;}}});
 });
 
-test('mid-entry folder stalls retain the last paired pose and failure or diagnostic paints cannot rebase it',async()=>{
+test('mid-entry folder brief failures and stalls discard pending pixels and rebase with a monotonic clock',async()=>{
  const base=home(),root={...base,folders:{19:'Folder'}},entered=enterHomeFolder(root,19);
  const at=updateCount=>({...entered,system:{...entered.system,homeClock:{...entered.system.homeClock,updateCount}}});
  let fail=false;
  await withScreens(({screens,paint,events})=>{
   const pose=()=>events.find(event=>event.name==='folderChrome').args.at(-1);
-  paint(at(100));paint(at(103));assert.deepEqual(pose(),{folderFrame:3,captureFrame:3});
+  paint(at(100));paint(at(103));assert.deepEqual(pose(),{folderFrame:1,captureFrame:1});
   fail=true;paint(at(107));assert.equal(screens.stockStatus(at(107)),'error');fail=false;screens.retryStockScreen();
-  paint(at(104));assert.deepEqual(pose(),{folderFrame:4,captureFrame:4},'failed pair cannot advance or rebase the live observation');
-  fail=true;paint(at(499));assert.equal(screens.stockStatus(at(499)),'error');fail=false;screens.retryStockScreen();
-  paint(at(105));assert.deepEqual(pose(),{folderFrame:5,captureFrame:5},'failed stalled pair cannot commit its rebase');
-  paint(at(500));assert.deepEqual(pose(),{folderFrame:5,captureFrame:5},'large live jump retains the last visible midpoint');
-  paint(at(500));assert.deepEqual(pose(),{folderFrame:5,captureFrame:5},'same update repeats the same pose');
-  paint(at(503));assert.deepEqual(pose(),{folderFrame:8,captureFrame:8});
+  paint(at(108));assert.deepEqual(pose(),{folderFrame:1,captureFrame:1},'a five-update monotonic failure/retry gap is not animation work');
+  paint(at(109));assert.deepEqual(pose(),{folderFrame:2,captureFrame:2});
+  fail=true;paint(at(110));assert.equal(screens.stockStatus(at(110)),'error');fail=false;screens.retryStockScreen();
+  paint(at(111));assert.deepEqual(pose(),{folderFrame:2,captureFrame:2},'brief retry also rebases without spending phase');
+  paint(at(500));assert.deepEqual(pose(),{folderFrame:2,captureFrame:2},'large live jump retains the last visible midpoint');
+  paint(at(500));assert.deepEqual(pose(),{folderFrame:2,captureFrame:2},'same update repeats the same pose');
+  paint(at(503));assert.deepEqual(pose(),{folderFrame:3,captureFrame:3});
   screens.paint(at(3000),new Date(0),1200,{homeCursorLoopFrame:0});
-  paint(at(504));assert.deepEqual(pose(),{folderFrame:9,captureFrame:8},'diagnostic stall cannot commit its rebase');
-  paint({...root,system:{...root.system,homeClock:{...root.system.homeClock,updateCount:505}}});
-  paint(at(506));assert.deepEqual(pose(),{folderFrame:0,captureFrame:0},'leaving and repeating binds a fresh entry');
+  paint(at(3001));assert.deepEqual(pose(),{folderFrame:3,captureFrame:3},'diagnostic interval is not backfilled');
+  paint(at(3002));assert.deepEqual(pose(),{folderFrame:4,captureFrame:4});
+  paint({...root,system:{...root.system,homeClock:{...root.system.homeClock,updateCount:3003}}});
+  paint(at(3004));assert.deepEqual(pose(),{folderFrame:0,captureFrame:0},'leaving and repeating binds a fresh entry');
  },{presenterPatch:{folderChrome(ctx,...args){ctx.record('folderChrome',args);if(fail)throw Error('folder entry fixture failure');return true;}}});
 });
 
@@ -1127,16 +1129,17 @@ test('mid-entry HOME pause stalls retain the complete capture pose through faile
  let fail=false;
  await withScreens(({screens,paint,events})=>{
   const frame=()=>events.find(event=>event.name==='pause-backdrop').args[0].material[0].frame;
-  paint(at(100));paint(at(103));assert.equal(frame(),3);
+  paint(at(100));paint(at(103));assert.equal(frame(),1);
   fail=true;paint(at(107));assert.equal(screens.stockStatus(at(107)),'error');
-  fail=false;screens.retryStockScreen();paint(at(104));assert.equal(frame(),4,'failed source pair cannot commit a midpoint advance');
-  fail=true;paint(at(999));assert.equal(screens.stockStatus(at(999)),'error');
-  fail=false;screens.retryStockScreen();paint(at(105));assert.equal(frame(),5,'failed stalled pair cannot commit its rebase');
+  fail=false;screens.retryStockScreen();paint(at(108));assert.equal(frame(),1,'monotonic short failure gap cannot commit a midpoint advance');
+  paint(at(109));assert.equal(frame(),2);
+  fail=true;paint(at(110));assert.equal(screens.stockStatus(at(110)),'error');
+  fail=false;screens.retryStockScreen();paint(at(111));assert.equal(frame(),2,'brief failed pair cannot spend a source update');
   screens.paint(at(3000),new Date(0),1200,{homeCursorLoopFrame:0});
-  paint(at(106));assert.equal(frame(),6,'diagnostic stall cannot rebase the live clock');
-  paint(at(1000));assert.equal(frame(),6,'live stall retains, rather than clears or settles, AppPause');
-  paint(at(1000));assert.equal(frame(),6);
-  paint(at(1003));assert.equal(frame(),9,'normal three-update sampling resumes after the successful rebase');
+  paint(at(3001));assert.equal(frame(),2,'diagnostic interval rebases at the next valid receipt');
+  paint(at(4000));assert.equal(frame(),2,'live stall retains, rather than clears or settles, AppPause');
+  paint(at(4000));assert.equal(frame(),2);
+  paint(at(4003));assert.equal(frame(),3,'normal multi-update sampling spends only one source step');
  },{screenOptions:{drawSuspendedBackground(ctx,_capture,presentation){ctx.record('pause-backdrop',[presentation]);return !fail;}}});
 });
 
@@ -1151,15 +1154,15 @@ test('folder entry keeps frame zero and terminal pairs pending until matching re
   assert.equal(screens.homeEntryMotionPublicationPending(),true);
   assert.equal(screens.presentHomeEntryMotion(at(500)),true);
   assert.equal(screens.presentHomeEntryMotion(at(500)),false,'receipt is one-shot');
-  paint(at(503),1000,false);assert.deepEqual(pose(),{folderFrame:3,captureFrame:3});
+  paint(at(503),1000,false);assert.deepEqual(pose(),{folderFrame:1,captureFrame:1});
   screens.revokeHomeEntryMotionCandidate();assert.equal(screens.presentHomeEntryMotion(at(503)),false);
-  paint(at(900),1000,false);assert.deepEqual(pose(),{folderFrame:3,captureFrame:3},'revocation retains the unpresented source pose');
-  assert.equal(screens.presentHomeEntryMotion({...at(900),system:{...at(900).system,sleeping:true}}),false);
-  paint(at(903),1000,false);assert.deepEqual(pose(),{folderFrame:3,captureFrame:3});
-  assert.equal(screens.presentHomeEntryMotion(at(903)),true);
-  for(const update of [906,909,912,915])paint(at(update));
-  paint(at(918),1000,false);assert.deepEqual(pose(),{folderFrame:16,captureFrame:8});
-  assert.equal(screens.homeEntryMotionActive(at(918)),true,'terminal remains active until render receipt');
+  paint(at(505),1000,false);assert.deepEqual(pose(),{folderFrame:0,captureFrame:0},'brief revocation drops the unpresented pose');
+  assert.equal(screens.presentHomeEntryMotion({...at(505),system:{...at(505).system,sleeping:true}}),false);
+  paint(at(506),1000,false);assert.deepEqual(pose(),{folderFrame:0,captureFrame:0});
+  assert.equal(screens.presentHomeEntryMotion(at(506)),true);
+  for(let update=507;update<=521;update++)paint(at(update));
+  paint(at(522),1000,false);assert.deepEqual(pose(),{folderFrame:16,captureFrame:8});
+  assert.equal(screens.homeEntryMotionActive(at(522)),true,'terminal remains active until render receipt');
   paint(at(1000),1000,false);assert.deepEqual(pose(),{folderFrame:16,captureFrame:8});
   assert.equal(screens.presentHomeEntryMotion(at(1000)),true);
   assert.equal(screens.homeEntryMotionActive(at(1000)),false,'settled entry releases transition cadence');
@@ -1180,12 +1183,33 @@ test('HOME pause receipts reject diagnostics, replacement owners and asset/dispo
   const different={...at(600),system:{...at(600).system,runtime:{...base.system.runtime,application:'other:1',homeReturn:'other:1',instances:{'other:1':{...base.system.runtime.instances[base.system.runtime.application],id:'other:1'}}}}};
   assert.equal(screens.presentHomeEntryMotion(different),false);
   paint(at(603),1000,false);assert.equal(frame(),0);assert.equal(screens.presentHomeEntryMotion(at(603)),true);
-  paint(at(606),1000,false);assert.equal(frame(),3);
+  paint(at(606),1000,false);assert.equal(frame(),1);
   screens.setFirmwareAssets({presenter,sharedFont:{draw(){}},dispose(){},diagnostics:[]});
   assert.equal(screens.presentHomeEntryMotion(at(606)),false,'asset replacement revokes the old pair generation');
   paint(at(610),1000,false);assert.equal(frame(),0);
   screens.dispose();assert.equal(screens.presentHomeEntryMotion(at(610)),false);
  },{screenOptions:{drawSuspendedBackground(ctx,_capture,presentation){ctx.record('pause-backdrop',[presentation]);return true;}}});
+});
+
+test('dynamic reduced motion publishes a terminal source state and cannot replay a presented midpoint',async()=>{
+ const folder=enterHomeFolder({...home(),folders:{19:'Folder'}},19);
+ const pause=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',3010),6500),'home',6600);
+ for(const [base,last] of [[folder,16],[pause,20]]){
+  const at=updateCount=>({...base,system:{...base.system,homeClock:{...base.system.homeClock,updateCount}}});
+  await withScreens(({screens,paint,events})=>{
+   const frame=()=>last===16?events.find(event=>event.name==='folderChrome').args.at(-1).folderFrame:events.find(event=>event.name==='pause-backdrop').args[0].material[0].frame;
+   for(let update=100;update<=105;update++)paint(at(update));
+   assert.equal(frame(),5);
+   screens.setReducedMotion(true);paint(at(106),1000,false);assert.equal(frame(),last);
+   screens.setReducedMotion(false);assert.equal(screens.presentHomeEntryMotion(at(107)),false,'unpresented accessibility endpoint was revoked');
+   paint(at(107));assert.equal(frame(),5,'only receipt-backed phase survives a toggle');
+   screens.setReducedMotion(true);paint(at(108),1000,false);assert.equal(frame(),last);
+   assert.equal(screens.presentHomeEntryMotion(at(108)),true);
+   screens.setReducedMotion(false);paint(at(109));assert.equal(frame(),last,'acknowledged terminal cannot return to the old midpoint');
+   paint(at(111));assert.equal(frame(),last);
+   assert.equal(screens.homeEntryMotionActive(at(111)),false);
+  },{screenOptions:{drawSuspendedBackground(ctx,_capture,presentation){ctx.record('pause-backdrop',[presentation]);return true;}}});
+ }
 });
 
 test('unsupported folder capture, chrome and child draws recover both LCDs without a motion receipt',async()=>{

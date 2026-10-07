@@ -117,9 +117,14 @@ not claim a complete native mode-dispatch integration.
 owner-bound candidate, beginning at frame0. The selected pair stays unchanged
 until a successful visible, context-live `renderer.render` acknowledges it.
 That receipt commits the selected source pose and rebases the observed HOME
-count; time waiting offscreen cannot become catch-up motion. The next eligible
-HOME updates select a new candidate. Failed/diagnostic paints cannot publish a
-receipt; hidden, sleeping and lost-context paths revoke candidates. Folder
+count; time waiting offscreen cannot become catch-up motion. Each subsequent
+eligible receipt spends at most one source step, even if several HOME updates
+elapsed. Failed/diagnostic paints cannot publish a receipt. Hidden, sleeping,
+lost-context, failed-draw and Retry boundaries discard all unpresented pending
+pixels and retain only the last receipt-backed pose. The first valid resumed
+pair repeats that pose and rebases its count; only subsequent receipts advance.
+Before the first valid restored-context render, the scene repaints and rearms
+the pair instead of rendering stale Canvas pixels without an owner receipt. Folder
 identity and complete capture owner/generation distinguish entries; asset
 replacement, power-off and disposal invalidate old receipts. Exact native input
 epoch, task order, LCD publication cadence and stop/idle gates remain unproved.
@@ -131,15 +136,22 @@ It also accepts an ordinary five-update constrained12FPS sample. A larger
 unobserved HOME-clock jump is treated as inhibited: retain the last paired
 pose, rebase observedUpdate only after a successful live pair, then spend only
 subsequent ordinary updates. This threshold is an explicit browser resilience
-policy, not a source duration, source gate or cadence claim. It does not slow
-every paint to one frame or alter System/scene clocks.
+policy, not a source duration, source gate or cadence claim. It does not alter
+System/scene clocks. Ordinary multi-update intervals now spend one source step
+per receipt, preventing source-pose skips under constrained render budgets.
 Mid-entry stall tests cover both folder and pause, failed advancement and failed
 rebasing, diagnostic rebasing, repeated same-update painting, reset/re-entry and
 new capture identity. Eligible pending HOME entry and Notes covers now request
 the existing transition LCD paint budget. Render-quality budgets are unchanged;
-lower-budget renders may sample multiple HOME updates and skip intermediate
-poses. That remains a browser scheduling adaptation pending native comparison,
-not a new native FPS or duration claim.
+lower-budget renders retain every source pose but take longer to present the
+sequence. That timing remains a browser scheduling adaptation pending native
+comparison, not a new native FPS or duration claim.
+
+**Dynamic accessibility policy:** toggling reduced motion invalidates old
+pending pixels and selects an owner-bound terminal candidate. Only a valid
+render receipt terminalizes the retained source state. Toggling normal motion
+back on cannot replay a midpoint after the endpoint was acknowledged; an
+unpresented endpoint is discarded and the prior receipt-backed pose is rebased.
 
 **Resource and publication guards:** entry requires the decoded FadeIn17/Fade9
 nonlooping clips, original source ranges/groups, visible unique parent panes,
@@ -155,9 +167,11 @@ retention, wrong owners, failed/diagnostic draws and teardown.
 ## Integration and Checks
 
 Integration order: A originals `d937cf3`, `295d029`, `44ec0bf`, `884fc11`, then
-B `b9134fd`, `894d1fe`, then this publication/resource follow-up. The A originals
+B `b9134fd`, `894d1fe`, `ad6d540`, then this invalidation/cadence follow-up. The A originals
 are already cherry-picked in this worker for interface verification; do not
-also cherry-pick their worker-local copied hashes. All permitted wiring is
+also cherry-pick their worker-local copied hashes. A's separate `fd56dd4` fixes
+the failed-folder B/HOME recovery branch; coordinator integrates it independently.
+All permitted wiring is
 included; no manual `system.ts` hunk is required. Owned files:
 
 - `src/os/home-entry-motion.ts`: pure owner-relative source-pose sampler and receipts.
@@ -179,7 +193,7 @@ Focused verification command:
 node --test --test-reporter=spec tests/home-entry-motion.test.mjs tests/home-folder-entry-assets.test.mjs tests/native-home-controls-paint.test.mjs tests/home-suspended-background.test.mjs tests/home-entry-motion-scene-policy.test.mjs tests/boot-publication-scene-policy.test.mjs tests/application-close-scene-policy.test.mjs tests/home-entry-banner-scene-policy.test.mjs tests/render-quality.test.mjs tests/notes-boot-cover.test.mjs tests/stock-screen-preparation.test.mjs tests/firmware-banner.test.mjs tests/home-folder-close.test.mjs tests/home-suspended-presentation.test.mjs
 ```
 
-Result:292 pass,0 fail,0 skipped. TypeScript `tsc --noEmit --incremental false`
+Result:296 pass,0 fail,0 skipped. TypeScript `tsc --noEmit --incremental false`
 passes. `git diff --check` and relative handoff links pass. Existing dependencies
 were reused read-only; no packages installed. No full build/test suite, shader
 change, worker GUI, server, new browser capture, native diff or audio inspection.

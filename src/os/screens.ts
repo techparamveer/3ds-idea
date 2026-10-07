@@ -310,9 +310,11 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  let suspendedPresentation=createHomeSuspendedPresentation();
  let folderEntryMotion:HomeEntryMotion|null=null,pauseEntryMotion:HomeEntryMotion|null=null;
  let pendingFolderEntryMotion:HomeEntryMotion|null=null,pendingPauseEntryMotion:HomeEntryMotion|null=null;
+ let folderEntryNeedsRebase=false,pauseEntryNeedsRebase=false;
  let entryMotionGeneration=0;
  let entryMotionCandidate:{generation:number;folder:HomeEntryMotion|null;pause:HomeEntryMotion|null}|undefined;
- function resetHomeEntryMotion(){entryMotionGeneration++;folderEntryMotion=null;pauseEntryMotion=null;pendingFolderEntryMotion=null;pendingPauseEntryMotion=null;entryMotionCandidate=undefined;}
+ function revokeHomeEntryMotionCandidate(){entryMotionGeneration++;pendingFolderEntryMotion=null;pendingPauseEntryMotion=null;entryMotionCandidate=undefined;folderEntryNeedsRebase=true;pauseEntryNeedsRebase=true;}
+ function resetHomeEntryMotion(){revokeHomeEntryMotionCandidate();folderEntryMotion=null;pauseEntryMotion=null;folderEntryNeedsRebase=false;pauseEntryNeedsRebase=false;}
  let homeEntryPresentation=createHomeEntryPresentation();
  let homeEntryFooterCandidate:{sample:ReturnType<typeof sampleHomeEntryPresentation>;state:MenuState}|undefined;
  let homeEntryFooterReleaseCandidate:{sample:ReturnType<typeof sampleHomeEntryPresentation>;state:MenuState}|undefined;
@@ -336,7 +338,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   // loading/failure contract. Its B/HOME escape remains available until ready.
   return state.system?.phase==='launch'?graphics.stockStatus(state,t):'ready';
  }
- function retryStockScreen(){if(panelFailure){panelFailure=undefined;panelPublished=null;return true;}return graphics.retryStockScreen();}
+ function retryStockScreen(){if(panelFailure){revokeHomeEntryMotionCandidate();panelFailure=undefined;panelPublished=null;return true;}return graphics.retryStockScreen();}
  function panelRecovery(state:MenuState){
   // Authored host recovery, never substituted as a native firmware screen.
   for(const ctx of [t,b]){ctx.resetTransform();ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.fillStyle='#000';ctx.fillRect(0,0,ctx.canvas.width,240);}
@@ -412,8 +414,9 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const update=state.system?.homeClock.updateCount??0;
   const folder=acknowledgeHomeEntryMotionCandidate(candidate.folder,folderEntryIdentity(state),update,folderEntryEligible(state));
   const pause=acknowledgeHomeEntryMotionCandidate(candidate.pause,pauseEntryIdentity(state),update,pauseEntryEligible(state));
-  if(folder){folderEntryMotion=folder;pendingFolderEntryMotion=null;}
-  if(pause){pauseEntryMotion=pause;pendingPauseEntryMotion=null;}
+  if(folder){folderEntryMotion=folder;pendingFolderEntryMotion=null;folderEntryNeedsRebase=false;}
+  if(pause){pauseEntryMotion=pause;pendingPauseEntryMotion=null;pauseEntryNeedsRebase=false;}
+  if(!folder&&!pause)revokeHomeEntryMotionCandidate();
   return !!folder||!!pause;
  }
  function isHomeEntryMotionActive(state:MenuState):boolean {
@@ -430,9 +433,9 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   entryMotionCandidate=undefined;
   const key=panelKey(state);
   if(key!==panelPublished)panelFailure=undefined;
-  if(key&&panelFailure){panelRecovery(state);return;}
+  if(key&&panelFailure){revokeHomeEntryMotionCandidate();panelRecovery(state);return;}
   try{const result=paintPair(state,date,elapsedMs,verification);panelPublished=key;return result;}
-  catch(error){if(!key)throw error;panelFailure=error instanceof Error?error:new Error(String(error));panelRecovery(state);panelPublished=key;}
+  catch(error){revokeHomeEntryMotionCandidate();if(!key)throw error;panelFailure=error instanceof Error?error:new Error(String(error));panelRecovery(state);panelPublished=key;}
  }
  function paintPair(state:MenuState,date:Date,elapsedMs:number,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;homeCursorLoopFrame?:number;reuseHomeBackgroundMs?:number}):ScreenPaintResult|undefined{
   if(disposed)return;
@@ -440,13 +443,14 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const homeEntry=sampleHomeEntryPresentation(homeEntryPresentation,state,reduced);
   const diagnosticPaint=verification!==undefined
    &&(verification.sampleCalendar!==undefined||verification.homeHudSample!==undefined||verification.homeWallpaperFrame!==undefined||verification.homeCursorLoopFrame!==undefined);
+  if(diagnosticPaint||!folderEntryEligible(state)||pauseEntryOwner(state)&&(!pauseEntryEligible(state)||!pauseEntryIdentity(state)))revokeHomeEntryMotionCandidate();
   const homeUpdate=state.system?.homeClock.updateCount??0;
   const folderIdentity=folderEntryIdentity(state);
   if(!diagnosticPaint){entryMotionCandidate=undefined;if(!folderIdentity){folderEntryMotion=null;pendingFolderEntryMotion=null;}}
-  const folderMotion=sampleHomeEntryMotionCandidate(folderEntryMotion,pendingFolderEntryMotion,folderIdentity,homeUpdate,folderEntryEligible(state));
+  const folderMotion=sampleHomeEntryMotionCandidate(folderEntryMotion,pendingFolderEntryMotion,folderIdentity,homeUpdate,folderEntryEligible(state),folderEntryNeedsRebase,reduced);
   const folderEntry=homeFolderEntryPose(folderMotion,reduced);
-  // Diagnostic captures cannot acquire, advance or revoke the live paired-screen
-  // owner. A reuse-only options object belongs to a live state-driven paint.
+  // Diagnostic captures revoke pending pixels, never the last receipt-backed
+  // pose. A reuse-only options object belongs to a live state-driven paint.
   homeEntryFooterCandidate=undefined;homeEntryFooterReleaseCandidate=undefined;homeEntryBannerCandidate=undefined;homeEntryNoBannerCandidate=undefined;
   if(!diagnosticPaint)homeEntryPresentation=homeEntry.presentation;
   let homeEntryFooterTerminalDrawn=false;
@@ -473,8 +477,9 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    ?{kind:'pause' as const,owner:pauseOwner,captureGeneration:suspendedCapture.generation}
    :pauseOwner&&pauseEntryMotion?.identity.kind==='pause'&&pauseEntryMotion.identity.owner===pauseOwner?pauseEntryMotion.identity:null;
   if(!diagnosticPaint&&!pauseOwner){pauseEntryMotion=null;pendingPauseEntryMotion=null;}
+  const pauseEligible=!!suspended&&suspendedCapture.status==='ready'&&!state.system?.dialog&&!applicationTransition;
   const pauseMotion=sampleHomeEntryMotionCandidate(pauseEntryMotion,pendingPauseEntryMotion,pauseIdentity,homeUpdate,
-   !!suspended&&suspendedCapture.status==='ready'&&!state.system?.dialog&&!applicationTransition);
+   pauseEligible,pauseEntryNeedsRebase,reduced);
   const pauseEntry=homePauseEntryPresentation(pauseMotion,reduced);
   const suspendedBackgroundPresentation=applicationTransitionPresentation??pauseEntry;
   if(!applicationTransition||applicationFooterReturn)applicationTransitionCapture=undefined;
@@ -643,8 +648,8 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const nativeStatus=graphics.stockStatus(state,t);const notice=options.runtimeNotice?.();if(notice&&nativeStatus!=='loading'&&nativeStatus!=='error'){rounded(b,8,185,304,26,5,'#fff9e8','#a88d53');text(b,notice,160,198,11,'#5d491f','center');}
   output.imageSmoothingEnabled=false;output.clearRect(0,0,800,240);output.drawImage(native,0,0,800,240);
   if(!diagnosticPaint){
-   const folderNeeds=folderMotion&&(!homeEntryMotionMatches(folderEntryMotion,folderIdentity)||homeEntryMotionActive(folderEntryMotion,reduced)||!!pendingFolderEntryMotion);
-   const pauseNeeds=pauseMotion&&(!homeEntryMotionMatches(pauseEntryMotion,pauseIdentity)||homeEntryMotionActive(pauseEntryMotion,reduced)||!!pendingPauseEntryMotion);
+   const folderNeeds=folderMotion&&(!homeEntryMotionMatches(folderEntryMotion,folderIdentity)||folderEntryNeedsRebase||homeEntryMotionActive(folderEntryMotion)||!!pendingFolderEntryMotion);
+   const pauseNeeds=pauseMotion&&(!homeEntryMotionMatches(pauseEntryMotion,pauseIdentity)||pauseEntryNeedsRebase||homeEntryMotionActive(pauseEntryMotion)||!!pendingPauseEntryMotion);
    pendingFolderEntryMotion=folderNeeds?folderMotion:null;pendingPauseEntryMotion=pauseNeeds?pauseMotion:null;
    if(folderEntryEligible(state)&&folderNeeds||suspended&&pauseNeeds&&!applicationTransitionPresentation){
     entryMotionCandidate={generation:entryMotionGeneration,folder:folderEntryEligible(state)?pendingFolderEntryMotion:null,pause:suspended&&!applicationTransitionPresentation?pendingPauseEntryMotion:null};
@@ -690,5 +695,5 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  function homeEntryActivationReady(state:MenuState){
   return homeEntryBannerActivationDue(sampleHomeEntryPresentation(homeEntryPresentation,state,reduced));
  }
- return {top,nativeTop:native,bottom,paint,stockStatus,retryStockScreen,stockFailure:()=>panelFailure??graphics.stockFailure(),setFirmwareAssets,prepareFolderBannerLabel:(name:string)=>nativeHome?.folderBannerLabel(name),homeEntryFooterReadiness:()=>getHomeEntryFooterReadiness(homeEntryPresentation),homeEntryActivationReady,presentHomeEntryMotion,homeEntryMotionActive:isHomeEntryMotionActive,homeEntryMotionPublicationPending:()=>!!entryMotionCandidate,revokeHomeEntryMotionCandidate(){entryMotionCandidate=undefined;},presentHomeEntryFooterRelease,presentHomeEntryFooterTerminal,presentHomeEntryBanner,presentHomeEntryWithoutNativeBanner,notesBootCoverActive:(state:MenuState)=>graphics.notesBootCoverActive(state),presentNotesBootCover:(state:MenuState)=>graphics.presentNotesBootCover(state),revokeNotesBootCoverCandidate:()=>graphics.revokeNotesBootCoverCandidate(),revokeHomeEntryFooterCandidate(){homeEntryFooterCandidate=undefined;homeEntryFooterReleaseCandidate=undefined;},revokeHomeEntryBannerCandidate(){homeEntryBannerCandidate=undefined;},revokeHomeEntryNoBannerCandidate(){homeEntryNoBannerCandidate=undefined;},dispose(){if(disposed)return;disposed=true;panelFailure=undefined;panelPublished=null;folderCapture=undefined;layoutCapture=undefined;suspendedMetadata=undefined;resetHomeEntryMotion();homeEntryPresentation=createHomeEntryPresentation();homeEntryFooterCandidate=undefined;homeEntryFooterReleaseCandidate=undefined;homeEntryBannerCandidate=undefined;homeEntryNoBannerCandidate=undefined;applicationTransitionCapture=undefined;softwareDialogIcons=undefined;captureCanvas.width=captureCanvas.height=0;graphics.dispose();firmwareAssets?.dispose();fonts.delete(t);fonts.delete(b);setPortfolioFont(t);setPortfolioFont(b);},setReducedMotion(value:boolean){reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
+ return {top,nativeTop:native,bottom,paint,stockStatus,retryStockScreen,stockFailure:()=>panelFailure??graphics.stockFailure(),setFirmwareAssets,prepareFolderBannerLabel:(name:string)=>nativeHome?.folderBannerLabel(name),homeEntryFooterReadiness:()=>getHomeEntryFooterReadiness(homeEntryPresentation),homeEntryActivationReady,presentHomeEntryMotion,homeEntryMotionActive:isHomeEntryMotionActive,homeEntryMotionPublicationPending:()=>!!entryMotionCandidate,revokeHomeEntryMotionCandidate,presentHomeEntryFooterRelease,presentHomeEntryFooterTerminal,presentHomeEntryBanner,presentHomeEntryWithoutNativeBanner,notesBootCoverActive:(state:MenuState)=>graphics.notesBootCoverActive(state),presentNotesBootCover:(state:MenuState)=>graphics.presentNotesBootCover(state),revokeNotesBootCoverCandidate:()=>graphics.revokeNotesBootCoverCandidate(),revokeHomeEntryFooterCandidate(){homeEntryFooterCandidate=undefined;homeEntryFooterReleaseCandidate=undefined;},revokeHomeEntryBannerCandidate(){homeEntryBannerCandidate=undefined;},revokeHomeEntryNoBannerCandidate(){homeEntryNoBannerCandidate=undefined;},dispose(){if(disposed)return;disposed=true;panelFailure=undefined;panelPublished=null;folderCapture=undefined;layoutCapture=undefined;suspendedMetadata=undefined;resetHomeEntryMotion();homeEntryPresentation=createHomeEntryPresentation();homeEntryFooterCandidate=undefined;homeEntryFooterReleaseCandidate=undefined;homeEntryBannerCandidate=undefined;homeEntryNoBannerCandidate=undefined;applicationTransitionCapture=undefined;softwareDialogIcons=undefined;captureCanvas.width=captureCanvas.height=0;graphics.dispose();firmwareAssets?.dispose();fonts.delete(t);fonts.delete(b);setPortfolioFont(t);setPortfolioFont(b);},setReducedMotion(value:boolean){if(reduced!==value)revokeHomeEntryMotionCandidate();reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
 }

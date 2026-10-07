@@ -5,6 +5,7 @@ import { reduceMenu } from './state.ts';
 import { selectedSuspendedApplication } from './home-suspended-window.ts';
 import {homeSoftwareDialogKey,homeSoftwareClosingDialogKey} from './home-software-dialog.ts';
 import {cancelSystemHomeApplicationTransition} from './system-home-application-transition.ts';
+import {cancelSystemHomeFolderClose} from './home-folder-close-system.ts';
 
 /** Cancel held repeats/touches before the host ticks an unseen application.
  * No fetch, Canvas or readiness state is stored in the deterministic reducer. */
@@ -19,6 +20,10 @@ export function escapeUnreadyNativeScreen(state:MenuState,now:number):MenuState{
  const s=state.system;
  if(homeSoftwareClosingDialogKey(state))return cancelSystemHomeApplicationTransition(releaseSystemInputs(state,now));
  if(homeSoftwareDialogKey(state))return reduceSystem(releaseSystemInputs(state,now),'back',now);
+ if(s?.phase==='home'&&state.powered&&state.opened&&!state.panel&&!s.sleeping&&!s.preferences&&!s.dialog){
+  // Recovery cannot wait for the unavailable folder's native close resources.
+  return cancelSystemHomeFolderClose(reduceMenu(releaseSystemInputs(state,now),'back'));
+ }
  if(selectedSuspendedApplication(state))return reduceSystem(releaseSystemInputs(state,now),s?.dialog?'back':'home',now);
  if(s?.phase==='home'&&(state.panel==='settings'||state.panel==='home-layouts'||state.panel==='folder-settings'||state.panel==='folder-not-empty')&&!s.sleeping&&!s.preferences&&!s.dialog)return reduceMenu(releaseSystemInputs(state,now),'home');
   if(!s||s.sleeping||s.preferences||s.dialog||!['launch','app'].includes(s.phase))return state;

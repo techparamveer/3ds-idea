@@ -178,6 +178,26 @@ GPU and unrelated metadata/capture dependencies are mocked in that regression.
 The selected suite now passes 65 tests; nonincremental typecheck and
 `git diff --check` passed again.
 
+### Folder recovery integration fix
+
+The reviewer found that the authored folder resource-failure screen advertised
+B/HOME recovery, but `escapeUnreadyNativeScreen` ignored HOME's open-folder
+state. The recovery boundary now takes the existing pure `reduceMenu(...,
+'back')` / `leaveHomeFolder` path before the selected-suspended-application
+resume route, after cancelling held input. It cancels any retained native
+folder-close record rather than waiting for the unavailable resources to animate
+the close. This immediate authored recovery is a host adaptation, not a native
+motion claim; normal folder-close animation and assets are unchanged.
+
+The scoped source edit is `native-screen-system.ts` only. Root/folder view history,
+folder contents, runtime application/home-return owners and suspended state are
+preserved. Loading/error B and HOME events and the matching recovery touch
+stroke are tested with a suspended app selected inside the failed folder,
+including an already-started close and lifecycle/modal routing. The focused
+native input and pure/system folder-close suites passed 51 tests; nonincremental
+typecheck and `git diff --check` passed. Worker B retains screens/scene ownership;
+integrated browser failure/recovery verification still belongs to the coordinator.
+
 ## Remaining failures
 
 AN-01 remains fail. There is no new matched native/browser pair, mask or diff

@@ -462,3 +462,64 @@ All AN-01..04 whole scenarios remain fail. Private artifacts remain under the
 animation root, test browsers muted, native processes closed and user3000/
 system/Spotify audio untouched. The stored goal remains blocked after human
 continuation; work continues without a false active or completion claim.
+
+## Incoming plain-label preparation
+
+Reviewed controller `df1da09` integrates as `aab39d7`; source-only publisher,
+proof and tests `363aee7` integrate as `c08406d`. The private-fixture title
+helper `72d88ef` integrates as `c771cff`. See the
+[asset handoff](workstream-handoffs/applet-incoming-assets-20261007.md).
+The source label records have style indices 39/13, but the selected incoming
+callers do not apply those named styles. Friends resolves UTF-16 through
+`0x17ed30 -> 0x124c34`, then uses plain writer `0x11cbbc`; Notifications uses
+`0x149d8c -> 0x11f434`, then plain writer `0x116948`. Original code/range hashes
+and branch/link checks bind this decoded-instruction conclusion. It is not a
+full emulation or native timing proof. The correct override contains text
+only; original TextBox font, size, spacing, alignment and material remain
+unchanged. The exact RI table diagnostics and unknown words are retained as
+non-applied reference, not a newly supported rendering exception.
+
+Root incoming composition is still unstaged and not served. The current
+private-fixture full suite has 2,492 tests: 2,392 pass, one fails for the
+unchanged missing historical Camera date-group PNG, 98 skip and one is TODO.
+Typechecking passes. Focused stock preparation, incoming, controller and
+publication checks pass 104 with two publication-only skips. The separate
+controller/live-render suite passes 45 and affected Manual/folder/HOME-pause
+checks pass 55. The source publisher's Python checks pass six with three
+publication-only skips. No public incoming pack/manifest has been delivered.
+Logs are `incoming-material-fixed-{full-tests,focused-tests,typecheck}.log`
+under the private animation artifact root. No new build or browser capture
+was attempted against these missing public dependencies. Private fixture identities:
+Friends `361a6838c840f69fdf92c6ab520aa1cbced463a1d4f8cffe6824fe398af2db1c`,
+Notifications `9137c1da5bdf61584dddfa14a090b9e79d7b1f20dba6736cc33c9fbede231d74`.
+They are test inputs under `/private/tmp/3ds-applet-incoming-fixtures-20261007/`,
+not a source-render or browser acceptance pair.
+
+Independent review cleared the caller composition and publisher source proof,
+but found one P1 in helper `72d88ef`: background/belt material indices and
+material records, plus some picture colors, were not pinned. Mutated covers
+could pass validation and change the sourced rendering. The reviewed fix
+`d63dcf1` integrates as `940f4af`. It pins complete original material records,
+texture ordering, selected picture records and text material indices. It adds
+37 mutation probes per title. The reviewer independently reran the original
+six bypasses and TEV, blend, wrap and matrix mutations; every changed pack
+fails before either LCD draws. The worker/reviewer suite passes 43. This clears the
+code correction, not public delivery or native timing/pixel acceptance.
+
+A public firmware-derived asset export was rejected by tool review. Explicit
+user approval for only decoded layouts and required PNGs is requested and
+pending. The rejected command was not retried or routed through another agent.
+No ROMs, packages, executables, tickets or credentials are proposed for public
+delivery. Production port 3021 remains the last verified `98342a8` build.
+
+The fresh dedicated native observation reverified executable `3dfdfbed...`,
+HOME content `c622d1c5...`, volume 0, Null output 1, Static input 2 and no user-profile
+symlinks. The UI showed muted HOME at normal speed. Touchscreen input repeatedly
+returned `windowNotFoundAtPosition`, including after rebind/raise/full-screen
+normalization. No incoming PNG was acquired. The dedicated process closed with
+exit 0 and PID absence was verified. This attempt is not native-compared evidence;
+no pair, mask or diff report exists for it. User port 3000, system/Spotify audio and
+the private scenario matrix are unchanged. All four whole animation scenarios
+remain fail. Next: authorized publication, strict helper/caller integration,
+all supporting checks, visible chronological recapture, and matched native
+comparison without pose searching or guessed phase lock.

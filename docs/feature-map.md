@@ -5,6 +5,22 @@ for top-row opening, Manual opening, folder entry and HOME suspension. GitHub
 restart base is `5ee6fd7`; the historical static queue below is preserved.
 All four motion flows are currently fail pending matched frame-sequence proof.
 
+Incoming preparation: reviewed controller `df1da09` integrates as `aab39d7`,
+and source-only publisher/proof `363aee7` as `c08406d`. Private-fixture helper
+`72d88ef` integrates as `c771cff`; reviewed material/picture-closure correction
+`d63dcf1` integrates as `940f4af`. All 37 source mutations per title now reject
+before either LCD draws. The incoming labels use
+the source-proven plain-text writer, not the RI named-style metrics branch.
+Current private full suite: 2,392 pass, one unchanged historical Camera PNG
+failure, 98 skip and one TODO; typechecking passes. Combined checks pass 104
+with two publication-only skips. Controller/live-render and affected checks
+pass 45 and 55 separately. Composition remains unstaged and unserved.
+Public asset export is pending explicit user approval after tool review rejected
+it. Private fixture checks do not establish delivery or visible/native fidelity.
+The preview remains on `98342a8`. The new muted Azahar observation encountered a
+touchscreen-coordinate mapping failure and produced no incoming capture.
+[Current preparation boundary](animation-fidelity-workflow-2026-10-07.md#incoming-plain-label-preparation).
+
 Latest runtime `98342a8`, collector `9882f97`: original HOME suspended-window
 Appear0..10 is now visible on first pause and re-entry. Stock Health/Camera/
 Sound and portfolio Work retain exact owners and all normal pause poses0..20;

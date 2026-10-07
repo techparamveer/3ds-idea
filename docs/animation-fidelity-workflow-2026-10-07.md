@@ -19,8 +19,11 @@ seats are in [STATUS](../STATUS.md), with the objective in [GOAL](../GOAL.md).
 
 One coordinator integrates in `codex/animation-fidelity-20261007`. Use at most
 two workers in separate worktrees and branches based on the fetched commit.
-Workers use GPT-6.1 Sol with extra-high reasoning. A reviewer uses a different
-model under the repository seat rule. Speed selection is not exposed by the
+New workers follow the latest repository preference, GPT-5.6 Sol high.
+Existing GPT-6.1 extra-high workers retain their original model because a
+replacement spawn hit the thread limit. Record actual models in STATUS.
+A reviewer uses a different model under the repository seat rule.
+Speed selection is not exposed by the
 delegation tools, so no Fast-mode setting is claimed verified.
 
 Worker A traces AN-01 and AN-02 and owns only separately assigned helpers,
@@ -246,3 +249,52 @@ must follow it before further source-only work.
 Remaining applet common-cover callers are Notes0, Friends1, Notifications2,
 Browser3, Manual4 and Miiverse7. Miiverse uses its authored logo, not an invented
 lower text label. All four whole scenarios remain fail.
+
+### Folder retention and capture preparation
+
+Reviewed folder commit132fcd5 integrates as0128f2f. It retains the last valid
+native root primary through the lower FadeIn16 receipt, rejects stale rapid
+re-entry, and retires the source only after a valid child publication. Original
+geometry and resources are unchanged. The [source handoff](workstream-handoffs/animation-folder-home-20261007.md)
+separates recovered e30 completion/child-refresh ordering from adapted
+lower-terminal scheduling and input quarantine.
+
+Runtime52af0c5 passes typecheck/build. Full2383 tests:2285 pass,1 unchanged
+missing historical Camera PNG failure,96 skip,1 TODO. Browser first/repeated
+folder79/83 pairs and reduced mobile11/12/11 pairs are error-free. Notes93/96,
+reduced mobile Camera Manual69/71, and physical-HOME Health80/83 regression
+pairs also complete. All six console views are inspected and nonblank.
+
+Review found a setup race in52af0c5's collector: a fresh fallback render could
+precede activation of the requested folder model. Reviewed collector e574778
+now snapshots the active generation/request/activation and then requires a
+later valid WebGL receipt with a paint after that snapshot while the exact
+identity remains current. Three behavioral tests cover the race, replacement
+and invalid/stale publication. The wait is a browser fixture adaptation, not
+native input timing. Original52af0c5 setup records remain retained with this
+limitation. A strict rerun gives82/83 error-free folder pairs.
+
+The declared strict first repeat lower16 is index23 at540.7ms. Compared with
+immutable native15.11.14.196 SHA25643ec0, empty mask, it differs by57712 upper
+and7602 lower pixels. Browser hashes93d0bc30/68ee3536 and all complete identities
+are in `comparisons/folder-reentry-frame16-52af0c5-strict/selection.json`.
+Both LCD sheets were opened. Folder presence is corrected, but its native
+shrink-out, pose/size, wallpaper/HUD phase, cursor and fixture differences
+remain. Native13.702 retains a full root banner,14.196 shows it shrinking,
+and14.657 has removed it. The next visible correction runs the original
+banner visibility producer after lower completion; no guessed fade is allowed.
+
+Reviewed selector5513268 integrates as07c9f2c. It validates all13 original
+selector tracks, including duplicate keys/slopes, app-specific title/tint/UV
+and Miiverse logo behavior. Ten independent selector tests pass. This is a
+source-only helper; outgoing runtime wiring is now assigned before further
+source-only work. Incoming common sequencing, caller epoch and native timing
+remain source gaps.
+
+Friends normal-speed CTM touch105,16 then A produces128 own PNGs from130
+uninterrupted capture commands. `friends-normal-native-index.json` and the
+inspected chronological unique sheet show selection, outgoing HOME wash,
+orange Friend List belt and destination. The destination automatically
+displays service error002-0121. No account, agreement or network action was
+taken. Volume0/outputNull remain verified; the dedicated native process closed0.
+Capture gaps and pipeline loading still prevent exact epoch/duration acceptance.

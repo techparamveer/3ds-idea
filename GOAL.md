@@ -16,10 +16,13 @@ LCD frame sequences, including pressed feedback, intermediate poses, ordering,
 duration and the final screen. A matching endpoint or passing tests does not
 establish matching motion.
 
-Work in separate branches and worktrees with at most two GPT-6.1 Sol workers
-at extra-high reasoning. The coordinator alone controls Azahar and the shared
-browser, integrates reviewed commits, and repeats capture, diff and correction.
-A reviewer uses a different model. Run focused tests, the integrated full test
+Work in separate branches and worktrees with at most two workers. Follow the
+latest repository model preference, GPT-5.6 Sol high, for new helpers. Existing
+GPT-6.1 extra-high workers remain on their original model when the thread limit
+prevents a replacement; record that limitation, never claim a model switch.
+The coordinator alone controls Azahar and the shared browser, integrates
+reviewed commits, and repeats capture, diff and correction. A reviewer uses a
+different model. Run focused tests, the integrated full test
 suite, typecheck and production build. Preserve failure evidence and rerun
 affected flows after every integration. Follow the
 [animation workflow](docs/animation-fidelity-workflow-2026-10-07.md).

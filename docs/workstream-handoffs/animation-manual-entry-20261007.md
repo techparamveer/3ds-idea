@@ -71,7 +71,9 @@ Its unchanged `resourceSources` maps these archive entries:
 | Wash light | `timg/BgLgt.bclim` | `c0d63a4ee5205e77b89b18b334ffbd13df83a06912ac258119a46160791f983b` |
 | Wash line | `timg/BgLine.bclim` | `5c1ff31e996b2367dd8ed15973e4fa9e1863c2d08927eda513c0a97e00699836` |
 
-Selector4 chooses texture pattern0/Ebird and native grey160. Eight selector
+Selector4 chooses texture pattern0/Ebird, native grey160 and identity icon UV
+transform. Selected icon/belt RGB, title material alpha, icon texture matrix and exact selector range
+are strictly validated. Eight selector
 frames are **not a duration**. The Ebird decoded 32x32 LA4 PNG is
 `textures/e55163e5c28e46fd6d951a1669e16eccb5ec2cfc2d7e6eb53c807c9011a66d7d.png`.
 SceneOut and SceneIn each contain 21 poses; source ranges are [-20,0] and
@@ -105,14 +107,16 @@ kind2 SceneOut and kind1 SceneIn through0x231ba8, and completion/hold through
   and request identity. A nonmatching or absent presented backing fails.
 - `revokeManualEntryCandidate()` discards unpresented poses. The first resumed
   receipt repeats/rebases the last presented pose; hidden, sleep, failure,
-  Retry, diagnostic, lost-context and stalled gaps cannot backfill progress.
+  Retry, diagnostic, HOME suspension, lost-context and stalled gaps cannot backfill progress.
   Existing scene restore wiring repaints/rearms before rendering again.
 - `manualEntryActive(state)` joins the existing transition LCD cadence, never
   overrides render quality budgets, and stops while an acknowledged opaque
   cover waits for resources or a destination/cover failure is selected.
 - `stockStatus` remains loading until complete destination readiness **and**
   incoming20 receipt. Existing input quarantine and B/HOME/power escape remain
-  active; app-origin Manual preserves its suspended application's owner.
+  active. Unready Manual recovery closes only the Manual applet before returning
+  HOME with the original application suspended and homeReturn restored to it;
+  it cannot replace that owner with Manual. Ready Manual Back remains unchanged.
 - Reduced motion selects outgoing20 then incoming20, with separate receipts.
   Disabling it cannot replay an already presented endpoint. Firmware replacement,
   power-off, owner change and disposal invalidate backing; four bounded retained
@@ -128,17 +132,18 @@ existing browser recovery UI remains non-native. No new native audio is guessed.
 
 ## Verification and Integration
 
-Selected 11-file run: **170 tests pass**, including 16 new pure source/session
+Selected 15-file run: **208 tests pass**, including 23 new pure source/session
 and real-screen-painter cases. Coverage includes all outgoing/incoming poses,
 frame-zero/endpoint receipts, opaque resource hold, malformed clips/curves/label,
 paired draw refusal, offscreen-backing rejection, monotonic Retry, diagnostic,
-sleep/context/stall rebasing, reduced endpoints, input quarantine/escapes,
+sleep/HOME-suspend/context/stall rebasing, reduced endpoints, input quarantine/escapes,
 owner/title/generation changes, asset replacement, power-off and disposal.
 `npm run typecheck -- --incremental false` and `git diff --check` pass.
 No worker build, full-suite, browser inspection or native comparison was run.
 
-Integrate this one commit onto the reviewed coordinator chain containing the
-previous B receipt and A Notes hooks. It needs no new reducer/portfolio API.
+Integrate `c2c5f20` then its lifecycle/recovery/selector follow-up onto the reviewed coordinator chain containing the
+previous B receipt and A Notes hooks. It needs no new reducer/portfolio API;
+the follow-up has a separately approved Manual-only native-screen recovery branch.
 The only shared APIs are the three screen hooks above and
 `nativeHome.manualEntry(top,bottom,pose)`. Source assets/manifests are unchanged;
 the existing loader now selects CmnFade_U/D resources. Diagnostics add

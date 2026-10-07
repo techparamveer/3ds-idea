@@ -474,7 +474,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const diagnosticPaint=verification!==undefined
    &&(verification.sampleCalendar!==undefined||verification.homeHudSample!==undefined||verification.homeWallpaperFrame!==undefined||verification.homeCursorLoopFrame!==undefined);
   const manualIdentity=manualEntryIdentity(state,manualGeneration);
-  if(diagnosticPaint||!manualEntryEligible(state))revokeManualEntryCandidate();
+  if(diagnosticPaint||!manualIdentity||!manualEntryEligible(state))revokeManualEntryCandidate();
   const manualOwner=state.system?.runtime.systemApplet;
   if(!manualIdentity&&(!manualOwner||state.system?.runtime.instances[manualOwner]?.appId!=='manual')){manualPresentation.reset();manualBackingIdentity=null;}
   if(diagnosticPaint||!folderEntryEligible(state)||pauseEntryOwner(state)&&(!pauseEntryEligible(state)||!pauseEntryIdentity(state)))revokeHomeEntryMotionCandidate();

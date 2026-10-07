@@ -31,7 +31,7 @@ export function validateManualEntryAssets(pack: NativePack): void {
   }
   const selector = pack.animations.CmnFade_D_00_Aplt;
   if (!selector || selector.frames !== 8 || selector.loop || !selector.childBinding || ('unsupported' in selector && (!Array.isArray(selector.unsupported) || selector.unsupported.length)) || selector.groups.length !== 1 || selector.groups[0] !== 'G_Aplt_00'
-    || !('sourceFrameRange' in selector) || !Array.isArray(selector.sourceFrameRange) || selector.sourceFrameRange[0] !== 0 || selector.sourceFrameRange[1] !== 7
+    || !('sourceFrameRange' in selector) || !Array.isArray(selector.sourceFrameRange) || selector.sourceFrameRange.length !== 2 || selector.sourceFrameRange[0] !== 0 || selector.sourceFrameRange[1] !== 7
     || selector.textures[0] !== 'LncApltPictEbird_00.bclim' || !pack.textures['LncApltPictEbird_00.bclim']) throw Error('Unsupported Manual selector');
   const pattern = selector.tracks.filter(track => track.target === 'P_Aplt_00' && track.property === 'texture.pattern');
   if (pattern.length !== 1 || pattern[0].interpolation !== 'step' || pattern[0].keys.find(key => key.frame === 4)?.value !== 0) throw Error('Unsupported Manual selector frame');
@@ -44,6 +44,19 @@ export function validateManualEntryAssets(pack: NativePack): void {
       if (!path || !path.every(pane => pane.flags & 1)) throw Error(`Unsupported Manual cover parent ${name}`);
     }
     const belt = nativePaneParentPath(layout, 'P_Belt_00')!.at(-1)!;
+    const applet = nativePaneParentPath(layout, 'P_Aplt_00')!.at(-1)!;
+    const title = nativePaneParentPath(layout, 'T_Aplt_00')!.at(-1)!;
+    const beltMaterial = belt.picture && layout.materials[belt.picture.material];
+    const appletMaterial = applet.picture && layout.materials[applet.picture.material];
+    const titleMaterial = title.text && layout.materials[title.text.material];
+    const matrix = appletMaterial?.textureMatrices[0], patternTexture = appletMaterial?.textureMaps[0]?.texture;
+    if (!beltMaterial || beltMaterial.constantColors[0]?.length !== 4 || !beltMaterial.constantColors[0].slice(0, 3).every(value => value === 160)
+      || !appletMaterial || appletMaterial.bufferColor.length !== 4 || !appletMaterial.bufferColor.slice(0, 3).every(value => value === 160)
+      || appletMaterial.textureMatrices.length !== 1 || !matrix || matrix.rotation !== 0
+      || matrix.translation.length !== 2 || matrix.translation.some(value => value !== 0)
+      || matrix.scale.length !== 2 || matrix.scale.some(value => value !== 1)
+      || patternTexture === undefined || layout.textures[patternTexture] !== 'LncApltPictEbird_00.bclim'
+      || !titleMaterial || titleMaterial.constantColors[0]?.[3] !== 255) throw Error('Unsupported Manual selector material pose');
     const alpha = suffix === 'SceneOut' ? (frame === 0 ? 0 : 255) : (frame === 0 ? 255 : 0);
     const x = suffix === 'SceneOut' ? (frame === 0 ? 80 : 0) : (frame === 0 ? 0 : -80);
     if (belt.alpha !== alpha || belt.translation[0] !== x || nativePaneParentPath(layout, 'P_Bg_D_00')!.at(-1)!.alpha !== alpha) throw Error('Unsupported Manual lower cover group binding');

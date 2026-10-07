@@ -92,6 +92,17 @@ test('sleep, power-off and firmware replacement revoke unpresented poses and rej
  });
 });
 
+test('HOME suspension discards an unpresented Manual pose and rebases the retained owner on resume',async()=>{
+ await fixture(({screens,paint})=>{
+  const caller=camera(),state=manual(caller);paint(caller,0);paint(state,1);paint(state,2);
+  assert.equal(paint(state,3,false).manualEntry.frame,2);
+  const suspended=reduceSystem(state,'home',6500);paint(suspended,4);
+  assert.equal(screens.presentManualEntry(state,ms(5)),false);
+  const resumed=reduceSystem(suspended,'home',6600);assert.equal(resumed.system.runtime.active,state.system.runtime.active);
+  assert.equal(paint(resumed,6).manualEntry.frame,1);assert.equal(paint(resumed,7).manualEntry.frame,2);
+ });
+});
+
 test('cover refusal, diagnostic capture, monotonic Retry and context revocation rebase the last visible pose',async()=>{
  await fixture(({screens,paint,failCover})=>{
   const home=cameraHome(),state=manual(home);paint(home,0);paint(state,1);paint(state,2);
@@ -114,7 +125,7 @@ test('app-origin Manual retains its caller owner; reduced endpoints need receipt
   assert.equal(screens.stockStatus(state),'loading');screens.presentManualEntry(state,ms(4));assert.equal(screens.stockStatus(state),'ready');
   screens.setReducedMotion(false);const restored=paint(state,5);assert.deepEqual([restored.manualEntry.phase,restored.manualEntry.frame],['in',20]);assert.equal(screens.stockStatus(state),'ready');
   setStatus('error');paint(state,6);assert.equal(screens.stockStatus(state),'error');
-  const escaped=escapeUnreadyNativeScreen(state,6500);assert.equal(escaped.system.phase,'home');assert.equal(escaped.system.runtime.application,owner);assert.equal(escaped.system.runtime.instances[owner].suspended,true);
+  const escaped=escapeUnreadyNativeScreen(state,6500);assert.equal(escaped.system.phase,'home');assert.equal(escaped.system.runtime.application,owner);assert.equal(escaped.system.runtime.instances[owner].suspended,true);assert.equal(escaped.system.runtime.homeReturn,owner);assert.equal(escaped.system.runtime.instances[state.system.runtime.active],undefined);
   screens.dispose();assert.ok(canvases.slice(3,7).every(c=>c.width===0&&c.height===0));assert.equal(screens.presentManualEntry(state,ms(7)),false);
  });
 });

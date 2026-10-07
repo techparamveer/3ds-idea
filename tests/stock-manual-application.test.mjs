@@ -192,10 +192,10 @@ test('Settings Contents loads source chrome, lets Close act, and leaves unfinish
   });
 });
 
-test('only source-backed HOME routes supply a manual title argument', () => {
+test('Manual title arguments stay within source-backed routes, stock rendering and read-only entry consumers', () => {
   const files = readdirSync(resolve('src'), { recursive: true }).filter(file => /\.(ts|tsx)$/.test(file));
   const users = files.filter(file => readFileSync(resolve('src', file), 'utf8').includes('manualTitleId')).sort();
-  assert.deepEqual(users, ['os/stock-apps.ts', 'os/stock-helper-views.ts', 'os/stock-native-helpers.ts', 'os/stock-screen-layout.ts', 'os/system.ts']);
+  assert.deepEqual(users, ['os/manual-entry-identity.ts', 'os/manual-entry-presentation.ts', 'os/stock-apps.ts', 'os/stock-helper-views.ts', 'os/stock-native-helpers.ts', 'os/stock-screen-layout.ts', 'os/system.ts']);
 });
 
 

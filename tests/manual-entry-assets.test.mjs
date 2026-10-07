@@ -46,6 +46,12 @@ test('missing selected clips, mutated curves, selector and parent hierarchy fail
   p=>p.layouts.CmnFade_D_00.roots[0].flags=0,
   p=>p.animations.CmnFade_D_00_SceneIn.unsupported.push('test'),
   p=>p.layouts.CmnFade_D_00.groups[0].children.find(g=>g.name==='G_Scene_00').panes=[],
+  p=>p.animations.CmnFade_D_00_Aplt.sourceFrameRange.push(8),
+  p=>p.animations.CmnFade_D_00_Aplt.tracks.find(t=>t.target==='P_Aplt_00'&&t.property==='materialColor.0.0').keys.filter(k=>k.frame===4).at(-1).value=159,
+  p=>p.animations.CmnFade_D_00_Aplt.tracks.find(t=>t.target==='P_Belt_00'&&t.property==='materialColor.1.1').keys.filter(k=>k.frame===4).at(-1).value=159,
+  p=>p.animations.CmnFade_D_00_Aplt.tracks.find(t=>t.target==='P_Aplt_00'&&t.property==='texture.translation.x').keys.filter(k=>k.frame===4).at(-1).value=.25,
+  p=>p.animations.CmnFade_D_00_Aplt.tracks.find(t=>t.target==='P_Aplt_00'&&t.property==='texture.scale.y').keys.filter(k=>k.frame===4).at(-1).value=2,
+  p=>p.animations.CmnFade_D_00_Aplt.tracks.find(t=>t.target==='T_Aplt_00'&&t.property==='materialColor.1.3').keys[0].value=0,
  ];
  for(const [index,mutate]of mutations.entries()){const pack=structuredClone(common);mutate(pack);assert.throws(()=>validateManualEntryAssets(pack),/Unsupported Manual/,`mutation ${index}`);}
 });

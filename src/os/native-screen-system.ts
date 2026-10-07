@@ -29,12 +29,11 @@ export function escapeUnreadyNativeScreen(state:MenuState,now:number):MenuState{
   if(!s||s.sleeping||s.preferences||s.dialog||!['launch','app'].includes(s.phase))return state;
   const released=releaseSystemInputs(state,now);
   const active=s.runtime.active?s.runtime.instances[s.runtime.active]:undefined;
-  const application=s.runtime.application?s.runtime.instances[s.runtime.application]:undefined;
-  // If Camera's content-1 Manual source is unavailable, recovery closes only
-  // the HOME-opened applet so the retained application remains HOME's owner;
-  // suspending the failed applet would replace homeReturn with the wrong slot.
-  if(s.phase==='app'&&active?.appId==='manual'&&application?.appId==='camera'&&s.runtime.homeReturn===application.id){
-   return reduceSystem(released,'back',now);
+  // Unready Manual recovery closes the cover applet before returning HOME.
+  // Suspending Manual would replace the application's retained return owner.
+  if(s.phase==='app'&&active?.appId==='manual'){
+   const closed=reduceSystem(released,'x',now);
+   return closed.system?.phase==='app'?reduceSystem(closed,'home',now):closed;
   }
   return reduceSystem({...released,system:{...released.system!,phase:'app'}},'home',now);
 }

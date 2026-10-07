@@ -4,7 +4,7 @@ import type { NativeDrawOptions, NativeLayoutRenderer } from './native-renderer'
 import type { NativeTitlePackRequest } from './native-title-assets';
 import type { NotesIntroPaint, StockScreenPaintOptions } from './stock-screen-presentation';
 import type { SuspendedCapture } from './notes-suspended-capture';
-import { nativeMessageOverride, type NativePixels, type PaneOverrides } from './native-layout';
+import { nativeMessageOverride, sampleNativeTrack, type NativePack, type NativePixels, type PaneOverrides } from './native-layout';
 import { notesCaptureView, NOTES_SWITCH_LAST_FRAME } from './stock-screen-layout';
 
 const notesPrefix='packs/game-notes/';
@@ -21,7 +21,7 @@ export const personalSelectedNotePacks:readonly NativeTitlePackRequest[]=[
   ...personalNotesPacks.filter(({alias})=>alias!=='notes-list'&&alias!=='notes-help'),
   {url:notesPrefix+'memo-MemoWriteDown-arc-l.json',alias:'notes-write',layouts:['MemoWriteDown'],animations:['MemoWriteDown_Base','MemoWriteDown_SceneIn','MemoWriteDown_Invalid']},
   {url:notesPrefix+'memo-ImageScreenUp-arc-l.json',alias:'notes-image',layouts:['ImageScreenUp'],animations:[
-    'ImageScreenUp_PanelNoGameIn','ImageScreenUp_SwitchDouble','ImageScreenUp_SwitchUp','ImageScreenUp_SwitchDown',
+    'ImageScreenUp_PanelNoGameIn','ImageScreenUp_SceneOut','ImageScreenUp_SwitchDouble','ImageScreenUp_SwitchUp','ImageScreenUp_SwitchDown',
     'ImageScreenUp_TextPanelInOut','ImageScreenUp_TextPanelStay',
     'ImageScreenUp_HudDoubleInOut','ImageScreenUp_HudUpInOut','ImageScreenUp_HudDownInOut',
   ]},
@@ -249,7 +249,7 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
 
 /** Live list upper: composed title/HUD under ApltBoot while scene-10 draw is
  * set. The painter only samples a precomposed pose. Drawing still hides the
- * title. MemoTutorialUp remains the no-metadata fallback. */
+ * title. The no-software list is distinct from missing application metadata. */
 function notesIntroTitleOptions(intro:Extract<NotesIntroPaint,{status:'posed'}>,capture:SuspendedCapture):NativeDrawOptions{
   const hidden={visible:false},textures:Record<string,NativePixels>={};
   if(intro.icon)textures['notes-icon']=intro.icon;
@@ -263,6 +263,26 @@ function notesIntroTitleOptions(intro:Extract<NotesIntroPaint,{status:'posed'}>,
       :{P_ScreenUpL:hidden,P_ScreenDown:hidden,P_ScreenShdwUp:hidden,P_ScreenShdwDown:hidden,W_ScreenShdwUp:hidden,W_ScreenShdwDown:hidden}),
   }};
 }
+/** Scene 3's no-software branch keeps T_TextList's source alpha and initializes
+ * the pane-bound P_Mask SceneOut at 20, independently of tutorial history. */
+export function notesNoSoftwareListOverrides(image:NativePack,messages:NativePack):PaneOverrides{
+  const clip=image.animations.ImageScreenUp_SceneOut;
+  const masks=clip?.tracks.filter(track=>track.binding==='pane'&&track.target==='P_Mask'&&track.property==='alpha');
+  const mask=masks?.[0];
+  if(!clip||clip.frames!==21||clip.loop||masks?.length!==1||!mask||sampleNativeTrack(mask,20)!==0)
+    throw new Error('Unsupported native Notes no-software mask track');
+  const bank=messages.messages.message,label=bank?.labels['9900NoBreakGameMesList'];
+  if(label===undefined||!bank?.messages[label])
+    throw new Error('Missing native Notes no-software list message');
+  const hidden={visible:false};
+  return {
+    T_TextList:{...nativeMessageOverride(messages,'message','9900NoBreakGameMesList',''),visible:true},
+    T_TextWrite:hidden,W_TextPanel:hidden,
+    P_ScreenShdwUp:hidden,P_ScreenShdwDown:hidden,P_ScreenUpR:hidden,
+    P_ScreenUpL:hidden,P_ScreenDown:hidden,W_ScreenShdwUp:hidden,W_ScreenShdwDown:hidden,
+    P_Mask:{alpha:sampleNativeTrack(mask,20)},
+  };
+}
 function drawNotesMainUpper(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,message:(label:string)=>PaneOverrides[string],options:StockScreenPaintOptions):boolean{
   const intro=options.notesIntro,capture=options.suspendedCapture??{status:'none'};
   if(intro?.status==='posed'){
@@ -271,7 +291,10 @@ function drawNotesMainUpper(renderer:NativeLayoutRenderer,top:CanvasRenderingCon
     return okay;
   }
   if(intro?.status==='pending')return renderer.draw(top,'notes-aplt-u','ApltBoot_U_00');
-  let okay=renderer.draw(top,'notes-help','MemoTutorialUp',{bindings:[{name:'MemoTutorialUp_Base',frame:1},{name:'MemoTutorialUp_SceneIn',frame:20}],overrides:{T_PartsTxt00b:message('1000Help_WelcomeP1')}});
+  // The boot-cover owner is created only when no runtime application exists.
+  let okay=intro?.status==='boot-cover'&&capture.status==='none'
+    ?renderer.draw(top,'notes-image','ImageScreenUp',{overrides:notesNoSoftwareListOverrides(renderer.packs['notes-image'],renderer.packs['notes-messages'])})
+    :renderer.draw(top,'notes-help','MemoTutorialUp',{bindings:[{name:'MemoTutorialUp_Base',frame:1},{name:'MemoTutorialUp_SceneIn',frame:20}],overrides:{T_PartsTxt00b:message('1000Help_WelcomeP1')}});
   if(intro?.status==='boot-cover'&&intro.scene10Draw)okay=renderer.drawLayout(top,'notes-aplt-u','ApltBoot_U_00',intro.upper)&&okay;
   return okay;
 }

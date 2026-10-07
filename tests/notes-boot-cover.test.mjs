@@ -170,24 +170,47 @@ const compiled = ts.transpileModule(moduleSource, { compilerOptions: { module: t
   .replaceAll("'./stock-screen-layout'", JSON.stringify(new URL('../src/os/stock-screen-layout.ts', import.meta.url).href))
   .replaceAll("'./device-status-profile'", JSON.stringify(new URL('../src/os/device-status-profile.ts', import.meta.url).href));
 const { drawNativePersonalToolFrame } = await import('data:text/javascript;base64,' + Buffer.from(compiled).toString('base64'));
-function paint(intro) {
+function paint(intro, capture = { status: 'none' }) {
   const top = {}, bottom = {}, calls = [];
-  const renderer = { packs: { 'notes-messages': pack('messages-and-loose.json') },
+  const renderer = { packs: { 'notes-messages': pack('messages-and-loose.json'), 'notes-image': pack('memo-ImageScreenUp-arc-l.json') },
     draw(ctx, alias, layout, options) { calls.push({ ctx, alias, layout, options }); return true; },
     drawLayout(ctx, alias, layout, pose, options) { calls.push({ ctx, alias, layout, pose, options }); return true; } };
-  assert.equal(drawNativePersonalToolFrame(renderer, top, bottom, { appId: 'game-notes', screen: 'main', selection: 0, rows: [] }, { notesIntro: intro }), true);
+  assert.equal(drawNativePersonalToolFrame(renderer, top, bottom, { appId: 'game-notes', screen: 'main', selection: 0, rows: [] }, { notesIntro: intro, suspendedCapture: capture }), true);
   return { upper: calls.filter(call => call.ctx === top), lower: calls.filter(call => call.ctx === bottom) };
 }
 
-test('metadata-free entry draws the original covers last on each LCD and preserves the tutorial', () => {
+test('no-software entry draws the original list message beneath both source covers', () => {
   const session = createNotesBootCoverSession(), cover = session.sync(input);
   const first = paint(cover);
-  assert.deepEqual(first.upper.map(call => call.alias), ['notes-upper', 'notes-help', 'notes-aplt-u']);
+  assert.deepEqual(first.upper.map(call => call.alias), ['notes-upper', 'notes-image', 'notes-aplt-u']);
   assert.deepEqual(first.lower.map(call => call.alias), ['notes-lower', 'notes-list', 'notes-aplt-d']);
   assert.equal(first.upper.at(-1).pose, cover.upper);
   assert.equal(first.lower.at(-1).pose, cover.lower);
   assert.equal(first.lower.at(-1).options.overrides.T_Aplt_00.text, 'Game Notes');
+  assert.equal(first.upper[1].options.overrides.T_TextList.text, 'There is no suspended software.');
+  assert.equal(first.upper[1].options.overrides.P_Mask.alpha, 0);
   const terminal = finish(session);
-  assert.deepEqual(paint(terminal).upper.map(call => call.alias), ['notes-upper', 'notes-help']);
+  assert.deepEqual(paint(terminal).upper.map(call => call.alias), ['notes-upper', 'notes-image']);
   assert.deepEqual(paint(terminal).lower.map(call => call.alias), ['notes-lower', 'notes-list']);
+});
+
+test('application-present captures and missing metadata do not imply no suspended software', () => {
+  const cover = createNotesBootCoverSession().sync(input);
+  for (const capture of [{ status: 'missing', owner: 'camera:1' }, { status: 'ready', owner: 'camera:1', generation: 1 }]) {
+    assert.deepEqual(paint(cover, capture).upper.map(call => call.alias), ['notes-upper', 'notes-help', 'notes-aplt-u']);
+    assert.deepEqual(paint(undefined, capture).upper.map(call => call.alias), ['notes-upper', 'notes-help']);
+    assert.deepEqual(paint({ status: 'pending' }, capture).upper.map(call => call.alias), ['notes-upper', 'notes-aplt-u']);
+  }
+  assert.deepEqual(paint(undefined).upper.map(call => call.alias), ['notes-upper', 'notes-help']);
+});
+
+test('metadata-ready title publication keeps its existing pose and hides the list message', () => {
+  const title = pack('memo-ImageScreenUp-arc-l.json').layouts.ImageScreenUp;
+  const cover = createNotesBootCoverSession().sync(input);
+  const intro = { ...cover, status: 'posed', title, titleUserVisible: false, description: 'Camera' };
+  const upper = paint(intro, { status: 'missing', owner: 'camera:1' }).upper;
+  assert.deepEqual(upper.map(call => call.alias), ['notes-upper', 'notes-image', 'notes-aplt-u']);
+  assert.equal(upper[1].pose, title);
+  assert.equal(upper[1].options.overrides.T_TextList.visible, false);
+  assert.equal(upper[1].options.overrides.T_TextTitle.text, 'Camera');
 });

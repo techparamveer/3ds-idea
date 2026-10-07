@@ -227,6 +227,38 @@ test('optional pinned original Manual NCCH links row constructor, plain writer a
  assert.equal(cstring(word(0x1c1810)),'TextBox_Num');assert.equal(branch(0x1702c8),0x14a2c4);assert.equal(branch(0x1702f0),0x14a1cc);
  assert.equal(word(0x1b6d80),0x1a5090);assert.equal(word(0x19aa10),0xe585005c,'original str r0,[r5,#0x5c]');
  assert.equal(nativeTextWriterFlags(0,0),0);assert.notEqual(nativeTextWriterFlags(4,2),0);
+ const constructorInstructions=[
+  [0x17c6bc,0xe1c506d4,'ldrd r0,r1,[r5,#0x64]: source font size'],
+  [0x17c6c0,0xe1c40ef4,'strd r0,r1,[r4,#0xe4]: retained TextBox font size'],
+  [0x17c6c4,0xe5d50054,'ldrb r0,[r5,#0x54]: source alignment'],
+  [0x17c6c8,0xe5c400fc,'strb r0,[r4,#0xfc]: retained alignment'],
+  [0x17c6cc,0xe5d400fd,'ldrb r0,[r4,#0xfd]: original TextBox flags'],
+  [0x17c6d0,0xe5d51055,'ldrb r1,[r5,#0x55]: source line alignment'],
+  [0x17c6d4,0xe3c00003,'bic r0,r0,#3: replace only line-alignment bits'],
+  [0x17c6d8,0xe2011003,'and r1,r1,#3: original line-alignment mask'],
+  [0x17c6dc,0xe1800001,'orr r0,r0,r1'],
+  [0x17c6e0,0xe5c400fd,'strb r0,[r4,#0xfd]: retained line alignment'],
+  [0x17c6e4,0xe595006c,'ldr r0,[r5,#0x6c]: source character spacing'],
+  [0x17c6e8,0xe58400f0,'str r0,[r4,#0xf0]: retained character spacing'],
+  [0x17c6ec,0xe5950070,'ldr r0,[r5,#0x70]: source line spacing'],
+  [0x17c6f0,0xe58400ec,'str r0,[r4,#0xec]: retained line spacing'],
+ ];
+ const renderBranches=[[0x1a5100,0x19aacc],[0x19aaf4,0x19a910],[0x19ab18,0x1ab71c],[0x1ab750,0x1ab778],[0x1ab7dc,0x1ab4d0]];
+ const assertConstructorAndRender=bytes=>{
+  const read=address=>bytes.readUInt32LE(address-0x100000);
+  for(const [address,expected,meaning] of constructorInstructions)assert.equal(read(address),expected,meaning);
+  for(const [address,target] of renderBranches){
+   const instruction=read(address);assert.equal(instruction>>>24,0xeb,'original unconditional BL');
+   assert.equal(address+8+((instruction<<8)>>6),target,`render edge ${address.toString(16)}`);
+  }
+ };
+ assertConstructorAndRender(code);
+ for(const [address] of [...constructorInstructions,...renderBranches]){
+  const mutation=Buffer.from(code);mutation.writeUInt32LE((word(address)^1)>>>0,address-0x100000);
+  assert.throws(()=>assertConstructorAndRender(mutation),assert.AssertionError,`changed original instruction ${address.toString(16)} is rejected`);
+ }
+ for(const [lo,hi,expected] of [[0x17c604,0x17c71c,'c9e435177a1e8403a3dc058737cc3fde62209ad87db1e9392ba2c5dda590a94a'],[0x1a5090,0x1a5120,'30608f28451cc5b16772dc1ea79e0de84bee2ab859ba3ab332299ea6d6a9c865'],[0x19aacc,0x19ab64,'06cfe62575c1617cf23ea2ff1843966225c67cc3b2550c1a1043944210653e8b'],[0x1ab71c,0x1ab7e0,'984ee09b26a600d44770d9e5a2afe71ba24d0d75b8b4b9b650b96b748c452b5a']])assert.equal(sha(code.subarray(lo-0x100000,hi-0x100000)),expected);
  for(const [lo,hi,expected] of [[0x13cec0,0x13d120,'b34c1e480e23c1e25a6e3186c4c633722e742bfc81539f25130eddac5dc6a333'],[0x170080,0x170250,'ced7925fdafba5653d1b40519d49f6655cc0e943ab065b14e014c696aa0d5ae1'],[0x14a180,0x14a384,'acdcc3520ba19007c57b6200c69306ba56701589105dae9e0609d18fc891c2e5'],[0x19a910,0x19aa8c,'82f30d892d3e896687b9ce30369a04f378cee5fbae0543056d8c4b093bc5589a'],[0x1ab4d0,0x1ab71c,'a506c8147a77e2d9f76cd15d05f10eadc402add13730090f13e70ae2cdc9d694'],[0x1a1e0c,0x1a1edc,'78101f5f004acf8fff69dc65475278dd23ab1c039e9b083c7e61df2d3e64a773'],[0x1a1980,0x1a1c68,'da01b23039fa9c8f1be65be5152487d8cf544111eed0e0cfaa97ce0267f603e8']])assert.equal(sha(code.subarray(lo-0x100000,hi-0x100000)),expected);
- // Static instruction checks only. The historical Unicorn attempt exited SIGILL; no ARM execution is claimed.
+ // Byte/branch decoding and mutation checks only, not original ARM execution.
+ // The historical Unicorn attempt exited SIGILL; native/GPU fidelity remains open.
 });

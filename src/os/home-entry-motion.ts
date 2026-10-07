@@ -3,6 +3,9 @@ import type { HomeApplicationTransitionPresentation } from './home-application-t
 export const HOME_FOLDER_ENTRY_LAST_FRAME = 16;
 export const HOME_FOLDER_CAPTURE_ENTRY_LAST_FRAME = 8;
 export const HOME_PAUSE_ENTRY_LAST_FRAME = 20;
+// Browser policy: tolerate one missed nominal 20 FPS pair (two 3-update gaps).
+// Larger unobserved jumps rebase without spending motion, not native duration.
+export const HOME_ENTRY_MAX_OBSERVED_UPDATE_GAP = 6;
 
 export type HomeEntryMotionIdentity = Readonly<{ kind: 'folder'; folder: string }>
   | Readonly<{ kind: 'pause'; owner: string; captureGeneration: number }>;
@@ -39,8 +42,9 @@ export function sampleHomeEntryMotion(current: HomeEntryMotion | null,
   }
   if (updateCount < current.observedUpdate) throw new RangeError('HOME entry-motion clock moved backwards');
   if (updateCount === current.observedUpdate) return current;
+  const updates = updateCount - current.observedUpdate;
   return Object.freeze({ ...current, observedUpdate: updateCount,
-    elapsedUpdates: current.elapsedUpdates + (eligible ? updateCount - current.observedUpdate : 0) });
+    elapsedUpdates: current.elapsedUpdates + (eligible && updates <= HOME_ENTRY_MAX_OBSERVED_UPDATE_GAP ? updates : 0) });
 }
 
 export function homeFolderEntryPose(motion: HomeEntryMotion | null, reduced = false): HomeFolderEntryPose | null {

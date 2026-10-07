@@ -1076,7 +1076,8 @@ test('live folder entry shares source poses across capture, chrome and both chil
   paint(at(105));assert.deepEqual(pose(),{folderFrame:5,captureFrame:5});
   screens.paint(at(115),new Date(0),1200,{homeCursorLoopFrame:0});
   paint(at(106));assert.deepEqual(pose(),{folderFrame:6,captureFrame:6},'diagnostic paint does not replace the live observation');
-  paint(at(120));assert.deepEqual(pose(),{folderFrame:16,captureFrame:8});
+  for(const update of [109,112,115,118,120])paint(at(update));
+  assert.deepEqual(pose(),{folderFrame:16,captureFrame:8});
   paint({...root,system:{...root.system,homeClock:{...root.system.homeClock,updateCount:121}}});
   paint(at(122));assert.deepEqual(pose(),{folderFrame:0,captureFrame:0},'re-entry restarts the source clips');
  },{presenterPatch:{folderChild(ctx,_state,empty,draw,_reduced,entry){ctx.record('entry-child',[entry,empty]);draw(1);}}});
@@ -1094,7 +1095,48 @@ test('live HOME suspension binds AppPause from the complete capture and keeps fa
   paint(at(109));assert.equal(frame(),5);
   screens.paint(at(120),new Date(0),1200,{homeCursorLoopFrame:0});
   paint(at(110));assert.equal(frame(),6,'diagnostic paint did not advance live motion');
-  paint(at(130));assert.equal(frame(),20);
+  for(const update of [113,116,119,122,125,128,130])paint(at(update));
+  assert.equal(frame(),20);
+ },{screenOptions:{drawSuspendedBackground(ctx,_capture,presentation){ctx.record('pause-backdrop',[presentation]);return !fail;}}});
+});
+
+test('mid-entry folder stalls retain the last paired pose and failure or diagnostic paints cannot rebase it',async()=>{
+ const base=home(),root={...base,folders:{19:'Folder'}},entered=enterHomeFolder(root,19);
+ const at=updateCount=>({...entered,system:{...entered.system,homeClock:{...entered.system.homeClock,updateCount}}});
+ let fail=false;
+ await withScreens(({screens,paint,events})=>{
+  const pose=()=>events.find(event=>event.name==='folderChrome').args.at(-1);
+  paint(at(100));paint(at(103));assert.deepEqual(pose(),{folderFrame:3,captureFrame:3});
+  fail=true;assert.throws(()=>paint(at(107)),/folder entry fixture failure/);fail=false;
+  paint(at(104));assert.deepEqual(pose(),{folderFrame:4,captureFrame:4},'failed pair cannot advance or rebase the live observation');
+  fail=true;assert.throws(()=>paint(at(499)),/folder entry fixture failure/);fail=false;
+  paint(at(105));assert.deepEqual(pose(),{folderFrame:5,captureFrame:5},'failed stalled pair cannot commit its rebase');
+  paint(at(500));assert.deepEqual(pose(),{folderFrame:5,captureFrame:5},'large live jump retains the last visible midpoint');
+  paint(at(500));assert.deepEqual(pose(),{folderFrame:5,captureFrame:5},'same update repeats the same pose');
+  paint(at(503));assert.deepEqual(pose(),{folderFrame:8,captureFrame:8});
+  screens.paint(at(3000),new Date(0),1200,{homeCursorLoopFrame:0});
+  paint(at(504));assert.deepEqual(pose(),{folderFrame:9,captureFrame:8},'diagnostic stall cannot commit its rebase');
+  paint({...root,system:{...root.system,homeClock:{...root.system.homeClock,updateCount:505}}});
+  paint(at(506));assert.deepEqual(pose(),{folderFrame:0,captureFrame:0},'leaving and repeating binds a fresh entry');
+ },{presenterPatch:{folderChrome(ctx,...args){ctx.record('folderChrome',args);if(fail)throw Error('folder entry fixture failure');return true;}}});
+});
+
+test('mid-entry HOME pause stalls retain the complete capture pose through failed and diagnostic pairs',async()=>{
+ const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',3010),6500),'home',6600);
+ const at=updateCount=>({...suspended,system:{...suspended.system,homeClock:{...suspended.system.homeClock,updateCount}}});
+ let fail=false;
+ await withScreens(({screens,paint,events})=>{
+  const frame=()=>events.find(event=>event.name==='pause-backdrop').args[0].material[0].frame;
+  paint(at(100));paint(at(103));assert.equal(frame(),3);
+  fail=true;paint(at(107));assert.equal(screens.stockStatus(at(107)),'error');
+  fail=false;screens.retryStockScreen();paint(at(104));assert.equal(frame(),4,'failed source pair cannot commit a midpoint advance');
+  fail=true;paint(at(999));assert.equal(screens.stockStatus(at(999)),'error');
+  fail=false;screens.retryStockScreen();paint(at(105));assert.equal(frame(),5,'failed stalled pair cannot commit its rebase');
+  screens.paint(at(3000),new Date(0),1200,{homeCursorLoopFrame:0});
+  paint(at(106));assert.equal(frame(),6,'diagnostic stall cannot rebase the live clock');
+  paint(at(1000));assert.equal(frame(),6,'live stall retains, rather than clears or settles, AppPause');
+  paint(at(1000));assert.equal(frame(),6);
+  paint(at(1003));assert.equal(frame(),9,'normal three-update sampling resumes after the successful rebase');
  },{screenOptions:{drawSuspendedBackground(ctx,_capture,presentation){ctx.record('pause-backdrop',[presentation]);return !fail;}}});
 });
 

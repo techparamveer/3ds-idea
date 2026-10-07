@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { sampleHomeEntryMotion, homeFolderEntryPose, homePauseEntryPresentation } from '../src/os/home-entry-motion.ts';
+import { sampleHomeEntryMotion, homeFolderEntryPose, homePauseEntryPresentation, HOME_ENTRY_MAX_OBSERVED_UPDATE_GAP } from '../src/os/home-entry-motion.ts';
 import { poseNativeLayout, nativePaneParentPath } from '../src/os/native-layout.ts';
 import { suspendedBackgroundPlayback } from '../src/scene/home-suspended-background.ts';
 
@@ -14,8 +14,9 @@ test('folder entry samples every authored pose and retains each independent endp
   assert.equal(launcher.animations.LncFolder_00_FadeIn.frames, 17);
   assert.equal(launcher.animations.LncFolderCapture_00_Fade.frames, 9);
   const start = sampleHomeEntryMotion(null, folder, 100, true);
+  let sampled = start;
   for (let update = 0; update <= 30; update++) {
-    const sampled = sampleHomeEntryMotion(start, folder, 100 + update, true);
+    sampled = sampleHomeEntryMotion(sampled, folder, 100 + update, true);
     assert.deepEqual(homeFolderEntryPose(sampled), { folderFrame: Math.min(16, update), captureFrame: Math.min(8, update) });
   }
   assert.equal(sampleHomeEntryMotion(start, folder, 100, true), start);
@@ -44,7 +45,7 @@ test('inhibited updates freeze entry and do not become catch-up work on resume',
 });
 
 test('folder replacement and a new complete application capture each start fresh motion', () => {
-  const current = sampleHomeEntryMotion(sampleHomeEntryMotion(null, folder, 0, true), folder, 8, true);
+  const current = sampleHomeEntryMotion(sampleHomeEntryMotion(null, folder, 0, true), folder, 5, true);
   assert.equal(sampleHomeEntryMotion(current, { ...folder, folder: 'folder:8' }, 9, true).elapsedUpdates, 0);
   const suspended = sampleHomeEntryMotion(null, pause, 90, true);
   const moving = sampleHomeEntryMotion(suspended, pause, 95, true);
@@ -61,12 +62,35 @@ test('pause entry selects the original AppPause scale and tint clip without an A
   const scale = clip.Elements.find(element => element.TargetType === 'MaterialTexCoord0Scale').Content.X;
   assert.deepEqual(scale.KeyFrames.map(key => [key.Frame, key.Value]), [[0, 1], [1, 1.002], [2, 1], [5, .98], [10, .93], [15, .89], [19, .87]]);
   const start = sampleHomeEntryMotion(null, pause, 60, true);
-  for (const update of [0, 1, 5, 10, 19, 20, 40]) {
-    const presentation = homePauseEntryPresentation(sampleHomeEntryMotion(start, pause, 60 + update, true));
+  let sampled = start;
+  for (let update = 0; update <= 40; update++) {
+    sampled = sampleHomeEntryMotion(sampled, pause, 60 + update, true);
+    const presentation = homePauseEntryPresentation(sampled);
     assert.deepEqual(suspendedBackgroundPlayback(presentation), {
       skeletal: [{ name: 'BannerBG_SceneIn', frame: 20 }],
       material: [{ name: 'BannerBG_AppPause', frame: Math.min(20, update) }],
     });
+  }
+});
+
+test('browser stall policy preserves midpoint poses, rebases once and accepts normal multi-update LCD sampling', () => {
+  assert.equal(HOME_ENTRY_MAX_OBSERVED_UPDATE_GAP, 6);
+  for (const identity of [folder, pause]) {
+    const start = sampleHomeEntryMotion(null, identity, 100, true);
+    const moving = sampleHomeEntryMotion(start, identity, 103, true);
+    const normal = sampleHomeEntryMotion(moving, identity, 109, true);
+    assert.equal(normal.elapsedUpdates, 9, 'one missed nominal pair remains ordinary sampled motion');
+    const stall = sampleHomeEntryMotion(normal, identity, 2000, true);
+    assert.equal(stall.elapsedUpdates, 9);
+    assert.equal(stall.observedUpdate, 2000);
+    assert.equal(sampleHomeEntryMotion(stall, identity, 2000, true), stall);
+    const resumed = sampleHomeEntryMotion(stall, identity, 2003, true);
+    assert.equal(resumed.elapsedUpdates, 12, 'resume spends only the next ordinary HOME updates');
+    const anotherStall = sampleHomeEntryMotion(resumed, identity, 2010, true);
+    assert.equal(anotherStall.elapsedUpdates, 12, 'threshold plus one is inhibited');
+    assert.equal(sampleHomeEntryMotion(anotherStall, null, 2011, true), null);
+    const fresh = sampleHomeEntryMotion(null, identity, 2012, true);
+    assert.equal(fresh.elapsedUpdates, 0, 'a repeated entry starts from zero instead of the old midpoint');
   }
 });
 

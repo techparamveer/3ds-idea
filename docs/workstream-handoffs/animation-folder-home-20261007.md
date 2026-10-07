@@ -122,6 +122,18 @@ power-off and disposal clear presentation samples. Exact native input epoch,
 task order, LCD publication cadence and stop/idle gates remain unproved.
 No duration, easing or native sound was guessed.
 
+**Browser stall policy follow-up:** `HOME_ENTRY_MAX_OBSERVED_UPDATE_GAP=6`
+accepts a normal three-update nominal20FPS LCD sample and one missed pair.
+It also accepts an ordinary five-update constrained12FPS sample. A larger
+unobserved HOME-clock jump is treated as inhibited: retain the last paired
+pose, rebase observedUpdate only after a successful live pair, then spend only
+subsequent ordinary updates. This threshold is an explicit browser resilience
+policy, not a source duration, source gate or cadence claim. It does not slow
+every paint to one frame or alter System/scene clocks and LCD cadence.
+Mid-entry stall tests cover both folder and pause, failed advancement and failed
+rebasing, diagnostic rebasing, repeated same-update painting, reset/re-entry and
+new capture identity. No scene cadence boost was added.
+
 ## Integration and Checks
 
 Cherry-pick the coherent commit containing this handoff into the coordinator's
@@ -144,7 +156,7 @@ Focused verification command:
 node --test --test-reporter=spec tests/home-entry-motion.test.mjs tests/native-home-controls-paint.test.mjs tests/firmware-banner.test.mjs tests/home-suspended-background.test.mjs tests/home-folder-close.test.mjs tests/home-suspended-presentation.test.mjs
 ```
 
-Result:207 pass,0 fail,0 skipped. TypeScript `tsc --noEmit --incremental false`
+Result:210 pass,0 fail,0 skipped. TypeScript `tsc --noEmit --incremental false`
 passes. `git diff --check` and relative handoff links pass. Existing dependencies
 were reused read-only; no packages installed. No full build/test suite, shader
 change, worker GUI, server, new browser capture, native diff or audio inspection.

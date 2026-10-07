@@ -21,6 +21,16 @@ const material={name:'picture',bufferColor:[0,0,0,0],constantColors:[[255,255,25
 const pane={kind:'pic1',name:'picture',flags:1,origin:4,alpha:255,translation:[0,0,0],rotation:[0,0,0],scale:[1,1],size:[1,1],children:[],picture:{material:0,colors:white,uvSets:[[0,0,1,0,0,1,1,1]]}};
 const layout={canvas:{width:1,height:1,origin:1},roots:[pane],materials:[material],textures:['dynamic'],fonts:[],groups:[],unsupported:[]};
 
+test('font metadata query exposes only the actually bound native manifest identity',()=>{
+ const manifest=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/shared/font.json',import.meta.url),'utf8'));
+ const font={manifest},fonts=new Map([['cbf_std.bcfnt',font]]),renderer=new NativeLayoutRenderer({}, {},fonts);
+ const before=JSON.stringify(manifest);
+ assert.equal(renderer.getFontManifest('cbf_std.bcfnt'),manifest);
+ assert.equal(renderer.getFontManifest('unbound.bcfnt'),undefined);
+ assert.equal(JSON.stringify(manifest),before);assert.equal(fonts.size,1);
+ renderer.dispose();assert.equal(fonts.get('cbf_std.bcfnt'),font,'renderer does not own or replace the borrowed font');
+});
+
 test('per-draw native texture bindings isolate glyphs and renames, restore the source, and reuse cached raster snapshots',()=>{
  const prior=globalThis.document;globalThis.document={createElement:canvas};
  try{

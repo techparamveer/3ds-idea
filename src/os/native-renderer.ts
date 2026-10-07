@@ -62,6 +62,7 @@ export class NativeLayoutRenderer {
  private parentAlpha=new WeakMap<Context,number>();
  readonly diagnostics:string[]=[];
  constructor(readonly packs:Record<string,NativePack>,private textures:Record<string,Map<string,NativePixels>>,private fonts:ReadonlyMap<string,BitmapFont>,private cacheLimit=8*1024*1024){}
+ getFontManifest(fontName:string):Readonly<FontManifest>|undefined{return this.fonts.get(fontName)?.manifest;}
  /** Source single-line writer width used by Settings' title/icon centering. */
  measureSingleLineText(fontName:string,text:NativeText):number{
   const font=this.fonts.get(fontName);if(!font)throw new Error(`Missing native font ${fontName}`);

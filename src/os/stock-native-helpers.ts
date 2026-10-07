@@ -1,6 +1,6 @@
 import {amiiboScreenPacks,drawNativeAmiibo} from './stock-native-amiibo';
 import type { AppView } from './app-types';
-import { nativeMessageOverride, nativePaneParentPath, nativeTextMetrics, type PaneOverrides, type NativeLayout, type NativePixels } from './native-layout';
+import { nativeMessageOverride, nativePaneParentPath, nativeTextMetrics, poseNativeLayout, type PaneOverrides, type NativeLayout, type NativePane, type NativePixels } from './native-layout';
 import type { NativeLayoutRenderer } from './native-renderer';
 import type { NativeTitlePackRequest } from './native-title-assets';
 import { applicationManualTargets, type StockScreenTarget } from './stock-screen-layout';
@@ -246,23 +246,67 @@ export function applicationManualIconPixels(source:NativePixels):NativePixels{
   }
   return {width:64,height:64,data,picaFormat:3};
 }
-function prepareApplicationManualRows(renderer:NativeLayoutRenderer){
-  if(preparedApplicationManualRows.has(renderer))return;
-  const pack=renderer.packs['manual-row'],source=pack.layouts.BtnHeadLineTxt;
-  const tint=(name:string,color:[number,number,number])=>{
-    const layout=structuredClone(source),material=layout.materials.find(item=>item.name==='PageTitleNumBase');
-    if(!material)throw new Error('Missing Manual page-number material');
-    material.bufferColor=[...color,0];
-    // Native row artwork is one raster line above the unparented applet
-    // layout. Keep the source slot/cursor centres and move only its body.
-    const body=layout.roots[0]?.children.find(item=>item.name==='BtnHeadLineBody');
-    if(!body)throw new Error('Missing Manual row body');
-    body.translation=[body.translation[0],APPLICATION_MANUAL_LOWER_FIT.rowBodyY,body.translation[2]];
-    return [name,layout] as const;
-  };
-  renderer.packs['manual-row']={...pack,layouts:{...pack.layouts,
-    ...Object.fromEntries([tint('ManualRowImportant',[237,136,136]),tint('ManualRowGettingStarted',[154,212,105])])}};
-  preparedApplicationManualRows.add(renderer);
+/** Manual 0x1702c8 uses the plain TextBox_Txt writer. Its alignment 0/0
+ * reaches writer flags 0 at 0x19aa10, preserving the original glyph quads. */
+function validateApplicationManualRow(layout:NativeLayout|undefined,bodyY:number){
+  const fail=()=>{throw new Error('Unsupported Manual Contents TextBox_Txt source');};
+  if(!layout||layout.unsupported.length||layout.fonts.length!==1||layout.fonts[0]!=='cbf_std.bcfnt')return fail();
+  const path=nativePaneParentPath(layout,'TextBox_Txt');
+  if(!path||path.length!==3||path.map(pane=>pane.name).join('/')!=='RootPane/BtnHeadLineBody/TextBox_Txt')return fail();
+  const counts=new Map<string,number>();
+  const visit=(panes:NativePane[])=>{for(const pane of panes){counts.set(pane.name,(counts.get(pane.name)??0)+1);visit(pane.children);}};
+  visit(layout.roots);
+  const same=(value:unknown,expected:readonly number[])=>Array.isArray(value)&&value.length===expected.length&&value.every((item,index)=>item===expected[index]);
+  for(const [index,pane] of path.entries()){
+    if(counts.get(pane.name)!==1||pane.kind!==(index===2?'txt1':'pan1')||pane.flags!==1||pane.alpha!==255||pane.origin!==(index===2?3:4)
+      ||pane.unsupported?.length||pane.part||pane.picture||pane.window||index!==2&&pane.text||!same(pane.rotation,[0,0,0])||!same(pane.scale,[1,1]))return fail();
+    if(!same(pane.translation,index===0?[0,0,0]:index===1?[0,bodyY,0]:[-97,1.5399999618530273,0])||!same(pane.size,index===0?[320,240]:index===1?[30,40]:[290,21]))return fail();
+  }
+  const pane=path[2],text=pane.text;
+  if(!text||pane.children.length||text.font!==0||text.material!==0||text.alignment!==0||text.lineAlignment!==0
+    ||text.characterSpacing!==0||text.lineSpacing!==0||!('flags' in text)||text.flags!==0
+    ||!('capacity' in text)||text.capacity!==30||!('length' in text)||text.length!==30||!same(text.size,[17.5,21])
+    ||!same(text.topColor,[50,50,50,255])||!same(text.bottomColor,[50,50,50,255])
+    ||text.messageStyle!==undefined||text.colorSpans!==undefined||text.glyphScaleSpans!==undefined||text.fixedWidthSpans!==undefined
+    ||text.cursorAdvances!==undefined||text.lineAdvanceScales!==undefined||text.multilineBlockOrigin!==undefined||text.singleLineBlockOrigin!==undefined
+    )return fail();
+  const material=layout.materials[0];
+  if(!material||Object.keys(material).sort().join(',')!=='bufferColor,constantColors,coordinateGenerators,flags,name,tevStages,textureMaps,textureMatrices,textureOnly,unsupported'
+    ||material.name!=='TextBox_Txt'||!('flags' in material)||material.flags!==0||material.textureOnly!==false||!same(material.bufferColor,[50,50,50,0])
+    ||material.constantColors.length!==6||material.constantColors.some(color=>!same(color,[255,255,255,255]))
+    ||material.textureMaps.length||material.textureMatrices.length||material.coordinateGenerators.length||material.tevStages.length||material.unsupported.length)return fail();
+  return layout;
+}
+function prepareApplicationManualRows(renderer:NativeLayoutRenderer,bottom?:CanvasRenderingContext2D){
+  const pack=renderer.packs['manual-row'],source=bottom?validateApplicationManualRow(pack?.layouts.BtnHeadLineTxt,3):pack.layouts.BtnHeadLineTxt;
+  if(bottom){
+    const font=renderer.getFontManifest('cbf_std.bcfnt'),transform=bottom.getTransform?.();
+    if(!font||font.sourceSha256!=='95d5a675ae14cc22b84b5b89c8d10cc894f1e2dfaf00a1168545fe76fb1eb581'
+      ||font.colorMode!=='alpha'||font.width!==25||font.height!==30||font.ascent!==25||font.baseline!==25||font.lineFeed!==30)throw new Error('Unsupported Manual Contents TextBox_Txt font');
+    if(!transform||transform.a!==1||transform.d!==1||transform.b!==0||transform.c!==0||!Number.isFinite(transform.e)||!Number.isFinite(transform.f))throw new Error('Unsupported Manual Contents TextBox_Txt LCD transform');
+  }
+  if(!preparedApplicationManualRows.has(renderer)){
+    const tint=(name:string,color:[number,number,number])=>{
+      const layout=structuredClone(source),material=layout.materials.find(item=>item.name==='PageTitleNumBase');
+      if(!material)throw new Error('Missing Manual page-number material');
+      material.bufferColor=[...color,0];
+      // Native row artwork is one raster line above the unparented applet
+      // layout. Keep the source slot/cursor centres and move only its body.
+      const body=layout.roots[0]?.children.find(item=>item.name==='BtnHeadLineBody');
+      if(!body)throw new Error('Missing Manual row body');
+      body.translation=[body.translation[0],APPLICATION_MANUAL_LOWER_FIT.rowBodyY,body.translation[2]];
+      return [name,layout] as const;
+    };
+    renderer.packs['manual-row']={...pack,layouts:{...pack.layouts,
+      ...Object.fromEntries([tint('ManualRowImportant',[237,136,136]),tint('ManualRowGettingStarted',[154,212,105])])}};
+    preparedApplicationManualRows.add(renderer);
+  }
+  // Recheck cached clones and the actual Wait pose: an unsupported replacement
+  // must fail instead of taking the renderer's generic Canvas fallback.
+  if(bottom)for(const name of ['ManualRowImportant','ManualRowGettingStarted']){
+    const layout=validateApplicationManualRow(renderer.packs['manual-row'].layouts[name],APPLICATION_MANUAL_LOWER_FIT.rowBodyY);
+    validateApplicationManualRow(poseNativeLayout(layout,pack.animations,[{name:'BtnHeadLineTxt_Wait',frame:1}]),3);
+  }
 }
 function prepareApplicationManualCategory(renderer:NativeLayoutRenderer){
   if(preparedApplicationManualCategories.has(renderer))return;
@@ -289,7 +333,7 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
   if(!source||!index)return false;
   if(view.screen==='document')return drawApplicationManualPage(renderer,top,bottom,view,options);
   prepareApplicationManualCategory(renderer);
-  prepareApplicationManualRows(renderer);
+  prepareApplicationManualRows(renderer,bottom);
   const entries=manualContents(index);
   const message=(label:string)=>nativeMessageOverride(renderer.packs['helper-messages'],'ebird',label,'');
   let okay=true;
@@ -324,7 +368,8 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
     // The applet truncates the first long English heading in its row control.
     // The cutoff below is measured from the settled native Contents capture.
     const title=entry.title.length>24?entry.title.slice(0,23)+'...':entry.title;
-    draw(bottom,'manual-row',entry.page===0?'ManualRowImportant':'ManualRowGettingStarted',{center:[160,y],clip:APPLICATION_MANUAL_LIST_CLIP,pictureSampling:'lcd',textSampling:'lcd',bindings:[{name:'BtnHeadLineTxt_Wait',frame:1}],overrides:{TextBox_Num:{text:String(entry.page+1)},TextBox_Txt:{text:title}}});
+    if(/[\r\n]/.test(title))throw new Error('Unsupported Manual Contents TextBox_Txt multiline title');
+    draw(bottom,'manual-row',entry.page===0?'ManualRowImportant':'ManualRowGettingStarted',{center:[160,y],clip:APPLICATION_MANUAL_LIST_CLIP,pictureSampling:'lcd',textSampling:'lcd-source-size-left',textSamplingPanes:['TextBox_Txt'],bindings:[{name:'BtnHeadLineTxt_Wait',frame:1}],overrides:{TextBox_Num:{text:String(entry.page+1)},TextBox_Txt:{text:title}}});
     y+=APPLICATION_MANUAL_SLOTS.row;
   }
   draw(bottom,'manual-cursor','CsrHeadLine00',{center:[160,APPLICATION_MANUAL_SLOTS.firstRow+4],bindings:[{name:'CsrHeadLine00_Wait',frame:22}],clip:APPLICATION_MANUAL_LIST_CLIP});

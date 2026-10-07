@@ -1,6 +1,6 @@
 import { homeSlotAppId } from './system.ts';
 import type { MenuState } from './state';
-import { nativeMessageOverride, nativePaneParentPath, type NativePixels } from './native-layout.ts';
+import { nativeMessageOverride, nativePaneParentPath, type AnimationBinding, type NativePixels } from './native-layout.ts';
 import type { NativeLayoutRenderer } from './native-renderer';
 import { sampleSystemHomeApplicationTransition } from './system-home-application-transition.ts';
 
@@ -45,19 +45,31 @@ export function drawHomeSuspendedIcon(renderer:NativeLayoutRenderer,ctx:CanvasRe
 }
 
 /** Source geometry and Sleep loop. Close opacity is an explicit capture-fit input. */
-export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,metadata:SuspendedWindowMetadata,mode:'expanded'|'compact'='expanded',sleepFrame=0,closeOpacity?:number){
+export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,metadata:SuspendedWindowMetadata,mode:'expanded'|'compact'='expanded',sleepFrame=0,closeOpacity?:number,windowAppearFrame?:number){
  const pack=renderer.packs.launcher,bank=renderer.packs.messages?.messages.menu_msbt_LZ;
  validateSleepFrame(sleepFrame);
  if(closeOpacity!==undefined&&(!Number.isFinite(closeOpacity)||closeOpacity<0||closeOpacity>1))throw new RangeError('Invalid suspended close opacity');
- const bindings=[
+ if(windowAppearFrame!==undefined&&(!Number.isSafeInteger(windowAppearFrame)||windowAppearFrame<0||windowAppearFrame>10))throw new RangeError('Invalid suspended window appearance frame');
+ const bindings:AnimationBinding[]=[
   {name:'LncBase_U_00_SceneIn',frame:40},
   {name:'LncBase_U_00_Appear',frame:10},
+  // Native upper +0x290 binds Appear only to G_Wndw_00, separate from HUD/bottom.
+  ...(windowAppearFrame===undefined?[]:[{name:'LncBase_U_00_Appear',frame:windowAppearFrame,groups:['G_Wndw_00']}]),
   {name:'LncBase_U_00_ScaleUpDown',frame:mode==='expanded'?15:0},
   {name:'LncBase_U_00_Sleep',frame:sleepFrame},
   {name:'LncBase_U_00_WhiteBlack',frame:closeOpacity===undefined?1:0},
  ];
  if(!pack?.layouts.LncBase_U_00)throw Error('Native suspended window layout unavailable');
  for(const binding of bindings)if(!pack.animations[binding.name])throw Error(`Native suspended window animation unavailable: ${binding.name}`);
+ if(windowAppearFrame!==undefined){
+  const appear=pack.animations.LncBase_U_00_Appear;
+  const group=pack.layouts.LncBase_U_00.groups.flatMap(root=>root.children).find(group=>group.name==='G_Wndw_00');
+  const alpha=appear.tracks.filter(track=>track.target==='N_Wndw_00'&&track.property==='alpha');
+  if(appear.frames!==11||appear.loop||appear.childBinding!==true||!appear.groups.includes('G_Wndw_00')
+   ||group?.panes.length!==1||group.panes[0]!=='N_Wndw_00'||!nativePaneParentPath(pack.layouts.LncBase_U_00,'N_Wndw_00')
+   ||alpha.length!==1||alpha[0].interpolation!=='hermite'||alpha[0].keys.length!==2
+   ||!alpha[0].keys.every((key,index)=>key.frame===index*10&&key.value===(index?255:0)&&key.slope===0))throw Error('Native suspended window appearance source unavailable');
+ }
  for(const key of ['lau_pose_title_u','lau_rest_comm_u'])if(bank?.labels[key]===undefined)throw Error(`Native suspended window message unavailable: ${key}`);
  if(!metadata.description.trim()||metadata.icon.width!==64||metadata.icon.height!==64||metadata.icon.data.length!==64*64*4)throw Error('Native suspended window metadata unavailable');
  const message=(key:string)=>nativeMessageOverride(renderer.packs.messages,'menu_msbt_LZ',key,'');

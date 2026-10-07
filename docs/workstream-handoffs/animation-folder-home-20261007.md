@@ -598,3 +598,152 @@ inspected sheets. Source ordering is identified and this correction is implement
 and tested; new browser inspection/native comparison remains coordinator-owned.
 AN-03 stays **fail** until the active child-growth mismatch and prior residuals
 are explained. Exact native phase/duration/clock alignment and audio remain open.
+
+## AN-04 suspended-window Appear entry follow-up, 7 October
+
+This follow-up is based on worker HEAD `0a0109ade4d44ff04d0bee13acbe3caac3275e74`.
+The coordinator runtime inspected read-only was `8558a1e`; its later docs/collector
+HEAD `5b0d082` did not change that runtime. The local preexisting dirty STATUS
+still names the initial worker base and was preserved, not staged. The commit
+contains only the suspended-window painter, its one screens call/predicate block,
+two new focused tests and this handoff. No applet, Manual, folder, scene, reducer,
+stock readiness or shared host clock code was changed.
+
+### Visible defect and source finding
+
+The coordinator inspected `integrated-8558a1e/pause-regression/console.png`.
+Both physical-HOME Health sequences expose an already expanded, opaque upper
+suspended window on the first AppPause0 pair. The capture JSON identities are
+`6710d800c5d60b5fa5d5817d343e56792cb0d12e8d5d70af91d76661abb123be`
+for `capture.json` and
+`64a3bace49ec0da3627138c2c22bca6561cd42c8c442af9f869169e6b8c17ae9`
+for `repeat-1-capture.json`. These are browser defect evidence, not valid matched
+native HOME input or motion evidence. The native short-HOME attempts remain
+invalid. The coordinator's initial placeholder hypothesis was corrected before
+editing: the dark window, "Suspended software", HOME/resume caption and Health
+metadata are original dump resources, not an authored replacement. They stay.
+
+The newly authorized ExeFS-only extraction is private at
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/home-pause-source/exefs/code.bin`.
+The immutable original content remains in the `native-manual-slow/user/nand`
+HOME title `00040030/00009802/content/00000082.app` path. Content SHA-256 is
+`c622d1c5584d7fae6622b6c20b258e93f7924b294651d669a539da2955d9521d`;
+decompressed code is the pinned
+`243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9`.
+The bounded extraction used local CTRTool1.2.0, executable SHA-256
+`1b91c6339bab12453fdf06f28d4a40d39a81e785e7eda92e555a9bcabb1d1991`,
+with only `--exefsdir=<new private output>/exefs --decompresscode <original .app>`.
+Neither original content nor native profile was modified.
+
+Direct code-byte and table checks identify the missing producer action:
+
+- `0x2a5cfc..0x2a5d30` requests upper mode1 through `0x1ed1c4`, then invokes
+  the entry composition function `0x1ed3a4`.
+- Table `0x32f50c` maps `+0x08` to `LncBase_U_00`, `+0x1c` to `G_Wndw_00`,
+  and `+0x3c` to `Appear`. Constructor `0x286a64..0x286a90` loads this
+  group-bound clip and stores its controller at upper owner `+0x290`.
+- Mode1 `0x1ed300..0x1ed31c` selects that controller's forward mode and calls
+  `0x229330` with zero, which chooses its source start rather than endpoint.
+- The entry branch calls `0x1eda38(1)` at `0x1ed4e0..0x1ed4e8`. Its native
+  decision table `0x309780` contains `[0,1,1,1,0,0,0,0]`; request1 selects
+  visible Appear. `0x1eda94..0x1edabc` starts the same `+0x290` controller
+  through its original virtual action. This is a native producer start, not a
+  guessed reverse of the close opacity fit.
+
+The delivered Appear clip has 11 poses, a nonlooping Hermite `N_Wndw_00.alpha`
+track from0 at source pose0 to255 at pose10, zero endpoint slopes. The old live
+painter always bound Appear10. This follow-up restores only that entry stage.
+It does not assert that every other available clip starts on HOME suspension.
+
+### Binding and receipt policy
+
+`drawHomeSuspendedWindow` adds a final optional `windowAppearFrame` integer0..10.
+The default stays settled10. Existing Appear10 establishes HUD/bottom groups;
+the additional binding reposes only `G_Wndw_00` before the unchanged scale,
+Sleep and palette producers. Selected dynamic resources require the original
+11-pose/nonlooping/child-bound clip, the exact window group/pane and its sourced
+alpha keys. Unsupported selected resources fail the paired LCD paint.
+
+The screens call supplies `min(10,pauseMotion.elapsedUpdates)` only for eligible
+expanded selected suspension with no panel, dialog or application transition,
+and exact suspended owner plus ready capture generation matching that pose.
+There is no new timer or controller. First normal entry stages Appear0 with
+AppPause0; a failed/offscreen pair cannot commit it. The existing pending pair
+is retained until the valid WebGL receipt; only the next eligible paint can
+choose the next source pose. Appearance holds10 while the existing AppPause
+continues through20. Reduced mode uses the existing receipt-backed pause20
+candidate and therefore Appear10, without reviving an acknowledged midpoint.
+Compact, dialog and close paths retain the old settled binding/opacity policy.
+Native HUD, lower composition, input readiness, escapes and cadence are unchanged.
+
+The same owner/capture-generation guards, renderer failure revocation, hidden/
+context rebase, firmware replacement and disposal remain authoritative. Source
+mode1 ordering supports this stage, but coupling its pose to the existing pause
+candidate, one source update per successful receipt and host entry epoch remain
+browser presentation adaptations. They are not measured native duration or
+proof that the two original producers are phase-locked.
+
+### Unchanged element provenance and residuals
+
+HOME is EUR title `0004003000009802`, version24576, content index0,
+CIA-internal `00000082`, product `CTR-N-HMMP`. Existing converted asset metadata
+remains `ctr-native-web1.2.0`; the fresh executable extractor above does not
+replace or regenerate the manifest's historical CTRTool1.3.0 identity.
+
+| Visible element | Manifest key and dump path | SHA-256 |
+| --- | --- | --- |
+| Window and native text/icon pane geometry | `home.launcher/layouts.LncBase_U_00`, `romfs/launcher_LZ.bin/blyt/LncBase_U_00.bclyt` | `b1afe7bece548a4ffad1211d011b4822349f61b002616e3a173e2923f06f6a50` |
+| Window entry alpha | `home.launcher/animations.LncBase_U_00_Appear`, `romfs/launcher_LZ.bin/anim/LncBase_U_00_Appear.bclan` | `2984f92736035fec7a9475b6840fc2ba27763a8dd5081cd883ab32651d6fb427` |
+| Suspended and HOME/resume captions | `home.messages/messages.menu_msbt_LZ`, labels `lau_pose_title_u` and `lau_rest_comm_u`, `RomFS/message/EU_English/menu_msbt_LZ.bin` | `1df2193c64e8d08b3b670923617ea1f0461537397b3da671d394304a664b4350` |
+
+Launcher container is
+`826e92ec59b98aaf20fab4014a5dccc1dbaa634aaa4f95498bcf3d7944795834`;
+pack is `f251db1a92bed36da178099640fadcc9a6a53ba3e7e5410a7b3ddd7dfc02a044`.
+Health description/icon remain the same firmware SMDH inputs, not new text or
+pixels. All prior AppPause/BannerBG, source font and icon-mask identities remain
+unchanged; see the original AN-04 mapping above and [HOME handoff](home.md).
+Health is title `0004001000022300` version3077, content index0/internal
+`00000008`, product `CTR-N-HACP`; CIA SHA-256 is
+`f941928965cbea4c30f6049304fd6e31c4f8c8e87cf713d67c159f9c63c7ecdf`
+and content is `6c135f500a77070633a0308182b75aa0a672d5403c3535ce4bcbba29fe5f2492`.
+Manifest `titles.0004001000022300.longDescription` and `.icon` map to
+`ExeFS/icon`, SHA-256
+`ab6cfc9da9089bb7209bee980ff79b365638e84eacb663e1a792fed58e7a9055`.
+The delivered icon `icons/health-and-safety.png` is
+`156d28fc628375d35813b90a19954241f6da6c34e067f5c2a9b2ccc48dc84aa4`.
+Description conversion stays `smdh-notes-english-description` version1,
+English field offset648/max127 code units; no extraction or metadata changed.
+
+SceneIn40, ScaleUpDown15/0 and WhiteBlack1 remain existing settled adaptations.
+Executable SceneIn start is conditional on a caller flag in
+`0x1ed4ac..0x1ed4dc`; scale initialization and target depend on upper `+0x340`
+in `0x1ed2d4..0x1ed390` and `0x1edae0..0x1edaf4`. Their exact HOME-return
+predicate/epoch is not established by this bounded audit. The host remains
+mode0 while the retained app's AppPause is separately presented. This slice
+does not alter that unresolved dispatch, palette, N_TestCenter caption fit,
+compact visibility, authored host recovery, viewport/transport/portfolio
+differences or muted audio. It removes no native resource and creates no pixels.
+
+### Verification and integration
+
+The selected nine-file suite passes135 tests, including new actual-painter
+receipt/lifecycle cases and the original-code byte/table predicate test. An
+additional `--test-name-pattern='suspension|pause|window|close|switch'` run of
+`tests/native-home-controls-paint.test.mjs` passes14 existing regressions.
+One extra provenance test was added afterward and rerun with the same suite,
+bringing the selected total to136. Nonincremental typecheck and diff-check pass.
+The private-code test skips explicitly elsewhere if the decrypted code is absent;
+set `THREE_DS_HOME_PAUSE_CODE` to a pinned decompressed code path to run it.
+All painter/resource tests remain independent of that private file. No GUI,
+server, emulator operation, full suite or production build was run by this worker.
+
+Integrate only this follow-up atop the coordinator's existing B/A chain. The
+screens hunk is confined to the suspended-window call, separate from applet
+return hooks/readiness. Preserve all sibling changes and coordinator STATUS.
+After review, run full checks and physical-HOME Health first/repeat desktop and
+mobile normal/reduced recaptures. Retain frame0, every window0..10 and AppPause
+0..20 valid paired publication, failed/context retries and close regression.
+Match the actual native HOME input before any timing/pixel verdict; keep exact
+capture identities, empty-mask reports and inspected sheets. Source-identified,
+implemented and tested are complete for this bounded stage. New browser/native
+inspection is coordinator-owned; AN-04 remains **fail**, not1:1 or audio accepted.

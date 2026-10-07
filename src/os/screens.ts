@@ -764,7 +764,11 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    // separately captured ordinary-close route applies the fitted upper fade.
    const closeOpacity=homeSoftwareClosingDialogKey(state)&&applicationTransition?.intent.kind==='close'
     ?homeCloseWindowOpacity(reduced?20:applicationTransition.appQuitFrame):undefined;
-   drawHomeSuspendedWindow(firmwareAssets.renderer,t,suspendedMetadata.metadata,expanded?'expanded':'compact',suspendedSleepFrame,closeOpacity);
+   const windowAppearFrame=pauseEligible&&expanded&&!state.panel&&pauseMotion?.identity.kind==='pause'
+    &&suspendedCapture.status==='ready'&&pauseMotion.identity.owner===suspended.id
+    &&pauseMotion.identity.owner===suspendedCapture.owner&&pauseMotion.identity.captureGeneration===suspendedCapture.generation
+    ?Math.min(10,pauseMotion.elapsedUpdates):undefined;
+   drawHomeSuspendedWindow(firmwareAssets.renderer,t,suspendedMetadata.metadata,expanded?'expanded':'compact',suspendedSleepFrame,closeOpacity,windowAppearFrame);
   }
   // Native descending layout priority: upperBase499 then HUD100, both
   // after the upper 3D traversal. Camera hints stay inside upperBase.

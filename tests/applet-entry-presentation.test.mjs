@@ -4,7 +4,7 @@ import { createAppletEntryPresentation, appletEntryIdentity, appletEntryHomePair
 import { createPortfolioState, tickSystem, invokeSystemApplet, reduceSystem, launchHomeShortcut } from '../src/os/system.ts';
 import { enableHomeControls, selectHomeToolbarControlTouch } from '../src/os/home-controls.ts';
 
-const identity={owner:'friends:1',appId:'friends',caller:null,requestId:null,application:null,generation:1};
+const identity={owner:'browser:1',appId:'browser',caller:null,requestId:null,application:null,generation:1};
 const ms=step=>10000+step*1000/60+.01;
 const sample=(s,step,overrides={})=>s.sample({identity,elapsedMs:ms(step),eligible:true,reducedMotion:false,...overrides});
 const present=(s,pose,step,pair)=>s.present(pose,identity,ms(step),true,pair);
@@ -94,7 +94,7 @@ test('invalid fresh clocks and genuinely backwards observations fail explicitly'
 });
 
 test('accessibility adaptation completes only its exact identity and cannot be inherited by replacement, reset or disposal',()=>{
- for(const patch of [{owner:'friends:2'},{caller:'camera:1'},{requestId:'other'},{application:'camera:1'},{appId:'browser'},{generation:2}]){
+ for(const patch of [{owner:'friends:2'},{caller:'camera:1'},{requestId:'other'},{application:'camera:1'},{appId:'friends'},{generation:2}]){
   const s=createAppletEntryPresentation();s.skipAccessibilityShortcut(identity);assert.equal(s.ready(identity),true);
   const next={...identity,...patch};assert.equal(s.ready(next),false);assert.equal(sample(s,0,{identity:next}).frame,0);
  }

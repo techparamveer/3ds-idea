@@ -375,3 +375,90 @@ draw/start ordering and the suspended-window entry controller are the next
 bounded source boundaries. All four whole scenarios remain fail and muted
 audio remains unverified. Production3021 serves8558a1e; user3000/system audio
 are untouched.
+
+### Pause window and title-owned incoming boundaries
+
+Reviewed d8f0b6d/117707b integrate7bae6ad/ae52914. Original HOME mode1 starts
+`G_Wndw_00` Appear forward at0. The source clip's11 poses have Hermite window
+alpha0..255 with zero endpoint slopes and unit scales. The eligible expanded
+window now samples0..10 through the existing same-owner/capture-generation
+pause candidate and valid paired render receipts. It previously painted the
+settled10 immediately. Compact, dialog, close and other groups are unchanged.
+Element/manifest/dump/title/member SHA/converter and original code call sites
+are in [the pause handoff](workstream-handoffs/animation-folder-home-20261007.md#an-04-suspended-window-appear-entry-follow-up-7-october).
+The dark card and captions are original launcher resources, not a new authored
+placeholder. SceneIn40, ScaleUpDown15/0, WhiteBlack1, centering, host cadence
+and the pose coupling remain explicit existing adaptations/source gaps.
+
+Production98342a8 is built and served3021. Full2452 tests at that runtime:
+2354 pass,1 historical Camera private PNG ENOENT,96 skip,1 TODO; typecheck/build
+pass. Collector9882f97 adds five behavior tests and the full2457 rerun has
+2359 pass with the same failure. No historical fixture was fabricated or skipped.
+Its pause preparation requires the exact foreground app and native status,
+then a later valid paired current app render. Stock requires ready; Work is
+portfolio content and requires inactive. This is fixture preparation, not a
+recovered native input epoch. The old Work attempt timed out before HOME and
+remains invalid under `integrated-98342a8/pause-work-key/failure.json`.
+
+Fresh-pair two-cycle captures at runtime98342a8, collector9882f97:
+
+| Replay | First/repeat raw pairs |
+| --- | --- |
+| Health physical HOME desktop | 71/73 |
+| Health physical HOME reduced390x844 | 6/6 |
+| Camera keyboard HOME desktop | 80/79 |
+| Camera physical HOME reduced390x844 | 5/5 |
+| Sound physical HOME desktop | 78/81 |
+| Work keyboard HOME desktop | 79/82 |
+| Work physical HOME reduced390x844 | 6/6 |
+| Folder native-six-row tile regression | 89/92 |
+| Camera Manual touch reduced390x844 | 71/71 |
+| Notes keyboard opening | 117/117 |
+| Notifications touch opening | 105/103 |
+
+All are error-free, reach their exact expected destination and retain raw LCD
+PNG hashes. Every normal pause sequence contains valid same-paint paired poses
+0..20; reduced sequences contain20. `pause-first-valid-poses.json` records the
+first chronological receipt per source pose, without closest-pose selection.
+The five earlier stock runs also succeeded but predate the fresh-pair predicate;
+they remain labelled and preserved. Sixteen full-console views were opened.
+`console-nonblank-checks.json` SHA
+`fe271ff5eab79ff858506b50db94d413fe2f89dd5a33bfee32035527f8fd9863`
+records console/capture hashes and supporting pixel statistics.
+
+The raw upper sheet uses the earlier pre-predicate `pause-health-physical`
+first/repeat captures and selects source pause0/5/10/20, with matching valid
+paired receipts. The fresh `-paired` runs are recorded separately in the pose
+ledger. It visibly shows transparent, intermediate and opaque
+window states. Sheet SHA
+`fbf6a8bc7206e538a77b9194cc7bee35fe2725a99cc7a26ec4744e53344e7ec6`;
+selection/hash identities are in `pause-window-appear-first-repeat-selection.json`.
+This is browser inspection, not native comparison. No valid native HOME-held
+sequence is available, so no pair, mask, timing verdict or audio pass is claimed.
+
+Reviewed Notifications source-gap commits c141688/85bd02f/98342a8 establish
+original title common resources, startup writer and separate LCD animators.
+The initial priority-order inference was wrong and is explicitly corrected:
+the original list sorts descending and draws forward, NewsUnread500 -> HUD100
+-> cover3. Bounded original ARM execution checks six permutations, equal-priority
+stability and signed priorities. A final source cover preserves that traced
+upper order; component activation/visibility and LCD phases remain unresolved.
+See [the corrected Notifications handoff](workstream-handoffs/notifications-incoming-source-gap-20261007.md).
+No runtime was delivered using the incorrect inference.
+
+Reviewed Friends f24159d integrates fb631cf, documentation only. Its ordinary
+startup selects its own `friend_LZ.bin/FrdCmnFade_U/D_00`, SceneIn0..20,
+`fri_title_fri` style39 and separate LCD animators. Original native PNG
+`6739be6a291650b5ca7ba7b45a5f6df024e23c63f1cf44ba1b3c9ea47eb1687b`
+shows first-use help/no-Mii, not the existing own-card portfolio adaptation.
+Source selection/writer is identified, not body activation/order/epoch proof.
+See [the Friends handoff](workstream-handoffs/friends-incoming-source-gap-20261007.md).
+The two identified incoming pairs are the next visible correction, not another
+unbounded source search. Preserve endpoint designs; use original native packs,
+explicit failure for unsupported selected resources, current owner/generation/
+destination/resource identities and terminal paired publication. A shared
+browser observation clock is an adaptation, not native per-LCD phase lock.
+All AN-01..04 whole scenarios remain fail. Private artifacts remain under the
+animation root, test browsers muted, native processes closed and user3000/
+system/Spotify audio untouched. The stored goal remains blocked after human
+continuation; work continues without a false active or completion claim.

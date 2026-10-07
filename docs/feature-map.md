@@ -5,7 +5,26 @@ for top-row opening, Manual opening, folder entry and HOME suspension. GitHub
 restart base is `5ee6fd7`; the historical static queue below is preserved.
 All four motion flows are currently fail pending matched frame-sequence proof.
 
-Latest runtime `8558a1e`: reviewed outgoing top-row covers and folder child-host
+Latest runtime `98342a8`, collector `9882f97`: original HOME suspended-window
+Appear0..10 is now visible on first pause and re-entry. Stock Health/Camera/
+Sound and portfolio Work retain exact owners and all normal pause poses0..20;
+reduced captures publish terminal20. Seven fresh-pair two-cycle pause replays
+and four affected regressions are error-free. Sixteen console views and the
+first/repeat raw pause sheet are inspected. Full2457 tests:2359 pass,1 unchanged
+historical Camera PNG failure,96 skip,1 TODO; typecheck/build pass at98342a8.
+The portfolio native-status precondition is correctly inactive, not fake-ready.
+The earlier invalid Work collector attempt stays preserved.
+
+Corrected Notifications source order is NewsUnread500 -> HUD100 -> cover3;
+activation/visibility and independent LCD phases remain open. Friends original
+incoming cover/writer is identified, but native first-use help/no-Mii differs
+from the existing own-card portfolio adaptation. These source gaps are reviewed.
+Next visible slice publishes the two original title-specific incoming pairs and
+adds receipt-guarded browser sequencing, without redesigning destination screens
+or claiming native phase-lock. [Current pause and incoming evidence](animation-fidelity-workflow-2026-10-07.md#pause-window-and-title-owned-incoming-boundaries).
+All four whole animation scenarios still fail; muted audio is unverified.
+
+Earlier runtime `8558a1e`: reviewed outgoing top-row covers and folder child-host
 gates are integrated. Folder repeat now visibly shrinks the retained root,
 shows the blank interval and grows the child through its original producer;
 it no longer reveals an already-grown child. Full2341 tests pass,1 historical
@@ -21,7 +40,7 @@ sheets are inspected; these are static diagnostics, not native timing proof.
 Latest strict repeat folder lower16 is57578/7606 against the immutable native
 reference; both sheets are inspected. Native motion order/epochs, title-owned
 incoming covers and exact HOME-hold input remain open. Notifications incoming
-draw/start order and suspended-window entry tracks are the current source
+draw/start order and suspended-window entry tracks were that checkpoint's source
 boundaries. [Current evidence](animation-fidelity-workflow-2026-10-07.md#outgoing-covers-and-folder-child-host-gates)
 records identities, adaptations and next work. Earlier checkpoints follow.
 

@@ -6,8 +6,9 @@ This is the one bounded Notifications incoming-source pass following the
 coordinator's visible outgoing-cover recapture. It identifies the title-owned
 cover, ordinary startup writer and separate LCD completion state. It does not
 implement or publish an incoming cover. Lower component activation and its
-relationship to the cover are unresolved. A paired overlay over the currently
-settled stock painter would not reproduce the traced native draw order.
+relationship to the cover are unresolved. A final title cover over the settled
+stock painter preserves the traced upper draw order, but does not establish
+component activation/visibility or independent LCD phases.
 
 Delivered files are this handoff and
 `tests/notifications-entry-source.test.mjs`. Runtime, public assets, manifest,

@@ -60,6 +60,14 @@ test('invalid selected window appearance frames and unsupported source groups or
     source => source.launcher.animations.LncBase_U_00_Appear.groups = ['G_Hud_00', 'G_Btm_00'],
     source => source.launcher.layouts.LncBase_U_00.groups[0].children.find(group => group.name === 'G_Wndw_00').panes = [],
     source => source.launcher.animations.LncBase_U_00_Appear.tracks.find(track => track.target === 'N_Wndw_00' && track.property === 'alpha').keys[1].value = 254,
+    ...['scale.x', 'scale.y'].flatMap(property => [
+      source => source.launcher.animations.LncBase_U_00_Appear.tracks.find(track => track.target === 'N_Wndw_00' && track.property === property).keys[0].value = 2,
+      source => source.launcher.animations.LncBase_U_00_Appear.tracks.find(track => track.target === 'N_Wndw_00' && track.property === property).keys[0].frame = 1,
+      source => source.launcher.animations.LncBase_U_00_Appear.tracks.find(track => track.target === 'N_Wndw_00' && track.property === property).keys[0].slope = 1,
+      source => source.launcher.animations.LncBase_U_00_Appear.tracks.find(track => track.target === 'N_Wndw_00' && track.property === property).keys.push({ frame: 10, value: 1, slope: 0 }),
+      source => source.launcher.animations.LncBase_U_00_Appear.tracks.find(track => track.target === 'N_Wndw_00' && track.property === property).interpolation = 'step',
+      source => source.launcher.animations.LncBase_U_00_Appear.tracks.push(structuredClone(source.launcher.animations.LncBase_U_00_Appear.tracks.find(track => track.target === 'N_Wndw_00' && track.property === property))),
+    ]),
   ]) {
     const source = structuredClone(packs); mutate(source);
     assert.throws(() => draw(0, 'expanded', undefined, source), /appearance source unavailable/);

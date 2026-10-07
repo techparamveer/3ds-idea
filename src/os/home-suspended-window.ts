@@ -65,9 +65,15 @@ export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:Canvas
   const appear=pack.animations.LncBase_U_00_Appear;
   const group=pack.layouts.LncBase_U_00.groups.flatMap(root=>root.children).find(group=>group.name==='G_Wndw_00');
   const alpha=appear.tracks.filter(track=>track.target==='N_Wndw_00'&&track.property==='alpha');
+  const unitScale=['scale.x','scale.y'].every(property=>{
+   const tracks=appear.tracks.filter(track=>track.target==='N_Wndw_00'&&track.property===property);
+   const key=tracks[0]?.keys[0];
+   return tracks.length===1&&tracks[0].interpolation==='hermite'&&tracks[0].keys.length===1
+    &&key.frame===0&&key.value===1&&key.slope===0;
+  });
   if(appear.frames!==11||appear.loop||appear.childBinding!==true||!appear.groups.includes('G_Wndw_00')
    ||group?.panes.length!==1||group.panes[0]!=='N_Wndw_00'||!nativePaneParentPath(pack.layouts.LncBase_U_00,'N_Wndw_00')
-   ||alpha.length!==1||alpha[0].interpolation!=='hermite'||alpha[0].keys.length!==2
+   ||!unitScale||alpha.length!==1||alpha[0].interpolation!=='hermite'||alpha[0].keys.length!==2
    ||!alpha[0].keys.every((key,index)=>key.frame===index*10&&key.value===(index?255:0)&&key.slope===0))throw Error('Native suspended window appearance source unavailable');
  }
  for(const key of ['lau_pose_title_u','lau_rest_comm_u'])if(bank?.labels[key]===undefined)throw Error(`Native suspended window message unavailable: ${key}`);

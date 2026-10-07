@@ -747,3 +747,9 @@ Match the actual native HOME input before any timing/pixel verdict; keep exact
 capture identities, empty-mask reports and inspected sheets. Source-identified,
 implemented and tested are complete for this bounded stage. New browser/native
 inspection is coordinator-owned; AN-04 remains **fail**, not1:1 or audio accepted.
+
+Final review follow-up: selected `G_Wndw_00` Appear also applies the source's
+`N_Wndw_00.scale.x/y` tracks. Both now require the pinned single Hermite key
+at frame0/value1/slope0; duplicate, changed, extended and non-Hermite scale
+tracks fail explicitly. Mutation tests cover both axes, preserving the claim
+that this entry binding changes alpha without changing source geometry.

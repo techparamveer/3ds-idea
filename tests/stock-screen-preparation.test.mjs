@@ -23,6 +23,22 @@ source=source.replace("'./stock-native-selectors'",JSON.stringify(url('export co
 source=source.replace("'./native-screen-input'",JSON.stringify(url(compile('native-screen-input'))));
 source=source.replace("'./notes-boot-cover'",JSON.stringify(new URL('../src/os/notes-boot-cover.ts',import.meta.url).href));
 const {createStockScreenPresentation,drawStockMediaImage}=await import(url(source));
+let graphicsSource=compile('portfolio-screens');
+const graphicsDependencies={
+ three:`export * from ${JSON.stringify(new URL('../node_modules/three/build/three.module.js',import.meta.url).href)};export class WebGLRenderer{constructor(){throw Error('GPU disabled in unit fixture');}}`,
+ './apps':'export const apps=[];export const getApp=()=>undefined;',
+ './app-registry':'export const getTitle=()=>undefined;',
+ './bitmap-font':'export const measureBitmapText=()=>({width:0});',
+ './notes-suspended-capture':"export const createSuspendedApplicationCapture=()=>({sync(){},record(){},read:()=>({status:'none'}),dispose(){}});",
+ './notes-metadata-session':"export const createNotesMetadataSession=()=>({sync(){},getState:()=>({status:'none'}),dispose(){}});",
+ './notes-intro-publication':'export const notesIntroSourcesFromPacks=()=>undefined;',
+ './notes-intro-session':'export const createNotesIntroSession=()=>({sync(){},compose(){},getState:()=>({}),dispose(){}});',
+};
+for(const [dependency,stub]of Object.entries(graphicsDependencies))graphicsSource=graphicsSource.replace(`'${dependency}'`,JSON.stringify(url(stub)));
+graphicsSource=graphicsSource.replace("'./system'",JSON.stringify(new URL('../src/os/system.ts',import.meta.url).href))
+ .replace("'./stock-screen-presentation'",JSON.stringify(url(source)))
+ .replace("'./notes-boot-cover'",JSON.stringify(new URL('../src/os/notes-boot-cover.ts',import.meta.url).href));
+const {createPortfolioGraphics,setPortfolioFont}=await import(url(graphicsSource));
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 const view=appId=>({appId,screen:'main',heading:'',rows:[],selection:0,footer:{}});
 test('launch preparation acquires native assets before any screen is drawn and coalesces the app view',async()=>{
@@ -152,6 +168,35 @@ test('Notes receipt cannot survive resource owner teardown or acknowledge after 
   assert.equal(f.screen.presentNotesBootCover(f.owner,()=>{accepted++;return true;}),false);
   assert.equal(accepted,0);
  }finally{f.dispose();}
+});
+test('Notes transition cadence stops for failed load/draw and resumes only after explicit retry',async()=>{
+ const f=paintFixture();Object.assign(globalThis.document,{hidden:false,addEventListener(){},removeEventListener(){}});
+ const graphics=createPortfolioGraphics(),state=tickSystem(launch(tickSystem(createPortfolioState(),3001),'game-notes',3010),6200);
+ setPortfolioFont(f.top,f.font);setPortfolioFont(f.bottom,f.font);
+ const readyAssets=()=>{const assets=nativeAssets();assets.renderer={packs:{'notes-messages':{messages:{}}},draw:()=>true,drawLayout:()=>true};return assets;};
+ try{
+  assert.equal(graphics.notesBootCoverActive(state),true);
+  assert.equal(graphics.stockStatus(state,f.top),'loading');await flush();
+  calls[0].reject(Error('Notes load failed'));await flush();
+  assert.equal(graphics.stockStatus(state,f.top),'loading','recovery is gated until its pair is copied');
+  assert.match(String(graphics.stockFailure()),/Notes load failed/);
+  assert.equal(graphics.notesBootCoverActive(state),false,'load failure cannot boost the recovery screen');
+  graphics.overlay(f.top,f.bottom,state,6200,false);
+  assert.equal(graphics.stockStatus(state,f.top),'error');
+  assert.equal(graphics.retryStockScreen(),true);
+  assert.equal(graphics.notesBootCoverActive(state),true,'explicit retry restores incomplete entry cadence');
+  graphics.stockStatus(state,f.top);await flush();
+  const failedDraw=readyAssets();failedDraw.renderer.draw=()=>false;calls[1].resolve(failedDraw);await flush();
+  graphics.overlay(f.top,f.bottom,state,6200,false);
+  assert.match(String(graphics.stockFailure()),/Native screen composition failed/);
+  assert.equal(graphics.notesBootCoverActive(state),false,'draw failure cannot boost the recovery screen');
+  assert.equal(graphics.retryStockScreen(),true);
+  assert.equal(graphics.notesBootCoverActive(state),true);
+  graphics.stockStatus(state,f.top);await flush();calls[2].resolve(readyAssets());await flush();
+  graphics.overlay(f.top,f.bottom,state,6200,false);
+  assert.equal(graphics.stockFailure(),null);
+  assert.equal(graphics.notesBootCoverActive(state),true,'successful retry still awaits the boot-cover receipt');
+ }finally{graphics.dispose();setPortfolioFont(f.top);setPortfolioFont(f.bottom);f.dispose();}
 });
 test('absent font and repeated deferred paints show only source black, then publish both native screens',async()=>{
  const f=paintFixture();

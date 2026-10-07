@@ -170,6 +170,14 @@ The expanded selected suite now passes 64 tests; nonincremental typecheck and
 `295d029`'s Notes API/state correction and retained valid-render scene wiring
 as a hard integration dependency, not established publication.
 
+The cadence query also stops when stock preparation/composition has an explicit
+failure, so the authored recovery screen cannot request transition cadence until
+Retry. The actual portfolio query and native stock session are covered together
+through failed loading, recovery publication, failed drawing and successful retry;
+GPU and unrelated metadata/capture dependencies are mocked in that regression.
+The selected suite now passes 65 tests; nonincremental typecheck and
+`git diff --check` passed again.
+
 ## Remaining failures
 
 AN-01 remains fail. There is no new matched native/browser pair, mask or diff

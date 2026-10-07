@@ -94,7 +94,7 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
  }
  function notesBootCoverActive(state:MenuState):boolean{
   const s=state.system,view=getActiveAppView(state),notes=s?.runtime.systemApplet?s.runtime.instances[s.runtime.systemApplet]:undefined;
-  return !!s&&!document.hidden&&(s.phase==='launch'||s.phase==='app')&&!s.sleeping&&!s.preferences&&!s.dialog&&!s.runtime.application
+  return stockScreens.getFailure()===null&&!!s&&!document.hidden&&(s.phase==='launch'||s.phase==='app')&&!s.sleeping&&!s.preferences&&!s.dialog&&!s.runtime.application
    &&notes?.appId==='game-notes'&&!notes.closing&&s.runtime.active===notes.id&&view?.appId==='game-notes'&&view.screen==='main'
    &&notesBootCover.pending(notes.id);
  }

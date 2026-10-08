@@ -19,10 +19,10 @@ seats are in [STATUS](../STATUS.md), with the objective in [GOAL](../GOAL.md).
 
 One coordinator integrates in `codex/animation-fidelity-20261007`. Use at most
 two workers in separate worktrees and branches based on the fetched commit.
-New workers follow the latest repository preference, GPT-5.6 Sol high.
-Existing GPT-6.1 extra-high workers retain their original model because a
-replacement spawn hit the thread limit. Record actual models in STATUS.
-A reviewer uses a different model under the repository seat rule.
+Replacement workers and reviews use the latest human preference, GPT-6 Astra
+high. Earlier Sol workers are idle, and the active Sol review was interrupted.
+This human request supersedes the earlier different-model reviewer preference.
+Record actual models in STATUS; a helper override does not change the coordinator.
 Speed selection is not exposed by the
 delegation tools, so no Fast-mode setting is claimed verified.
 

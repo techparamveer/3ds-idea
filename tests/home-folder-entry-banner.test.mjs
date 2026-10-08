@@ -4,8 +4,9 @@ import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostView } 
 import { advanceHomeBannerClips, advanceHomeBannerManager, setHomeBannerVisibility } from '../src/os/home-banner-lifecycle.ts';
 import { createHomeFolderEntryBanner, homeFolderEntryBannerSource } from '../src/os/home-folder-entry-banner.ts';
 
-const rootOwner={folder:'home-folder:1',firmwareGeneration:1,systemGeneration:1,application:null,navigationRevision:4,closeSequence:1};
-const owner={...rootOwner,navigationRevision:5};
+const rootView={selectedSlot:19,currentLeftSlot:0,targetLeftSlot:0,density:1};
+const rootOwner={folder:'home-folder:1',firmwareGeneration:1,systemGeneration:1,application:null,navigationRevision:4,closeSequence:1,rootView};
+const owner={...rootOwner,navigationRevision:5,rootView:{...rootView}};
 const motion=elapsedUpdates=>({identity:{kind:'folder',folder:owner.folder},observedUpdate:100+elapsedUpdates,elapsedUpdates});
 function source(){
  const inputs={managerInhibited:false,sceneInhibited:false,loadInhibited:false,nativeWorkerReady:true,resourceReady:null};
@@ -161,4 +162,32 @@ test('child request and activation gates require distinct same-owner receipts an
  const release=session.sampleRelease(owner);session.presentRelease(release,owner);
  assert.equal(session.requestReady({...owner,navigationRevision:6}),true);assert.equal(session.activationReady({...owner,navigationRevision:6}),true);
  session.reset();assert.equal(session.requestReady(owner),false);assert.equal(session.activationReady(owner),false);
+});
+
+test('released entry follows child revisions only within the original immutable root-view scope',()=>{
+ const session=createHomeFolderEntryBanner();session.presentRoot(source().source,rootOwner);
+ const hidden=reducedHiddenCandidate(session);session.present(hidden,owner,motion(16));
+ const release=session.sampleRelease(owner);assert.equal(session.presentRelease(release,owner),true);
+ const child={...owner,navigationRevision:owner.navigationRevision+1};
+ assert.equal(session.complete(child),true);assert.equal(session.requestReady(child),true);assert.equal(session.activationReady(child),true);
+ assert.equal(session.sample(child,motion(17)),null,'ordinary child selection does not replay the root');
+ const reentered={...owner,navigationRevision:owner.navigationRevision+2,rootView:{...owner.rootView}};
+ assert.deepEqual(reentered.rootView,owner.rootView,'same geometry is not the same navigation lifetime');
+ assert.equal(session.complete(reentered),false);assert.equal(session.requestReady(reentered),false);assert.equal(session.activationReady(reentered),false);
+ assert.throws(()=>session.sample(reentered,motion(0)),/matching presented root banner/);
+ session.revoke();assert.equal(session.sample(child,motion(17)),null,'rebase cannot resurrect an old root after release');
+});
+
+test('root record replacement rejects pending entry and release receipts even when its fields are identical',()=>{
+ const session=createHomeFolderEntryBanner(),candidate=source().source;
+ assert.equal(session.presentRoot(candidate,{...rootOwner,rootView:{...rootOwner.rootView}}),false);
+ assert.equal(session.presentRoot(candidate,rootOwner),true);
+ const lower=session.sample(owner,motion(16)),foreign={...owner,rootView:{...owner.rootView}};
+ assert.equal(session.present(lower,foreign,motion(16)),false);
+ assert.equal(session.present(lower,owner,motion(16)),true);
+ const hidden=session.sample(owner,motion(16),true,true);session.present(hidden,owner,motion(16));
+ const release=session.sampleRelease(owner);assert.ok(release);
+ assert.equal(session.presentRelease(release,foreign),false);assert.equal(session.active(foreign),false);
+ assert.equal(session.presentRelease(release,owner),true);
+ assert.throws(()=>homeFolderEntryBannerSource({...rootOwner,rootView:null},source().view,100),/Invalid folder-entry banner owner/);
 });

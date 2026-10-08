@@ -2,10 +2,13 @@ import type { HomeBannerHostView, HomeFolderBannerSelection } from './home-banne
 import { advanceHomeBannerClips, advanceHomeBannerManager, createHomeBannerLifecycle, setHomeBannerVisibility, HOME_BANNER_PERIOD,
   type HomeBannerLifecycle } from './home-banner-lifecycle.ts';
 import { HOME_FOLDER_ENTRY_LAST_FRAME, type HomeEntryMotion } from './home-entry-motion.ts';
+import type { HomeViewRecord } from './home-navigation.ts';
 
 export type HomeFolderEntryBannerOwner = Readonly<{
   folder: string; firmwareGeneration: number; systemGeneration: number; application: string | null;
   navigationRevision: number; closeSequence: number;
+  /** Child navigation retains this immutable record; root selection/re-entry replaces it. */
+  rootView: Readonly<HomeViewRecord>;
 }>;
 type FolderPrimary = Extract<HomeBannerHostView, { status: 'active' }>['primary'] & Readonly<{ selection: HomeFolderBannerSelection }>;
 export type HomeFolderEntryBannerSource = Readonly<{
@@ -32,7 +35,10 @@ function sameScope(a: HomeFolderEntryBannerOwner | null, b: HomeFolderEntryBanne
     && a.systemGeneration === b.systemGeneration && a.application === b.application && a.closeSequence === b.closeSequence;
 }
 function sameOwner(a: HomeFolderEntryBannerOwner | null, b: HomeFolderEntryBannerOwner | null): boolean {
-  return sameScope(a, b) && a?.navigationRevision === b?.navigationRevision;
+  return sameEntryScope(a, b) && a?.navigationRevision === b?.navigationRevision;
+}
+function sameEntryScope(a: HomeFolderEntryBannerOwner | null, b: HomeFolderEntryBannerOwner | null): boolean {
+  return sameScope(a, b) && a?.rootView === b?.rootView;
 }
 
 /** Preparation is not publication. The caller must have drawn this exact
@@ -43,7 +49,7 @@ export function homeFolderEntryBannerSource(owner: HomeFolderEntryBannerOwner, v
     || !Number.isSafeInteger(owner.systemGeneration) || owner.systemGeneration < 0
     || !Number.isSafeInteger(owner.navigationRevision) || owner.navigationRevision < 0
     || !Number.isSafeInteger(owner.closeSequence) || owner.closeSequence < 0
-    || !Number.isSafeInteger(updateCount) || updateCount < 0) throw Error('Invalid folder-entry banner owner');
+    || !Number.isSafeInteger(updateCount) || updateCount < 0 || !owner.rootView) throw Error('Invalid folder-entry banner owner');
   if (view.status !== 'active' || view.stage !== 'active' || view.selection.kind !== 'folder'
     || view.selection.key !== owner.folder || view.primary.selection.kind !== 'folder'
     || view.primary.selection.key !== owner.folder || view.primary.generation !== view.generation
@@ -78,20 +84,21 @@ export function createHomeFolderEntryBanner() {
   let pending: HomeFolderEntryBannerPose | null = null, ticket = 0, disposed = false, rebase = true;
   let release: HomeFolderEntryBannerRelease | null = null, releasedOwner: HomeFolderEntryBannerOwner | null = null;
   const revoke = () => { ticket++; pending = null; release = null; rebase = true; };
-  const complete = (owner: HomeFolderEntryBannerOwner | null) => !disposed && (sameScope(releasedOwner, owner)
+  const complete = (owner: HomeFolderEntryBannerOwner | null) => !disposed && (sameEntryScope(releasedOwner, owner)
     || sameOwner(entry?.owner ?? null, owner) && presented?.phase === 'hidden' && !presented.primary.motion.visible);
   return {
     complete,
     requestReady(owner: HomeFolderEntryBannerOwner | null): boolean {
-      return !disposed && (sameScope(releasedOwner, owner) || !rebase && !!presented
+      return !disposed && (sameEntryScope(releasedOwner, owner) || !rebase && !!presented
         && presented.elapsedUpdates >= HOME_FOLDER_ENTRY_LAST_FRAME
         && sameOwner(entry?.owner ?? null, owner));
     },
     activationReady(owner: HomeFolderEntryBannerOwner | null): boolean {
-      return !disposed && (sameScope(releasedOwner, owner) || !rebase && complete(owner));
+      return !disposed && (sameEntryScope(releasedOwner, owner) || !rebase && complete(owner));
     },
     active(owner: HomeFolderEntryBannerOwner | null): boolean {
-      return !disposed && !sameScope(releasedOwner, owner) && sameScope(entry?.owner ?? source?.owner ?? null, owner);
+      return !disposed && !sameEntryScope(releasedOwner, owner)
+        && (entry ? sameEntryScope(entry.owner, owner) : sameScope(source?.owner ?? null, owner));
     },
     presentRoot(candidate: HomeFolderEntryBannerSource | null, owner: HomeFolderEntryBannerOwner | null): boolean {
       if (disposed || candidate && !sameOwner(candidate.owner, owner)) return false;
@@ -101,8 +108,9 @@ export function createHomeFolderEntryBanner() {
       reducedMotion = false): HomeFolderEntryBannerPose | null {
       if (disposed) return null;
       if (typeof reducedMotion !== 'boolean') throw Error('Invalid folder-entry reduced motion');
+      if (!owner.rootView) throw Error('Invalid folder-entry banner owner');
       if (motion.identity.kind !== 'folder' || motion.identity.folder !== owner.folder) throw Error('Stale folder-entry banner motion');
-      if (sameScope(releasedOwner, owner)) return null;
+      if (sameEntryScope(releasedOwner, owner)) return null;
       if (!sameOwner(entry?.owner ?? null, owner) && !complete(owner)) {
         if (!source || !sameScope(source.owner, owner) || source.owner.navigationRevision + 1 !== owner.navigationRevision) {
           throw Error('Folder entry has no matching presented root banner');
@@ -139,7 +147,7 @@ export function createHomeFolderEntryBanner() {
       presented = candidate; pending = null; rebase = false; return true;
     },
     sampleRelease(owner: HomeFolderEntryBannerOwner): HomeFolderEntryBannerRelease | null {
-      if (!entry || !complete(owner) || rebase || pending || sameScope(releasedOwner, owner)) return null;
+      if (!entry || !complete(owner) || rebase || pending || sameEntryScope(releasedOwner, owner)) return null;
       return release ??= Object.freeze({ owner: Object.freeze({ ...owner }), ticket });
     },
     presentRelease(candidate: HomeFolderEntryBannerRelease, owner: HomeFolderEntryBannerOwner | null): boolean {

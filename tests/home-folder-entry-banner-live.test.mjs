@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import ts from 'typescript';
 import { createPortfolioState, reduceSystem, tickSystem } from '../src/os/system.ts';
-import { enterHomeFolder, selectHomeSlot } from '../src/os/home-navigation.ts';
+import { enterHomeFolder, selectHomeSlot, getHomeNavigation } from '../src/os/home-navigation.ts';
 import { createHomeBannerHost, crossHomeBannerBoundary, stepHomeBannerHost, getHomeBannerHostView, resolveHomeBannerHostSelection } from '../src/os/home-banner-host.ts';
 import { escapeUnreadyNativeScreen } from '../src/os/native-screen-system.ts';
 import { getHomeFolderIdentity } from '../src/os/home-folder-identity.ts';
@@ -301,6 +301,36 @@ test('acknowledged hidden root cannot release or authorize a rapid recovery re-e
   assert.equal(screens.homeFolderBannerRequestReady(reentered),false);assert.equal(screens.homeFolderBannerActivationReady(reentered),false);
   assert.equal(screens.presentHomeEntryMotion(at(reentered,104)),false);
   paint(reentered,104);assert.equal(screens.stockStatus(reentered),'error');assert.match(String(screens.stockFailure()),/matching presented root banner/);
+ });
+});
+
+test('a released child cannot authorize failure recovery and re-entry without a fresh root receipt',async()=>{
+ for(const reduced of [false,true])await fixture(({screens,paint,setHost,presenter})=>{
+  let state=prepare(root(),setHost,paint),update=100;screens.setReducedMotion(reduced);
+  for(const frame of reduced?[16]:Array.from({length:17},(_,i)=>i))paint(state,++update);
+  update=finishHide(state,paint,update);paint(state,++update);
+  assert.equal(screens.stockStatus(state),'ready');
+  const rootView=getHomeNavigation(state).rootView;
+  state=selectHomeSlot(state,1);assert.equal(getHomeNavigation(state).rootView,rootView);
+  paint(state,++update);assert.equal(screens.stockStatus(state),'ready');
+  const chrome=presenter.folderChrome;presenter.folderChrome=()=>false;
+  paint(state,++update);assert.equal(screens.stockStatus(state),'error');
+  const escaped=escapeUnreadyNativeScreen(at(state,update),7000),reentered=enterHomeFolder(escaped,19);
+  assert.equal(escaped.opened,false);assert.equal(reentered.opened,true);
+  assert.notEqual(getHomeNavigation(reentered).rootView,rootView);
+  assert.deepEqual(getHomeNavigation(reentered).rootView,rootView,'unchanged root geometry does not imply the same entry');
+  assert.equal(reentered.system.homeFolderClose.nextTransitionId,state.system.homeFolderClose.nextTransitionId,
+   'failure recovery does not allocate a normal close transition');
+  presenter.folderChrome=chrome;screens.retryStockScreen();
+  assert.equal(screens.homeFolderBannerRequestReady(reentered),false);
+  assert.equal(screens.homeFolderBannerActivationReady(reentered),false);
+  paint(reentered,++update);assert.equal(screens.stockStatus(reentered),'error');
+  assert.match(String(screens.stockFailure()),/matching presented root banner/);
+  const returned=escapeUnreadyNativeScreen(at(reentered,update),7100);
+  setHost(activeView(resolveHomeBannerHostSelection(returned)));paint(returned,++update);
+  setHost(activeView({kind:'default'}));const fresh=enterHomeFolder(returned,19),pair=paint(fresh,++update);
+  assert.equal(lower(pair.events).folderFrame,reduced?16:0);assert.equal(banner(pair.events).args[0].visible,true);
+  assert.equal(screens.stockStatus(fresh),'loading');
  });
 });
 

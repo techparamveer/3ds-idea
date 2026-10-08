@@ -16,7 +16,7 @@ The Renu page has no complete project write-up. Alora and Microsoft also have li
 
 `nvidia-transform/atlas.png` is a transparent Blender render of an extruded
 version of the original SVG above. It follows the user's supplied box-to-logo
-video, with dark lettering for the light screen background and a four-second
-loop. This is a portfolio adaptation, not a Nintendo firmware resource.
+video, with an opening cube spin and bright 3D lettering over dark extruded sides.
+It plays once in 2.4 seconds, then holds the completed logo. This is a portfolio adaptation, not a Nintendo firmware resource.
 See `nvidia-transform/provenance.json` for source/output hashes and
 [the authoring and verification notes](../../docs/nvidia-transform-2026-10-08.md).

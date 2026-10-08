@@ -3,12 +3,16 @@
 User-requested portfolio adaptation on `codex/nvidia-transform`, based on
 `5ee6fd7a42b0239c5f55f375f85593289a0ff532`. The old fidelity checkout in STATUS
 was absent; this branch uses a separate managed worktree from current `main`.
-Implementation commit: `efe4e8da743a90ed67e817c7bd0b0da4d7d87e7f`.
+Initial implementation: `efe4e8d`, superseded by this correction from
+`7f06ecf`. The user rejected the reverse loop and requested a closer reference
+match, an opening spin, one-shot playback and visibly 3D lettering.
 
 Selecting NVIDIA previously showed the generic logo plaque on HOME, and opening
 it showed the Renu photograph immediately. HOME and the app landing screen now
-show a green 3D box turning face-on, flattening and sliding left as the wordmark
-and eye appear. The logo holds, then returns to the box over a four-second loop.
+show a green 3D cube making a full opening spin, turning face-on, then sliding
+left as the wordmark emerges to its right and the eye opens upward from the
+square. The animation takes 2.4 seconds and holds the final logo indefinitely.
+There is no reverse section or automatic repeat.
 Opening the Renu entry still shows its photograph and original text.
 
 ## Source and delivery
@@ -19,16 +23,20 @@ Opening the Renu entry still shows its photograph and original text.
   sampled with svgpathtools 1.8.0 into [contours](../scripts/blender/nvidia-logo-contours.json).
 - Editable source: [Blender scene](../assets/blender/nvidia-transform.blend),
   authored through Blender MCP in Blender 5.2.1 LTS. It contains extruded curves,
-  a beveled animated cube, animated material reveals, lights and a camera.
+  an animated cube with fine bright edges, animated material reveals, lights and
+  a camera. The wordmark has 0.28 units of total extrusion, bright front caps,
+  dark sides and bevels, and a slight two-axis tilt to make the depth visible.
 - Delivery: [transparent atlas](../public/portfolio/nvidia-transform/atlas.png),
-  96 frames, 180×148, 24 fps, eight columns. RGB555-style color quantization,
+  72 frames, 180×148, 30 fps, eight columns. RGB555-style color quantization,
   binary alpha and nearest-neighbour drawing give crisp edges. The atlas is
-  approximately 51 KB compressed and 10.2 MB as decoded RGBA.
+  59,425 bytes compressed and 7.7 MB as decoded RGBA.
 - [Provenance](../public/portfolio/nvidia-transform/provenance.json) records
   SHA-256 hashes of the video, original logo, conversion inputs and outputs.
 
-Dark wordmark color, enamel materials, extrusion, pixel sampling and the held,
-repeating motion are intentional portfolio adaptations. This has no firmware
+The added opening spin, enamel materials, white text faces with dark extruded
+sides, slight text tilt and pixel sampling are intentional portfolio adaptations.
+Box size, its leftward slide, and the wordmark reveal positions were fitted to
+the supplied video at source frames 15 through 36. This has no firmware
 manifest key, native sound or native comparison pair. Other native residuals
 listed in STATUS remain unresolved. No native scenario is marked passed.
 
@@ -37,8 +45,9 @@ listed in STATUS remain unresolved. No native scenario is marked passed.
 [Banner renderer](../src/os/nvidia-banner.ts) loads the atlas with the portfolio
 icons before screen readiness. It uses the existing canvas compositor, needs no
 additional WebGL context and does not alter reducers or native asset handling.
-Selection changes and gaps in painting restart at the box. Reduced motion uses
-frame 52, the completed logo. Loading failure retains the original source icon.
+A new selection starts at the box. Playback clamps on frame 72. Gaps in
+painting, including background tabs, cannot restart the animation. Reduced
+motion uses the same final logo. Loading failure retains the original source icon.
 Disposal prevents delayed decoding from reviving the renderer.
 
 ## Rebuild
@@ -73,15 +82,16 @@ Update the provenance hashes after authoring or repacking.
   HOME selection and app landing animate over their existing backgrounds. Enter
   opens the Renu detail photograph; Escape returns; HOME suspend/close works.
 - A separate browser check using the actual renderer and actual PNG passed image
-  decode, changing frames, exact frame wrap, reduced-motion stability, selection
-  restart, transparent corners, disposal, and disposal before decode completion.
+  decode, a changing cube pose, completion, a held final frame at 4.8, 10 and 60
+  seconds, no restart after a painting gap, reduced-motion stability, selection
+  restart, disposal, and disposal before decode completion.
 - Inspected Blender renders and contact sheets against the supplied clip. This
   is visual reference matching, not an exact frame-by-frame reproduction claim.
 
-Private evidence is in
-`/Users/paramveer/.codex/3ds-artifact-overflow/nvidia-transform-20261008/`:
-`reference-detail.jpg`, `animation-sheet.png`, `nvidia-preview.gif`,
-`browser-nvidia-home.jpg`, `browser-nvidia-home-later.jpg`, `browser-nvidia.jpg`,
-`browser-renu-detail.jpg`, `browser-lifecycle-checks.jpg`,
-`browser-lifecycle-checks.txt`, build/test/shader logs and the standalone browser
-check files. Internal storage avoids writing new artifacts to DeveloperStorage.
+Revision 2 evidence is in
+`/Users/paramveer/.codex/3ds-artifact-overflow/nvidia-transform-20261008/revision-2/`:
+`animation-sheet.png`, the non-looping `nvidia-once.gif`, `text-3d.png`,
+`browser-nvidia-home.jpg`, `browser-nvidia-app.jpg`, `browser-checks.jpg`,
+`browser-checks.txt`, render/build/test/shader logs and standalone browser checks.
+The parent folder preserves the original reference captures and rejected first
+iteration. Internal storage avoids new artifacts on DeveloperStorage.

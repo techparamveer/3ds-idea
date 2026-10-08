@@ -2,16 +2,15 @@
 const FRAME_WIDTH = 180;
 const FRAME_HEIGHT = 148;
 const COLUMNS = 8;
-const FRAME_COUNT = 96;
-const FPS = 24;
-const LOGO_HOLD_FRAME = 51;
+const FRAME_COUNT = 72;
+const FPS = 30;
+const LOGO_HOLD_FRAME = FRAME_COUNT - 1;
 
 export function createNvidiaBanner() {
   let image: HTMLImageElement | undefined;
   let ready = false;
   let disposed = false;
   let startedAt: number | undefined;
-  let lastPaint: number | undefined;
 
   function load() {
     const pending = new Image();
@@ -29,11 +28,10 @@ export function createNvidiaBanner() {
     ready: load(),
     draw(context: CanvasRenderingContext2D, time: number, reduced: boolean) {
       if (!ready || !image || disposed) return false;
-      if (startedAt === undefined || lastPaint === undefined || time < lastPaint || time - lastPaint > 250) {
+      if (startedAt === undefined) {
         startedAt = time;
       }
-      lastPaint = time;
-      const frame = reduced ? LOGO_HOLD_FRAME : Math.floor((time - startedAt) * FPS / 1000) % FRAME_COUNT;
+      const frame = reduced ? LOGO_HOLD_FRAME : Math.min(LOGO_HOLD_FRAME, Math.floor(Math.max(0, time - startedAt) * FPS / 1000));
       context.save();
       context.imageSmoothingEnabled = false;
       context.drawImage(image, (frame % COLUMNS) * FRAME_WIDTH, Math.floor(frame / COLUMNS) * FRAME_HEIGHT,
@@ -43,7 +41,6 @@ export function createNvidiaBanner() {
     },
     reset() {
       startedAt = undefined;
-      lastPaint = undefined;
     },
     dispose() {
       disposed = true;

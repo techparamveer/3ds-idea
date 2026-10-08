@@ -20,6 +20,12 @@ The isolated browser session has app mute enabled and volume zero.
 Delivered and browser-inspected; see [Nvidia notes](docs/nvidia-transform-2026-10-08.md).
 Implementation commit: `efe4e8da743a90ed67e817c7bd0b0da4d7d87e7f`.
 This checkpoint records that implementation; use Git for the current documentation HEAD.
+Revision 2 starts from checked HEAD `7f06ecf3a60894d5682817c05a5e3e7f2951227f`.
+User correction: follow reference proportions and reveal, add opening cube spin,
+play once and hold logo; remove reverse and loop.
+Revision 2 implemented and browser-verified: full opening spin, closer reference
+reveal, visibly extruded white lettering with dark sides, one-shot playback and
+indefinite logo hold. The production preview at port 3048 serves this revision.
 Next for this branch: user review. Native queue below remains unrelated.
 The historical serving/seats/evidence below are preserved, not verified live.
 

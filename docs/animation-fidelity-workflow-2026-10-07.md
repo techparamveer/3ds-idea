@@ -137,6 +137,50 @@ pixels and muted audio remain open. Preview3022, old3021, user3000 and system
 audio stay untouched. Goal active, weekly78%, pause75%. Follow STATUS Next;
 historical blocked paragraphs are superseded.
 
+## HOME release recovery and recapture, 8 October
+
+Astra-high independent review clears release candidate `d392ae3`, integrated
+as `b7bb5c6`. HOME directions bypass the generic app latch; readiness recovery
+now cancels and quarantines both existing input owners. Ready quick pulses,
+mixed-source release, analog neutral, Retry, sleep and close identity retain
+their tested behavior. No native graphics, audio, clocks or source poses change.
+
+The first trusted-event collector `1df6382` was rejected because selection
+timeout/drift could bypass raw evidence export. Corrected `d3a54d8`, integrated
+with `7451a9f`/`5e33943`, retains observations and invalid raw captures before
+rejecting. Worker/root focused47/47 and independent42/42 pass. Exact helper
+SHA256 is `61ba0e559a78bab2c3f3e83a83f9fe8181020c86593d7bae6b1c8a7e11b31ff0`.
+
+Clean preview3024 serves frozen `d392ae3`, runtime-equivalent to `b7bb5c6`.
+BUILD_ID `c8mbk54a7WDYz_ZYv6Ozm`, SHA3dd748fd, HTTP200/PID63995 checked.
+Focused198/198, typecheck/build pass; full2562 tests have2453 pass, the same
+six failures,102 skips/one TODO. Root release/pause63/63 pass. Reporta9a44c03
+under private `pause-release-visible-build-20261008/` records exact committed
+runtime identity and77 materialized model hashes/sizes; no authored model edit.
+
+Reviewed private policy946ced8d pins ordinary keyboard HOME/ArrowRight, Health8
+to Camera10, normal1440x1000 and reduced390x844. Before78 pairs at5386572 stays
+invalid and ends58 despite a trusted40.8ms down/up. After72/79 pairs atd392ae3
+stay10, preserve Health and restore/repeat Resume; reduced11 pairs also reach10.
+No page errors. Reports763c7876/f9e735a1/0ab9f854 under private
+`continuation-20261008/supporting/` rehash/decode all480 raw compact PNGs, check
+receipts and event timelines, and retain the expected before failure.
+Both normal runs have terminal-only compact evidence, no early0..9 appearance.
+Reduced motion is an endpoint adaptation. Private owner/generation and the
+intervening restore receipt are not serialized; no native epoch is inferred.
+
+Ordinary affected folder90/91 and expanded-pause80/79 cycles also close0.
+Supporting reportd198f356 checks340 pairs/680 raw PNGs and no orphans. First
+console views and both repeat views are opened. All compact console views and
+chronological sheet50194231 are opened; selectorf7cc4354 fixes the samples.
+Independent reruns reproduce all three compact report hashes, and the sheet's
+38 LCD regions preserve decoded source pixels exactly. Opening/inspection is
+coordinator-attested; the checker does not claim visual inspection.
+No native recapture, diff or mask is added.
+All four whole scenarios still fail; muted audio unverified, export pending.
+Latest human model preference is GPT-6 Astra high for replacement helpers;
+the coordinator model is unchanged. Goal active, weekly77%, pause75%.
+
 ## Captured baseline
 
 Runtime `5ee6fd7`, workflow `81f09bf`, production port 3021. The coordinator's

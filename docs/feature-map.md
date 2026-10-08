@@ -6,6 +6,17 @@ restart base is `5ee6fd7`; the historical static queue below is preserved.
 All four motion flows are currently fail pending matched frame-sequence proof.
 
 The 8 October human resume supersedes the historical blocked checkpoint below.
+Current release recovery is integrated as `b7bb5c6`; corrected capture tooling
+as `7451a9f`/`5e33943`. Replacement workers/reviews use GPT-6 Astra high.
+Clean `d392ae3` on3024 passes focused198/198, typecheck/build, with the same
+six full-suite failures. The trusted-key before run reproduces slot58 despite
+an observed key-up. Fixed normal72/79 and reduced-mobile11 pairs retain
+Camera10 and Health, without errors. Supporting checks cover all480 compact
+raw PNGs. Both normal runs miss early appearance0..9; reduced is endpoint-only.
+This proves the browser release correction, not the compact fade or native
+1:1. All four whole scenarios fail. Goal active,77% remaining, pause75%.
+See [the release checkpoint](animation-fidelity-workflow-2026-10-07.md#home-release-recovery-and-recapture-8-october).
+
 Reviewed runtime `9a72454`/`c6f74ed`, caller `1308786` and fixtures `c658382` fix
 compact pause opacity and stale released-folder lifetime. Clean production
 `5386572` on3023 passes focused328/328, typecheck/build. Full2427 pass and six

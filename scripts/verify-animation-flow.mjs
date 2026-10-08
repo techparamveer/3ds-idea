@@ -3,7 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { dirname, isAbsolute, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { parseArgs } from 'node:util';
+import { isDeepStrictEqual, parseArgs } from 'node:util';
 import { folderCapturePrecondition } from './reference/folder-capture-precondition.mjs';
 import { pauseCapturePrecondition } from './reference/pause-capture-precondition.mjs';
 
@@ -53,7 +53,95 @@ export function parsePauseHomeHold(value, { scenario, activation, durationMs }) 
   return holdMs;
 }
 
-export function collectAnimationFrames(durationMs) {
+export function parsePauseCompact(value, { scenario, activation }) {
+  if (value === undefined || value === false) return false;
+  assert.equal(value, true, 'Compact pause requires a boolean flag');
+  assert.equal(scenario, 'pause', 'Compact pause is pause-only');
+  assert.ok(['key', 'physical'].includes(activation), 'Compact pause requires key or physical HOME');
+  return true;
+}
+
+export function validatePauseCompactDestination(data, selection) {
+  assert.equal(data.menu, 'home', 'Compact pause remains on HOME');
+  assert.equal(data.app, selection.app, 'Compact pause retains the requested application');
+  const cursor = JSON.parse(data.homeCursor ?? 'null');
+  assert.equal(cursor?.focus?.toolbarActive, false, 'Compact pause remains on the grid');
+  assert.equal(cursor.selectedSlot, Number(data.selected), 'Compact cursor follows the actual selection');
+  assert.equal(data.selected, selection.compactSelected, 'ArrowRight selects the adjacent column');
+  assert.notEqual(data.selected, selection.originalSelected, 'Retained application is no longer selected');
+  assert.equal(data.dialog, '', 'Compact pause has no dialog overlay');
+  assert.equal(data.sleeping, 'false', 'Compact pause is awake');
+}
+
+export async function selectPauseCompact(enabled, app, originalSelected, { key, state, waitForSelection }) {
+  if (!enabled) return null;
+  const homeBeforeSelection = await state();
+  assert.equal(homeBeforeSelection.menu, 'home', 'ArrowRight follows actual HOME');
+  assert.equal(homeBeforeSelection.app, app, 'Requested application is retained before ArrowRight');
+  assert.equal(homeBeforeSelection.selected, originalSelected, 'HOME begins with the retained application selected');
+  assert.equal(JSON.parse(homeBeforeSelection.homeCursor ?? 'null')?.focus?.toolbarActive, false, 'HOME begins on the grid');
+  const slot = Number(originalSelected), rows = Number(homeBeforeSelection.rows);
+  assert.ok(Number.isSafeInteger(slot) && slot >= 0 && Number.isSafeInteger(rows) && rows > 0, 'HOME selection and row count are explicit');
+  await key('ArrowRight');
+  const compactSelected = String(slot + rows);
+  await waitForSelection({ app, selected: compactSelected });
+  const afterSelection = await state();
+  const selection = { app, originalSelected, compactSelected, homeBeforeSelection, afterSelection,
+    method: 'One ordinary ArrowRight after HOME, while chronological capture is already active. No fixed delay or diagnostic repaint.',
+    adaptation: 'Browser input workflow; not a recovered native input epoch, duration or compact activation boundary.',
+    privateOwner: null, captureGeneration: null, nativeSourceEpoch: null };
+  validatePauseCompactDestination(afterSelection, selection);
+  return selection;
+}
+
+export function pauseCompactSelectionChanged({ app, selected }) {
+  const data = document.querySelector('.console-stage')?.dataset;
+  const cursor = JSON.parse(data?.homeCursor ?? 'null');
+  return data?.menu === 'home' && data.app === app && data.selected === selected
+    && cursor?.focus?.toolbarActive === false && cursor.selectedSlot === Number(selected);
+}
+
+// Standalone browser predicate: repeat Resume must follow a fresh HOME receipt.
+export function pauseCompactRestoreReady({ app, selected }) {
+  const data = document.querySelector('.console-stage')?.dataset;
+  if (!data || data.menu !== 'home' || data.app !== app || data.selected !== selected || data.dialog || data.sleeping === 'true') return false;
+  const cursor = JSON.parse(data.homeCursor ?? 'null'), paint = JSON.parse(data.screenPaint ?? 'null'), receipt = JSON.parse(data.screenPresented ?? 'null');
+  return cursor?.focus?.toolbarActive === false && cursor.selectedSlot === Number(selected)
+    && paint?.phase === 'home' && paint.cursor?.selectedSlot === Number(selected) && paint.cursor?.focus?.toolbarActive === false
+    && receipt?.validPublication === true && JSON.stringify(receipt.paint) === JSON.stringify(paint);
+}
+
+export async function restorePauseCompactSelection(selection, { key, waitForReady }) {
+  if (!selection) return;
+  await key('ArrowLeft');
+  await waitForReady({ app: selection.app, selected: selection.originalSelected });
+}
+
+export function pauseCompactEvidence(frames, selection, reducedMotion) {
+  const matching = frames.filter(frame => {
+    try { validatePauseCompactDestination(frame.data, selection); } catch { return false; }
+    const paint = JSON.parse(frame.data.screenPaint ?? 'null'), receipt = JSON.parse(frame.data.screenPresented ?? 'null');
+    return paint?.phase === 'home' && paint.cursor?.selectedSlot === Number(selection.compactSelected)
+      && paint.cursor?.focus?.toolbarActive === false && receipt?.validPublication === true && isDeepStrictEqual(receipt.paint, paint);
+  });
+  const appearance = matching.find(frame => {
+    const frameNumber = JSON.parse(frame.data.screenPaint).entryMotion?.pauseFrame;
+    return Number.isInteger(frameNumber) && frameNumber >= 0 && frameNumber < 10;
+  });
+  const terminal = matching.find(frame => JSON.parse(frame.data.screenPaint).entryMotion?.pauseFrame === 20);
+  const describe = frame => frame ? { index: frame.index, at: frame.at,
+    pauseFrame: JSON.parse(frame.data.screenPaint).entryMotion?.pauseFrame ?? null,
+    selected: frame.data.selected } : null;
+  return { firstMatchingReceipt: describe(matching[0]), firstAppearanceReceipt: describe(appearance), firstTerminalReceipt: describe(terminal),
+    targetPathObserved: !reducedMotion && Boolean(appearance),
+    coverage: !matching.length ? 'missing-valid-pair' : reducedMotion ? terminal ? 'reduced-endpoint' : 'reduced-no-entry-only' : appearance ? 'appearance-during-entry' : 'terminal-or-no-entry-only',
+    limitation: !reducedMotion && !appearance ? 'Host input latency or publication sampling missed compact Appear0..9. This capture does not verify the compact fade; preserve it without automatic retry.' : null,
+    privateOwner: null, captureGeneration: null, nativeSourceEpoch: null, nativeCompared: false };
+}
+
+export function collectAnimationFrames(durationOrOptions) {
+  const compact = typeof durationOrOptions === 'object' && durationOrOptions.pauseCompact === true;
+  const durationMs = compact ? durationOrOptions.durationMs : durationOrOptions;
   const host = document.querySelector('.console-stage'), frames = [], start = performance.now();
   window.animationCapture = { frames, start, done: false };
   let lastPaint = null;
@@ -64,7 +152,7 @@ export function collectAnimationFrames(durationMs) {
       lastPaint = identity;
       frames.push({ at: performance.now() - start,
         ...(window.animationCapture.homeHold ? { homeHoldActive: Boolean(window.animationCapture.homeHold.down && !window.animationCapture.homeHold.up) } : {}),
-        data: Object.fromEntries(['menu', 'phase', 'app', 'selected', 'rows', 'lastInput', 'nativeScreen', 'nativeScreenFailure', 'screenPaint', 'screenPresented', 'homeUpdates', 'folderClose', 'folderBanner', 'homeCursor'].map(k => [k, host.dataset[k]])),
+        data: Object.fromEntries(['menu', 'phase', 'app', 'selected', 'rows', 'lastInput', 'nativeScreen', 'nativeScreenFailure', 'screenPaint', 'screenPresented', 'homeUpdates', 'folderClose', 'folderBanner', 'homeCursor', ...(compact ? ['dialog', 'sleeping'] : [])].map(k => [k, host.dataset[k]])),
         top: host.screenCanvases.top.toDataURL('image/png'), bottom: host.screenCanvases.bottom.toDataURL('image/png') });
     }
     if (performance.now() - start < durationMs) requestAnimationFrame(sample);
@@ -191,6 +279,7 @@ const { values } = parseArgs({ options: {
   'folder-fixture': { type: 'string', default: 'baseline' },
   'duration-ms': { type: 'string', default: '3500' },
   'home-hold-ms': { type: 'string' },
+  'pause-compact': { type: 'boolean', default: false },
   'reduced-motion': { type: 'boolean', default: false },
 } });
 for (const key of ['playwright-module', 'browser-executable', 'output']) assert.ok(isAbsolute(values[key] ?? ''), key);
@@ -215,6 +304,7 @@ for (const key of ['width', 'height']) assert.ok(Number.isInteger(Number(values[
 const durationMs = Number(values['duration-ms']);
 assert.ok(Number.isInteger(durationMs) && durationMs >= 1000 && durationMs <= 30000, 'Capture duration must be 1000..30000ms');
 const homeHoldMs = parsePauseHomeHold(values['home-hold-ms'], { scenario: values.scenario, activation: values.activation, durationMs });
+const pauseCompact = parsePauseCompact(values['pause-compact'], { scenario: values.scenario, activation: values.activation });
 const cycles = Number(values.cycles);
 assert.ok(Number.isInteger(cycles) && cycles >= 1 && cycles <= 3);
 const output = values.output;
@@ -256,7 +346,7 @@ try {
   await page.waitForFunction(() => Boolean(document.querySelector('.console-stage')?.screenCanvases));
   await page.waitForTimeout(1000);
   const initial = await state();
-  let folderSelection, folderIdentity;
+  let folderSelection, folderIdentity, previousPauseCompact = null;
   if (values.scenario === 'pause') {
     await selectTitle();
     await key('Enter');
@@ -293,6 +383,8 @@ try {
   for (let cycle = 0; cycle < cycles; cycle++) {
   const cycleInputOffset = inputs.length;
   if (cycle > 0) {
+    if (previousPauseCompact) await restorePauseCompactSelection(previousPauseCompact, { key,
+      waitForReady: request => page.waitForFunction(pauseCompactRestoreReady, request, { timeout: 10000 }) });
     await key(values.scenario === 'folder' || values.scenario === 'manual' ? 'Escape' : values.scenario === 'pause' ? 'Enter' : 'h');
     await page.waitForFunction(menu => document.querySelector('.console-stage').dataset.menu === menu, values.scenario === 'pause' ? 'app' : 'home');
     await page.waitForTimeout(500);
@@ -338,7 +430,7 @@ try {
     assert.equal(selection?.kind, 'folder');
     assert.equal(selection.key, folderIdentity);
   }
-  await page.evaluate(collectAnimationFrames, durationMs);
+  await page.evaluate(collectAnimationFrames, pauseCompact ? { durationMs, pauseCompact: true } : durationMs);
   let pauseHomeHold = null, pauseHomeHoldFailure = null;
   if (values.scenario === 'pause' && homeHoldMs !== null) {
     ({ pauseHomeHold, pauseHomeHoldFailure } = await attemptPauseHomeHold(page, values.activation, homeHoldMs, inputs));
@@ -350,6 +442,10 @@ try {
   else if (values.activation === 'physical') await physical('A');
   else if (values.activation === 'touch') await touch(160, 226);
   else await key('Enter');
+  const compactSelection = pauseCompact && !pauseHomeHoldFailure
+    ? await selectPauseCompact(true, pauseApp, before.selected, { key, state,
+      waitForSelection: request => page.waitForFunction(pauseCompactSelectionChanged, request, { timeout: 10000 }) }) : null;
+  previousPauseCompact = compactSelection;
   await page.waitForFunction(() => window.animationCapture.done, { timeout: durationMs + 10000 });
   const frames = await page.evaluate(() => window.animationCapture.frames), reports = [];
   const after = await state();
@@ -370,6 +466,8 @@ try {
     ...(values.activation === 'accessible' ? { adaptation: 'Keyboard activation of the existing screen-reader shortcut from the grid; not a native toolbar input or animation-acceptance scenario.' } : {}),
     initial, before, folderPreparation, pausePreparation, ...(pauseHomeHold ? { pauseHomeHold } : {}),
     ...(pauseHomeHoldFailure ? { pauseHomeHoldFailure } : {}), inputs, cycleInputs: inputs.slice(cycleInputOffset), after, frames: reports, errors, nativeCompared: false };
+  if (pauseCompact) Object.assign(result, { pauseCompact: true, compactSelection,
+    compactEvidence: compactSelection ? pauseCompactEvidence(reports, compactSelection, values['reduced-motion']) : null });
   await writeInitialCapture(join(output, `${cycle ? `repeat-${cycle}-` : ''}capture.json`), result);
   assert.ok(frames.length > 2, 'Transition has chronological raw LCD paints');
   assert.deepEqual(errors, [], 'No browser page errors');
@@ -379,6 +477,10 @@ try {
   if (values.scenario !== 'pause') assert.equal(after.nativeScreen, 'ready', 'Destination reaches paired native readiness');
   if (values.scenario === 'manual') validateManualCaptureDestination(after, title);
   if (values.scenario === 'pause') assert.equal(after.app, pauseApp, 'HOME retains the requested suspended app');
+  if (pauseCompact) {
+    validatePauseCompactDestination(after, compactSelection);
+    assert.ok(result.compactEvidence?.firstMatchingReceipt, 'Compact pause requires a captured valid matching HOME pair');
+  }
   if (Object.hasOwn(appletLabels, values.scenario)) assert.equal(after.announcement?.split('. ')[0], appletLabels[values.scenario], 'Requested applet is the active destination');
   if (values.scenario === 'folder') assert.equal(after.selected, folderSelection);
   result.valid = true;
@@ -389,7 +491,7 @@ try {
   const failedState = await state().catch(() => null);
   await page.screenshot({ path: join(output, 'failure-console.png') }).catch(() => {});
   await writeFile(join(output, 'failure.json'), JSON.stringify({ valid: false, scenario: values.scenario, title, commit: values.commit,
-    failedState, inputs, errors, error: String(error), nativeCompared: false }, null, 2) + '\n');
+    ...(pauseCompact ? { pauseCompact: true } : {}), failedState, inputs, errors, error: String(error), nativeCompared: false }, null, 2) + '\n');
   throw error;
 } finally {
   await browser.close();

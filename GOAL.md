@@ -13,7 +13,9 @@ on3024 captures compact appearance frame9 in both normal repeat cycles;
 frames0..8, the full fade and native timing remain unproven. All four whole
 animation scenarios still fail. Replacement workers/reviews use GPT-6 Astra
 high. The later usage check reached25% used/75% remaining on8 October.
-The human has since resumed work, and the goal API now reports active.
+The human resumed work, but the latest goal API result is blocked after three
+consecutive checks of the unresolved asset-export and capture-method approvals.
+This is not a quota pause or a completion claim; the full objective is unchanged.
 Camera/Sound artifact checks and sheet inspection are complete. Portfolio
 compact pause completed two muted Sidecar cycles, with153 paired paints and
 306 raw PNGs checked. These are browser regressions, not native acceptance.

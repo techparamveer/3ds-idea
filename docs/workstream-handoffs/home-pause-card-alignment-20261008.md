@@ -23,7 +23,7 @@ Evidence is retained under:
 
 - `/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261008/home-pause-upper-mac/browser-normal/`
 - `/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261008/home-pause-upper-review/newmac/native-review.md`
-- `/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261008/home-pause-upper-review/newmac/first-onset/`
+- `/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261008/home-pause-upper-review/newmac/first-onset-late/`
 - `/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261008/home-pause-upper-review/newmac/repeat-onset/`
 
 The native review records movie SHA-256 values

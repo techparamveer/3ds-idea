@@ -20,7 +20,7 @@ import { homeSuspendedApplication, homeSuspendedIconDisappeared, homeSuspendedWi
 import { homeCloseWindowOpacity } from './home-close-window-fit';
 import { sampleSystemHomeApplicationTransition } from './system-home-application-transition';
 import { createHomeSuspendedPresentation, getHomeSuspendedSleepFrame, syncHomeSuspendedPresentation } from './home-suspended-presentation';
-import { sampleHomeEntryMotionCandidate, acknowledgeHomeEntryMotionCandidate, homeEntryMotionMatches, homeEntryMotionActive, homeFolderEntryPose, homePauseEntryPresentation, type HomeEntryMotion, type HomeEntryMotionIdentity, type HomeFolderEntryPose, type HomeSuspendedBackgroundPresentation } from './home-entry-motion';
+import { sampleHomeEntryMotionCandidate, acknowledgeHomeEntryMotionCandidate, homeEntryMotionMatches, homeEntryMotionActive, homeFolderEntryPose, homePauseEntryPresentation, HOME_FOLDER_ENTRY_LAST_FRAME, type HomeEntryMotion, type HomeEntryMotionIdentity, type HomeFolderEntryPose, type HomeSuspendedBackgroundPresentation } from './home-entry-motion';
 import { acknowledgeHomeEntryBannerPresentation, acknowledgeHomeEntryFooterRelease, acknowledgeHomeEntryFooterTerminal, bypassHomeEntryBannerPresentation, createHomeEntryPresentation, getHomeEntryFooterReadiness, homeEntryBannerActivationDue,
  sampleHomeEntryPresentation, HOME_ENTRY_BANNER_RELEASE_FOOTER_FRAME, HOME_ENTRY_FOOTER_LAST_FRAME } from './home-entry-presentation';
 import { NATIVE_RECOVERY_TARGETS } from './native-screen-input';
@@ -169,6 +169,8 @@ function titleIcon(c:Context,appId:string|null|undefined,x:number,y:number,size:
 }
 function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:ReturnType<typeof createPortfolioGraphics>,chrome:ReturnType<typeof createNativeChrome>,view:HomePresentation,nativeHome?:NativeHome,capture=false,assets?:FirmwarePresentationAssets,suspendedSleepFrame=0,launchRetained:HomeLaunchPresentation|null=null,cursorLoop=getHomeCursorLoopFrame(state,reduced),folderEntry:HomeFolderEntryPose|null=null){
  const system=state.system,controls=nativeHome?system?.homeControls:null;
+ // Browser adaptation of captured ordering: reveal the child cursor at the panel endpoint.
+ const folderCursorReady=!nativeHome||!state.opened||!folderEntry||folderEntry.folderFrame>=HOME_FOLDER_ENTRY_LAST_FRAME;
  const suspendedApp=capture?null:homeSuspendedApplication(state)?.appId;
  c.save();c.beginPath();c.rect(0,state.opened?49:34,320,state.opened?159:174);c.clip();
  for(const tile of view.tiles){
@@ -205,7 +207,7 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
   }
   };
   if(nativeHome&&!capture){if(nativeHome.folderChild(c,state,!occupied,drawTile,reduced,folderEntry)===false)throw Error('Native folder entry child unavailable');}else drawTile(1);
-  if(!controls&&!capture&&!isSystemHomeFolderClosing(state)&&tile.cursor&&!nativeHome?.cursor(c,x,tile.y,size,view.density,cursorLoop,pressed))cursor(c,x,y,size,size,time,reduced);
+  if(folderCursorReady&&!controls&&!capture&&!isSystemHomeFolderClosing(state)&&tile.cursor&&!nativeHome?.cursor(c,x,tile.y,size,view.density,cursorLoop,pressed))cursor(c,x,y,size,size,time,reduced);
  }c.restore();
  // Retained native layouts can target toolbar anchors and offscreen departures.
  // Paint after the tile clip, before the existing arrows; the host owns close
@@ -213,7 +215,7 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
  // Only authored grid scroll/drag suppress this group; ordinary press does not.
  // An eligible retained launch keeps the selected cursor beneath the source
  // fade: native shows its brackets until HOME reaches black.
- if(nativeHome&&controls&&!capture&&state.powered&&(system?.phase==='home'||(!!launchRetained&&system?.phase==='launch'))
+ if(folderCursorReady&&nativeHome&&controls&&!capture&&state.powered&&(system?.phase==='home'||(!!launchRetained&&system?.phase==='launch'))
   &&!system.sleeping&&!system.dialog&&!system.preferences&&!state.panel
   &&!(system.homeNavigation.gesture?.area==='grid'&&system.homeNavigation.gesture.mode!=='press')){
   const {primary,presentation}=controls;

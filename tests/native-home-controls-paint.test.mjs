@@ -1083,6 +1083,26 @@ test('live folder entry shares source poses across capture, chrome and both chil
  },{presenterPatch:{folderChild(ctx,_state,empty,draw,_reduced,entry){ctx.record('entry-child',[entry,empty]);draw(1);}}});
 });
 
+test('folder entry withholds child cursor and effects until its paired panel endpoint',async()=>{
+ const root={...home(),folders:{19:'Folder'}},entered=enterHomeFolder(root,19);
+ const at=updateCount=>({...entered,system:{...entered.system,homeClock:{...entered.system.homeClock,updateCount}}});
+ await withScreens(({screens,paint,events})=>{
+  paint(root);assert.ok(events.some(event=>nativeCursorNames.has(event.name)),'root cursor remains visible');
+  for(let update=100;update<116;update++){
+   paint(at(update));
+   assert.equal(events.some(event=>nativeCursorNames.has(event.name)),false,`no child cursor at folder frame ${update-100}`);
+  }
+  paint(at(116),1000,false);
+  assert.ok(events.some(event=>event.name==='cursorAt'),'cursor shares the terminal panel candidate');
+  assert.equal(screens.presentHomeEntryMotion(at(116)),true);
+  paint({...root,system:{...root.system,homeClock:{...root.system.homeClock,updateCount:117}}});
+  assert.ok(events.some(event=>event.name==='cursorAt'),'root return is not hidden');
+  paint(at(118));assert.equal(events.some(event=>nativeCursorNames.has(event.name)),false,'repeat entry starts hidden');
+  screens.setReducedMotion(true);paint(at(119));
+  assert.ok(events.some(event=>event.name==='cursorAt'),'reduced motion publishes the settled cursor');
+ });
+});
+
 test('live HOME suspension binds AppPause from the complete capture and keeps failed or diagnostic paints out of its clock',async()=>{
  const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',3010),6500),'home',6600);
  const at=updateCount=>({...suspended,system:{...suspended.system,homeClock:{...suspended.system.homeClock,updateCount}}});
@@ -1932,20 +1952,20 @@ test('elapsed paint time and reduced-motion toggles never advance or replace ret
   });
 });
 
-test('folder background capture excludes all controls while the live child paints them outside its clip', async () => {
+test('folder background capture excludes controls and the settled child paints them outside its clip', async () => {
   await withScreens(({ screens, paint, events, cursorCalls }) => {
     const state = freeze(enterHomeFolder({ ...home(), folders: { 20: 'A' } }, 20)), before = JSON.stringify(state);
     paint(state);
     const capture = events.find(event => event.name === 'capture-read');
     assert.ok(capture && capture.context !== screens.bottom.getContext('2d'));
     assert.ok(!events.some(event => event.context === capture.context && nativeCursorNames.has(event.name)));
-    assert.equal(cursorCalls().length, 3);
-    assert.ok(cursorCalls().every(call => call.context === screens.bottom.getContext('2d') && call.clips.length === 0));
+    assert.equal(cursorCalls().length, 0, 'first entry pair does not expose the child cursor');
     assert.ok(events.some(event => event.name === 'empty' && event.context === screens.bottom.getContext('2d')
       && event.clips.some(rect => JSON.stringify(rect) === '[0,49,320,159]')));
-    paint(state);
+    for(let update=1;update<=16;update++)paint({...state,system:{...state.system,homeClock:{...state.system.homeClock,updateCount:update}}});
     assert.ok(!events.some(event => event.name === 'capture-read'), 'same folder capture remains cached');
     assert.equal(cursorCalls().length, 3);
+    assert.ok(cursorCalls().every(call => call.context === screens.bottom.getContext('2d') && call.clips.length === 0));
     assert.equal(JSON.stringify(state), before);
   });
 });

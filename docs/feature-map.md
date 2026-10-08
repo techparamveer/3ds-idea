@@ -1,5 +1,14 @@
 # Feature map — 1:1 queue
 
+8 October human resume revokes the historical quota threshold. New visual tests
+must run on iPad Sidecar with muted audio. Reviewed collector1e58e04 now waits
+for verified placement before loading the site. Portfolio compact pause has
+two completed Sidecar cycles74/79 on unchanged runtime d392ae3; all306 raw
+PNGs are checked and the chronological sheet is inspected. Only early frame9
+is observed. Camera/Sound historical raw checks and sheets are now inspected.
+All four whole animation scenarios remain fail. See the
+[Sidecar checkpoint](animation-fidelity-workflow-2026-10-07.md#sidecar-only-testing-8-october).
+
 8 October quota checkpoint: weekly allowance reached75% remaining, so the
 user's stop instruction applies. Camera and Sound compact suspension each
 completed two browser capture cycles. The reviewer checked all318 Camera raw

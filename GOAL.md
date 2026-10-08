@@ -3,11 +3,9 @@
 Updated 8 October 2026. GitHub remains at starting version:
 `5ee6fd7a42b0239c5f55f375f85593289a0ff532` on `origin/main`.
 
-User stop condition: stop project work when the weekly allowance remaining
-reaches 75%. Check account usage between bounded work phases and before new
-worker assignments. At the threshold, checkpoint workers and the reviewer,
-release active test inputs, close test sessions, and pause the goal. Do not
-mark it complete. The latest reading and restart point belong in STATUS.
+The human resumed on8 October with "continue disregard that", revoking the
+75%-remaining stop condition. Continue the full animation goal. Earlier quota
+checkpoints remain history; do not stop again at that removed threshold.
 
 Latest browser checkpoint: release recovery is integrated as `b7bb5c6` and
 the reviewed lower-latency collector as `7404d7f`. The unchanged clean runtime
@@ -15,9 +13,13 @@ on3024 captures compact appearance frame9 in both normal repeat cycles;
 frames0..8, the full fade and native timing remain unproven. All four whole
 animation scenarios still fail. Replacement workers/reviews use GPT-6 Astra
 high. The later usage check reached25% used/75% remaining on8 October.
-Work is paused at the user's requested threshold. Camera and Sound variant
-captures are saved; Sound verification, sheet inspection and portfolio capture
-remain pending. The goal is incomplete and requires a human resume.
+The human has since resumed work, and the goal API now reports active.
+Camera/Sound artifact checks and sheet inspection are complete. Portfolio
+compact pause completed two muted Sidecar cycles, with153 paired paints and
+306 raw PNGs checked. These are browser regressions, not native acceptance.
+All future browser/Azahar visual testing must run on the iPad Sidecar display.
+Confirm actual window placement before inputs; no new headless visual runs.
+The goal is incomplete.
 
 Finish the opening animations for the HOME top-row apps, opening Manual,
 entering folders, and suspending a game or app with HOME. Preserve the user's

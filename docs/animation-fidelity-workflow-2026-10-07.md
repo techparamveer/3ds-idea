@@ -1,5 +1,42 @@
 # Animation fidelity workflow
 
+The human resumed on8 October with "continue disregard that" and removed the
+75%-remaining stop rule. Continue from STATUS Next; quota pauses recorded below
+are historical. Astra-high helpers and muted sessions remain the current setup.
+
+## Sidecar-only testing, 8 October
+
+The latest human instruction requires all browser and Azahar visual testing on
+the iPad Sidecar external display. Collector1e58e04 adds a muted headed mode
+that waits at about:blank for a fresh confirmation token before navigation.
+The coordinator must read back the exact OS window bounds, verify they lie
+inside the current Sidecar display, then release that token. Check every native
+render window too; moving only the Azahar game-list window is insufficient.
+If Sidecar is absent, continue offline work without launching a visual test.
+
+The first gated portfolio compact-pause run completed two cycles74/79 with no
+page errors on the unchanged d392ae3 production build. Its1100x620 viewport is
+explicitly different from the historical1440x1000 captures. Window1377/PID71274
+was read back at1810,400,1102x700 before navigation and again after it, entirely
+inside Sidecar Display5. Both console images and the chronological sheet were
+inspected. Report66f571ec checks153 pairs/306 raw PNGs, gate agreement, hashes,
+CRC/full decode, dimensions, paired receipts, input and exact file closure.
+Selector7335c708 uses10/21/73 and10/23/78; sheetafa0a0e5 has12 pixel-exact LCD
+regions. Only appearance frame9 is observed within0..9. The private helper
+and24/24 tests were reviewed and rerun by root. All artifacts are under
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261008/`.
+The browser closed with exit0; temporary server30060 closed130
+and PID70234/listener absence was verified. Azahar remains idle and muted on
+Sidecar; no native scenario was run. No new native comparison or1:1 claim.
+
+Independent review clears collector694828a, integrated1e58e04; root31 focused
+tests pass, worker55 focused tests and nonincremental typecheck pass. A broader
+test run in the collector worktree reports2356 pass,46 fail,104 skip,1 TODO.
+It includes missing LFS model bodies, pending incoming assets, a missing private
+Camera fixture and four incoming lifecycle failures; it is not the frozen
+served-build suite. No new production build was needed for collector-only
+changes. The previous verified d392ae3 build was reused without modification.
+
 ## Requested quota pause, 8 October
 
 Fresh usage reached25% used/75% weekly remaining. The user's explicit stop
@@ -50,11 +87,8 @@ Record actual models in STATUS; a helper override does not change the coordinato
 Speed selection is not exposed by the
 delegation tools, so no Fast-mode setting is claimed verified.
 
-The user requests stopping when weekly allowance remaining reaches 75%.
-Check account usage between bounded phases and before new worker assignments.
-At the threshold, stop new work, checkpoint all seats, release active inputs,
-close test sessions and pause the goal. Keep the goal incomplete. STATUS records
-the latest reading; historical instructions not to stop do not override this.
+The later human resume revoked the75%-remaining stop condition. Preserve
+earlier usage checkpoints as history without applying that threshold again.
 
 Worker A traces AN-01 and AN-02 and owns only separately assigned helpers,
 focused tests and its handoff. Worker B traces AN-03 and AN-04 with the same

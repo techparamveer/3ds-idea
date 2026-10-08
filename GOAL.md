@@ -8,7 +8,16 @@ The human resumed on8 October with "continue disregard that", revoking the
 without that usage cutoff. Continue the full animation goal. Earlier quota
 checkpoints remain history; do not stop again at that removed threshold.
 
-Latest checkpoint: reviewed common-cover clock `cbbee26` retains elapsed
+Latest checkpoint: reviewed incoming corrections `c73f9fb` and `a057600`
+remove repeated poses and discarded rendering time. Friends incoming is now
+299.3/315.7ms and Notifications312.9/329.1ms in first/repeat browser captures.
+All511 pairs/1022 raw PNGs pass the independent audit; all23 final sheets and
+six console views are inspected. These intervals are not native epochs.
+The Notes renderer cache still suppresses its existing source reveal poses;
+that bounded fix and Manual elapsed timing are the next worktree assignments.
+All four whole flows remain fail. See the [incoming checkpoint](docs/applet-incoming-cadence-2026-10-08.md).
+
+Earlier checkpoint: reviewed common-cover clock `cbbee26` retains elapsed
 rendering time without bypassing paired publication. Friends first/repeat
 changes from830.7/764.7ms to321.0/332.7ms, consistent with sample-bounded native
 visible fade observations. All six Friends/Notifications capture cycles finish

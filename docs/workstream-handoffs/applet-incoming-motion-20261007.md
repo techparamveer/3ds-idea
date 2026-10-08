@@ -55,9 +55,12 @@ also needs a real receipt, followed by a distinct fresh complete destination
 handoff receipt before readiness. After that handoff the controller retires
 entry progression and cannot replay covers for the completed owner.
 
-Normal motion advances at most one source pose per successful eligible
-receipt. Existing greater-than100ms observation inhibition/rebase remains a
-browser stall policy. Revoke repeats the acknowledged pose before advancing;
+Normal motion now retains bounded elapsed time between accepted samples,
+following reviewed corrections `cbbee26` and `a057600`. One to six source
+updates can advance after the exact pending pair receives its receipt. Longer
+gaps hold and rebase as a browser stall policy; no elapsed credit crosses from
+outgoing to incoming. See the [visible cadence checkpoint](../applet-incoming-cadence-2026-10-08.md).
+Revoke repeats the acknowledged pose before advancing;
 reduced motion presents each producer's source endpoint20 and still requires
 the distinct receipts. Toggling reduction cannot commit an offscreen endpoint
 or revive an acknowledged midpoint. Owner replacement, Back/power escape,

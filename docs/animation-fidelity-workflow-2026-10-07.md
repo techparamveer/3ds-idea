@@ -7,6 +7,17 @@ GPT-5.6 Sol high workers and an independent different-model reviewer. All sessio
 muted. The latest human instruction permits visible Mac testing without Sidecar;
 verify actual owned-window placement before scenario inputs.
 
+## Applet incoming cadence, 8 October
+
+The [incoming correction record](applet-incoming-cadence-2026-10-08.md)
+separates the overlap fix `c73f9fb` from the elapsed-sample correction
+`a057600`. Final captures have no repeated interior incoming poses; each
+pending pair and terminal handoff remains receipt-gated. Preserve intermediate
+and failed captures, the native faint-mark label qualification, and the
+remaining Notifications outgoing observation gap. No fitted multiplier or
+asset change is used. Notes' separate cache defect and Manual clock correction
+remain independent worktrees; integrate and recapture sequentially.
+
 ## HOME upper suspension, 8 October
 
 The subsequent [applet cover cadence correction](applet-cover-cadence-2026-10-08.md)

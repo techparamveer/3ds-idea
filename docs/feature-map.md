@@ -1,5 +1,15 @@
 # Feature map — 1:1 queue
 
+8 October incoming checkpoint: `c73f9fb` removes overlap starvation and
+`a057600` retains elapsed rendering time. Friends incoming299.3/315.7ms and
+Notifications312.9/329.1ms replace the intermediate540.1/558.0ms and
+508.0/642.6ms intervals. All511 pairs/1022 PNGs pass independent audit;
+23 final sheets and six console views are inspected. Native epochs, input,
+pixels and muted audio remain open. Notes' pre-posed cache reuse is now a
+captured defect, with a separate renderer worker; Manual elapsed timing is
+the disjoint worker. AN-01 through AN-04 remain fail.
+See [incoming cadence](applet-incoming-cadence-2026-10-08.md).
+
 8 October common-cover checkpoint: `94696e5` improves but does not resolve the
 captured slow opening. Reviewed `cbbee26` retains elapsed rendering time and
 recaptures Friends at321.0/332.7ms instead of830.7/764.7ms. Friends normal,

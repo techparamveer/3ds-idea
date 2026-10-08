@@ -181,6 +181,32 @@ All four whole scenarios still fail; muted audio unverified, export pending.
 Latest human model preference is GPT-6 Astra high for replacement helpers;
 the coordinator model is unchanged. Goal active, weekly77%, pause75%.
 
+## Compact early-coverage checkpoint, 8 October
+
+Reviewed collector `9a56135`, integrated as `7404d7f`, focuses before recording
+and installs ArrowRight observation before HOME. Actual HOME, retained app and
+original grid selection remain required before the ordinary Right press. Abort
+paths retain no-Right observations and raw evidence. Normal no-flag behavior
+is unchanged. Root/worker focused52/52 and independent47/47 pass, with syntax,
+nonincremental typecheck and diff checks. Helper SHA256
+`86d98c92b65b3b1a0d6603247ca86945b3b79c159284e9598df49fe9c01bf0da`.
+
+New additive private policy0f3249f8 has independent clearance. Runtime stays
+frozen d392ae3 on3024; HTTP200 and BUILD_ID3dd748fd are rechecked. Normal78/79
+pairs and reduced10 pairs close0 without errors and remain Camera10. First
+ready compact receipt in each normal cycle is frame9, followed by frame10;
+frames0..8 are not observed. The checker coverage label for0..9 means at least
+one pose in that range, not a complete sequence. Reduced is endpoint-only.
+
+Reports11164df1/2930611b check167 pairs/334 raw PNGs; independent reruns reproduce
+their hashes. New sheetc1d58aa6 and selector8a80f614 are opened with all three
+console views. All34 embedded LCD regions preserve decoded original pixels.
+Old helper, policy, captures and sheets remain immutable. Inspection is
+coordinator-attested. Host round-trip reduction is a collector adaptation,
+not a native hold, epoch, cadence or timing fit. No new native comparison,
+mask, graphics, audio, model or caller-WIP change. All four whole scenarios
+remain fail. Goal active, weekly76% remaining; stop at75%.
+
 ## Captured baseline
 
 Runtime `5ee6fd7`, workflow `81f09bf`, production port 3021. The coordinator's

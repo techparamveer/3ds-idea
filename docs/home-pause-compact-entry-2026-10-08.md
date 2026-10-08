@@ -60,6 +60,16 @@ combination, and records whether compact entry0..9 was actually sampled.
 Terminal-only output is not evidence for the corrected fade. No forced paint,
 guessed clock, pixel-nearest selection or automatic retry is permitted.
 
+The independently reviewed lower-latency collector `7404d7f` removes redundant
+host round trips without changing the app or its ordinary inputs. Under new
+policy0f3249f8, normal78/79 pairs capture frame9 at the first ready compact
+receipt in each cycle, then frame10 and the terminal pose. Reduced10 pairs
+capture the endpoint. Reports11164df1/2930611b check334 raw PNGs; independent
+reruns reproduce their hashes. Sheetc1d58aa6 and selector8a80f614 are opened,
+with34 embedded LCD regions preserving source pixels. This proves one browser
+pose within0..9, not frames0..8, the full fade, native activation or timing.
+The existing source visibility-latch caveat above remains unchanged.
+
 Caption assembly, scale-mode endpoints, SceneIn/Sleep epochs, close opacity,
 portfolio contents and reduced motion remain adaptations or unresolved native
 differences. Exact native input, motion cadence/duration, pixels and muted audio

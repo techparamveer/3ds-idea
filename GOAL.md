@@ -9,6 +9,13 @@ worker assignments. At the threshold, checkpoint workers and the reviewer,
 release active test inputs, close test sessions, and pause the goal. Do not
 mark it complete. The latest reading and restart point belong in STATUS.
 
+Latest browser checkpoint: release recovery is integrated as `b7bb5c6` and
+the reviewed lower-latency collector as `7404d7f`. The unchanged clean runtime
+on3024 captures compact appearance frame9 in both normal repeat cycles;
+frames0..8, the full fade and native timing remain unproven. All four whole
+animation scenarios still fail. Replacement workers/reviews use GPT-6 Astra
+high. Goal active, weekly76% remaining; stop at75%.
+
 Finish the opening animations for the HOME top-row apps, opening Manual,
 entering folders, and suspending a game or app with HOME. Preserve the user's
 latest design and the original silver 2012 Nintendo 3DS XL. Target EUR

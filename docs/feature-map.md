@@ -6,6 +6,13 @@ restart base is `5ee6fd7`; the historical static queue below is preserved.
 All four motion flows are currently fail pending matched frame-sequence proof.
 
 The 8 October human resume supersedes the historical blocked checkpoint below.
+Newest collector `7404d7f` captures frame9 in both normal compact pause runs,
+with stable Camera10 and retained Health. Independent reports check334 raw
+PNGs, and the new chronological sheet is opened. Frames0..8, the full fade
+and native activation/timing remain unproven. Runtime on3024 is unchanged.
+All four whole scenarios remain fail; goal active,76% remaining, stop75%.
+See [early coverage](animation-fidelity-workflow-2026-10-07.md#compact-early-coverage-checkpoint-8-october).
+
 Current release recovery is integrated as `b7bb5c6`; corrected capture tooling
 as `7451a9f`/`5e33943`. Replacement workers/reviews use GPT-6 Astra high.
 Clean `d392ae3` on3024 passes focused198/198, typecheck/build, with the same

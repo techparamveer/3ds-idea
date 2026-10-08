@@ -189,6 +189,26 @@ test('multi-content owned fonts use pack identity namespaces while layouts retai
   });
 });
 
+for (const [slug, title, content, incoming, endpoint, layout] of [
+  ['friends', '0004003000009f02', '00000017', 'FrdCmnFade_D_00', 'friend', 'FrdTopUIUp_D_00'],
+  ['notifications', '000400300000a002', '00000012', 'CmnFade_D_00', 'news', 'NewsTopBtn_D_00'],
+]) test(`${slug} incoming and legacy endpoint packs resolve one original shared-font binding`, async () => {
+  for (const reverse of [false, true]) await fixture(async f => {
+    const requests = [
+      {url: `packs/${slug}/incoming.json`, alias: 'incoming', layouts: [incoming], animations: [incoming+'_SceneIn']},
+      {url: `packs/${slug}/${endpoint}.json`, alias: 'endpoint', layouts: [layout], animations: []},
+    ];
+    const resources = await f.load(reverse ? requests.toReversed() : requests, undefined, title);
+    assert.equal(f.manifest.titles[title].fonts['cbf_std.bcfnt'], f.manifest.titles[title].fonts[`contents/0000-${content}/cbf_std.bcfnt`]);
+    assert.equal(f.fonts.length, 1);
+    assert.equal(f.fonts[0].url, base+'fonts/shared/font.json');
+    assert.equal(resources.renderer.fonts.get('cbf_std.bcfnt'), f.fonts[0].value);
+    resources.dispose();
+    assert.equal(f.fonts[0].value.disposals, 1);
+    assert.equal(f.shared.disposals, 0);
+  });
+});
+
 test('same raw font name across contents must have one binding identity; conflicting owned or borrowed bindings reject', async () => {
   for (const secondFont of ['fonts/second/font.json', undefined]) await fixture(async f => {
     const first = contentBanner(f, 0, '0000003d', 'fonts/first/font.json'), second = contentBanner(f, 1, '0000004a', secondFont);

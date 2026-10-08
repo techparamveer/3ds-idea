@@ -19,7 +19,7 @@
     "color": "RGB555-style quantization; binary alpha; nearest-neighbour display",
     "playback": "Play once per selection; clamp on final frame; never restart from painting gaps",
     "motion": "Frames1-36 eased upright turn; solid cube until face-on at40 with front plane anchored;43-61 slide/reveal;53-72 spiral carve;72-80 logo hold",
-    "caption": "Hack for Impact, centered below the logo at LCD (200,150), 13px existing portfolio label renderer; appears after all 80 frames (2669.33ms), immediately in reduced motion"
+    "caption": "Hack for Impact, centered at LCD (200,150), NVIDIA-NALA 18px weight 700; appears after all 80 frames (2669.33ms), immediately in reduced motion"
   },
   "adaptations": [
     "First-version SVG artwork, dimensions and green/graphite materials restored at user request",
@@ -38,6 +38,16 @@
     "public/portfolio/nvidia-transform/atlas.png": "c2e4d5651b240cd78b3908ec74cf17d8b37165d1730518cca9d8d6fe07a41045",
     "public/portfolio/nvidia-transform/poster.png": "235385945954516fee5858ae4fc302710658eb928638f35b0a50447845fc526b",
     "scripts/blender/build-nvidia-carve-field.py": "3a5d146021d3cff43e0e518442e3a6f1a61780874a77381c58f0ecbead2a2a18",
-    "scripts/blender/nvidia-carve-field.png": "679d388899c14b85ffb0356d1bfab249190eecc5e909849728f7578d63dbb2fb"
+    "scripts/blender/nvidia-carve-field.png": "679d388899c14b85ffb0356d1bfab249190eecc5e909849728f7578d63dbb2fb",
+    "public/portfolio/nvidia-transform/nvidia-nala.woff2": "492b88c589db87ab3cc0ec5d8b3a35748dcfe6864a9023c814fd3848ddabb46b"
+  },
+  "captionFont": {
+    "family": "NVIDIA-NALA",
+    "weight": 700,
+    "sourcePage": "https://www.nvidia.com/en-gb/",
+    "source": "https://images.nvidia.com/etc/designs/nvidiaGDC/clientlibs_base/fonts/nvidia-sans/NALA/var/NVIDIASansVF_NALA_W_Wght.woff2",
+    "retrieved": "2026-10-08",
+    "usage": "User-requested portfolio caption; separate from native firmware text",
+    "license": "No separate font license supplied by the source page"
   }
 }

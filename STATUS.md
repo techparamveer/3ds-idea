@@ -68,6 +68,12 @@ The rebuilt isolated preview now serves revision 7 and the completion-only
 Revision 7 implementation: `169ae59bc51871149b842799f555eaa00d1baa00`; Git supplies documentation HEAD.
 Revision 7 browser-inspected and timing-checked. Typecheck/build/shader pass;
 full tests retain one known missing Camera fixture failure (2,167 pass).
+Revision 8 starts from checked HEAD `029aafa71ccca7761fd077e2d01e70dfc655c46a`.
+User asks for a larger, bold completion caption. Use 18px NVIDIA-NALA at weight 700,
+following the supplied font-identification screenshot.
+Port3048 serves revision 8, browser-inspected with NVIDIA-NALA loaded.
+Caption timing/reset checks, typecheck and build pass. Full tests retain the known
+Camera HNI fixture failure (2,167 pass).
 The historical serving/seats/evidence below are preserved, not verified live.
 
 

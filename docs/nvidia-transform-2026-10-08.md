@@ -167,3 +167,22 @@ production browser shows the caption beneath the completed NVIDIA logo.
 Typecheck, build and shader checks pass. Full tests: 2,167 pass, one known missing
 Camera HNI fixture failure, 96 skipped, one TODO. No native comparison or native
 acceptance is claimed; this remains user-scoped portfolio artwork.
+
+
+## Revision 8 — larger NVIDIA-NALA caption
+
+The user identified NVIDIA-NALA in a screenshot of NVIDIA's website. The caption
+now uses the site's variable font at 18px, weight 700, centered at (200,150).
+The font loads locally before caption painting and is removed on renderer disposal.
+If it fails to load, the logo stays available without a substitute caption font.
+The source URL, retrieval date and asset hash are in the delivery provenance.
+This is user-requested portfolio typography, separate from native firmware text.
+Animation timing, artwork and final hold remain unchanged.
+
+Typecheck and production build pass. Full suite retains the same missing private
+Camera HNI fixture failure, with 2,167 passes, 96 skips and one TODO. The muted
+production preview and actual renderer check confirm NVIDIA-NALA loading, caption
+pixels appearing only after completion, selection reset, reduced motion, no repeat
+through 60 seconds and disposal guards. Evidence: private `revision-8/` folder,
+including `home-nala-caption.png` and `browser-checks.txt`. No native acceptance
+claim; no shader or Blender asset changes in this revision.

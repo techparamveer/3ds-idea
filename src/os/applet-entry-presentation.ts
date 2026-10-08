@@ -34,15 +34,15 @@ export const appletEntryBackingMatches = (source: AppletEntryHomePair | null, id
   && identity.caller === null && source.application === identity.application && source.appId === identity.appId && source.generation === identity.generation;
 
 const hasTitleIncoming = (appId: AppletEntryAppId) => appId === 'friends' || appId === 'notifications';
-type PresentedAppletEntry = { kind: 'cover'; frame: number; update: number }
-  | { kind: 'incoming'; frame: number; update: number; resources: object };
+type PresentedAppletEntry = { kind: 'cover'; frame: number; update: number; sampledUpdate: number }
+  | { kind: 'incoming'; frame: number; update: number; sampledUpdate: number; resources: object };
 
 /** The shared 60 Hz browser observation is a sequencing adaptation, not
- * native LCD phase-lock or duration. Every source pose and the fresh destination
+ * native LCD phase-lock or duration. Every published pose and the fresh destination
  * handoff require a current valid paired-render receipt. */
 export function createAppletEntryPresentation() {
   let identity: AppletEntryIdentity | null = null, ticket = 0, disposed = false, rebase = true, handedOff = false;
-  let presented: PresentedAppletEntry | undefined, pending: AppletEntryPose | undefined;
+  let presented: PresentedAppletEntry | undefined, pending: { pose: AppletEntryPose; update: number } | undefined;
   const revoke = () => { ticket++; pending = undefined; rebase = true; };
   const ready = (next: AppletEntryIdentity | null) => !disposed && handedOff && sameAppletEntryIdentity(identity, next);
   return {
@@ -58,41 +58,49 @@ export function createAppletEntryPresentation() {
         if (presented.resources !== input.incomingResources) {
           // Replacement must re-publish the original outgoing terminal before
           // starting the new title producer; it cannot inherit old clip progress.
-          revoke(); presented = { kind: 'cover', frame: 20, update: presented.update };
+          revoke(); presented = { kind: 'cover', frame: 20, update: presented.update, sampledUpdate: presented.sampledUpdate };
         }
       }
-      if (pending && pending.kind !== 'cover') {
-        if (!input.pair || pending.kind === 'incoming' && !input.incomingResources) { revoke(); return undefined; }
-        if (pending.resources !== input.incomingResources) revoke();
+      if (pending && pending.pose.kind !== 'cover') {
+        if (!input.pair || pending.pose.kind === 'incoming' && !input.incomingResources) { revoke(); return undefined; }
+        if (pending.pose.resources !== input.incomingResources) revoke();
       }
-      if (pending) return pending;
+      if (pending) return pending.pose;
       const updates = presented ? update - presented.update : 0;
       if (updates < 0) throw Error('Applet entry clock moved backwards');
+      // Sampling precedes the render receipt. Retain one crossed quantized tick,
+      // but anchor multi-update progress to the later accepted presentation.
+      const sampledUpdates = presented ? update - presented.sampledUpdate : 0;
+      const progress = updates === 0 && sampledUpdates > 0 && sampledUpdates <= MAX_OBSERVED_UPDATE_GAP ? 1 : updates;
       const advance = !rebase && (input.reducedMotion || updates > 0 && updates <= MAX_OBSERVED_UPDATE_GAP);
+      const coverProgress = !rebase && progress > 0 && progress <= MAX_OBSERVED_UPDATE_GAP ? progress : 0;
+      const advanceCover = !rebase && (input.reducedMotion || coverProgress > 0);
       const base = { identity: Object.freeze({ ...identity }), ticket };
+      let pose: AppletEntryPose;
       if (presented?.kind === 'incoming') {
         if (!input.pair || !input.incomingResources) { revoke(); return undefined; }
-        pending = advance && presented.frame === 20
+        pose = advance && presented.frame === 20
           ? Object.freeze({ ...base, kind: 'handoff', pair: input.pair, resources: presented.resources })
           : Object.freeze({ ...base, kind: 'incoming', frame: input.reducedMotion ? 20 : Math.min(20, presented.frame + (advance ? 1 : 0)), pair: input.pair, resources: presented.resources });
-      } else if (advance && presented?.frame === 20 && input.pair && (!hasTitleIncoming(identity.appId) || input.incomingResources)) {
+      } else if (advanceCover && presented?.frame === 20 && input.pair && (!hasTitleIncoming(identity.appId) || input.incomingResources)) {
         if (hasTitleIncoming(identity.appId)) {
           if (!input.incomingResources) throw Error('Applet incoming resources unavailable');
-          pending = Object.freeze({ ...base, kind: 'incoming', frame: input.reducedMotion ? 20 : 0, pair: input.pair, resources: input.incomingResources });
-        } else pending = Object.freeze({ ...base, kind: 'handoff', pair: input.pair });
+          pose = Object.freeze({ ...base, kind: 'incoming', frame: input.reducedMotion ? 20 : 0, pair: input.pair, resources: input.incomingResources });
+        } else pose = Object.freeze({ ...base, kind: 'handoff', pair: input.pair });
       } else {
-        pending = Object.freeze({ ...base, kind: 'cover', frame: input.reducedMotion ? 20 : Math.min(20, (presented?.frame ?? 0) + (presented && advance ? 1 : 0)) });
+        pose = Object.freeze({ ...base, kind: 'cover', frame: input.reducedMotion ? 20 : Math.min(20, (presented?.frame ?? 0) + coverProgress) });
       }
-      return pending;
+      pending = { pose, update };
+      return pose;
     },
     bindPreparedPair(pair: object, incomingResources?: object): AppletEntryPose | undefined {
-      if (disposed || !pending || pending.kind === 'cover') return undefined;
-      if (pending.resources !== incomingResources) { revoke(); return undefined; }
-      pending = Object.freeze({ ...pending, pair });
-      return pending;
+      if (disposed || !pending || pending.pose.kind === 'cover') return undefined;
+      if (pending.pose.resources !== incomingResources) { revoke(); return undefined; }
+      pending = { ...pending, pose: Object.freeze({ ...pending.pose, pair }) };
+      return pending.pose;
     },
     present(pose: AppletEntryPose, next: AppletEntryIdentity | null, elapsedMs: number, eligible: boolean, pair?: object, incomingResources?: object): boolean {
-      if (disposed || !eligible || pose !== pending || pose.ticket !== ticket || !sameAppletEntryIdentity(identity, next)) return false;
+      if (disposed || !eligible || !pending || pose !== pending.pose || pose.ticket !== ticket || !sameAppletEntryIdentity(identity, next)) return false;
       if (pose.kind !== 'cover' && (!pair || pose.pair !== pair || pose.resources !== incomingResources)) return false;
       if (pose.kind === 'incoming' && (!identity || !hasTitleIncoming(identity.appId)
         || presented?.kind === 'incoming' && presented.resources !== pose.resources
@@ -103,8 +111,8 @@ export function createAppletEntryPresentation() {
       if (presented && update < presented.update) return false;
       if (pose.kind === 'handoff') handedOff = true;
       else presented = pose.kind === 'incoming'
-        ? { kind: 'incoming', frame: pose.frame, update, resources: pose.resources }
-        : { kind: 'cover', frame: pose.frame, update };
+        ? { kind: 'incoming', frame: pose.frame, update, sampledUpdate: pending.update, resources: pose.resources }
+        : { kind: 'cover', frame: pose.frame, update, sampledUpdate: pending.update };
       pending = undefined; rebase = false; return true;
     },
     active(next: AppletEntryIdentity | null, pair?: object, incomingResources?: object): boolean {

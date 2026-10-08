@@ -2,7 +2,8 @@ export const MANUAL_ENTRY_LAST_FRAME = 20;
 // Browser scheduling policy, not a traced Manual caller epoch or native rate.
 export const MANUAL_ENTRY_HOST_HZ = 60;
 // More than 100ms between adapted host observations is a stall, not motion
-// credit. Ordinary 20/30/45Hz paints remain eligible but consume one pose only.
+// credit. Incoming consumes bounded host-clock ticks while outgoing retains one
+// source pose per visible receipt. This is not a recovered native duration.
 const MAX_OBSERVED_UPDATE_GAP = 6;
 
 export type ManualEntryIdentity = Readonly<{
@@ -47,7 +48,7 @@ export function createManualEntryPresentation() {
       } else if (previous && !rebase && updates > 0 && updates <= MAX_OBSERVED_UPDATE_GAP) {
         if (previous.phase === 'out' && previous.frame === MANUAL_ENTRY_LAST_FRAME) {
           if (input.destinationReady) { phase = 'in'; frame = 0; }
-        } else frame = Math.min(MANUAL_ENTRY_LAST_FRAME, frame + 1);
+        } else frame = Math.min(MANUAL_ENTRY_LAST_FRAME, frame + (previous.phase === 'in' ? updates : 1));
       }
       pending = Object.freeze({ identity: Object.freeze({ ...identity }), ticket, phase, frame });
       return pending;

@@ -37,37 +37,43 @@ test('outgoing cover follows bounded elapsed updates at ordinary render cadences
  }
 });
 
-test('a later cover render receipt cannot erase progress sampled across its quantized tick',()=>{
+test('acknowledged cover samples retain ordinary render time without advancing a pending pose',()=>{
  const s=createAppletEntryPresentation();
- for(let frame=0;frame<=12;frame++)present(s,sample(s,100+frame),100+frame);
- let update=112;
- const repeated=sample(s,update+.9);assert.deepEqual([repeated.kind,repeated.frame],['cover',12]);
- assert.equal(present(s,repeated,update+1.02),true);
- for(let frame=13;frame<=20;frame++){
-  update++;const pose=sample(s,update+.9);
-  assert.deepEqual([pose.kind,pose.frame],['cover',frame]);
-  assert.equal(sample(s,update+.95),pose,'only the render receipt acknowledges the pending pose');
-  assert.equal(present(s,pose,update+1.02),true);
- }
- const handoff=sample(s,update+1.9,{pair:{}});
- assert.equal(handoff.kind,'handoff','the acknowledged terminal cover may release on the retained next tick');
+ const zero=sample(s,0);assert.equal(zero.frame,0);assert.equal(sample(s,1),zero);present(s,zero,1);
+ const two=sample(s,2);assert.equal(two.frame,2);assert.equal(sample(s,3),two);present(s,two,3);
+ const four=sample(s,4);assert.equal(four.frame,4);assert.equal(sample(s,5),four);present(s,four,5);
+ assert.equal(sample(s,6).frame,6);
 });
 
-test('cover catch-up is anchored to its receipt, bounded by the stall limit, and cannot skip terminal acknowledgement',()=>{
- const s=createAppletEntryPresentation(),pair={};
- const first=sample(s,100);present(s,first,100);
- const pending=sample(s,101);assert.equal(pending.frame,1);
- assert.equal(sample(s,104),pending,'repeated samples cannot accumulate unpresented time');
- assert.equal(present(s,pending,102),true);
- const anchored=sample(s,104);assert.equal(anchored.frame,3,'only two updates elapsed after the accepted receipt');present(s,anchored,104);
- const maximum=sample(s,110);assert.equal(maximum.frame,9);present(s,maximum,110);
- const stalled=sample(s,117);assert.equal(stalled.frame,9,'seven updates are a stall, not motion credit');present(s,stalled,117);
- const resumed=sample(s,118);assert.equal(resumed.frame,10);present(s,resumed,118);
- const sixteen=sample(s,124);assert.equal(sixteen.frame,16);present(s,sixteen,124);
- const terminal=sample(s,128,{pair});assert.equal(terminal.frame,20);
- assert.equal(sample(s,130,{pair}),terminal,'unacknowledged catch-up terminal stays pending');
- assert.equal(s.ready(identity),false);assert.equal(present(s,terminal,130,pair),true);
- assert.equal(sample(s,131,{pair}).kind,'handoff');
+test('bounded pending time becomes eligible only after acknowledgement while render stalls and revocation rebase it',()=>{
+ const bounded=createAppletEntryPresentation(),pending=sample(bounded,0);
+ assert.equal(sample(bounded,4),pending);present(bounded,pending,5);
+ assert.equal(sample(bounded,6).frame,6,'accepted sample origin retains a bounded pending interval');
+
+ const delayed=createAppletEntryPresentation(),late=sample(delayed,0);
+ assert.equal(sample(delayed,4),late);present(delayed,late,7);
+ const held=sample(delayed,8);assert.equal(held.frame,0,'eight sampled updates are a stall');
+ assert.equal(sample(delayed,9),held);present(delayed,held,9);
+ assert.equal(sample(delayed,10).frame,2,'the acknowledged hold resets the sample origin');
+
+ const blocked=createAppletEntryPresentation(),old=sample(blocked,0),foreign={...identity,generation:2};
+ assert.equal(blocked.present(old,foreign,ms(1),true),false);blocked.revoke();
+ assert.equal(present(blocked,old,2),false);
+ const rebased=sample(blocked,4);assert.equal(rebased.frame,0);present(blocked,rebased,5);
+ assert.equal(sample(blocked,6).frame,2,'revocation discards blocked publication time');
+});
+
+test('cover catch-up still publishes terminal20 before title incoming0 and leaves incoming receipt cadence unchanged',()=>{
+ const s=createAppletEntryPresentation(),friend={...identity,owner:'friends:1',appId:'friends'},pair={},resources={};
+ const friendSample=(step,overrides={})=>s.sample({identity:friend,elapsedMs:ms(step),eligible:true,pair,incomingResources:resources,reducedMotion:false,...overrides});
+ const friendPresent=(pose,step)=>s.present(pose,friend,ms(step),true,pair,resources);
+ let pose=friendSample(0);friendPresent(pose,0);
+ for(const [step,frame]of [[6,6],[12,12],[18,18]]){pose=friendSample(step);assert.equal(pose.frame,frame);friendPresent(pose,step);}
+ const terminal=friendSample(20);assert.deepEqual([terminal.kind,terminal.frame],['cover',20]);
+ assert.equal(friendSample(21),terminal,'terminal remains the exact pending pose until publication');
+ assert.equal(friendPresent(terminal,21),true);
+ const incoming=friendSample(22);assert.deepEqual([incoming.kind,incoming.frame],['incoming',0]);friendPresent(incoming,22);
+ const next=friendSample(24);assert.deepEqual([next.kind,next.frame],['incoming',1],'incoming remains one pose per valid receipt');
 });
 
 test('absent prepared pairs hold the source terminal; stalls and invalid publication rebase that hold',()=>{
@@ -88,7 +94,8 @@ test('hidden, failed and delayed receipts never spend elapsed time as source mot
  const s=createAppletEntryPresentation();present(s,sample(s,0),0);present(s,sample(s,1),1);
  const abandoned=sample(s,2);s.revoke();assert.equal(present(s,abandoned,3),false);
  const repeat=sample(s,500);assert.equal(repeat.frame,1);present(s,repeat,700);
- assert.equal(sample(s,701).frame,2);s.revoke();
+ const delayed=sample(s,701);assert.equal(delayed.frame,1,'a long paint is a stall, not retained motion');present(s,delayed,701);
+ assert.equal(sample(s,702).frame,2);s.revoke();
  assert.equal(sample(s,702,{eligible:false}),undefined);
  const shown=sample(s,1000);assert.equal(shown.frame,1);present(s,shown,1000);
  const stalled=sample(s,1500);assert.equal(stalled.frame,1);present(s,stalled,1500);

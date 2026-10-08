@@ -68,12 +68,11 @@ export function createAppletEntryPresentation() {
       if (pending) return pending.pose;
       const updates = presented ? update - presented.update : 0;
       if (updates < 0) throw Error('Applet entry clock moved backwards');
-      // Sampling precedes the render receipt. Retain one crossed quantized tick,
-      // but anchor multi-update progress to the later accepted presentation.
+      // Cover motion follows accepted sample time so ordinary render work is not
+      // discarded. The later receipt still gates publication and incoming motion.
       const sampledUpdates = presented ? update - presented.sampledUpdate : 0;
-      const progress = updates === 0 && sampledUpdates > 0 && sampledUpdates <= MAX_OBSERVED_UPDATE_GAP ? 1 : updates;
       const advance = !rebase && (input.reducedMotion || updates > 0 && updates <= MAX_OBSERVED_UPDATE_GAP);
-      const coverProgress = !rebase && progress > 0 && progress <= MAX_OBSERVED_UPDATE_GAP ? progress : 0;
+      const coverProgress = !rebase && sampledUpdates > 0 && sampledUpdates <= MAX_OBSERVED_UPDATE_GAP ? sampledUpdates : 0;
       const advanceCover = !rebase && (input.reducedMotion || coverProgress > 0);
       const base = { identity: Object.freeze({ ...identity }), ticket };
       let pose: AppletEntryPose;

@@ -18,22 +18,24 @@
     "reducedMotionFrame": 80,
     "color": "RGB555-style quantization; binary alpha; nearest-neighbour display",
     "playback": "Play once per selection; clamp on final frame; never restart from painting gaps",
-    "motion": "Frames1-36 eased upright turn; shrinking and flattening settle by40;43-61 slide/reveal;53-72 spiral carve;72-80 logo hold"
+    "motion": "Frames1-36 eased upright turn; solid cube until face-on at40 with front plane anchored;43-61 slide/reveal;53-72 spiral carve;72-80 logo hold",
+    "caption": "Hack for Impact, centered below the logo at LCD (200,150), 13px existing portfolio label renderer; appears after all 80 frames (2669.33ms), immediately in reduced motion"
   },
   "adaptations": [
     "First-version SVG artwork, dimensions and green/graphite materials restored at user request",
-    "One upright opening turn plus face-on alignment, with eased speed and gradual size/depth settling",
+    "One upright opening turn; solid depth until face-on, then hidden depth change with anchored front surface",
     "Spiral cut follows the reference motion through the clean original eye artwork; geodesic reveal timing is fitted, not an exact frame reproduction",
     "Original dark wordmark for the light LCD, shallow depth with frontal orientation as in the first version",
-    "180x148 raster, RGB555-style quantization, binary alpha and one-shot hold"
+    "180x148 raster, RGB555-style quantization, binary alpha and one-shot hold",
+    "User-requested flat Hack for Impact caption after animation completion"
   ],
   "sha256": {
     "public/portfolio/nvidia.svg": "5347e5188c74204767d2d4daa17b59b5a18ccd7ad0a7281e7961a83c20c96808",
     "scripts/blender/nvidia-logo-contours.json": "913ebb09f53fb820f9f0efaaa895f451103af9f2c218fcf10cc2cc705549c998",
-    "scripts/blender/build-nvidia-transform.py": "98a86303924bfe571c7a2922bfc256b9779c913db33e87f2a2c41db0c0bbf7ad",
+    "scripts/blender/build-nvidia-transform.py": "ba35946f234a2d68f6ad8a816a0a5f8d3f71bc52918d5e4fcabfcb0d8c647893",
     "scripts/blender/pack-nvidia-transform.mjs": "4d4da656871919f83408ae9a55e09299277d446cc7ddd1d61ada1fd29a6235b3",
-    "assets/blender/nvidia-transform.blend": "44c8bd35bc2fd66d89f9faa51664aeabb89e46188b6b93f5641359e93c8cd61d",
-    "public/portfolio/nvidia-transform/atlas.png": "9d60b6d8cd95a0b6631cf72a64a5f946dbc56f080d597d9895f2aed900cdf4b6",
+    "assets/blender/nvidia-transform.blend": "356abf5883287946e1ae57d9a0a861d957ade2b41604791dd5ee65f658c23c2f",
+    "public/portfolio/nvidia-transform/atlas.png": "c2e4d5651b240cd78b3908ec74cf17d8b37165d1730518cca9d8d6fe07a41045",
     "public/portfolio/nvidia-transform/poster.png": "235385945954516fee5858ae4fc302710658eb928638f35b0a50447845fc526b",
     "scripts/blender/build-nvidia-carve-field.py": "3a5d146021d3cff43e0e518442e3a6f1a61780874a77381c58f0ecbead2a2a18",
     "scripts/blender/nvidia-carve-field.png": "679d388899c14b85ffb0356d1bfab249190eecc5e909849728f7578d63dbb2fb"

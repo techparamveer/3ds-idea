@@ -6,7 +6,7 @@ const FRAME_COUNT = 80;
 const FPS = 30000 / 1001;
 const LOGO_HOLD_FRAME = FRAME_COUNT - 1;
 
-export function createNvidiaBanner() {
+export function createNvidiaBanner(drawCaption?: (context: CanvasRenderingContext2D) => void) {
   let image: HTMLImageElement | undefined;
   let ready = false;
   let disposed = false;
@@ -31,11 +31,13 @@ export function createNvidiaBanner() {
       if (startedAt === undefined) {
         startedAt = time;
       }
-      const frame = reduced ? LOGO_HOLD_FRAME : Math.min(LOGO_HOLD_FRAME, Math.floor(Math.max(0, time - startedAt) * FPS / 1000));
+      const elapsedFrames = Math.max(0, time - startedAt) * FPS / 1000;
+      const frame = reduced ? LOGO_HOLD_FRAME : Math.min(LOGO_HOLD_FRAME, Math.floor(elapsedFrames));
       context.save();
       context.imageSmoothingEnabled = false;
       context.drawImage(image, (frame % COLUMNS) * FRAME_WIDTH, Math.floor(frame / COLUMNS) * FRAME_HEIGHT,
         FRAME_WIDTH, FRAME_HEIGHT, 110, 35, FRAME_WIDTH, FRAME_HEIGHT);
+      if (reduced || elapsedFrames >= FRAME_COUNT) drawCaption?.(context);
       context.restore();
       return true;
     },

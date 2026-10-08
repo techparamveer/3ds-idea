@@ -140,3 +140,30 @@ faces the camera. Frames 41–80 have only two differing packed edge pixels acro
 all 40 frames; the poster and the carving geometry/timing remain unchanged.
 Typecheck/build/shader pass. Full suite remains 2,167 pass, one known missing Camera
 HNI fixture failure, 96 skipped and one TODO. No native acceptance changes.
+
+
+## Revision 7 — cube handoff and completion caption
+
+The user localized the glitch to the end of the spin as the cube flattened.
+Evaluated transforms reproduced premature depth collapse while still tilted in
+frames 33–39. The cube now keeps solid depth through frame 39. At frame 40 it
+faces the camera and switches to the thin carving body. Its front surface stays
+at z=0.075 from frame 33, preventing a lighting jump during that hidden change.
+Blender MCP authored and rendered this correction. The build script checks the
+evaluated transforms for both premature collapse and front-depth jumps.
+
+“Hack for Impact” appears centered at upper-LCD (200,150) after all 80 frames
+have played (2669.33ms). It uses the existing 13px portfolio label renderer in
+graphite, stays flat, and holds with the logo. Reduced motion shows both at once.
+The caption uses the same playback clock and resets when selection changes.
+Original artwork and materials are preserved.
+
+Evidence is in the private `revision-7/` folder beneath the artifact root above:
+`before-spin.json`, `after-spin.json`, `after-spin-settle-check.json`,
+`settle-fixed.png`, full rendered frames, `browser-checks.txt`, and
+`home-caption.png`. The actual renderer check confirms caption timing, reset,
+reduced motion, final hold through 60 seconds, and disposal guards. The muted
+production browser shows the caption beneath the completed NVIDIA logo.
+Typecheck, build and shader checks pass. Full tests: 2,167 pass, one known missing
+Camera HNI fixture failure, 96 skipped, one TODO. No native comparison or native
+acceptance is claimed; this remains user-scoped portfolio artwork.

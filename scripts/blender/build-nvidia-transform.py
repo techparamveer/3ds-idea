@@ -123,10 +123,16 @@ for frame in range(1,41):
     yaw = .60-(2*math.pi+.60)*ease((frame-1)/35)
     settle = ease((frame-25)/15)
     resize = ease((frame-18)/22)
-    flatten = ease((frame-30)/10)
     cube.rotation_euler = (.28*(1-settle),yaw,-.025*(1-settle))
     side = 1.38+(.96-1.38)*resize
-    cube.scale = (1.38+(.91-1.38)*resize,side,side+(.15-side)*flatten)
+    # Keep the cube solid while any side is visible. Switch to the thin
+    # carving body only when face-on, with the front surface held at z=.075.
+    depth = side if frame < 40 else .15
+    cube.scale = (1.38+(.91-1.38)*resize,side,depth)
+    if frame >= 30:
+        front_depth = .5*depth*math.cos(cube.rotation_euler.x)*math.cos(yaw)
+        cube.location = (0,0,(.075-front_depth)*ease((frame-30)/3))
+        cube.keyframe_insert('location',frame=frame)
     for path in ('rotation_euler','scale'):
         cube.keyframe_insert(path,frame=frame)
 
@@ -245,6 +251,17 @@ scene['adaptation'] = 'User-requested portfolio artwork. Not native Nintendo fir
 scene['reference'] = 'User video.mp4: green box turns face-on, slides left, reveals NVIDIA eye and wordmark.'
 scene['delivery'] = '80 transparent 180x148 frames at 30000/1001fps; one opening spin, spiral carve, original logo hold.'
 scene.render.filepath = str(output / 'frame-')
+# Validate the evaluated animation, including the frame immediately after the
+# handoff. A tilted cube must stay solid; its front face must not jump in depth.
+for check_frame in range(30,44):
+    scene.frame_set(check_frame)
+    normal = (cube.matrix_world.to_3x3() @ Vector((0,0,1))).normalized()
+    if normal.z < .999999 and cube.scale.z < .9*cube.scale.y:
+        raise RuntimeError(f'Cube collapses while tilted at frame {check_frame}')
+    if check_frame >= 33:
+        front = cube.matrix_world @ Vector((0,0,.5))
+        if abs(front.z-.075) > 1e-5:
+            raise RuntimeError(f'Cube front depth jumps at frame {check_frame}')
 scene.frame_set(80)
 # Leave a camera view available for opening the editable source.
 for area in bpy.context.screen.areas:

@@ -309,3 +309,13 @@ settles into the square by frame 40. Original materials, logo and carve timeline
 are preserved. Final poster unchanged; two packed edge pixels differ across
 frames 41–80. Typecheck/build/shader pass; tests retain the known missing Camera
 fixture failure. Portfolio adaptation only. See [evidence](../nvidia-transform-2026-10-08.md).
+
+
+### NVIDIA revision 7 — stable cube handoff and caption
+
+Fixed premature cube depth collapse in frames 33–39; the front face is anchored
+through the face-on handoff. Added flat “Hack for Impact” under the finished logo
+after 80 frames, with immediate reduced-motion display. Actual renderer timing
+and muted production screenshot verified. Typecheck/build/shader pass; full suite
+has 2,167 passes and the existing missing Camera fixture failure. Portfolio
+adaptation only. See [evidence](../nvidia-transform-2026-10-08.md).

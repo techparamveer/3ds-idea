@@ -59,6 +59,14 @@ Revision 6 browser-inspected on the muted isolated preview; actual renderer play
 Revision 6 rendered: upright YXZ turn, smoothstep yaw and gradual size/depth
 settling through frame 40. Final poster unchanged. Typecheck/build/shader pass;
 full tests retain the known Camera fixture failure. Port3048 serves this revision.
+Revision 7 starts from checked HEAD `9bbfada6643e6dc39476d0bd8c347b16d505c639`.
+User localized the glitch to the spin-to-square transition. Reproduced depth
+collapse while still tilted in frames 33–39. Keep the cube solid until aligned
+and anchor its front face when switching to the carving slab.
+The rebuilt isolated preview now serves revision 7 and the completion-only
+“Hack for Impact” caption centered beneath the logo.
+Revision 7 browser-inspected and timing-checked. Typecheck/build/shader pass;
+full tests retain one known missing Camera fixture failure (2,167 pass).
 The historical serving/seats/evidence below are preserved, not verified live.
 
 

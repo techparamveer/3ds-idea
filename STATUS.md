@@ -18,6 +18,7 @@ User correction: no cube. The pixel chevron leads a unique two-row lettering
 reveal, turns the corner, then settles into the logo.
 Preview starts on `http://127.0.0.1:3049/?lcdCapture=1` with muted local preferences.
 The inherited NVIDIA preview remains on port3048.
+Implementation: `36aefe8efb1478a15a8a1cd84d71a189b1a073ee`; Git supplies the documentation HEAD.
 Implemented and browser-inspected; 34 focused checks pass. Typecheck/build/shader
 pass; full suite has 2,168 passes and one existing Camera fixture failure.
 See [Hack LDN notes](docs/hack-ldn-2025-animation.md).

@@ -1,5 +1,13 @@
 # Feature map — 1:1 queue
 
+9 October Notes checkpoint: `855c079` removes the captured frozen cover by
+honoring each supplied native pose. All 343 pairs, 686 PNGs, ten sheets and
+four console views are checked. Shared Camera/Sound static baselines hold;
+Camera's first live photo-loading frame remains an explicit residual.
+Browser/Miiverse common SceneIn is committed in its worker and under review.
+AN-01 through AN-04 remain fail. See
+[Notes evidence](notes-supplied-pose-2026-10-09.md).
+
 8 October Manual checkpoint: reviewed `a264973` retains elapsed sample time.
 Final497pairs/994PNGs,16 sheets and6 consoles are audited/inspected. Camera
 incoming is266.5/285.2ms; ready residual106/9 and Settings repeat terminal gap

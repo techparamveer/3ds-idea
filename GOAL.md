@@ -8,7 +8,15 @@ The human resumed on8 October with "continue disregard that", revoking the
 without that usage cutoff. Continue the full animation goal. Earlier quota
 checkpoints remain history; do not stop again at that removed threshold.
 
-Latest checkpoint: Manual elapsed timing `a264973` is integrated and visibly
+Latest checkpoint, 9 October: Notes `855c079` restores the source fade and
+moving title belt. All 343 paired observations, 686 PNGs, ten sheets and four
+console views are audited and inspected. Shared Camera/Sound diagnostic
+baselines are preserved; the live Camera image-loading residual is retained.
+Browser/Miiverse common SceneIn is committed in its worker and under review.
+All four whole flows remain fail; continue the full
+goal. See [Notes evidence](docs/notes-supplied-pose-2026-10-09.md).
+
+Earlier checkpoint: Manual elapsed timing `a264973` is integrated and visibly
 recaptured. All497 accepted pairs/994PNGs and16 sheets are independently
 audited; Camera incoming improves to266.5/285.2ms. Fixed ready residual106/9
 and a Settings terminal timing gap remain. Reviewed Notes cache fix `855c079`

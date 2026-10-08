@@ -333,6 +333,14 @@ Stock-specific adapters select explicit layouts, child mounts, messages and clip
 Canvas raster/pose caches. The native PNG path retains independent RGB/alpha
 before material evaluation. Three.js CGFX banner rendering is injected separately.
 
+`NativeLayoutRenderer.drawLayout` treats each supplied, already-posed layout
+as authoritative, including in-place mutations and instantiated child parts.
+It bypasses pose-cache reads and writes for this path, then applies requested
+bindings, text and overrides. Ordinary `draw` retains its bounded 16-entry
+pose cache. Raster caching, ownership, disposal and paired publication are
+unchanged. The [Notes correction](../notes-supplied-pose-2026-10-09.md) changes
+rendering of existing scene-9/10 poses, not their assets or clocks.
+
 HOME's selected suspended-software panel borrows this same snapshot through
 `drawUpper`, without a second readback or retained canvas. Its selected owner
 and metadata are presentation-only; missing resources join the existing paired

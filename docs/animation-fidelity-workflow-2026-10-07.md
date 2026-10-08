@@ -7,6 +7,17 @@ GPT-5.6 Sol high workers and an independent different-model reviewer. All sessio
 muted. The latest human instruction permits visible Mac testing without Sidecar;
 verify actual owned-window placement before scenario inputs.
 
+## Notes supplied poses, 9 October
+
+The [Notes checkpoint](notes-supplied-pose-2026-10-09.md) records the narrow
+renderer correction, unchanged source identities and completed normal/reduced
+motion audit. Shared Camera/Sound diagnostics preserve the earlier baselines;
+the checked live series retains its initial Camera image-loading residual.
+Preserve failed collector attempts and exact error URLs; a browser-chrome
+warning does not establish native resource failure or native acceptance.
+The next worktree owns Browser/Miiverse common SceneIn, using existing decoded
+clips and preserving the separate Notes and Friends/Notifications paths.
+
 ## Manual elapsed cadence, 8 October
 
 The [Manual cadence checkpoint](manual-elapsed-cadence-2026-10-08.md) records

@@ -12,7 +12,13 @@ import {cancelSystemHomeFolderClose} from './home-folder-close-system.ts';
 export function releaseUnreadyNativeInput(state:MenuState,status:NativeScreenStatus,now:number):MenuState{
   const s=state.system;
   if(!s||(status!=='loading'&&status!=='error'))return state;
-  return Object.keys(s.input.held).length||Object.keys(s.input.analog).length||s.input.touch?releaseSystemInputs(state,now):state;
+  const home=s.homeControls?.input;
+  // Native HOME directions bypass the generic latch, including its pending
+  // quick pulse and sampled release history. Cancel the same existing owner.
+  const homeHeld=home&&(Object.keys(home.sources).length||home.sampler.previousDigitalHeld
+   ||home.sampler.previousPrimaryHeld||home.sampler.primaryAxis.x||home.sampler.primaryAxis.y
+   ||s.homeControls?.producer.repeatCandidate);
+  return Object.keys(s.input.held).length||Object.keys(s.input.analog).length||s.input.touch||homeHeld?releaseSystemInputs(state,now):state;
 }
 /** Recovery B/HOME suspends the current owner, preserving Settings/helper callers.
  * Launch normally ignores HOME; this explicit browser escape also works there. */

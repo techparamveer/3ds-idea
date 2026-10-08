@@ -77,6 +77,66 @@ source gaps, adaptations and blocked native routes explicitly. Report
 implemented, tested, browser-inspected and native-compared separately. Muted
 audio stays unverified and prevents a global audiovisual 1:1 claim.
 
+## Human resume and runtime corrections, 8 October
+
+The human explicitly resumed work after the blocked audit. Pending decoded
+Friends/Notifications export and missing matched motion do not block independent
+folder and suspension implementation. Separate workers delivered folder
+`c0fa55e` and suspension `8ef5677`; the different-model reviewer cleared both.
+They integrate as `c6f74ed`/`9a72454`, shared caller `1308786` and fixture imports
+`c658382`. Incoming caller WIP, public exports and original models remain out.
+
+[Folder lifetime](workstream-handoffs/animation-folder-motion-20261008.md)
+prevents resource-failure escape and same-folder re-entry from reusing a released
+child pair. [Compact pause](home-pause-compact-entry-2026-10-08.md) keeps G_Wndw
+alpha on the existing receipt pose when another tile is selected. Both native
+mode1 branches reset/request appearance, but the later start remains
+visibility-latch-dependent. Compact activation and phase coupling are browser
+adaptations, not universal native activation or exact timing.
+
+Clean build `5386572` equals coordinator runtime `c658382`. Preview3023,
+session25489/PID20117, BUILD_ID `ywvwSX_aevJz4kdR_pQ3v`/SHA7a3ee4a6, HTTP200.
+Typecheck/build pass; focused328/328. Full2536 tests have2427 pass, six retained
+failures,102 skips/oneTODO: four unfinished incoming expectations, unpublished
+incoming pack and historical Camera PNG. Root's WIP-inclusive full run has2379
+pass/eight failures; three fixture imports were repaired and focused50/50 then
+passed. Root typecheck passes. Immutable isolated report `e2146b9f` is under
+private `folder-combined-visible-build-20261008/`. Seventy-seven existing GLBs
+were materialized against exact LFS OIDs; inventory `1cc5568e`,7581105252 bytes.
+They are not authored model changes. Do not rebuild the served worktree.
+
+Private `continuation-20261008/` retains before folder91/93 and pause79/81,
+after folder92/89 and pause78/81 normal pairs, all without page errors. Supporting
+`d9e97bf8` checks688 before PNGs; `15b9e32a` checks680 after PNGs. Reduced mobile
+folder11/10 and pause5/5 at390x844 checks62 PNGs in `1453150b`. PNG hashes,
+CRC/full decode, current matching valid receipts, chronology, fixture identity
+and orphan closure pass. Console views are opened. Folder poses0..16/capture0..8
+and pause0..20 are observed; reduced endpoints are accessibility adaptations.
+These counts are not native cadence or complete phase capture.
+
+Reviewed collector `374b666`/`5b548a0` adds ordinary HOME then ArrowRight, then
+restores selection with a ready matching pair before repeat Resume. It requires
+ready/failure-free compact evidence and rejects held-HOME combination. First
+compact before job45501 closes1 and is preserved invalid: Health8 briefly
+becomes Camera10, then continues to58 after one key press. First compact pair
+is pause14, missing Appear0..9. No after comparison or automatic retry. The
+release worker reproduces the same slot58 with keyboard/physical inputs and
+loading/error readiness. Fix that boundary before recapture; observe actual
+trusted host down/up in the collector. Root compact focused40/40 passes.
+
+The bounded native endpoint control is incomplete. First destination audit
+failed but a sequential orchestration error launched88240; it closed0 without
+scenario input. The corrected portable path passed audit before launch20385.
+Four density taps show2-to6 rows, but no existing folder at required136,160.
+No creation, own PNG or entry input follows. Actual Quit/Yes exits0; process
+absent, globalccd30d00/custom58b1e799 restore byte-exact. Both failures and
+snapshots are retained. Never launch after an unchecked failed preflight.
+
+All four whole flows still fail. Native input/source epochs, cadence, duration,
+pixels and muted audio remain open. Preview3022, old3021, user3000 and system
+audio stay untouched. Goal active, weekly78%, pause75%. Follow STATUS Next;
+historical blocked paragraphs are superseded.
+
 ## Captured baseline
 
 Runtime `5ee6fd7`, workflow `81f09bf`, production port 3021. The coordinator's

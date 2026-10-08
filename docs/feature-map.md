@@ -5,6 +5,19 @@ for top-row opening, Manual opening, folder entry and HOME suspension. GitHub
 restart base is `5ee6fd7`; the historical static queue below is preserved.
 All four motion flows are currently fail pending matched frame-sequence proof.
 
+The 8 October human resume supersedes the historical blocked checkpoint below.
+Reviewed runtime `9a72454`/`c6f74ed`, caller `1308786` and fixtures `c658382` fix
+compact pause opacity and stale released-folder lifetime. Clean production
+`5386572` on3023 passes focused328/328, typecheck/build. Full2427 pass and six
+pending-assets or historical failures remain recorded. Normal folder92/89 and
+pause78/81, reduced mobile folder11/10 and pause5/5 pairs are checked and
+console-inspected. No native animation pass follows. Compact before is invalid:
+one ArrowRight after HOME continues from slot10 to58 after the tap. The release
+worker now owns that concrete defect; no same-premise retry before a fix.
+Decoded export remains separately pending. See [compact pause](home-pause-compact-entry-2026-10-08.md)
+and [folder lifetime](workstream-handoffs/animation-folder-motion-20261008.md).
+Goal active, weekly78%, pause75%.
+
 Manual later-window attempt at `b78ee5c` aborts at its reviewed complete-cover
 gate. One healthy selected-Camera baseline `cd0be885` and one actual Manual
 touch precede a single partial translucent-cover AX/image. No batch, retry,

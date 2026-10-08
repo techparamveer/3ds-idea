@@ -39,7 +39,17 @@ service gates and portfolio content differences remain explicit adaptations
 or blockers. Keep every 3DS session muted; audio acceptance remains open.
 Do not claim global 1:1 or audio verification from this animation work.
 
-Current checkpoint: separate-window Azahar touch and held HOME input work.
+Current checkpoint after the 8 October human resume: goal active. Reviewed
+runtime fixes through `c658382` correct same-folder recovery lifetime and compact
+suspended-window appearance. Clean preview3023 serves `5386572`;3022 preserves
+the previous build. Normal and reduced mobile folder/pause regressions are
+captured. The first compact before run exposed a stuck directional tap after
+HOME; preserve its invalid ledger and fix the release path before recapture.
+Follow STATUS Next. Pending decoded exports and missing native timing do not
+block independent implementation. All four whole flows still fail. Weekly
+remaining78%; pause at75%.
+
+Earlier checkpoint: separate-window Azahar touch and held HOME input work.
 Normal-speed Manual, Notifications, folder entry/Back/re-entry and repeated
 Health suspend/resume captures now exist. Corrupt and nonmonotonic readbacks,
 unmatched native/browser input epochs and unexplained animation differences

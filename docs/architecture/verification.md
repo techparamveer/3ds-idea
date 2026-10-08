@@ -1,5 +1,23 @@
 # Verification and evidence architecture
 
+[Compact pause appearance](../home-pause-compact-entry-2026-10-08.md) separates
+the source reset/request from its visibility-latch-controlled start. Browser
+entry counters do not establish native compact activation. The compact capture
+workflow must use ordinary HOME then ArrowRight, not a combined held-HOME
+route. Require ready/failure-free same-paint paired HOME at the changed grid
+selection. Report entry0..9 coverage separately from terminal-only or reduced
+output. Restore the selected retained title and a matching HOME pair before
+Resume. Preserve partial captures without fitting a clock or automatic retry.
+
+[Folder recovery scope](../workstream-handoffs/animation-folder-motion-20261008.md)
+uses the immutable root-view record as a browser entry lifetime token. First
+entry accepts structural source scope and the next selection revision; later
+release/child receipts require that lifetime. Resource-failure escape and
+same-folder re-entry cannot reuse a previous child completion. Healthy browser
+first/repeat captures are regression evidence; native has no equivalent resource
+failure. An endpoint-only native run cannot match browser folderFrame16 or prove
+the original intermediate sequence.
+
 [7 October native touch recovery](../animation-fidelity-workflow-2026-10-07.md#native-touch-recovery-and-fixed-stage-diagnostics)
 obtains normal-speed native opening and folder samples through a separate
 Azahar render window. Count actual own PNGs, preserve file/mtime chronology,

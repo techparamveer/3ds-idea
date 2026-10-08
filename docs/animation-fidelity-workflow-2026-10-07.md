@@ -6,6 +6,53 @@ are historical. New helpers follow the latest user-supplied AGENTS preference:
 GPT-5.6 Sol high, with an independent different-model reviewer. All sessions stay
 muted and visual tests stay on Sidecar.
 
+## HOME lower transition capture, 8 October
+
+Runtime `25e7520` has a captured lower-screen suspension defect. Native Health
+first shrinks and darkens both outgoing LCDs, overlays the suspended upper
+card, crossfades the HOME lower grid over Health, then reveals Close/Resume.
+Browser first/repeat instead exposes the full HOME lower and footer at pause
+frame0. The next bounded correction is the retained outgoing lower compositor,
+not a global duration fit. Upper HUD timing remains a separate residual.
+
+Evidence root is
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261008/home-suspension-sidecar/`.
+Successful native movies are `health-home-first-attempt2.mov` and
+`health-home-repeat.mov`, SHA-256
+`1e5bbe39704ebd81fe7b556e93887685c993160fc57d2cc3b8d800a84b9e22b7` and
+`40e2bd749c305b4c8233559b27a88b244fc0dd083fb8e1cf375e43bd2a5a368d`.
+Both have zero audio tracks. Window raster sizes and variable sample cadence
+differ; these are supplementary motion evidence, not native frame epochs.
+The first movie without the attempt2 suffix has no delivered HOME action and
+is excluded. Successful gestures requested a500ms HOME hold, with actual native
+duration unmeasured. Actual Resume separated the two captures.
+
+Muted Sidecar browser captures in `browser-normal/` contain79/78 pairs.
+Independent audit verifies all157 pairs/314 raw PNGs, dimensions, hashes and
+paired receipts, with no page errors. All pause poses0..20 appear. Browser
+frame0-to20 spans737.0/802.9ms; observed DOM holds are550.9/543.6ms, distinct
+from native duration. Native uses a temporary Shift mapping and Resume touch;
+browser uses its HOME key and Enter. The Health slot and surrounding portfolio
+fixture also differ. All three chronological sheets and both console views
+were inspected. This confirms the ordering defect, not exact input parity.
+
+The predeclared empty-mask diagnostic compares the first browser terminal pair
+at index021 to native own400x480 PNG `_08.10.26_16.30.16.14.png`, SHA-256
+`30b5e382e45d16b6909d58b8f28987bd7ae983a0b2d967df592458640552aec1`.
+`before-comparison/report.json` hashes
+`451a89a6f1b99cde77ff218ec25061c7c234ac2073640df5df2d7d43157ab745`:
+10851 upper/37536 lower pixels exceed delta2. Both diff sheets were opened.
+HUD, fixtures, capture phases, title icon and raster residuals remain counted.
+No source asset changed; existing native source mappings still apply.
+
+Isolated Azahar66924/render5480 was verified wholly on Sidecar. It exited0
+after Quit/Yes. After process absence, only HOME/default and screenshot-path
+test fields were restored. The resulting config SHA matches preflight
+`dfdd4cb58e3f03354a5eb21cf2867a6af0b6ba531869b8aece9552c5e5c5aeef`.
+Volume0, Null output1 and Static input2 remain. Browser job27740 exited0 and
+its PID76355 is absent. System audio and unrelated apps were untouched.
+AN-01 through AN-04 remain fail; audio acceptance remains unverified.
+
 ## Folder cursor and cadence correction, 8 October
 
 First/repeat silent Sidecar movies now show native folder entry continuously.

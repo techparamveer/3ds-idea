@@ -1,5 +1,12 @@
 # Feature map — 1:1 queue
 
+8 October HOME capture: native first/repeat and157 audited browser pairs expose
+the missing outgoing lower-screen suspension transition. Browser shows HOME and
+Close/Resume at frame0; native shrinks/darkens Health, crossfades HOME, then
+reveals the footer. This is the next worker-owned correction. Upper HUD timing,
+static residuals and exact native epochs remain open. All four scenarios fail.
+See the [HOME capture checkpoint](animation-fidelity-workflow-2026-10-07.md#home-lower-transition-capture-8-october).
+
 8 October folder correction: native first/repeat Sidecar movies revealed the
 premature child cursor. `dbd3010` fixes the ordering; `1d0b8e4` removes the
 folder-only render-count slowdown. Corrected normal/reduced first/repeat

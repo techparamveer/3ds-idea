@@ -60,6 +60,12 @@ function tapFixture() {
 
 function compactFailureBrowser(failure, rawPngs) {
   const fixture = tapFixture(), { page, host } = fixture;
+  const trace = [], evaluate = page.evaluate;
+  page.evaluate = async (fn, argument) => { trace.push('evaluate'); return evaluate(fn, argument); };
+  for (const method of ['addEventListener', 'removeEventListener']) {
+    const original = fixture.window[method];
+    fixture.window[method] = (...args) => { trace.push(`${method}:${args[0]}`); return original(...args); };
+  }
   let waitingForCompact = false;
   host.dataset = data('8');
   host.querySelector = () => ({ textContent: 'Health and Safety Information' });
@@ -67,11 +73,19 @@ function compactFailureBrowser(failure, rawPngs) {
   page.emulateMedia = page.goto = page.waitForSelector = page.waitForTimeout = async () => {};
   page.on = () => {};
   page.viewportSize = () => ({ width: 1440, height: 1000 });
-  page.locator = () => ({ focus: async () => {}, evaluate: async (fn, argument) => fn(host, argument) });
-  page.screenshot = ({ path }) => writeFile(path, 'Mock console screenshot');
+  page.locator = () => ({ focus: async () => { trace.push('focus'); },
+    evaluate: async (fn, argument) => { trace.push('state'); return fn(host, argument); } });
+  page.screenshot = ({ path }) => writeFile(path, JSON.stringify({ trace, listeners: fixture.listenerCount() }));
   page.keyboard = { press: async key => {
+    trace.push(`key:${key}`);
     if (key === 'Enter') host.dataset.menu = 'app';
-    else if (key === 'h') { host.dataset.menu = 'home'; fixture.sample(105); }
+    else if (key === 'h') {
+      host.dataset.menu = failure === 'not-home' ? 'app' : 'home';
+      if (failure === 'wrong-owner') host.dataset.app = 'camera';
+      if (failure === 'wrong-slot') host.dataset.selected = '10';
+      if (failure === 'toolbar') host.dataset.homeCursor = JSON.stringify({ focus: { toolbarActive: true } });
+      fixture.sample(105);
+    }
     else if (key === 'ArrowRight' && fixture.window.animationCapture) {
       waitingForCompact = true;
       fixture.event('keydown', 110); fixture.sample(111);
@@ -88,7 +102,8 @@ function compactFailureBrowser(failure, rawPngs) {
       host.dataset = data('12');
       return;
     }
-    if (waitingForCompact) {
+    if (fixture.window.animationCapture) {
+      if (!waitingForCompact) fixture.sample(118);
       fixture.sample(1100);
       assert.equal(fixture.window.animationCapture.done, true);
     }
@@ -96,8 +111,8 @@ function compactFailureBrowser(failure, rawPngs) {
   return { chromium: { launch: async () => ({ newPage: async () => page, close: async () => {} }) } };
 }
 
-for (const failure of ['timeout', 'drift']) {
-  test(`compact ${failure} after trusted delivery exports the initial invalid capture, raw PNGs and console before rejecting`, async t => {
+for (const failure of ['timeout', 'drift', 'not-home', 'wrong-owner', 'wrong-slot', 'toolbar', 'normal']) {
+  test(`${failure} CLI preserves compact sequencing, failure artifacts and normal no-flag behavior`, async t => {
     const dir = await mkdtemp(join(tmpdir(), 'pause-compact-selection-failure-'));
     t.after(() => rm(dir, { recursive: true, force: true }));
     const rawPngs = {};
@@ -117,32 +132,62 @@ export const { chromium } = compactFailureBrowser(${JSON.stringify(failure)}, ${
     const result = spawnSync(process.execPath, [new URL('../scripts/verify-animation-flow.mjs', import.meta.url).pathname,
       '--playwright-module', module, '--browser-executable', join(dir, 'unused-browser'),
       '--output', output, '--commit', '0'.repeat(40), '--scenario', 'pause', '--activation', 'key',
-      '--pause-compact', '--duration-ms', '1000'], { encoding: 'utf8' });
-    assert.equal(result.status, 1, result.stderr);
-    const expected = failure === 'timeout' ? /Compact selection wait timed out/ : /ArrowRight selects the adjacent column/;
-    assert.match(result.stderr, expected);
+      ...(failure === 'normal' ? [] : ['--pause-compact']), '--duration-ms', '1000'], { encoding: 'utf8' });
+    assert.equal(result.status, failure === 'normal' ? 0 : 1, result.stderr);
+    const expected = { timeout: /Compact selection wait timed out/, drift: /ArrowRight selects the adjacent column/,
+      'not-home': /ArrowRight follows actual HOME/, 'wrong-owner': /Requested application is retained before ArrowRight/,
+      'wrong-slot': /HOME begins with the retained application selected/, toolbar: /HOME begins on the grid/ }[failure];
+    if (expected) assert.match(result.stderr, expected);
     const retained = JSON.parse(await readFile(join(output, 'capture.json'), 'utf8'));
-    assert.equal(retained.valid, false);
-    assert.match(retained.compactSelection.selectionFailure, expected);
-    assert.equal(retained.compactSelection.homeBeforeSelection.selected, '8');
-    assert.equal(retained.compactSelection.afterSelection.selected, failure === 'timeout' ? '8' : '12');
-    assert.equal(retained.after.selected, retained.compactSelection.afterSelection.selected);
-    assert.equal(retained.compactSelection.arrowRightTap.failure, null);
-    validatePauseCompactArrowRight(retained.compactSelection.arrowRightTap.observation, 1000);
-    assert.deepEqual(retained.compactSelection.arrowRightTap.observation.events.map(event => event.atMs), [10, 17]);
-    assert.deepEqual(retained.cycleInputs.map(input => input.value), ['h', 'ArrowRight']);
-    assert.deepEqual(retained.frames.map(frame => frame.at), [0, 5, 11, 18, 1000]);
-    assert.equal(retained.frames[2].compactArrowRightActive, true);
-    assert.equal(retained.frames[3].compactArrowRightEventCount, 2);
+    assert.equal(retained.valid, failure === 'normal');
+    const consoleCapture = JSON.parse(await readFile(join(output, 'console.png'), 'utf8'));
+    const homeIndex = consoleCapture.trace.indexOf('key:h');
+    assert.equal(consoleCapture.listeners, 0);
+    if (failure === 'normal') {
+      assert.equal(Object.hasOwn(retained, 'compactSelection'), false);
+      assert.equal(Object.hasOwn(retained, 'pauseCompact'), false);
+      assert.deepEqual(retained.cycleInputs.map(input => input.value), ['h']);
+      assert.deepEqual(consoleCapture.trace.slice(homeIndex - 2, homeIndex), ['evaluate', 'focus']);
+      assert.equal(consoleCapture.trace.some(entry => entry.startsWith('addEventListener:')), false);
+    } else {
+      assert.match(retained.compactSelection.adaptation, /Collector-latency adaptation/);
+      assert.match(retained.compactSelection.adaptation, /not a recovered native input epoch/);
+      assert.deepEqual(consoleCapture.trace.slice(homeIndex - 5, homeIndex),
+        ['focus', 'evaluate', 'evaluate', 'addEventListener:keydown', 'addEventListener:keyup']);
+      assert.equal(retained.after.selected, retained.compactSelection.afterSelection.selected);
+      if (failure === 'timeout' || failure === 'drift') {
+        assert.match(retained.compactSelection.selectionFailure, expected);
+        assert.equal(retained.compactSelection.homeBeforeSelection.selected, '8');
+        assert.equal(retained.compactSelection.afterSelection.selected, failure === 'timeout' ? '8' : '12');
+        assert.equal(retained.compactSelection.arrowRightTap.failure, null);
+        validatePauseCompactArrowRight(retained.compactSelection.arrowRightTap.observation, 1000);
+        assert.deepEqual(retained.compactSelection.arrowRightTap.observation.events.map(event => event.atMs), [10, 17]);
+        assert.deepEqual(retained.cycleInputs.map(input => input.value), ['h', 'ArrowRight']);
+        assert.deepEqual(consoleCapture.trace.slice(homeIndex, homeIndex + 3), ['key:h', 'state', 'key:ArrowRight']);
+        assert.deepEqual(retained.frames.map(frame => frame.at), [0, 5, 11, 18, 1000]);
+        assert.equal(retained.frames[2].compactArrowRightActive, true);
+        assert.equal(retained.frames[3].compactArrowRightEventCount, 2);
+      } else {
+        assert.match(retained.compactSelection.arrowRightTap.failure, expected);
+        assert.deepEqual(retained.compactSelection.arrowRightTap.observation.events, []);
+        assert.equal(retained.compactSelection.arrowRightTap.observation.down, null);
+        assert.equal(retained.compactSelection.arrowRightTap.observation.up, null);
+        assert.equal(retained.compactSelection.compactSelected, null);
+        assert.deepEqual(retained.cycleInputs.map(input => input.value), ['h']);
+        assert.deepEqual(retained.compactSelection.homeBeforeSelection, retained.compactSelection.afterSelection);
+        assert.deepEqual(retained.frames.map(frame => frame.at), [0, 5, 18, 1000]);
+      }
+    }
     for (const frame of retained.frames) for (const screen of ['top', 'bottom']) {
       const bytes = await readFile(join(output, frame.files[screen].filename));
       assert.deepEqual(bytes, Buffer.from(rawPngs[screen].split(',')[1], 'base64'));
       assert.equal(frame.files[screen].sha256, createHash('sha256').update(bytes).digest('hex'));
     }
-    assert.equal(await readFile(join(output, 'console.png'), 'utf8'), 'Mock console screenshot');
-    const failed = JSON.parse(await readFile(join(output, 'failure.json'), 'utf8'));
-    assert.match(failed.error, expected);
-    assert.deepEqual(failed.inputs, retained.inputs);
+    if (expected) {
+      const failed = JSON.parse(await readFile(join(output, 'failure.json'), 'utf8'));
+      assert.match(failed.error, expected);
+      assert.deepEqual(failed.inputs, retained.inputs);
+    } else assert.equal(existsSync(join(output, 'failure.json')), false);
     assert.equal(existsSync(join(output, 'repeat-1-capture.json')), false);
   });
 }

@@ -76,19 +76,23 @@ export function validatePauseCompactDestination(data, selection) {
   assert.equal(data.sleeping, 'false', 'Compact pause is awake');
 }
 
-export async function selectPauseCompact(enabled, app, originalSelected, { key, state, waitForSelection, observeTap }) {
+export async function selectPauseCompact(enabled, app, originalSelected, { key, state, waitForSelection, observeTap, activateHome }) {
   if (!enabled) return null;
-  const homeBeforeSelection = await state();
-  assert.equal(homeBeforeSelection.menu, 'home', 'ArrowRight follows actual HOME');
-  assert.equal(homeBeforeSelection.app, app, 'Requested application is retained before ArrowRight');
-  assert.equal(homeBeforeSelection.selected, originalSelected, 'HOME begins with the retained application selected');
-  assert.equal(JSON.parse(homeBeforeSelection.homeCursor ?? 'null')?.focus?.toolbarActive, false, 'HOME begins on the grid');
-  const slot = Number(originalSelected), rows = Number(homeBeforeSelection.rows);
-  assert.ok(Number.isSafeInteger(slot) && slot >= 0 && Number.isSafeInteger(rows) && rows > 0, 'HOME selection and row count are explicit');
-  let arrowRightTap = null;
-  if (observeTap) arrowRightTap = await observeTap(() => key('ArrowRight'));
-  else await key('ArrowRight');
-  const compactSelected = String(slot + rows);
+  let homeBeforeSelection = null, compactSelected = null, arrowRightTap = null;
+  const press = async () => {
+    if (activateHome) await activateHome();
+    homeBeforeSelection = await state();
+    assert.equal(homeBeforeSelection.menu, 'home', 'ArrowRight follows actual HOME');
+    assert.equal(homeBeforeSelection.app, app, 'Requested application is retained before ArrowRight');
+    assert.equal(homeBeforeSelection.selected, originalSelected, 'HOME begins with the retained application selected');
+    assert.equal(JSON.parse(homeBeforeSelection.homeCursor ?? 'null')?.focus?.toolbarActive, false, 'HOME begins on the grid');
+    const slot = Number(originalSelected), rows = Number(homeBeforeSelection.rows);
+    assert.ok(Number.isSafeInteger(slot) && slot >= 0 && Number.isSafeInteger(rows) && rows > 0, 'HOME selection and row count are explicit');
+    compactSelected = String(slot + rows);
+    await key('ArrowRight');
+  };
+  if (observeTap) arrowRightTap = await observeTap(press);
+  else await press();
   let selectionFailure = null;
   if (!arrowRightTap?.failure) {
     try { await waitForSelection({ app, selected: compactSelected }); }
@@ -96,8 +100,8 @@ export async function selectPauseCompact(enabled, app, originalSelected, { key, 
   }
   const afterSelection = await state();
   const selection = { app, originalSelected, compactSelected, homeBeforeSelection, afterSelection,
-    method: 'One ordinary ArrowRight after HOME, while chronological capture is already active. No fixed delay or diagnostic repaint.',
-    adaptation: 'Browser input workflow; not a recovered native input epoch, duration or compact activation boundary.',
+    method: 'Focus before capture; install the trusted ArrowRight observer before HOME; check actual HOME, retained app and original grid selection immediately before one ordinary ArrowRight. No fixed delay or diagnostic repaint.',
+    adaptation: 'Collector-latency adaptation removes redundant focus and listener-installation round trips between HOME and ArrowRight; not a recovered native input epoch, duration or compact activation boundary.',
     ...(arrowRightTap ? { arrowRightTap } : {}), selectionFailure, privateOwner: null, captureGeneration: null, nativeSourceEpoch: null };
   if (!arrowRightTap?.failure && !selectionFailure) {
     try { validatePauseCompactDestination(afterSelection, selection); }
@@ -124,7 +128,7 @@ export function validatePauseCompactArrowRight(observation, durationMs) {
 }
 
 export async function observePauseCompactArrowRight(page, press) {
-  let observation = null;
+  let observation = null, durationMs = null;
   try {
     await page.evaluate(() => {
       const capture = window.animationCapture, host = document.querySelector('.console-stage');
@@ -149,13 +153,12 @@ export async function observePauseCompactArrowRight(page, press) {
       };
     });
     try { await press(); } finally {
-      observation = await page.evaluate(() => {
+      ({ observation, durationMs } = await page.evaluate(() => {
         const capture = window.animationCapture;
         capture.compactArrowRightCleanup(); delete capture.compactArrowRightCleanup;
-        return capture.compactArrowRight;
-      });
+        return { observation: capture.compactArrowRight, durationMs: capture.durationMs };
+      }));
     }
-    const durationMs = await page.evaluate(() => window.animationCapture.durationMs);
     validatePauseCompactArrowRight(observation, durationMs);
     return { observation, failure: null };
   } catch (error) { return { observation, failure: String(error) }; }
@@ -410,6 +413,10 @@ const key = async value => {
   await page.locator('.console-stage').focus();
   await page.keyboard.press(value);
 };
+const focusedKey = async value => {
+  inputs.push({ kind: 'key', value, at: Date.now() });
+  await page.keyboard.press(value);
+};
 const appletLabels = { notes: 'Game Notes', friends: 'Friend List', notifications: 'Notifications', browser: 'Internet Browser', miiverse: 'Miiverse' };
 const accessible = async () => {
   const label = appletLabels[values.scenario];
@@ -508,12 +515,15 @@ try {
     assert.equal(selection?.kind, 'folder');
     assert.equal(selection.key, folderIdentity);
   }
+  if (pauseCompact) await page.locator('.console-stage').focus();
   await page.evaluate(collectAnimationFrames, pauseCompact ? { durationMs, pauseCompact: true } : durationMs);
   let pauseHomeHold = null, pauseHomeHoldFailure = null;
   if (values.scenario === 'pause' && homeHoldMs !== null) {
     ({ pauseHomeHold, pauseHomeHoldFailure } = await attemptPauseHomeHold(page, values.activation, homeHoldMs, inputs));
   }
-  else if (values.scenario === 'pause') values.activation === 'physical' ? await physical('HOME') : await key('h');
+  else if (values.scenario === 'pause') {
+    if (!pauseCompact) values.activation === 'physical' ? await physical('HOME') : await key('h');
+  }
   else if (values.scenario === 'manual') await touch(50, 226);
   else if (values.activation === 'tile') await touch(136, 160);
   else if (values.activation === 'accessible') await accessible();
@@ -521,7 +531,8 @@ try {
   else if (values.activation === 'touch') await touch(160, 226);
   else await key('Enter');
   const compactSelection = pauseCompact && !pauseHomeHoldFailure
-    ? await selectPauseCompact(true, pauseApp, before.selected, { key, state,
+    ? await selectPauseCompact(true, pauseApp, before.selected, { key: focusedKey, state,
+      activateHome: () => values.activation === 'physical' ? physical('HOME') : focusedKey('h'),
       observeTap: press => observePauseCompactArrowRight(page, press),
       waitForSelection: request => page.waitForFunction(pauseCompactSelectionChanged, request, { timeout: 10000 }) }) : null;
   previousPauseCompact = compactSelection;

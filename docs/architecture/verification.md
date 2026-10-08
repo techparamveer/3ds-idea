@@ -78,6 +78,23 @@ later idle poses does not fill the intervening motion gap. Count host requests,
 actual PNG outputs and unique hashes separately. Record failure to quit before
 EOF rather than treating a later successful exit as the planned early stop.
 
+[Raised-window keyboard capture](../animation-fidelity-workflow-2026-10-07.md#raised-window-keyboard-capture-8-october-2026)
+distinguishes configured Qt shortcuts from physical macOS modifier keys. Verify
+delivery with one decoded own PNG on a freshly raised owned window before any
+bounded sequential batch. Preserve every surviving file and native-log save/
+ignore event; same-path collisions lose earlier bytes, and numerical count
+closure is not a request/file bijection. Interpret the pinned Qt `ss.z` format
+as fractional seconds without trailing zeros, never integer suffix milliseconds.
+Screenshot pause/resume and host call/file gaps do not prove native cadence.
+For Notes, selection and Open require fresh separate checks. Open plus capture
+requests may share one call, but missing stages still mean incomplete coverage.
+The unchanged browser applet collector has no explicit paired-readiness wait:
+check its before state and chronological pre-input diagnostics for the selected
+toolbar owner and current valid matching paint/receipt. A preparation delay is
+not readiness. Fix chronological complete-cover selectors before diffing and
+retain noise/black readbacks without treating them as source transition stages.
+Static cover agreement never passes opening motion, input, timing or muted audio.
+
 [HOME launch onset](../home-launch-onset-2026-10-03.md) now has continuous
 native pre-A/feedback/fade/logo evidence. Distinguish first Open pressed
 feedback from footer SceneOut, and last pre-fade banner from disappearance.

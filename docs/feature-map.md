@@ -5,7 +5,21 @@ for top-row opening, Manual opening, folder entry and HOME suspension. GitHub
 restart base is `5ee6fd7`; the historical static queue below is preserved.
 All four motion flows are currently fail pending matched frame-sequence proof.
 
-Latest capture transport trial at `8b7fe61` is incomplete: the existing Manual
+Newer 8 October capture checkpoint at `08ef2ac`: a reviewed raised-window
+Command-P diagnostic establishes own-PNG delivery. Index `2ac33ab0` keeps22
+surviving PNGs,24 save events, two lost versions and nine ignored overlaps;
+request timing is not native cadence. One bounded Notes touch/Open run captures
+partial outgoing poses and a healthy complete cover, but no incoming clear or
+ready destination. Index `0bc137d5` preserves17 PNGs, including three unusable
+readbacks. Fixed native7/browser52 comparison `91ce8906` gives0/0 above delta2
+with an empty mask; both sheets are opened. Normal browser capture125 pairs
+reaches readiness without errors. This is static cover evidence, not animation
+acceptance. Supporting report `629f3771` checks all250 raw LCD PNGs and125
+matching valid receipts, with no orphans. Runtime/assets/build/caller WIP are unchanged; both native sessions
+exit0 with exact profile restoration. All four whole flows fail. Weekly
+remaining80%; stop75%. See [the keyboard checkpoint](animation-fidelity-workflow-2026-10-07.md#raised-window-keyboard-capture-8-october-2026).
+
+Earlier capture transport trial at `8b7fe61` is incomplete: the existing Manual
 movie enters Health in the current profile, and `ctrl+p` produces no own PNG.
 The actual menu command produces one valid Health still, not opening motion.
 Root closes the process and restores the temporary screenshot path exactly.

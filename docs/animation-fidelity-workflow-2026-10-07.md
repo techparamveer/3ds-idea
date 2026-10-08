@@ -1311,3 +1311,94 @@ No further late CTM burst, model-round-trip-before-onset loop, closed source
 audit or guessed keyboard accelerator is scheduled. Incoming export approval
 remains pending without retry/bypass. The browser and repository runtime are
 unchanged; all four whole scenarios remain fail. Weekly remaining81%; stop75%.
+
+## Raised-window keyboard capture, 8 October 2026
+
+At coordinator `08ef2ac`, the pinned Azahar action uses QKeySequence with the
+configured Ctrl+P shortcut. Its shipped Qt6.10.3 interprets Ctrl as physical
+Command on macOS, according to [Qt's shortcut rules](https://doc.qt.io/qt-6.10/qkeysequence.html).
+The earlier physical Control-P failure did not test this chord. A reviewed,
+no-movie diagnostic raises the freshly observed owned HOME window, then one
+Cua `super+p` request produces an own 400x480 PNG `8e64663a`. Root decodes and
+opens it before issuing 32 sequential awaited requests in one call.
+
+Reviewed index `2ac33ab0` preserves 22 surviving PNGs with 17 distinct encoded
+and decoded payloads, five duplicate pairs, 24 logged saves and nine ignored
+overlapping requests. Two paths were saved twice; the earlier overwritten
+bytes are unavailable. The arithmetic closes to 33 requests including the
+probe, without individual request-to-output attribution. Sheet `9046a3d5` is
+opened by root and shows Health-selected HOME throughout. The transcribed
+batch spans1579ms; later unique filename gaps are52..157ms. These are host
+observations, not native cadence. Original Qt `ss.z` omits trailing fractional
+zeros, so `.22` means220ms, as [Qt's time format](https://doc.qt.io/qt-6.10/qtime.html#toString)
+specifies. No timestamps become native frame or input epochs.
+
+Session33389 exits0 through actual GUI Quit/Yes; process absence is checked.
+Actual before/launch/restored global configurations are preserved at
+`ccd30d00` / `87232356` / `ccd30d00`; per-title config `58b1e799` is unchanged
+and its relevant fields inherit global values. Attestation `064ecd68` keeps
+launch, UI/process, mute and initial supporting-command failures separate from
+checked file facts. The screenshot action pauses and resumes emulation, so
+even a delivered burst cannot prove uninterrupted animation timing.
+
+### Bounded Notes opening
+
+Reviewed plan `c5d96a64` permits one freshly grounded Notes selection, a decoded
+selected-HOME baseline `8b461ffb`, then one Open touch at logical160,226 and
+32 screenshot requests in the same Cua call. The native selection uses78,16
+versus browser70,16; both are in Notes, but literal input parity is unproven.
+The Open call returns after807ms and its request batch spans1573ms. No further
+capture, note edit/save, alternate input or service/account action follows.
+Session26348 exits0 and the screenshot destination restores exactly from
+`5afd062a` to `ccd30d00`; custom config `58b1e799` remains unchanged.
+
+Native index `0bc137d5` preserves17 decoded PNGs, 18 logged saves, 15 ignored
+requests and one unavailable earlier same-path version. Root opens the whole
+sheet `3b268f3a` and original first complete cover. Samples1..4 show HOME/Open
+feedback,5..6 partial outgoing cover, and7 the first healthy complete two-LCD
+cover `5608ba68`. Sample10 is noise;14..15 are entirely black. Those three
+readbacks are unusable and retained, with no inferred cause. No incoming clear
+or ready Notes destination is captured. Inspection sidecar `6793ed52` fixes
+selector7 before comparison; UI/process attestation `284cc2ea` stays separate.
+
+One unchanged, muted normal browser touch cycle yields125 raw pairs without
+page errors and reaches Notes readiness. Root opens its console. Before and
+chronological frame0 both show Notes toolbar focus1/category5, valid paired
+publication and exact paint/receipt equality. The collector's300ms preparation
+delay is not the proof. Policy `a42008e5` and selection `6631459f` fix the first
+valid completed outgoing source-frame20 receipt, index52, before pixel diffing.
+Its source frame is browser-only, not a native frame assignment. Full-LCD
+comparison `91ce8906`, empty mask `9bcdcd8e`, gives0/0 pixels above delta2;
+maximum differences are1 upper and2 lower. Both contact sheets are opened.
+This repeats static cover composition, not complete opening or motion parity.
+
+Independent browser report `629f3771` checks all250 raw LCD PNG hashes,
+dimensions, CRCs and full decodes, all125 matching valid paired receipts and
+the absence of orphan PNGs. It reproduces the same before/frame0 preconditions
+and first cover20 selector52 after the comparison. Root's policy and selection
+were fixed before diffing; the later supporting report was not. Helper
+`c0b41902` passes syntax and self-tests. Loaded runtime identity and console
+inspection remain coordinator-attested; the caller commit is not independent
+proof of the loaded build. No capture is excluded to improve the pixel result.
+The independent reviewer rehashes the decisive bindings, confirms the native
+collision accounting and browser preconditions, and directly reproduces the
+selected pair's0/0 above delta2. The four-document checkpoint is cleared.
+
+Private evidence is under
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/native-keyboard-capture-20261008/`.
+No new native asset, runtime implementation or production build is delivered;
+the browser cover retains [its source mapping](workstream-handoffs/applet-common-selectors-20261007.md#existing-source-and-delivery):
+`manifest.home.common` supplies CmnFade wash/belt/Memo resources, messages
+supply `lau_title_memo`/style12, and `manifest.fonts.shared` supplies glyphs.
+The pinned EUR HOME title is0004003000009802/v24576/index0/content00000082,
+decrypted content `c622d1c5`; original member hashes and unchanged
+ctr-native-web1.2.0/CTRTool1.3.0 converter identities remain in that mapping.
+No new conversion or native executed-resource identity is claimed. The
+preview3022 remains16e2067 and the caller WIP remains unserved. Prior code/test/
+build results are unchanged; these capture/documentation checks do not rerun
+or replace them. Native source/input/render epochs, ownership/generation,
+independent LCD clocks and audio remain unverified. All four whole flows fail.
+Still non-native are host paired cadence, unresolved incoming epochs, reduced
+endpoints, fixture/HUD population, local/inert services, portfolio content and
+Manual Contents body/category/slot placement/truncation. Public incoming export
+still requires approval; no retry or bypass. Weekly remaining80%; pause at75%.

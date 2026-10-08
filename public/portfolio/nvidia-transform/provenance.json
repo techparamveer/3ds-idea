@@ -8,35 +8,34 @@
     "fps": 29.970029830932617
   },
   "blender": "5.2.1 LTS",
-  "render": "EEVEE transparent RGBA; 46 video-derived extruded pixel relief poses for cube/eye; flat graphite original SVG wordmark, zero depth/bevel/tilt",
+  "render": "Blender EEVEE; restored first-version original SVG eye/wordmark geometry, green enamel and graphite materials; original cube with one full spin and an animated spiral cut",
   "delivery": {
     "width": 180,
     "height": 148,
-    "frames": 72,
+    "frames": 80,
     "fps": 29.97002997002997,
     "atlasColumns": 8,
-    "reducedMotionFrame": 72,
+    "reducedMotionFrame": 80,
     "color": "RGB555-style quantization; binary alpha; nearest-neighbour display",
     "playback": "Play once per selection; clamp on final frame; never restart from painting gaps",
-    "referenceFrameMapping": "Video frames 0\u201345 map to render frames 25\u201370; 71\u201372 hold video endpoint"
+    "motion": "Frames1-25 full cube spin;34 face-on;43-61 slide/reveal;53-72 lower-right cut, outer sweep, inward curl;72-80 original logo hold"
   },
   "adaptations": [
-    "24-frame opening cube spin requested by the user",
-    "Frame-sampled pixel relief geometry with 0.07 units depth; this is not a continuous morph rig",
-    "The supplied clip ends before the inner curl fully closes; preserve that endpoint",
-    "Flat graphite wordmark requested by the user, with existing reveal motion preserved",
-    "180x148 raster sampling, RGB555 quantization and binary alpha; not pixel-identical to the source"
+    "First-version SVG artwork, dimensions and green/graphite materials restored at user request",
+    "One full opening cube spin",
+    "Spiral cut follows the reference motion through the clean original eye artwork; geodesic reveal timing is fitted, not an exact frame reproduction",
+    "Original dark wordmark for the light LCD, shallow depth with frontal orientation as in the first version",
+    "180x148 raster, RGB555-style quantization, binary alpha and one-shot hold"
   ],
   "sha256": {
     "public/portfolio/nvidia.svg": "5347e5188c74204767d2d4daa17b59b5a18ccd7ad0a7281e7961a83c20c96808",
     "scripts/blender/nvidia-logo-contours.json": "913ebb09f53fb820f9f0efaaa895f451103af9f2c218fcf10cc2cc705549c998",
-    "scripts/blender/build-nvidia-transform.py": "e7824701f82aa2ba587e8be41decdadaafc160446e971b73b047b8bc21bb7180",
-    "scripts/blender/pack-nvidia-transform.mjs": "be807c459b9a10958af3c5ac8bc5ddac6c73f1cd8489bfd211ef74c000976883",
-    "assets/blender/nvidia-transform.blend": "51a642f1bbf1e3f13cdb7d7f6deeb7c23f8dbb0a8be49a904ac854a4f4db172c",
-    "public/portfolio/nvidia-transform/atlas.png": "0641c3f56fbcd5829fd2137b22f877e09d1a5d1bcdfba39e4cfbf5440a613f5e",
-    "public/portfolio/nvidia-transform/poster.png": "33bd5b1d150335674361bd6197865006dac26beccdc286a66594e4072890cec1",
-    "scripts/blender/trace-nvidia-video.py": "e54277e9a9a0138d5d68a1997649039a08083fd97cf5641490e2325ba9830e32",
-    "scripts/blender/nvidia-reference-poses.json": "ac3934c41058aaafce4623f9eae0f33b36ea949672caa40174fe7404b6107344",
-    "scripts/blender/nvidia-reference-colors.png": "ca99062d35525209220a4d85d31303cde66d73f21e760962261b1d700102f4e7"
+    "scripts/blender/build-nvidia-transform.py": "a75377cae440a201fb6cd835799d4952819e8c5de24b15d434f8b4fd46e63fba",
+    "scripts/blender/pack-nvidia-transform.mjs": "4d4da656871919f83408ae9a55e09299277d446cc7ddd1d61ada1fd29a6235b3",
+    "assets/blender/nvidia-transform.blend": "80e5b51b04278b12629ae73f565dc9ecf0f0ffad6db61a1608bf7de1bba1cc66",
+    "public/portfolio/nvidia-transform/atlas.png": "9be2d687b8f33210aa829d03c70e5f48cd0b1440b79168ae6f76031196848a48",
+    "public/portfolio/nvidia-transform/poster.png": "235385945954516fee5858ae4fc302710658eb928638f35b0a50447845fc526b",
+    "scripts/blender/build-nvidia-carve-field.py": "3a5d146021d3cff43e0e518442e3a6f1a61780874a77381c58f0ecbead2a2a18",
+    "scripts/blender/nvidia-carve-field.png": "679d388899c14b85ffb0356d1bfab249190eecc5e909849728f7578d63dbb2fb"
   }
 }

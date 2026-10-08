@@ -1,5 +1,5 @@
 """Run in Blender via MCP with ROOT and OUTPUT set to absolute paths.
-Video-derived pixel reliefs preserve the cube/eye motion; SVG contours supply the wordmark.
+The SVG contours preserve the repository's original NVIDIA artwork.
 """
 import bpy
 import json
@@ -22,7 +22,7 @@ scene.render.image_settings.color_mode = 'RGBA'
 scene.render.fps = 30
 scene.render.fps_base = 1.001
 scene.frame_start = 1
-scene.frame_end = 72
+scene.frame_end = 80
 scene.world = bpy.data.worlds.new('NVIDIA studio')
 scene.world.use_nodes = True
 background = next(n for n in scene.world.node_tree.nodes if n.type == 'BACKGROUND')
@@ -78,76 +78,45 @@ def logo(name, paths, bounds, x, width, mat, depth):
     return obj
 
 
-word = logo('Flat original wordmark', contours['NVIDIA'], (642.64727,1864.07388,960.3779,1189.31953), -0.70, 2.85, dark, 0)
-word.data.bevel_depth = 0
-# A uniform graphite face restores the flat lettering on the light LCD.
-word_nodes, word_links = dark.node_tree.nodes, dark.node_tree.links
-word_surface = word_nodes.new('ShaderNodeEmission')
-word_surface.inputs['Color'].default_value = (*[srgb(v) for v in (49,55,63)],1)
-word_output = next(n for n in word_nodes if n.type == 'OUTPUT_MATERIAL')
-word_links.new(word_surface.outputs[0],word_output.inputs['Surface'])
-word_nodes.remove(next(n for n in word_nodes if n.type == 'BSDF_PRINCIPLED'))
+eye = logo('Extruded original eye', contours['Eye_Mark'], (722.36974,1641.28177,243.70607,852.87366), -2.15, 1.45, green, 0.075)
+word = logo('Extruded original wordmark', contours['NVIDIA'], (642.64727,1864.07388,960.3779,1189.31953), -0.46, 2.60, dark, 0.045)
 
-
-# The reference square is about one fifth of the completed logo width.
-# Prepend a full spin, then replay the measured screen-space reference motion.
+# The original green cube spins, faces the screen and is carved into the eye.
 bpy.ops.mesh.primitive_cube_add(size=1)
 cube = bpy.context.object
 cube.name = 'Transforming green box'
-cube_mat = green.copy()
-cube_mat.name = 'Box green'
-cube.data.materials.append(cube_mat)
-
-edge_mat = material('Pale green box edges', tuple(srgb(v) for v in (183,219,106)), 0.0, 0.6)
-edge_curve = bpy.data.curves.new('Twelve fine box edges', 'CURVE')
-edge_curve.dimensions = '3D'
-edge_curve.bevel_depth = 0.008
-edge_curve.bevel_resolution = 0
-for axis in range(3):
-    other = [n for n in range(3) if n != axis]
-    for a in (-0.5,0.5):
-        for b in (-0.5,0.5):
-            spline = edge_curve.splines.new('POLY')
-            spline.points.add(1)
-            for point, value in zip(spline.points, (-0.5,0.5)):
-                coords = [0.0,0.0,0.0]
-                coords[axis], coords[other[0]], coords[other[1]] = value,a,b
-                point.co = (*coords,1)
-edges = bpy.data.objects.new('Fine luminous cube outline',edge_curve)
-scene.collection.objects.link(edges)
-edges.parent = cube
-edge_curve.materials.append(edge_mat)
-for frame, size in [(1,1),(25,1),(34,0.001),(72,0.001)]:
-    edges.scale = (size,size,size)
-    edges.keyframe_insert('scale',frame=frame)
+cube.data.materials.append(green)
+bevel = cube.modifiers.new('Small machined edge', 'BEVEL')
+bevel.width = 0.025
+bevel.segments = 1
 
 turn = -2 * math.pi
 poses = [
-    (1,(0.09,0,0),(.86,.86,.86),(.22,-.45,0)),
-    (7,(0.09,0,0),(.86,.86,.86),(.22,turn*.25-.45,0)),
-    (13,(0.09,0,0),(.86,.86,.86),(.22,turn*.50-.45,0)),
-    (19,(0.09,0,0),(.86,.86,.86),(.22,turn*.75-.45,0)),
-    (25,(0.09,0,0),(.86,.86,.86),(.16,turn-.35,0)),
-    (34,(0.09,0,.1),(.86,.86,.08),(0,turn,0)),
-    (40,(0.09,0,.1),(.86,.86,.08),(0,turn,0)),
-    (43,(0.09,0,.1),(.86,.86,.08),(0,turn,0)),
-    (46,(-.032,0,.1),(.86,.86,.08),(0,turn,0)),
-    (49,(-.242,0,.1),(.86,.86,.08),(0,turn,0)),
-    (52,(-.706,0,.1),(.86,.86,.08),(0,turn,0)),
-    (55,(-1.128,0,.1),(.80,.83,.08),(0,turn,0)),
-    (58,(-1.275,0,.1),(.777,.822,.08),(0,turn,0)),
-    (61,(-1.298,0,.1),(.777,.822,.08),(0,turn,0)),
-    (72,(-1.298,0,.1),(.777,.822,.08),(0,turn,0)),
+    (1,(0,0,0),(1.38,1.38,1.38),(.24,-.46,-.025)),
+    (7,(0,0,0),(1.38,1.38,1.38),(.24,turn*.25-.46,-.025)),
+    (13,(0,0,0),(1.38,1.38,1.38),(.24,turn*.5-.46,-.025)),
+    (19,(0,0,0),(1.38,1.38,1.38),(.24,turn*.75-.46,-.025)),
+    (25,(0,0,0),(1.38,1.38,1.38),(.24,turn-.46,-.025)),
+    (34,(0,0,0),(.91,.96,.15),(0,turn,0)),
+    (40,(0,0,0),(.91,.96,.15),(0,turn,0)),
+    (43,(0,0,0),(.91,.96,.15),(0,turn,0)),
+    (46,(-.102,0,0),(.91,.96,.15),(0,turn,0)),
+    (49,(-.276,0,0),(.91,.96,.15),(0,turn,0)),
+    (52,(-.662,0,0),(.91,.96,.15),(0,turn,0)),
+    (55,(-1.013,0,0),(.91,.96,.15),(0,turn,0)),
+    (58,(-1.137,0,0),(.91,.96,.15),(0,turn,0)),
+    (61,(-1.155,0,0),(.91,.96,.15),(0,turn,0)),
+    (80,(-1.155,0,0),(.91,.96,.15),(0,turn,0)),
 ]
 for f, loc, scale, rot in poses:
     cube.location, cube.scale, cube.rotation_euler = loc, scale, rot
-    for path in ('location','scale','rotation_euler'):
-        cube.keyframe_insert(data_path=path,frame=f)
+    for path in ('location', 'scale', 'rotation_euler'):
+        cube.keyframe_insert(data_path=path, frame=f)
 
-# A transparent material reveals the flat lettering.
-def reveal(mat, values, operation, axis="X"):
+# Geometry stays extruded while a transparent material reveals the lettering.
+def reveal(mat, values, operation):
     nodes, links = mat.node_tree.nodes, mat.node_tree.links
-    bsdf = next(n for n in nodes if n.type in ('BSDF_PRINCIPLED','EMISSION'))
+    bsdf = next(n for n in nodes if n.type == 'BSDF_PRINCIPLED')
     out = next(n for n in nodes if n.type == 'OUTPUT_MATERIAL')
     pos = nodes.new('ShaderNodeNewGeometry')
     xyz = nodes.new('ShaderNodeSeparateXYZ')
@@ -158,7 +127,7 @@ def reveal(mat, values, operation, axis="X"):
     clear = nodes.new('ShaderNodeBsdfTransparent')
     mix = nodes.new('ShaderNodeMixShader')
     links.new(pos.outputs['Position'], xyz.inputs[0])
-    links.new(xyz.outputs[axis], compare.inputs[0])
+    links.new(xyz.outputs['X'], compare.inputs[0])
     links.new(threshold.outputs[0], compare.inputs[1])
     links.new(compare.outputs[0], mix.inputs[0])
     links.new(bsdf.outputs[0], mix.inputs[1])
@@ -168,87 +137,71 @@ def reveal(mat, values, operation, axis="X"):
         threshold.outputs[0].default_value = value
         threshold.outputs[0].keyframe_insert('default_value', frame=frame)
 
-# The word moves right as the cube moves left. Coordinates follow video frames
-# 15..36, shifted by the 24-frame opening spin; no reverse keys exist.
-reveal(dark, [(1,.60),(40,.60),(43,.53),(46,.40),(49,.20),(52,-.26),(55,-.59),(58,-.86),(61,-.91),(72,-.91)], 'LESS_THAN')
-for frame, right in [(1,.60),(40,.61),(43,1.075),(46,1.433),(49,1.707),(52,1.897),(55,2.044),(58,2.129),(61,2.15),(72,2.15)]:
-    word.location.x = right - 2.85
+# Preserve the first artwork, materials and final framing. The square moves
+# left while the word emerges to the right, as in the supplied clip.
+word_poses = [(1,.455),(40,.455),(43,.80),(46,1.18),(49,1.51),(52,1.80),(55,2.0),(58,2.12),(61,2.14),(80,2.14)]
+for frame,right in word_poses:
+    word.location.x = right-2.60
     word.keyframe_insert('location',frame=frame)
-# The reference draws an outer stroke, then curls inward. It is not a wipe of
-# the complete modern SVG. Each sampled silhouette is real extruded geometry.
-reference = json.loads((root / 'scripts/blender/nvidia-reference-poses.json').read_text())
-source_image = bpy.data.images.load(str(root / 'scripts/blender/nvidia-reference-colors.png'), check_existing=False)
-source_image.pack()
-front = bpy.data.materials.new('Reference green front colors')
-front.use_nodes = True
-nodes, links = front.node_tree.nodes, front.node_tree.links
-nodes.clear()
-texture = nodes.new('ShaderNodeTexImage')
-texture.image = source_image
-texture.interpolation = 'Closest'
-emission = nodes.new('ShaderNodeEmission')
-emission.inputs['Strength'].default_value = 1
-out = nodes.new('ShaderNodeOutputMaterial')
-links.new(texture.outputs['Color'], emission.inputs['Color'])
-links.new(emission.outputs[0],out.inputs['Surface'])
-unit = 4.3 / 204
-for item in reference['poses']:
-    index = item['videoFrame']
-    # A welded voxel surface preserves holes and thin strokes without curve
-    # tessellation cutting across disconnected contours.
-    pixels = {tuple(p) for p in item['pixels']}
-    vertices, faces, face_materials, vertex_indices = [], [], [], {}
-    def vertex(x, y, z):
-        key = (x,y,z)
-        if key not in vertex_indices:
-            vertex_indices[key] = len(vertices)
-            vertices.append(((x-316)*unit,(240-y)*unit,z))
-        return vertex_indices[key]
-    def face(points, mat):
-        faces.append([vertex(*p) for p in points])
-        face_materials.append(mat)
-    for x,y in sorted(pixels):
-        corners = [(x-.5,y-.5),(x-.5,y+.5),(x+.5,y+.5),(x+.5,y-.5)]
-        face([(px,py,.035) for px,py in corners],0)
-        face([(px,py,-.035) for px,py in reversed(corners)],1)
-        for k,neighbor in enumerate([(x-1,y),(x,y+1),(x+1,y),(x,y-1)]):
-            if neighbor not in pixels:
-                p,q = corners[k],corners[(k+1)%4]
-                face([(*p,.035),(*p,-.035),(*q,-.035),(*q,.035)],1)
-    mesh = bpy.data.meshes.new('Reference pixel relief %02d' % index)
-    mesh.from_pydata(vertices,[],faces)
-    mesh.update()
-    pose = bpy.data.objects.new('Video cube-eye pose %02d' % index,mesh)
-    scene.collection.objects.link(pose)
-    # Image sample coordinates refer to pixel centers; Blender's camera origin
-    # lies between pixels at this even resolution.
-    pose.location = (.5/36,-.5/36,0)
-    pose.data.materials.append(front)
-    pose.data.materials.append(green)
-    uv = pose.data.uv_layers.new(name='Video front colors')
-    uv.active_render = True
-    pose.data.uv_layers.active_index = len(pose.data.uv_layers)-1
-    for polygon in pose.data.polygons:
-        polygon.material_index = face_materials[polygon.index]
-        for loop in polygon.loop_indices:
-            vertex = pose.data.vertices[pose.data.loops[loop].vertex_index].co
-            x,y = vertex.x/unit+316,240-vertex.y/unit
-            uv.data[loop].uv = ((index%8*150+x-200+.5)/1200,1-(index//8*70+y-205+.5)/420)
-    start = index+25
-    for frame,hidden in [(1,True),(start,False)]+([] if index==45 else [(start+1,True)]):
-        pose.hide_render = hidden
-        pose.hide_viewport = hidden
-        pose.keyframe_insert('hide_render',frame=frame)
-        pose.keyframe_insert('hide_viewport',frame=frame)
-    pose['source_video_frame'] = index
-    pose['source_sha256'] = reference['sourceSha256']
-# The separate real cube supplies the requested opening spin only.
-for obj in (cube,edges):
-    for frame,hidden in [(1,False),(25,True)]:
-        obj.hide_render = hidden
-        obj.hide_viewport = hidden
-        obj.keyframe_insert('hide_render',frame=frame)
-        obj.keyframe_insert('hide_viewport',frame=frame)
+reveal(dark,[(f,loc[0]+.455) for f,loc,scale,rot in poses], 'LESS_THAN')
+# The eye follows the square while its spiral eats through the face.
+for f,loc,scale,rot in poses:
+    eye.location = (-2.15+loc[0]+1.155,0,.001 if f<80 else 0)
+    eye.keyframe_insert('location',frame=f)
+for frame,hidden in [(1,True),(52,False)]:
+    eye.hide_render=hidden;eye.hide_viewport=hidden
+    eye.keyframe_insert('hide_render',frame=frame)
+    eye.keyframe_insert('hide_viewport',frame=frame)
+for frame,hidden in [(1,False),(72,True)]:
+    cube.hide_render=hidden;cube.hide_viewport=hidden
+    cube.keyframe_insert('hide_render',frame=frame)
+    cube.keyframe_insert('hide_viewport',frame=frame)
+field = bpy.data.images.load(str(root/'scripts/blender/nvidia-carve-field.png'),check_existing=False)
+field.colorspace_settings.name='Non-Color'
+field.pack()
+eye_mat = green.copy()
+eye_mat.name = 'Original eye enamel with spiral reveal'
+eye.data.materials[0]=eye_mat
+# R is distance along the spiral, G marks cuts in the box, B marks the stroke
+# outside the box. Both objects use the eye's local coordinates, so the carve
+# stays attached while the square slides. The final eye mesh is unchanged.
+def carve(mat, outer):
+    nodes,links=mat.node_tree.nodes,mat.node_tree.links
+    bsdf=next(n for n in nodes if n.type=='BSDF_PRINCIPLED')
+    out=next(n for n in nodes if n.type=='OUTPUT_MATERIAL')
+    coords=nodes.new('ShaderNodeTexCoord');coords.object=eye
+    mapping=nodes.new('ShaderNodeVectorMath');mapping.operation='MULTIPLY_ADD'
+    mapping.inputs[1].default_value=(1/1.45,1/(1.45*(852.87366-243.70607)/(1641.28177-722.36974)),0)
+    mapping.inputs[2].default_value=(0,.5,0)
+    texture=nodes.new('ShaderNodeTexImage');texture.image=field;texture.interpolation='Closest'
+    channels=nodes.new('ShaderNodeSeparateColor')
+    progress=nodes.new('ShaderNodeValue');progress.label='Reference outer sweep then inward curl'
+    compare=nodes.new('ShaderNodeMath');compare.operation='GREATER_THAN' if outer else 'LESS_THAN'
+    region=nodes.new('ShaderNodeMath');region.operation='MULTIPLY'
+    clear=nodes.new('ShaderNodeBsdfTransparent');mix=nodes.new('ShaderNodeMixShader')
+    links.new(coords.outputs['Object'],mapping.inputs[0]);links.new(mapping.outputs[0],texture.inputs['Vector'])
+    links.new(texture.outputs['Color'],channels.inputs[0])
+    links.new(channels.outputs['Red'],compare.inputs[0]);links.new(progress.outputs[0],compare.inputs[1])
+    links.new(compare.outputs[0],region.inputs[0]);links.new(channels.outputs['Blue' if outer else 'Green'],region.inputs[1])
+    if outer:
+        # The box supplies the uncut face until completion. Showing the full eye
+        # on top early would emboss its bevels into the still-solid square.
+        inside=nodes.new('ShaderNodeMath');inside.operation='SUBTRACT';inside.inputs[0].default_value=1
+        unfinished=nodes.new('ShaderNodeMath');unfinished.operation='LESS_THAN';unfinished.inputs[1].default_value=1
+        hide_inside=nodes.new('ShaderNodeMath');hide_inside.operation='MULTIPLY'
+        combined=nodes.new('ShaderNodeMath');combined.operation='ADD'
+        links.new(channels.outputs['Blue'],inside.inputs[1]);links.new(progress.outputs[0],unfinished.inputs[0])
+        links.new(inside.outputs[0],hide_inside.inputs[0]);links.new(unfinished.outputs[0],hide_inside.inputs[1])
+        links.new(region.outputs[0],combined.inputs[0]);links.new(hide_inside.outputs[0],combined.inputs[1])
+        links.new(combined.outputs[0],mix.inputs[0])
+    else:
+        links.new(region.outputs[0],mix.inputs[0])
+    links.new(bsdf.outputs[0],mix.inputs[1]);links.new(clear.outputs[0],mix.inputs[2]);links.new(mix.outputs[0],out.inputs['Surface'])
+    for frame,value in [(1,-.01),(52,-.01),(53,.015),(54,.215),(55,.31),(56,.39),(57,.51),(58,.56),(59,.62),(60,.68),(61,.75),(62,.79),(63,.815),(64,.84),(65,.87),(66,.90),(67,.925),(68,.945),(69,.97),(70,.985),(72,1.01),(80,1.01)]:
+        progress.outputs[0].default_value=value
+        progress.outputs[0].keyframe_insert('default_value',frame=frame)
+carve(green,False)
+carve(eye_mat,True)
 
 camera_data = bpy.data.cameras.new('Banner orthographic camera')
 camera = bpy.data.objects.new('Banner orthographic camera', camera_data)
@@ -269,13 +222,13 @@ for name, loc, energy, size in [
     obj.location = loc
     obj.rotation_euler = (Vector((0,0,0)) - obj.location).to_track_quat('-Z','Y').to_euler()
 
-for frame, name in [(1,'Opening full spin'),(25,'Reference begins'),(34,'Face on'),(43,'Word reveal'),(53,'Outer stroke begins'),(62,'Inner curl'),(70,'Video endpoint'),(72,'Hold indefinitely')]:
-    scene.timeline_markers.new(name, frame=frame)
+for frame,name in [(1,'Full cube spin'),(34,'Face on'),(43,'Slide and word reveal'),(53,'Cut starts lower right'),(61,'Outer sweep'),(68,'Inner curl'),(74,'Original logo hold')]:
+    scene.timeline_markers.new(name,frame=frame)
 scene['adaptation'] = 'User-requested portfolio artwork. Not native Nintendo firmware.'
 scene['reference'] = 'User video.mp4: green box turns face-on, slides left, reveals NVIDIA eye and wordmark.'
-scene['delivery'] = '72 transparent 180x148 frames at 30000/1001fps; frames 25-70 reproduce the 46 source poses; play once and hold.'
+scene['delivery'] = '80 transparent 180x148 frames at 30000/1001fps; one opening spin, spiral carve, original logo hold.'
 scene.render.filepath = str(output / 'frame-')
-scene.frame_set(72)
+scene.frame_set(80)
 # Leave a camera view available for opening the editable source.
 for area in bpy.context.screen.areas:
     if area.type == 'VIEW_3D':

@@ -42,6 +42,14 @@ Revision 4 implementation: `9ef09d407c34b999b6d7b114a4182643eec89215` (Git suppl
 Revision 4 browser-inspected: flat graphite text on the NVIDIA HOME banner.
 Typecheck, build and shader pass; full suite retains the known missing Camera
 fixture failure (2,167 pass, one fail). Next: user visual review. Native queue remains unrelated.
+Revision 5 starts from checked HEAD `92d542413ca5bd210ce5dd1941081ab62cfdb25c`.
+User confirmed the first version appearance; fix only the cube spin and eye
+carving into the box, using the supplied reference. Reuse original geometry and
+materials; replace pixel reliefs with an ordered carve of the original eye.
+Revision 5 renders 80 frames, one full spin and an outer-to-inner spiral carve.
+The muted isolated preview at port3048 now serves this restored version.
+Typecheck/build/shader pass; full suite retains its known Camera fixture failure.
+Next for this branch: user visual review.
 The historical serving/seats/evidence below are preserved, not verified live.
 
 

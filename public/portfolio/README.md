@@ -14,10 +14,11 @@ The Renu page has no complete project write-up. Alora and Microsoft also have li
 
 ## Nvidia top-screen animation
 
-`nvidia-transform/atlas.png` is a transparent Blender render. The cube/eye uses
-46 extruded pixel poses sampled from the user's video, including its outer stroke
-and inward curl. The wordmark uses the original SVG above as flat graphite lettering. An added cube spin precedes the source motion; playback
-runs once at 29.97 fps and holds the video's endpoint. This is a portfolio
+`nvidia-transform/atlas.png` is a transparent Blender render using the first
+version's original SVG eye and wordmark geometry, green enamel and dark graphite
+lettering. A cube spins once, then the eye carves a curved path through the box,
+following the supplied reference's outer sweep and inward curl. The original
+logo holds at the end. Delivery is 80 frames at 29.97 fps. This is a portfolio
 adaptation, not a Nintendo firmware resource.
-See `nvidia-transform/provenance.json` for source/output hashes and
-[the authoring and verification notes](../../docs/nvidia-transform-2026-10-08.md).
+See `nvidia-transform/provenance.json` for hashes and
+[authoring and verification](../../docs/nvidia-transform-2026-10-08.md).

@@ -2,7 +2,7 @@
 const FRAME_WIDTH = 180;
 const FRAME_HEIGHT = 148;
 const COLUMNS = 8;
-const FRAME_COUNT = 72;
+const FRAME_COUNT = 80;
 const FPS = 30000 / 1001;
 const LOGO_HOLD_FRAME = FRAME_COUNT - 1;
 

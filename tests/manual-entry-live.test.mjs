@@ -11,7 +11,7 @@ const data=source=>'data:text/javascript;base64,'+Buffer.from(source+'\n//# sour
 const sourceUrl=new URL('../src/os/screens.ts',import.meta.url);
 const overrides={
  './native-system-presentation':data('export const drawNativeSystemOverlay=()=>false;'),
- './home-suspended-window':data(`export {homeSuspendedApplication,homeSuspendedIconDisappeared,retainedSuspendedApplication,selectedSuspendedApplication} from '${new URL('../src/os/home-suspended-window.ts',import.meta.url).href}';export const drawHomeSuspendedWindow=()=>true;`),
+ './home-suspended-window':data(`export {homeSuspendedApplication,homeSuspendedIconDisappeared,homeSuspendedWindowEntryFrame,retainedSuspendedApplication,selectedSuspendedApplication} from '${new URL('../src/os/home-suspended-window.ts',import.meta.url).href}';export const drawHomeSuspendedWindow=()=>true;`),
  './native-chrome':data('export const createNativeChrome=()=>({ready:Promise.resolve(),draw:()=>true,tile:()=>true});'),
  './home-native-layouts':data('export const createHomeLayoutManager=()=>({});'),
  './firmware-presentation':data('export const createFirmwareHome=a=>a.presenter;export const loadFirmwarePresentationAssets=()=>{};'),

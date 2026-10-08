@@ -11,10 +11,10 @@ const packs = Object.fromEntries([['launcher', 'launcher.json'], ['messages', 'm
 const metadata = { description: 'Health and Safety Information', icon: { width: 64, height: 64, data: new Uint8ClampedArray(64 * 64 * 4) } };
 const pane = (pose, name) => nativePaneParentPath(pose, name).at(-1);
 const ownPose = value => { const { children, ...own } = value; return own; };
-function draw(frame, mode = 'expanded', closeOpacity, source = packs) {
+function draw(frame, mode = 'expanded', closeOpacity, source = packs, sceneInFrame) {
   let options;
   drawHomeSuspendedWindow({ packs: source, measureSingleLineText: () => 222,
-    draw(_ctx, _pack, _layout, value) { options = value; return true; } }, {}, metadata, mode, 0, closeOpacity, frame);
+    draw(_ctx, _pack, _layout, value) { options = value; return true; } }, {}, metadata, mode, 0, closeOpacity, frame, sceneInFrame);
   return { options, pose: poseNativeLayout(source.launcher.layouts.LncBase_U_00, source.launcher.animations, options.bindings, options.overrides) };
 }
 
@@ -24,8 +24,27 @@ test('window and caption bindings retain their unchanged original HOME member pr
   assert.deepEqual(packs.launcher.resourceSources.animations.LncBase_U_00_Appear, {
     path: 'launcher_LZ.bin/anim/LncBase_U_00_Appear.bclan', sha256: '2984f92736035fec7a9475b6840fc2ba27763a8dd5081cd883ab32651d6fb427', titleId: '0004003000009802',
   });
+  assert.deepEqual(packs.launcher.resourceSources.animations.LncBase_U_00_SceneIn, {
+    path: 'launcher_LZ.bin/anim/LncBase_U_00_SceneIn.bclan', sha256: '784a355f31faa9a43aea6bc5c8a1c3ecb0b4b54060ebb8f114748caecdb5e47a', titleId: '0004003000009802',
+  });
   assert.equal(packs.launcher.resourceSources.layouts.LncBase_U_00.sha256, 'b1afe7bece548a4ffad1211d011b4822349f61b002616e3a173e2923f06f6a50');
   assert.equal(packs.messages.resourceSources.messages.menu_msbt_LZ.sha256, '1df2193c64e8d08b3b670923617ea1f0461537397b3da671d394304a664b4350');
+});
+
+test('source SceneIn holds the launcher root transparent before revealing the card and camera hints', () => {
+  const rootAlpha = [], windowAlpha = [];
+  for (let hostFrame = 0; hostFrame <= 20; hostFrame++) {
+    const appearFrame = Math.min(10, Math.max(0, hostFrame - 10));
+    const { options, pose } = draw(appearFrame, 'expanded', undefined, packs, hostFrame * 2);
+    assert.deepEqual(options.bindings[0], { name: 'LncBase_U_00_SceneIn', frame: hostFrame * 2 });
+    rootAlpha.push(pane(pose, 'N_Root_00').alpha);
+    windowAlpha.push(pane(pose, 'N_Wndw_00').alpha);
+    assert.equal(pane(pose, 'N_Btm_00').alpha, 255, 'Appear remains settled under the source root gate');
+    assert.ok(nativePaneParentPath(pose, 'N_Btm_00').some(parent => parent.name === 'N_Root_00'));
+  }
+  const sourceAlpha = [7, 27, 55, 90, 128, 165, 200, 228, 248, 255];
+  assert.deepEqual(rootAlpha, Array(11).fill(0).concat(sourceAlpha));
+  assert.deepEqual(windowAlpha, Array(11).fill(0).concat(sourceAlpha));
 });
 
 test('source window Appear fades only G_Wndw while the other upper producers retain their settled poses', () => {
@@ -71,6 +90,22 @@ test('invalid selected window appearance frames and unsupported source groups or
   ]) {
     const source = structuredClone(packs); mutate(source);
     assert.throws(() => draw(0, 'expanded', undefined, source), /appearance source unavailable/);
+  }
+});
+
+test('invalid selected SceneIn frames and unsupported launcher root curves fail explicitly', () => {
+  for (const frame of [-1, .5, 41, NaN, Infinity]) assert.throws(() => draw(0, 'expanded', undefined, packs, frame), /scene-in frame/);
+  for (const mutate of [
+    source => source.launcher.animations.LncBase_U_00_SceneIn.frames = 40,
+    source => source.launcher.animations.LncBase_U_00_SceneIn.loop = true,
+    source => source.launcher.animations.LncBase_U_00_SceneIn.childBinding = false,
+    source => source.launcher.animations.LncBase_U_00_SceneIn.groups = [],
+    source => source.launcher.layouts.LncBase_U_00.groups[0].children.find(group => group.name === 'G_Scene_00').panes = [],
+    source => source.launcher.animations.LncBase_U_00_SceneIn.tracks.find(track => track.target === 'N_Root_00' && track.property === 'alpha').keys[1].value = 254,
+    source => source.launcher.animations.LncBase_U_00_SceneIn.tracks.find(track => track.target === 'N_Root_00' && track.property === 'scale.x').keys[0].value = 1,
+  ]) {
+    const source = structuredClone(packs); mutate(source);
+    assert.throws(() => draw(0, 'expanded', undefined, source, 0), /scene-in source unavailable/);
   }
 });
 

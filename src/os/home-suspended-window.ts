@@ -22,7 +22,8 @@ export function selectedSuspendedApplication(state: MenuState) {
 }
 
 /** The original G_Wndw Appear request is independent of ScaleUpDown's target.
- * The supplied pose still uses the existing receipt-backed browser clock. */
+ * Its late host phase is capture-aligned on the existing receipt-backed clock;
+ * the native caller epoch remains untraced. */
 export function homeSuspendedWindowEntryFrame(state:MenuState,capture:SuspendedCapture,motion:HomeEntryMotion|null):number|undefined {
  const application=retainedSuspendedApplication(state);
  if(!application||state.system?.dialog||sampleSystemHomeApplicationTransition(state)
@@ -31,7 +32,7 @@ export function homeSuspendedWindowEntryFrame(state:MenuState,capture:SuspendedC
   ||motion.identity.captureGeneration!==capture.generation)return undefined;
  if(!Number.isSafeInteger(capture.generation)||capture.generation<0
   ||!Number.isSafeInteger(motion.elapsedUpdates)||motion.elapsedUpdates<0)throw new RangeError('Invalid suspended window entry pose');
- return Math.min(10,motion.elapsedUpdates);
+ return Math.min(10,Math.max(0,motion.elapsedUpdates-10));
 }
 
 /** Capture-fitted exit policy; the native disappearance start epoch is untraced. */
@@ -60,13 +61,14 @@ export function drawHomeSuspendedIcon(renderer:NativeLayoutRenderer,ctx:CanvasRe
 }
 
 /** Source geometry and Sleep loop. Close opacity is an explicit capture-fit input. */
-export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,metadata:SuspendedWindowMetadata,mode:'expanded'|'compact'='expanded',sleepFrame=0,closeOpacity?:number,windowAppearFrame?:number){
+export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,metadata:SuspendedWindowMetadata,mode:'expanded'|'compact'='expanded',sleepFrame=0,closeOpacity?:number,windowAppearFrame?:number,sceneInFrame?:number){
  const pack=renderer.packs.launcher,bank=renderer.packs.messages?.messages.menu_msbt_LZ;
  validateSleepFrame(sleepFrame);
  if(closeOpacity!==undefined&&(!Number.isFinite(closeOpacity)||closeOpacity<0||closeOpacity>1))throw new RangeError('Invalid suspended close opacity');
  if(windowAppearFrame!==undefined&&(!Number.isSafeInteger(windowAppearFrame)||windowAppearFrame<0||windowAppearFrame>10))throw new RangeError('Invalid suspended window appearance frame');
+ if(sceneInFrame!==undefined&&(!Number.isSafeInteger(sceneInFrame)||sceneInFrame<0||sceneInFrame>40))throw new RangeError('Invalid suspended window scene-in frame');
  const bindings:AnimationBinding[]=[
-  {name:'LncBase_U_00_SceneIn',frame:40},
+  {name:'LncBase_U_00_SceneIn',frame:sceneInFrame??40},
   {name:'LncBase_U_00_Appear',frame:10},
   // Native upper +0x290 binds Appear only to G_Wndw_00, separate from HUD/bottom.
   ...(windowAppearFrame===undefined?[]:[{name:'LncBase_U_00_Appear',frame:windowAppearFrame,groups:['G_Wndw_00']}]),
@@ -76,6 +78,20 @@ export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:Canvas
  ];
  if(!pack?.layouts.LncBase_U_00)throw Error('Native suspended window layout unavailable');
  for(const binding of bindings)if(!pack.animations[binding.name])throw Error(`Native suspended window animation unavailable: ${binding.name}`);
+ if(sceneInFrame!==undefined){
+  const sceneIn=pack.animations.LncBase_U_00_SceneIn;
+  const group=pack.layouts.LncBase_U_00.groups.flatMap(root=>root.children).find(group=>group.name==='G_Scene_00');
+  const alpha=sceneIn.tracks.filter(track=>track.target==='N_Root_00'&&track.property==='alpha');
+  const scale=['scale.x','scale.y'].every(property=>{
+   const tracks=sceneIn.tracks.filter(track=>track.target==='N_Root_00'&&track.property===property);
+   return tracks.length===1&&tracks[0].interpolation==='hermite'&&tracks[0].keys.length===2
+    &&tracks[0].keys.every((key,index)=>key.frame===(index?39:20)&&key.value===(index?1:1.100000023841858)&&key.slope===0);
+  });
+  if(sceneIn.frames!==41||sceneIn.loop||sceneIn.childBinding!==true||!sceneIn.groups.includes('G_Scene_00')
+   ||group?.panes.length!==1||group.panes[0]!=='N_Root_00'||!scale||alpha.length!==1
+   ||alpha[0].interpolation!=='hermite'||alpha[0].keys.length!==2
+   ||!alpha[0].keys.every((key,index)=>key.frame===(index?40:20)&&key.value===(index?255:0)&&key.slope===0))throw Error('Native suspended window scene-in source unavailable');
+ }
  if(windowAppearFrame!==undefined){
   const appear=pack.animations.LncBase_U_00_Appear;
   const group=pack.layouts.LncBase_U_00.groups.flatMap(root=>root.children).find(group=>group.name==='G_Wndw_00');

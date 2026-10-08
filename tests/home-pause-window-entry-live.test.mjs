@@ -34,6 +34,7 @@ const suspended = () => reduceSystem(tickSystem(launchHomeShortcut(tickSystem(cr
 const at = (state, updateCount) => ({ ...state, system: { ...state.system, homeClock: { ...state.system.homeClock, updateCount } } });
 const window = events => events.find(event => event.name === 'window');
 const appear = events => window(events)?.options.bindings.find(binding => binding.groups?.includes('G_Wndw_00'))?.frame;
+const launcherSceneFrame = events => window(events)?.options.bindings.find(binding => binding.name === 'LncBase_U_00_SceneIn')?.frame;
 const hud = events => events.find(event => event.name === 'hud');
 const hudFrame = events => hud(events)?.options.bindings.find(binding => binding.name === 'HudMenu_00_SceneIn')?.frame;
 const pane = (event, name) => nativePaneParentPath(event.pose, name).at(-1);
@@ -94,28 +95,36 @@ test('actual Health HOME painter holds the source HUD, then enters it while the 
   await fixture(({ screens, paint }) => {
     const state = suspended();
     let pair = paint(state, 100, false); assert.equal(appear(pair.events), 0); assert.equal(pane(window(pair.events), 'N_Wndw_00').alpha, 0);
+    assert.equal(launcherSceneFrame(pair.events), 0); assert.equal(pane(window(pair.events), 'N_Root_00').alpha, 0);
     assert.equal(hudFrame(pair.events), 0); assert.equal(pane(hud(pair.events), 'N_Scene_00').alpha, 0);
     assert.equal(pair.events.find(event => event.name === 'pause-lower').frame, 0);
     assert.equal(pair.events.some(event => event.name === 'footer'), false);
     const frozenHome = pair.events.find(event => event.name === 'pause-lower').home;
     pair = paint(state, 103, false); assert.equal(appear(pair.events), 0);
+    assert.equal(launcherSceneFrame(pair.events), 0);
     assert.equal(hudFrame(pair.events), 0);
     assert.equal(pair.events.find(event => event.name === 'pause-lower').home, frozenHome);
     pair = paint(state, 500, false); assert.equal(appear(pair.events), 0);
+    assert.equal(launcherSceneFrame(pair.events), 0);
     assert.equal(hudFrame(pair.events), 0);
     assert.equal(screens.presentHomeEntryMotion(pair.state), true); assert.equal(screens.presentHomeEntryMotion(pair.state), false);
     for (let frame = 1; frame <= 20; frame++) {
       pair = paint(state, 500 + frame * 3);
-      assert.equal(appear(pair.events), Math.min(10, frame));
+      assert.equal(appear(pair.events), Math.min(10, Math.max(0, frame - 10)));
+      assert.equal(launcherSceneFrame(pair.events), frame * 2);
       assert.equal(hudFrame(pair.events), frame * 2);
+      const launcherRoot = pane(window(pair.events), 'N_Root_00');
       const hudScene = pane(hud(pair.events), 'N_Scene_00');
       if (frame <= 10) {
+        assert.equal(launcherRoot.alpha, 0);
         assert.equal(hudScene.alpha, 0);
         assert.ok(Math.abs(hudScene.scale[0] - 1.1) < .000001);
       } else if (frame < 20) {
+        assert.ok(launcherRoot.alpha > 0 && launcherRoot.alpha < 255);
         assert.ok(hudScene.alpha > 0 && hudScene.alpha < 255);
         assert.ok(hudScene.scale[0] > 1 && hudScene.scale[0] < 1.1);
       } else {
+        assert.equal(launcherRoot.alpha, 255);
         assert.equal(hudScene.alpha, 255);
         assert.deepEqual(hudScene.scale, [1, 1]);
       }
@@ -136,26 +145,27 @@ test('actual Health HOME painter holds the source HUD, then enters it while the 
   });
 });
 
-test('failed window source, diagnostics, context revocation and monotonic retries preserve the last presented window phase', async () => {
+test('failed window source, diagnostics, context revocation and monotonic retries preserve the last presented late-entry phase', async () => {
   await fixture(({ screens, paint, fail, mutate }) => {
-    const state = suspended(); paint(state, 100); let pair = paint(state, 103); assert.equal(appear(pair.events), 1);
+    const state = suspended(); paint(state, 100); let pair = paint(state, 103); assert.equal(appear(pair.events), 0);
     const retainedHome = pair.events.find(event => event.name === 'pause-lower').home;
     paint(state, 104, false); screens.revokeHomeEntryMotionCandidate(); assert.equal(screens.presentHomeEntryMotion(at(state, 105)), false);
-    pair = paint(state, 106); assert.equal(appear(pair.events), 1);
+    pair = paint(state, 106); assert.equal(appear(pair.events), 0);
+    assert.equal(launcherSceneFrame(pair.events), 2);
     assert.equal(hudFrame(pair.events), 2);
     assert.equal(pair.events.find(event => event.name === 'pause-lower').frame, 3); assert.equal(pair.events.find(event => event.name === 'pause-lower').home, retainedHome);
     fail(true); pair = paint(state, 107); assert.equal(screens.stockStatus(pair.state), 'error'); assert.equal(pair.presented, false);
-    fail(false); screens.retryStockScreen(); pair = paint(state, 108); assert.equal(appear(pair.events), 1);
+    fail(false); screens.retryStockScreen(); pair = paint(state, 108); assert.equal(appear(pair.events), 0);
     assert.equal(hudFrame(pair.events), 2);
     paint(state, 109, false, { homeCursorLoopFrame: 0 }); assert.equal(screens.presentHomeEntryMotion(at(state, 109)), false);
-    pair = paint(state, 110); assert.equal(appear(pair.events), 1);
+    pair = paint(state, 110); assert.equal(appear(pair.events), 0);
     assert.equal(hudFrame(pair.events), 2);
     paint({ ...state, system: { ...state.system, sleeping: true } }, 111, false);
-    pair = paint(state, 112); assert.equal(appear(pair.events), 1); assert.equal(pair.events.find(event => event.name === 'pause-lower').frame, 3);
+    pair = paint(state, 112); assert.equal(appear(pair.events), 0); assert.equal(pair.events.find(event => event.name === 'pause-lower').frame, 3);
     assert.equal(hudFrame(pair.events), 2);
-    pair = paint(state, 4000); assert.equal(appear(pair.events), 1);
+    pair = paint(state, 4000); assert.equal(appear(pair.events), 0);
     assert.equal(hudFrame(pair.events), 2);
-    pair = paint(state, 4003); assert.equal(appear(pair.events), 2);
+    pair = paint(state, 4003); assert.equal(appear(pair.events), 0);
     assert.equal(hudFrame(pair.events), 4);
     mutate(source => source.launcher.animations.LncBase_U_00_Appear.groups = ['G_Hud_00', 'G_Btm_00']);
     pair = paint(state, 4004); assert.equal(screens.stockStatus(pair.state), 'error'); assert.match(String(screens.stockFailure()), /appearance source unavailable/); assert.equal(pair.presented, false);
@@ -166,7 +176,7 @@ test('replacement owner or capture generation cannot acknowledge or advance an o
   await fixture(({ screens, paint, capture, setOwner }) => {
     const state = suspended(); paint(state, 100); paint(state, 103, false);
     capture(state.system.runtime.application, 2); assert.equal(screens.presentHomeEntryMotion(at(state, 103)), false);
-    let pair = paint(state, 104); assert.equal(appear(pair.events), 0); pair = paint(state, 105); assert.equal(appear(pair.events), 1);
+    let pair = paint(state, 104); assert.equal(appear(pair.events), 0); pair = paint(state, 105); assert.equal(appear(pair.events), 0);
     assert.equal(hudFrame(pair.events), 2);
     const owner = 'health-safety:replacement';
     const replacement = { ...state, system: { ...state.system, runtime: { ...state.system.runtime, application: owner, homeReturn: owner,
@@ -174,7 +184,7 @@ test('replacement owner or capture generation cannot acknowledge or advance an o
     paint(state, 106, false); capture(owner, 3); setOwner(owner);
     assert.equal(screens.presentHomeEntryMotion(at(replacement, 106)), false);
     pair = paint(replacement, 107); assert.equal(appear(pair.events), 0); assert.equal(hudFrame(pair.events), 0);
-    pair = paint(replacement, 108); assert.equal(appear(pair.events), 1); assert.equal(hudFrame(pair.events), 2);
+    pair = paint(replacement, 108); assert.equal(appear(pair.events), 0); assert.equal(hudFrame(pair.events), 2);
     capture('foreign', 4); pair = paint(replacement, 109); assert.equal(screens.stockStatus(pair.state), 'error'); assert.equal(pair.presented, false);
   });
 });
@@ -204,7 +214,7 @@ test('reduced window endpoint uses the existing pause receipt and cannot replay 
     let pair = paint(state, 104, false); assert.equal(appear(pair.events), 10); assert.equal(pair.result.entryMotion.pauseFrame, 20); assert.equal(pair.result.entryMotion.pauseLower, null);
     assert.equal(hudFrame(pair.events), 40); assert.equal(pane(hud(pair.events), 'N_Scene_00').alpha, 255);
     screens.setReducedMotion(false); assert.equal(screens.presentHomeEntryMotion(at(state, 105)), false);
-    pair = paint(state, 105); assert.equal(appear(pair.events), 1);
+    pair = paint(state, 105); assert.equal(appear(pair.events), 0);
     assert.equal(hudFrame(pair.events), 2);
     screens.setReducedMotion(true); pair = paint(state, 106, false); assert.equal(appear(pair.events), 10);
     assert.equal(screens.presentHomeEntryMotion(pair.state), true);
@@ -214,6 +224,7 @@ test('reduced window endpoint uses the existing pause receipt and cannot replay 
   });
   await fixture(({ screens, paint }) => {
     screens.setReducedMotion(true); const pair = paint(suspended(), 100, false); assert.equal(appear(pair.events), 10);
+    assert.equal(launcherSceneFrame(pair.events), 40);
     assert.equal(hudFrame(pair.events), 40);
     assert.equal(screens.presentHomeEntryMotion(pair.state), true);
   });
@@ -243,7 +254,8 @@ test('compact keeps pause appearance while dialog, close, stale capture and disp
   await fixture(({ screens, paint, capture, assets }) => {
     const state = suspended(); paint(state, 100);
     const compact = settleHomeNavigation(selectHomeSlot(state, state.selected + 1));
-    let pair = paint(compact, 101); assert.equal(appear(pair.events), 1); assert.equal(pane(window(pair.events), 'N_Wndw_00').alpha, 7);
+    let pair = paint(compact, 101); assert.equal(appear(pair.events), 0); assert.equal(pane(window(pair.events), 'N_Wndw_00').alpha, 0);
+    assert.equal(launcherSceneFrame(pair.events), 2); assert.equal(pane(window(pair.events), 'N_Root_00').alpha, 0);
     assert.equal(hudFrame(pair.events), 2);
     const dialog = reduceSystem(state, 'back', 6700); pair = paint(dialog, 102); assert.equal(appear(pair.events), undefined); assert.equal(pair.events.some(event => event.name === 'pause-lower'), false);
     assert.equal(hudFrame(pair.events), 41, 'dialog retains its settled HUD');
@@ -251,7 +263,7 @@ test('compact keeps pause appearance while dialog, close, stale capture and disp
     assert.equal(hudFrame(pair.events), 41, 'close retains its settled HUD');
     assert.equal(window(pair.events).options.bindings.find(binding => binding.name.endsWith('_WhiteBlack')).frame, 0, 'close composition retains its existing selector');
     capture(state.system.runtime.application, 1, 'pending'); pair = paint(state, 104); assert.equal(screens.stockStatus(pair.state), 'error'); assert.equal(pair.presented, false); assert.equal(pair.events.some(event => event.name === 'pause-lower'), false);
-    capture(); screens.retryStockScreen(); pair = paint(state, 105); assert.equal(appear(pair.events), 1, 'retry retains the pause receipt from the compact pair');
+    capture(); screens.retryStockScreen(); pair = paint(state, 105); assert.equal(appear(pair.events), 0, 'retry retains the pause receipt from the compact pair');
     paint(state, 106, false); screens.setFirmwareAssets(assets()); assert.equal(screens.presentHomeEntryMotion(at(state, 106)), false);
     pair = paint(state, 107, false); assert.equal(appear(pair.events), 0);
     assert.equal(hudFrame(pair.events), 0);

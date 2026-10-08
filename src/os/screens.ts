@@ -773,7 +773,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    const closeOpacity=homeSoftwareClosingDialogKey(state)&&applicationTransition?.intent.kind==='close'
     ?homeCloseWindowOpacity(reduced?20:applicationTransition.appQuitFrame):undefined;
    const windowAppearFrame=pauseEligible?homeSuspendedWindowEntryFrame(state,suspendedCapture,pauseMotion):undefined;
-   drawHomeSuspendedWindow(firmwareAssets.renderer,t,suspendedMetadata.metadata,expanded?'expanded':'compact',suspendedSleepFrame,closeOpacity,windowAppearFrame);
+   drawHomeSuspendedWindow(firmwareAssets.renderer,t,suspendedMetadata.metadata,expanded?'expanded':'compact',suspendedSleepFrame,closeOpacity,windowAppearFrame,pauseHudFrame??undefined);
   }
   // Native descending layout priority: upperBase499 then HUD100, both
   // after the upper 3D traversal. Camera hints stay inside upperBase.

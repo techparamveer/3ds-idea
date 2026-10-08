@@ -21,26 +21,28 @@ const pane = (layout, name) => nativePaneParentPath(layout, name).at(-1);
 test('exact retained owner uses the same appearance branch for expanded and compact selection', () => {
   const expanded = suspended(), capture = captureFor(expanded), before = structuredClone(expanded);
   const compact = settleHomeNavigation(selectHomeSlot(expanded, expanded.selected + 1));
-  for (const frame of [0, 1, 5, 10, 20]) {
+  for (const frame of [0, 1, 5, 10, 11, 15, 20]) {
     const motion = poseFor(capture, frame);
-    assert.equal(homeSuspendedWindowEntryFrame(expanded, capture, motion), Math.min(10, frame));
-    assert.equal(homeSuspendedWindowEntryFrame(compact, capture, motion), Math.min(10, frame));
+    const expected = Math.min(10, Math.max(0, frame - 10));
+    assert.equal(homeSuspendedWindowEntryFrame(expanded, capture, motion), expected);
+    assert.equal(homeSuspendedWindowEntryFrame(compact, capture, motion), expected);
   }
   assert.deepEqual(expanded, before);
   assert.equal(compact.system.runtime.application, expanded.system.runtime.application);
 });
 
-test('both source poses fade the window only, preserving their distinct ScaleUpDown endpoints and other producers', () => {
+test('both source poses hold through the outgoing phase, then enter with source SceneIn and Appear tracks', () => {
   const state = suspended(), capture = captureFor(state), before = JSON.stringify(packs);
   for (const [mode, selected] of [['expanded', state], ['compact', settleHomeNavigation(selectHomeSlot(state, state.selected + 1))]]) {
-    const alpha = [];
-    for (let frame = 0; frame <= 10; frame++) {
+    const rootAlpha = [], windowAlpha = [];
+    for (let frame = 0; frame <= 20; frame++) {
       const entryFrame = homeSuspendedWindowEntryFrame(selected, capture, poseFor(capture, frame));
       let options;
       drawHomeSuspendedWindow({ packs, measureSingleLineText: () => 222, draw(_ctx, _pack, _layout, value) { options = value; return true; } }, {},
-        { description: 'Health and Safety Information', icon: { width: 64, height: 64, data: new Uint8ClampedArray(64 * 64 * 4) } }, mode, 0, undefined, entryFrame);
+        { description: 'Health and Safety Information', icon: { width: 64, height: 64, data: new Uint8ClampedArray(64 * 64 * 4) } }, mode, 0, undefined, entryFrame, frame * 2);
       const layout = poseNativeLayout(packs.launcher.layouts.LncBase_U_00, packs.launcher.animations, options.bindings, options.overrides);
-      alpha.push(pane(layout, 'N_Wndw_00').alpha);
+      rootAlpha.push(pane(layout, 'N_Root_00').alpha);
+      windowAlpha.push(pane(layout, 'N_Wndw_00').alpha);
       assert.deepEqual(pane(layout, 'N_WndwScale_00').translation, mode === 'expanded' ? [0, 2, 3] : [-176, 78, 0]);
       assert.deepEqual(pane(layout, 'W_Wndw_00').size, mode === 'expanded' ? [296, 132] : [48, 48]);
       assert.equal(pane(layout, 'N_Hud_00').alpha, 255);
@@ -48,7 +50,9 @@ test('both source poses fade the window only, preserving their distinct ScaleUpD
       assert.equal(pane(layout, 'T_AppTitle_00').flags & 1, mode === 'expanded' ? 1 : 0);
       assert.equal(options.bindings.find(binding => binding.name.endsWith('_WhiteBlack')).frame, 1);
     }
-    assert.deepEqual(alpha, [0, 7, 27, 55, 90, 128, 165, 200, 228, 248, 255]);
+    const sourceAlpha = [7, 27, 55, 90, 128, 165, 200, 228, 248, 255];
+    assert.deepEqual(rootAlpha, Array(11).fill(0).concat(sourceAlpha));
+    assert.deepEqual(windowAlpha, Array(11).fill(0).concat(sourceAlpha));
   }
   assert.equal(JSON.stringify(packs), before);
 });
@@ -63,12 +67,12 @@ test('compact appearance spends only existing paired receipts, including retry/s
   assert.equal(acknowledgeHomeEntryMotionCandidate(pending, identity, 500, false), null);
   presented = acknowledgeHomeEntryMotionCandidate(pending, identity, 500, true);
   pending = sampleHomeEntryMotionCandidate(presented, null, identity, 503, true);
-  assert.equal(homeSuspendedWindowEntryFrame(compact, capture, pending), 1);
+  assert.equal(homeSuspendedWindowEntryFrame(compact, capture, pending), 0);
   presented = acknowledgeHomeEntryMotionCandidate(pending, identity, 503, true);
   pending = sampleHomeEntryMotionCandidate(presented, null, identity, 4000, true);
-  assert.equal(homeSuspendedWindowEntryFrame(compact, capture, pending), 1);
+  assert.equal(homeSuspendedWindowEntryFrame(compact, capture, pending), 0);
   pending = sampleHomeEntryMotionCandidate(presented, null, identity, 4001, true, true);
-  assert.equal(homeSuspendedWindowEntryFrame(compact, capture, pending), 1);
+  assert.equal(homeSuspendedWindowEntryFrame(compact, capture, pending), 0);
   pending = sampleHomeEntryMotionCandidate(presented, null, identity, 4002, true, false, true);
   assert.equal(homeSuspendedWindowEntryFrame(compact, capture, pending), 10);
   const replacement = captureFor(state, 2);
@@ -79,7 +83,7 @@ test('compact appearance spends only existing paired receipts, including retry/s
 
 test('foreign, unavailable and ineligible owners cannot select appearance; malformed matched poses fail explicitly', () => {
   const state = suspended(), capture = captureFor(state), motion = poseFor(capture, 5);
-  assert.equal(homeSuspendedWindowEntryFrame(state, capture, motion), 5);
+  assert.equal(homeSuspendedWindowEntryFrame(state, capture, motion), 0);
   for (const change of [s => s.powered = false, s => s.system.sleeping = true, s => s.system.preferences = true,
     s => s.panel = 'settings', s => s.system.phase = 'app', s => s.system.runtime.active = s.system.runtime.application,
     s => s.system.runtime.homeReturn = null, s => s.system.runtime.instances[s.system.runtime.application].closing = true,

@@ -7,7 +7,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createContext, runInContext } from 'node:vm';
 import { parsePauseCompact, pauseCompactEvidence, pauseCompactRestoreReady, pauseCompactSelectionChanged,
-  collectAnimationFrames, restorePauseCompactSelection, selectPauseCompact, validatePauseCompactDestination, writeInitialCapture } from '../scripts/verify-animation-flow.mjs';
+  collectAnimationFrames, observePauseCompactArrowRight, restorePauseCompactSelection, selectPauseCompact,
+  validatePauseCompactArrowRight, validatePauseCompactDestination, writeInitialCapture } from '../scripts/verify-animation-flow.mjs';
 import { createPortfolioState, dispatchSystemEvent, launchHomeShortcut, tickSystem } from '../src/os/system.ts';
 import { selectHomeSlot, settleHomeNavigation } from '../src/os/home-navigation.ts';
 import { retainedSuspendedApplication, selectedSuspendedApplication } from '../src/os/home-suspended-window.ts';
@@ -24,6 +25,35 @@ async function withData(dataset, run) {
   const saved = Object.getOwnPropertyDescriptor(globalThis, 'document');
   globalThis.document = { querySelector: () => ({ dataset }) };
   try { return await run(); } finally { if (saved) Object.defineProperty(globalThis, 'document', saved); else delete globalThis.document; }
+}
+
+function tapFixture() {
+  let now = 100, raf = null;
+  const listeners = new Map(), host = { id: 'console', tagName: 'DIV', dataset: data(),
+    contains: target => target === host, screenCanvases: { top: { toDataURL: () => 'raw-top' }, bottom: { toDataURL: () => 'raw-bottom' } } };
+  const window = {
+    addEventListener(type, callback) { if (!listeners.has(type)) listeners.set(type, new Set()); listeners.get(type).add(callback); },
+    removeEventListener(type, callback) { listeners.get(type)?.delete(callback); },
+  };
+  const context = createContext({ window, document: { querySelector: () => host }, performance: { now: () => now },
+    Date: { now: () => 1000000 + now }, requestAnimationFrame: callback => raf = callback });
+  const page = { evaluate: async (fn, argument) => {
+    context.argument = argument;
+    const value = runInContext(`(${fn.toString()})(argument)`, context);
+    return value === undefined ? undefined : JSON.parse(JSON.stringify(value));
+  } };
+  const event = (type, at, overrides = {}) => {
+    now = at;
+    const value = { type, key: 'ArrowRight', code: 'ArrowRight', repeat: false, isTrusted: true, target: host, timeStamp: now, ...overrides };
+    for (const callback of listeners.get(type) ?? []) callback(value);
+  };
+  const sample = at => {
+    now = at;
+    const paint = JSON.parse(host.dataset.screenPaint); paint.at = at;
+    host.dataset.screenPaint = JSON.stringify(paint); host.dataset.screenPresented = JSON.stringify({ validPublication: true, paint });
+    raf();
+  };
+  return { page, window, event, sample, listenerCount: () => [...listeners.values()].reduce((count, values) => count + values.size, 0) };
 }
 
 test('compact pause is opt-in and limited to ordinary key or physical HOME', async () => {
@@ -189,7 +219,11 @@ test('terminal-only sampling limitation remains in the written original capture 
   const dir = await mkdtemp(join(tmpdir(), 'pause-compact-terminal-'));
   t.after(() => rm(dir, { recursive: true, force: true }));
   const frames = [{ index: 0, at: 1000, data: data('10', 20) }];
-  const report = { valid: false, durationMs: 3500, pauseCompact: true, compactSelection: selection,
+  const browser = tapFixture(); await browser.page.evaluate(collectAnimationFrames, { durationMs: 3500, pauseCompact: true });
+  const tap = await observePauseCompactArrowRight(browser.page, async () => {
+    browser.event('keydown', 110); browser.event('keyup', 120);
+  });
+  const report = { valid: false, durationMs: 3500, pauseCompact: true, compactSelection: { ...selection, arrowRightTap: tap },
     compactEvidence: pauseCompactEvidence(frames, selection, false), frames };
   const path = join(dir, 'capture.json'); await writeInitialCapture(path, report);
   const retained = JSON.parse(await readFile(path, 'utf8'));
@@ -198,4 +232,94 @@ test('terminal-only sampling limitation remains in the written original capture 
   assert.deepEqual(retained.frames, frames);
   validatePauseCompactDestination(data('10'), selection);
   assert.throws(() => validatePauseCompactDestination(data('8'), selection), /adjacent column/);
+});
+
+test('ordinary ArrowRight window observations record actual down/up, trust, target, repeats and host timing without altering input', async () => {
+  const browser = tapFixture(), keys = [];
+  await browser.page.evaluate(collectAnimationFrames, { durationMs: 1000, pauseCompact: true });
+  const tap = await observePauseCompactArrowRight(browser.page, async () => {
+    keys.push('ArrowRight');
+    browser.event('keydown', 110); browser.sample(111);
+    browser.event('keyup', 117); browser.sample(118);
+    browser.event('keydown', 119, { key: 'x', code: 'KeyX' });
+  });
+  assert.deepEqual(keys, ['ArrowRight']);
+  assert.equal(tap.failure, null);
+  assert.equal(tap.observation.down.type, 'keydown');
+  assert.equal(tap.observation.up.type, 'keyup');
+  assert.equal(tap.observation.down.atMs, 10);
+  assert.equal(tap.observation.up.atMs, 17);
+  assert.equal(tap.observation.observedHostDurationMs, 7);
+  assert.equal(tap.observation.down.epochMs, 1000110);
+  assert.equal(tap.observation.down.isTrusted, true);
+  assert.equal(tap.observation.up.withinConsoleStage, true);
+  assert.deepEqual(tap.observation.events.map(event => event.repeat), [false, false]);
+  assert.equal(tap.observation.nativeHoldDurationMs, null);
+  assert.equal(tap.observation.nativeSourceEpoch, null);
+  assert.equal(browser.window.animationCapture.frames[1].compactArrowRightActive, true);
+  assert.equal(browser.window.animationCapture.frames[1].compactArrowRightEventCount, 1);
+  assert.equal(browser.window.animationCapture.frames[2].compactArrowRightActive, false);
+  assert.equal(browser.window.animationCapture.frames[2].compactArrowRightEventCount, 2);
+  assert.equal(browser.listenerCount(), 0);
+  validatePauseCompactArrowRight(tap.observation, 1000);
+});
+
+test('missing keyup skips selection waiting and preserves the original observation and raw frame ledger before rejection', async t => {
+  const browser = tapFixture(); await browser.page.evaluate(collectAnimationFrames, { durationMs: 1000, pauseCompact: true });
+  const compact = await selectPauseCompact(true, 'health-safety', '8', {
+    state: async () => data('8'), key: async value => { assert.equal(value, 'ArrowRight'); browser.event('keydown', 110); browser.sample(115); },
+    observeTap: press => observePauseCompactArrowRight(browser.page, press),
+    waitForSelection: () => assert.fail('Missing up must not wait away the retained capture') });
+  assert.match(compact.arrowRightTap.failure, /observed down\/up/);
+  assert.equal(compact.arrowRightTap.observation.down.isTrusted, true);
+  assert.equal(compact.arrowRightTap.observation.up, null);
+  assert.equal(compact.arrowRightTap.observation.observedHostDurationMs, null);
+  assert.equal(browser.listenerCount(), 0);
+  const dir = await mkdtemp(join(tmpdir(), 'pause-compact-missing-up-'));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const path = join(dir, 'capture.json'), frames = JSON.parse(JSON.stringify(browser.window.animationCapture.frames));
+  await assert.rejects(writeInitialCapture(path, { valid: false, durationMs: 1000, pauseCompact: true, compactSelection: compact, frames }), /observed down\/up/);
+  const retained = JSON.parse(await readFile(path, 'utf8'));
+  assert.equal(retained.valid, false);
+  assert.equal(retained.compactSelection.arrowRightTap.observation.up, null);
+  assert.deepEqual(retained.frames, frames);
+  assert.equal(retained.frames[1].top, 'raw-top');
+  assert.equal(retained.frames[1].bottom, 'raw-bottom');
+});
+
+test('repeated, untrusted, wrong-code, outside-stage, reversed and out-of-window taps stay explicit invalid observations', async () => {
+  const cases = [
+    fixture => { fixture.event('keydown', 110); fixture.event('keydown', 112, { repeat: true }); fixture.event('keyup', 117); },
+    fixture => { fixture.event('keydown', 110, { isTrusted: false }); fixture.event('keyup', 117); },
+    fixture => { fixture.event('keydown', 110); fixture.event('keyup', 117, { code: 'KeyX' }); },
+    fixture => { fixture.event('keydown', 110); fixture.event('keyup', 117, { target: { tagName: 'BUTTON', id: 'other' } }); },
+    fixture => { fixture.event('keyup', 110); fixture.event('keydown', 117); },
+    fixture => { fixture.event('keydown', 110); fixture.event('keyup', 1200); },
+  ];
+  for (const press of cases) {
+    const browser = tapFixture(); await browser.page.evaluate(collectAnimationFrames, { durationMs: 1000, pauseCompact: true });
+    const tap = await observePauseCompactArrowRight(browser.page, async () => press(browser));
+    assert.equal(tap.observation.events.length >= 2, true);
+    assert.equal(typeof tap.failure, 'string');
+    assert.throws(() => validatePauseCompactArrowRight(tap.observation, 1000));
+    assert.equal(browser.listenerCount(), 0);
+  }
+  const browser = tapFixture(); await browser.page.evaluate(collectAnimationFrames, { durationMs: 1000, pauseCompact: true });
+  const repeated = await observePauseCompactArrowRight(browser.page, async () => cases[0](browser));
+  assert.deepEqual(repeated.observation.events.map(event => event.repeat), [false, true, false]);
+});
+
+test('sender or observer setup failure is recorded without inventing release delivery', async () => {
+  const browser = tapFixture(); await browser.page.evaluate(collectAnimationFrames, { durationMs: 1000, pauseCompact: true });
+  const tap = await observePauseCompactArrowRight(browser.page, async () => {
+    browser.event('keydown', 110); throw new Error('Host sender failed');
+  });
+  assert.equal(tap.failure, 'Error: Host sender failed');
+  assert.equal(tap.observation.up, null);
+  assert.equal(browser.listenerCount(), 0);
+  const inactive = tapFixture();
+  const failed = await observePauseCompactArrowRight(inactive.page, () => assert.fail('Observer setup failure must not send a tap'));
+  assert.equal(failed.observation, null);
+  assert.match(failed.failure, /fresh active capture/);
+  assert.equal(inactive.listenerCount(), 0);
 });

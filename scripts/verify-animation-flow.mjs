@@ -76,7 +76,7 @@ export function validatePauseCompactDestination(data, selection) {
   assert.equal(data.sleeping, 'false', 'Compact pause is awake');
 }
 
-export async function selectPauseCompact(enabled, app, originalSelected, { key, state, waitForSelection }) {
+export async function selectPauseCompact(enabled, app, originalSelected, { key, state, waitForSelection, observeTap }) {
   if (!enabled) return null;
   const homeBeforeSelection = await state();
   assert.equal(homeBeforeSelection.menu, 'home', 'ArrowRight follows actual HOME');
@@ -85,16 +85,73 @@ export async function selectPauseCompact(enabled, app, originalSelected, { key, 
   assert.equal(JSON.parse(homeBeforeSelection.homeCursor ?? 'null')?.focus?.toolbarActive, false, 'HOME begins on the grid');
   const slot = Number(originalSelected), rows = Number(homeBeforeSelection.rows);
   assert.ok(Number.isSafeInteger(slot) && slot >= 0 && Number.isSafeInteger(rows) && rows > 0, 'HOME selection and row count are explicit');
-  await key('ArrowRight');
+  let arrowRightTap = null;
+  if (observeTap) arrowRightTap = await observeTap(() => key('ArrowRight'));
+  else await key('ArrowRight');
   const compactSelected = String(slot + rows);
-  await waitForSelection({ app, selected: compactSelected });
+  if (!arrowRightTap?.failure) await waitForSelection({ app, selected: compactSelected });
   const afterSelection = await state();
   const selection = { app, originalSelected, compactSelected, homeBeforeSelection, afterSelection,
     method: 'One ordinary ArrowRight after HOME, while chronological capture is already active. No fixed delay or diagnostic repaint.',
     adaptation: 'Browser input workflow; not a recovered native input epoch, duration or compact activation boundary.',
-    privateOwner: null, captureGeneration: null, nativeSourceEpoch: null };
-  validatePauseCompactDestination(afterSelection, selection);
+    ...(arrowRightTap ? { arrowRightTap } : {}), privateOwner: null, captureGeneration: null, nativeSourceEpoch: null };
+  if (!arrowRightTap?.failure) validatePauseCompactDestination(afterSelection, selection);
   return selection;
+}
+
+export function validatePauseCompactArrowRight(observation, durationMs) {
+  assert.ok(observation?.down && observation.up, 'Compact ArrowRight tap requires observed down/up events');
+  assert.deepEqual(observation.events, [observation.down, observation.up], 'Compact ArrowRight tap requires exactly one down/up pair without repeats');
+  for (const [index, event] of observation.events.entries()) {
+    assert.equal(event.type, index ? 'keyup' : 'keydown', 'Compact ArrowRight event order');
+    assert.equal(event.key, 'ArrowRight'); assert.equal(event.code, 'ArrowRight');
+    assert.equal(event.repeat, false, 'Compact ArrowRight is one ordinary tap, not a repeat');
+    assert.equal(event.isTrusted, true, 'Compact ArrowRight requires trusted browser delivery');
+    assert.equal(event.withinConsoleStage, true, 'Compact ArrowRight must reach the console-stage input path');
+    assert.ok(Number.isFinite(event.performanceNowMs) && Number.isFinite(event.atMs)
+      && event.atMs >= 0 && event.atMs <= durationMs, 'Compact ArrowRight observations remain inside the capture window');
+  }
+  const elapsed = observation.up.performanceNowMs - observation.down.performanceNowMs;
+  assert.ok(elapsed >= 0 && observation.up.atMs >= observation.down.atMs, 'Compact ArrowRight has monotonic down/up observations');
+  assert.equal(observation.observedHostDurationMs, elapsed, 'Compact ArrowRight observed duration matches its events');
+}
+
+export async function observePauseCompactArrowRight(page, press) {
+  let observation = null;
+  try {
+    await page.evaluate(() => {
+      const capture = window.animationCapture, host = document.querySelector('.console-stage');
+      if (!capture || capture.done || capture.compactArrowRight || !host) throw new Error('Compact ArrowRight requires a fresh active capture');
+      const observation = capture.compactArrowRight = { down: null, up: null, events: [], observedHostDurationMs: null,
+        hostClock: 'performance.now() at window capture listener; epochMs is Date.now()',
+        inputPath: 'console-stage-ArrowRight-keyboard', nativeHoldDurationMs: null, nativeSourceEpoch: null };
+      const observe = event => {
+        if (window.animationCapture !== capture || event.key !== 'ArrowRight') return;
+        const performanceNowMs = performance.now(), recorded = { type: event.type, key: event.key, code: event.code,
+          repeat: event.repeat, isTrusted: event.isTrusted, withinConsoleStage: host.contains(event.target),
+          target: { tagName: event.target?.tagName ?? null, id: event.target?.id ?? null },
+          performanceNowMs, atMs: performanceNowMs - capture.start, epochMs: Date.now(), eventTimeStampMs: event.timeStamp };
+        observation.events.push(recorded);
+        if (event.type === 'keydown' && !observation.down) observation.down = recorded;
+        if (event.type === 'keyup' && !observation.up) observation.up = recorded;
+        if (observation.down && observation.up) observation.observedHostDurationMs = observation.up.performanceNowMs - observation.down.performanceNowMs;
+      };
+      window.addEventListener('keydown', observe, true); window.addEventListener('keyup', observe, true);
+      capture.compactArrowRightCleanup = () => {
+        window.removeEventListener('keydown', observe, true); window.removeEventListener('keyup', observe, true);
+      };
+    });
+    try { await press(); } finally {
+      observation = await page.evaluate(() => {
+        const capture = window.animationCapture;
+        capture.compactArrowRightCleanup(); delete capture.compactArrowRightCleanup;
+        return capture.compactArrowRight;
+      });
+    }
+    const durationMs = await page.evaluate(() => window.animationCapture.durationMs);
+    validatePauseCompactArrowRight(observation, durationMs);
+    return { observation, failure: null };
+  } catch (error) { return { observation, failure: String(error) }; }
 }
 
 export function pauseCompactSelectionChanged({ app, selected }) {
@@ -148,7 +205,7 @@ export function collectAnimationFrames(durationOrOptions) {
   const compact = typeof durationOrOptions === 'object' && durationOrOptions.pauseCompact === true;
   const durationMs = compact ? durationOrOptions.durationMs : durationOrOptions;
   const host = document.querySelector('.console-stage'), frames = [], start = performance.now();
-  window.animationCapture = { frames, start, done: false };
+  window.animationCapture = { frames, start, done: false, ...(compact ? { durationMs } : {}) };
   let lastPaint = null;
   const sample = () => {
     const paint = host.dataset.screenPaint, presented = JSON.parse(host.dataset.screenPresented ?? 'null');
@@ -157,6 +214,9 @@ export function collectAnimationFrames(durationOrOptions) {
       lastPaint = identity;
       frames.push({ at: performance.now() - start,
         ...(window.animationCapture.homeHold ? { homeHoldActive: Boolean(window.animationCapture.homeHold.down && !window.animationCapture.homeHold.up) } : {}),
+        ...(window.animationCapture.compactArrowRight ? {
+          compactArrowRightActive: Boolean(window.animationCapture.compactArrowRight.down && !window.animationCapture.compactArrowRight.up),
+          compactArrowRightEventCount: window.animationCapture.compactArrowRight.events.length } : {}),
         data: Object.fromEntries(['menu', 'phase', 'app', 'selected', 'rows', 'lastInput', 'nativeScreen', 'nativeScreenFailure', 'screenPaint', 'screenPresented', 'homeUpdates', 'folderClose', 'folderBanner', 'homeCursor', ...(compact ? ['dialog', 'sleeping'] : [])].map(k => [k, host.dataset[k]])),
         top: host.screenCanvases.top.toDataURL('image/png'), bottom: host.screenCanvases.bottom.toDataURL('image/png') });
     }
@@ -269,6 +329,11 @@ export async function attemptPauseHomeHold(page, activation, durationMs, inputs)
 
 export async function writeInitialCapture(path, result) {
   await writeFile(path, JSON.stringify(result, null, 2) + '\n');
+  if (result.pauseCompact) {
+    const tap = result.compactSelection?.arrowRightTap;
+    if (tap?.failure) throw new Error(tap.failure);
+    validatePauseCompactArrowRight(tap?.observation, result.durationMs);
+  }
   if (result.pauseHomeHoldFailure) throw new Error(result.pauseHomeHoldFailure);
   if (result.pauseHomeHold) validatePauseHomeHold(result.pauseHomeHold, result.durationMs, result.frames);
 }
@@ -449,6 +514,7 @@ try {
   else await key('Enter');
   const compactSelection = pauseCompact && !pauseHomeHoldFailure
     ? await selectPauseCompact(true, pauseApp, before.selected, { key, state,
+      observeTap: press => observePauseCompactArrowRight(page, press),
       waitForSelection: request => page.waitForFunction(pauseCompactSelectionChanged, request, { timeout: 10000 }) }) : null;
   previousPauseCompact = compactSelection;
   await page.waitForFunction(() => window.animationCapture.done, { timeout: durationMs + 10000 });
@@ -463,7 +529,9 @@ try {
       await writeFile(join(output, filename), bytes);
       files[screen] = { filename, sha256: createHash('sha256').update(bytes).digest('hex') };
     }
-    reports.push({ index, at: frame.at, ...(homeHoldMs !== null ? { homeHoldActive: Boolean(frame.homeHoldActive) } : {}), data: frame.data, files });
+    reports.push({ index, at: frame.at, ...(homeHoldMs !== null ? { homeHoldActive: Boolean(frame.homeHoldActive) } : {}),
+      ...(pauseCompact ? { compactArrowRightActive: frame.compactArrowRightActive ?? null,
+        compactArrowRightEventCount: frame.compactArrowRightEventCount ?? null } : {}), data: frame.data, files });
   }
   await page.screenshot({ path: join(output, `${cycle ? `repeat-${cycle}-` : ''}console.png`) });
   const result = { valid: false, durationMs, scenario: values.scenario, title: ['manual', 'pause'].includes(values.scenario) ? title : values.scenario, commit: values.commit, commitAttestation: 'Coordinator-supplied served-build identity; not independently discovered by this script.', cycle, activation: values.activation, folderFixture: values['folder-fixture'], reducedMotion: values['reduced-motion'], url: values.url, viewport: page.viewportSize(), muted: true,

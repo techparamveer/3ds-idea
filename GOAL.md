@@ -8,7 +8,14 @@ The human resumed on8 October with "continue disregard that", revoking the
 without that usage cutoff. Continue the full animation goal. Earlier quota
 checkpoints remain history; do not stop again at that removed threshold.
 
-Latest checkpoint: reviewed incoming corrections `c73f9fb` and `a057600`
+Latest checkpoint: Manual elapsed timing `a264973` is integrated and visibly
+recaptured. All497 accepted pairs/994PNGs and16 sheets are independently
+audited; Camera incoming improves to266.5/285.2ms. Fixed ready residual106/9
+and a Settings terminal timing gap remain. Reviewed Notes cache fix `855c079`
+is integrated, built and under production regression. The full goal remains
+active; all four whole flows still fail. See [Manual cadence](docs/manual-elapsed-cadence-2026-10-08.md).
+
+Earlier checkpoint: reviewed incoming corrections `c73f9fb` and `a057600`
 remove repeated poses and discarded rendering time. Friends incoming is now
 299.3/315.7ms and Notifications312.9/329.1ms in first/repeat browser captures.
 All511 pairs/1022 raw PNGs pass the independent audit; all23 final sheets and

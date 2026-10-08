@@ -7,6 +7,15 @@ GPT-5.6 Sol high workers and an independent different-model reviewer. All sessio
 muted. The latest human instruction permits visible Mac testing without Sidecar;
 verify actual owned-window placement before scenario inputs.
 
+## Manual elapsed cadence, 8 October
+
+The [Manual cadence checkpoint](manual-elapsed-cadence-2026-10-08.md) records
+reviewed a264973, frozen baseline/final captures, native semantic bounds and
+unchanged106/9 ready residual. Retain all497 accepted paired observations and
+the failed reduced geometry attempt; no retrospective mask or clock fitting.
+Reviewed Notes renderer855c079 is integrated separately and needs its own
+Notes plus Camera/Sound shared-renderer production regressions.
+
 ## Applet incoming cadence, 8 October
 
 The [incoming correction record](applet-incoming-cadence-2026-10-08.md)

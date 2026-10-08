@@ -1,6 +1,12 @@
 # Feature map — 1:1 queue
 
-8 October incoming checkpoint: `c73f9fb` removes overlap starvation and
+8 October Manual checkpoint: reviewed `a264973` retains elapsed sample time.
+Final497pairs/994PNGs,16 sheets and6 consoles are audited/inspected. Camera
+incoming is266.5/285.2ms; ready residual106/9 and Settings repeat terminal gap
+remain. Notes cache fix `855c079` is integrated and under production regression.
+AN-01 through AN-04 remain fail. See [Manual cadence](manual-elapsed-cadence-2026-10-08.md).
+
+Earlier8 October incoming checkpoint: `c73f9fb` removes overlap starvation and
 `a057600` retains elapsed rendering time. Friends incoming299.3/315.7ms and
 Notifications312.9/329.1ms replace the intermediate540.1/558.0ms and
 508.0/642.6ms intervals. All511 pairs/1022 PNGs pass independent audit;

@@ -2,6 +2,14 @@
 
 ## Checkpoint and Scope
 
+8 October update: reviewed `a264973` retains elapsed time from the accepted
+sample in both phases instead of discarding sample-to-receipt time. Out20 and
+in0 stay distinct acknowledged samples, pending poses stay unchanged, gaps
+above6 remain hold/rebase. Source maps below are unchanged. See the
+[497-pair production/native checkpoint](../manual-elapsed-cadence-2026-10-08.md).
+Whole-flow1:1 remains unproven, with fixed106/9 ready residual and native epochs
+open. The earlier worker scope below is preserved history.
+
 Worker B: `codex/animation-folder-home-20261007`, checkout
 `/Users/paramveer/.codex/worktrees/3ds-animation-folder-home-20261007/3ds-idea`.
 Actual starting HEAD is `77bd7320da969cd39ab1ba4e9a9790f37f6e7abc`, not the

@@ -63,7 +63,7 @@ test('bounded pending time becomes eligible only after acknowledgement while ren
  assert.equal(sample(blocked,6).frame,2,'revocation discards blocked publication time');
 });
 
-test('cover catch-up still publishes terminal20 before title incoming0 and leaves incoming receipt cadence unchanged',()=>{
+test('cover catch-up publishes terminal20 before title incoming0, whose quantized sample and receipt may overlap',()=>{
  const s=createAppletEntryPresentation(),friend={...identity,owner:'friends:1',appId:'friends'},pair={},resources={};
  const friendSample=(step,overrides={})=>s.sample({identity:friend,elapsedMs:ms(step),eligible:true,pair,incomingResources:resources,reducedMotion:false,...overrides});
  const friendPresent=(pose,step)=>s.present(pose,friend,ms(step),true,pair,resources);
@@ -72,8 +72,59 @@ test('cover catch-up still publishes terminal20 before title incoming0 and leave
  const terminal=friendSample(20);assert.deepEqual([terminal.kind,terminal.frame],['cover',20]);
  assert.equal(friendSample(21),terminal,'terminal remains the exact pending pose until publication');
  assert.equal(friendPresent(terminal,21),true);
- const incoming=friendSample(22);assert.deepEqual([incoming.kind,incoming.frame],['incoming',0]);friendPresent(incoming,22);
- const next=friendSample(24);assert.deepEqual([next.kind,next.frame],['incoming',1],'incoming remains one pose per valid receipt');
+ const incoming=friendSample(22);assert.deepEqual([incoming.kind,incoming.frame],['incoming',0]);friendPresent(incoming,23);
+ const one=friendSample(23);assert.deepEqual([one.kind,one.frame],['incoming',1]);
+ assert.equal(friendSample(24),one,'an unacknowledged incoming pose remains exact');friendPresent(one,24);
+ assert.equal(friendSample(24).frame,2,'a crossed sample tick survives the later receipt quantization');
+});
+
+test('incoming overlap stays one pose per receipt while stalls and revocation rebase it',()=>{
+ const setup=()=>{
+  const s=createAppletEntryPresentation(),title={...identity,owner:'notifications:1',appId:'notifications'},pair={},resources={};
+  const next=(step,overrides={})=>s.sample({identity:title,elapsedMs:ms(step),eligible:true,pair,incomingResources:resources,reducedMotion:false,...overrides});
+  const accept=(pose,step,nextIdentity=title)=>s.present(pose,nextIdentity,ms(step),true,pair,resources);
+  let pose=next(0);accept(pose,0);
+  for(const step of [6,12,18,20]){pose=next(step);accept(pose,step);}
+  pose=next(21);assert.deepEqual([pose.kind,pose.frame],['incoming',0]);accept(pose,22);
+  return {s,title,pair,resources,next,accept};
+ };
+
+ const bounded=setup(),pending=bounded.next(23);
+ assert.equal(pending.frame,1);assert.equal(bounded.next(27),pending);bounded.accept(pending,28);
+ assert.equal(bounded.next(29).frame,2,'bounded pending time yields only one pose after acknowledgement');
+
+ const ordinary=setup();
+ assert.equal(ordinary.next(27).frame,1,'a positive receipt delta keeps the existing one-pose policy');
+
+ const stalled=setup(),held=stalled.next(29);
+ assert.equal(held.frame,0,'eight sampled updates are a stall');assert.equal(stalled.next(30),held);stalled.accept(held,30);
+ assert.equal(stalled.next(30).frame,1,'the acknowledged hold resets the incoming sample origin');
+
+ const blocked=setup(),old=blocked.next(23),foreign={...blocked.title,generation:2};
+ assert.equal(blocked.accept(old,24,foreign),false);blocked.s.revoke();assert.equal(blocked.accept(old,25),false);
+ const rebased=blocked.next(26);assert.equal(rebased.frame,0);blocked.accept(rebased,27);
+ assert.equal(blocked.next(27).frame,1,'revocation discards blocked incoming publication time');
+});
+
+test('incoming overlap still publishes title terminal20 before handoff and preserves reduced receipts',()=>{
+ const create=(reducedMotion=false)=>{
+  const s=createAppletEntryPresentation(),title={...identity,owner:'notifications:1',appId:'notifications'},pair={},resources={};
+  const next=(step)=>s.sample({identity:title,elapsedMs:ms(step),eligible:true,pair,incomingResources:resources,reducedMotion});
+  const accept=(pose,step)=>s.present(pose,title,ms(step),true,pair,resources);
+  return {s,next,accept};
+ };
+ const normal=create();let pose=normal.next(0);normal.accept(pose,0);
+ for(const step of [6,12,18,20]){pose=normal.next(step);normal.accept(pose,step);}
+ pose=normal.next(21);normal.accept(pose,22);
+ for(let frame=1;frame<=20;frame++){
+  pose=normal.next(21+frame);assert.deepEqual([pose.kind,pose.frame],['incoming',frame]);
+  assert.equal(normal.next(22+frame),pose);normal.accept(pose,22+frame);
+ }
+ assert.equal(normal.next(42).kind,'handoff','incoming20 requires its own receipt before handoff');
+
+ const reduced=create(true),cover20=reduced.next(0);assert.deepEqual([cover20.kind,cover20.frame],['cover',20]);reduced.accept(cover20,0);
+ const incoming20=reduced.next(0);assert.deepEqual([incoming20.kind,incoming20.frame],['incoming',20]);reduced.accept(incoming20,0);
+ const handoff=reduced.next(0);assert.equal(handoff.kind,'handoff');
 });
 
 test('absent prepared pairs hold the source terminal; stalls and invalid publication rebase that hold',()=>{

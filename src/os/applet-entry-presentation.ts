@@ -69,9 +69,12 @@ export function createAppletEntryPresentation() {
       const updates = presented ? update - presented.update : 0;
       if (updates < 0) throw Error('Applet entry clock moved backwards');
       // Cover motion follows accepted sample time so ordinary render work is not
-      // discarded. The later receipt still gates publication and incoming motion.
+      // discarded. The later receipt still gates publication.
       const sampledUpdates = presented ? update - presented.sampledUpdate : 0;
-      const advance = !rebase && (input.reducedMotion || updates > 0 && updates <= MAX_OBSERVED_UPDATE_GAP);
+      // An incoming sample can cross a tick that its later receipt also occupies.
+      // Retain that one pose without changing the one-pose-per-receipt policy.
+      const incomingOverlap = updates === 0 && sampledUpdates > 0 && sampledUpdates <= MAX_OBSERVED_UPDATE_GAP;
+      const advance = !rebase && (input.reducedMotion || (updates > 0 && updates <= MAX_OBSERVED_UPDATE_GAP) || incomingOverlap);
       const coverProgress = !rebase && sampledUpdates > 0 && sampledUpdates <= MAX_OBSERVED_UPDATE_GAP ? sampledUpdates : 0;
       const advanceCover = !rebase && (input.reducedMotion || coverProgress > 0);
       const base = { identity: Object.freeze({ ...identity }), ticket };

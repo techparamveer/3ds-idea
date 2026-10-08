@@ -5,6 +5,27 @@ for top-row opening, Manual opening, folder entry and HOME suspension. GitHub
 restart base is `5ee6fd7`; the historical static queue below is preserved.
 All four motion flows are currently fail pending matched frame-sequence proof.
 
+Latest capture transport trial at `8b7fe61` is incomplete: the existing Manual
+movie enters Health in the current profile, and `ctrl+p` produces no own PNG.
+The actual menu command produces one valid Health still, not opening motion.
+Root closes the process and restores the temporary screenshot path exactly.
+No repository runtime/build/browser or public asset change; all four scenarios still fail.
+Original closeout `0e94593d` and additive provenance `f57a5f69` distinguish
+verified file identities from UI/process attestations. No Manual retry or
+repeated closed source audit is scheduled. See
+[the trial record](animation-fidelity-workflow-2026-10-07.md#existing-ctm-capture-transport-trial-8-october-2026).
+
+Notifications touch-only follow-up `904ab3db` preserves all but eight A bytes;
+helper11/11 and independent byte review pass. Native index `b7f0f21` has one
+Health-selected baseline and17 later Notifications-selected idle PNGs, all18
+decoded400x480 and sheet-inspected. The52second gap misses motion; early Quit
+also fails before completion. Actual config bytes restore exactly after exit.
+No low-latency path or opening-animation acceptance is established. Both trials
+are closed; no further late CTM burst or repeated closed audit is scheduled.
+Run supplement `53856090` separates checked derivative identities from the
+coordinator-attested launch and sheet interpretation; no native run identity
+or motion epoch is inferred from the shared movie header ID.
+
 Latest 8 October Manual checkpoint: guarded Contents-only `PageTitleNumB02`
 visibility correction `dcdefc9` is integrated and served from `16e2067` on
 3022. The original constructor clears that pane's visibility bit; no asset,

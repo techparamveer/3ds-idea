@@ -62,6 +62,22 @@ checkout commit, not the coordinator's equivalent cherry-pick. Preserve failed
 import or identity checks before retrying with the resolved module or correct
 commit. Capture and build identities stay separate from source equivalence.
 
+[Existing CTM transport trial](../animation-fidelity-workflow-2026-10-07.md#existing-ctm-capture-transport-trial-8-october-2026)
+requires current route verification, not merely a reproducible movie and old
+configuration. A visible window baseline is not an own-PNG baseline, and a
+successful shortcut call without an output is not screenshot delivery. Preserve
+wrong-target runs and completion modals. Distinguish file hashes/decoding checked
+by a generator from embedded coordinator GUI/process attestations. Snapshot a
+temporary configuration before launch when possible; if its bytes are absent,
+label its observed SHA as an attestation. Restore only the owned temporary field
+after verified exit, and check the exact restored identity. A settled wrong-app
+PNG provides no motion, timing or scenario acceptance.
+Removing a later CTM A press creates a different input scenario; verify the
+precise byte range and leave original-replay equivalence false. A baseline plus
+later idle poses does not fill the intervening motion gap. Count host requests,
+actual PNG outputs and unique hashes separately. Record failure to quit before
+EOF rather than treating a later successful exit as the planned early stop.
+
 [HOME launch onset](../home-launch-onset-2026-10-03.md) now has continuous
 native pre-A/feedback/fade/logo evidence. Distinguish first Open pressed
 feedback from footer SceneOut, and last pre-fade banner from disappearance.

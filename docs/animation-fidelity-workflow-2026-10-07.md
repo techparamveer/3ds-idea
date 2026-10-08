@@ -1233,3 +1233,81 @@ Weekly remaining is 81% at closeout; checkpoint all seats and pause at 75%.
 All required test/capture/checker jobs are closed; only documented previews
 remain. The next work requires a supported native capture-latency path or the
 pending public incoming dependency approval, not another audit of these edges.
+
+## Existing CTM capture transport trial, 8 October 2026
+
+At coordinator `8b7fe61`, a bounded read-only worker check validates the existing
+`manual-selected-normal.ctm` against its original template, plan and recorded
+configuration. Private plan `4f4ee1d8` permits only a capability diagnostic,
+not replay equivalence. Independent review requires an exclusive empty output
+directory and a live route check. No firmware, converter or repository runtime
+change is delivered by this trial.
+
+Root preflight `ac43ca9b` rehashes executable `3dfdfbed`, HOME `c622d1c5`,
+Manual `c4933849`, movie `377ea58d`, plan `68cb52e7` and template `e1273f39`.
+The isolated folder copy remains original hardware/EUR, normal100/CPU100,
+volume0/Null1/Static2; the launch UI confirms volume0. Only its screenshot path
+temporarily changes to a new writable directory. Current HOME visibly has two
+rows, Health selected and Camera adjacent, without a folder/suspended overlay.
+This is not an own-PNG baseline or proof that the recorded route will work.
+
+The `ctrl+p` request creates no own PNG. The movie enters Health instead of
+Camera Manual, so the intended route is invalid; this trial does not establish
+why. The actual Tools > Capture Screenshot command creates one decoded
+400x480 PNG `991c292e`, opened by root and showing Health. No partial opening
+motion is captured. The movie-completed modal appears before successful exit;
+root acknowledges that non-binding notice, uses actual Quit Azahar > Yes and
+verifies session29817 exit0 and native-process absence. The sole screenshot,
+completion and original failures are retained, not promoted to AN02 evidence.
+
+Private `native-capture-transport-20261008/closeout.json` SHA `0e94593d` hashes
+the PNG and preserved log `6803cfab`. Additive attestation `f57a5f69` separates
+generator-verified hashes/dimensions from coordinator-attested process/UI facts.
+Temporary config SHA `93bcc20a` was observed but its bytes were not preserved.
+Preserved prelaunch/restored bytes both hash to `ccd30d00`; exact restoration
+is checked. No system/default-profile/audio or application-code change occurs.
+No browser comparison or code rebuild is justified by this invalid native
+route. Source epochs, native input/LCD epochs, capture ownership/generation and
+latency remain null. All four scenarios still fail and audio remains unverified.
+The known Friends service-error route is not a substitute. The worker is
+checking the existing Notifications route before any further pilot; no repeated
+Manual launch or closed edge/frame-advance/video-dump audit is scheduled.
+
+### Notifications touch-only follow-up
+
+The worker creates a new private safety derivative `904ab3db` from the original
+Notifications movie `bdb1e329`: precisely eight A-mask bytes at samples5850..5857
+become0; every other byte/header/record count and the toolbar touch145,16 remain
+identical. Independent review confirms the invariants and focused helper tests
+pass11/11. Initial EPERM is preserved; the subsequent scoped private write
+passes tool review. This is a touch-only selection diagnostic, not the original
+touch-plus-A scenario or native asset delivery.
+
+Root starts one muted isolated run at normal configured100%. A valid own
+400x480 Health-selected root HOME baseline `eb4e28f4` is opened before batching.
+The menu-command burst starts about52seconds after that baseline and creates
+17 more PNGs. All18 are distinct, decoded400x480 and SHA-tracked; sheet
+`69a898e1` is opened and shows the baseline followed by Notifications-selected
+idle banner poses. No app opening or selection-transition interval is covered.
+Request spacing is host menu/AX transport, not native frame cadence.
+
+Actual prelaunch/temporary/restored config bytes are preserved this time, with
+SHAs `ccd30d00` / `9cbc406d` / `ccd30d00`. Index `b7f0f21` hashes those files,
+requests `7a3ffb12`, native log `20435396`, launch log `fcf52116` and sheet.
+Its separate coordinator-attested fields identify GUI/process facts. The early
+Quit goal is not met: the first menu attempt fails, movie completion blocks
+Quit, and root acknowledges the non-binding completion notice before actual
+Quit/Yes. Session30273 exits0 and native absence is checked. Source/input/LCD
+epochs remain null; no stage is selected by closest appearance or fitted time.
+No account/service/Mii/agreement action is taken, and audio remains muted.
+Additive `notifications-pilot/run-attestation.json`, SHA `53856090`, pins the
+four derivative artifacts and identifies the exact launch argv as a coordinator
+attestation. The log's shared movie ID does not independently prove which file
+ran. Sheet semantics and completion-only acknowledgement are also coordinator
+attestations, not conclusions generated by the PNG decoder.
+
+Both trials are closed without a supported low-latency motion-capture path.
+No further late CTM burst, model-round-trip-before-onset loop, closed source
+audit or guessed keyboard accelerator is scheduled. Incoming export approval
+remains pending without retry/bypass. The browser and repository runtime are
+unchanged; all four whole scenarios remain fail. Weekly remaining81%; stop75%.

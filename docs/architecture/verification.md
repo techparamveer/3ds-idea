@@ -10,6 +10,13 @@ epochs. Fixed first-observed stages and source-pose browser receipts are
 diagnostics only until their input, timing and publication are matched.
 An empty cartridge placeholder is not a valid Create Folder fixture.
 
+The [original-A folder capability run](../animation-fidelity-workflow-2026-10-07.md#original-a-folder-capability-capture---8-october-2026)
+does not demonstrate native opening despite a healthy selected-folder baseline
+and focused render window. Do not repeat that short tap as a proven input route.
+Retain lost same-path versions, keep absent stage/comparison selectors null,
+and record created folders as isolated HOME/NAND fixture changes. Restore only
+owned temporary fields and enumerate actual GUI-normalized geometry changes.
+
 [Held-HOME recovery](../animation-fidelity-workflow-2026-10-07.md#held-home-recovery-and-fixed-pause-diagnostics)
 establishes native Health suspend/resume/repeat through a requested500ms
 foreground Shift gesture. Record requested host hold separately from measured

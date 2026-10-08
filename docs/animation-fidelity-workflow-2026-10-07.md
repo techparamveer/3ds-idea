@@ -1465,3 +1465,46 @@ epochs, reduced endpoints, fixture/HUD population, local/inert services,
 portfolio content and Manual Contents body/category/slot placement/truncation
 remain non-native. Public incoming export remains approval-pending without
 retry/bypass; audio remains muted/unverified. Weekly80% remaining; pause75%.
+
+### Original-A folder capability capture - 8 October 2026
+
+At coordinator `e3ee6a5`, one reviewed attempt tests original mapped A instead
+of the slower returned touch. Plan `ed5e3917` requires fresh root coordinates,
+six-row density, an ordinary empty slot and a decoded selected-folder baseline.
+Four observed density taps, selection136,160 and Create Folder210,226 create
+one default isolated test folder. This is an explicit HOME/NAND fixture mutation,
+not a claim that all profile state is unchanged. Original baseline `18f562df`
+is decoded/opened before the same closed folder/Open/focused-renderer guard.
+
+One `a` call returns in6ms;32 immediate sequential Command-P calls in the same
+CuaRepl call span1522ms. Native delivery and button duration remain unproven.
+Index `a71ae71c` preserves22 CRC/full-decoded400x480 originals,15 unique
+encoded/raw payloads and seven duplicate excess files. The native log has23
+save events/10 ignored requests; one same-path collision at04.30.34.158 loses
+its earlier version. Numeric closure is not request-to-file attribution.
+Inspection `62ab94d6` and opened sheet `542aa3a8` show only the selected closed
+folder, root grid and Open. No qualifying partial opening/child stage is
+captured; absent native selectors and comparison remain null. The browser loop
+is skipped rather than paired with unrelated native idle poses. No fallback,
+Back, second burst or clock fit is attempted.
+
+Actual Quit/Yes ends session60905 with0 and verified process absence. Root
+restores only the screenshot field. Actual before/launch/restored global hashes
+are `ffab8532`/`e3e498c8`/`ccd30d00`; only two GUI-normalized window geometry
+fields differ from before. Custom `58b1e799` remains byte-exact. No stale whole
+backup restore, default-profile/system/Spotify change or runtime/public/build
+write occurs. Requests `d19337cc`, attestation `cc1298ff` and own log `4a47a56b`
+retain the evidence boundary; full terminal output was truncated. Helper syntax,
+Qt-fraction/CRC mutation tests and indexing pass. Artifacts are under private
+`folder-entry-keyboard-20261008/`. Preview3022 still serves16e2067; prior code
+checks are not rerun for this documentation/capture-only checkpoint.
+
+Do not repeat this short-A onset route as if it delivered a native opening.
+It does not prove why A failed or justify an animation change. Exact motion,
+input/LCD epochs and timing remain unresolved. Native source assets and their
+[folder mapping](workstream-handoffs/animation-folder-home-20261007.md#source-mapping)
+are unchanged. Host cadence/child-host gates, fixture/HUD population, reduced
+endpoints, local/inert services, portfolio content and Manual placement remain
+adaptations or unresolved differences. All four whole flows remain fail;
+public incoming export remains approval-pending and audio muted/unverified.
+Weekly remaining was80% at launch and79% at closeout; pause75%.

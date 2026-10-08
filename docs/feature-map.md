@@ -5,6 +5,17 @@ for top-row opening, Manual opening, folder entry and HOME suspension. GitHub
 restart base is `5ee6fd7`; the historical static queue below is preserved.
 All four motion flows are currently fail pending matched frame-sequence proof.
 
+Latest folder capability run at `e3ee6a5` does not demonstrate native A opening.
+Reviewed plan, fresh six-row empty-slot creation and healthy selected-folder
+baseline precede one original `a` plus32 Command-P calls. Index `a71ae71c` checks
+22 surviving PNGs,23 saves/10 ignores and one lost overwritten version; all
+survivors show the closed folder. Sheet and original endpoint are opened.
+Browser/comparison are null, with no fallback or runtime/build change. Session
+exits0; screenshot field restores, two Qt geometry differences remain and
+current global is`ccd30d00`. Isolated HOME/NAND test-folder creation is explicit.
+Do not repeat the short-A route. All four flows still fail; weekly79% at closeout, stop75%.
+See [the capability record](animation-fidelity-workflow-2026-10-07.md#original-a-folder-capability-capture---8-october-2026).
+
 Latest8 October Camera Manual checkpoint at `df4856a`: fresh selected-Camera
 baseline and one actual Manual touch capture partial outgoing6 and complete
 cover7, but no incoming/ready native stage. Index `8163500d` preserves19 PNGs,

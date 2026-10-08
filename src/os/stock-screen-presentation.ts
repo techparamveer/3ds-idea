@@ -19,6 +19,7 @@ import { drawNativeWebFrame, browserHudClock, browserScreenPacks, miiverseScreen
 import { NATIVE_RECOVERY_TARGETS } from './native-screen-input';
 import { stockScreenTargets } from './stock-screen-layout';
 import { createNotesBootCoverPublicationGate, type NotesBootCoverPaint } from './notes-boot-cover';
+import { appletTitleEntrySelection, drawAppletTitleEntry, validateAppletTitleEntryAssets } from './applet-title-entry-assets';
 
 type Context=CanvasRenderingContext2D;
 type MediaRecord=Record<string,JsonValue>;
@@ -213,7 +214,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
   const images=new Map<string,HTMLImageElement>(),nativeImages=new Map<string,NativePixels>();let owner:string|null=null,disposed=false;
   let identity='',failure:unknown=null,recoveryPublished=false,deadline:ReturnType<typeof setTimeout>|undefined;
   let published:NativeLayoutRenderer|undefined;
-  let preparedPair:Readonly<{owner:string;renderer:NativeLayoutRenderer;key:string}>|undefined;
+  let preparedPair:Readonly<{owner:string;appId:string;renderer:NativeLayoutRenderer;key:string}>|undefined;
   const notesBootGate=createNotesBootCoverPublicationGate();
   let notesBootCandidate:{owner:string;pair:NotesBootCoverPaint;renderer:NativeLayoutRenderer}|undefined;
   let roomReady=true;
@@ -266,6 +267,11 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     if(!descriptor||failure)return session.getState();
     const state=session.update(font?{owner:nextOwner,...descriptor,sharedFonts:new Map([['cbf_std.bcfnt',font]])}:null);
     if(state.status==='error'){fail(state.error);return state;}
+    const incoming=appletTitleEntrySelection(view.appId);
+    if(state.status==='ready'&&incoming){
+      try{const pack=state.assets.renderer.packs[incoming.alias];if(!pack)throw Error('Native title-owned incoming pack unavailable');validateAppletTitleEntryAssets(pack,incoming.appId);}
+      catch(error){fail(error);return state;}
+    }
     const room=options.soundRoom?.prepare(view.appId==='sound'&&(view.screen==='main'||view.screen==='guide')?nextOwner:null,changed);
     const shoot=options.cameraShoot?.prepare(view.appId==='camera'&&view.screen==='guide'?nextOwner:null,changed);
     roomReady=[room,shoot].every(background=>!background||background.status==='inactive'||background.status==='ready');
@@ -304,6 +310,19 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       const state=session.getState();
       return !disposed&&!failure&&complete&&owner===nextOwner&&state.status==='ready'&&roomReady
         &&published===state.assets.renderer&&preparedPair?.owner===nextOwner&&preparedPair.renderer===published&&preparedPair.key===painted?preparedPair:undefined;
+    },
+    incomingResources(nextOwner:string,appId:string):object|undefined{
+      const state=session.getState();
+      return appletTitleEntrySelection(appId)&&!disposed&&!failure&&complete&&roomReady&&owner===nextOwner
+        &&state.status==='ready'&&published===state.assets.renderer&&preparedPair?.owner===nextOwner
+        &&preparedPair.appId===appId&&preparedPair.renderer===published&&preparedPair.key===painted?published:undefined;
+    },
+    drawIncoming(nextOwner:string,appId:string,top:Context,bottom:Context,frame:number,resources:object):boolean{
+      const incoming=appletTitleEntrySelection(appId),state=session.getState();
+      if(!incoming||disposed||failure||!complete||!roomReady||owner!==nextOwner||state.status!=='ready'
+        ||resources!==state.assets.renderer||resources!==published||preparedPair?.owner!==nextOwner||preparedPair.appId!==appId
+        ||preparedPair.renderer!==published||preparedPair.key!==painted)return false;
+      return drawAppletTitleEntry(state.assets.renderer,top,bottom,{appId:incoming.appId,frame});
     },
     presentNotesBootCover(nextOwner:string,accept:(pair:NotesBootCoverPaint)=>boolean):boolean{
       const candidate=notesBootCandidate,state=session.getState();
@@ -382,7 +401,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         painted=key;paintedFont=font;
       }
       top.drawImage(upper,0,0);bottom.drawImage(lower,0,0);
-      if(complete&&!failure&&state.status==='ready')preparedPair=Object.freeze({owner:nextOwner,renderer:state.assets.renderer,key:painted});
+      if(complete&&!failure&&state.status==='ready')preparedPair=Object.freeze({owner:nextOwner,appId:view.appId,renderer:state.assets.renderer,key:painted});
       if(failure)recoveryPublished=true;
       else if(complete&&state.status==='ready'&&view.appId==='game-notes'&&notesIntro?.status==='boot-cover')notesBootCandidate={owner:nextOwner,pair:notesIntro,renderer:state.assets.renderer};
       return complete&&!failure;

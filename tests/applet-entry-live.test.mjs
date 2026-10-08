@@ -20,8 +20,8 @@ const overrides={
 const {outputText}=ts.transpileModule(readFileSync(sourceUrl,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}});
 const {createScreens}=await import(data(outputText.replace(/(from\s*['"])(\.[^'"]+)(['"])/g,(_all,prefix,path,suffix)=>prefix+(overrides[path]??new URL(path.endsWith('.ts')?path:`${path}.ts`,sourceUrl).href)+suffix)));
 const ids=['game-notes','friends','notifications','browser','miiverse'];
-const home=(appId='friends',base=tickSystem(createPortfolioState(),3001))=>selectHomeToolbarControlTouch(enableHomeControls(base),ids.indexOf(appId)+1);
-const open=(caller,appId='friends')=>invokeSystemApplet(caller,appId,6400);
+const home=(appId='browser',base=tickSystem(createPortfolioState(),3001))=>selectHomeToolbarControlTouch(enableHomeControls(base),ids.indexOf(appId)+1);
+const open=(caller,appId='browser')=>invokeSystemApplet(caller,appId,6400);
 const ms=step=>10000+step*1000/60+.01;
 const sceneSource=readFileSync(new URL('../src/scene/console-scene.ts',import.meta.url),'utf8');
 const sceneAst=ts.createSourceFile('console-scene.ts',sceneSource,ts.ScriptTarget.Latest,true);let shortcut;
@@ -47,7 +47,7 @@ const bindDispatch=new Function('state','screens','onPaint','createNativeScreenI
 
 async function fixture(run,withFirmware=true){
  const saved=new Map(['document','Image','FontFace','__appletGraphics'].map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
- const events=[],canvases=[];let status='ready',coverFailure=false,pair,covered=null,notesStep=0,copyReady=true;
+ const events=[],canvases=[];let status='ready',coverFailure=false,pair,covered=null,notesStep=0,copyReady=true,incomingResources={},incomingAvailable=true,incomingFailure=false,preparedOwner;
  function canvas(){
   const surface={width:0,height:0};
   const ctx=new Proxy({canvas:surface,globalAlpha:1,record(name,args=[]){events.push({name,args,ctx});},drawImage(...args){ctx.record('drawImage',args);},createLinearGradient:()=>({addColorStop(){}}),getImageData(_x,_y,w,h){return {width:w,height:h,data:new Uint8ClampedArray(w*h*4)};}},{get:(target,key)=>key in target?target[key]:(()=>{})});
@@ -57,10 +57,12 @@ async function fixture(run,withFirmware=true){
   stockStatus(state){return state.system.phase==='app'&&state.system.runtime.instances[state.system.runtime.active]?.appId==='game-notes'&&status==='ready'&&notesStep<21?'loading':status;},
   stockFailure:()=>status==='error'?Error('Destination failed'):null,retryStockScreen(){status='ready';pair=undefined;return true;},
   preparedStockPair:()=>pair,setAppletEntryCovered(owner){covered=owner;events.push({name:'covered',args:[owner]});},
+  appletIncomingResources(state){const owner=state.system.runtime.active,appId=state.system.runtime.instances[owner]?.appId;return pair&&preparedOwner===owner&&incomingAvailable&&['friends','notifications'].includes(appId)?incomingResources:undefined;},
+  drawAppletIncoming(state,t,b,frame,resources){if(!pair||preparedOwner!==state.system.runtime.active||resources!==incomingResources||!incomingAvailable||incomingFailure)return false;t.record('incoming-upper',[frame,resources]);b.record('incoming-lower',[frame,resources]);return true;},
   revokeNotesBootCoverCandidate(){events.push({name:'notes-revoke',args:[]});},
   presentNotesBootCover(state){if(covered||status!=='ready'||state.system.runtime.instances[state.system.runtime.active]?.appId!=='game-notes')return false;notesStep++;return true;},
   notesBootCoverActive:()=>notesStep<21,banner(){},menuIcon(){},menuArtwork(){},
-  overlay(t,b,state){pair=status==='ready'&&copyReady?{}:undefined;t.record('destination-upper');b.record('destination-lower');if(state.system.runtime.instances[state.system.runtime.active]?.appId==='game-notes')t.record('notes-step',[notesStep,covered]);},dispose(){pair=undefined;},
+  overlay(t,b,state){pair=status==='ready'&&copyReady?{}:undefined;preparedOwner=state.system.runtime.active;t.record('destination-upper');b.record('destination-lower');if(state.system.runtime.instances[state.system.runtime.active]?.appId==='game-notes')t.record('notes-step',[notesStep,covered]);},dispose(){pair=undefined;},
  };
  Object.assign(globalThis,{document:{createElement:canvas,fonts:{add(){}}},Image:class {decode(){return Promise.resolve();}},FontFace:class {load(){return Promise.resolve(this);}},__appletGraphics:graphics});
  const presenter=new Proxy({pressOffset:0,tilePressOffset:()=>0,folderChild(_ctx,_state,_empty,draw){draw(1);return true;},appletEntry(t,b,pose){t.record('cover-upper',[pose]);b.record('cover-lower',[pose]);return !coverFailure;}},{get:(target,key)=>key in target?target[key]:()=>true});
@@ -70,7 +72,7 @@ async function fixture(run,withFirmware=true){
   events.length=0;const result=screens.paint(state,new Date(0),ms(step),verification);
   if(receipt)screens.presentAppletEntry(state,ms(step));return result;
  };
- try{await screens.ready;await run({screens,paint,events,canvases,assets,graphics,setStatus(value){status=value;if(value!=='ready')pair=undefined;},failCover:value=>coverFailure=value,setCopyReady:value=>copyReady=value,replacePair(){pair={};},notesStep:()=>notesStep,covered:()=>covered});}
+ try{await screens.ready;await run({screens,paint,events,canvases,assets,graphics,setStatus(value){status=value;if(value!=='ready')pair=undefined;},failCover:value=>coverFailure=value,setCopyReady:value=>copyReady=value,setIncomingAvailable:value=>incomingAvailable=value,failIncoming:value=>incomingFailure=value,replaceIncomingResources(){incomingResources={};},replacePair(){pair={};},notesStep:()=>notesStep,covered:()=>covered});}
  finally{screens.dispose();for(const [key,descriptor]of saved){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}}
 }
 
@@ -84,9 +86,18 @@ for(const appId of ids)test(`${appId} outgoing cover requires a matching present
   }
   assert.equal(screens.appletEntryActive(state),false);assert.equal(paint(state,22).appletEntry.frame,20);
   setStatus('ready');assert.equal(paint(state,23).appletEntry.frame,20,'the pair must be prepared before release is selected');
-  const handoff=paint(state,24,false);assert.deepEqual(handoff.appletEntry,{kind:'handoff',frame:null,owner:state.system.runtime.active});
+  let handoffStep=24;
+  if(['friends','notifications'].includes(appId)){
+   for(let frame=0;frame<=20;frame++){
+    const result=paint(state,24+frame,false);assert.deepEqual(result.appletEntry,{kind:'incoming',frame,owner:state.system.runtime.active});
+    assert.equal(events.filter(e=>e.name.startsWith('incoming-')).length,2);assert.equal(events.some(e=>e.name.startsWith('cover-')),false);
+    assert.equal(screens.stockStatus(state),'loading');assert.equal(screens.presentAppletEntry(state,ms(24+frame)),true);
+   }
+   handoffStep=45;
+  }
+  const handoff=paint(state,handoffStep,false);assert.deepEqual(handoff.appletEntry,{kind:'handoff',frame:null,owner:state.system.runtime.active});
   assert.equal(events.some(e=>e.name.startsWith('cover-')),false);assert.equal(screens.stockStatus(state),'loading');
-  assert.equal(screens.presentAppletEntry(state,ms(24)),true);assert.equal(screens.appletEntryActive(state),false);
+  assert.equal(screens.presentAppletEntry(state,ms(handoffStep)),true);assert.equal(screens.appletEntryActive(state),false);
   assert.equal(screens.stockStatus(state),appId==='game-notes'?'loading':'ready');
  });
 });
@@ -95,7 +106,7 @@ test('offscreen HOME, wrong toolbar, runtime application and firmware generation
  await fixture(({screens,paint,assets})=>{
   const caller=home(),state=open(caller);paint(caller,0,false);assert.equal(paint(state,1),undefined);
   assert.match(String(screens.stockFailure()),/matching presented HOME pair/);
-  paint(home('browser'),2);assert.equal(paint(state,3),undefined);assert.match(String(screens.stockFailure()),/matching presented HOME pair/);
+  paint(home('friends'),2);assert.equal(paint(state,3),undefined);assert.match(String(screens.stockFailure()),/matching presented HOME pair/);
   paint(caller,4);paint(state,5);assert.equal(screens.stockStatus(state),'loading');
   screens.setFirmwareAssets(assets());assert.equal(paint(state,6),undefined);assert.match(String(screens.stockFailure()),/matching presented HOME pair/);
   paint(caller,7);assert.equal(paint(state,8).appletEntry.frame,0);
@@ -132,10 +143,11 @@ test('Notes prepared pair bypasses only its local readiness barrier; the hidden 
 });
 
 test('a failed destination paint or replaced prepared token retains and rebases source20 instead of acknowledging hidden Notes',async()=>{
- await fixture(({screens,paint,setCopyReady,replacePair,notesStep,covered})=>{
+ await fixture(({screens,paint,events,setCopyReady,replacePair,notesStep,covered})=>{
   const caller=home('game-notes'),state=open(caller,'game-notes');screens.setReducedMotion(true);paint(caller,0);paint(state,1);
-  setCopyReady(false);assert.equal(paint(state,2,false).appletEntry.frame,20);assert.equal(covered(),state.system.runtime.active);
-  assert.equal(screens.presentNotesBootCover(state),false);assert.equal(notesStep(),0);assert.equal(screens.presentAppletEntry(state,ms(2)),true);
+  setCopyReady(false);assert.equal(paint(state,2,false),undefined);assert.equal(covered(),state.system.runtime.active);
+  assert.equal(events.filter(e=>e.name==='cover-upper').at(-1).args[0].frame,20,'failed fresh destination copies retain the opaque source cover without a candidate');
+  assert.equal(screens.presentNotesBootCover(state),false);assert.equal(notesStep(),0);assert.equal(screens.presentAppletEntry(state,ms(2)),false);
   setCopyReady(true);assert.equal(paint(state,3).appletEntry.frame,20);
   assert.equal(paint(state,4,false).appletEntry.kind,'handoff');replacePair();assert.equal(screens.presentAppletEntry(state,ms(4)),false);
   assert.equal(screens.presentNotesBootCover(state),false);assert.equal(notesStep(),0);
@@ -182,7 +194,7 @@ test('HOME return/resume retains an unfinished owner, completed resume does not 
   assert.equal(paint(resumed,7).appletEntry.frame,20);assert.equal(paint(resumed,8).appletEntry.kind,'handoff');
   const completedHome=reduceSystem(resumed,'home',6700);paint(completedHome,9);
   const completedResume=reduceSystem(completedHome,'home',6800);assert.equal(paint(completedResume,10),undefined);assert.equal(screens.stockStatus(completedResume),'ready');
-  const closed=home('friends',escapeUnreadyNativeScreen(completedResume,6900));paint(closed,11);screens.setReducedMotion(false);
+  const closed=home('browser',escapeUnreadyNativeScreen(completedResume,6900));paint(closed,11);screens.setReducedMotion(false);
   const reopened=open(closed);assert.notEqual(reopened.system.runtime.active,state.system.runtime.active);assert.equal(paint(reopened,12).appletEntry.frame,0);
  });
 });
@@ -196,7 +208,7 @@ test('fresh observations accept stale rAF timestamps for normal/reduced cycles; 
    assert.equal(sample(step+1,step+2).appletEntry.frame,20);assert.equal(screens.presentAppletEntry(state,ms(step+3)),true);
    assert.equal(sample(step+2,step+4).appletEntry.kind,'handoff');assert.equal(sample(step+3,step+5).appletEntry.kind,'handoff');
    assert.equal(screens.stockStatus(state),'loading');assert.equal(screens.presentAppletEntry(state,ms(step+6)),true);assert.equal(screens.stockStatus(state),'ready');
-   caller=home('friends',escapeUnreadyNativeScreen(state,6500+cycle*100));
+   caller=home('browser',escapeUnreadyNativeScreen(state,6500+cycle*100));
   }
   screens.setReducedMotion(false);paint(caller,21);const next=open(caller);
   assert.equal(screens.paint(next,new Date(0),ms(22),{manualEntryObservedElapsedMs:NaN}),undefined);assert.equal(screens.stockStatus(next),'error');
@@ -221,6 +233,60 @@ test('actual sr-only callback preserves arbitrary-focus direct opens without inv
   screens.setFirmwareAssets(assets());assert.equal(paint(state,2),undefined);assert.match(String(screens.stockFailure()),/matching presented HOME pair/);
  });
  const visualSource=sceneSource.replace(shortcut.getText(sceneAst),'');assert.equal(visualSource.includes('skipAppletEntryForAccessibilityShortcut('),false,'no physical/touch/keyboard adapter invokes this accessibility exception');
+});
+
+for(const appId of ['friends','notifications'])test(`${appId} incoming paired publication, resource loss and retry never expose an unguarded destination`,async()=>{
+ await fixture(({screens,paint,events,setIncomingAvailable,replaceIncomingResources,setCopyReady,failIncoming})=>{
+  const caller=home(appId),state=open(caller,appId);paint(caller,0);screens.setReducedMotion(true);
+  assert.equal(paint(state,1).appletEntry.frame,20);
+  assert.equal(paint(state,2,false).appletEntry.kind,'incoming');
+  assert.equal(screens.stockStatus(state),'loading');
+  screens.revokeAppletEntryCandidate();assert.equal(screens.presentAppletEntry(state,ms(2)),false);
+  const rebased=paint(state,3);assert.equal(rebased.appletEntry.kind,'cover');
+  const terminal=paint(state,4,false);assert.equal(terminal.appletEntry.kind,'incoming');assert.equal(terminal.appletEntry.frame,20);
+  replaceIncomingResources();assert.equal(screens.presentAppletEntry(state,ms(4)),false);
+  assert.equal(screens.stockStatus(state),'loading');
+  assert.equal(paint(state,5).appletEntry.kind,'cover');
+  setIncomingAvailable(false);paint(state,6,false);
+  assert.equal(events.filter(e=>e.name==='cover-upper').at(-1).args[0].frame,20);
+  assert.equal(events.some(e=>e.name.startsWith('incoming-')),false);assert.equal(screens.stockStatus(state),'loading');
+  setIncomingAvailable(true);paint(state,7);paint(state,8);
+  setCopyReady(false);paint(state,9,false);
+  assert.equal(events.some(e=>e.name==='cover-upper'),true);assert.equal(screens.stockStatus(state),'loading');
+  setCopyReady(true);paint(state,10);paint(state,11);
+  failIncoming(true);screens.revokeAppletEntryCandidate();paint(state,12);paint(state,13);
+  assert.equal(screens.stockStatus(state),'error');assert.match(String(screens.stockFailure()),/incoming paired cover unavailable/);
+  failIncoming(false);assert.equal(screens.retryStockScreen(),true);paint(state,14);paint(state,15);paint(state,16);
+  assert.equal(screens.stockStatus(state),'ready');
+});
+});
+
+for(const appId of ['friends','notifications'])test(`${appId} incoming visibility and HOME resume preserve the last acknowledged pose before reduced handoff`,async()=>{
+ await fixture(({screens,paint,events})=>{
+  const caller=home(appId),state=open(caller,appId);paint(caller,0);
+  for(let frame=0;frame<=20;frame++)assert.equal(paint(state,frame+1).appletEntry.frame,frame);
+  assert.deepEqual(paint(state,22).appletEntry,{kind:'incoming',frame:0,owner:state.system.runtime.active});
+  assert.equal(paint(state,23).appletEntry.frame,1);
+  const sleeping={...state,system:{...state.system,sleeping:true}};
+  paint(sleeping,24,false);assert.equal(screens.presentAppletEntry(sleeping,ms(24)),false);
+  assert.equal(paint(state,25).appletEntry.frame,1,'sleep did not consume a hidden source pose');
+  const suspended=reduceSystem(state,'home',6500);paint(suspended,26);
+  assert.equal(screens.presentAppletEntry(state,ms(26)),false);
+  const resumed=reduceSystem(suspended,'home',6600);assert.equal(resumed.system.runtime.active,state.system.runtime.active);
+  assert.equal(paint(resumed,27),undefined,'the first resumed body pair has not yet supplied a selected incoming resource');
+  assert.equal(events.filter(e=>e.name==='cover-upper').at(-1).args[0].frame,20);assert.equal(screens.presentAppletEntry(resumed,ms(27)),false);
+  assert.equal(paint(resumed,28).appletEntry.frame,1,'the retained owner and unchanged resources resume from their acknowledged source pose');
+  assert.equal(paint(resumed,29).appletEntry.frame,2);
+  paint(resumed,30,false,{sampleCalendar:true});assert.equal(screens.presentAppletEntry(resumed,ms(30)),false);
+  assert.equal(paint(resumed,31).appletEntry.frame,2,'diagnostic paint cannot consume motion');
+  screens.setReducedMotion(true);const endpoint=paint(resumed,32,false);
+  assert.deepEqual(endpoint.appletEntry,{kind:'incoming',frame:20,owner:state.system.runtime.active});
+  assert.equal(events.filter(e=>e.name.startsWith('incoming-')).length,2);assert.equal(screens.stockStatus(resumed),'loading');
+  assert.equal(screens.presentAppletEntry(resumed,ms(32)),true);assert.equal(screens.stockStatus(resumed),'loading');
+  const handoff=paint(resumed,33,false);assert.equal(handoff.appletEntry.kind,'handoff');
+  assert.equal(screens.presentAppletEntry(resumed,ms(33)),true);assert.equal(screens.stockStatus(resumed),'ready');
+  paint(reduceSystem(resumed,'home',6700),34);assert.equal(paint(reduceSystem(reduceSystem(resumed,'home',6700),'home',6800),35),undefined);
+ });
 });
 
 for(const suspended of [false,true])for(const activation of ['second touch','keyboard A','physical A'])test(`actual scene ${activation} after toolbar selection waits for a fresh HOME render receipt, suspended=${suspended}`,async()=>{

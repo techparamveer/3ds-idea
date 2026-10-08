@@ -108,6 +108,15 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
   const s=state.system;
   return s?.phase==='app'&&s.runtime.active?stockScreens.preparedPair(s.runtime.active):undefined;
  }
+ function appletIncomingResources(state:MenuState):object|undefined{
+  const s=state.system,view=getActiveAppView(state);
+  return s?.phase==='app'&&s.runtime.active&&view?stockScreens.incomingResources(s.runtime.active,view.appId):undefined;
+ }
+ function drawAppletIncoming(state:MenuState,top:C,bottom:C,frame:number,resources:object):boolean{
+  const s=state.system,view=getActiveAppView(state);
+  return !!s&&s.phase==='app'&&!!s.runtime.active&&!!view
+   &&stockScreens.drawIncoming(s.runtime.active,view.appId,top,bottom,frame,resources);
+ }
  const menuIcons=new Map<string,HTMLCanvasElement>();
  const images=new Map<string,HTMLImageElement>();
  // HOME needs the menu icons before its first paint. Entry photos appear only
@@ -218,5 +227,5 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    t.fillStyle=b.fillStyle=`rgba(0,0,0,${alpha})`;t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
   }
  }
- return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,setAppletEntryCovered,preparedStockPair,presentNotesBootCover,notesBootCoverActive,revokeNotesBootCoverCandidate,readSuspendedCapture:suspendedCapture.read,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){document.removeEventListener('visibilitychange',pauseNotesBootCover);stockScreens.dispose();notesIntro.dispose();notesBootCover.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
+ return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,setAppletEntryCovered,preparedStockPair,appletIncomingResources,drawAppletIncoming,presentNotesBootCover,notesBootCoverActive,revokeNotesBootCoverCandidate,readSuspendedCapture:suspendedCapture.read,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){document.removeEventListener('visibilitychange',pauseNotesBootCover);stockScreens.dispose();notesIntro.dispose();notesBootCover.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
 }

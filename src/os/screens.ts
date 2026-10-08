@@ -349,13 +349,13 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   }
   const candidate=appletCandidate;appletCandidate=undefined;
   if(!candidate)return false;
-  if(!appletPresentation.present(candidate,appletEntryIdentity(state,appletGeneration),elapsedMs,appletEntryEligible(state)&&!panelFailure&&graphics.stockFailure()===null,graphics.preparedStockPair(state))){revokeAppletEntryCandidate();return false;}
+  if(!appletPresentation.present(candidate,appletEntryIdentity(state,appletGeneration),elapsedMs,appletEntryEligible(state)&&!panelFailure&&graphics.stockFailure()===null,graphics.preparedStockPair(state),graphics.appletIncomingResources(state))){revokeAppletEntryCandidate();return false;}
   return true;
  }
  function appletEntryActive(state:MenuState):boolean{
   const identity=appletEntryIdentity(state,appletGeneration);if(!identity)return false;
   return !disposed&&!panelFailure&&appletEntryEligible(state)&&graphics.stockFailure()===null
-   &&appletPresentation.active(identity,graphics.preparedStockPair(state));
+   &&appletPresentation.active(identity,graphics.preparedStockPair(state),graphics.appletIncomingResources(state));
  }
  function presentNotesBootCover(state:MenuState):boolean{
   const identity=appletEntryIdentity(state,appletGeneration);
@@ -584,7 +584,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
      appletBackingIdentity=Object.freeze({...appletIdentity});appletPresentation.reset();
     }
    }
-   appletPose=appletPresentation.sample({identity:appletIdentity,elapsedMs:verification?.manualEntryObservedElapsedMs??elapsedMs,eligible:true,pair:graphics.preparedStockPair(state),reducedMotion:reduced});
+   appletPose=appletPresentation.sample({identity:appletIdentity,elapsedMs:verification?.manualEntryObservedElapsedMs??elapsedMs,eligible:true,pair:graphics.preparedStockPair(state),incomingResources:graphics.appletIncomingResources(state),reducedMotion:reduced});
   }
   setAppletEntryCovered(appletPose?.kind==='cover'?appletIdentity!.owner:null);
   if(diagnosticPaint||!manualIdentity||!manualEntryEligible(state))revokeManualEntryCandidate();
@@ -840,17 +840,21 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
     }
    }
   }
-  if(appletPose&&appletIdentity){
+  if(appletIdentity&&appletEntryEligible(state)&&!diagnosticPaint&&!appletPresentation.ready(appletIdentity)){
    if(graphics.stockFailure()!==null){revokeAppletEntryCandidate();appletPose=undefined;}
    else{
-    const pair=graphics.preparedStockPair(state);
-    if(appletPose.kind==='handoff'){
-     if(pair)appletPose=appletPresentation.bindPreparedPair(pair);
-     else{revokeAppletEntryCandidate();appletPose=appletPresentation.sample({identity:appletIdentity,elapsedMs:verification?.manualEntryObservedElapsedMs??elapsedMs,eligible:true,reducedMotion:reduced});setAppletEntryCovered(appletIdentity.owner);}
+    const pair=graphics.preparedStockPair(state),incomingResources=graphics.appletIncomingResources(state);
+    if(appletPose?.kind==='handoff'||appletPose?.kind==='incoming'){
+     if(pair)appletPose=appletPresentation.bindPreparedPair(pair,incomingResources);
+     else{revokeAppletEntryCandidate();appletPose=undefined;}
     }
-    if(appletPose?.kind==='cover'){
+    if(appletPose?.kind==='incoming'){
+     if(!graphics.drawAppletIncoming(state,t,b,appletPose.frame,appletPose.resources))throw Error('Native title-owned incoming paired cover unavailable');
+    }else if(appletPose?.kind==='cover'||!appletPose){
+     // Retain the source opaque cover while an incoming pair/resource is absent.
+     setAppletEntryCovered(appletIdentity.owner);
      for(const [ctx,image] of [[t,appletBackingUpper],[b,appletBackingLower]] as const){ctx.resetTransform();ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.clearRect(0,0,ctx.canvas.width,240);ctx.drawImage(image,0,0);}
-     if(!nativeHome!.appletEntry(t,b,{appId:appletIdentity.appId,frame:appletPose.frame}))throw Error('Native applet entry paired cover unavailable');
+     if(!nativeHome!.appletEntry(t,b,{appId:appletIdentity.appId,frame:appletPose?.kind==='cover'?appletPose.frame:20}))throw Error('Native applet entry paired cover unavailable');
      appletCoverPainted=true;graphics.revokeNotesBootCoverCandidate();
     }
     appletCandidate=appletPose;
@@ -879,7 +883,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const entryMotion=visibleFolderEntry||visiblePauseEntry
    ?{folder:visibleFolderEntry,pauseFrame:visiblePauseEntry?.material[0].frame??null}:undefined;
   return nativeSystem||verificationPaint||entryMotion||manualPose||appletPose
-   ?{...(verificationPaint??{}),...(nativeSystem?{nativeSystem:true as const}:{}),...(entryMotion?{entryMotion}:{}),...(manualPose?{manualEntry:{phase:manualPose.phase,frame:manualPose.frame,owner:manualPose.identity.owner}}:{}),...(appletPose?{appletEntry:{kind:appletPose.kind,frame:appletPose.kind==='cover'?appletPose.frame:null,owner:appletPose.identity.owner}}:{})}:undefined;
+   ?{...(verificationPaint??{}),...(nativeSystem?{nativeSystem:true as const}:{}),...(entryMotion?{entryMotion}:{}),...(manualPose?{manualEntry:{phase:manualPose.phase,frame:manualPose.frame,owner:manualPose.identity.owner}}:{}),...(appletPose?{appletEntry:{kind:appletPose.kind,frame:appletPose.kind!=='handoff'?appletPose.frame:null,owner:appletPose.identity.owner}}:{})}:undefined;
  }
  function presentHomeEntryFooterRelease(){
   const candidate=homeEntryFooterReleaseCandidate;homeEntryFooterReleaseCandidate=undefined;

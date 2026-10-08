@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {isAbsolute,join} from 'node:path';
 import ts from 'typescript';
 import {createNativeScreenInputGate} from '../src/os/native-screen-input.ts';
 import {createPortfolioState,tickSystem,launch,dispatchSystemEvent,getActiveAppView} from '../src/os/system.ts';
@@ -22,6 +23,7 @@ source=source.replace("'./stock-native-helpers'",JSON.stringify(url('export cons
 source=source.replace("'./stock-native-selectors'",JSON.stringify(url('export const nativeSelectorView=()=>null;export const drawNativeSelectorFrame=()=>false;')));
 source=source.replace("'./native-screen-input'",JSON.stringify(url(compile('native-screen-input'))));
 source=source.replace("'./notes-boot-cover'",JSON.stringify(new URL('../src/os/notes-boot-cover.ts',import.meta.url).href));
+source=source.replace("'./applet-title-entry-assets'",JSON.stringify(new URL('../src/os/applet-title-entry-assets.ts',import.meta.url).href));
 const {createStockScreenPresentation,drawStockMediaImage}=await import(url(source));
 let graphicsSource=compile('portfolio-screens');
 const graphicsDependencies={
@@ -67,7 +69,7 @@ test('Friend profiles and selected Notes retain loaded native title assets acros
  try{for(const [appId,screen]of [['friends','profile'],['game-notes','drawing']]){
   calls.length=0;const presentation=createStockScreenPresentation(),font={},main={...view(appId),rows:appId==='friends'?[{id:'profile',label:'Your friend card'}]:[]};
   presentation.prepare(main,appId+':1',font);await flush();assert.equal(calls.length,1);
-  let disposed=0;const assets={renderer:{},diagnostics:[],dispose(){disposed++;}};calls[0].resolve(assets);await flush();
+  let disposed=0;const assets={renderer:appId==='friends'?incomingAssets('friends').renderer:{},diagnostics:[],dispose(){disposed++;}};calls[0].resolve(assets);await flush();
   assert.equal(presentation.prepare({...main,screen,rows:[]},appId+':1',font).assets,assets);assert.equal(calls.length,1);
   assert.equal(presentation.prepare(main,appId+':1',font).assets,assets);presentation.dispose();assert.equal(disposed,1);
  }}finally{globalThis.document=old;}
@@ -89,6 +91,47 @@ function paintFixture(options={}){
  return {screen,v,font,top,bottom,draw,drawAt,dispose(){screen.dispose();globalThis.document=old;delete globalThis.__nativeTestDraw;}};
 }
 const nativeAssets=()=>({renderer:{},diagnostics:[],disposals:0,dispose(){this.disposals++;}});
+const incomingAssets=appId=>{
+ const fixtureRoot=process.env.APPLET_INCOMING_FIXTURE_ROOT;
+ if(fixtureRoot)assert.ok(isAbsolute(fixtureRoot),'Private incoming test fixture root must be absolute');
+ const source=fixtureRoot?join(fixtureRoot,appId,'incoming.json'):new URL('../public/os/firmware/10.7.0-32E/packs/'+appId+'/incoming.json',import.meta.url);
+ const assets=nativeAssets(),pack=JSON.parse(readFileSync(source,'utf8'));
+ const messages=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/'+appId+'/messages-and-loose.json',import.meta.url),'utf8'));
+ assets.renderer={packs:{[appId+'-incoming']:pack,[appId==='friends'?'friend-messages':'notification-messages']:messages},draw(ctx,alias,name,options){ctx.fillText(name+':'+(options?.bindings?.[0]?.frame??'body'));return true;}};
+ return assets;
+};
+for(const appId of ['friends','notifications'])test(`${appId} incoming resources require the current complete outward pair and are invalidated by failed copies, retry and disposal`,async()=>{
+ const f=paintFixture(),v={...view(appId),rows:appId==='friends'?[{id:'profile',label:'Your friend card'}]:[]},owner=appId+':1';
+ const draw=()=>f.screen.draw(f.top,f.bottom,v,owner,f.font);
+ try{
+  assert.equal(draw(),false);await flush();
+  const assets=incomingAssets(appId);calls[0].resolve(assets);await flush();
+  assert.equal(f.screen.incomingResources(owner,appId),undefined,'loaded assets alone do not publish an incoming resource');
+  assert.equal(f.screen.drawIncoming(owner,appId,f.top,f.bottom,0,assets.renderer),false);
+  assert.equal(draw(),true,String(f.screen.getFailure()));
+  const first=f.screen.preparedPair(owner),resources=f.screen.incomingResources(owner,appId);assert.ok(first);assert.equal(resources,assets.renderer);
+  assert.equal(f.screen.incomingResources(appId+':old',appId),undefined);
+  assert.equal(f.screen.incomingResources(owner,appId==='friends'?'notifications':'friends'),undefined);
+  assert.equal(f.screen.incomingResources(owner,'browser'),undefined);
+  assert.equal(f.screen.drawIncoming(owner,appId,f.top,f.bottom,10,{}),false);
+  assert.equal(f.screen.drawIncoming(appId+':old',appId,f.top,f.bottom,10,resources),false);
+  assert.equal(f.screen.drawIncoming(owner,appId,f.top,f.bottom,10,resources),true);
+  assert.ok(f.top.marks.at(-1)[1].endsWith(':10'));assert.ok(f.bottom.marks.at(-1)[1].endsWith(':10'));
+  draw();assert.notEqual(f.screen.preparedPair(owner),first,'each cached body paint still publishes fresh outward copies');
+  assert.equal(f.screen.incomingResources(owner,appId),resources,'the original renderer token remains stable across those copies');
+  const copy=f.bottom.drawImage;f.bottom.drawImage=()=>{throw Error('lower copy failed');};
+  assert.throws(draw,/lower copy failed/);assert.equal(f.screen.incomingResources(owner,appId),undefined);
+  assert.equal(f.screen.drawIncoming(owner,appId,f.top,f.bottom,20,resources),false);
+  f.bottom.drawImage=copy;assert.equal(draw(),true);assert.equal(f.screen.incomingResources(owner,appId),resources);
+  f.screen.sync(null);assert.equal(f.screen.incomingResources(owner,appId),undefined);assert.equal(assets.disposals,1);
+  draw();await flush();const replacement=incomingAssets(appId);calls.at(-1).resolve(replacement);await flush();assert.equal(draw(),true);
+  assert.notEqual(f.screen.incomingResources(owner,appId),resources);assert.equal(f.screen.drawIncoming(owner,appId,f.top,f.bottom,0,resources),false);
+  delete replacement.renderer.packs[appId+'-incoming'];assert.equal(draw(),false);assert.match(String(f.screen.getFailure()),/incoming pack unavailable/);
+  assert.equal(f.screen.incomingResources(owner,appId),undefined);assert.equal(f.screen.retry(),true);
+  assert.equal(f.screen.drawIncoming(owner,appId,f.top,f.bottom,0,replacement.renderer),false);
+  f.screen.dispose();assert.equal(f.screen.incomingResources(owner,appId),undefined);assert.equal(f.screen.drawIncoming(owner,appId,f.top,f.bottom,0,replacement.renderer),false);
+ }finally{f.dispose();}
+});
 const notesPack=name=>JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/game-notes/'+name,import.meta.url),'utf8'));
 const notesAssets=()=>{const assets=nativeAssets();assets.renderer={packs:{'notes-list':notesPack('contents/0000-00000007/memo-MemoListDown-empty-thumbnail.json'),'notes-messages':notesPack('messages-and-loose.json'),'notes-image':notesPack('memo-ImageScreenUp-arc-l.json'),'notes-hud-messages':notesPack('contents/0000-00000007/hud-messages.json')},draw:()=>true,drawLayout:()=>true};return assets;};
 const notesCover=(owner,steps=0,ticket=1)=>({status:'boot-cover',owner,ticket,steps,upper:{},lower:{},scene9Draw:steps<=20,scene10Draw:steps<=20});

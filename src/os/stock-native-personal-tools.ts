@@ -33,6 +33,7 @@ export const personalSelectedNotePacks:readonly NativeTitlePackRequest[]=[
 const captureUpperTexture='suspended-capture-upper',captureLowerTexture='suspended-capture-lower';
 const personalAllNotePacks:readonly NativeTitlePackRequest[]=[...personalNotesPacks,...personalSelectedNotePacks.filter(({alias})=>!personalNotesPacks.some(pack=>pack.alias===alias))];
 export const personalNotificationPacks:readonly NativeTitlePackRequest[]=[
+  {url:'packs/notifications/incoming.json',alias:'notifications-incoming',layouts:['CmnFade_U_00','CmnFade_D_00'],animations:['CmnFade_U_00_SceneIn','CmnFade_D_00_SceneIn']},
   {url:'packs/notifications/news.json',alias:'notifications',layouts:['NewsTopUI_U_00','NewsTopUI_D_00','NewsUnread_U_00','NewsTopBtn_D_00','NewsWndwNews_D_00'],animations:['NewsUnread_U_00_SceneIn','NewsUnread_U_00_NumAnim','NewsTopBtn_D_00_SceneIn','NewsWndwNews_D_00_SceneIn','NewsWndwNews_D_00_Select'],textures:['special.cic']},
   {url:'packs/notifications/hud.json',alias:'notification-hud',layouts:['HudMenu_00'],animations:['HudMenu_00_SceneIn','HudMenu_00_WhiteBlack','HudMenu_00_NetMode','HudMenu_00_NetAtn','HudMenu_00_Bat']},
   {url:'packs/notifications/contents/0000-00000012/receivelamp.json',alias:'notification-receivelamp',layouts:['RcvLamp_00'],animations:['RcvLamp_00_ReceiveBlue','RcvLamp_00_SceneIn']},
@@ -104,6 +105,7 @@ export function notificationsHudClock(date:Date){
 }
 const friendLayouts=['FrdTopBG_U_00','FrdTopBG_D_00','FrdTopUIUp_D_00','FrdTopUIDw_D_00','FrdElemCard_UB_00','FrdElemCard_UF_00','FrdElemCard_DB_00','FrdElemCard_DF_00'];
 export const personalFriendPacks:readonly NativeTitlePackRequest[]=[
+  {url:'packs/friends/incoming.json',alias:'friends-incoming',layouts:['FrdCmnFade_U_00','FrdCmnFade_D_00'],animations:['FrdCmnFade_U_00_SceneIn','FrdCmnFade_D_00_SceneIn']},
   {url:'packs/friends/friend.json',alias:'friends',layouts:friendLayouts,animations:[
     ...friendLayouts.slice(2).map(name=>name+'_SceneIn'),
     'FrdElemCard_UB_00_NotConnect','FrdElemCard_UF_00_NotConnect',

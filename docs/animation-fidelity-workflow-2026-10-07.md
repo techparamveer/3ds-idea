@@ -105,6 +105,20 @@ Corrected normal Camera first/repeat completes 89/91 pairs in the unchanged
 Manual ready. Every run saves exact pre/post-navigation Sidecar bounds.
 All six console images are opened. No new native session was launched.
 
+Independent corrected audit checks all 680 pairs/1360 raw PNGs: hashes, CRC,
+full decode, native dimensions, same-paint receipts, chronology, orphan closure
+and saved display gates. Under `home-suspension-sidecar/supporting/sol-final-review/`,
+`manual-clock-fix-audit.json` hashes
+`a65361e5e84922c275f6a247471e4ffd08d4ac129c449dd3f0e8af117746bce7` and selector
+`manual-clock-fix-selector.json` hashes
+`9fba02f5258a3f1d1fbb954e26b9c9acd843ef9a643487bafb2ea3fa52220990`.
+Both complete Camera chronological sheets are opened; all 360 LCD crops match
+the original decoded pixels. Incoming Camera 0-to20 is observed at 509.0/568.5 ms
+capture elapsed, with every 0..20 pose and duplicates. Settings measures
+513.6/499.3 ms; reduced observes only endpoints. These are browser intervals,
+not equivalent native epochs or a fitted native duration. The audit also
+independently reproduces the fixed 106/9 diagnostic below.
+
 Camera's first chronological paired ready is 045; repeat is 047 with identical
 LCD hashes. The fixed raw upper is
 `002c29195e29e6858788fe9c210b854b08623edbf3a53ba97e3d37a565e587ac`, lower

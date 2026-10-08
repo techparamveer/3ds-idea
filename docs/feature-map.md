@@ -7,6 +7,8 @@ Upper HUD timing remains open. Manual incoming cadence is implemented; normal
 Camera opening then revealed a reproducible outgoing clock stall. Reviewed
 `a52bdfe` fixes it. Camera normal/reduced and Settings normal now reach Contents
 in all six first/repeat cycles; native timing and 106/9 ready residual remain.
+All 1360 corrected raw PNGs are independently checked and chronological sheets
+are inspected. Next bounded runtime target is the early upper HOME HUD.
 All four whole scenarios remain fail. New helpers use GPT-6.1 Sol extra-high.
 See the [combined checkpoint](animation-fidelity-workflow-2026-10-07.md#home-lower-delivery-and-manual-stall-8-october).
 

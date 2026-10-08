@@ -11,15 +11,37 @@ function nativeClip(asset: FirmwareModelAsset, kind: 'skeletalAnimations' | 'mat
   return clips.length === 1 ? clips[0] : undefined;
 }
 
-function hasSourceCurve(clip: ReturnType<typeof nativeClip>, target: string, primitive: string, channel: string,
-  interpolation: string, keyFrames: readonly (readonly [number, number])[], endFrame = 20) {
-  const elements = clip?.Elements.filter(element => element.Name === 'mt_BG' && element.TargetType === target);
+type SourceKey = readonly [frame: number, value: number]
+  | readonly [frame: number, value: number, inSlope: number, outSlope: number];
+
+function hasNamedSourceCurve(clip: ReturnType<typeof nativeClip>, elementName: string, target: string, primitive: string,
+  channel: string, interpolation: string, keyFrames: readonly SourceKey[], endFrame = 20) {
+  const elements = clip?.Elements.filter(element => element.Name === elementName && element.TargetType === target);
   const curve = elements?.length === 1 && elements[0].PrimitiveType === primitive ? elements[0].Content[channel] : undefined;
   return !!curve && 'Exists' in curve && curve.Exists === true && curve.StartFrame === 0 && curve.EndFrame === endFrame
     && curve.InterpolationType === interpolation && curve.PreRepeat === 'None' && curve.PostRepeat === 'None'
     && curve.KeyFrames.length === keyFrames.length
-    && curve.KeyFrames.every((key, index) => key.Frame === keyFrames[index][0]
-      && key.Value === keyFrames[index][1] && key.InSlope === 0 && key.OutSlope === 0);
+    && curve.KeyFrames.every((key, index) => {
+      const [frame, value, inSlope = 0, outSlope = 0] = keyFrames[index];
+      return key.Frame === frame && key.Value === value && key.InSlope === inSlope && key.OutSlope === outSlope;
+    });
+}
+
+function hasSourceCurve(clip: ReturnType<typeof nativeClip>, target: string, primitive: string, channel: string,
+  interpolation: string, keyFrames: readonly SourceKey[], endFrame = 20) {
+  return hasNamedSourceCurve(clip, 'mt_BG', target, primitive, channel, interpolation, keyFrames, endFrame);
+}
+
+function hasSceneInCurves(clip: ReturnType<typeof nativeClip>): boolean {
+  if (clip?.Elements.length !== 1) return false;
+  const curves = [
+    ['ScaleX', [[0, .777129, .0116729, .0116729], [12, .942945, .0124529, .0124529], [19, .998914, .00211728, .00211728], [20, 1, .00108647, .00108647]]],
+    ['ScaleY', [[0, .777129, .0116729, .0116729], [12, .942945, .0124529, .0124529], [19, .998914, .00211728, .00211728], [20, 1, .00108647, .00108647]]],
+    ['ScaleZ', [[0, .001, .0523226, .0523226], [2, .109891, .0583166, .0583166], [19, .99513, .00949052, .00949052], [20, 1, .00487012, .00487012]]],
+    ['TranslationY', [[0, .223, -.0116796, -.0116796], [20, 0, -.00108712, -.00108712]]],
+    ['TranslationZ', [[0, -34.786, -.52375, -.52375], [2, -35.876, -.58375, -.58375], [19, -44.7373, -.0949993, -.0949993], [20, -44.786, -.048748, -.048748]]],
+  ] satisfies readonly (readonly [string, readonly SourceKey[]])[];
+  return curves.every(([channel, keys]) => hasNamedSourceCurve(clip, 'BG', 'Bone', 'Transform', channel, 'Hermite', keys));
 }
 
 function hasAppPauseCurves(clip: ReturnType<typeof nativeClip>): boolean {
@@ -50,16 +72,19 @@ export function suspendedBackgroundPlayback(presentation: HomeSuspendedBackgroun
   };
   const sceneIn = presentation.skeletal[0], appPause = presentation.material[0];
   if (presentation.skeletal.length !== 1 || (presentation.material.length !== 1 && presentation.material.length !== 2)
-    || sceneIn?.clip !== SCENE_IN || sceneIn.frame !== 20
+    || sceneIn?.clip !== SCENE_IN || !Number.isInteger(sceneIn.frame) || sceneIn.frame < 0 || sceneIn.frame > 20
     || appPause?.clip !== APP_PAUSE || !Number.isInteger(appPause.frame) || appPause.frame < 0 || appPause.frame > 20) {
     throw new Error('Unsupported native suspended presentation');
   }
-  if (presentation.material.length === 1) return {
-    skeletal: [{ name: sceneIn.clip, frame: sceneIn.frame }],
-    material: [{ name: appPause.clip, frame: appPause.frame }],
-  };
+  if (presentation.material.length === 1) {
+    if (sceneIn.frame !== appPause.frame) throw new Error('Unsupported native suspended presentation');
+    return {
+      skeletal: [{ name: sceneIn.clip, frame: sceneIn.frame }],
+      material: [{ name: appPause.clip, frame: appPause.frame }],
+    };
+  }
   const appQuit = presentation.material[1];
-  if (appPause.frame !== 20 || appQuit?.clip !== APP_QUIT || !Number.isInteger(appQuit.frame)
+  if (sceneIn.frame !== 20 || appPause.frame !== 20 || appQuit?.clip !== APP_QUIT || !Number.isInteger(appQuit.frame)
     || appQuit.frame < 0 || appQuit.frame > 20) throw new Error('Unsupported native suspended presentation');
   // Order is significant: AppQuit is authored as an override of AppPause.
   return {
@@ -77,7 +102,7 @@ export function suspendedBackgroundAsset(asset: FirmwareModelAsset): FirmwareMod
   const appQuit = nativeClip(asset, 'materialAnimations', APP_QUIT);
   if (data.sourceSha256 !== '092c8682d0cfabf0a1823a8e3a2c12556515c437afba2aa6f6ac7fc4d5e34595'
     || data.models.length !== 1 || model.name !== 'BannerBG' || model.materials.length !== 1
-    || sceneIn?.FramesCount !== 20 || sceneIn.AnimationFlags !== '0'
+    || sceneIn?.FramesCount !== 20 || sceneIn.AnimationFlags !== '0' || !hasSceneInCurves(sceneIn)
     || appPause?.FramesCount !== 20 || appPause.AnimationFlags !== '0'
     || !hasAppPauseCurves(appPause)
     || appQuit?.FramesCount !== 20 || appQuit.AnimationFlags !== '0'

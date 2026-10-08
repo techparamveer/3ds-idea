@@ -17,7 +17,7 @@ export type HomeEntryMotion = Readonly<{
 }>;
 export type HomeFolderEntryPose = Readonly<{ folderFrame: number; captureFrame: number }>;
 export type HomePauseEntryPresentation = Readonly<{
-  skeletal: readonly [Readonly<{ clip: 'BannerBG_SceneIn'; frame: 20 }>];
+  skeletal: readonly [Readonly<{ clip: 'BannerBG_SceneIn'; frame: number }>];
   material: readonly [Readonly<{ clip: 'BannerBG_AppPause'; frame: number }>];
 }>;
 export type HomePauseLowerPresentation = Readonly<{ fadeFrame: number | null; footerFrame: number | null }>;
@@ -93,10 +93,10 @@ export function homeFolderEntryPose(motion: HomeEntryMotion | null, reduced = fa
 
 export function homePauseEntryPresentation(motion: HomeEntryMotion | null, reduced = false): HomePauseEntryPresentation | null {
   if (motion?.identity.kind !== 'pause') return null;
+  const frame = reduced ? HOME_PAUSE_ENTRY_LAST_FRAME : Math.min(HOME_PAUSE_ENTRY_LAST_FRAME, motion.elapsedUpdates);
   return Object.freeze({
-    skeletal: Object.freeze([Object.freeze({ clip: 'BannerBG_SceneIn', frame: 20 })] as const),
-    material: Object.freeze([Object.freeze({ clip: 'BannerBG_AppPause',
-      frame: reduced ? HOME_PAUSE_ENTRY_LAST_FRAME : Math.min(HOME_PAUSE_ENTRY_LAST_FRAME, motion.elapsedUpdates) })] as const),
+    skeletal: Object.freeze([Object.freeze({ clip: 'BannerBG_SceneIn', frame })] as const),
+    material: Object.freeze([Object.freeze({ clip: 'BannerBG_AppPause', frame })] as const),
   });
 }
 

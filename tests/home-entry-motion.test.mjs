@@ -55,7 +55,10 @@ test('folder replacement and a new complete application capture each start fresh
   assert.equal(sampleHomeEntryMotion(moving, null, 96, true), null);
 });
 
-test('pause entry selects the original AppPause scale and tint clip without an AppQuit override', () => {
+test('pause entry advances the original SceneIn geometry with AppPause scale and tint without an AppQuit override', () => {
+  const sceneIn = background.skeletalAnimations.find(animation => animation.Name === 'BannerBG_SceneIn');
+  assert.equal(sceneIn.FramesCount, 20);
+  assert.equal(sceneIn.AnimationFlags, '0');
   const clip = background.materialAnimations.find(animation => animation.Name === 'BannerBG_AppPause');
   assert.equal(clip.FramesCount, 20);
   assert.equal(clip.AnimationFlags, '0');
@@ -67,7 +70,7 @@ test('pause entry selects the original AppPause scale and tint clip without an A
     sampled = sampleHomeEntryMotion(sampled, pause, 60 + update, true);
     const presentation = homePauseEntryPresentation(sampled);
     assert.deepEqual(suspendedBackgroundPlayback(presentation), {
-      skeletal: [{ name: 'BannerBG_SceneIn', frame: 20 }],
+      skeletal: [{ name: 'BannerBG_SceneIn', frame: Math.min(20, update) }],
       material: [{ name: 'BannerBG_AppPause', frame: Math.min(20, update) }],
     });
   }
@@ -99,8 +102,10 @@ test('reduced motion chooses source endpoints without mutating the normal sample
   const folderMotion = sampleHomeEntryMotion(null, folder, 40, true);
   const pauseMotion = sampleHomeEntryMotion(null, pause, 40, true);
   assert.deepEqual(homeFolderEntryPose(folderMotion, true), { folderFrame: 16, captureFrame: 8 });
+  assert.equal(homePauseEntryPresentation(pauseMotion, true).skeletal[0].frame, 20);
   assert.equal(homePauseEntryPresentation(pauseMotion, true).material[0].frame, 20);
   assert.deepEqual(homeFolderEntryPose(folderMotion), { folderFrame: 0, captureFrame: 0 });
+  assert.equal(homePauseEntryPresentation(pauseMotion).skeletal[0].frame, 0);
   assert.equal(homePauseEntryPresentation(pauseMotion).material[0].frame, 0);
   assert.equal(homeFolderEntryPose(pauseMotion), null);
   assert.equal(homePauseEntryPresentation(folderMotion), null);
@@ -177,9 +182,14 @@ test('invalid clocks, owners and mixed pause-close stacks fail explicitly', () =
   const start = sampleHomeEntryMotion(null, pause, 60, true);
   assert.throws(() => sampleHomeEntryMotion(start, pause, 59, true), /backwards/);
   const presentation = homePauseEntryPresentation(start);
-  for (const frame of [-1, .5, 21, NaN]) assert.throws(() => suspendedBackgroundPlayback({
-    ...presentation, material: [{ clip: 'BannerBG_AppPause', frame }],
-  }), /Unsupported native/);
+  for (const frame of [-1, .5, 21, NaN]) {
+    assert.throws(() => suspendedBackgroundPlayback({
+      ...presentation, skeletal: [{ clip: 'BannerBG_SceneIn', frame }],
+    }), /Unsupported native/);
+    assert.throws(() => suspendedBackgroundPlayback({
+      ...presentation, material: [{ clip: 'BannerBG_AppPause', frame }],
+    }), /Unsupported native/);
+  }
   assert.throws(() => suspendedBackgroundPlayback({ ...presentation,
     material: [{ clip: 'BannerBG_AppPause', frame: 5 }, { clip: 'BannerBG_AppQuit', frame: 0 }],
   }), /Unsupported native/);

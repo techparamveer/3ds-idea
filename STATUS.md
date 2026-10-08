@@ -46,6 +46,7 @@ Revision 5 starts from checked HEAD `92d542413ca5bd210ce5dd1941081ab62cfdb25c`.
 User confirmed the first version appearance; fix only the cube spin and eye
 carving into the box, using the supplied reference. Reuse original geometry and
 materials; replace pixel reliefs with an ordered carve of the original eye.
+Revision 5 implementation: `be53cd3071ce589d96f3e41fc2fe08f324ec677d`. Git supplies the documentation checkpoint HEAD.
 Revision 5 renders 80 frames, one full spin and an outer-to-inner spiral carve.
 The muted isolated preview at port3048 now serves this restored version.
 Typecheck/build/shader pass; full suite retains its known Camera fixture failure.

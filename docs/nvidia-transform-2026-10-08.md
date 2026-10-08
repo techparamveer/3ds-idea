@@ -3,7 +3,7 @@
 Portfolio adaptation on `codex/nvidia-transform`, a separate managed worktree
 based on `5ee6fd7`. The user confirmed that the first version looked better and
 asked to fix the cube spin and the eye eating into the box. Revision 5 starts
-from `92d5424` and restores the artwork/materials from `efe4e8d`. The later
+from `92d5424`, is implemented in `be53cd3071ce589d96f3e41fc2fe08f324ec677d`, and restores the artwork/materials from `efe4e8d`. The later
 white extruded text, flat emission text and pixel-traced eye are superseded.
 
 ## Delivered behavior

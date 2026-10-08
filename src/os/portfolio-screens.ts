@@ -1,6 +1,7 @@
 import type { StockModelBackground } from './stock-model-background';
 import * as THREE from 'three';
 import { createNvidiaBanner } from './nvidia-banner';
+import { createHackLdnBanner } from './hack-ldn-banner';
 import { apps, getApp, type PortfolioApp } from './apps';
 import { currentEntry, getActiveAppView, selectedApp } from './system';
 import { getTitle } from './app-registry';
@@ -77,12 +78,13 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    ?stockScreens.status(view,s.runtime.active,nativeFonts.get(context)):'inactive' as const;
  }
  const nvidiaBanner=createNvidiaBanner();
+ const hackLdnBanner=createHackLdnBanner(c=>label(c,'2025',200,165,17,'#454952','center'));
  const menuIcons=new Map<string,HTMLCanvasElement>();
  const images=new Map<string,HTMLImageElement>();
  // HOME needs the menu icons before its first paint. Entry photos appear only
  // inside an app, so they download in the background instead of delaying startup.
  const load=(url:string)=>{if(images.has(url))return;const image=new Image();image.src=url;images.set(url,image);return image.decode();};
- const ready=Promise.allSettled([...([...new Set(apps.filter(a=>a.icon.startsWith('/')).map(a=>a.icon))].map(load)),nvidiaBanner.ready]).then(()=>{menuIcons.clear();});
+ const ready=Promise.allSettled([...([...new Set(apps.filter(a=>a.icon.startsWith('/')).map(a=>a.icon))].map(load)),nvidiaBanner.ready,hackLdnBanner.ready]).then(()=>{menuIcons.clear();});
  for(const url of new Set(apps.flatMap(a=>a.entries.flatMap(e=>e.images??[]))))load(url)?.catch(()=>undefined);
  function fit(c:C,url:string,x:number,y:number,w:number,h:number){const im=images.get(url);if(!im?.naturalWidth)return false;const k=Math.min(w/im.naturalWidth,h/im.naturalHeight);c.drawImage(im,x+(w-im.naturalWidth*k)/2,y+(h-im.naturalHeight*k)/2,im.naturalWidth*k,im.naturalHeight*k);return true;}
  function icon(c:C,app:PortfolioApp,x:number,y:number,size:number){
@@ -122,8 +124,11 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
  const art=document.createElement('canvas');art.width=art.height=128;const ac=art.getContext('2d')!;const texture=new THREE.CanvasTexture(art);texture.colorSpace=THREE.SRGBColorSpace;texture.magFilter=THREE.NearestFilter;
  const faceMaterial=new THREE.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false});const face=new THREE.Mesh(new THREE.PlaneGeometry(1.75,1.75),faceMaterial);face.position.z=.22;group.add(face);let previous='';
  function banner(c:C,app:PortfolioApp,time:number,reduced:boolean){
+  if(app.id!=='nvidia')nvidiaBanner.reset();
+  if(app.id!=='hack-ldn-2025')hackLdnBanner.reset();
   if(app.id==='nvidia'){if(!nvidiaBanner.draw(c,time,reduced))icon(c,app,151,62,98);}
-  else {nvidiaBanner.reset();
+  else if(app.id==='hack-ldn-2025'){if(!hackLdnBanner.draw(c,time,reduced))icon(c,app,151,62,98);}
+  else {
   if(renderer){if(previous!==app.id){ac.clearRect(0,0,128,128);icon(ac,app,0,0,128);texture.needsUpdate=true;previous=app.id;}
    group.rotation.set(reduced?-.06:Math.sin(time/1800)*.06,reduced?-.12:Math.sin(time/2100)*.32,0);group.position.y=reduced?0:Math.sin(time/900)*.035;renderer.render(scene,camera);c.drawImage(renderer.domElement,110,35,180,148);
   }else icon(c,app,151,62,98);
@@ -190,5 +195,5 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    t.fillStyle=b.fillStyle=`rgba(0,0,0,${alpha})`;t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
   }
  }
- return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,readSuspendedCapture:suspendedCapture.read,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){nvidiaBanner.dispose();stockScreens.dispose();notesIntro.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
+ return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,readSuspendedCapture:suspendedCapture.read,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){nvidiaBanner.dispose();hackLdnBanner.dispose();stockScreens.dispose();notesIntro.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
 }

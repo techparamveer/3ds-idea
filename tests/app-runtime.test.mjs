@@ -54,7 +54,7 @@ test('rearranged titles and folder history keep their saved slots and view',()=>
  ]){
   const saved=structuredClone(base);edit(saved);
   const restored=restoreSettings(createPortfolioState(),JSON.stringify(saved));
-  assert.deepEqual(restored.system.layout,saved.layout);
+  assert.deepEqual(restored.system.layout,{...saved.layout,14:'hack-ldn-2025'});
   assert.deepEqual(restored.system.homeNavigation.rootView,saved.homeView.rootView);
  }
  assert.equal(isPreviousDefaultAppLayout({...previousDefault(),40:'work'}),false);
@@ -70,7 +70,7 @@ test('button releases, analog dead zone and multiple sources do not duplicate or
 });
 
 test('legacy eight-app layout migrates without destroying custom positions or folders',()=>{
- const layout=Object.fromEntries(apps.map((app,i)=>[i===0?30:i,app.id]));
+ const layout=Object.fromEntries(apps.filter(app=>app.id!=='hack-ldn-2025').map((app,i)=>[i===0?30:i,app.id]));
  const restored=restoreSettings(home(),JSON.stringify({layout,folders:{8:'Docs'}}));
  assert.equal(restored.system.layout[30],'work');assert.equal(restored.folders[8],'Docs');
  assert.ok(Object.values(restored.system.layout).includes('system-settings'));assert.equal(new Set(Object.values(restored.system.layout)).size,Object.values(restored.system.layout).length);

@@ -1,0 +1,30 @@
+{
+  "kind": "portfolio-adaptation",
+  "nativeFirmware": false,
+  "reference": {
+    "file": "Screenshot 2026-10-08 at 16.59.22.png",
+    "sha256": "c364caa9abb4b642bd37db8998170a8fa5495ecd27ca8eb09e8d9bebd4472733"
+  },
+  "blender": "5.2.1 LTS via Blender MCP",
+  "artwork": "Threshold white screenshot lettering at 170; trace eight connected shapes and holes with OpenCV at 0.65px contour tolerance; shallow extrusions in graphite enamel for the light LCD. Screenshot background discarded.",
+  "delivery": {
+    "width": 180,
+    "height": 148,
+    "frames": 80,
+    "fps": 29.97002997002997,
+    "atlasColumns": 8,
+    "color": "RGB555-style quantization; binary alpha; nearest-neighbour display",
+    "playback": "Once per selection, indefinite final hold; final frame immediately for reduced motion",
+    "motion": "Pixel chevron writes HACK left-to-right, turns downward, writes LDN right-to-left, rotates into its final position. No cube.",
+    "caption": "2025 at completion, using existing portfolio text renderer"
+  },
+  "sha256": {
+    "assets/blender/hack-ldn-2025.blend": "98801dc59d6f3c5ca5440ef3559ba9c28039e9de37724c6a37f7fa8094eb7342",
+    "scripts/blender/build-hack-ldn-transform.py": "5fd4041fd685faecf7ebf2723546406d948a5bdd7b4f0b1a3fa1d4ee981e75be",
+    "scripts/blender/trace-hack-ldn-logo.py": "f4771c6565163606990e5e4a483833f775759eccaff77666a4a33fd9c6c8290f",
+    "scripts/blender/hack-ldn-logo-contours.json": "4723651a323e62caa4329a910c9c3e23abd5663b2f5a1f9beb73343d60409c26",
+    "public/portfolio/hack-ldn-2025.svg": "f777251085419dd380c68cf3517440551aa69e0a88caff8a170f4419876e3caf",
+    "public/portfolio/hack-ldn-2025/atlas.png": "e4a31db7b43ff66c8ed362045fba941df1b584852c8db0e9f7ffba29e7978b41",
+    "public/portfolio/hack-ldn-2025/poster.png": "d286f484697a3dcc51618f50b22afd9a773a8c00a9c6cf69ac89e33560afc8af"
+  }
+}

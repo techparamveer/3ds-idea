@@ -176,6 +176,26 @@ test('reduced window endpoint uses the existing pause receipt and cannot replay 
   });
 });
 
+test('an unpublished reduced endpoint cannot replace the accepted lower HOME snapshot', async () => {
+  await fixture(({ screens, paint }) => {
+    const state = suspended(); paint(state, 100);
+    let pair = paint(state, 103);
+    assert.equal(pair.result.entryMotion.pauseFrame, 1);
+    const accepted = pair.events.find(event => event.name === 'pause-lower').home;
+    const acceptedByte = accepted.data[0];
+    screens.setReducedMotion(true);
+    pair = paint(state, 104, false);
+    assert.equal(pair.result.entryMotion.pauseFrame, 20);
+    assert.equal(pair.result.entryMotion.pauseLower, null);
+    screens.setReducedMotion(false);
+    pair = paint(state, 105, false);
+    assert.equal(pair.result.entryMotion.pauseFrame, 1);
+    const rebased = pair.events.find(event => event.name === 'pause-lower').home;
+    assert.equal(rebased, accepted);
+    assert.equal(rebased.data[0], acceptedByte);
+  });
+});
+
 test('compact keeps pause appearance while dialog, close, stale capture and disposal keep existing boundaries', async () => {
   await fixture(({ screens, paint, capture, assets }) => {
     const state = suspended(); paint(state, 100);

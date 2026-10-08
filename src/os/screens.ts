@@ -788,7 +788,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
     pauseLowerHomeCapture={owner:pauseOwner,generation:suspendedCapture.generation,pixels:{width:320,height:240,data:new Uint8ClampedArray(b.getImageData(0,0,320,240).data)}};
    }
    if(!nativeHome?.pauseLower(b,suspendedCapture.lower,pauseLowerHomeCapture.pixels,pauseLower.fadeFrame))throw Error('Native HOME lower pause transition unavailable');
-  }else pauseLowerHomeCapture=undefined;
+  }else if(pauseEntryMotion&&homeEntryMotionMatches(pauseEntryMotion,pauseIdentity)&&!homeEntryMotionActive(pauseEntryMotion))pauseLowerHomeCapture=undefined;
   if(!bootBaseOnly&&state.panel!=='folder-settings'&&state.panel!=='folder-not-empty'){
    const withholdPauseFooter=!!pauseLower&&pauseLower.footerFrame===null;
    const nativeFooterDrawn=withholdPauseFooter||nativeHome?.footer(b,state,reduced,homeEntry.footerSceneInFrame??undefined,launchPresentation?.footerSceneOutFrame,launchPresentation?.footerDecideFrame,pauseLower?.footerFrame??undefined)===true;

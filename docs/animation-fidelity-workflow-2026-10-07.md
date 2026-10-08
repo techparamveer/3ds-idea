@@ -1,5 +1,29 @@
 # Animation fidelity workflow
 
+## Requested quota pause, 8 October
+
+Fresh usage reached25% used/75% weekly remaining. The user's explicit stop
+threshold applies. Reviewed private policyeda87e89 permitted Camera, Sound
+and portfolio compact-pause regressions on unchanged d392ae3. Camera completed
+78/81 pairs and Sound78/79. All four ledgers report valid with no page errors,
+retained app and expected adjacent selection12 and9 respectively. Their first
+ready compact samples are frame9; frames0..8 and native timing remain open.
+Portfolio did not start. Camera's two console views were opened.
+
+The reviewer's already-running Camera checker completed during shutdown.
+Report9afe8d2a checks159 pairs/318 raw PNGs, paired receipts, trusted Right
+events and orphan closure. Selectoraf9d1ccd chooses10/21/77 and10/21/80;
+sheet560ca5ad contains12 pixel-exact LCD regions but is not visually inspected.
+New private verify-compact-variants.mjs and its test file passed15/15 checks.
+The coordinator has not reviewed or rerun this new helper. Sound verification
+and all new sheet inspection remain pending. Preserve these partial artifacts.
+
+The interrupted3024 server was verified absent before restarting its unchanged
+build as session99555/PID4597. At the threshold, root stopped it with exit130
+and verified no listener or PID remained. Finite Camera/Sound browser jobs
+exited0; the reviewer reports no active handle. No native session was launched.
+All four whole scenarios remain fail and muted audio remains unverified.
+
 ## Goal and base
 
 The 7 October request narrows the active UI work to four incomplete animation

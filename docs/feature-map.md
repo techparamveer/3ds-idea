@@ -1,5 +1,11 @@
 # Feature map — 1:1 queue
 
+8 October quota checkpoint: weekly allowance reached75% remaining, so the
+user's stop instruction applies. Camera and Sound compact suspension each
+completed two browser capture cycles. The reviewer checked all318 Camera raw
+PNGs; Sound verification, sheet inspection and portfolio capture remain pending.
+All four whole animation scenarios remain fail. STATUS has the paused restart.
+
 7 October priority override: finish [AN-01 through AN-04](animation-fidelity-workflow-2026-10-07.md)
 for top-row opening, Manual opening, folder entry and HOME suspension. GitHub
 restart base is `5ee6fd7`; the historical static queue below is preserved.

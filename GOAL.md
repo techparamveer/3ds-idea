@@ -14,7 +14,10 @@ the reviewed lower-latency collector as `7404d7f`. The unchanged clean runtime
 on3024 captures compact appearance frame9 in both normal repeat cycles;
 frames0..8, the full fade and native timing remain unproven. All four whole
 animation scenarios still fail. Replacement workers/reviews use GPT-6 Astra
-high. Goal active, weekly76% remaining; stop at75%.
+high. The later usage check reached25% used/75% remaining on8 October.
+Work is paused at the user's requested threshold. Camera and Sound variant
+captures are saved; Sound verification, sheet inspection and portfolio capture
+remain pending. The goal is incomplete and requires a human resume.
 
 Finish the opening animations for the HOME top-row apps, opening Manual,
 entering folders, and suspending a game or app with HOME. Preserve the user's

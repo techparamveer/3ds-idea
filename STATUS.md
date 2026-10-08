@@ -23,7 +23,7 @@ This checkpoint records that implementation; use Git for the current documentati
 Revision 2 starts from checked HEAD `7f06ecf3a60894d5682817c05a5e3e7f2951227f`.
 User correction: follow reference proportions and reveal, add opening cube spin,
 play once and hold logo; remove reverse and loop.
-Revision 2 implemented and browser-verified: full opening spin, closer reference
+Revision 2 implementation: `a524cee`. Implemented and browser-verified: full opening spin, closer reference
 reveal, visibly extruded white lettering with dark sides, one-shot playback and
 indefinite logo hold. The production preview at port 3048 serves this revision.
 Next for this branch: user review. Native queue below remains unrelated.

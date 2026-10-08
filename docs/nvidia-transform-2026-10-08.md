@@ -4,7 +4,7 @@ User-requested portfolio adaptation on `codex/nvidia-transform`, based on
 `5ee6fd7a42b0239c5f55f375f85593289a0ff532`. The old fidelity checkout in STATUS
 was absent; this branch uses a separate managed worktree from current `main`.
 Initial implementation: `efe4e8d`, superseded by this correction from
-`7f06ecf`. The user rejected the reverse loop and requested a closer reference
+`7f06ecf`, committed as `a524cee`. The user rejected the reverse loop and requested a closer reference
 match, an opening spin, one-shot playback and visibly 3D lettering.
 
 Selecting NVIDIA previously showed the generic logo plaque on HOME, and opening

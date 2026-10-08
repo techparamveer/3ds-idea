@@ -54,6 +54,8 @@ Next for this branch: user visual review.
 Revision 6 starts from checked HEAD `04c05b16e9b1f63689266d247a0b6c35ba5dede4`.
 Scope: opening spin only. Keep a stable upright axis, ease speed and flattening;
 preserve the restored logo/carve sequence from frame 41 onward.
+Revision 6 implementation: `10f1f475b59f62c12cfa363b15494dd58dd9caa9`; Git supplies documentation HEAD.
+Revision 6 browser-inspected on the muted isolated preview; actual renderer playback checks pass.
 Revision 6 rendered: upright YXZ turn, smoothstep yaw and gradual size/depth
 settling through frame 40. Final poster unchanged. Typecheck/build/shader pass;
 full tests retain the known Camera fixture failure. Port3048 serves this revision.

@@ -2,9 +2,123 @@
 
 The human resumed on8 October with "continue disregard that" and removed the
 75%-remaining stop rule. Continue from STATUS Next; quota pauses recorded below
-are historical. New helpers follow the latest user-supplied AGENTS preference:
-GPT-5.6 Sol high, with an independent different-model reviewer. All sessions stay
+are historical. The latest human request selects GPT-6.1 Sol extra-high for
+workers and reviewers. Review stays independent. All sessions stay
 muted and visual tests stay on Sidecar.
+
+## HOME lower delivery and Manual stall, 8 October
+
+Reviewed lower pause composition `b572961` and accepted-receipt snapshot release
+`d2a80ec` are integrated with Manual incoming cadence `1c58f50`. The lower
+composition uses the decoded `LncPauseFade_D_00_SceneIn` and footer
+`LncBtmBtn_02_SceneIn` resources. Exact title, version, content index, member
+hashes and converter identities are in the
+[source handoff](workstream-handoffs/home-pause-lower-transition-20261008.md).
+No native asset bytes changed. Mapping fade frames 0..40 and footer frames
+0..14 onto the existing pause clock 0..20 is an explicit host adaptation.
+The Manual incoming nominal 60 Hz clock is also an adaptation, not a duration
+fitted to the native movie's sparse 491.7 ms observation bounds.
+
+Combined runtime `1c58f50b7d76cd97696d5832aa63201d1308b744` passes 207 focused
+checks, nonincremental typecheck and production build. Full tests have 2509
+passes, one historical missing Camera screenshot failure, 98 skips and one TODO.
+Build `WJ9FrmBI4zTfb03yLnuir` hashes
+`c7cbb641b5b9675080c9df8677bfe08a5eaea42e50c79b74a61891e78010d958`.
+It stayed frozen on port 3025 during captures. Root then stopped session 98829
+with exit 130 and verified listener absence before the next integration.
+No shader/material source changed.
+
+The existing `home-suspension-sidecar/` artifact root now includes
+`browser-final-normal/`, 76/75 pairs, and `browser-final-reduced/`, 4/5 pairs.
+All four cycles complete without page errors. The normal chronological sheet
+and reduced console views are inspected. Independent normal audit verifies
+all 302 raw PNGs and same-paint receipts. Both cycles show retained Health
+shrinking/darkening, HOME crossfading and footer entering last. Browser pause
+0-to20 intervals are 760.9/812.5 ms; these are not native epoch measurements.
+Upper HUD still appears too early. Source fade and footer coverage is sampled,
+not every source frame. Reduced motion remains an accessibility adaptation.
+
+The predeclared first normal terminal at index 021 uses raw upper
+`0250df34f7933de236a372c77adcc40f9b637323d71cbd8181f2955570527d3a`
+and lower `e58fc5c8d373f28b13494797fb403bda040d2a7a4e85ee06e1a57a715a38dc74`.
+Against the same native own PNG `30b5e382...` and empty mask `dc4b320b...`,
+`final-comparison/report.json` hashes
+`9d942c6f9c15f6507e3b1e139c65ddbf2aed28758cc918df185e30e2544f20c7`.
+It counts 10800 upper/37542 lower pixels above delta 2. Both sheets are opened.
+Unmatched HUD, app-grid fixture, capture phase, title icon and raster residuals
+remain counted. The counts do not establish motion improvement or acceptance.
+
+Normal HOME had verified pre-navigation Sidecar bounds but no post-navigation
+check before its window closed. Reduced HOME has a coordinator-attested
+post-navigation check, not a saved independent bounds artifact. These limits
+remain explicit; neither is a complete independent display-policy proof.
+The new Sol 6.1 extra-high reviewer independently verifies all 320 normal and
+reduced HOME PNGs, receipt chronology, both exact-pixel sheets and the terminal
+diagnostic. `supporting/sol-final-review/audit.json` hashes
+`a67c2a8c37a163fd4f2b04ea255790645bb76bb45139bd86f32cdc10b4e94b8e`.
+Its reduced sheet is also opened. The first normal capture's last frame extends
+11.9 ms beyond the requested window because capture occurs before the stop
+check; the first terminal selector is unchanged.
+
+Manual `manual-approved-sidecar/browser-final-normal/` is a failed run, not
+acceptance. Its 188 pairs stop progressing at outgoing frame 11, with the later
+failure snapshot at frame 12 and native readiness still loading. Ledger hash
+`dbf2e87b302cd807c09af9e836d7b2cb9d45892877ac4f878d7ae71b07c99186` and
+failure hash `af31e057a248b366b65c7d53d00af4c08939e55f54e54587b2b93195cab59abe`
+are preserved. A real sample-before/render-after tick-boundary unit regression
+reproduces the stall. Do not extend the deadline to conceal it. Reduced Camera
+Manual in `browser-final-reduced/` completes 66/69 pairs; both console views
+show Contents. Manual pre/post-navigation exact window checks are saved and
+wholly within Sidecar 7. All browsers are muted and have closed after their runs.
+The follow-up below corrects that failure. All four whole scenarios remain fail;
+native audio acceptance is unverified while muted.
+
+### Manual clock-boundary correction
+
+Worker `4e11d2da40732da1ec9b14014cb5d53a11671573` integrates as
+`a52bdfecb35b326b3c77cee86fa08aa5e3a9b23b` after independent Sol 6.1 extra-high
+review. The actual scene samples before rendering and acknowledges after it.
+When that render crosses a quantized tick, the next sample can share the prior
+receipt tick. Repeatedly replacing the progress baseline with that receipt
+stranded outgoing cover even while paired paints continued. A regression
+reproduced outgoing 12 instead of 13 before the fix.
+
+The helper now keeps the accepted pose's sample tick as well as its receipt
+tick. A bounded overlap grants at most one step; normal elapsed updates and
+monotonicity remain receipt-based. Frozen pending poses, first/terminal receipts,
+resource readiness, owner/generation guards, long stalls and revocation remain.
+The unchanged native source mapping is in the
+[Manual entry contract](workstream-handoffs/animation-manual-entry-20261007.md).
+No native graphics, curves or audio changed. The host overlap rule is an
+adaptation, not recovered firmware caller timing.
+
+Integrated checks pass 37 focused tests, nonincremental typecheck and production
+build. Full tests report 2512 passes, one unchanged historical Camera PNG ENOENT,
+98 skips and one TODO. Build `DjMwo-kSqGSEGFPeXqt5o` hashes
+`99677ab77cda41c757a915bec310086a13d4049b4c64b8086c1c5aa75a6d0345`.
+Logs and the predeclared `clock-fix-policy.md` are under
+`manual-approved-sidecar/` in the same private continuation root.
+
+Corrected normal Camera first/repeat completes 89/91 pairs in the unchanged
+3500 ms collection window; reduced Camera completes 70/71 and normal Settings
+177/182 pairs. All six cycles finish without page errors and with the requested
+Manual ready. Every run saves exact pre/post-navigation Sidecar bounds.
+All six console images are opened. No new native session was launched.
+
+Camera's first chronological paired ready is 045; repeat is 047 with identical
+LCD hashes. The fixed raw upper is
+`002c29195e29e6858788fe9c210b854b08623edbf3a53ba97e3d37a565e587ac`, lower
+`823c13e5d30e6e666acff905884acd1d1aeb9661e507975843551a7f96cc4765`.
+Against native own PNG
+`187ad2e67e97fbe12f4d041e0679a8ff2ade2e8282065cc81264a8f80b8bea1f`, the unchanged
+empty mask yields the previous 106 upper/9 lower residual. Report
+`clock-fix-comparison/report.json` hashes
+`a31d1a0d5446211bc55ff649b0c9dd1eede9d4b402a93ebee8620896e2ebc67a`.
+Both diff sheets are opened. Native compressed incoming samples 001..003 are
+also inspected again, separately from raw pixel acceptance. Browser completion
+and stable ready pixels do not prove native epochs, outgoing duration, easing,
+input parity or audio. Upper HOME HUD timing and other unexplained animation
+residuals remain the next bounded work.
 
 ## HOME lower transition capture, 8 October
 

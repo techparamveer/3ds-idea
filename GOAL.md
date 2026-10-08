@@ -7,7 +7,18 @@ The human resumed on8 October with "continue disregard that", revoking the
 75%-remaining stop condition. Continue the full animation goal. Earlier quota
 checkpoints remain history; do not stop again at that removed threshold.
 
-Latest checkpoint: the goal is active. Folder cursor ordering and cadence are
+Latest checkpoint: the goal is active at runtime `a52bdfe`. The lower HOME
+pause compositor and snapshot-lifetime correction are integrated and visibly
+recaptured. Normal first/repeat has 151 pairs; reduced has nine pairs. Lower
+app shrink/darken, HOME crossfade and delayed footer now appear in order.
+Upper HUD timing and exact native epochs remain open. A normal Camera Manual
+capture exposed an outgoing clock-boundary stall. Reviewed fix `a52bdfe` now
+completes Camera normal/reduced and Settings normal first/repeat captures.
+Preserve the failed run; successful browser behavior is not native acceptance.
+See the
+[combined checkpoint](docs/animation-fidelity-workflow-2026-10-07.md#home-lower-delivery-and-manual-stall-8-october).
+
+Earlier checkpoint: the goal is active. Folder cursor ordering and cadence are
 corrected through runtime `25e7520` and recaptured on muted Sidecar. Native
 Health HOME recordings now expose the missing outgoing lower transition:
 browser shows the HOME grid/footer immediately, while native retains and
@@ -50,9 +61,10 @@ duration and the final screen. A matching endpoint or passing tests does not
 establish matching motion.
 
 Work in separate branches and worktrees with at most two workers. The latest
-user-supplied AGENTS instructions select GPT-5.6 Sol, high reasoning, for new
-helpers. Keep an independent reviewer on a different model; the current reviewer
-is GPT-6 Astra high. Normal speed is requested but not tool-verifiable.
+human request on 8 October selects GPT-6.1 Sol, extra-high reasoning, for all
+new workers and reviewers. This supersedes earlier model preferences. Keep
+review independent of implementation. Normal speed is requested but not
+tool-verifiable.
 Do not claim that a helper override changes the running coordinator model.
 The coordinator alone controls Azahar and the shared browser, integrates
 reviewed commits, and repeats capture, diff and correction. Keep the reviewer

@@ -1,5 +1,15 @@
 # Feature map — 1:1 queue
 
+8 October combined checkpoint: `b572961`/`d2a80ec` deliver the decoded lower
+HOME pause transition and accepted-receipt snapshot lifetime. Runtime `1c58f50`
+shows retained Health, HOME crossfade and footer last in first/repeat captures.
+Upper HUD timing remains open. Manual incoming cadence is implemented; normal
+Camera opening then revealed a reproducible outgoing clock stall. Reviewed
+`a52bdfe` fixes it. Camera normal/reduced and Settings normal now reach Contents
+in all six first/repeat cycles; native timing and 106/9 ready residual remain.
+All four whole scenarios remain fail. New helpers use GPT-6.1 Sol extra-high.
+See the [combined checkpoint](animation-fidelity-workflow-2026-10-07.md#home-lower-delivery-and-manual-stall-8-october).
+
 8 October HOME capture: native first/repeat and157 audited browser pairs expose
 the missing outgoing lower-screen suspension transition. Browser shows HOME and
 Close/Resume at frame0; native shrinks/darkens Health, crossfades HOME, then

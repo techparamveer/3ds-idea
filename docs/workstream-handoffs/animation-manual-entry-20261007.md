@@ -122,13 +122,20 @@ kind2 SceneOut and kind1 SceneIn through0x231ba8, and completion/hold through
   power-off, owner change and disposal invalidate backing; four bounded retained
   canvases are released on disposal. Settled Manual painting is unchanged.
 
-**Declared adaptations:** host observations use nominal60Hz elapsed time;
-successful receipts spend at most one source pose even at30/45Hz render
-budgets. More than six adapted updates (100ms) is treated as a browser stall:
-retain pose and rebase. This scheduling policy neither asserts native timing
-nor skips poses to meet a guessed duration. Entry ownership begins at the
-browser's existing Manual invocation; source caller epoch is untraced. The
-existing browser recovery UI remains non-native. No new native audio is guessed.
+**Declared adaptations, updated 8 October:** host observations use nominal
+60 Hz elapsed time. Outgoing spends at most one source pose per accepted
+receipt; incoming now consumes bounded elapsed receipt-clock updates after its
+first pose is presented. More than six adapted updates (100 ms) is a browser
+stall: retain pose and rebase. The accepted sample tick is retained separately
+so a subsequent fresh sample sharing the receipt tick can spend at most one
+bounded overlap step. Pending publication time cannot produce a catch-up burst.
+First/terminal receipts, caller identity, readiness and monotonicity remain
+required. This is not recovered native rate or a fit to a movie duration.
+Entry ownership begins at the browser's existing Manual invocation; source
+caller epoch is untraced. Browser recovery remains non-native; no native audio
+is guessed. See the
+[captured clock-boundary correction](../animation-fidelity-workflow-2026-10-07.md#manual-clock-boundary-correction)
+for commits, the failed before run and corrected coordinator captures.
 
 ## Verification and Integration
 

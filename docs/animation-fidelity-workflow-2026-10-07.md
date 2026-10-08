@@ -6,6 +6,66 @@ are historical. New helpers follow the latest user-supplied AGENTS preference:
 GPT-5.6 Sol high, with an independent different-model reviewer. All sessions stay
 muted and visual tests stay on Sidecar.
 
+## Folder cursor and cadence correction, 8 October
+
+First/repeat silent Sidecar movies now show native folder entry continuously.
+Both show the child panel appearing before its large green cursor, then the
+upper folder shrinking away. The previous browser instead showed its child
+cursor over the root grid at folder frame0. Its frame0-to16 intervals were
+633.3/614.3ms. These browser intervals and variable-cadence native movie samples
+are not interchangeable native epochs.
+
+Cursor correction `dbd3010` suppresses the native cursor/effect group until the
+lower panel endpoint. Worker `4d9a04b` integrates as `1d0b8e4`: folder motion
+spends bounded eligible HOME updates instead of one step per rendered pair.
+Pause keeps its prior policy. Upper hiding still follows an acknowledged lower
+terminal; hidden publication precedes child-banner release. First-frame,
+pending-pair, owner, diagnostic, failure and stall guards remain. Tests
+`95caed9` and `25e7520` exercise the live painter and retained cursor phase.
+Independent Astra review cleared the changes.
+
+No native assets changed. Element-to-manifest-to-dump mappings, title/version,
+content, member hashes and converter identities remain in the
+[folder source handoff](workstream-handoffs/animation-folder-home-20261007.md).
+The panel uses `LncFolder_00_FadeIn`0..16; retained root uses
+`LncFolderCapture_00_Fade`0..8; cursor and upper folder use their existing
+decoded native layouts/model. Endpoint16 cursor visibility, nominal60Hz cadence
+and the render-receipt boundary are explicitly browser adaptations. This slice
+does not recover an exact native cursor caller or audio acceptance.
+
+Integrated source `25e7520dfed4903b3e112f96515ed9ffc95e1a9d` passes183 focused
+checks, nonincremental typecheck and production build. Full tests have2502
+passes, one known absent historical Camera PNG failure,98 skips and one TODO.
+No shader/material change. BUILD_ID `SWsNXATmbN7U22ppZJSux`, SHA-256
+`ef36cffa5112b5d2dcb464d610752d6bd721ef5cbec980527cb29456ef81e23a`.
+
+Corrected muted production captures on Sidecar have87/91 normal pairs and10/9
+reduced mobile pairs, without page errors. All197 pairs/394 raw PNGs pass
+independent hash, decode, dimensions and matching-receipt checks. Normal
+frame0-to16 now measures260.1/276.7ms in the browser. The prematurely exposed
+cursor is absent; both chronological sheets and all four console views are
+opened. Normal captures omit some intermediate poses; they do not prove full
+pose coverage. Reduced motion selects only the endpoint and is an adaptation.
+Before every run, actual window bounds were verified inside Sidecar before
+releasing the blank-page token, and again after navigation. The browser repeat
+uses Escape where native used Back touch; exact input parity remains open.
+
+Artifacts are under
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261008/folder-home-sidecar/`.
+Native first/repeat movie SHA-256 values are
+`ab9e8a1fa65dbb7fe8d3356914c240ac83eb1177c30fdc4827b49858174165e9` and
+`889f9091d9e0cb5d9592c4eb7a1bcbf38b24401e2559bd6a4531f18bd74a3ac4`.
+They have zero audio tracks but different window raster sizes and variable
+cadence. Own native ready PNG `folder-first-ready-own.png` hashes
+`b4b357f32ab0610e7ceecd249b5cbb5e937dcd8b73fe18f0d0a6f21231154ff5`.
+The policy-selected first-ready corrected browser index026 is copied unchanged to
+`corrected-ready-pair/`. Empty-mask report `corrected-comparison/report.json`
+hashes `9a0d932536be03392987815a8d4dd188f39e10903055e6f3cd032942cab6b4b3`
+and records18712 upper/7438 lower pixels above delta2. Both diff sheets are
+opened. HUD, root fixtures, loop phases and existing raster differences remain
+included. This unmatched-epoch static diagnostic is not a measured pixel
+improvement or whole-scenario pass. AN-01 through AN-04 remain fail.
+
 ## Approved incoming delivery, 8 October
 
 The human approved the two decoded incoming packs and silent exact-window

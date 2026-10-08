@@ -1,5 +1,14 @@
 # Feature map — 1:1 queue
 
+8 October folder correction: native first/repeat Sidecar movies revealed the
+premature child cursor. `dbd3010` fixes the ordering; `1d0b8e4` removes the
+folder-only render-count slowdown. Corrected normal/reduced first/repeat
+production captures verify the visible change; all394 raw PNGs are checked.
+Exact native timing, input parity, audio and existing pixel residuals remain
+open. AN-01 through AN-04 still fail. Next is native HOME suspension motion,
+then matched top-row/Manual motion. See the
+[folder checkpoint](animation-fidelity-workflow-2026-10-07.md#folder-cursor-and-cadence-correction-8-october).
+
 8 October approved incoming checkpoint: decoded Friends/Notifications packs and
 live callers are integrated through `a8b06ca`. Sidecar testing caught and
 verified the fix for a mixed-pack font conflict. All eight normal/reduced

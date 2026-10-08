@@ -9,13 +9,13 @@ const present=(session,pose,update,ready=true)=>session.present(pose,identity,ms
 test('Manual preserves every outgoing pose and requires the incoming first and terminal receipts',()=>{
  const s=createManualEntryPresentation();
  let update=100;
- for(let frame=0;frame<=20;frame++,update+=3){
+ for(let frame=0;frame<=20;frame++,update++){
   const pose=sample(s,update);assert.deepEqual([pose.phase,pose.frame],['out',frame]);
   assert.equal(sample(s,update+2),pose);assert.equal(s.ready(identity),false);assert.equal(present(s,pose,update),true);
  }
  const incoming=sample(s,update);assert.deepEqual([incoming.phase,incoming.frame],['in',0]);
  assert.equal(sample(s,update+5000),incoming,'unpresented incoming frame zero cannot disappear');
- assert.equal(present(s,incoming,update+5000),true);update+=5000;
+ assert.equal(present(s,incoming,update),true);
  let terminal;
  for(const frame of [5,10,15,20]){update+=5;terminal=sample(s,update);assert.deepEqual([terminal.phase,terminal.frame],['in',frame]);if(frame<20)present(s,terminal,update);}
  assert.equal(s.ready(identity),false);assert.equal(sample(s,update+5000),terminal,'unpresented incoming terminal cannot disappear');
@@ -35,6 +35,42 @@ test('incoming follows bounded elapsed updates at ordinary render cadences inste
   }
   assert.equal(receiptCount-1,Math.ceil(20*hz/60),`${hz}Hz receipt count`);
  }
+});
+test('accepted sample elapsed survives later Manual receipts at 20, 30, 45 and 60Hz in both phases',()=>{
+ for(const hz of [60,45,30,20]){
+  const s=createManualEntryPresentation();let origin=100,receipt=0;
+  let pose=sample(s,origin);assert.deepEqual([pose.phase,pose.frame],['out',0]);
+  assert.equal(present(s,pose,origin+1),true);
+  while(pose.frame<20){
+   receipt++;const observed=origin+Math.floor(receipt*60/hz);pose=sample(s,observed);
+   assert.deepEqual([pose.phase,pose.frame],['out',Math.min(20,observed-origin)],`${hz}Hz outgoing receipt ${receipt}`);
+   assert.equal(sample(s,observed+.4),pose,'pending outgoing pose cannot be replaced');
+   assert.equal(present(s,pose,observed+1),true);
+  }
+  receipt++;const boundary=origin+Math.floor(receipt*60/hz),incoming=sample(s,boundary);
+  assert.deepEqual([incoming.phase,incoming.frame],['in',0],`${hz}Hz boundary has no outgoing carry`);
+  assert.equal(sample(s,boundary+.4),incoming,'incoming zero requires its own receipt');
+  assert.equal(present(s,incoming,boundary+1),true);
+  origin=boundary;receipt=0;pose=incoming;
+  while(pose.frame<20){
+   receipt++;const observed=origin+Math.floor(receipt*60/hz);pose=sample(s,observed);
+   assert.deepEqual([pose.phase,pose.frame],['in',Math.min(20,observed-origin)],`${hz}Hz incoming receipt ${receipt}`);
+   assert.equal(sample(s,observed+.4),pose,'pending incoming pose cannot be replaced');
+   assert.equal(present(s,pose,observed+1),true);
+  }
+  assert.equal(s.ready(identity),true);
+ }
+});
+test('Manual stalls mint no elapsed credit across recovery or the outgoing-to-incoming boundary',()=>{
+ const s=createManualEntryPresentation();
+ let pose=sample(s,100);assert.deepEqual([pose.phase,pose.frame],['out',0]);present(s,pose,101);
+ pose=sample(s,108);assert.deepEqual([pose.phase,pose.frame],['out',0],'eight accepted-sample ticks are a stall');present(s,pose,109);
+ for(const [update,frame]of [[111,3],[117,9],[123,15],[129,20]]){
+  pose=sample(s,update);assert.deepEqual([pose.phase,pose.frame],['out',frame]);present(s,pose,update+1);
+ }
+ pose=sample(s,135);assert.deepEqual([pose.phase,pose.frame],['in',0],'bounded terminal elapsed cannot carry into incoming');present(s,pose,136);
+ pose=sample(s,142);assert.deepEqual([pose.phase,pose.frame],['in',0],'incoming stall cannot spend its rejected gap');present(s,pose,143);
+ pose=sample(s,145);assert.deepEqual([pose.phase,pose.frame],['in',3],'recovery starts from the accepted stalled sample');present(s,pose,146);
 });
 test('fresh samples and later paired render receipts cannot strand outgoing Manual in one quantized tick',()=>{
  const s=createManualEntryPresentation();

@@ -151,17 +151,17 @@ test('fresh Manual observations progress reduced first and repeat cycles when rA
  });
 });
 
-test('fresh Manual observations preserve normal pending poses and rebase context resume despite stale rAF',async()=>{
+test('fresh Manual observations retain elapsed progress, pending poses and context-rebase position despite stale rAF',async()=>{
  await fixture(({screens,paint})=>{
   const home=cameraHome(),state=manual(home);paint(home,0);
   const sample=(raf,observed)=>screens.paint(state,new Date(0),ms(raf),{manualEntryObservedElapsedMs:ms(observed)});
   assert.equal(sample(1,2).manualEntry.frame,0);assert.equal(screens.presentManualEntry(state,ms(3)),true);
-  assert.equal(sample(2,4).manualEntry.frame,1);assert.equal(sample(3,5).manualEntry.frame,1);
+  assert.equal(sample(2,4).manualEntry.frame,2);assert.equal(sample(3,5).manualEntry.frame,2);
   assert.equal(screens.presentManualEntry(state,ms(6)),true);
-  assert.equal(sample(5,7).manualEntry.frame,2);screens.revokeManualEntryCandidate();
+  assert.equal(sample(5,7).manualEntry.frame,5);screens.revokeManualEntryCandidate();
   assert.equal(screens.presentManualEntry(state,ms(8)),false);
-  assert.equal(sample(5,9).manualEntry.frame,1);assert.equal(screens.presentManualEntry(state,ms(10)),true);
-  assert.equal(sample(9,11).manualEntry.frame,2);assert.equal(screens.presentManualEntry(state,ms(12)),true);
+  assert.equal(sample(5,9).manualEntry.frame,2);assert.equal(screens.presentManualEntry(state,ms(10)),true);
+  assert.equal(sample(9,11).manualEntry.frame,4);assert.equal(screens.presentManualEntry(state,ms(12)),true);
   assert.equal(screens.stockStatus(state),'loading');assert.equal(screens.stockFailure(),null);
  });
 });

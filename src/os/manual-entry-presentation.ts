@@ -1,9 +1,9 @@
 export const MANUAL_ENTRY_LAST_FRAME = 20;
 // Browser scheduling policy, not a traced Manual caller epoch or native rate.
 export const MANUAL_ENTRY_HOST_HZ = 60;
-// More than 100ms between adapted host observations is a stall, not motion
-// credit. Incoming consumes bounded host-clock ticks while outgoing retains one
-// source pose per visible receipt. This is not a recovered native duration.
+// More than 100ms between accepted host samples is a stall, not motion credit.
+// Both phases consume bounded host-clock ticks. This is not a recovered native
+// duration.
 const MAX_OBSERVED_UPDATE_GAP = 6;
 
 export type ManualEntryIdentity = Readonly<{
@@ -41,19 +41,20 @@ export function createManualEntryPresentation() {
       if (pending) return pending.pose;
       const previous = presented?.pose;
       let phase: ManualEntryPose['phase'] = previous?.phase ?? 'out', frame = previous?.frame ?? 0;
-      const updates = presented ? update - presented.update : 0;
-      if (updates < 0) throw Error('Manual entry clock moved backwards');
-      // Sampling precedes the paired render receipt. Their quantized ticks can
-      // overlap on the next paint; repeated receipts must not erase that step.
+      const receiptUpdates = presented ? update - presented.update : 0;
+      if (receiptUpdates < 0) throw Error('Manual entry clock moved backwards');
+      // Sampling precedes the paired render receipt. Motion follows the accepted
+      // sample so time spent painting does not disappear; the receipt still
+      // gates publication.
       const sampledUpdates = presented ? update - presented.sampledUpdate : 0;
-      const progress = updates === 0 && sampledUpdates > 0 && sampledUpdates <= MAX_OBSERVED_UPDATE_GAP ? 1 : updates;
+      const progress = !rebase && sampledUpdates > 0 && sampledUpdates <= MAX_OBSERVED_UPDATE_GAP ? sampledUpdates : 0;
       if (input.reducedMotion) {
         if (previous?.phase === 'out' && previous.frame === MANUAL_ENTRY_LAST_FRAME && !rebase && input.destinationReady) phase = 'in';
         frame = MANUAL_ENTRY_LAST_FRAME;
-      } else if (previous && !rebase && progress > 0 && progress <= MAX_OBSERVED_UPDATE_GAP) {
+      } else if (previous && progress > 0) {
         if (previous.phase === 'out' && previous.frame === MANUAL_ENTRY_LAST_FRAME) {
           if (input.destinationReady) { phase = 'in'; frame = 0; }
-        } else frame = Math.min(MANUAL_ENTRY_LAST_FRAME, frame + (previous.phase === 'in' ? progress : 1));
+        } else frame = Math.min(MANUAL_ENTRY_LAST_FRAME, frame + progress);
       }
       pending = { pose: Object.freeze({ identity: Object.freeze({ ...identity }), ticket, phase, frame }), update };
       return pending.pose;

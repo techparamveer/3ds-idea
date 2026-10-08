@@ -65,6 +65,7 @@ collapse while still tilted in frames 33–39. Keep the cube solid until aligned
 and anchor its front face when switching to the carving slab.
 The rebuilt isolated preview now serves revision 7 and the completion-only
 “Hack for Impact” caption centered beneath the logo.
+Revision 7 implementation: `169ae59bc51871149b842799f555eaa00d1baa00`; Git supplies documentation HEAD.
 Revision 7 browser-inspected and timing-checked. Typecheck/build/shader pass;
 full tests retain one known missing Camera fixture failure (2,167 pass).
 The historical serving/seats/evidence below are preserved, not verified live.

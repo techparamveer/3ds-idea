@@ -300,3 +300,12 @@ at 29.97 fps; final logo holds without looping. Typecheck/build/shader pass;
 full tests retain the missing Camera HNI fixture failure (2,167 pass, one fail).
 Muted production preview and actual renderer playback inspected. No native
 acceptance change. See [authoring and evidence](../nvidia-transform-2026-10-08.md).
+
+
+### NVIDIA revision 6 — upright eased spin
+
+Opening motion now keeps the top face upright, eases the turn and gradually
+settles into the square by frame 40. Original materials, logo and carve timeline
+are preserved. Final poster unchanged; two packed edge pixels differ across
+frames 41–80. Typecheck/build/shader pass; tests retain the known missing Camera
+fixture failure. Portfolio adaptation only. See [evidence](../nvidia-transform-2026-10-08.md).

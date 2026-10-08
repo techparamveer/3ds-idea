@@ -8,7 +8,7 @@ white extruded text, flat emission text and pixel-traced eye are superseded.
 
 ## Delivered behavior
 
-The original green cube makes one full turn, faces the screen and slides left
+The original green cube turns upright with eased speed, settles face-on and slides left
 while the original dark wordmark emerges. A small cut begins near the lower
 right of the square, sweeps around the outside of the eye, then curls inward.
 The first version's complete logo holds at the end. Playback does not reverse
@@ -48,7 +48,7 @@ not a claim that the final PNG is byte-identical.
   rendered through Blender MCP in Blender 5.2.1 LTS. Earlier scenes remain;
   the active scene is the restored version. Original hardware files are untouched.
 - [Atlas](../public/portfolio/nvidia-transform/atlas.png): 80 transparent RGBA
-  frames, 180×148 each, 8 columns, 30000/1001 fps. Frames 1–25 spin, 34 is face-on,
+  frames, 180×148 each, 8 columns, 30000/1001 fps. Frames 1–36 turn, 40 is face-on,
   43–61 slide/reveal, 53–72 carve, and 72–80 hold. Binary alpha, RGB555-style
   quantization and nearest-neighbour display retain the original pixel style.
 
@@ -120,3 +120,23 @@ Earlier revisions and the original reference sheets remain in sibling folders.
 The video is a motion reference, not a pixel-equivalence acceptance test for this
 version. Remaining differences include the first artwork's proportions, material
 shading, added full spin, fitted carve timing and completed inner curl.
+
+
+## Revision 6 — opening spin polish
+
+From `04c05b1`, changed only the opening cube motion. The old XYZ rotation moved
+the pitch with the yaw, tipping the underside toward the camera halfway around.
+YXZ keeps the turn upright. Sampled smoothstep easing controls the yaw, followed
+by a gradual reduction in size, pitch and depth through frame 40. The yaw stays
+monotonic, completing a full turn plus the angle needed to face the camera; no
+backwards correction or mid-turn pause. The cube remains proportionate until
+the final flattening. The original materials and geometry stay unchanged.
+
+Private `revision-6/` evidence contains before/after sampled transforms,
+`check-spin.py`, `spin-check.json`, `spin-sheet.png`, `nvidia-smooth-spin.gif`,
+render/check logs and a production browser capture. The top face's camera-facing
+normal changes from a minimum of -0.2377 to 0, confirming the underside no longer
+faces the camera. Frames 41–80 have only two differing packed edge pixels across
+all 40 frames; the poster and the carving geometry/timing remain unchanged.
+Typecheck/build/shader pass. Full suite remains 2,167 pass, one known missing Camera
+HNI fixture failure, 96 skipped and one TODO. No native acceptance changes.

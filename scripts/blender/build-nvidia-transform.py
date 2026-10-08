@@ -113,6 +113,23 @@ for f, loc, scale, rot in poses:
     for path in ('location', 'scale', 'rotation_euler'):
         cube.keyframe_insert(data_path=path, frame=f)
 
+# Rotate around the cube's upright axis, then tilt the whole turn toward the
+# camera. XYZ turned the pitch with the yaw and exposed the underside halfway.
+cube.rotation_mode = 'YXZ'
+def ease(value):
+    t = max(0.0,min(1.0,value))
+    return t*t*(3-2*t)
+for frame in range(1,41):
+    yaw = .60-(2*math.pi+.60)*ease((frame-1)/35)
+    settle = ease((frame-25)/15)
+    resize = ease((frame-18)/22)
+    flatten = ease((frame-30)/10)
+    cube.rotation_euler = (.28*(1-settle),yaw,-.025*(1-settle))
+    side = 1.38+(.96-1.38)*resize
+    cube.scale = (1.38+(.91-1.38)*resize,side,side+(.15-side)*flatten)
+    for path in ('rotation_euler','scale'):
+        cube.keyframe_insert(path,frame=frame)
+
 # Geometry stays extruded while a transparent material reveals the lettering.
 def reveal(mat, values, operation):
     nodes, links = mat.node_tree.nodes, mat.node_tree.links
@@ -222,7 +239,7 @@ for name, loc, energy, size in [
     obj.location = loc
     obj.rotation_euler = (Vector((0,0,0)) - obj.location).to_track_quat('-Z','Y').to_euler()
 
-for frame,name in [(1,'Full cube spin'),(34,'Face on'),(43,'Slide and word reveal'),(53,'Cut starts lower right'),(61,'Outer sweep'),(68,'Inner curl'),(74,'Original logo hold')]:
+for frame,name in [(1,'Full cube spin'),(40,'Face on'),(43,'Slide and word reveal'),(53,'Cut starts lower right'),(61,'Outer sweep'),(68,'Inner curl'),(74,'Original logo hold')]:
     scene.timeline_markers.new(name,frame=frame)
 scene['adaptation'] = 'User-requested portfolio artwork. Not native Nintendo firmware.'
 scene['reference'] = 'User video.mp4: green box turns face-on, slides left, reveals NVIDIA eye and wordmark.'

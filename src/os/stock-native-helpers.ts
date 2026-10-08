@@ -317,10 +317,58 @@ function validateApplicationManualRowNumber(layout:NativeLayout,bodyY:number,col
       ||material.coordinateGenerators.length!==1||!generator||keys(generator)!=='reserved,source,type'||!('reserved' in generator)||generator.reserved!==0||generator.source!==0||generator.type!==0)return fail();
   }
 }
+/** Row constructor 0x170174 resolves PageTitleNumB02 and 0x17017c clears
+ * its visibility bit. Validate the untouched source before applying that hide. */
+function validateApplicationManualRowDecoration(layout:NativeLayout,bodyY:number,pack:NativeLayoutRenderer['packs'][string]){
+  const fail=()=>{throw new Error('Unsupported Manual Contents PageTitleNumB02 source');};
+  const same=(value:unknown,expected:readonly number[])=>Array.isArray(value)&&value.length===expected.length&&value.every((item,index)=>item===expected[index]);
+  const keys=(value:object)=>Object.keys(value).sort().join(',');
+  const path=nativePaneParentPath(layout,'PageTitleNumB02'),counts=new Map<string,number>();
+  const visit=(panes:NativePane[])=>{for(const pane of panes){counts.set(pane.name,(counts.get(pane.name)??0)+1);visit(pane.children);}};visit(layout.roots);
+  if(!path||path.length!==3||path.map(pane=>pane.name).join('/')!=='RootPane/BtnHeadLineBody/PageTitleNumB02')return fail();
+  for(const [index,pane] of path.entries()){
+    if(counts.get(pane.name)!==1||pane.kind!==(index===2?'pic1':'pan1')||pane.flags!==1||pane.alpha!==255||pane.origin!==4
+      ||pane.unsupported?.length||pane.part||pane.window||pane.text||index!==2&&pane.picture||!same(pane.rotation,[0,0,0])||!same(pane.scale,[1,1])
+      ||!same(pane.translation,index===0?[0,0,0]:index===1?[0,bodyY,0]:[-120,.75,0])||!same(pane.size,index===0?[320,240]:index===1?[30,40]:[31,31]))return fail();
+  }
+  const pane=path[2],picture=pane.picture,material=layout.materials[5];
+  if(pane.children.length||!picture||keys(picture)!=='colors,material,uvSets'||picture.material!==5||picture.colors.length!==4
+    ||picture.colors.some(color=>!same(color,[255,255,255,255]))||picture.uvSets.length!==1||!same(picture.uvSets[0],[0,0,2,0,0,2,2,2])
+    ||!material||layout.materials.filter(item=>item.name==='PageTitleNumB02').length!==1
+    ||keys(material)!=='bufferColor,constantColors,coordinateGenerators,flags,name,tevStages,textureMaps,textureMatrices,textureOnly,unsupported'
+    ||material.name!=='PageTitleNumB02'||!('flags' in material)||material.flags!==21||material.textureOnly!==false||!same(material.bufferColor,[220,196,157,0])
+    ||material.constantColors.length!==6||material.constantColors.some(color=>!same(color,[255,255,255,255]))||material.tevStages.length||material.unsupported.length)return fail();
+  const map=material.textureMaps[0],matrix=material.textureMatrices[0],generator=material.coordinateGenerators[0],texture=pack.textures['BtnLngSelBase01.bclim'];
+  if(material.textureMaps.length!==1||!map||keys(map)!=='magFilter,minFilter,texture,wrapS,wrapT'||map.texture!==0||map.magFilter!==1||map.minFilter!==1||map.wrapS!==2||map.wrapT!==2
+    ||layout.textures[0]!=='BtnLngSelBase01.bclim'||layout.textures.filter(name=>name==='BtnLngSelBase01.bclim').length!==1
+    ||material.textureMatrices.length!==1||!matrix||keys(matrix)!=='rotation,scale,translation'||matrix.rotation!==0||!same(matrix.scale,[1,1])||!same(matrix.translation,[0,0])
+    ||material.coordinateGenerators.length!==1||!generator||keys(generator)!=='reserved,source,type'||!('reserved' in generator)||generator.reserved!==0||generator.source!==0||generator.type!==0
+    ||!texture||keys(texture)!=='format,formatName,height,picaFormat,sha256,sourceSha256,url,width'||texture.width!==32||texture.height!==32||texture.picaFormat!==5
+    ||!('format' in texture)||texture.format!==3||!('formatName' in texture)||texture.formatName!=='LA8'
+    ||!('sha256' in texture)||texture.sha256!=='abd872b9f56ef94e5fd132ae7092f375fb2699c04e8c6b24da1399f9fb8f74c3'
+    ||!('sourceSha256' in texture)||texture.sourceSha256!=='9c92084ab0036dd74b7d89628b656316383a921c646fc5e4addd596a0206917b'
+    ||texture.url!=='textures/abd872b9f56ef94e5fd132ae7092f375fb2699c04e8c6b24da1399f9fb8f74c3.png')return fail();
+  const clip=pack.animations.BtnHeadLineTxt_Wait;
+  if(!clip)throw new Error('Missing native animation BtnHeadLineTxt_Wait');
+  if(clip.frames!==2||clip.loop!==false||clip.childBinding!==true||clip.groups.length||clip.shares!==undefined
+    ||!('unsupported' in clip)||!Array.isArray(clip.unsupported)||clip.unsupported.length
+    ||clip.tracks.some(track=>track.property==='visible'&&path.some(pane=>pane.name===track.target)))return fail();
+  const tracks=clip.tracks.filter(track=>track.target==='PageTitleNumB02');
+  if(tracks.length!==5)return fail();
+  for(const [index,track] of tracks.entries()){
+    const key=track.keys[0],paneTrack=index<2;
+    if(keys(track)!=='binding,component,contentIndex,index,interpolation,keys,property,tag,target'
+      ||track.binding!==(paneTrack?'pane':'material')||track.contentIndex!==(paneTrack?4:6)||track.index!==0||track.component!==(index===1?16:paneTrack?0:index-2)
+      ||track.interpolation!=='hermite'||!('tag' in track)||track.tag!==(index===0?'CLPA':index===1?'CLVC':'CLMC')
+      ||track.property!==(index===0?'translation.x':index===1?'alpha':`materialColor.0.${index-2}`)
+      ||track.keys.length!==1||!key||keys(key)!=='frame,slope,value'||key.frame!==(index===0?52:index===1?85:0)||key.slope!==0||key.value!==[-120,255,220,196,157][index])return fail();
+  }
+}
 function prepareApplicationManualRows(renderer:NativeLayoutRenderer,bottom?:CanvasRenderingContext2D){
   const pack=renderer.packs['manual-row'],source=bottom?validateApplicationManualRow(pack?.layouts.BtnHeadLineTxt,3):pack.layouts.BtnHeadLineTxt;
   if(bottom){
     validateApplicationManualRowNumber(source,3,[0,0,0,0]);
+    validateApplicationManualRowDecoration(source,3,pack);
     const font=renderer.getFontManifest('cbf_std.bcfnt'),transform=bottom.getTransform?.();
     if(!font||font.sourceSha256!=='95d5a675ae14cc22b84b5b89c8d10cc894f1e2dfaf00a1168545fe76fb1eb581'
       ||font.colorMode!=='alpha'||font.width!==25||font.height!==30||font.ascent!==25||font.baseline!==25||font.lineFeed!==30)throw new Error('Unsupported Manual Contents TextBox_Txt font');
@@ -348,8 +396,10 @@ function prepareApplicationManualRows(renderer:NativeLayoutRenderer,bottom?:Canv
     const layout=validateApplicationManualRow(renderer.packs['manual-row'].layouts[name],APPLICATION_MANUAL_LOWER_FIT.rowBodyY);
     const color=name==='ManualRowImportant'?[237,136,136,0]:[154,212,105,0];
     validateApplicationManualRowNumber(layout,APPLICATION_MANUAL_LOWER_FIT.rowBodyY,color);
+    validateApplicationManualRowDecoration(layout,APPLICATION_MANUAL_LOWER_FIT.rowBodyY,pack);
     const posed=poseNativeLayout(layout,pack.animations,[{name:'BtnHeadLineTxt_Wait',frame:1}]);
     validateApplicationManualRow(posed,3);validateApplicationManualRowNumber(posed,3,color);
+    validateApplicationManualRowDecoration(posed,3,pack);
   }
 }
 function prepareApplicationManualCategory(renderer:NativeLayoutRenderer){
@@ -485,7 +535,7 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
     // The cutoff below is measured from the settled native Contents capture.
     const title=entry.title.length>24?entry.title.slice(0,23)+'...':entry.title;
     if(/[\r\n]/.test(title))throw new Error('Unsupported Manual Contents TextBox_Txt multiline title');
-    draw(bottom,'manual-row',entry.page===0?'ManualRowImportant':'ManualRowGettingStarted',{center:[160,y],clip:APPLICATION_MANUAL_LIST_CLIP,pictureSampling:'lcd',textSampling:'lcd-source-size-left',textSamplingPanes:['TextBox_Txt','TextBox_Num'],bindings:[{name:'BtnHeadLineTxt_Wait',frame:1}],overrides:{TextBox_Num:{text:String(entry.page+1)},TextBox_Txt:{text:title}}});
+    draw(bottom,'manual-row',entry.page===0?'ManualRowImportant':'ManualRowGettingStarted',{center:[160,y],clip:APPLICATION_MANUAL_LIST_CLIP,pictureSampling:'lcd',textSampling:'lcd-source-size-left',textSamplingPanes:['TextBox_Txt','TextBox_Num'],bindings:[{name:'BtnHeadLineTxt_Wait',frame:1}],overrides:{TextBox_Num:{text:String(entry.page+1)},TextBox_Txt:{text:title},PageTitleNumB02:{visible:false}}});
     y+=APPLICATION_MANUAL_SLOTS.row;
   }
   draw(bottom,'manual-cursor','CsrHeadLine00',{center:[160,APPLICATION_MANUAL_SLOTS.firstRow+4],bindings:[{name:'CsrHeadLine00_Wait',frame:22}],clip:APPLICATION_MANUAL_LIST_CLIP});

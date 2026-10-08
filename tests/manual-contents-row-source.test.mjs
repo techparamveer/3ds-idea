@@ -20,9 +20,10 @@ const {NativeLayoutRenderer}=await import(compile('native-renderer'));
 const settings='0004001000022000',camera='0004001000022400',browser='0004003000009d02';
 const row=layout=>nativePaneParentPath(layout,'TextBox_Txt').at(-1);
 const body=layout=>nativePaneParentPath(layout,'TextBox_Txt')[1];
+const decoration=layout=>nativePaneParentPath(layout,'PageTitleNumB02').at(-1);
 const identity=()=>({a:1,b:0,c:0,d:1,e:0,f:0});
-function fixture(titleId=camera){
- const view={appId:'manual',screen:'main',heading:'',rows:[],selection:0,footer:{left:{action:'back',label:'Back'}},data:{manualTitleId:titleId}};
+function fixture(titleId=camera,screen='main'){
+ const view={appId:'manual',screen,heading:'',rows:[],selection:0,footer:{left:{action:'back',label:'Back'}},data:titleId?{manualTitleId:titleId}:{}};
  const packs=Object.fromEntries(nativeHelperView(view).packs.map(request=>[request.alias,json(request.url)]));
  const font={manifest:json('fonts/shared/font.json')},fonts=new Map([['cbf_std.bcfnt',font]]);
  const renderer=new NativeLayoutRenderer(packs,{},fonts),calls=[];
@@ -52,10 +53,14 @@ for(const titleId of [settings,camera,browser])test(`Contents ${titleId} binds o
   assert.equal(call.options.pictureSampling,'lcd');
   assert.deepEqual(call.options.clip,[0,0,320,212]);
   assert.deepEqual(call.options.bindings,[{name:'BtnHeadLineTxt_Wait',frame:1}]);
-  assert.deepEqual(Object.keys(call.options.overrides),['TextBox_Num','TextBox_Txt']);
+  assert.deepEqual(Object.keys(call.options.overrides),['TextBox_Num','TextBox_Txt','PageTitleNumB02']);
+  assert.deepEqual(call.options.overrides.PageTitleNumB02,{visible:false});
   assert.deepEqual(Object.keys(call.options.overrides.TextBox_Txt),['text']);
   assert.ok(!/[\r\n]/.test(call.options.overrides.TextBox_Txt.text));
   const layout=f.renderer.packs['manual-row'].layouts[call.layout],posed=poseNativeLayout(layout,f.renderer.packs['manual-row'].animations,call.options.bindings,call.options.overrides);
+  const originalPose=poseNativeLayout(layout,f.renderer.packs['manual-row'].animations,call.options.bindings,{TextBox_Num:call.options.overrides.TextBox_Num,TextBox_Txt:call.options.overrides.TextBox_Txt});
+  assert.equal(decoration(layout).flags,1);assert.equal(decoration(originalPose).flags,1);
+  decoration(originalPose).flags&=~1;assert.deepEqual(posed,originalPose,'only the original named visibility bit changes');
   assert.equal(body(layout).translation[1],2,'existing body fit is unchanged');
   assert.equal(body(posed).translation[1],3,'original Wait track is not fitted or rewritten');
   assert.deepEqual(row(posed).translation,row(f.source).translation);
@@ -187,11 +192,93 @@ test('a multiline selected index title fails explicitly instead of changing writ
  assert.throws(f.paint,/Unsupported Manual Contents TextBox_Txt multiline title/);assert.equal(f.calls.some(call=>call.pack==='manual-row'),false);f.renderer.dispose();
 });
 
+test('Contents decoration hide rejects malformed source pane, selected material and texture before drawing',()=>{
+ const edits=[
+  f=>{body(f.source).children=body(f.source).children.filter(pane=>pane.name!=='PageTitleNumB02');},
+  f=>{body(f.source).children.push(structuredClone(decoration(f.source)));},
+  f=>{const pane=decoration(f.source);body(f.source).children=body(f.source).children.filter(item=>item!==pane);f.source.roots[0].children.push(pane);},
+  ...['kind','flags','origin','alpha'].map(field=>f=>{decoration(f.source)[field]=field==='kind'?'pan1':0;}),
+  f=>{decoration(f.source).translation[1]=1;},
+  f=>{decoration(f.source).rotation[2]=1;},
+  f=>{decoration(f.source).scale[0]=2;},
+  f=>{decoration(f.source).size[1]=30;},
+  f=>{decoration(f.source).children.push(structuredClone(row(f.source)));decoration(f.source).children[0].name='child';},
+  f=>{decoration(f.source).text=structuredClone(row(f.source).text);},
+  f=>{decoration(f.source).part={layout:'replacement'};},
+  f=>{decoration(f.source).window={};},
+  f=>{decoration(f.source).unsupported=['unknown'];},
+  f=>{decoration(f.source).picture.material=1;},
+  f=>{decoration(f.source).picture.colors[0][3]=254;},
+  f=>{decoration(f.source).picture.uvSets[0][2]=1;},
+  f=>{decoration(f.source).picture.unknown=0;},
+  f=>{f.source.materials.push(structuredClone(f.source.materials[5]));},
+  ...['name','flags','textureOnly','bufferColor','constantColors','textureMaps','textureMatrices','coordinateGenerators'].map(field=>f=>{f.source.materials[5][field]=[];}),
+  f=>{f.source.materials[5].tevStages.push({});},
+  f=>{f.source.materials[5].unsupported.push('unknown');},
+  ...['alphaCompare','colorBlend','sourceFormat','capability','sourceCombiners','sourceProjections'].map(field=>f=>{f.source.materials[5][field]={};}),
+  f=>{f.source.materials[5].bufferColor[0]=219;},
+  f=>{f.source.materials[5].constantColors[0][0]=254;},
+  ...['texture','wrapS','wrapT','minFilter','magFilter'].map(field=>f=>{f.source.materials[5].textureMaps[0][field]++;}),
+  f=>{f.source.materials[5].textureMatrices[0].translation[0]=1;},
+  f=>{f.source.materials[5].textureMatrices[0].rotation=1;},
+  f=>{f.source.materials[5].textureMatrices[0].scale[0]=2;},
+  ...['reserved','source','type'].map(field=>f=>{f.source.materials[5].coordinateGenerators[0][field]++;}),
+  f=>{f.source.textures[0]='replacement.bclim';},
+  f=>{f.source.textures.push(f.source.textures[0]);},
+  f=>{delete f.renderer.packs['manual-row'].textures['BtnLngSelBase01.bclim'];},
+  ...['url','width','height','picaFormat','format','formatName','sha256','sourceSha256'].map(field=>f=>{f.renderer.packs['manual-row'].textures['BtnLngSelBase01.bclim'][field]=0;}),
+  f=>{f.renderer.packs['manual-row'].textures['BtnLngSelBase01.bclim'].unsupported=['unknown'];},
+ ];
+ for(const [index,edit]of edits.entries()){
+  const f=fixture();edit(f);assert.throws(f.paint,/Unsupported Manual Contents PageTitleNumB02 source/,`decoration mutation ${index}`);
+  assert.equal(f.calls.length,0);f.renderer.dispose();
+ }
+});
+
+test('cached decorations, replacements and unmodified Wait are guarded before a visibility override',()=>{
+ const edits=[
+  f=>{decoration(f.source).alpha=254;},
+  f=>{decoration(f.renderer.packs['manual-row'].layouts.ManualRowImportant).flags=0;},
+  f=>{decoration(f.renderer.packs['manual-row'].layouts.ManualRowGettingStarted).size[0]=30;},
+  f=>{f.renderer.packs['manual-row'].layouts.ManualRowImportant.materials[5].bufferColor[0]=0;},
+  f=>{f.renderer.packs['manual-row'].layouts.ManualRowGettingStarted.materials[5].textureMaps[0].texture=1;},
+  f=>{const replacement=structuredClone(f.renderer.packs['manual-row']);decoration(replacement.layouts.BtnHeadLineTxt).flags=0;f.renderer.packs['manual-row']=replacement;},
+  f=>{f.renderer.packs['manual-row'].animations.BtnHeadLineTxt_Wait.tracks.find(track=>track.target==='PageTitleNumB02').keys[0].value=-119;},
+  f=>{f.renderer.packs['manual-row'].animations.BtnHeadLineTxt_Wait.tracks.find(track=>track.target==='PageTitleNumB02'&&track.property==='materialColor.0.0').keys[0].value=219;},
+  f=>{f.renderer.packs['manual-row'].animations.BtnHeadLineTxt_Wait.tracks.find(track=>track.target==='PageTitleNumB02').keys[0].slope=1;},
+  f=>{f.renderer.packs['manual-row'].animations.BtnHeadLineTxt_Wait.groups=['replacement'];},
+  f=>{f.renderer.packs['manual-row'].animations.BtnHeadLineTxt_Wait.shares=[];},
+  f=>{f.renderer.packs['manual-row'].animations.BtnHeadLineTxt_Wait.shares=[{sourcePane:'PageTitleNumB02',targetGroup:'replacement'}];},
+  f=>{f.renderer.packs['manual-row'].animations.BtnHeadLineTxt_Wait.unsupported.push('unknown');},
+  ...['PageTitleNumB02','RootPane','BtnHeadLineBody'].flatMap(target=>[0,1].map(value=>f=>{
+   f.renderer.packs['manual-row'].animations.BtnHeadLineTxt_Wait.tracks.push({target,binding:'pane',property:'visible',index:0,component:0,interpolation:'step',keys:[{frame:0,value}]});
+  })),
+ ];
+ for(const [index,edit]of edits.entries()){
+  const f=fixture();assert.equal(f.paint(),true);f.calls.length=0;edit(f);
+  assert.throws(f.paint,/Unsupported Manual Contents PageTitleNumB02 source/,`cached decoration mutation ${index}`);assert.equal(f.calls.length,0);f.renderer.dispose();
+ }
+ const f=fixture();assert.equal(f.paint(),true);f.renderer.packs['manual-row']=structuredClone(f.renderer.packs['manual-row']);
+ assert.equal(f.paint(),true,'an exact immutable source replacement retains the same explicit hide');f.renderer.dispose();
+});
+
+test('Page and generic Manual paths do not inherit the Contents-only decoration override',()=>{
+ for(const [titleId,screen]of [[settings,'document'],[browser,'document'],[null,'main']]){
+  const f=fixture(titleId,screen),before=JSON.stringify(f.source);
+  if(screen==='document')f.view.data.page=0;
+  if(!titleId)f.view.rows=[{label:'Guide'}];
+  assert.equal(f.paint(),true);
+  const rows=f.calls.filter(call=>call.pack==='manual-row');assert.ok(rows.length);
+  for(const call of rows)assert.equal(call.options.overrides.PageTitleNumB02,undefined);
+  assert.equal(JSON.stringify(f.source),before);f.renderer.dispose();
+ }
+});
+
 test('real renderer keeps the row title left and the number centered on direct glyph sampling',()=>{
  const f=fixture();assert.equal(f.paint(),true);const selected=f.calls.find(call=>call.pack==='manual-row');
  const layout=structuredClone(f.renderer.packs['manual-row'].layouts[selected.layout]);
- // Isolate glyph transport from unrelated source pictures; keep hierarchy and both text panes.
- const strip=panes=>{for(const pane of panes){delete pane.picture;delete pane.window;strip(pane.children);}};strip(layout.roots);
+ // Keep B02 to prove the visibility override prevents its missing texture draw.
+ const strip=panes=>{for(const pane of panes){if(pane.name!=='PageTitleNumB02')delete pane.picture;delete pane.window;strip(pane.children);}};strip(layout.roots);
  const calls=[],font={manifest:f.font.manifest,drawNative(...args){calls.push({value:args[1],size:args[4],alignment:args[5],lineAlignment:args[8],direct:args[10],sourceSize:args[14],topLeft:args[15]});}};
  const renderer=new NativeLayoutRenderer({row:{...f.renderer.packs['manual-row'],layouts:{row:layout}}},{row:new Map()},new Map([['cbf_std.bcfnt',font]]));
  const previous=globalThis.document;
@@ -208,6 +295,9 @@ test('real renderer keeps the row title left and the number centered on direct g
   const title=calls.find(call=>call.value===selected.options.overrides.TextBox_Txt.text),number=calls.find(call=>call.value===selected.options.overrides.TextBox_Num.text);
   assert.deepEqual(title,{value:selected.options.overrides.TextBox_Txt.text,size:[17.5,21],alignment:0,lineAlignment:0,direct:true,sourceSize:true,topLeft:true});
   assert.deepEqual(number,{value:selected.options.overrides.TextBox_Num.text,size:[15.75,19.5],alignment:4,lineAlignment:2,direct:true,sourceSize:true,topLeft:true});
+  const visibleOptions=structuredClone(selected.options);delete visibleOptions.overrides.PageTitleNumB02;
+  assert.equal(renderer.draw(canvas().getContext(),'row','row',visibleOptions),false,'without the source hide B02 reaches its missing texture');
+  assert.ok(renderer.diagnostics.some(message=>message.includes('Missing native texture BtnLngSelBase01.bclim')));
  }finally{globalThis.document=previous;renderer.dispose();f.renderer.dispose();}
 });
 
@@ -284,6 +374,25 @@ test('optional pinned original Manual NCCH links row constructor, plain writer a
  const word=address=>code.readUInt32LE(address-0x100000),cstring=address=>code.subarray(address-0x100000).toString('utf8').split('\0')[0];
  const branch=(address)=>{const instruction=word(address);assert.equal(instruction>>>24,0xeb);return address+8+((instruction<<8)>>6);};
  assert.equal(branch(0x13d0f8),0x1700f4);assert.equal(word(0x1b8284),0x170220);
+ const hideInstructions=[
+  [0x17016c,0xe5940008],[0x170170,0xe28f102c],[0x170174,0xebffb429],
+  [0x170178,0xe5d010b7],[0x17017c,0xe20110fe],[0x170180,0xe5c010b7],
+  [0x17c0a0,0xe5d50008],[0x17c0a4,0xe5c400b7],
+ ];
+ const assertOriginalHide=bytes=>{
+  const read=address=>bytes.readUInt32LE(address-0x100000);
+  for(const [address,instruction]of hideInstructions)assert.equal(read(address),instruction);
+  const call=read(0x170174);assert.equal(0x170174+8+((call<<8)>>6),0x15d220);
+  const literal=0x170170+8+(read(0x170170)&0xfff);assert.equal(literal,0x1701a4);
+  assert.equal(bytes.subarray(literal-0x100000).toString('utf8').split('\0')[0],'PageTitleNumB02');
+ };
+ assertOriginalHide(code);
+ for(const [address]of hideInstructions){const mutation=Buffer.from(code);mutation.writeUInt32LE((word(address)^1)>>>0,address-0x100000);assert.throws(()=>assertOriginalHide(mutation),assert.AssertionError);}
+ for(const instruction of [0xe3811001,0xe1a00000]){
+  const mutation=Buffer.from(code);mutation.writeUInt32LE(instruction,0x17017c-0x100000);assert.throws(()=>assertOriginalHide(mutation),assert.AssertionError,'show/no-op is not the original visibility clear');
+ }
+ const wrongName=Buffer.from(code);wrongName[0x1701a4-0x100000]=0x52;assert.throws(()=>assertOriginalHide(wrongName),assert.AssertionError);
+ for(const [lo,hi,hash]of [[0x17016c,0x170184,'be62a1e979ad30595d5daf0ec65ba3dab039bc720a7302e9cf7ef5fabb0b7e01'],[0x1700f4,0x170188,'0aea0a14d89b1979c43ffdc3ba05315971a902fe50afb4cd19bf67d8a17411fe'],[0x17c094,0x17c0b0,'25e4bad1ee8ed81d3a265a8310df28700aa117d7cd60b3461a16adcb23fc2f65']])assert.equal(sha(code.subarray(lo-0x100000,hi-0x100000)),hash);
  assert.equal(word(0x17030c),0x1c180c);assert.equal(cstring(word(0x1c180c)),'TextBox_Txt');
  assert.equal(cstring(word(0x1c1810)),'TextBox_Num');assert.equal(branch(0x1702c8),0x14a2c4);assert.equal(branch(0x1702f0),0x14a1cc);
  assert.equal(sha(code.subarray(0x170220-0x100000,0x170308-0x100000)),'2365a1dd2d222ffc76b764f078dc94656c80fc3a3d48716dde6cbdc99245eabd');

@@ -31,10 +31,10 @@ STATUS **Product**. Reconcile git, then continue from STATUS **Next**.
 
 ## Agent model preference - 8 October 2026
 
-The latest human request selects **GPT-6 Astra, high reasoning**, superseding
-the earlier GPT-5.6 Sol and GPT-6.1 Sol preferences. Use `model=gpt-6-astra`
-and `thinking=high` for authorized separate Codex chats, and
-`model=gpt-6-astra` with `reasoning_effort=high` on bounded or empty context
+The latest human request selects **GPT-6.1 Sol, extra-high reasoning**, superseding
+the earlier GPT-5.6 Sol and GPT-6 Astra preferences. Use `model=gpt-6.1-sol`
+and `thinking=xhigh` for authorized separate Codex chats, and
+`model=gpt-6.1-sol` with `reasoning_effort=xhigh` on bounded or empty context
 forks for workers and reviews. This request also supersedes the earlier
 different-model reviewer preference; keep review independent of implementation.
 The user requests normal speed, no Fast; the tools do not

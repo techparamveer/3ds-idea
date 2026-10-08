@@ -1,5 +1,12 @@
 # Feature map — 1:1 queue
 
+8 October common-cover checkpoint: `94696e5` improves but does not resolve the
+captured slow opening. Reviewed `cbbee26` retains elapsed rendering time and
+recaptures Friends at321.0/332.7ms instead of830.7/764.7ms. Friends normal,
+reduced and Notifications regression complete six cycles without errors.
+Source graphics are unchanged; title incoming, native epochs, pixels and audio
+remain open. See [cover cadence](applet-cover-cadence-2026-10-08.md).
+
 8 October upper HOME checkpoint: `f2c09f4` corrects the early status bar and
 has 83/83 audited Mac production pairs. Fresh native comparison exposes early
 card/camera hints and reversed retained-upper size progression. Corrections

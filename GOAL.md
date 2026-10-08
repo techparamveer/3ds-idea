@@ -8,7 +8,15 @@ The human resumed on8 October with "continue disregard that", revoking the
 without that usage cutoff. Continue the full animation goal. Earlier quota
 checkpoints remain history; do not stop again at that removed threshold.
 
-Latest checkpoint: HUD entry `f2c09f4`, card/camera-hint entry `caeff9b` and
+Latest checkpoint: reviewed common-cover clock `cbbee26` retains elapsed
+rendering time without bypassing paired publication. Friends first/repeat
+changes from830.7/764.7ms to321.0/332.7ms, consistent with sample-bounded native
+visible fade observations. All six Friends/Notifications capture cycles finish
+without errors. All 572 pairs / 1,144 PNGs pass the independent raw/receipt audit;
+all 13 final sheets are inspected. Native epochs and whole-flow acceptance
+remain open. See the [cover checkpoint](docs/applet-cover-cadence-2026-10-08.md).
+
+Earlier checkpoint: HUD entry `f2c09f4`, card/camera-hint entry `caeff9b` and
 retained-upper direction `8abfd42` are integrated and independently reviewed.
 Corrected Mac normal 81/82 and reduced 5/5 first/repeat pairs show full-to-small
 app motion and delayed card/hints. Compact Camera also completes 86/86 pairs.

@@ -9,6 +9,12 @@ verify actual owned-window placement before scenario inputs.
 
 ## HOME upper suspension, 8 October
 
+The subsequent [applet cover cadence correction](applet-cover-cadence-2026-10-08.md)
+integrates `94696e5` then `cbbee26`. Its first candidate remained slow on actual
+capture; the final clock retains rendering time while preserving pending and
+terminal receipt guards. The record distinguishes visible native completion
+from later encoded-video pixel settlement and keeps both failed and final runs.
+
 Decoded HUD entrance is integrated as `f2c09f4`. Root 42 focused checks,
 nonincremental typecheck and production build pass. Full tests report 2514
 passes, the historical missing Camera PNG failure, 98 skips and one TODO.

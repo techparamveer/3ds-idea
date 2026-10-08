@@ -1,5 +1,10 @@
 # Applet common-cover selectors
 
+The [8 October cadence correction](../applet-cover-cadence-2026-10-08.md) changes
+only outgoing host scheduling. It preserves this source mapping and paired
+terminal publication, with the source clock anchored to acknowledged samples
+so normal rendering time is retained. Earlier per-receipt cadence is historical.
+
 Initial selector base `19ee552a0b9dbbfbdf38c660e289a8337c44c464`, branch
 `codex/applet-common-cover-20261007`, assigned checkout
 `/Users/paramveer/.codex/worktrees/3ds-applet-common-cover-20261007/3ds-idea`.

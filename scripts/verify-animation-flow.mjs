@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
-import { mkdir, writeFile } from 'node:fs/promises';
-import { createHash } from 'node:crypto';
-import { dirname, isAbsolute, join } from 'node:path';
+import { lstat, mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
+import { createHash, randomUUID } from 'node:crypto';
+import { basename, dirname, isAbsolute, join } from 'node:path';
+import { setTimeout as delay } from 'node:timers/promises';
 import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual, parseArgs } from 'node:util';
 import { folderCapturePrecondition } from './reference/folder-capture-precondition.mjs';
@@ -349,8 +350,85 @@ export async function writeInitialCapture(path, result) {
   if (result.pauseHomeHold) validatePauseHomeHold(result.pauseHomeHold, result.durationMs, result.frames);
 }
 
-async function main() {
-const { values } = parseArgs({ options: {
+export function parseVisibleWindow(values) {
+  const keys = ['window-x', 'window-y', 'window-width', 'window-height', 'ready-file', 'continue-file', 'window-timeout-ms'];
+  if (!values['visible-window']) {
+    assert.ok(keys.every(key => values[key] === undefined), 'Window options require --visible-window');
+    return null;
+  }
+  const bounds = {};
+  for (const key of ['x', 'y', 'width', 'height']) {
+    const value = values[`window-${key}`];
+    assert.match(value ?? '', /^-?\d+$/, `--window-${key} requires an explicit integer`);
+    bounds[key] = Number(value);
+    assert.ok(Number.isSafeInteger(bounds[key]) && (['x', 'y'].includes(key) || bounds[key] > 0), `--window-${key}`);
+  }
+  for (const key of ['ready-file', 'continue-file']) assert.ok(isAbsolute(values[key] ?? ''), `--${key} requires an absolute fresh path`);
+  const timeoutMs = Number(values['window-timeout-ms'] ?? 120000);
+  assert.ok(Number.isInteger(timeoutMs) && timeoutMs >= 1 && timeoutMs <= 300000, 'Window timeout must be 1..300000ms');
+  return { bounds, readyFile: values['ready-file'], continueFile: values['continue-file'], timeoutMs };
+}
+
+export function animationBrowserLaunchOptions(executablePath, visibleWindow) {
+  return { executablePath, headless: !visibleWindow, args: ['--mute-audio', ...(visibleWindow ? [
+    `--window-position=${visibleWindow.bounds.x},${visibleWindow.bounds.y}`,
+    `--window-size=${visibleWindow.bounds.width},${visibleWindow.bounds.height}`,
+  ] : [])] };
+}
+
+export async function assertFreshWindowGate(config) {
+  const paths = [];
+  for (const path of [config.readyFile, config.continueFile]) {
+    paths.push(join(await realpath(dirname(path)), basename(path)));
+    try { await lstat(path); } catch (error) { if (error.code === 'ENOENT') continue; throw error; }
+    throw new Error(`Window gate path already exists: ${path}`);
+  }
+  assert.notEqual(paths[0], paths[1], 'Ready and continue paths must be distinct, including directory aliases');
+}
+
+export async function waitForVisibleWindow(config, page, diagnosticPath) {
+  await assertFreshWindowGate(config);
+  assert.equal(page.url(), 'about:blank', 'Window confirmation must precede navigation');
+  const ready = { event: 'animation-window-ready', token: randomUUID(), pid: process.pid,
+    readyAt: new Date().toISOString(), requestedBounds: config.bounds, viewport: page.viewportSize(),
+    readyFile: config.readyFile, continueFile: config.continueFile, timeoutMs: config.timeoutMs,
+    muted: true, pageUrl: page.url(),
+    confirmation: 'Coordinator verifies actual OS window bounds on Sidecar, then writes JSON with this token to the fresh continueFile. Requested bounds are not observed geometry.' };
+  let diagnostic = { ...ready, status: 'waiting' };
+  const save = () => writeFile(diagnosticPath, JSON.stringify(diagnostic, null, 2) + '\n');
+  try {
+    await save();
+    await writeFile(config.readyFile, JSON.stringify(ready, null, 2) + '\n', { flag: 'wx' });
+    console.log(JSON.stringify(ready));
+    const deadline = performance.now() + config.timeoutMs;
+    while (performance.now() < deadline) {
+      let confirmation;
+      try {
+        const stat = await lstat(config.continueFile);
+        assert.ok(stat.isFile() && !stat.isSymbolicLink(), 'Continue signal must be a regular file');
+        confirmation = JSON.parse(await readFile(config.continueFile, 'utf8'));
+      } catch (error) {
+        if (error.code !== 'ENOENT' && !(error instanceof SyntaxError)) throw error;
+      }
+      if (confirmation !== undefined) {
+        assert.equal(confirmation?.token, ready.token, 'Continue signal must match this fresh ready token');
+        diagnostic = { ...ready, status: 'confirmed', confirmedAt: new Date().toISOString(),
+          displayVerification: 'Coordinator confirmation; OS placement is not measured by this script.' };
+        await save();
+        return diagnostic;
+      }
+      await delay(Math.min(50, Math.max(1, deadline - performance.now())));
+    }
+    throw new Error(`Window confirmation timed out after ${config.timeoutMs}ms`);
+  } catch (error) {
+    diagnostic = { ...diagnostic, status: 'failed', error: String(error) };
+    await save();
+    throw error;
+  }
+}
+
+export async function main(args = process.argv.slice(2)) {
+const { values } = parseArgs({ args, options: {
   'playwright-module': { type: 'string' }, 'browser-executable': { type: 'string' },
   output: { type: 'string' }, scenario: { type: 'string', default: 'notes' },
   url: { type: 'string', default: 'http://127.0.0.1:3021/?lcdCapture=1' },
@@ -362,6 +440,11 @@ const { values } = parseArgs({ options: {
   'home-hold-ms': { type: 'string' },
   'pause-compact': { type: 'boolean', default: false },
   'reduced-motion': { type: 'boolean', default: false },
+  'visible-window': { type: 'boolean', default: false },
+  'window-x': { type: 'string' }, 'window-y': { type: 'string' },
+  'window-width': { type: 'string' }, 'window-height': { type: 'string' },
+  'ready-file': { type: 'string' }, 'continue-file': { type: 'string' },
+  'window-timeout-ms': { type: 'string' },
 } });
 for (const key of ['playwright-module', 'browser-executable', 'output']) assert.ok(isAbsolute(values[key] ?? ''), key);
 assert.ok(['notes', 'friends', 'notifications', 'browser', 'miiverse', 'manual', 'folder', 'pause'].includes(values.scenario));
@@ -388,16 +471,21 @@ const homeHoldMs = parsePauseHomeHold(values['home-hold-ms'], { scenario: values
 const pauseCompact = parsePauseCompact(values['pause-compact'], { scenario: values.scenario, activation: values.activation, homeHoldMs });
 const cycles = Number(values.cycles);
 assert.ok(Number.isInteger(cycles) && cycles >= 1 && cycles <= 3);
+const visibleWindow = parseVisibleWindow(values);
+if (visibleWindow) await assertFreshWindowGate(visibleWindow);
 const output = values.output;
 await mkdir(dirname(output), { recursive: true });
 await mkdir(output);
 const { chromium } = await import(pathToFileURL(values['playwright-module']));
-const browser = await chromium.launch({ executablePath: values['browser-executable'], headless: true, args: ['--mute-audio'] });
-const page = await browser.newPage({ viewport: { width: Number(values.width), height: Number(values.height) } });
-await page.emulateMedia({ reducedMotion: values['reduced-motion'] ? 'reduce' : 'no-preference' });
+let browser, page, windowConfirmation;
 const errors = [], inputs = [];
-page.on('pageerror', error => errors.push(String(error)));
 const state = () => page.locator('.console-stage').evaluate(host => ({ ...host.dataset, announcement: host.querySelector('[aria-live]')?.textContent }));
+try {
+browser = await chromium.launch(animationBrowserLaunchOptions(values['browser-executable'], visibleWindow));
+page = await browser.newPage({ viewport: { width: Number(values.width), height: Number(values.height) } });
+await page.emulateMedia({ reducedMotion: values['reduced-motion'] ? 'reduce' : 'no-preference' });
+page.on('pageerror', error => errors.push(String(error)));
+if (visibleWindow) windowConfirmation = await waitForVisibleWindow(visibleWindow, page, join(output, 'visible-window.json'));
 const clickTarget = async (target, input) => {
   const point = await page.locator('.console-stage').evaluate((host, key) => JSON.parse(host.dataset.targets)[key], target);
   assert.ok(Array.isArray(point) && point.length === 2 && point.every(Number.isFinite), `Projected target ${target}`);
@@ -425,7 +513,6 @@ const accessible = async () => {
   await page.keyboard.press('Enter');
 };
 const selectTitle = () => selectAnimationTitle(title, { key, touch, wait: ms => page.waitForTimeout(ms) });
-try {
   await page.goto(values.url);
   await page.waitForSelector('.console-stage[data-ready="true"][data-intro="false"][data-menu="home"]', { timeout: 90000 });
   await page.waitForFunction(() => Boolean(document.querySelector('.console-stage')?.screenCanvases));
@@ -554,6 +641,7 @@ try {
   }
   await page.screenshot({ path: join(output, `${cycle ? `repeat-${cycle}-` : ''}console.png`) });
   const result = { valid: false, durationMs, scenario: values.scenario, title: ['manual', 'pause'].includes(values.scenario) ? title : values.scenario, commit: values.commit, commitAttestation: 'Coordinator-supplied served-build identity; not independently discovered by this script.', cycle, activation: values.activation, folderFixture: values['folder-fixture'], reducedMotion: values['reduced-motion'], url: values.url, viewport: page.viewportSize(), muted: true,
+    ...(windowConfirmation ? { visibleWindow: windowConfirmation } : {}),
     method: 'Actual browser inputs; chronological raw screen paints. No diagnostic repaint or closest-pose search.',
     ...(values.activation === 'accessible' ? { adaptation: 'Keyboard activation of the existing screen-reader shortcut from the grid; not a native toolbar input or animation-acceptance scenario.' } : {}),
     initial, before, folderPreparation, pausePreparation, ...(pauseHomeHold ? { pauseHomeHold } : {}),
@@ -580,13 +668,14 @@ try {
   console.log(JSON.stringify({ scenario: result.scenario, frames: reports.length, menu: result.after.menu, phase: result.after.phase, errors, output }));
   }
 } catch (error) {
-  const failedState = await state().catch(() => null);
-  await page.screenshot({ path: join(output, 'failure-console.png') }).catch(() => {});
+  const failedState = page ? await state().catch(() => null) : null;
+  if (page) await page.screenshot({ path: join(output, 'failure-console.png') }).catch(() => {});
   await writeFile(join(output, 'failure.json'), JSON.stringify({ valid: false, scenario: values.scenario, title, commit: values.commit,
+    ...(visibleWindow ? { visibleWindow, windowConfirmation: windowConfirmation ?? null } : {}),
     ...(pauseCompact ? { pauseCompact: true } : {}), failedState, inputs, errors, error: String(error), nativeCompared: false }, null, 2) + '\n');
   throw error;
 } finally {
-  await browser.close();
+  if (browser) await browser.close();
 }
 }
 

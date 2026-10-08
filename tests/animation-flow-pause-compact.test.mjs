@@ -1,11 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createContext, runInContext } from 'node:vm';
+import sharp from 'sharp';
 import { parsePauseCompact, pauseCompactEvidence, pauseCompactRestoreReady, pauseCompactSelectionChanged,
   collectAnimationFrames, observePauseCompactArrowRight, restorePauseCompactSelection, selectPauseCompact,
   validatePauseCompactArrowRight, validatePauseCompactDestination, writeInitialCapture } from '../scripts/verify-animation-flow.mjs';
@@ -53,7 +55,96 @@ function tapFixture() {
     host.dataset.screenPaint = JSON.stringify(paint); host.dataset.screenPresented = JSON.stringify({ validPublication: true, paint });
     raf();
   };
-  return { page, window, event, sample, listenerCount: () => [...listeners.values()].reduce((count, values) => count + values.size, 0) };
+  return { page, host, window, event, sample, listenerCount: () => [...listeners.values()].reduce((count, values) => count + values.size, 0) };
+}
+
+function compactFailureBrowser(failure, rawPngs) {
+  const fixture = tapFixture(), { page, host } = fixture;
+  let waitingForCompact = false;
+  host.dataset = data('8');
+  host.querySelector = () => ({ textContent: 'Health and Safety Information' });
+  for (const screen of ['top', 'bottom']) host.screenCanvases[screen].toDataURL = () => rawPngs[screen];
+  page.emulateMedia = page.goto = page.waitForSelector = page.waitForTimeout = async () => {};
+  page.on = () => {};
+  page.viewportSize = () => ({ width: 1440, height: 1000 });
+  page.locator = () => ({ focus: async () => {}, evaluate: async (fn, argument) => fn(host, argument) });
+  page.screenshot = ({ path }) => writeFile(path, 'Mock console screenshot');
+  page.keyboard = { press: async key => {
+    if (key === 'Enter') host.dataset.menu = 'app';
+    else if (key === 'h') { host.dataset.menu = 'home'; fixture.sample(105); }
+    else if (key === 'ArrowRight' && fixture.window.animationCapture) {
+      waitingForCompact = true;
+      fixture.event('keydown', 110); fixture.sample(111);
+      fixture.event('keyup', 117); fixture.sample(118);
+    }
+  } };
+  page.waitForFunction = async fn => {
+    if (fn.name === 'pauseCapturePrecondition') return { jsonValue: async () => ({ frame: 1 }), dispose: async () => {} };
+    if (fn.name === 'pauseCompactSelectionChanged') {
+      assert.equal(waitingForCompact, true);
+      if (failure === 'timeout') throw new Error('Compact selection wait timed out');
+      host.dataset = data('10');
+      assert.equal(await page.evaluate(fn, { app: 'health-safety', selected: '10' }), true);
+      host.dataset = data('12');
+      return;
+    }
+    if (waitingForCompact) {
+      fixture.sample(1100);
+      assert.equal(fixture.window.animationCapture.done, true);
+    }
+  };
+  return { chromium: { launch: async () => ({ newPage: async () => page, close: async () => {} }) } };
+}
+
+for (const failure of ['timeout', 'drift']) {
+  test(`compact ${failure} after trusted delivery exports the initial invalid capture, raw PNGs and console before rejecting`, async t => {
+    const dir = await mkdtemp(join(tmpdir(), 'pause-compact-selection-failure-'));
+    t.after(() => rm(dir, { recursive: true, force: true }));
+    const rawPngs = {};
+    for (const [screen, width] of [['top', 400], ['bottom', 320]]) {
+      const bytes = await sharp({ create: { width, height: 240, channels: 3, background: '#123456' } }).png().toBuffer();
+      rawPngs[screen] = `data:image/png;base64,${bytes.toString('base64')}`;
+    }
+    const module = join(dir, 'mock-playwright.mjs'), output = join(dir, 'capture');
+    await writeFile(module, `import assert from 'node:assert/strict';
+import { writeFile } from 'node:fs/promises';
+import { createContext, runInContext } from 'node:vm';
+${data.toString()}
+${tapFixture.toString()}
+${compactFailureBrowser.toString()}
+export const { chromium } = compactFailureBrowser(${JSON.stringify(failure)}, ${JSON.stringify(rawPngs)});
+`);
+    const result = spawnSync(process.execPath, [new URL('../scripts/verify-animation-flow.mjs', import.meta.url).pathname,
+      '--playwright-module', module, '--browser-executable', join(dir, 'unused-browser'),
+      '--output', output, '--commit', '0'.repeat(40), '--scenario', 'pause', '--activation', 'key',
+      '--pause-compact', '--duration-ms', '1000'], { encoding: 'utf8' });
+    assert.equal(result.status, 1, result.stderr);
+    const expected = failure === 'timeout' ? /Compact selection wait timed out/ : /ArrowRight selects the adjacent column/;
+    assert.match(result.stderr, expected);
+    const retained = JSON.parse(await readFile(join(output, 'capture.json'), 'utf8'));
+    assert.equal(retained.valid, false);
+    assert.match(retained.compactSelection.selectionFailure, expected);
+    assert.equal(retained.compactSelection.homeBeforeSelection.selected, '8');
+    assert.equal(retained.compactSelection.afterSelection.selected, failure === 'timeout' ? '8' : '12');
+    assert.equal(retained.after.selected, retained.compactSelection.afterSelection.selected);
+    assert.equal(retained.compactSelection.arrowRightTap.failure, null);
+    validatePauseCompactArrowRight(retained.compactSelection.arrowRightTap.observation, 1000);
+    assert.deepEqual(retained.compactSelection.arrowRightTap.observation.events.map(event => event.atMs), [10, 17]);
+    assert.deepEqual(retained.cycleInputs.map(input => input.value), ['h', 'ArrowRight']);
+    assert.deepEqual(retained.frames.map(frame => frame.at), [0, 5, 11, 18, 1000]);
+    assert.equal(retained.frames[2].compactArrowRightActive, true);
+    assert.equal(retained.frames[3].compactArrowRightEventCount, 2);
+    for (const frame of retained.frames) for (const screen of ['top', 'bottom']) {
+      const bytes = await readFile(join(output, frame.files[screen].filename));
+      assert.deepEqual(bytes, Buffer.from(rawPngs[screen].split(',')[1], 'base64'));
+      assert.equal(frame.files[screen].sha256, createHash('sha256').update(bytes).digest('hex'));
+    }
+    assert.equal(await readFile(join(output, 'console.png'), 'utf8'), 'Mock console screenshot');
+    const failed = JSON.parse(await readFile(join(output, 'failure.json'), 'utf8'));
+    assert.match(failed.error, expected);
+    assert.deepEqual(failed.inputs, retained.inputs);
+    assert.equal(existsSync(join(output, 'repeat-1-capture.json')), false);
+  });
 }
 
 test('compact pause is opt-in and limited to ordinary key or physical HOME', async () => {

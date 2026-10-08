@@ -89,13 +89,20 @@ export async function selectPauseCompact(enabled, app, originalSelected, { key, 
   if (observeTap) arrowRightTap = await observeTap(() => key('ArrowRight'));
   else await key('ArrowRight');
   const compactSelected = String(slot + rows);
-  if (!arrowRightTap?.failure) await waitForSelection({ app, selected: compactSelected });
+  let selectionFailure = null;
+  if (!arrowRightTap?.failure) {
+    try { await waitForSelection({ app, selected: compactSelected }); }
+    catch (error) { selectionFailure = String(error); }
+  }
   const afterSelection = await state();
   const selection = { app, originalSelected, compactSelected, homeBeforeSelection, afterSelection,
     method: 'One ordinary ArrowRight after HOME, while chronological capture is already active. No fixed delay or diagnostic repaint.',
     adaptation: 'Browser input workflow; not a recovered native input epoch, duration or compact activation boundary.',
-    ...(arrowRightTap ? { arrowRightTap } : {}), privateOwner: null, captureGeneration: null, nativeSourceEpoch: null };
-  if (!arrowRightTap?.failure) validatePauseCompactDestination(afterSelection, selection);
+    ...(arrowRightTap ? { arrowRightTap } : {}), selectionFailure, privateOwner: null, captureGeneration: null, nativeSourceEpoch: null };
+  if (!arrowRightTap?.failure && !selectionFailure) {
+    try { validatePauseCompactDestination(afterSelection, selection); }
+    catch (error) { selection.selectionFailure = String(error); }
+  }
   return selection;
 }
 
@@ -333,6 +340,7 @@ export async function writeInitialCapture(path, result) {
     const tap = result.compactSelection?.arrowRightTap;
     if (tap?.failure) throw new Error(tap.failure);
     validatePauseCompactArrowRight(tap?.observation, result.durationMs);
+    if (result.compactSelection.selectionFailure) throw new Error(result.compactSelection.selectionFailure);
   }
   if (result.pauseHomeHoldFailure) throw new Error(result.pauseHomeHoldFailure);
   if (result.pauseHomeHold) validatePauseHomeHold(result.pauseHomeHold, result.durationMs, result.frames);

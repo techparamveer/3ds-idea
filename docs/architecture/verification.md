@@ -95,6 +95,14 @@ not readiness. Fix chronological complete-cover selectors before diffing and
 retain noise/black readbacks without treating them as source transition stages.
 Static cover agreement never passes opening motion, input, timing or muted audio.
 
+[Camera Manual capture](../animation-fidelity-workflow-2026-10-07.md#camera-manual-keyboard-capture-8-october-2026)
+also requires non-Camera selection before a sole Camera selection touch and
+fresh Camera/Manual readiness after the baseline screenshot. One passive second
+loading observation is allowed, without input/sleep or a third retry. Check
+browser before/frame0 independently; changing HOME poses need not match across
+snapshots, but each must match its own valid paired receipt. Report GUI-normalized
+geometry separately from the restored screenshot field and retained mute settings.
+
 [HOME launch onset](../home-launch-onset-2026-10-03.md) now has continuous
 native pre-A/feedback/fade/logo evidence. Distinguish first Open pressed
 feedback from footer SceneOut, and last pre-fade banner from disappearance.

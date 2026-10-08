@@ -1402,3 +1402,66 @@ Still non-native are host paired cadence, unresolved incoming epochs, reduced
 endpoints, fixture/HUD population, local/inert services, portfolio content and
 Manual Contents body/category/slot placement/truncation. Public incoming export
 still requires approval; no retry or bypass. Weekly remaining80%; pause at75%.
+
+## Camera Manual keyboard capture, 8 October 2026
+
+At `df4856a`, one reviewed no-movie attempt selects Camera from Notes-selected
+root HOME, captures selected-Camera baseline `be09be80`, revalidates the same
+enabled Manual footer after screenshot pause/resume, then touches50,226 once.
+Executed plan `a7621fa0` preserves prepared `f7d381cd` and adds the reviewed
+non-Camera initial selection and exactly one passive loading re-observation.
+The Manual call takes344ms and32 immediately sequential screenshot requests
+span1574ms. These are host calls, not measured native input or animation timing.
+
+Native index `8163500d` checks19 surviving400x480 PNGs,19 saves,14 ignored
+requests, no path collisions and seven unique file/raw payloads. All outputs
+remain; numerical closure to33 does not assign requests to files. Root opens
+sheet `b5f7ae65` and original7. Sample6 shows partial outgoing cover,7 the first
+healthy complete cover `2c1738dd`, and17 visible noise. Samples9..12 differ from
+7 by24 upper first-row RGB pixels only. Stored lower pixels agree, and14 is
+byte-identical to7; apparent preview displacement/disappearance is not a native
+phase claim. Inspection `e860d93b` separates those impressions from stored bytes.
+No incoming clearing or ready Camera Contents is captured.
+
+Browser policy `10f4b25e` is fixed before the unchanged muted Camera Manual
+touch cycle. Its174 valid pairs/348 raw PNGs reach Camera Contents without page
+errors. Supporting report `4a072d14` checks every SHA/dimension/CRC/full decode,
+matching paired receipt and absence of orphan PNGs. Before and chronological
+frame0 independently show selected10/non-toolbar Camera HOME and a current
+valid matching paint; their ordinary HOME poses differ. The300ms preparation
+delay is not readiness. Root opens console `57bf45f6`.
+
+Selection `9b6e2e14` fixes native7 and first valid browser outgoing20/index59/
+owner`manual:1` before diffing. The initial wrong `browser/lcd` path spelling is
+preserved separately and corrected against actual inventory before comparison;
+indices/hashes are unchanged. Report `89a71998`, empty mask `99fdc2b2`, gives0/0
+above delta2, maxima1/2. Root opens both contact sheets. This is a static cover
+diagnostic, not incoming/motion/input acceptance. Native Camera selection160,82
+and browser right-navigation preparation differ; only the logical Manual
+activation point matches. Source/native epochs remain null.
+Independent review rehashes the decisive bindings, confirms stage/precondition
+claims and directly recomputes the selected pair's0/0 above delta2. The
+four-document checkpoint is cleared.
+
+Session25630 ends134 after actual Quit/Yes; process absence is verified, not a
+clean exit. Attestation `74c53442` records the truncated terminal output and
+keeps UI/process facts separate from checked files. Before/launch/restored
+global hashes are`ccd30d00`/`57c928b7`/`ffab8532`. Only the screenshot field is
+restored. Two GUI-normalized window geometry fields remain changed, not erased
+with a stale backup. Custom `58b1e799` and mute/normal100%/original EUR settings
+are unchanged. The first index-helper assertion failure and corrected run are
+preserved; its syntax/Qt/CRC mutation self-tests pass, as do browser helper checks.
+
+Evidence is under the private `manual-entry-keyboard-20261008/` directory.
+No runtime, new native asset, model or production build is delivered. The cover
+retains [its original source mapping](workstream-handoffs/animation-manual-entry-20261007.md#source-mapping):
+`manifest.home.common` CmnFade wash/belt/selector4/Ebird; `home.messages`
+`lau_title_manu`; `fonts.shared`; EUR HOME0004003000009802/v24576/index0/
+content00000082/`c622d1c5`, with original CIA member hashes and unchanged
+ctr-native-web1.2.0/CTRTool1.3.0. Preview3022 still serves16e2067; caller WIP
+remains unchanged/unserved. Prior code/test/build results are not rerun or
+replaced. All four whole flows fail. Host paired cadence, unresolved incoming
+epochs, reduced endpoints, fixture/HUD population, local/inert services,
+portfolio content and Manual Contents body/category/slot placement/truncation
+remain non-native. Public incoming export remains approval-pending without
+retry/bypass; audio remains muted/unverified. Weekly80% remaining; pause75%.

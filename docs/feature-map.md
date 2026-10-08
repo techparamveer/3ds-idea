@@ -5,6 +5,17 @@ for top-row opening, Manual opening, folder entry and HOME suspension. GitHub
 restart base is `5ee6fd7`; the historical static queue below is preserved.
 All four motion flows are currently fail pending matched frame-sequence proof.
 
+Latest8 October Camera Manual checkpoint at `df4856a`: fresh selected-Camera
+baseline and one actual Manual touch capture partial outgoing6 and complete
+cover7, but no incoming/ready native stage. Index `8163500d` preserves19 PNGs,
+19 saves/14 ignores, no lost versions and one noise readback. Browser174 pairs
+reach Contents without errors; report `4a072d14` checks all348 raw PNGs and
+paired receipts. Fixed native7/browser59 static report `89a71998` gives0/0 above
+delta2 with an empty mask, maxima1/2; sheets/console opened. Session ends134,
+process absent; owned screenshot field restores, two GUI geometry changes remain
+explicit at current global`ffab8532`. No runtime/assets/build change or whole-flow
+acceptance. Weekly80% remaining; stop75%. See [the Manual capture](animation-fidelity-workflow-2026-10-07.md#camera-manual-keyboard-capture-8-october-2026).
+
 Newer 8 October capture checkpoint at `08ef2ac`: a reviewed raised-window
 Command-P diagnostic establishes own-PNG delivery. Index `2ac33ab0` keeps22
 surviving PNGs,24 save events, two lost versions and nine ignored overlaps;

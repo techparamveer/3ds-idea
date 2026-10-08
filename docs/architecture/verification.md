@@ -53,6 +53,15 @@ The provenance sidecar distinguishes historical null/unsupported fields from
 the recovered NCCH/code/TMD-file identities and rehashes mapped public assets.
 Neither source hashes nor a lower mismatch count passes the animation scenario.
 
+[Contents visibility verification](../animation-fidelity-workflow-2026-10-07.md#manual-contents-decoration-visibility)
+uses a separate immutable policy revision to distinguish pre-existing test logs
+from selection outputs. The original declaration remains unchanged. Bind the
+unchanged selector to the corrected policy before capture; do not silently
+rewrite the policy after seeing pixels. Supporting checks pin the served
+checkout commit, not the coordinator's equivalent cherry-pick. Preserve failed
+import or identity checks before retrying with the resolved module or correct
+commit. Capture and build identities stay separate from source equivalence.
+
 [HOME launch onset](../home-launch-onset-2026-10-03.md) now has continuous
 native pre-A/feedback/fade/logo evidence. Distinguish first Open pressed
 feedback from footer SceneOut, and last pre-fade banner from disappearance.

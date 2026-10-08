@@ -141,6 +141,15 @@ bound native font, Wait pose and lower-LCD transforms must pass their guards
 before drawing. Number also validates the original placeholder and text keys,
 selected parent picture/texture, and both existing category-tinted clones.
 Unsupported selected data fails explicitly.
+Contents also applies the original row constructor's `PageTitleNumB02`
+visibility-bit clear through the existing pane override, after the unchanged
+Wait pose. Before drawing, `validateApplicationManualRowDecoration` checks
+the exact source hierarchy, picture, material, texture, Wait tracks and both
+cached category-tinted clones. Selected explicit visibility tracks fail;
+missing or duplicate dependencies fail rather than being substituted. Source
+records remain immutable. Generic Manual and Page do not inherit this override.
+See the [visibility checkpoint](../animation-fidelity-workflow-2026-10-07.md#manual-contents-decoration-visibility)
+for the static instruction trace and integrated visible evidence.
 `getFontManifest` exposes read-only bound metadata; cache ownership and disposal
 remain unchanged. Contents `SoftTitleHeader` alone opts into existing final-LCD
 picture sampling, preserving the dynamic icon pixels, UVs and source geometry.

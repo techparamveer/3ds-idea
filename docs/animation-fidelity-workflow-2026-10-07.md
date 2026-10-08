@@ -1088,3 +1088,148 @@ jobs are closed; only documented previews remain. Next: one bounded source check
 of remaining60/46 upper and11/6/6 lower edge regions, then native input/LCD
 clock evidence, without guessing geometry or repeating unsupported late bursts.
 Weekly remaining is83% at this checkpoint; stop all seats and pause at75%.
+
+## Manual Contents decoration visibility
+
+8 October 2026. Reviewed worker `4433f2364360cf49075322df778148338d795540`
+integrates as `dcdefc9ada88d2ce01e2eacaf53c45178399de32`. Only
+`stock-native-helpers.ts` and narrow row-source tests change. The existing
+Manual verification branch cherry-picks it as `16e206771962fa37f7f4755ffb8c68641aed5696`.
+No new native asset, incoming caller composition or animation clock is delivered.
+Artifacts below are relative to the private animation root
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/`.
+
+**Source-identified and implemented.** The bounded lower audit
+`manual-lower-edges-source-20261008/audit-report.json`, SHA
+`d5ce64131cfde7e9845cde158be42d82dcc07136af334e2cad3f960b017040e1`,
+identifies the original constructor at `0x17016c..0x170180`. It looks up
+`PageTitleNumB02` at `0x170174 -> 0x15d220`, then clears runtime pane byte
+`+0xb7` bit 0 at `0x17017c`. Decoder `0x17c0a0/0x17c0a4` relates the source
+flags byte to that runtime field. Wait1 does not restore visibility. This is
+static Capstone 5.0.7 evidence, not execution of original ARM or GPU code.
+The original Manual title/version/content and recovered NCCH/code/TMD-file
+identities remain those in the preceding checkpoint. Recovery CTRTool 1.2.0
+and the historical public-pack extractor 1.3.0 remain distinct.
+
+The selected element maps to manifest alias `manual-row`,
+`packs/manual/layout-BtnHeadLineTxt.json` SHA `9c0c0fb0`, and original
+`layout/BtnHeadLineTxt.arc/blyt/BtnHeadLineTxt.bclyt` SHA `c41c54be`,
+converter ctr-native-web 1.2.0. Its exact hierarchy is
+`RootPane/BtnHeadLineBody/PageTitleNumB02`, picture material 5,
+`BtnLngSelBase01.bclim`: source SHA
+`9c92084ab0036dd74b7d89628b656316383a921c646fc5e4addd596a0206917b`,
+delivered PNG SHA `abd872b9f56ef94e5fd132ae7092f375fb2699c04e8c6b24da1399f9fb8f74c3`.
+The existing full 19-asset mapping, title 0004003000009b02/v5120/content 0/ID
+0000000a and CIA-internal paths remain unchanged. The guard checks the exact
+source pane/picture/material/texture, five Wait tracks and both cached tinted
+clones before the first Contents draw. An explicit visibility track on the
+selected pane or its parents fails. Only Contents rows add the existing
+`visible:false` override after pose evaluation. Source flags remain 1; Page
+and generic Manual do not inherit it. No raster, geometry or text fit changes.
+
+The closed upper audit `manual-upper-edges-source-20261008/manual-upper-edges-report.json`,
+SHA `7d19b23a2b4dcf0ef36f5dd59991741193a170e6aaab79865fb3875b6c5ef5b0`,
+reproduces the browser icon raster exactly. Captured Vulkan edge ownership
+and actual indicator execution remain unproved. No geometry/UV/tie-rule
+correction or second bounded source audit is justified.
+
+**Tested and built.** Worker and independent reviewer pass 95/95 focused
+checks without skips. Cache-disabled worker typecheck passes; its original
+TS5033 cache-write failure remains preserved. Integrated full run has 2,544
+total / 2,444 pass / one historical Camera PNG ENOENT / 98 skips / one TODO;
+ordinary root typecheck passes with unchanged unserved caller WIP. Logs are
+`manual-pane-visibility-20261008/root-full-tests.log` SHA `cc36d7d1` and
+`root-typecheck.log` SHA `9e006831`. Root WIP SHA `172ec978` remains unchanged.
+
+Isolated `16e2067` has seven reviewed files byte-equal to committed root.
+Its eight explicitly listed focused files pass 115/115; this does not assert
+scope equivalence with the earlier 128-test report. Full has 2,480 total /
+2,382 pass / the same historical failure / 96 skips / one TODO. Ordinary
+typecheck and build pass. Report
+`manual-b02-visible-build-20261008/verification-results-16e2067.json` SHA
+`028a91bf6086761957bb183fd978aed489a92d908135011f16d07e5e297a6b18`.
+The 77 models retain HEAD OID/size and file metadata against the earlier
+byte-verified inventory; no fresh 7.5 GB rehash is claimed. Materialized GLBs
+and STATUS are unstaged, not whole-tree cleanliness.
+
+Root stopped session47257, verified no listener/PID4281, then started reviewed
+3022/session90305/PID51312 with HTTP200. BUILD_ID `MN6WKbXU-QaTserXP0kBn`,
+SHA `ea434fab4c4a47186f0914ffdb8a99c67138ac0fef01a6616f56b7b92b49dc0d`.
+The worker's pre-serving report and STATUS snapshot are preserved. Later
+`serving-closure-16e2067.json` SHA `16048fc3` records root-attested start;
+the worker does not independently observe GUI or process liveness. No worker
+`.next` writes are reported. Root did not rebuild while serving; this is not
+an inventory of all runtime cache writes. Old3021 and user3000 are unchanged.
+
+**Browser-inspected.** New `manual-pane-visibility-20261008/` captures use
+unchanged collector `6b9e761c` and Page driver `c966ca1e`, actual inputs and
+muted dedicated Chromium. Normal Camera214/213, Settings213/213 and
+Browser218/214 pairs use 8-second windows. Reduced Camera390x844 yields
+80/81/81 pairs in 4-second windows, with explicit missing intermediate poses.
+Settings Page open/return30/32 and Browser31/33 have in-window paired endpoints,
+visible lower changes and exact Contents/document/Contents hash closure.
+All 1,653 pairs / 3,306 raw PNGs are rehashed/decoded with correct LCD dimensions,
+matching receipts, monotonic clocks and no orphans; all 13 console views opened.
+Supporting SHA `2b6efa7121b6820c084e26ab9e016c857155e8befe39f8ed9d8079aba3f28793`
+comes from unchanged checker `431cf2f7`, with resolved sharp `dist/index.mjs`
+and the served commit `16e2067`. The obsolete-import failure and mistaken
+coordinator-commit failure are preserved in separate logs, not rewritten.
+
+Original pre-capture policy `e13c28bf` remains unchanged. Separate revision
+`manual-selector-b02-worker-a-20261008/policy-v2.json`, SHA
+`bc193a859eeb51161e27aa656a38628f7a1742fcdd4391534f3b66834969c8ee`,
+declares at 00:28:50 UTC before capture and inventories two earlier test logs.
+Its `v2/policy.json` binding is byte-identical, with unchanged selector `d1d74a51`.
+Frozen selection SHAs are Camera `b106998a`, Settings `e8944ec5`, Browser
+`14417de8` and reduced `1d20b686`. Camera out20/in1/in20/ready indices are
+44/47/84/85 and 41/44/81/82; Settings43/46/83/84 and42/45/81/82;
+Browser46/50/90/91 and41/45/83/84. Reduced1/null/3/4,1/null/3/4,1/null/2/3.
+Actual private caller/title/owner/generation and native epochs remain null.
+
+**Native-compared static diagnostics.** Immutable native index `3d013fd8`,
+comparator `5ad566e1`, empty mask `dc4b320b`, delta2 and reviewed wrapper
+`fd2ba926` produce both covers0/0, incoming11,520/74,829 and ready106/9.
+Ready previously106/23. All 12 sheets opened. Result
+`camera-fixed-comparisons/manual-comparison-results.json` SHA
+`a92fed52a603a2e8c9fd9595a54898fa9215ce4ac75675407357b89ec2856104`.
+No phase search, registration fit, new native PNG or epoch repair occurred.
+The retained clear-before-partial readback anomaly remains unresolved.
+
+Reviewed coordinate checker `d299c2ae` runs once against the two fixed old/new
+reports. `residual-attribution/ready-residual-attribution.json`, SHA
+`dbb41ab450a59a462c3eb5b124ddb1017c2e654b0aebe25aabe82e75f11f861a`,
+rehashes 33 inputs and validates 17 PNG inputs. Upper encoded bytes and RGBs
+are exactly unchanged: icon band60, indicator46, other0. Lower row1/row2/footer
+11/6/6 become3/0/6, other0. Remaining coordinates are x189..191/y91 and
+x242/y225..230. Fourteen above-delta2 coordinates disappear and none are added:
+x37..42/y96 and184, plus x25 and54/y82. All 30 RGB-changed coordinates now
+equal the native RGBs exactly. This is spatial attribution only; the two former
+chip-edge coordinates are not separately proven constructor/GPU causality.
+Retained run log `checker-run-log.json`, SHA `63c79695`, records the original
+exit0 invocation, not a second execution.
+
+The reviewed freezer `freeze-provenance-b02.mjs`, SHA `d14a50eb`, runs once
+with exit0 before the documentation commit. Its write-once sidecar
+`orchestration-provenance-b02.json`, SHA
+`6d37dfdf22edd8a82b9867e7374157e34b2a5e5c321be678ecbba9e5ae7f1c81`,
+pins 36 evidence identities and rehashes all 19 unchanged mapped public assets
+plus the original recovered TMD/NCCH/compressed/decoded relation. It keeps the
+original policy revision distinct from revision2 and its bound copy, checks
+exact coordinator/served HEADs, and separates source/support/browser/static
+native tiers. Page child ledgers have no commit field; their hashes link to
+the parent round-trips embedding the served commit. Runtime, collector and
+console inspection attestations are not independently exported GPU/build
+identity. Historical unsupported/null fields and source mappings are retained.
+
+All four whole scenarios remain fail. Native input/motion/timing, private
+identity and muted audio are unverified. Still non-native are Contents body/
+category/slot placement and long-title truncation, host paired cadence and
+unresolved incoming epochs, reduced-motion endpoints, fixture/HUD population,
+local/inert services and portfolio content. Remaining icon/indicator/glyph
+coverage differences are defects, not silently accepted adaptations. Public
+incoming export approval remains pending; no retry or bypass is authorized.
+No original firmware/model, private matrix, default profile or user audio change.
+Weekly remaining is 81% at closeout; checkpoint all seats and pause at 75%.
+All required test/capture/checker jobs are closed; only documented previews
+remain. The next work requires a supported native capture-latency path or the
+pending public incoming dependency approval, not another audit of these edges.

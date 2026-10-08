@@ -62,6 +62,13 @@ above delta 2, with an empty mask. Complete cover 0/0 holds; incoming
 11,520/74,829 remains mismatched and unaligned. No timing, private caller,
 native input, audio or whole-animation acceptance follows. Continue from
 [the combined Manual checkpoint](docs/animation-fidelity-workflow-2026-10-07.md#manual-number-header-and-footer-corrections).
+The subsequent Contents-only `PageTitleNumB02` visibility correction is
+integrated as `dcdefc9` and served from reviewed `16e2067` on port 3022.
+Fresh entry and Page round-trips retain paired readiness and exact Page hash
+closure. Fixed ready diagnostics now differ by 106 upper / 9 lower pixels;
+cover and incoming results are unchanged. All four whole animation flows
+still fail. Continue from
+[the visibility checkpoint](docs/animation-fidelity-workflow-2026-10-07.md#manual-contents-decoration-visibility).
 Unresolved native capture latency and incoming dependencies remain open;
 do not repeat late entry bursts or fit a source clock from stale readbacks.
 

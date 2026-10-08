@@ -5,7 +5,25 @@ for top-row opening, Manual opening, folder entry and HOME suspension. GitHub
 restart base is `5ee6fd7`; the historical static queue below is preserved.
 All four motion flows are currently fail pending matched frame-sequence proof.
 
-8 October Manual checkpoint: reviewed number, header and footer corrections
+Latest 8 October Manual checkpoint: guarded Contents-only `PageTitleNumB02`
+visibility correction `dcdefc9` is integrated and served from `16e2067` on
+3022. The original constructor clears that pane's visibility bit; no asset,
+geometry, glyph or clock was changed. Nine muted entry cycles and two actual
+Page round-trips produce 1,653 valid pairs / 3,306 checked raw PNGs. All 13
+console views and 12 fixed comparison sheets were opened. Both unchanged
+Camera ready diagnostics improve 106/23 to 106/9, empty mask / delta 2.
+Upper bytes are unchanged; lower row1/row2/footer residuals are now 3/0/6,
+with no added mismatches. Coordinate attribution is not native GPU execution.
+Cover 0/0 and incoming 11,520/74,829 are unchanged. Root full tests pass 2,444;
+isolated full tests pass 2,382, each retaining the historical Camera PNG
+failure. Ordinary typecheck and isolated build pass. Whole motion/input/audio
+acceptance remains open. Sidecar `6d37dfdf` pins 36 identities and rehashes
+the 19 unchanged mapped assets. Weekly remaining is 81%; pause at 75%. No further
+upper/lower source-only audit or fitted geometry is authorized. See
+[the visibility checkpoint](animation-fidelity-workflow-2026-10-07.md#manual-contents-decoration-visibility)
+for source identity, captures, failures and remaining dependencies.
+
+Earlier 8 October Manual checkpoint: reviewed number, header and footer corrections
 integrate through `0a6e205`, after the title-row correction and caller guards.
 Port 3022 serves reviewed `43b0780`, build `6_xvB78tkOAgNJilSVLa5`, excluding
 pending incoming assets/caller WIP. Existing model LFS bytes are unchanged.

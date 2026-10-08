@@ -24,4 +24,4 @@ for (let i = 0; i < count; i++) {
 }
 await sharp({ create: { width: columns * width, height: (count / columns) * height, channels: 4, background: '#00000000' } })
   .composite(layers).png({ compressionLevel: 9 }).toFile(join(output, 'atlas.png'));
-console.log(`Packed ${count} RGBA frames at ${width}x${height}, 30 fps.`);
+console.log(`Packed ${count} RGBA frames at ${width}x${height}, 29.97 fps.`);

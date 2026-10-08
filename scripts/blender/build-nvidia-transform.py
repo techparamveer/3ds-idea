@@ -1,5 +1,5 @@
 """Run in Blender via MCP with ROOT and OUTPUT set to absolute paths.
-The SVG contours preserve the repository's original NVIDIA artwork.
+Video-derived pixel reliefs preserve the cube/eye motion; SVG contours supply the wordmark.
 """
 import bpy
 import json
@@ -20,6 +20,7 @@ scene.render.film_transparent = True
 scene.render.image_settings.file_format = 'PNG'
 scene.render.image_settings.color_mode = 'RGBA'
 scene.render.fps = 30
+scene.render.fps_base = 1.001
 scene.frame_start = 1
 scene.frame_end = 72
 scene.world = bpy.data.worlds.new('NVIDIA studio')
@@ -77,7 +78,6 @@ def logo(name, paths, bounds, x, width, mat, depth):
     return obj
 
 
-eye = logo('Extruded original eye', contours['Eye_Mark'], (722.36974,1641.28177,243.70607,852.87366), -2.15, 1.24, green, 0.075)
 word = logo('Extruded original wordmark', contours['NVIDIA'], (642.64727,1864.07388,960.3779,1189.31953), -0.70, 2.85, dark, 0.14)
 # Bright front caps and dark, deep sides stay legible on the light LCD.
 word.data.bevel_depth = 0.015
@@ -171,10 +171,6 @@ def reveal(mat, values, operation, axis="X"):
         threshold.outputs[0].default_value = value
         threshold.outputs[0].keyframe_insert('default_value', frame=frame)
 
-# Eye uses its own green so the cube remains solid.
-eye_mat = green.copy()
-eye_mat.name = 'Eye enamel reveal'
-eye.data.materials[0] = eye_mat
 # The word moves right as the cube moves left. Coordinates follow video frames
 # 15..36, shifted by the 24-frame opening spin; no reverse keys exist.
 reveal(dark, [(1,.60),(40,.60),(43,.53),(46,.40),(49,.20),(52,-.26),(55,-.59),(58,-.86),(61,-.91),(72,-.91)], 'LESS_THAN')
@@ -182,9 +178,81 @@ reveal(word_front, [(1,.60),(40,.60),(43,.53),(46,.40),(49,.20),(52,-.26),(55,-.
 for frame, right in [(1,.60),(40,.61),(43,1.075),(46,1.433),(49,1.707),(52,1.897),(55,2.044),(58,2.129),(61,2.15),(72,2.15)]:
     word.location.x = right - 2.85
     word.keyframe_insert('location',frame=frame)
-# The eye opens upward out of the square, starting with the lower sweep.
-reveal(eye_mat, [(1,-.7),(51,-.7),(54,-.24),(58,.26),(61,.6),(72,.6)], 'GREATER_THAN', 'Y')
-reveal(cube_mat, [(1,-.7),(51,-.7),(54,-.24),(58,.26),(61,.6),(72,.6)], 'LESS_THAN', 'Y')
+# The reference draws an outer stroke, then curls inward. It is not a wipe of
+# the complete modern SVG. Each sampled silhouette is real extruded geometry.
+reference = json.loads((root / 'scripts/blender/nvidia-reference-poses.json').read_text())
+source_image = bpy.data.images.load(str(root / 'scripts/blender/nvidia-reference-colors.png'), check_existing=False)
+source_image.pack()
+front = bpy.data.materials.new('Reference green front colors')
+front.use_nodes = True
+nodes, links = front.node_tree.nodes, front.node_tree.links
+nodes.clear()
+texture = nodes.new('ShaderNodeTexImage')
+texture.image = source_image
+texture.interpolation = 'Closest'
+emission = nodes.new('ShaderNodeEmission')
+emission.inputs['Strength'].default_value = 1
+out = nodes.new('ShaderNodeOutputMaterial')
+links.new(texture.outputs['Color'], emission.inputs['Color'])
+links.new(emission.outputs[0],out.inputs['Surface'])
+unit = 4.3 / 204
+for item in reference['poses']:
+    index = item['videoFrame']
+    # A welded voxel surface preserves holes and thin strokes without curve
+    # tessellation cutting across disconnected contours.
+    pixels = {tuple(p) for p in item['pixels']}
+    vertices, faces, face_materials, vertex_indices = [], [], [], {}
+    def vertex(x, y, z):
+        key = (x,y,z)
+        if key not in vertex_indices:
+            vertex_indices[key] = len(vertices)
+            vertices.append(((x-316)*unit,(240-y)*unit,z))
+        return vertex_indices[key]
+    def face(points, mat):
+        faces.append([vertex(*p) for p in points])
+        face_materials.append(mat)
+    for x,y in sorted(pixels):
+        corners = [(x-.5,y-.5),(x-.5,y+.5),(x+.5,y+.5),(x+.5,y-.5)]
+        face([(px,py,.035) for px,py in corners],0)
+        face([(px,py,-.035) for px,py in reversed(corners)],1)
+        for k,neighbor in enumerate([(x-1,y),(x,y+1),(x+1,y),(x,y-1)]):
+            if neighbor not in pixels:
+                p,q = corners[k],corners[(k+1)%4]
+                face([(*p,.035),(*p,-.035),(*q,-.035),(*q,.035)],1)
+    mesh = bpy.data.meshes.new('Reference pixel relief %02d' % index)
+    mesh.from_pydata(vertices,[],faces)
+    mesh.update()
+    pose = bpy.data.objects.new('Video cube-eye pose %02d' % index,mesh)
+    scene.collection.objects.link(pose)
+    # Image sample coordinates refer to pixel centers; Blender's camera origin
+    # lies between pixels at this even resolution.
+    pose.location = (.5/36,-.5/36,0)
+    pose.data.materials.append(front)
+    pose.data.materials.append(green)
+    uv = pose.data.uv_layers.new(name='Video front colors')
+    uv.active_render = True
+    pose.data.uv_layers.active_index = len(pose.data.uv_layers)-1
+    for polygon in pose.data.polygons:
+        polygon.material_index = face_materials[polygon.index]
+        for loop in polygon.loop_indices:
+            vertex = pose.data.vertices[pose.data.loops[loop].vertex_index].co
+            x,y = vertex.x/unit+316,240-vertex.y/unit
+            uv.data[loop].uv = ((index%8*150+x-200+.5)/1200,1-(index//8*70+y-205+.5)/420)
+    start = index+25
+    for frame,hidden in [(1,True),(start,False)]+([] if index==45 else [(start+1,True)]):
+        pose.hide_render = hidden
+        pose.hide_viewport = hidden
+        pose.keyframe_insert('hide_render',frame=frame)
+        pose.keyframe_insert('hide_viewport',frame=frame)
+    pose['source_video_frame'] = index
+    pose['source_sha256'] = reference['sourceSha256']
+# The separate real cube supplies the requested opening spin only.
+for obj in (cube,edges):
+    for frame,hidden in [(1,False),(25,True)]:
+        obj.hide_render = hidden
+        obj.hide_viewport = hidden
+        obj.keyframe_insert('hide_render',frame=frame)
+        obj.keyframe_insert('hide_viewport',frame=frame)
 
 camera_data = bpy.data.cameras.new('Banner orthographic camera')
 camera = bpy.data.objects.new('Banner orthographic camera', camera_data)
@@ -205,11 +273,11 @@ for name, loc, energy, size in [
     obj.location = loc
     obj.rotation_euler = (Vector((0,0,0)) - obj.location).to_track_quat('-Z','Y').to_euler()
 
-for frame, name in [(1,'Opening full spin'),(25,'Reference begins'),(34,'Face on'),(43,'Word reveal'),(61,'Logo complete'),(72,'Hold indefinitely')]:
+for frame, name in [(1,'Opening full spin'),(25,'Reference begins'),(34,'Face on'),(43,'Word reveal'),(53,'Outer stroke begins'),(62,'Inner curl'),(70,'Video endpoint'),(72,'Hold indefinitely')]:
     scene.timeline_markers.new(name, frame=frame)
 scene['adaptation'] = 'User-requested portfolio artwork. Not native Nintendo firmware.'
 scene['reference'] = 'User video.mp4: green box turns face-on, slides left, reveals NVIDIA eye and wordmark.'
-scene['delivery'] = '72 transparent 180x148 frames at 30fps; play once, hold frame 72.'
+scene['delivery'] = '72 transparent 180x148 frames at 30000/1001fps; frames 25-70 reproduce the 46 source poses; play once and hold.'
 scene.render.filepath = str(output / 'frame-')
 scene.frame_set(72)
 # Leave a camera view available for opening the editable source.

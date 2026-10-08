@@ -266,3 +266,17 @@ operation. Named future scenarios are `photo-selector-readonly-back` and
 - Coordinator owns the first captured defect, integration, native/browser replay
   and matrix update for every named scenario above. No source-only correction is
   authorized merely because a route is incomplete.
+
+
+## 8 October 2026 — NVIDIA eye-motion correction
+
+On `codex/nvidia-transform`, revision 3 replaces the rejected directional SVG
+wipe with 46 video-derived extruded pixel poses in Blender MCP. The outer sweep
+and inward curl now follow the source frame sequence at 29.97 fps. Opening spin,
+one-shot hold and revision 2's 3D wordmark remain. This is a portfolio adaptation.
+All source frames compared; mean eye silhouette IoU is 0.9763 (outer stroke) and
+0.9685 (inner curl), with residual raster edges. Muted production browser and
+actual renderer playback checks pass. Typecheck/build/shader pass; full tests
+have the known missing private Camera HNI fixture failure (2,167 pass, one fail).
+No native matrix or native acceptance status changes. See
+[authoring and evidence](../nvidia-transform-2026-10-08.md).

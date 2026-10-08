@@ -8,30 +8,35 @@
     "fps": 29.970029830932617
   },
   "blender": "5.2.1 LTS",
-  "render": "EEVEE, transparent RGBA, orthographic, extruded original SVG contours; white text caps and dark bevels/sides",
+  "render": "EEVEE transparent RGBA; 46 video-derived extruded pixel relief poses for cube/eye; original SVG wordmark with unchanged white caps, dark sides and bevels",
   "delivery": {
     "width": 180,
     "height": 148,
     "frames": 72,
-    "fps": 30,
+    "fps": 29.97002997002997,
     "atlasColumns": 8,
     "reducedMotionFrame": 72,
     "color": "RGB555-style quantization; binary alpha; nearest-neighbour display",
-    "playback": "Play once per selection; clamp on final frame; never restart from painting gaps"
+    "playback": "Play once per selection; clamp on final frame; never restart from painting gaps",
+    "referenceFrameMapping": "Video frames 0\u201345 map to render frames 25\u201370; 71\u201372 hold video endpoint"
   },
   "adaptations": [
     "24-frame opening cube spin requested by the user",
-    "Box dimensions and reveal positions measured from supplied video",
-    "Bright extruded lettering with dark sides and a slight tilt for visible 3D depth",
-    "Pixel sampling and color quantization"
+    "Frame-sampled pixel relief geometry with 0.07 units depth; this is not a continuous morph rig",
+    "The supplied clip ends before the inner curl fully closes; preserve that endpoint",
+    "Unchanged revision-2 extruded white wordmark with dark sides and slight tilt",
+    "180x148 raster sampling, RGB555 quantization and binary alpha; not pixel-identical to the source"
   ],
   "sha256": {
     "public/portfolio/nvidia.svg": "5347e5188c74204767d2d4daa17b59b5a18ccd7ad0a7281e7961a83c20c96808",
     "scripts/blender/nvidia-logo-contours.json": "913ebb09f53fb820f9f0efaaa895f451103af9f2c218fcf10cc2cc705549c998",
-    "scripts/blender/build-nvidia-transform.py": "69bd2a400c5d33ca8bd72dac27cb4eedb37a727b9ff3ea017d3284bfed5a08a6",
-    "scripts/blender/pack-nvidia-transform.mjs": "7de87af84db676d7a906781a2af245d9f1c8e03a8f0a66d443a699d99edbf18f",
-    "assets/blender/nvidia-transform.blend": "3efa6f429b3473183066aeed14109fbd0a14431a4c2d4e82bea3e4e2774d9dea",
-    "public/portfolio/nvidia-transform/atlas.png": "becee359948702731ede7f4ea8b8d0fb11cee72181fbed11f177d2319bf5f4dc",
-    "public/portfolio/nvidia-transform/poster.png": "94c28f9b0acf684c76d23e25184180d5ca983d83799c022ef1a32034a8755600"
+    "scripts/blender/build-nvidia-transform.py": "5c047c65610bd1f17fdec439beb9106acaa9ae6c9bb17b39f62fce18dd72f6e1",
+    "scripts/blender/pack-nvidia-transform.mjs": "be807c459b9a10958af3c5ac8bc5ddac6c73f1cd8489bfd211ef74c000976883",
+    "assets/blender/nvidia-transform.blend": "506840b5e7a67f1f1997a5d766aba7716fc72d6ae4b700614b139b9eeb5fc14c",
+    "public/portfolio/nvidia-transform/atlas.png": "47b9d056712e0a6a528667dd99af4cd48f8c7f7a16a76c8ffc07ebef20cdec51",
+    "public/portfolio/nvidia-transform/poster.png": "29b596a940e2cb5be82f05c0b28e1cec1835ffd25380ed5adcdf9ca628eafd71",
+    "scripts/blender/trace-nvidia-video.py": "e54277e9a9a0138d5d68a1997649039a08083fd97cf5641490e2325ba9830e32",
+    "scripts/blender/nvidia-reference-poses.json": "ac3934c41058aaafce4623f9eae0f33b36ea949672caa40174fe7404b6107344",
+    "scripts/blender/nvidia-reference-colors.png": "ca99062d35525209220a4d85d31303cde66d73f21e760962261b1d700102f4e7"
   }
 }

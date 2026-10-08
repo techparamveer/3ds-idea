@@ -25,10 +25,12 @@ User correction: follow reference proportions and reveal, add opening cube spin,
 play once and hold logo; remove reverse and loop.
 Revision 2 implementation: `a524cee`. Implemented and browser-verified: full opening spin, closer reference
 reveal, visibly extruded white lettering with dark sides, one-shot playback and
-indefinite logo hold. The production preview at port 3048 serves this revision.
+indefinite logo hold. This earlier preview is superseded by revision 3.
 Revision 3 starts from checked HEAD `4409fb4eddead4a86141f278c5b92bed56bef565`.
 User rejected the eye motion. Scope: cube/eye only; preserve wordmark, opening
 spin and one-shot hold. Compare every source frame and inspect other banners.
+Revision 3 implementation: `26148697835b5c6920caf21f03d18b9682fb61f9`.
+This documentation checkpoint records that implementation; Git supplies its own HEAD.
 Revision 3 implemented: video-derived extruded pixel poses replace the eye wipe;
 source timing is 30000/1001 fps. Wordmark is unchanged. Muted preview at port
 3048 serves revision 3. Full video silhouette comparison and one-shot browser

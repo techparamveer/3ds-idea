@@ -3,7 +3,7 @@
 User-requested portfolio adaptation on `codex/nvidia-transform`, based on
 `5ee6fd7a42b0239c5f55f375f85593289a0ff532`. The historical fidelity checkout was
 absent, so this work uses a separate managed worktree from current `main`.
-Revision 3 starts from `4409fb4` and supersedes the rejected eye wipe in
+Revision 3 implementation is `26148697835b5c6920caf21f03d18b9682fb61f9`, starts from `4409fb4` and supersedes the rejected eye wipe in
 `a524cee`. The user clarified that the cube/eye animation needed correction;
 the 3D wordmark was to stay unchanged.
 

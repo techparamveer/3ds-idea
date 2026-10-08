@@ -1,5 +1,14 @@
 # Feature map — 1:1 queue
 
+8 October upper HOME checkpoint: `f2c09f4` corrects the early status bar and
+has 83/83 audited Mac production pairs. Fresh native comparison exposes early
+card/camera hints and reversed retained-upper size progression. Corrections
+`caeff9b` and `8abfd42` are reviewed and recaptured in normal81/82, reduced5/5
+and compact Camera86/86 pairs without page errors. The corrected direction and
+late card/hints are visible. Root114 focused/typecheck/build/shader checks pass.
+Exact native timing, input and pixel residuals remain. All four whole animation
+flows remain fail. See [the upper checkpoint](animation-fidelity-workflow-2026-10-07.md#home-upper-suspension-8-october).
+
 8 October combined checkpoint: `b572961`/`d2a80ec` deliver the decoded lower
 HOME pause transition and accepted-receipt snapshot lifetime. Runtime `1c58f50`
 shows retained Health, HOME crossfade and footer last in first/repeat captures.
@@ -9,7 +18,7 @@ Camera opening then revealed a reproducible outgoing clock stall. Reviewed
 in all six first/repeat cycles; native timing and 106/9 ready residual remain.
 All 1360 corrected raw PNGs are independently checked and chronological sheets
 are inspected. Next bounded runtime target is the early upper HOME HUD.
-All four whole scenarios remain fail. New helpers use GPT-6.1 Sol extra-high.
+All four whole scenarios remain fail. The older helper preference is historical.
 See the [combined checkpoint](animation-fidelity-workflow-2026-10-07.md#home-lower-delivery-and-manual-stall-8-october).
 
 8 October HOME capture: native first/repeat and157 audited browser pairs expose

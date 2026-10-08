@@ -31,12 +31,11 @@ STATUS **Product**. Reconcile git, then continue from STATUS **Next**.
 
 ## Agent model preference - 8 October 2026
 
-The latest human request selects **GPT-6 Astra, extra-high reasoning**, superseding
-the earlier GPT-5.6 Sol and GPT-6.1 Sol preferences. Use `model=gpt-6-astra`
-and `thinking=xhigh` for authorized separate Codex chats, and
-`model=gpt-6-astra` with `reasoning_effort=xhigh` on bounded or empty context
-forks for workers and reviews. This request also supersedes the earlier
-different-model reviewer preference; keep review independent of implementation.
+The latest user-supplied repository instructions select **GPT-5.6 Sol, high
+reasoning**, superseding the earlier Astra and Sol preferences. Use
+`model=gpt-5.6-sol` and `thinking=high` for authorized separate Codex chats,
+and `model=gpt-5.6-sol` with `reasoning_effort=high` on bounded or empty
+context forks for workers. Keep one independent reviewer on a different model.
 The user requests normal speed, no Fast; the tools do not
 expose a service-tier selector, so do not claim speed is verified. Do not
 claim that an in-flight coordinator model changed through a worker override.

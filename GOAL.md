@@ -8,7 +8,16 @@ The human resumed on8 October with "continue disregard that", revoking the
 without that usage cutoff. Continue the full animation goal. Earlier quota
 checkpoints remain history; do not stop again at that removed threshold.
 
-Latest checkpoint: the goal is active at runtime `a52bdfe`. The lower HOME
+Latest checkpoint: HUD entry `f2c09f4`, card/camera-hint entry `caeff9b` and
+retained-upper direction `8abfd42` are integrated and independently reviewed.
+Corrected Mac normal 81/82 and reduced 5/5 first/repeat pairs show full-to-small
+app motion and delayed card/hints. Compact Camera also completes 86/86 pairs.
+Root 114 focused checks, typecheck, build and shader check pass; full 2517
+passes retain one historical missing Camera PNG failure. Whole-flow timing,
+input and pixel acceptance remain open. Continue the full animation scope.
+See the [upper checkpoint](docs/animation-fidelity-workflow-2026-10-07.md#home-upper-suspension-8-october).
+
+Earlier checkpoint: the goal is active at runtime `a52bdfe`. The lower HOME
 pause compositor and snapshot-lifetime correction are integrated and visibly
 recaptured. Normal first/repeat has 151 pairs; reduced has nine pairs. Lower
 app shrink/darken, HOME crossfade and delayed footer now appear in order.
@@ -44,8 +53,9 @@ evidence, not frame-exact acceptance. All four whole animation scenarios fail.
 The old blocked goal checkpoint is superseded by the human resume. The
 [approved incoming checkpoint](docs/animation-fidelity-workflow-2026-10-07.md#approved-incoming-delivery-8-october)
 preserves that delivery's evidence.
-All future browser/Azahar visual testing must run on the iPad Sidecar display.
-Confirm actual window placement before inputs; no new headless visual runs.
+The latest human instruction permits browser/Azahar visual testing on the Mac
+without Sidecar. Confirm actual window placement before inputs; no new headless
+visual runs.
 The goal is incomplete.
 
 Finish the opening animations for the HOME top-row apps, opening Manual,
@@ -62,9 +72,9 @@ duration and the final screen. A matching endpoint or passing tests does not
 establish matching motion.
 
 Work in separate branches and worktrees with at most two workers. The latest
-human request on 8 October selects GPT-6 Astra, extra-high reasoning, for all
-new workers and reviewers. This supersedes earlier model preferences. Keep
-review independent of implementation. Normal speed is requested but not
+user-supplied repository instructions select GPT-5.6 Sol, high reasoning, for
+new workers and an independent reviewer on a different model. This supersedes
+earlier model preferences. Normal speed is requested but not
 tool-verifiable.
 Do not claim that a helper override changes the running coordinator model.
 The coordinator alone controls Azahar and the shared browser, integrates

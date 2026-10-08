@@ -2,9 +2,86 @@
 
 The human resumed on8 October with "continue disregard that" and removed the
 75%-remaining stop rule. Continue from STATUS Next; quota pauses recorded below
-are historical. The latest human request selects GPT-6 Astra extra-high for
-workers and reviewers. Review stays independent. All sessions stay
-muted and visual tests stay on Sidecar.
+are historical. The latest user-supplied repository instructions select
+GPT-5.6 Sol high workers and an independent different-model reviewer. All sessions stay
+muted. The latest human instruction permits visible Mac testing without Sidecar;
+verify actual owned-window placement before scenario inputs.
+
+## HOME upper suspension, 8 October
+
+Decoded HUD entrance is integrated as `f2c09f4`. Root 42 focused checks,
+nonincremental typecheck and production build pass. Full tests report 2514
+passes, the historical missing Camera PNG failure, 98 skips and one TODO.
+The muted Mac build `BpUqNgOHrhPAipzs1smDk` has SHA-256
+`f90bd8eaa322383c9604dff2ac8e5f1753121e7368806e9a1ee2ba77611d16ca`.
+First/repeat normal captures contain 83/83 paired frames without page errors.
+Both console views, four chronological sheets and the fixed terminal diff
+were opened. Pre/post-navigation window bounds are recorded on the built-in
+display. Independent audit checks all 332 raw PNGs and same-paint receipts.
+
+Private evidence is under
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261008/`:
+`home-pause-upper-mac/` holds raw evidence and `home-pause-upper-review/newmac/`
+holds independent reports. Browser audit SHA-256 is
+`bfbadebcf4f2efef759f1c236b244c8bfa3bf2dbb7b1cbe992e9d46bfd67941f`;
+native inventory is `d1b39b384decebfdb2a97aaff05ade7a7aca293718d1afeacd505ef4fc8afea9`.
+The fixed first pause20 versus first native own PNG, with an empty mask and
+RGB delta 2, differs in 9361 upper and 37696 lower pixels. Fixtures, status,
+calendar and epochs remain unmatched; this is not motion acceptance.
+
+The fresh native first/repeat movies show full app imagery shrinking before
+HUD/card entry. Browser card and camera hints appear too early, and its upper
+capture starts small and grows. Reviewed `34ee515`, integrated as `caeff9b`,
+delays the source card and binds launcher SceneIn; root 20 affected checks pass.
+The [card handoff](workstream-handoffs/home-pause-card-alignment-20261008.md)
+records exact source identities and the explicitly fitted host alignment.
+Reviewed backdrop `87e8a31` integrates as `8abfd42` and advances decoded
+`BannerBG_SceneIn` alongside `BannerBG_AppPause`. The [backdrop contract](home-pause-backdrop-direction-2026-10-08.md)
+records its full source mapping, exact curve validation and host-clock limits.
+No native asset bytes or shared shader/UV implementation changed.
+
+Combined root verification passes 114 focused tests, nonincremental typecheck,
+build and shader validation. Full tests have 2517 passes and the same historical
+Camera PNG failure, 98 skips and one TODO. Corrected build
+`U8DJ_jj5mKsU9OJ_hTKZQ` hashes
+`f8da5aa5d5bc9bd583672a02920330733f7ace2961afcef9e63d5e863e0b5145`.
+Normal first/repeat has 81/82 pairs, reduced narrow has 5/5, and ordinary HOME
+then ArrowRight compact Camera has 86/86. All six cycles complete without page
+errors; their console images and exact Mac pre/post-navigation gates are saved.
+The normal and reduced chronological sheets are opened. Normal visibly starts
+full, shrinks and withholds card/hints through pause10; reduced shows endpoint20.
+
+Independent normal audit checks 326 raw PNGs, all source poses0..20, paired
+receipts and 96 unchanged sheet crops. Audit SHA-256 is
+`f7900d9311eee074f41386e52254322d4f8b9dad0c5c6065101857b91b799f15` at
+`home-pause-upper-review/newmac/final-normal/audit.json`. Reduced checks all20
+PNGs, SHA-256 `f45f3646832cf53e4f183a368e8a8229e4585ca47cf6da666a04019e00477aea`.
+The unchanged selector chooses normal frame021, first pause20. Its empty-mask
+comparison against the same first native own PNG differs 9523 upper / 37638
+lower pixels; the sheet is opened. Calendar/status/fixture and retained-image
+phases still differ. Do not interpret changed static counts as motion fidelity.
+Compact audit verifies all 344 raw PNGs and paired receipts, SHA-256
+`c90121ee3ae8be44f67fffa5a92b9ce72653e93cc01e13427bb3d1aa94b235c5`.
+Camera identity persists while selection changes to eShop. First-cycle frame013
+records a loading selection retarget without failure; subsequent frames are
+ready. This is browser regression evidence, not native compact-pause acceptance.
+All six compact chronology sheets are opened. The final independent report at
+`home-pause-upper-review/newmac/final-review.md`, SHA-256
+`56ffaf3d6722fa3feedaab98b9ae70c4655b9b6e066a70bb92834bdb20ef22ef`,
+checks all 345 corrected pairs / 690 PNGs and 224 unchanged sheet crops.
+
+Still non-native: shared receipt-based pause cadence, HUD/launcher/card phase
+alignment, captured-texture binding and padding, reduced motion and portfolio
+population. Source curves and corrected visible ordering do not prove original
+caller epochs, wall-clock duration, exact input or whole-scenario equality.
+
+Native session17323 exits0 via Quit/Yes, PID31021 is absent, and owned HOME /
+screenshot fields are restored. Four GUI layout fields were normalized by
+Azahar and retained. Restored profile SHA-256 is
+`85be6021cdac61ef688fbc6a9f3fef188edcbe09457af819d7f0db9a5eb45a3d`;
+volume0, Null output1 and Static input2 remain. Failed initial process23298
+exited139 and is excluded from comparison evidence. All four whole flows
+remain fail; muted audio is unverified.
 
 ## HOME lower delivery and Manual stall, 8 October
 

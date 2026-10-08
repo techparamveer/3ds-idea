@@ -10,14 +10,12 @@ endpoint painters, loaders, controllers, screens, scene, Manual, Notes and
 folder behavior are unchanged here. Coordinator owns visible integration and
 native comparison; B owns the incoming controller/helper.
 
-Current checkpoint: original source conversion and private fixtures validate;
-public publication is awaiting explicit user export approval. The default
-command failed to create its assigned Sandisk scratch directory. The subsequent
-permission review rejected public firmware-derived export without specific
-human authorization. No public assets or manifest records were written by
-either attempt. Private converter fixtures at
+Current checkpoint: the user explicitly approved public export on 8 October
+2026, superseding the earlier permission denial. The pinned publisher wrote the
+two incoming packs and additive manifest records. A second identical publication
+reported no additions and preserved all delivered bytes. The private fixtures at
 `/private/tmp/3ds-applet-incoming-fixtures-20261007/{friends,notifications}/incoming.json`
-support read-only helper verification, not asset delivery or acceptance.
+remain read-only conversion references, not acceptance evidence.
 
 ## Resource contract
 
@@ -152,23 +150,20 @@ audio acceptance is claimed by this asset publication.
 
 ## Checks and next action
 
-Focused original-source Python checks with
-`APPLET_INCOMING_PACK_ROOT=/private/tmp/3ds-applet-incoming-fixtures-20261007`:
-6 passed, 0 failed, 3 publication-only checks skipped. Focused Node pose/plain
-label checks with the same fixture environment: 4 passed, 0 failed, 2
-publication-only checks skipped. The skipped checks are manifest delta,
-published byte/provenance closure and repeat publication; they must run after
-authorized publication. Temporary fixture hashes are Friends
-`361a6838c840f69fdf92c6ab520aa1cbced463a1d4f8cffe6824fe398af2db1c` and
-Notifications
+Focused original-source and publication Python checks ran without fixture
+overrides: 9 passed, 0 failed, 0 skipped. Focused Node pose, plain-label and
+publication checks also ran without fixture overrides: 6 passed, 0 failed,
+0 skipped. The delivered pack hashes equal the reviewed fixture hashes:
+Friends is `361a6838c840f69fdf92c6ab520aa1cbced463a1d4f8cffe6824fe398af2db1c`
+and Notifications is
 `9137c1da5bdf61584dddfa14a090b9e79d7b1f20dba6736cc33c9fbede231d74`.
-All seven texture dependencies per fixture were independently checked against
-existing public bytes and manifest hashes. They are reused, not rewritten.
+The manifest SHA-256 is
+`4f84123eeecd029ce2bedf4607cd1a7dca87039a39a768eacdf65c1d6dd81099`.
+All seven texture dependencies per pack match existing public bytes and
+manifest hashes. The publisher reused them without rewriting them.
 
-The owned tests skip missing public delivery explicitly while authorization is
-pending; they do not report it as source support or acceptance. No full suite,
-build, server, GUI or native process was run. After the immutable source/script
-review and explicit user approval, run the publisher with absolute original
-source/content/output/artifact/ctrtool paths, rerun all focused checks without
-fixture overrides, commit only the two JSON packs and additive manifest delta,
-then integrate root/B wiring and perform the matched native/browser loop.
+The second publication returned `added: []`; its report is
+`continuation-20261008/approved-applet-assets/applet-incoming-publication.json`
+under the private animation artifact root. No full suite, build, server, GUI or
+native process ran. Coordinator next integrates root/B wiring and performs the
+matched native/browser loop.

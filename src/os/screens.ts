@@ -20,7 +20,7 @@ import { homeSuspendedApplication, homeSuspendedIconDisappeared, homeSuspendedWi
 import { homeCloseWindowOpacity } from './home-close-window-fit';
 import { sampleSystemHomeApplicationTransition } from './system-home-application-transition';
 import { createHomeSuspendedPresentation, getHomeSuspendedSleepFrame, syncHomeSuspendedPresentation } from './home-suspended-presentation';
-import { sampleHomeEntryMotionCandidate, acknowledgeHomeEntryMotionCandidate, homeEntryMotionMatches, homeEntryMotionActive, homeFolderEntryPose, homePauseEntryPresentation, homePauseLowerPresentation, HOME_FOLDER_ENTRY_LAST_FRAME, type HomeEntryMotion, type HomeEntryMotionIdentity, type HomeFolderEntryPose, type HomePauseLowerPresentation, type HomeSuspendedBackgroundPresentation } from './home-entry-motion';
+import { sampleHomeEntryMotionCandidate, acknowledgeHomeEntryMotionCandidate, homeEntryMotionMatches, homeEntryMotionActive, homeFolderEntryPose, homePauseEntryPresentation, homePauseHudSceneInFrame, homePauseLowerPresentation, HOME_FOLDER_ENTRY_LAST_FRAME, type HomeEntryMotion, type HomeEntryMotionIdentity, type HomeFolderEntryPose, type HomePauseLowerPresentation, type HomeSuspendedBackgroundPresentation } from './home-entry-motion';
 import { acknowledgeHomeEntryBannerPresentation, acknowledgeHomeEntryFooterRelease, acknowledgeHomeEntryFooterTerminal, bypassHomeEntryBannerPresentation, createHomeEntryPresentation, getHomeEntryFooterReadiness, homeEntryBannerActivationDue,
  sampleHomeEntryPresentation, HOME_ENTRY_BANNER_RELEASE_FOOTER_FRAME, HOME_ENTRY_FOOTER_LAST_FRAME } from './home-entry-presentation';
 import { NATIVE_RECOVERY_TARGETS } from './native-screen-input';
@@ -638,6 +638,9 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    pauseEligible,pauseEntryNeedsRebase,reduced);
   const pauseEntry=homePauseEntryPresentation(pauseMotion,reduced);
   const pauseLower=pauseEligible?homePauseLowerPresentation(pauseMotion,reduced):null;
+  const pauseHudFrame=pauseEligible&&suspendedCapture.status==='ready'&&suspendedCapture.owner===pauseOwner
+   &&pauseMotion?.identity.kind==='pause'&&pauseMotion.identity.owner===pauseOwner&&pauseMotion.identity.captureGeneration===suspendedCapture.generation
+   ?homePauseHudSceneInFrame(pauseMotion,reduced):null;
   const suspendedBackgroundPresentation=applicationTransitionPresentation??pauseEntry;
   if(!applicationTransition||applicationFooterReturn)applicationTransitionCapture=undefined;
   else if(!state.system?.sleeping){
@@ -780,7 +783,11 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   // caller boundary remains untraced. This captured slice only prevents their
   // settled poses appearing beneath CmnFadeNinLogo while boot is still active.
   const bootBaseOnly=state.system?.phase==='boot';
-  if(!bootBaseOnly&&!nativeHome?.hud(t,date,time,verification?.homeHudSample,homeEntry.hudSceneInFrame??undefined))status(t,date,chrome);
+  if(!bootBaseOnly){
+   const hudDrawn=nativeHome?.hud(t,date,time,verification?.homeHudSample,pauseHudFrame??homeEntry.hudSceneInFrame??undefined);
+   if(pauseHudFrame!==null&&!hudDrawn)throw Error('Native HOME pause HUD unavailable');
+   if(!hudDrawn)status(t,date,chrome);
+  }
   b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time,folderEntry);const folderChromeDrawn=nativeHome?.folderChrome(b,state,reduced,folderEntry);if(state.opened&&nativeHome&&!folderChromeDrawn)throw Error('Native folder entry chrome unavailable');grid(b,state,time,reduced,graphics,chrome,view,nativeHome,false,firmwareAssets,suspendedSleepFrame,launchPresentation,verification?.homeCursorLoopFrame??getHomeCursorLoopFrame(state,reduced),folderEntry);nativeHome?.folderBalloon(b,state,view);
   if(pauseLower?.fadeFrame!==null&&pauseLower?.fadeFrame!==undefined){
    if(suspendedCapture.status!=='ready'||!pauseOwner||suspendedCapture.owner!==pauseOwner)throw Error('Native HOME lower pause capture unavailable');

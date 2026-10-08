@@ -1,4 +1,5 @@
 import type { HomeApplicationTransitionPresentation } from './home-application-transition.ts';
+import { HOME_ENTRY_HUD_LAST_FRAME } from './home-entry-presentation.ts';
 
 export const HOME_FOLDER_ENTRY_LAST_FRAME = 16;
 export const HOME_FOLDER_CAPTURE_ENTRY_LAST_FRAME = 8;
@@ -97,6 +98,15 @@ export function homePauseEntryPresentation(motion: HomeEntryMotion | null, reduc
     material: Object.freeze([Object.freeze({ clip: 'BannerBG_AppPause',
       frame: reduced ? HOME_PAUSE_ENTRY_LAST_FRAME : Math.min(HOME_PAUSE_ENTRY_LAST_FRAME, motion.elapsedUpdates) })] as const),
   });
+}
+
+/** Source SceneIn holds alpha zero through normalized frame 20, then enters
+ * through 40. Mapping it to pause 0..20 is a host alignment adaptation, not a
+ * recovered native caller epoch or a fit to the movies' whole duration. */
+export function homePauseHudSceneInFrame(motion: HomeEntryMotion | null, reduced = false): number | null {
+  if (motion?.identity.kind !== 'pause') return null;
+  return reduced ? HOME_ENTRY_HUD_LAST_FRAME
+    : Math.min(HOME_PAUSE_ENTRY_LAST_FRAME, motion.elapsedUpdates) * HOME_ENTRY_HUD_LAST_FRAME / HOME_PAUSE_ENTRY_LAST_FRAME;
 }
 
 /** The clips are source-authored; their shared 0..20 host schedule is fitted

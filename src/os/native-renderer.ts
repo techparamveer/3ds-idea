@@ -299,20 +299,20 @@ export class NativeLayoutRenderer {
   if(this.disposed)return false;
   if(!this.packs[packName]||!layout){this.report(`Missing layout ${packName}/${layoutName}`);return false;}
   return this.drawResolved(ctx,packName,layoutName,{...options,bindings:options.bindings??[]},{
-   layout,textures:this.textures[packName],key:JSON.stringify(['posed',packName,layoutName]),depth:0,
+   layout,textures:this.textures[packName],key:JSON.stringify(['posed',packName,layoutName]),depth:0,cachePose:false,
   });
  }
- private drawResolved(ctx:Context,packName:string,layoutName:string,options:NativeDrawOptions,instance?:{layout:NativeLayout;textures:ReadonlyMap<string,NativePixels>;key:string;depth:number}):boolean {
+ private drawResolved(ctx:Context,packName:string,layoutName:string,options:NativeDrawOptions,instance?:{layout:NativeLayout;textures:ReadonlyMap<string,NativePixels>;key:string;depth:number;cachePose?:boolean}):boolean {
   if(this.disposed)return false;
   const pack=this.packs[packName],original=instance?.layout??pack?.layouts[layoutName];if(!original){this.report(`Missing layout ${packName}/${layoutName}`);return false;}
   const poseKey=JSON.stringify([instance?.key,packName,layoutName,options.bindings,options.overrides,options.textByCallName]);
-  let posed=this.poses.get(poseKey);
+  let posed=instance?.cachePose===false?undefined:this.poses.get(poseKey);
   if(posed){this.poses.delete(poseKey);this.poses.set(poseKey,posed);}
   else{for(const binding of options.bindings??[]){const animation=pack.animations[binding.name];if(animation)for(const message of nativeAnimationDiagnostics(original,animation))this.report(`${layoutName}: ${message}`);}
    posed=poseNativeLayout(original,pack.animations,options.bindings,options.overrides);
    const textByCallName=options.textByCallName;
    if(textByCallName){const bind=(panes:NativePane[])=>panes.forEach(p=>{if(p.text?.callName&&options.overrides?.[p.name]?.text===undefined&&Object.hasOwn(textByCallName,p.text.callName))p.text.value=textByCallName[p.text.callName];bind(p.children);});bind(posed.roots);}
-   if(this.poses.size>=16)this.poses.delete(this.poses.keys().next().value!);this.poses.set(poseKey,posed);}
+   if(instance?.cachePose!==false){if(this.poses.size>=16)this.poses.delete(this.poses.keys().next().value!);this.poses.set(poseKey,posed);}}
   const layout=posed;
   // Bind replacements for this draw only; shared source packs/textures stay intact.
   const sourceTextures=instance?.textures??this.textures[packName];
@@ -394,7 +394,7 @@ export class NativeLayoutRenderer {
       try{
        const key=JSON.stringify([poseKey,pane.name,pane.part]);
        if(!this.drawResolved(ctx,link.pack,link.layout,{parts:options.parts,partBindings:options.partBindings,textByCallName:options.textByCallName,
-        bindings:partOptions?.bindings,overrides:partOptions?.overrides,center:[0,0]}, {layout:prepared.layout,textures:images,key,depth}))throw new Error(`Failed native part ${pane.name}`);
+        bindings:partOptions?.bindings,overrides:partOptions?.overrides,center:[0,0]}, {layout:prepared.layout,textures:images,key,depth,cachePose:instance?.cachePose}))throw new Error(`Failed native part ${pane.name}`);
       }finally{if(previous===undefined)this.parentAlpha.delete(ctx);else this.parentAlpha.set(ctx,previous);}
      }
      // InfluenceAlpha transmits this pane's alpha; an unflagged pane keeps the inherited chain.

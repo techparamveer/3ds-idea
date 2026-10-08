@@ -3,7 +3,80 @@
 Rewrite this file whenever `HEAD` moves or localhost starts or stops.
 If this SHA disagrees with `git rev-parse HEAD`, git wins; rewrite this file before any worker.
 
-Updated: 6 October 2026.
+Updated: 8 October 2026.
+
+## Nvidia animation branch
+
+This isolated user-requested portfolio branch is `codex/nvidia-transform` at
+`/Users/paramveer/.codex/worktrees/nvidia-transform/3ds-idea`, based on
+`5ee6fd7a42b0239c5f55f375f85593289a0ff532` from current clean `main`.
+The historical fidelity checkout below no longer exists. Git inventory wins.
+Scope: Blender-authored transparent Nvidia box-to-logo banner, a labelled
+portfolio adaptation. No native firmware scenario is changed.
+Private scratch uses `/Users/paramveer/.codex/3ds-artifact-overflow/nvidia-transform-20261008/`
+because the repository instructions prohibit new artifacts on DeveloperStorage.
+Preview: `http://127.0.0.1:3048/?lcdCapture=1`, production build from this branch.
+The isolated browser session has app mute enabled and volume zero.
+Delivered and browser-inspected; see [Nvidia notes](docs/nvidia-transform-2026-10-08.md).
+Implementation commit: `efe4e8da743a90ed67e817c7bd0b0da4d7d87e7f`.
+This checkpoint records that implementation; use Git for the current documentation HEAD.
+Revision 2 starts from checked HEAD `7f06ecf3a60894d5682817c05a5e3e7f2951227f`.
+User correction: follow reference proportions and reveal, add opening cube spin,
+play once and hold logo; remove reverse and loop.
+Revision 2 implementation: `a524cee`. Implemented and browser-verified: full opening spin, closer reference
+reveal, visibly extruded white lettering with dark sides, one-shot playback and
+indefinite logo hold. This earlier preview is superseded by revision 3.
+Revision 3 starts from checked HEAD `4409fb4eddead4a86141f278c5b92bed56bef565`.
+User rejected the eye motion. Scope: cube/eye only; preserve wordmark, opening
+spin and one-shot hold. Compare every source frame and inspect other banners.
+Revision 3 implementation: `26148697835b5c6920caf21f03d18b9682fb61f9`.
+This documentation checkpoint records that implementation; Git supplies its own HEAD.
+Revision 3 implemented: video-derived extruded pixel poses replace the eye wipe;
+source timing is 30000/1001 fps. Wordmark is unchanged. Muted preview at port
+3048 serves revision 3. Full video silhouette comparison and one-shot browser
+checks pass with documented raster-edge residuals; exact 1:1 remains unclaimed.
+Revision 4 starts from checked HEAD `605858d2cce583fe862f43f61a943527384ceacd`.
+User asks for flat lettering again; remove wordmark depth, bevel and tilt.
+Revision 4 rendered and served on the isolated muted port 3048 preview.
+Revision 4 implementation: `9ef09d407c34b999b6d7b114a4182643eec89215` (Git supplies the documentation checkpoint HEAD).
+Revision 4 browser-inspected: flat graphite text on the NVIDIA HOME banner.
+Typecheck, build and shader pass; full suite retains the known missing Camera
+fixture failure (2,167 pass, one fail). Next: user visual review. Native queue remains unrelated.
+Revision 5 starts from checked HEAD `92d542413ca5bd210ce5dd1941081ab62cfdb25c`.
+User confirmed the first version appearance; fix only the cube spin and eye
+carving into the box, using the supplied reference. Reuse original geometry and
+materials; replace pixel reliefs with an ordered carve of the original eye.
+Revision 5 implementation: `be53cd3071ce589d96f3e41fc2fe08f324ec677d`. Git supplies the documentation checkpoint HEAD.
+Revision 5 renders 80 frames, one full spin and an outer-to-inner spiral carve.
+The muted isolated preview at port3048 now serves this restored version.
+Typecheck/build/shader pass; full suite retains its known Camera fixture failure.
+Next for this branch: user visual review.
+Revision 6 starts from checked HEAD `04c05b16e9b1f63689266d247a0b6c35ba5dede4`.
+Scope: opening spin only. Keep a stable upright axis, ease speed and flattening;
+preserve the restored logo/carve sequence from frame 41 onward.
+Revision 6 implementation: `10f1f475b59f62c12cfa363b15494dd58dd9caa9`; Git supplies documentation HEAD.
+Revision 6 browser-inspected on the muted isolated preview; actual renderer playback checks pass.
+Revision 6 rendered: upright YXZ turn, smoothstep yaw and gradual size/depth
+settling through frame 40. Final poster unchanged. Typecheck/build/shader pass;
+full tests retain the known Camera fixture failure. Port3048 serves this revision.
+Revision 7 starts from checked HEAD `9bbfada6643e6dc39476d0bd8c347b16d505c639`.
+User localized the glitch to the spin-to-square transition. Reproduced depth
+collapse while still tilted in frames 33–39. Keep the cube solid until aligned
+and anchor its front face when switching to the carving slab.
+The rebuilt isolated preview now serves revision 7 and the completion-only
+“Hack for Impact” caption centered beneath the logo.
+Revision 7 implementation: `169ae59bc51871149b842799f555eaa00d1baa00`; Git supplies documentation HEAD.
+Revision 7 browser-inspected and timing-checked. Typecheck/build/shader pass;
+full tests retain one known missing Camera fixture failure (2,167 pass).
+Revision 8 starts from checked HEAD `029aafa71ccca7761fd077e2d01e70dfc655c46a`.
+User asks for a larger, bold completion caption. Use 18px NVIDIA-NALA at weight 700,
+following the supplied font-identification screenshot.
+Revision 8 implementation: `f0e4f1a27c60181e4dcbad31a8b7eed947c59992`; Git supplies documentation HEAD.
+Port3048 serves revision 8, browser-inspected with NVIDIA-NALA loaded.
+Caption timing/reset checks, typecheck and build pass. Full tests retain the known
+Camera HNI fixture failure (2,167 pass).
+The historical serving/seats/evidence below are preserved, not verified live.
+
 
 ## Product
 

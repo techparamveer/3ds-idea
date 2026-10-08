@@ -212,7 +212,7 @@ All interiors and outbound links are user-scoped adaptations, not Nintendo UI.
 | P-HOB | `hobbies` | `buildings` | 2 pages, 3 bounded photos, explicit Gumroad Visit; images also seed Camera |
 | P-LIFE | `life` | `keele`, `hack-keele`, `rws`, `school` | One-page local details; A is Done and returns to entries; no external effect |
 | P-HACKUK | `hackuk` | `mission`, `leafhacks`, `campfire`, `counterspell` | Explicit HackUK links; mission has 2 pages and an image, counterspell reuses that image |
-| P-NVIDIA | `nvidia` | `renu` | Same Renu content identity as P-PROJ; explicit portfolio URL |
+| P-NVIDIA | `nvidia` | `renu` | Same Renu content identity as P-PROJ; explicit portfolio URL. [Blender box-to-logo banner](../nvidia-transform-2026-10-08.md) on HOME and app landing; opening cube spin, one-shot reveal, held extruded logo; detail photo preserved. Portfolio adaptation |
 | P-ABOUT | `about` | `intro`, `stack` | Intro has 2 pages and Visit; toolkit is local Done |
 | P-CONTACT | `contact` | `email`, `book`, `github`, `instagram`, `youtube`, `twitter`, `tiktok` | Explicit mail/web link effects only after Visit; no form, keyboard or account flow |
 
@@ -266,3 +266,62 @@ operation. Named future scenarios are `photo-selector-readonly-back` and
 - Coordinator owns the first captured defect, integration, native/browser replay
   and matrix update for every named scenario above. No source-only correction is
   authorized merely because a route is incomplete.
+
+
+## 8 October 2026 — NVIDIA eye-motion correction
+
+On `codex/nvidia-transform`, revision 3 replaces the rejected directional SVG
+wipe with 46 video-derived extruded pixel poses in Blender MCP. The outer sweep
+and inward curl now follow the source frame sequence at 29.97 fps. Opening spin,
+one-shot hold and revision 2's 3D wordmark remain. This is a portfolio adaptation.
+All source frames compared; mean eye silhouette IoU is 0.9763 (outer stroke) and
+0.9685 (inner curl), with residual raster edges. Muted production browser and
+actual renderer playback checks pass. Typecheck/build/shader pass; full tests
+have the known missing private Camera HNI fixture failure (2,167 pass, one fail).
+No native matrix or native acceptance status changes. See
+[authoring and evidence](../nvidia-transform-2026-10-08.md).
+
+
+### NVIDIA revision 4 — flat wordmark
+
+User requested the flat lettering again. Blender source and transparent atlas
+now use a flat graphite wordmark without extrusion, bevel or tilt. Cube/eye
+geometry, opening spin, timing and one-shot hold remain. Portfolio adaptation;
+no native acceptance changes. See [evidence](../nvidia-transform-2026-10-08.md).
+
+
+### NVIDIA revision 5 — first artwork restored, motion repaired
+
+User confirmed the first version appearance. Restored original SVG meshes,
+size, green enamel and dark graphite materials from `efe4e8d`. The original
+cube now spins once, and a spiral cut eats into its face following the video
+landmarks. Removed the later pixel-traced eye pipeline. 80 transparent frames
+at 29.97 fps; final logo holds without looping. Typecheck/build/shader pass;
+full tests retain the missing Camera HNI fixture failure (2,167 pass, one fail).
+Muted production preview and actual renderer playback inspected. No native
+acceptance change. See [authoring and evidence](../nvidia-transform-2026-10-08.md).
+
+
+### NVIDIA revision 6 — upright eased spin
+
+Opening motion now keeps the top face upright, eases the turn and gradually
+settles into the square by frame 40. Original materials, logo and carve timeline
+are preserved. Final poster unchanged; two packed edge pixels differ across
+frames 41–80. Typecheck/build/shader pass; tests retain the known missing Camera
+fixture failure. Portfolio adaptation only. See [evidence](../nvidia-transform-2026-10-08.md).
+
+
+### NVIDIA revision 7 — stable cube handoff and caption
+
+Fixed premature cube depth collapse in frames 33–39; the front face is anchored
+through the face-on handoff. Added flat “Hack for Impact” under the finished logo
+after 80 frames, with immediate reduced-motion display. Actual renderer timing
+and muted production screenshot verified. Typecheck/build/shader pass; full suite
+has 2,167 passes and the existing missing Camera fixture failure. Portfolio
+adaptation only. See [evidence](../nvidia-transform-2026-10-08.md).
+
+
+### NVIDIA revision 8 — caption typography
+
+User-requested caption enlarged to 18px in NVIDIA-NALA weight 700, centered
+below the logo. Playback unchanged. Portfolio adaptation. See [notes](../nvidia-transform-2026-10-08.md).

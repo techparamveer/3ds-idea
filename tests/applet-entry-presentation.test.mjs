@@ -78,7 +78,7 @@ test('cover catch-up publishes terminal20 before title incoming0, whose quantize
  assert.equal(friendSample(24).frame,2,'a crossed sample tick survives the later receipt quantization');
 });
 
-test('incoming overlap stays one pose per receipt while stalls and revocation rebase it',()=>{
+test('incoming elapsed progress waits for acknowledgement while stalls and revocation rebase it',()=>{
  const setup=()=>{
   const s=createAppletEntryPresentation(),title={...identity,owner:'notifications:1',appId:'notifications'},pair={},resources={};
   const next=(step,overrides={})=>s.sample({identity:title,elapsedMs:ms(step),eligible:true,pair,incomingResources:resources,reducedMotion:false,...overrides});
@@ -90,11 +90,11 @@ test('incoming overlap stays one pose per receipt while stalls and revocation re
  };
 
  const bounded=setup(),pending=bounded.next(23);
- assert.equal(pending.frame,1);assert.equal(bounded.next(27),pending);bounded.accept(pending,28);
- assert.equal(bounded.next(29).frame,2,'bounded pending time yields only one pose after acknowledgement');
+ assert.equal(pending.frame,2);assert.equal(bounded.next(27),pending);bounded.accept(pending,28);
+ assert.equal(bounded.next(29).frame,8,'bounded pending time becomes eligible only after acknowledgement');
 
  const ordinary=setup();
- assert.equal(ordinary.next(27).frame,1,'a positive receipt delta keeps the existing one-pose policy');
+ assert.equal(ordinary.next(27).frame,6,'incoming consumes bounded accepted-sample elapsed time');
 
  const stalled=setup(),held=stalled.next(29);
  assert.equal(held.frame,0,'eight sampled updates are a stall');assert.equal(stalled.next(30),held);stalled.accept(held,30);
@@ -106,7 +106,7 @@ test('incoming overlap stays one pose per receipt while stalls and revocation re
  assert.equal(blocked.next(27).frame,1,'revocation discards blocked incoming publication time');
 });
 
-test('incoming overlap still publishes title terminal20 before handoff and preserves reduced receipts',()=>{
+test('incoming elapsed catch-up still publishes title terminal20 before handoff and preserves reduced receipts',()=>{
  const create=(reducedMotion=false)=>{
   const s=createAppletEntryPresentation(),title={...identity,owner:'notifications:1',appId:'notifications'},pair={},resources={};
   const next=(step)=>s.sample({identity:title,elapsedMs:ms(step),eligible:true,pair,incomingResources:resources,reducedMotion});
@@ -116,10 +116,9 @@ test('incoming overlap still publishes title terminal20 before handoff and prese
  const normal=create();let pose=normal.next(0);normal.accept(pose,0);
  for(const step of [6,12,18,20]){pose=normal.next(step);normal.accept(pose,step);}
  pose=normal.next(21);normal.accept(pose,22);
- for(let frame=1;frame<=20;frame++){
-  pose=normal.next(21+frame);assert.deepEqual([pose.kind,pose.frame],['incoming',frame]);
-  assert.equal(normal.next(22+frame),pose);normal.accept(pose,22+frame);
- }
+ for(const [step,frame]of [[27,6],[33,12],[39,18]]){pose=normal.next(step);assert.deepEqual([pose.kind,pose.frame],['incoming',frame]);normal.accept(pose,step+1);}
+ pose=normal.next(41);assert.deepEqual([pose.kind,pose.frame],['incoming',20]);
+ assert.equal(normal.next(42),pose,'incoming20 remains pending until its own receipt');normal.accept(pose,42);
  assert.equal(normal.next(42).kind,'handoff','incoming20 requires its own receipt before handoff');
 
  const reduced=create(true),cover20=reduced.next(0);assert.deepEqual([cover20.kind,cover20.frame],['cover',20]);reduced.accept(cover20,0);

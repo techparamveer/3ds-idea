@@ -151,11 +151,22 @@ test('Back, power escape and same-title reentry cannot reuse a previous incoming
   assert.equal(f.sample(25, { identity }).frame, 0);
 });
 
-test('incoming uses at most one source update per eligible receipt at lower host budgets and rejects true backwards clocks', () => {
-  const f = fixture(); f.outgoing(); f.present(f.sample(21), 21);
-  for (const step of [23, 26, 31, 37]) { const pose = f.sample(step); assert.equal(pose.frame, [23, 26, 31, 37].indexOf(step) + 1); f.present(pose, step); }
-  assert.throws(() => f.sample(36), /clock moved backwards/);
-  for (const elapsedMs of [-1, NaN, Infinity]) assert.throws(() => f.sample(38, { elapsedMs }), /timestamp/);
+test('incoming follows bounded accepted-sample time at ordinary render cadences and rejects true backwards clocks', () => {
+  for (const hz of [60, 45, 30, 20]) {
+    const f = fixture(); f.outgoing(); const incoming = f.sample(21);
+    assert.deepEqual([incoming.kind, incoming.frame], ['incoming', 0]); f.present(incoming, 22);
+    let receiptCount = 0, pose = incoming;
+    while (pose.frame < 20) {
+      receiptCount++; const elapsedUpdates = Math.floor(receiptCount * 60 / hz), step = 21 + elapsedUpdates;
+      pose = f.sample(step); assert.deepEqual([pose.kind, pose.frame], ['incoming', Math.min(20, elapsedUpdates)], `${hz}Hz receipt ${receiptCount}`);
+      assert.equal(f.sample(step + .5), pose); assert.equal(f.present(pose, step + 1), true);
+    }
+    assert.equal(receiptCount, Math.ceil(20 * hz / 60), `${hz}Hz receipt count`);
+    assert.equal(f.sample(22 + Math.floor(receiptCount * 60 / hz)).kind, 'handoff');
+  }
+  const f = fixture(); f.outgoing(); f.present(f.sample(21), 21); f.present(f.sample(23), 23);
+  assert.throws(() => f.sample(22), /clock moved backwards/);
+  for (const elapsedMs of [-1, NaN, Infinity]) assert.throws(() => f.sample(24, { elapsedMs }), /timestamp/);
 });
 
 test('Notes, Browser and Miiverse keep their original outgoing-only handoff even when title readiness is unavailable', () => {

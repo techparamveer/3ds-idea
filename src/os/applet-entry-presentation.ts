@@ -71,19 +71,17 @@ export function createAppletEntryPresentation() {
       // Cover motion follows accepted sample time so ordinary render work is not
       // discarded. The later receipt still gates publication.
       const sampledUpdates = presented ? update - presented.sampledUpdate : 0;
-      // An incoming sample can cross a tick that its later receipt also occupies.
-      // Retain that one pose without changing the one-pose-per-receipt policy.
-      const incomingOverlap = updates === 0 && sampledUpdates > 0 && sampledUpdates <= MAX_OBSERVED_UPDATE_GAP;
-      const advance = !rebase && (input.reducedMotion || (updates > 0 && updates <= MAX_OBSERVED_UPDATE_GAP) || incomingOverlap);
+      const incomingProgress = !rebase && sampledUpdates > 0 && sampledUpdates <= MAX_OBSERVED_UPDATE_GAP ? sampledUpdates : 0;
+      const advanceIncoming = !rebase && (input.reducedMotion || incomingProgress > 0);
       const coverProgress = !rebase && sampledUpdates > 0 && sampledUpdates <= MAX_OBSERVED_UPDATE_GAP ? sampledUpdates : 0;
       const advanceCover = !rebase && (input.reducedMotion || coverProgress > 0);
       const base = { identity: Object.freeze({ ...identity }), ticket };
       let pose: AppletEntryPose;
       if (presented?.kind === 'incoming') {
         if (!input.pair || !input.incomingResources) { revoke(); return undefined; }
-        pose = advance && presented.frame === 20
+        pose = advanceIncoming && presented.frame === 20
           ? Object.freeze({ ...base, kind: 'handoff', pair: input.pair, resources: presented.resources })
-          : Object.freeze({ ...base, kind: 'incoming', frame: input.reducedMotion ? 20 : Math.min(20, presented.frame + (advance ? 1 : 0)), pair: input.pair, resources: presented.resources });
+          : Object.freeze({ ...base, kind: 'incoming', frame: input.reducedMotion ? 20 : Math.min(20, presented.frame + incomingProgress), pair: input.pair, resources: presented.resources });
       } else if (advanceCover && presented?.frame === 20 && input.pair && (!hasTitleIncoming(identity.appId) || input.incomingResources)) {
         if (hasTitleIncoming(identity.appId)) {
           if (!input.incomingResources) throw Error('Applet incoming resources unavailable');

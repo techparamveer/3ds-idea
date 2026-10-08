@@ -53,17 +53,20 @@ export function parsePauseHomeHold(value, { scenario, activation, durationMs }) 
   return holdMs;
 }
 
-export function parsePauseCompact(value, { scenario, activation }) {
+export function parsePauseCompact(value, { scenario, activation, homeHoldMs = null }) {
   if (value === undefined || value === false) return false;
   assert.equal(value, true, 'Compact pause requires a boolean flag');
   assert.equal(scenario, 'pause', 'Compact pause is pause-only');
   assert.ok(['key', 'physical'].includes(activation), 'Compact pause requires key or physical HOME');
+  assert.equal(homeHoldMs, null, 'Compact pause cannot be combined with --home-hold-ms');
   return true;
 }
 
 export function validatePauseCompactDestination(data, selection) {
   assert.equal(data.menu, 'home', 'Compact pause remains on HOME');
   assert.equal(data.app, selection.app, 'Compact pause retains the requested application');
+  assert.equal(data.nativeScreen, 'ready', 'Compact pause requires native readiness');
+  assert.equal(data.nativeScreenFailure, '', 'Compact pause has no native failure');
   const cursor = JSON.parse(data.homeCursor ?? 'null');
   assert.equal(cursor?.focus?.toolbarActive, false, 'Compact pause remains on the grid');
   assert.equal(cursor.selectedSlot, Number(data.selected), 'Compact cursor follows the actual selection');
@@ -98,13 +101,15 @@ export function pauseCompactSelectionChanged({ app, selected }) {
   const data = document.querySelector('.console-stage')?.dataset;
   const cursor = JSON.parse(data?.homeCursor ?? 'null');
   return data?.menu === 'home' && data.app === app && data.selected === selected
+    && data.nativeScreen === 'ready' && data.nativeScreenFailure === ''
     && cursor?.focus?.toolbarActive === false && cursor.selectedSlot === Number(selected);
 }
 
 // Standalone browser predicate: repeat Resume must follow a fresh HOME receipt.
 export function pauseCompactRestoreReady({ app, selected }) {
   const data = document.querySelector('.console-stage')?.dataset;
-  if (!data || data.menu !== 'home' || data.app !== app || data.selected !== selected || data.dialog || data.sleeping === 'true') return false;
+  if (!data || data.menu !== 'home' || data.app !== app || data.selected !== selected || data.dialog || data.sleeping === 'true'
+    || data.nativeScreen !== 'ready' || data.nativeScreenFailure !== '') return false;
   const cursor = JSON.parse(data.homeCursor ?? 'null'), paint = JSON.parse(data.screenPaint ?? 'null'), receipt = JSON.parse(data.screenPresented ?? 'null');
   return cursor?.focus?.toolbarActive === false && cursor.selectedSlot === Number(selected)
     && paint?.phase === 'home' && paint.cursor?.selectedSlot === Number(selected) && paint.cursor?.focus?.toolbarActive === false
@@ -304,7 +309,7 @@ for (const key of ['width', 'height']) assert.ok(Number.isInteger(Number(values[
 const durationMs = Number(values['duration-ms']);
 assert.ok(Number.isInteger(durationMs) && durationMs >= 1000 && durationMs <= 30000, 'Capture duration must be 1000..30000ms');
 const homeHoldMs = parsePauseHomeHold(values['home-hold-ms'], { scenario: values.scenario, activation: values.activation, durationMs });
-const pauseCompact = parsePauseCompact(values['pause-compact'], { scenario: values.scenario, activation: values.activation });
+const pauseCompact = parsePauseCompact(values['pause-compact'], { scenario: values.scenario, activation: values.activation, homeHoldMs });
 const cycles = Number(values.cycles);
 assert.ok(Number.isInteger(cycles) && cycles >= 1 && cycles <= 3);
 const output = values.output;

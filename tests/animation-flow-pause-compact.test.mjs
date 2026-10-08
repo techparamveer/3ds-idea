@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createContext, runInContext } from 'node:vm';
@@ -15,7 +17,7 @@ function data(selected = '10', pauseFrame = 2) {
   const cursor = { selectedSlot: Number(selected), focus: { toolbarActive: false } };
   const paint = { at: 100, phase: 'home', cursor, entryMotion: { folder: null, pauseFrame } };
   return { menu: 'home', app: 'health-safety', selected, rows: '2', homeCursor: JSON.stringify(cursor),
-    dialog: '', sleeping: 'false', nativeScreen: 'ready', screenPaint: JSON.stringify(paint),
+    dialog: '', sleeping: 'false', nativeScreen: 'ready', nativeScreenFailure: '', screenPaint: JSON.stringify(paint),
     screenPresented: JSON.stringify({ frame: 1, validPublication: true, paint }) };
 }
 async function withData(dataset, run) {
@@ -32,9 +34,25 @@ test('compact pause is opt-in and limited to ordinary key or physical HOME', asy
       waitForSelection: () => assert.fail('Normal pause has no added wait') }), null);
   }
   for (const activation of ['key', 'physical']) assert.equal(parsePauseCompact(true, { scenario: 'pause', activation }), true);
+  assert.equal(parsePauseCompact(false, { scenario: 'pause', activation: 'key', homeHoldMs: 500 }), false, 'Normal HOME hold remains supported');
+  for (const activation of ['key', 'physical']) assert.throws(() => parsePauseCompact(true,
+    { scenario: 'pause', activation, homeHoldMs: 500 }), /cannot be combined with --home-hold-ms/);
   for (const scenario of ['notes', 'manual', 'folder']) assert.throws(() => parsePauseCompact(true, { scenario, activation: 'key' }), /pause-only/);
   for (const activation of ['touch', 'tile', 'accessible']) assert.throws(() => parsePauseCompact(true, { scenario: 'pause', activation }), /key or physical HOME/);
   for (const value of ['true', 1, null]) assert.throws(() => parsePauseCompact(value, { scenario: 'pause', activation: 'key' }), /boolean flag/);
+});
+
+test('CLI rejects compact plus held HOME before creating output or loading a browser module', async t => {
+  const dir = await mkdtemp(join(tmpdir(), 'pause-compact-options-'));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const output = join(dir, 'capture');
+  const result = spawnSync(process.execPath, [new URL('../scripts/verify-animation-flow.mjs', import.meta.url).pathname,
+    '--playwright-module', join(dir, 'absent-module.mjs'), '--browser-executable', join(dir, 'absent-browser'),
+    '--output', output, '--commit', '0'.repeat(40), '--scenario', 'pause', '--activation', 'key',
+    '--pause-compact', '--home-hold-ms', '500'], { encoding: 'utf8' });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Compact pause cannot be combined with --home-hold-ms/);
+  assert.equal(existsSync(output), false);
 });
 
 test('compact collector includes actual overlay state while normal collection retains its original metadata shape', () => {
@@ -116,12 +134,28 @@ test('repeat readiness requires actual restored grid and matching valid HOME pai
   const restored = data('8'), request = { app: selection.app, selected: '8' };
   await withData(restored, () => assert.equal(pauseCompactRestoreReady(request), true));
   for (const mutate of [d => d.selected = '10', d => d.app = 'camera', d => d.menu = 'app', d => d.dialog = 'switch',
+    d => d.nativeScreen = 'loading', d => d.nativeScreen = 'error', d => d.nativeScreenFailure = 'Source unavailable',
     d => d.homeCursor = JSON.stringify({ selectedSlot: 8, focus: { toolbarActive: true } }),
     d => d.screenPresented = JSON.stringify({ validPublication: false, paint: JSON.parse(d.screenPaint) }),
     d => d.screenPresented = JSON.stringify({ validPublication: true, paint: { ...JSON.parse(d.screenPaint), at: 99 } }),
     d => { const paint = JSON.parse(d.screenPaint); paint.cursor.selectedSlot = 10; d.screenPaint = JSON.stringify(paint); d.screenPresented = JSON.stringify({ validPublication: true, paint }); }]) {
     const altered = structuredClone(restored); mutate(altered);
     await withData(altered, () => assert.equal(pauseCompactRestoreReady(request), false));
+  }
+});
+
+test('loading or recovery cannot become compact destination or target-path evidence even with matching paired publication', async () => {
+  validatePauseCompactDestination(data(), selection);
+  for (const mutate of [d => d.nativeScreen = 'loading', d => d.nativeScreen = 'error', d => delete d.nativeScreen,
+    d => d.nativeScreenFailure = 'Source unavailable', d => delete d.nativeScreenFailure]) {
+    const altered = data(); mutate(altered);
+    assert.throws(() => validatePauseCompactDestination(altered, selection), /native readiness|native failure/);
+    const evidence = pauseCompactEvidence([{ index: 0, at: 100, data: altered }], selection, false);
+    assert.equal(evidence.firstMatchingReceipt, null);
+    assert.equal(evidence.firstAppearanceReceipt, null);
+    assert.equal(evidence.targetPathObserved, false);
+    assert.equal(evidence.coverage, 'missing-valid-pair');
+    await withData(altered, () => assert.equal(pauseCompactSelectionChanged({ app: selection.app, selected: '10' }), false));
   }
 });
 

@@ -134,6 +134,7 @@ class IncomingCoverTests(unittest.TestCase):
         for name, spec in SPECS.items():
             info = expected[spec['titleId']]
             info['packs'].append('packs/'+name+'/incoming.json')
+            info['fonts']['cbf_std.bcfnt'] = FONT_URL
             info['fonts']['contents/0000-'+spec['contentId']+'/cbf_std.bcfnt'] = FONT_URL
         self.assertEqual(self.manifest['titles'], expected)
         self.assertEqual(set(self.manifest['resources'])-set(base['resources']), set(URLS))
@@ -237,6 +238,14 @@ class IncomingCoverTests(unittest.TestCase):
             report = publish(**INPUTS, output=output, artifacts=root/'artifacts')
             self.assertEqual(report['added'], [])
             self.assertEqual({url: (output/url).read_bytes() for url in dependencies}, before)
+            pristine_manifest = (output/'manifest.json').read_bytes()
+            for spec in SPECS.values():
+                for font_name in ('cbf_std.bcfnt', 'contents/0000-'+spec['contentId']+'/cbf_std.bcfnt'):
+                    manifest = json.loads(pristine_manifest)
+                    manifest['titles'][spec['titleId']]['fonts'][font_name] = 'other'
+                    (output/'manifest.json').write_bytes(json.dumps(manifest).encode())
+                    with self.assertRaisesRegex(ValueError, 'Conflicting incoming native shared-font binding'):
+                        publish(**INPUTS, output=output, artifacts=root/'conflict-artifacts')
 
 
 if __name__ == '__main__':

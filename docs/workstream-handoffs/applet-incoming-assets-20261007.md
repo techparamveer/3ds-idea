@@ -17,6 +17,12 @@ reported no additions and preserved all delivered bytes. The private fixtures at
 `/private/tmp/3ds-applet-incoming-fixtures-20261007/{friends,notifications}/incoming.json`
 remain read-only conversion references, not acceptance evidence.
 
+Coordinator integration at `62bd428` exposed a mixed-pack loader conflict for
+the legacy Friends pack: the title map had only the content-scoped incoming font
+key, while the legacy pack requested raw `cbf_std.bcfnt`. The corrected publisher
+maps both names to the same verified shared font for Friends and Notifications.
+It rejects either name when an existing mapping targets another resource.
+
 ## Resource contract
 
 | Caller | Alias / relative URL | Original layouts / clips | Selected native label |
@@ -30,9 +36,10 @@ Clips retain 21 poses 0..20, no loop, childBinding=true and sourceFrameRange
 `[20,40]`. Original split-frame keys, slopes, group bindings, material tints,
 UVs, icon selection, geometry and text pane records are unchanged.
 
-Upper has no font record; lower retains `cbf_std.bcfnt`. Proposed title font
-keys `contents/0000-00000017/cbf_std.bcfnt` and
-`contents/0000-00000012/cbf_std.bcfnt` map to the existing dump-derived native
+Upper has no font record; lower retains `cbf_std.bcfnt`. Each title maps the
+raw `cbf_std.bcfnt` legacy-pack namespace and its content-scoped key,
+`contents/0000-00000017/cbf_std.bcfnt` or
+`contents/0000-00000012/cbf_std.bcfnt`, to the existing dump-derived native
 shared font `fonts/shared/font.json`, SHA-256
 `d48b661f446e3e581abeceb62b86312a6fea6c8120cd1214ba76b298f94c9f27`.
 Its original shared title is `0004009b00014002`, source
@@ -40,9 +47,11 @@ Its original shared title is `0004009b00014002`, source
 `95d5a675ae14cc22b84b5b89c8d10cc894f1e2dfaf00a1168545fe76fb1eb581`.
 `incomingFontBinding.titleRuntimeResolutionEstablished=false` explicitly marks
 this native shared-font presentation binding, not proof of either title's
-internal font acquisition. No HOME HUD font, substitute or fabricated font is
-published. All required texture PNGs already exist and match their current
-manifest hashes; publication needs no new PNG or alteration of old records.
+internal font acquisition. The raw alias lets legacy and content-owned packs
+share the same verified `BitmapFont`; it does not weaken loader conflict checks.
+No HOME HUD font, substitute or fabricated font is published. All required
+texture PNGs already exist and match their current manifest hashes; publication
+needs no new PNG or alteration of old records.
 
 ## Plain-label writer proof
 
@@ -157,13 +166,15 @@ publication checks also ran without fixture overrides: 6 passed, 0 failed,
 Friends is `361a6838c840f69fdf92c6ab520aa1cbced463a1d4f8cffe6824fe398af2db1c`
 and Notifications is
 `9137c1da5bdf61584dddfa14a090b9e79d7b1f20dba6736cc33c9fbede231d74`.
-The manifest SHA-256 is
-`4f84123eeecd029ce2bedf4607cd1a7dca87039a39a768eacdf65c1d6dd81099`.
+The corrected manifest SHA-256 is
+`83a495b50cf199babc8505dc95b1b2186574db4e857501e9d9e4e0b5757bd1d7`.
 All seven texture dependencies per pack match existing public bytes and
 manifest hashes. The publisher reused them without rewriting them.
 
-The second publication returned `added: []`; its report is
-`continuation-20261008/approved-applet-assets/applet-incoming-publication.json`
-under the private animation artifact root. No full suite, build, server, GUI or
-native process ran. Coordinator next integrates root/B wiring and performs the
-matched native/browser loop.
+The corrected publication returned `added: []`; its report is
+`continuation-20261008/approved-applet-font-alias-fix/applet-incoming-publication.json`
+under the private animation artifact root, SHA-256
+`7a64bc291d72722dd420a45732f77a5892f3db1f1d6ece8b28a5737e4915c09a`.
+Both pack hashes remain unchanged. No full suite, build, server, GUI or native
+process ran. Coordinator next integrates the manifest fix and repeats the
+visible mixed-pack path before the matched native/browser loop.

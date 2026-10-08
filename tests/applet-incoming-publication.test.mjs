@@ -95,6 +95,7 @@ for (const caller of callers) {
     skip: existsSync(new URL(url, root)) ? false : 'incoming public export approval/publication pending',
   }, () => {
     assert.ok(manifest.titles[caller.title].packs.includes(url));
+    assert.equal(manifest.titles[caller.title].fonts['cbf_std.bcfnt'], manifest.fonts.shared);
     assert.equal(manifest.titles[caller.title].fonts['contents/0000-'+caller.content+'/cbf_std.bcfnt'], manifest.fonts.shared);
     assert.equal(pack.titleId, caller.title);
     assert.equal(pack.titleVersion, caller.version);

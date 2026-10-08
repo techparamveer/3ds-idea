@@ -305,11 +305,13 @@ def publish(friends_source, notifications_source, friends_content, notifications
             title = manifest['titles'][spec['titleId']]
             if url not in title['packs']:
                 title['packs'].append(url)
-            font_name = 'contents/0000-'+spec['contentId']+'/cbf_std.bcfnt'
-            previous = title['fonts'].get(font_name)
-            if previous and previous != FONT_URL:
-                raise ValueError('Conflicting incoming native shared-font binding')
-            title['fonts'][font_name] = FONT_URL
+            font_names = ('cbf_std.bcfnt', 'contents/0000-'+spec['contentId']+'/cbf_std.bcfnt')
+            for font_name in font_names:
+                previous = title['fonts'].get(font_name)
+                if previous and previous != FONT_URL:
+                    raise ValueError('Conflicting incoming native shared-font binding')
+                title['fonts'][font_name] = FONT_URL
+        owned_pack_urls = {entry['url'] for entry in packs.values()}
         pending = {}
         for url, record in builder.records.items():
             data = (candidate/url).read_bytes()
@@ -318,6 +320,8 @@ def publish(friends_source, notifications_source, friends_content, notifications
                 if previous['sha256'] != record['sha256'] or previous['size'] != record['size']:
                     raise ValueError('Conflicting delivered incoming resource: '+url)
                 verify_existing(output, manifest, url)
+                if url in owned_pack_urls:
+                    manifest['resources'][url] = record
                 continue
             record.setdefault('conversion', conversion)
             manifest['resources'][url] = record
@@ -325,7 +329,8 @@ def publish(friends_source, notifications_source, friends_content, notifications
         if any(manifest[key] != value for key, value in before.items() if key not in ('titles', 'resources')) or \
            any(manifest['titles'][key] != value for key, value in before['titles'].items()
                if key not in {spec['titleId'] for spec in SPECS.values()}) or \
-           any(manifest['resources'][key] != value for key, value in before['resources'].items()):
+           any(manifest['resources'][key] != value for key, value in before['resources'].items()
+               if key not in owned_pack_urls):
             raise ValueError('Unrelated delivered metadata changed')
         for url, data in pending.items():
             target = public_path(output, url)

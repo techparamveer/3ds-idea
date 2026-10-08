@@ -211,7 +211,14 @@ test('screen paints sample retained phase read-only across elapsed time, density
   assert.equal(calls.at(-1)[5],0,'legacy menu callers use frame0');
 
   const folder=enterHomeFolder({...retainedHome(),folders:{20:'A'}},20),folderBefore=JSON.stringify(folder);
-  calls.length=0;screens.paint(folder,new Date(0),800000);screens.paint(folder,new Date(0),800001);
+  const at=updateCount=>({...folder,system:{...folder.system,homeClock:{...folder.system.homeClock,updateCount}}});
+  calls.length=0;
+  for(let update=0;update<16;update++){
+   screens.paint(at(update),new Date(0),800000+update);screens.presentHomeEntryMotion(at(update));
+  }
+  assert.deepEqual(calls,[],'child cursor is hidden while the native folder panel enters');
+  screens.paint(at(16),new Date(0),800016);screens.presentHomeEntryMotion(at(16));
+  screens.paint(at(16),new Date(0),800017);
   assert.deepEqual(calls.map(args=>args[5]),[12,12]);
   assert.ok(calls.every(args=>args[0]===screens.bottom.getContext('2d')),'root capture must not paint another primary cursor');
   assert.equal(JSON.stringify(folder),folderBefore);

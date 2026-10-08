@@ -7,7 +7,18 @@ The human resumed on8 October with "continue disregard that", revoking the
 75%-remaining stop condition. Continue the full animation goal. Earlier quota
 checkpoints remain history; do not stop again at that removed threshold.
 
-Latest checkpoint: the human approved decoded applet publication and short
+Latest checkpoint: the goal is active. Folder cursor ordering and cadence are
+corrected through runtime `25e7520` and recaptured on muted Sidecar. Native
+Health HOME recordings now expose the missing outgoing lower transition:
+browser shows the HOME grid/footer immediately, while native retains and
+transitions the outgoing app first. Evidence is committed in `6ff0a73`;
+the isolated worker is implementing decoded pause-fade and footer clips.
+All four whole scenarios remain fail. Exact native timing, input parity,
+pixel residuals and muted audio acceptance remain open. Continue from
+[STATUS Next](STATUS.md#next) and the
+[HOME capture checkpoint](docs/animation-fidelity-workflow-2026-10-07.md#home-lower-transition-capture-8-october).
+
+Earlier checkpoint: the human approved decoded applet publication and short
 silent Sidecar recordings. Commits `2c40164` and `62bd428` deliver the
 Friends/Notifications incoming packs and connect their source tracks. A real
 Sidecar failure exposed mixed legacy/content-scoped font bindings; `dc4094f`
@@ -18,9 +29,9 @@ without page errors. Typecheck and production build pass. Full tests report
 TODO. New silent native movies show Manual opening through Contents and Friends
 opening through its first-use service boundary. They are supplementary motion
 evidence, not frame-exact acceptance. All four whole animation scenarios fail.
-The goal API still reports its prior blocked checkpoint and exposes no
-agent-controlled resume operation; the human approvals authorize this work.
-Continue from the [approved incoming checkpoint](docs/animation-fidelity-workflow-2026-10-07.md#approved-incoming-delivery-8-october).
+The old blocked goal checkpoint is superseded by the human resume. The
+[approved incoming checkpoint](docs/animation-fidelity-workflow-2026-10-07.md#approved-incoming-delivery-8-october)
+preserves that delivery's evidence.
 All future browser/Azahar visual testing must run on the iPad Sidecar display.
 Confirm actual window placement before inputs; no new headless visual runs.
 The goal is incomplete.

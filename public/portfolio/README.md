@@ -16,8 +16,7 @@ The Renu page has no complete project write-up. Alora and Microsoft also have li
 
 `nvidia-transform/atlas.png` is a transparent Blender render. The cube/eye uses
 46 extruded pixel poses sampled from the user's video, including its outer stroke
-and inward curl. The wordmark uses the original SVG above with white front caps
-and dark extruded sides. An added cube spin precedes the source motion; playback
+and inward curl. The wordmark uses the original SVG above as flat graphite lettering. An added cube spin precedes the source motion; playback
 runs once at 29.97 fps and holds the video's endpoint. This is a portfolio
 adaptation, not a Nintendo firmware resource.
 See `nvidia-transform/provenance.json` for source/output hashes and

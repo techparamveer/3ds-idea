@@ -5,7 +5,8 @@ User-requested portfolio adaptation on `codex/nvidia-transform`, based on
 absent, so this work uses a separate managed worktree from current `main`.
 Revision 3 implementation is `26148697835b5c6920caf21f03d18b9682fb61f9`, starts from `4409fb4` and supersedes the rejected eye wipe in
 `a524cee`. The user clarified that the cube/eye animation needed correction;
-the 3D wordmark was to stay unchanged.
+the 3D wordmark was to stay unchanged at that point. Revision 4, from
+`605858d`, follows the subsequent request to remove the 3D wordmark.
 
 HOME and the NVIDIA app landing show an opening cube spin, followed by the
 video's cube/eye motion: face-on square, leftward slide, a cut starting near the
@@ -29,8 +30,8 @@ photograph and original text.
   morph rig. UVs use the source colors. Pixel centers align with the render grid.
 - Wordmark: the existing [original NVIDIA SVG](../public/portfolio/nvidia.svg),
   sampled with svgpathtools 1.8.0 into [contours](../scripts/blender/nvidia-logo-contours.json).
-  Revision 2's wordmark geometry, material settings, tilt and reveal keys remain:
-  0.28 units total depth, white front caps, dark sides and bevels.
+  Revision 4 uses a flat graphite face with zero extrusion, bevel and tilt.
+  Wordmark width, position and reveal keys remain unchanged.
 - [Editable Blender source](../assets/blender/nvidia-transform.blend) was authored
   through Blender MCP in Blender 5.2.1 LTS. Earlier scenes remain in the file;
   the active scene is the corrected version. The hardware source is untouched.
@@ -51,7 +52,7 @@ avoid both problems.
 
 The Life and Sound banners were inspected in the browser. The result retains
 crisp low-resolution rendering while following the supplied motion. Opening
-spin, pixel relief geometry, extruded white lettering and pixel sampling are
+spin, pixel relief geometry, flat graphite lettering and pixel sampling are
 intentional portfolio adaptations. Source compression is retained; the output
 is not pixel-identical to the video. There is no firmware manifest key, native
 sound or Azahar comparison for this portfolio asset. Existing native residuals
@@ -121,3 +122,22 @@ Evidence root:
 `animation-sheet.png` and non-looping `nvidia-once.gif` preview the delivered
 frames. Render/build/test/shader logs are alongside them. Revision 2 and the
 parent folder preserve earlier captures and rejected iterations.
+
+
+## Revision 4 — flat wordmark
+
+The user preferred the earlier flat lettering. Removed the extrusion, bright
+front caps, dark side faces, bevel and tilt; rendered the original SVG wordmark
+as a uniform graphite face. The cube/eye mesh poses, opening spin, reveal keys,
+29.97 fps timing, transparency and one-shot runtime are preserved.
+
+Evidence: `revision-4/` under the private evidence root's parent, including
+`flat-wordmark.png`, `nvidia-once.gif`, `green-preservation.json`, Blender frames,
+production browser screenshot and build/test/shader logs. Comparing the green
+silhouettes of all 72 frames against revision 3 finds 154 differing pixels total;
+removing text depth changes small overlap/shadow edges, not the motion geometry.
+No native scenario or fidelity status changed.
+
+Revision 4 verification: Blender confirms zero extrusion, bevel and rotation;
+muted production HOME banner inspected. Typecheck, build and shader pass;
+full suite: 2,167 pass, one known missing Camera fixture failure, 96 skip, one TODO.

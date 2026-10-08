@@ -8,7 +8,7 @@
     "fps": 29.970029830932617
   },
   "blender": "5.2.1 LTS",
-  "render": "EEVEE transparent RGBA; 46 video-derived extruded pixel relief poses for cube/eye; original SVG wordmark with unchanged white caps, dark sides and bevels",
+  "render": "EEVEE transparent RGBA; 46 video-derived extruded pixel relief poses for cube/eye; flat graphite original SVG wordmark, zero depth/bevel/tilt",
   "delivery": {
     "width": 180,
     "height": 148,
@@ -24,17 +24,17 @@
     "24-frame opening cube spin requested by the user",
     "Frame-sampled pixel relief geometry with 0.07 units depth; this is not a continuous morph rig",
     "The supplied clip ends before the inner curl fully closes; preserve that endpoint",
-    "Unchanged revision-2 extruded white wordmark with dark sides and slight tilt",
+    "Flat graphite wordmark requested by the user, with existing reveal motion preserved",
     "180x148 raster sampling, RGB555 quantization and binary alpha; not pixel-identical to the source"
   ],
   "sha256": {
     "public/portfolio/nvidia.svg": "5347e5188c74204767d2d4daa17b59b5a18ccd7ad0a7281e7961a83c20c96808",
     "scripts/blender/nvidia-logo-contours.json": "913ebb09f53fb820f9f0efaaa895f451103af9f2c218fcf10cc2cc705549c998",
-    "scripts/blender/build-nvidia-transform.py": "5c047c65610bd1f17fdec439beb9106acaa9ae6c9bb17b39f62fce18dd72f6e1",
+    "scripts/blender/build-nvidia-transform.py": "e7824701f82aa2ba587e8be41decdadaafc160446e971b73b047b8bc21bb7180",
     "scripts/blender/pack-nvidia-transform.mjs": "be807c459b9a10958af3c5ac8bc5ddac6c73f1cd8489bfd211ef74c000976883",
-    "assets/blender/nvidia-transform.blend": "506840b5e7a67f1f1997a5d766aba7716fc72d6ae4b700614b139b9eeb5fc14c",
-    "public/portfolio/nvidia-transform/atlas.png": "47b9d056712e0a6a528667dd99af4cd48f8c7f7a16a76c8ffc07ebef20cdec51",
-    "public/portfolio/nvidia-transform/poster.png": "29b596a940e2cb5be82f05c0b28e1cec1835ffd25380ed5adcdf9ca628eafd71",
+    "assets/blender/nvidia-transform.blend": "51a642f1bbf1e3f13cdb7d7f6deeb7c23f8dbb0a8be49a904ac854a4f4db172c",
+    "public/portfolio/nvidia-transform/atlas.png": "0641c3f56fbcd5829fd2137b22f877e09d1a5d1bcdfba39e4cfbf5440a613f5e",
+    "public/portfolio/nvidia-transform/poster.png": "33bd5b1d150335674361bd6197865006dac26beccdc286a66594e4072890cec1",
     "scripts/blender/trace-nvidia-video.py": "e54277e9a9a0138d5d68a1997649039a08083fd97cf5641490e2325ba9830e32",
     "scripts/blender/nvidia-reference-poses.json": "ac3934c41058aaafce4623f9eae0f33b36ea949672caa40174fe7404b6107344",
     "scripts/blender/nvidia-reference-colors.png": "ca99062d35525209220a4d85d31303cde66d73f21e760962261b1d700102f4e7"

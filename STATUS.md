@@ -35,7 +35,12 @@ Revision 3 implemented: video-derived extruded pixel poses replace the eye wipe;
 source timing is 30000/1001 fps. Wordmark is unchanged. Muted preview at port
 3048 serves revision 3. Full video silhouette comparison and one-shot browser
 checks pass with documented raster-edge residuals; exact 1:1 remains unclaimed.
-Next for this branch: user visual review. Native queue below remains unrelated.
+Revision 4 starts from checked HEAD `605858d2cce583fe862f43f61a943527384ceacd`.
+User asks for flat lettering again; remove wordmark depth, bevel and tilt.
+Revision 4 rendered and served on the isolated muted port 3048 preview.
+Revision 4 browser-inspected: flat graphite text on the NVIDIA HOME banner.
+Typecheck, build and shader pass; full suite retains the known missing Camera
+fixture failure (2,167 pass, one fail). Next: user visual review. Native queue remains unrelated.
 The historical serving/seats/evidence below are preserved, not verified live.
 
 

@@ -280,3 +280,11 @@ actual renderer playback checks pass. Typecheck/build/shader pass; full tests
 have the known missing private Camera HNI fixture failure (2,167 pass, one fail).
 No native matrix or native acceptance status changes. See
 [authoring and evidence](../nvidia-transform-2026-10-08.md).
+
+
+### NVIDIA revision 4 — flat wordmark
+
+User requested the flat lettering again. Blender source and transparent atlas
+now use a flat graphite wordmark without extrusion, bevel or tilt. Cube/eye
+geometry, opening spin, timing and one-shot hold remain. Portfolio adaptation;
+no native acceptance changes. See [evidence](../nvidia-transform-2026-10-08.md).

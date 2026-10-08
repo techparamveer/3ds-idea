@@ -78,18 +78,15 @@ def logo(name, paths, bounds, x, width, mat, depth):
     return obj
 
 
-word = logo('Extruded original wordmark', contours['NVIDIA'], (642.64727,1864.07388,960.3779,1189.31953), -0.70, 2.85, dark, 0.14)
-# Bright front caps and dark, deep sides stay legible on the light LCD.
-word.data.bevel_depth = 0.015
-word_front = material('Silver white wordmark faces', tuple(srgb(v) for v in (245,248,250)), 0.12, 0.30)
-bpy.ops.object.select_all(action='DESELECT')
-word.select_set(True)
-bpy.context.view_layer.objects.active = word
-bpy.ops.object.convert(target='MESH')
-word.data.materials.append(word_front)
-for polygon in word.data.polygons:
-    polygon.material_index = 1 if polygon.normal.z > 0.95 else 0
-word.rotation_euler = (0.24,-0.14,0)
+word = logo('Flat original wordmark', contours['NVIDIA'], (642.64727,1864.07388,960.3779,1189.31953), -0.70, 2.85, dark, 0)
+word.data.bevel_depth = 0
+# A uniform graphite face restores the flat lettering on the light LCD.
+word_nodes, word_links = dark.node_tree.nodes, dark.node_tree.links
+word_surface = word_nodes.new('ShaderNodeEmission')
+word_surface.inputs['Color'].default_value = (*[srgb(v) for v in (49,55,63)],1)
+word_output = next(n for n in word_nodes if n.type == 'OUTPUT_MATERIAL')
+word_links.new(word_surface.outputs[0],word_output.inputs['Surface'])
+word_nodes.remove(next(n for n in word_nodes if n.type == 'BSDF_PRINCIPLED'))
 
 
 # The reference square is about one fifth of the completed logo width.
@@ -147,10 +144,10 @@ for f, loc, scale, rot in poses:
     for path in ('location','scale','rotation_euler'):
         cube.keyframe_insert(data_path=path,frame=f)
 
-# Geometry stays extruded while a transparent material reveals the lettering.
+# A transparent material reveals the flat lettering.
 def reveal(mat, values, operation, axis="X"):
     nodes, links = mat.node_tree.nodes, mat.node_tree.links
-    bsdf = next(n for n in nodes if n.type == 'BSDF_PRINCIPLED')
+    bsdf = next(n for n in nodes if n.type in ('BSDF_PRINCIPLED','EMISSION'))
     out = next(n for n in nodes if n.type == 'OUTPUT_MATERIAL')
     pos = nodes.new('ShaderNodeNewGeometry')
     xyz = nodes.new('ShaderNodeSeparateXYZ')
@@ -174,7 +171,6 @@ def reveal(mat, values, operation, axis="X"):
 # The word moves right as the cube moves left. Coordinates follow video frames
 # 15..36, shifted by the 24-frame opening spin; no reverse keys exist.
 reveal(dark, [(1,.60),(40,.60),(43,.53),(46,.40),(49,.20),(52,-.26),(55,-.59),(58,-.86),(61,-.91),(72,-.91)], 'LESS_THAN')
-reveal(word_front, [(1,.60),(40,.60),(43,.53),(46,.40),(49,.20),(52,-.26),(55,-.59),(58,-.86),(61,-.91),(72,-.91)], 'LESS_THAN')
 for frame, right in [(1,.60),(40,.61),(43,1.075),(46,1.433),(49,1.707),(52,1.897),(55,2.044),(58,2.129),(61,2.15),(72,2.15)]:
     word.location.x = right - 2.85
     word.keyframe_insert('location',frame=frame)

@@ -31,7 +31,7 @@ import type { HomeBannerHostView } from './home-banner-host';
 import type { HomeBannerMotion } from './home-banner-lifecycle';
 import { createManualEntryPresentation, sameManualEntryIdentity, type ManualEntryIdentity, type ManualEntryPose } from './manual-entry-presentation';
 import { manualEntryIdentity, manualEntryEligible, manualEntryOrigin, sameManualEntryOrigin, manualEntryBackingMatches, type ManualEntryOrigin } from './manual-entry-identity';
-import { createAppletEntryPresentation, appletEntryIdentity, appletEntryEligible, appletEntryHomePair, sameAppletEntryHomePair,
+import { createAppletEntryPresentation, appletEntryIdentity, appletEntryEligible, appletEntryHomePair, appletEntryIncomingKind, sameAppletEntryHomePair,
  sameAppletEntryIdentity, appletEntryBackingMatches, type AppletEntryIdentity, type AppletEntryHomePair, type AppletEntryPose } from './applet-entry-presentation';
 import { createHomeFolderEntryBanner, homeFolderEntryBannerSource, homeFolderEntryBannerDestinationReady, type HomeFolderEntryBannerOwner,
  type HomeFolderEntryBannerPose, type HomeFolderEntryBannerSource, type HomeFolderEntryBannerRelease } from './home-folder-entry-banner';
@@ -868,12 +868,17 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
      else{revokeAppletEntryCandidate();appletPose=undefined;}
     }
     if(appletPose?.kind==='incoming'){
-     if(!graphics.drawAppletIncoming(state,t,b,appletPose.frame,appletPose.resources))throw Error('Native title-owned incoming paired cover unavailable');
+     if(appletEntryIncomingKind(appletIdentity.appId)==='title'){
+      if(!appletPose.resources||!graphics.drawAppletIncoming(state,t,b,appletPose.frame,appletPose.resources))throw Error('Native title-owned incoming paired cover unavailable');
+     }else{
+      // The stock overlay above supplied the exact pair; SceneIn clears over it.
+      if(!nativeHome!.appletEntry(t,b,{appId:appletIdentity.appId,phase:'in',frame:appletPose.frame}))throw Error('Native common incoming paired cover unavailable');
+     }
     }else if(appletPose?.kind==='cover'||!appletPose){
      // Retain the source opaque cover while an incoming pair/resource is absent.
      setAppletEntryCovered(appletIdentity.owner);
      for(const [ctx,image] of [[t,appletBackingUpper],[b,appletBackingLower]] as const){ctx.resetTransform();ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.clearRect(0,0,ctx.canvas.width,240);ctx.drawImage(image,0,0);}
-     if(!nativeHome!.appletEntry(t,b,{appId:appletIdentity.appId,frame:appletPose?.kind==='cover'?appletPose.frame:20}))throw Error('Native applet entry paired cover unavailable');
+     if(!nativeHome!.appletEntry(t,b,{appId:appletIdentity.appId,phase:'out',frame:appletPose?.kind==='cover'?appletPose.frame:20}))throw Error('Native applet entry paired cover unavailable');
      appletCoverPainted=true;graphics.revokeNotesBootCoverCandidate();
     }
     appletCandidate=appletPose;

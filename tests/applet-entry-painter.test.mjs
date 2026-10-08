@@ -12,11 +12,11 @@ const {outputText}=ts.transpileModule(readFileSync(sourceUrl,'utf8'),{compilerOp
 const {createFirmwareHome}=await import(data(outputText.replace(/(from\s*['"])(\.[^'"]+)(['"])/g,(_all,prefix,path,suffix)=>prefix+(path==='./native-renderer'?data('export class NativeLayoutRenderer {}'):new URL(path.endsWith('.ts')?path:`${path}.ts`,sourceUrl).href)+suffix)));
 const ids=['game-notes','friends','notifications','browser','miiverse'];
 
-test('actual outgoing painter composes each untouched source selector, label/logo and endpoint over both caller LCDs',()=>{
+test('actual painter composes each outgoing selector and Browser/Miiverse common incoming over both caller LCDs',()=>{
  const before=JSON.stringify(common),draws=[],presenter=createFirmwareHome({renderer:{packs:{common,messages,launcher},draw(ctx,bank,name,options){draws.push({ctx,bank,name,options});return true;}}});
- for(const appId of ids)for(const frame of [0,20]){
-  assert.equal(presenter.appletEntry('upper','lower',{appId,frame}),true);
-  const [upper,lower]=draws.slice(-2),bindings=appletEntryBindings({appId,phase:'out',frame});
+ for(const appId of ids)for(const phase of ['out',...(['browser','miiverse'].includes(appId)?['in']:[])])for(const frame of [0,20]){
+  assert.equal(presenter.appletEntry('upper','lower',{appId,phase,frame}),true);
+  const [upper,lower]=draws.slice(-2),bindings=appletEntryBindings({appId,phase,frame});
   assert.deepEqual([upper.ctx,upper.bank,upper.name,upper.options],['upper','common','CmnFade_U_00',{bindings:bindings.upper}]);
   assert.deepEqual([lower.ctx,lower.bank,lower.name,lower.options],['lower','common','CmnFade_D_00',{bindings:bindings.lower,overrides:appletEntryOverrides(messages,appId)}]);
  }
@@ -26,16 +26,16 @@ test('actual outgoing painter composes each untouched source selector, label/log
 test('both LCD draw failures and selected missing/malformed clips, labels and logo remain explicit',()=>{
  for(const appId of ids)for(const refused of ['CmnFade_U_00','CmnFade_D_00']){
   const presenter=createFirmwareHome({renderer:{packs:{common,messages,launcher},draw(_ctx,_bank,name){return name!==refused;}}});
-  assert.equal(presenter.appletEntry({}, {}, {appId,frame:0}),false);
+  assert.equal(presenter.appletEntry({}, {}, {appId,phase:'out',frame:0}),false);
  }
  for(const mutate of [p=>delete p.animations.CmnFade_U_00_SceneOut,p=>delete p.textures['LncApltPictFrd_00.bclim'],p=>p.animations.CmnFade_D_00_SceneOut.tracks[0].keys[0].value++]){
   const pack=structuredClone(common);mutate(pack);const presenter=createFirmwareHome({renderer:{packs:{common:pack,messages,launcher},draw(){return true;}}});
-  assert.throws(()=>presenter.appletEntry({}, {}, {appId:'friends',frame:0}),/unsupported/i);
+  assert.throws(()=>presenter.appletEntry({}, {}, {appId:'friends',phase:'out',frame:0}),/unsupported/i);
  }
  const absent=structuredClone(messages);delete absent.messages.menu_msbt_LZ.labels.lau_title_news;
  const presenter=createFirmwareHome({renderer:{packs:{common,messages:absent,launcher},draw(){return true;}}});
- assert.throws(()=>presenter.appletEntry({}, {}, {appId:'notifications',frame:0}),/label/);
+ assert.throws(()=>presenter.appletEntry({}, {}, {appId:'notifications',phase:'out',frame:0}),/label/);
  const pack=structuredClone(common);delete pack.textures['Miiverse_logo_00.bclim'];
  const missingLogo=createFirmwareHome({renderer:{packs:{common:pack,messages,launcher},draw(){return true;}}});
- assert.throws(()=>missingLogo.appletEntry({}, {}, {appId:'miiverse',frame:20}),/unsupported/i);
+ assert.throws(()=>missingLogo.appletEntry({}, {}, {appId:'miiverse',phase:'in',frame:20}),/unsupported/i);
 });

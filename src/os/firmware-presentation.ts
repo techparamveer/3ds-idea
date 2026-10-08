@@ -557,9 +557,9 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   return renderer.draw(bottom,'common','CmnFade_D_00',{bindings:bindings.lower,overrides:{T_Aplt_00:label}});
  }
  const validatedApplets=new Set<AppletEntryAppId>();
- function appletEntry(top:Context,bottom:Context,pose:{appId:AppletEntryAppId;frame:number}):boolean{
+ function appletEntry(top:Context,bottom:Context,pose:{appId:AppletEntryAppId;phase:'out'|'in';frame:number}):boolean{
   if(!validatedApplets.has(pose.appId)){validateAppletEntryAssets(renderer.packs.common,pose.appId);validatedApplets.add(pose.appId);}
-  const bindings=appletEntryBindings({...pose,phase:'out'}),overrides=appletEntryOverrides(renderer.packs.messages,pose.appId);
+  const bindings=appletEntryBindings(pose),overrides=appletEntryOverrides(renderer.packs.messages,pose.appId);
   if(!renderer.draw(top,'common','CmnFade_U_00',{bindings:bindings.upper}))return false;
   return renderer.draw(bottom,'common','CmnFade_D_00',{bindings:bindings.lower,overrides});
  }

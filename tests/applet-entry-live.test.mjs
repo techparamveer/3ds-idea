@@ -65,7 +65,7 @@ async function fixture(run,withFirmware=true){
   overlay(t,b,state){pair=status==='ready'&&copyReady?{}:undefined;preparedOwner=state.system.runtime.active;t.record('destination-upper');b.record('destination-lower');if(state.system.runtime.instances[state.system.runtime.active]?.appId==='game-notes')t.record('notes-step',[notesStep,covered]);},dispose(){pair=undefined;},
  };
  Object.assign(globalThis,{document:{createElement:canvas,fonts:{add(){}}},Image:class {decode(){return Promise.resolve();}},FontFace:class {load(){return Promise.resolve(this);}},__appletGraphics:graphics});
- const presenter=new Proxy({pressOffset:0,tilePressOffset:()=>0,folderChild(_ctx,_state,_empty,draw){draw(1);return true;},appletEntry(t,b,pose){t.record('cover-upper',[pose]);b.record('cover-lower',[pose]);return !coverFailure;}},{get:(target,key)=>key in target?target[key]:()=>true});
+ const presenter=new Proxy({pressOffset:0,tilePressOffset:()=>0,folderChild(_ctx,_state,_empty,draw){draw(1);return true;},appletEntry(t,b,pose){const name=pose.phase==='in'?'common-incoming':'cover';t.record(name+'-upper',[pose]);b.record(name+'-lower',[pose]);return !coverFailure;}},{get:(target,key)=>key in target?target[key]:()=>true});
  const assets=()=>({presenter,sharedFont:{draw(){}},dispose(){},diagnostics:[],titleIcons:new Map([['0004001000022400',{}]]),titleDescriptions:new Map([['0004001000022400','Nintendo 3DS Camera']])});
  const screens=createScreens({firmwareAssets:withFirmware?assets():undefined,drawHomeBackground:()=>true,drawSuspendedBackground:()=>true});
  const paint=(state,step,receipt=true,verification)=>{
@@ -87,10 +87,11 @@ for(const appId of ids)test(`${appId} outgoing cover requires a matching present
   assert.equal(screens.appletEntryActive(state),false);assert.equal(paint(state,22).appletEntry.frame,20);
   setStatus('ready');assert.equal(paint(state,23).appletEntry.frame,20,'the pair must be prepared before release is selected');
   let handoffStep=24;
-  if(['friends','notifications'].includes(appId)){
+  if(['friends','notifications','browser','miiverse'].includes(appId)){
    for(let frame=0;frame<=20;frame++){
     const result=paint(state,24+frame,false);assert.deepEqual(result.appletEntry,{kind:'incoming',frame,owner:state.system.runtime.active});
-    assert.equal(events.filter(e=>e.name.startsWith('incoming-')).length,2);assert.equal(events.some(e=>e.name.startsWith('cover-')),false);
+    const prefix=['friends','notifications'].includes(appId)?'incoming-':'common-incoming-';
+    assert.equal(events.filter(e=>e.name.startsWith(prefix)).length,2);assert.equal(events.some(e=>e.name.startsWith('cover-')),false);
     assert.equal(screens.stockStatus(state),'loading');assert.equal(screens.presentAppletEntry(state,ms(24+frame)),true);
    }
    handoffStep=45;
@@ -191,11 +192,12 @@ test('HOME return/resume retains an unfinished owner, completed resume does not 
   assert.equal(screens.presentAppletEntry(state,ms(5)),false);
   const resumed=reduceSystem(suspended,'home',6600);assert.equal(resumed.system.runtime.active,state.system.runtime.active);
   assert.equal(paint(resumed,6).appletEntry.frame,1);screens.setReducedMotion(true);
-  assert.equal(paint(resumed,7).appletEntry.frame,20);assert.equal(paint(resumed,8).appletEntry.kind,'handoff');
-  const completedHome=reduceSystem(resumed,'home',6700);paint(completedHome,9);
-  const completedResume=reduceSystem(completedHome,'home',6800);assert.equal(paint(completedResume,10),undefined);assert.equal(screens.stockStatus(completedResume),'ready');
-  const closed=home('browser',escapeUnreadyNativeScreen(completedResume,6900));paint(closed,11);screens.setReducedMotion(false);
-  const reopened=open(closed);assert.notEqual(reopened.system.runtime.active,state.system.runtime.active);assert.equal(paint(reopened,12).appletEntry.frame,0);
+  assert.equal(paint(resumed,7).appletEntry.frame,20);assert.equal(paint(resumed,8).appletEntry.kind,'incoming');
+  assert.equal(paint(resumed,9).appletEntry.kind,'handoff');
+  const completedHome=reduceSystem(resumed,'home',6700);paint(completedHome,10);
+  const completedResume=reduceSystem(completedHome,'home',6800);assert.equal(paint(completedResume,11),undefined);assert.equal(screens.stockStatus(completedResume),'ready');
+  const closed=home('browser',escapeUnreadyNativeScreen(completedResume,6900));paint(closed,12);screens.setReducedMotion(false);
+  const reopened=open(closed);assert.notEqual(reopened.system.runtime.active,state.system.runtime.active);assert.equal(paint(reopened,13).appletEntry.frame,0);
  });
 });
 
@@ -206,8 +208,9 @@ test('fresh observations accept stale rAF timestamps for normal/reduced cycles; 
    const state=open(caller),step=cycle*10;paint(caller,step);
    const sample=(raf,fresh)=>screens.paint(state,new Date(0),ms(raf),{manualEntryObservedElapsedMs:ms(fresh)});
    assert.equal(sample(step+1,step+2).appletEntry.frame,20);assert.equal(screens.presentAppletEntry(state,ms(step+3)),true);
-   assert.equal(sample(step+2,step+4).appletEntry.kind,'handoff');assert.equal(sample(step+3,step+5).appletEntry.kind,'handoff');
-   assert.equal(screens.stockStatus(state),'loading');assert.equal(screens.presentAppletEntry(state,ms(step+6)),true);assert.equal(screens.stockStatus(state),'ready');
+   assert.equal(sample(step+2,step+4).appletEntry.kind,'incoming');assert.equal(sample(step+3,step+5).appletEntry.kind,'incoming');
+   assert.equal(screens.stockStatus(state),'loading');assert.equal(screens.presentAppletEntry(state,ms(step+6)),true);
+   assert.equal(sample(step+4,step+7).appletEntry.kind,'handoff');assert.equal(screens.presentAppletEntry(state,ms(step+8)),true);assert.equal(screens.stockStatus(state),'ready');
    caller=home('browser',escapeUnreadyNativeScreen(state,6500+cycle*100));
   }
   screens.setReducedMotion(false);paint(caller,21);const next=open(caller);
@@ -259,6 +262,29 @@ for(const appId of ['friends','notifications'])test(`${appId} incoming paired pu
   failIncoming(false);assert.equal(screens.retryStockScreen(),true);paint(state,14);paint(state,15);paint(state,16);
   assert.equal(screens.stockStatus(state),'ready');
 });
+});
+
+for(const appId of ['browser','miiverse'])test(`${appId} common incoming overlays the prepared destination and rejects stale, missing or failed pairs`,async()=>{
+ await fixture(({screens,paint,events,replacePair,setCopyReady,failCover})=>{
+  const caller=home(appId),state=open(caller,appId);paint(caller,0);screens.setReducedMotion(true);
+  assert.equal(paint(state,1).appletEntry.frame,20);
+  const incoming=paint(state,2,false);assert.deepEqual(incoming.appletEntry,{kind:'incoming',frame:20,owner:state.system.runtime.active});
+  const destinationIndex=events.findIndex(event=>event.name==='destination-upper');
+  const incomingIndex=events.findIndex(event=>event.name==='common-incoming-upper');
+  assert.ok(destinationIndex>=0&&incomingIndex>destinationIndex,'the source SceneIn overlays the freshly prepared destination');
+  assert.equal(events.some(event=>event.name.startsWith('incoming-')),false,'title-owned incoming is not used');
+  replacePair();assert.equal(screens.presentAppletEntry(state,ms(2)),false,'a replaced prepared pair cannot acknowledge old pixels');
+  assert.equal(paint(state,3).appletEntry.kind,'cover');
+  setCopyReady(false);assert.equal(paint(state,4,false),undefined);
+  assert.equal(events.filter(event=>event.name==='cover-upper').at(-1).args[0].frame,20);
+  assert.equal(screens.presentAppletEntry(state,ms(4)),false);
+  setCopyReady(true);assert.equal(paint(state,5).appletEntry.frame,20);
+  failCover(true);assert.equal(paint(state,6),undefined);
+  assert.equal(screens.stockStatus(state),'error');assert.match(String(screens.stockFailure()),/common incoming paired cover unavailable/);
+  failCover(false);assert.equal(screens.retryStockScreen(),true);
+  assert.equal(paint(state,7).appletEntry.frame,20);assert.equal(paint(state,8).appletEntry.kind,'incoming');
+  assert.equal(paint(state,9).appletEntry.kind,'handoff');assert.equal(screens.stockStatus(state),'ready');
+ });
 });
 
 for(const appId of ['friends','notifications'])test(`${appId} incoming visibility and HOME resume preserve the last acknowledged pose before reduced handoff`,async()=>{

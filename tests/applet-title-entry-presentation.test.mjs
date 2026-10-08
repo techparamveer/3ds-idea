@@ -169,12 +169,20 @@ test('incoming follows bounded accepted-sample time at ordinary render cadences 
   for (const elapsedMs of [-1, NaN, Infinity]) assert.throws(() => f.sample(24, { elapsedMs }), /timestamp/);
 });
 
-test('Notes, Browser and Miiverse keep their original outgoing-only handoff even when title readiness is unavailable', () => {
-  for (const appId of ['game-notes', 'browser', 'miiverse']) {
-    const f = fixture({ ...identities[0], appId, owner: appId + ':1' });
-    for (let frame = 0; frame <= 20; frame++) { const pose = f.sample(frame, { incomingResources: undefined }); assert.equal(pose.kind, 'cover'); f.controller.present(pose, f.identity, ms(frame), true, f.pair); }
-    const pose = f.sample(21, { incomingResources: undefined }); assert.equal(pose.kind, 'handoff');
-    assert.equal(f.controller.present(pose, f.identity, ms(21), true, f.pair), true);
-    assert.equal(f.controller.ready(f.identity), true);
+test('Notes keeps its direct handoff while Browser and Miiverse use common incoming without title readiness', () => {
+ const notes = fixture({ ...identities[0], appId: 'game-notes', owner: 'game-notes:1' });
+ for (let frame = 0; frame <= 20; frame++) { const pose = notes.sample(frame, { incomingResources: undefined }); assert.equal(pose.kind, 'cover'); notes.controller.present(pose, notes.identity, ms(frame), true, notes.pair); }
+ const notesHandoff = notes.sample(21, { incomingResources: undefined }); assert.equal(notesHandoff.kind, 'handoff');
+ assert.equal(notes.controller.present(notesHandoff, notes.identity, ms(21), true, notes.pair), true);
+
+ for (const appId of ['browser', 'miiverse']) {
+  const f = fixture({ ...identities[0], appId, owner: appId + ':1' });
+  for (let frame = 0; frame <= 20; frame++) { const pose = f.sample(frame, { incomingResources: undefined }); assert.equal(pose.kind, 'cover'); f.controller.present(pose, f.identity, ms(frame), true, f.pair); }
+  for (let frame = 0; frame <= 20; frame++) {
+   const pose = f.sample(21 + frame, { incomingResources: undefined });assert.deepEqual([pose.kind,pose.frame,pose.resources],['incoming',frame,undefined]);
+   assert.equal(f.controller.present(pose, f.identity, ms(21 + frame), true, f.pair), true);
   }
+  const handoff=f.sample(42,{incomingResources:undefined});assert.equal(handoff.kind,'handoff');
+  assert.equal(f.controller.present(handoff,f.identity,ms(42),true,f.pair),true);assert.equal(f.controller.ready(f.identity),true);
+ }
 });

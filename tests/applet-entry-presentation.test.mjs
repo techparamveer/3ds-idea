@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createAppletEntryPresentation, appletEntryIdentity, appletEntryHomePair, appletEntryBackingMatches, sameAppletEntryIdentity } from '../src/os/applet-entry-presentation.ts';
+import { createAppletEntryPresentation, appletEntryIdentity, appletEntryHomePair, appletEntryBackingMatches, appletEntryIncomingKind, sameAppletEntryIdentity } from '../src/os/applet-entry-presentation.ts';
 import { createPortfolioState, tickSystem, invokeSystemApplet, reduceSystem, launchHomeShortcut } from '../src/os/system.ts';
 import { enableHomeControls, selectHomeToolbarControlTouch } from '../src/os/home-controls.ts';
 
-const identity={owner:'browser:1',appId:'browser',caller:null,requestId:null,application:null,generation:1};
+const identity={owner:'game-notes:1',appId:'game-notes',caller:null,requestId:null,application:null,generation:1};
 const ms=step=>10000+step*1000/60+.01;
 const sample=(s,step,overrides={})=>s.sample({identity,elapsedMs:ms(step),eligible:true,reducedMotion:false,...overrides});
 const present=(s,pose,step,pair)=>s.present(pose,identity,ms(step),true,pair);
@@ -106,6 +106,31 @@ test('incoming elapsed progress waits for acknowledgement while stalls and revoc
  assert.equal(blocked.next(27).frame,1,'revocation discards blocked incoming publication time');
 });
 
+test('Browser and Miiverse common incoming use the accepted-sample clock at ordinary render cadences without title resources',()=>{
+ assert.equal(appletEntryIncomingKind('game-notes'),null);
+ assert.equal(appletEntryIncomingKind('friends'),'title');
+ for(const appId of ['browser','miiverse']){
+  assert.equal(appletEntryIncomingKind(appId),'common');
+  for(const hz of [60,45,30,20]){
+   const s=createAppletEntryPresentation(),common={...identity,owner:appId+':1',appId},pair={};
+   const next=step=>s.sample({identity:common,elapsedMs:ms(step),eligible:true,pair,reducedMotion:false});
+   const accept=(pose,step)=>s.present(pose,common,ms(step),true,pair);
+   let pose=next(0);accept(pose,0);
+   for(const step of [6,12,18,20]){pose=next(step);accept(pose,step);}
+   pose=next(21);assert.deepEqual([pose.kind,pose.frame],['incoming',0]);accept(pose,21);
+   let receiptCount=0,lastObserved=21;
+   while(pose.frame<20){
+    receiptCount++;const elapsedUpdates=Math.floor(receiptCount*60/hz),observed=21+elapsedUpdates;lastObserved=observed;
+    pose=next(observed);assert.deepEqual([pose.kind,pose.frame],['incoming',Math.min(20,elapsedUpdates)],`${appId} ${hz}Hz receipt ${receiptCount}`);
+    assert.equal(accept(pose,observed),true);
+   }
+   assert.equal(receiptCount,Math.ceil(20*hz/60),`${appId} ${hz}Hz receipt count`);
+   const handoff=next(lastObserved+1);assert.equal(handoff.kind,'handoff');assert.equal(accept(handoff,lastObserved+1),true);
+   assert.equal(s.ready(common),true);
+  }
+ }
+});
+
 test('incoming elapsed catch-up still publishes title terminal20 before handoff and preserves reduced receipts',()=>{
  const create=(reducedMotion=false)=>{
   const s=createAppletEntryPresentation(),title={...identity,owner:'notifications:1',appId:'notifications'},pair={},resources={};
@@ -124,6 +149,15 @@ test('incoming elapsed catch-up still publishes title terminal20 before handoff 
  const reduced=create(true),cover20=reduced.next(0);assert.deepEqual([cover20.kind,cover20.frame],['cover',20]);reduced.accept(cover20,0);
  const incoming20=reduced.next(0);assert.deepEqual([incoming20.kind,incoming20.frame],['incoming',20]);reduced.accept(incoming20,0);
  const handoff=reduced.next(0);assert.equal(handoff.kind,'handoff');
+
+ for(const appId of ['browser','miiverse']){
+  const s=createAppletEntryPresentation(),common={...identity,owner:appId+':1',appId},pair={};
+  const next=()=>s.sample({identity:common,elapsedMs:ms(0),eligible:true,pair,reducedMotion:true});
+  const accept=pose=>s.present(pose,common,ms(0),true,pair);
+  const commonCover20=next();assert.deepEqual([commonCover20.kind,commonCover20.frame],['cover',20]);accept(commonCover20);
+  const commonIncoming20=next();assert.deepEqual([commonIncoming20.kind,commonIncoming20.frame],['incoming',20]);accept(commonIncoming20);
+  const commonHandoff=next();assert.equal(commonHandoff.kind,'handoff');assert.equal(accept(commonHandoff),true);
+ }
 });
 
 test('absent prepared pairs hold the source terminal; stalls and invalid publication rebase that hold',()=>{

@@ -7,18 +7,20 @@ The human resumed on8 October with "continue disregard that", revoking the
 75%-remaining stop condition. Continue the full animation goal. Earlier quota
 checkpoints remain history; do not stop again at that removed threshold.
 
-Latest browser checkpoint: release recovery is integrated as `b7bb5c6` and
-the reviewed lower-latency collector as `7404d7f`. The unchanged clean runtime
-on3024 captures compact appearance frame9 in both normal repeat cycles;
-frames0..8, the full fade and native timing remain unproven. All four whole
-animation scenarios still fail. Replacement workers/reviews use GPT-6 Astra
-high. The later usage check reached25% used/75% remaining on8 October.
-The human resumed work, but the latest goal API result is blocked after three
-consecutive checks of the unresolved asset-export and capture-method approvals.
-This is not a quota pause or a completion claim; the full objective is unchanged.
-Camera/Sound artifact checks and sheet inspection are complete. Portfolio
-compact pause completed two muted Sidecar cycles, with153 paired paints and
-306 raw PNGs checked. These are browser regressions, not native acceptance.
+Latest checkpoint: the human approved decoded applet publication and short
+silent Sidecar recordings. Commits `2c40164` and `62bd428` deliver the
+Friends/Notifications incoming packs and connect their source tracks. A real
+Sidecar failure exposed mixed legacy/content-scoped font bindings; `dc4094f`
+fixes the title aliases and `a8b06ca` adds real mixed-pack loader regressions.
+Both titles now complete first/repeat normal and reduced-motion browser runs
+without page errors. Typecheck and production build pass. Full tests report
+2,499 passes, one missing historical Camera fixture failure, 98 skips and one
+TODO. New silent native movies show Manual opening through Contents and Friends
+opening through its first-use service boundary. They are supplementary motion
+evidence, not frame-exact acceptance. All four whole animation scenarios fail.
+The goal API still reports its prior blocked checkpoint and exposes no
+agent-controlled resume operation; the human approvals authorize this work.
+Continue from the [approved incoming checkpoint](docs/animation-fidelity-workflow-2026-10-07.md#approved-incoming-delivery-8-october).
 All future browser/Azahar visual testing must run on the iPad Sidecar display.
 Confirm actual window placement before inputs; no new headless visual runs.
 The goal is incomplete.
@@ -36,9 +38,10 @@ LCD frame sequences, including pressed feedback, intermediate poses, ordering,
 duration and the final screen. A matching endpoint or passing tests does not
 establish matching motion.
 
-Work in separate branches and worktrees with at most two workers. Follow the
-latest human model preference, GPT-6 Astra high, for replacement workers and
-reviews. Earlier Sol workers are idle; the active Sol review was interrupted.
+Work in separate branches and worktrees with at most two workers. The latest
+user-supplied AGENTS instructions select GPT-5.6 Sol, high reasoning, for new
+helpers. Keep an independent reviewer on a different model; the current reviewer
+is GPT-6 Astra high. Normal speed is requested but not tool-verifiable.
 Do not claim that a helper override changes the running coordinator model.
 The coordinator alone controls Azahar and the shared browser, integrates
 reviewed commits, and repeats capture, diff and correction. Keep the reviewer
@@ -53,7 +56,7 @@ service gates and portfolio content differences remain explicit adaptations
 or blockers. Keep every 3DS session muted; audio acceptance remains open.
 Do not claim global 1:1 or audio verification from this animation work.
 
-Current checkpoint after the 8 October human resume: goal active. Reviewed
+Earlier checkpoint after the 8 October human resume: goal active. Reviewed
 runtime fixes through `c658382` correct same-folder recovery lifetime and compact
 suspended-window appearance. Clean preview3023 serves `5386572`;3022 preserves
 the previous build. Normal and reduced mobile folder/pause regressions are

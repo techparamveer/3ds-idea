@@ -13,9 +13,10 @@ native comparison; B owns the incoming controller/helper.
 Current checkpoint: the user explicitly approved public export on 8 October
 2026, superseding the earlier permission denial. The pinned publisher wrote the
 two incoming packs and additive manifest records. A second identical publication
-reported no additions and preserved all delivered bytes. The private fixtures at
+reported no additions and preserved all delivered bytes. The former fixtures at
 `/private/tmp/3ds-applet-incoming-fixtures-20261007/{friends,notifications}/incoming.json`
-remain read-only conversion references, not acceptance evidence.
+are no longer present. Their recorded hashes match the delivered public packs;
+the historical fixture checks are conversion evidence, not native acceptance.
 
 Coordinator integration at `62bd428` exposed a mixed-pack loader conflict for
 the legacy Friends pack: the title map had only the content-scoped incoming font
@@ -176,5 +177,7 @@ The corrected publication returned `added: []`; its report is
 under the private animation artifact root, SHA-256
 `7a64bc291d72722dd420a45732f77a5892f3db1f1d6ece8b28a5737e4915c09a`.
 Both pack hashes remain unchanged. No full suite, build, server, GUI or native
-process ran. Coordinator next integrates the manifest fix and repeats the
-visible mixed-pack path before the matched native/browser loop.
+process ran in the asset lane. Coordinator integrated the fix as `dc4094f`,
+added real loader regressions in `a8b06ca`, and repeated the mixed-pack paths
+on Sidecar. See the [integration checkpoint](../animation-fidelity-workflow-2026-10-07.md#approved-incoming-delivery-8-october)
+for supporting checks, captures and still-open native comparison.

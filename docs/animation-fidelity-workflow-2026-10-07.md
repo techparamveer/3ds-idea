@@ -2,7 +2,167 @@
 
 The human resumed on8 October with "continue disregard that" and removed the
 75%-remaining stop rule. Continue from STATUS Next; quota pauses recorded below
-are historical. Astra-high helpers and muted sessions remain the current setup.
+are historical. New helpers follow the latest user-supplied AGENTS preference:
+GPT-5.6 Sol high, with an independent different-model reviewer. All sessions stay
+muted and visual tests stay on Sidecar.
+
+## Approved incoming delivery, 8 October
+
+The human approved the two decoded incoming packs and silent exact-window
+recordings. Earlier approval-pending paragraphs are history. Asset worker
+`b760c76` integrates as `2c40164`; coordinator `62bd428` connects the
+reviewed incoming controller to the live screen lifecycle. The first Sidecar
+Friends run exposed a real `cbf_std.bcfnt` conflict between legacy and
+content-scoped packs. The invalid capture is preserved under
+`approved-applet-assets/friends-normal`, not counted as successful evidence.
+
+Worker `4591448` integrates as `dc4094f`. Both titles map the raw and
+content-scoped font aliases to the same existing dump-derived shared font.
+The publisher rejects conflicting aliases; generic loader guards are unchanged.
+Coordinator `a8b06ca` tests the actual public incoming and legacy packs through
+the real loader in both request orders, including owned and borrowed font
+disposal. The tests failed on the old manifest and pass on the corrected one.
+
+The [asset handoff](workstream-handoffs/applet-incoming-assets-20261007.md)
+records title/version/content, CIA and RomFS member identities, converter and
+source hashes, selected plain-label writer proof and all texture/font mappings.
+Friends pack SHA-256 is
+`361a6838c840f69fdf92c6ab520aa1cbced463a1d4f8cffe6824fe398af2db1c`;
+Notifications is
+`9137c1da5bdf61584dddfa14a090b9e79d7b1f20dba6736cc33c9fbede231d74`.
+Corrected manifest SHA-256 is
+`83a495b50cf199babc8505dc95b1b2186574db4e857501e9d9e4e0b5757bd1d7`.
+No firmware package, executable, ticket or key was exported. The seven texture
+dependencies per title and shared font were reused without changing their bytes.
+
+Supporting checks on integrated `a8b06ca`: loader 41/41 passes; earlier
+focused lifecycle checks 108/108 pass. Full `npm test` reports 2,499 passes,
+one failure, 98 skips and one TODO. The failure is the absent historical
+Camera PNG required by `tests/camera-date-group.test.mjs:44`, not an incoming
+regression. Nonincremental typecheck and production build pass. BUILD_ID is
+`CJvMS4tQ7WKpZ9gUBpGgx`, SHA-256
+`c45e95a47ab27272ae878cbd113d577d069ebc561b4df5001ffacffd837c1db1`.
+Asset checks pass 9/9 Python and 6/6 Node; a real publisher repeat is idempotent.
+Do not add overlapping focused-suite totals.
+
+The frozen production build ran on port 3025. Four dedicated muted headed
+browser jobs completed two cycles each, with no page errors:
+
+| Run | First/repeat paired paints |
+| --- | --- |
+| Friends normal | 117 / 118 |
+| Notifications normal | 95 / 117 |
+| Friends reduced motion | 74 / 74 |
+| Notifications reduced motion | 65 / 68 |
+
+Each job waited on a unique token at about:blank. Before release, the coordinator
+read back its actual OS window at 1810,400,1102x700, wholly inside Sidecar
+Display 5 at 1800,367,1164x802. Both Notifications runs also have post-navigation
+placement readback. The eight console views were inspected. These runs verify
+browser behavior; the collector records Playwright actions, not trusted DOM
+input receipts or native epochs. Repeat opening creates a fresh applet owner
+after HOME rather than proving retained-owner Resume. Reduced motion is an
+accessibility adaptation, not native animation acceptance.
+
+Independent capture checks cover all 728 paired paints and 1,456 raw LCD PNGs:
+SHA-256, CRC/full decode, dimensions, same-paint paired receipts, chronology,
+gate/placement consistency and no orphan files. Both normal cycles for each
+title observe cover and incoming poses 0..20. Reduced cycles observe pose 20
+only; missing 0..19 are explicit. All four exact-pixel chronological sheets are
+opened by the coordinator. The private checker passes 17/17 tests in both
+reviewer and coordinator runs. Supporting report / selector / sheet identities
+are recorded below as SHA-256 prefixes; each full hash is in the private record.
+
+| Run | Report | Selector | Sheet |
+| --- | --- | --- | --- |
+| Friends normal | `a9ac78e5f3428922` | `b89880d29b6049ac` | `1e3ee6188a28c428` |
+| Notifications normal | `450172504ea0a46a` | `84b7b22d1c0f6058` | `824f1aed79085147` |
+| Friends reduced | `2fb436030b4a5c0b` | `113772da710ed36a` | `86909362c978e44d` |
+| Notifications reduced | `a238ce042951edc7` | `475c428956ec6f88` | `a24bbecb291c5b11` |
+
+Evidence is under
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261008/`.
+The corrected runs and supporting reports live in
+`approved-applet-font-alias-fix/`. The invalid pre-fix run remains in its
+separate sibling directory. No named matched native/browser motion pair, mask
+or diff report exists for this checkpoint.
+
+The coordinator also recorded isolated Azahar render window 3305 on Sidecar,
+after independently verifying 2110,500,400x512. The main window showed volume
+zero before EUR HOME boot. The built-in recorder targeted only that exact window
+for 15 seconds without microphone or system-audio capture. AVFoundation verifies
+zero audio tracks. No system volume or Spotify setting changed.
+`sidecar-native-video/README.md` preserves commands, inputs, timestamps, failed
+probes, metadata and limitations. Manual movie SHA-256
+`893cda24a4d89696e1879571428f3606e03a5c6560068ee05eb2c8fff8039347`
+shows outgoing cover, complete cover, incoming clearing and Camera Contents.
+Friends movie SHA-256
+`80064fd2cc35aedfd87a5fb00b5dc7ceb4ec5a8dffb3baf2cf70467207da6ef8`
+shows entry through first-use help and service error 002-0121. No service
+operation was requested. Both chronological sheets were inspected.
+
+Azahar's own 400x480 Manual-ready PNG is also preserved:
+`sidecar-native-video/manual-ready-own.png`, SHA-256
+`187ad2e67e97fbe12f4d041e0679a8ff2ade2e8282065cc81264a8f80b8bea1f`.
+It was unpaired at recording time; the fixed static follow-up is below.
+The movies are scaled, compressed,
+variable-cadence window captures with cursor/titlebar/shadow content. They
+establish visible ordering, not exact 60Hz poses, input epochs or pixel parity.
+
+Still non-native or unresolved: Friends own-card endpoint is a portfolio
+adaptation rather than native first-use help; browser scheduling and reduced
+motion are adaptations; title-internal shared-font acquisition and independent
+Notifications LCD activation remain unproven. Exact source-clock coupling,
+motion/input timing and muted audio remain open. AN-01 through AN-04 all remain
+`fail`, not complete. Do not fit a native epoch from host timestamps or repeat
+closed bursts. The static Manual follow-up below is complete without a source
+change; native motion and the folder/HOME sequences remain next.
+
+### Same-input Manual follow-up
+
+A fifth muted Sidecar browser job captures Camera selection followed by Manual
+touch on the same frozen build. It exits zero with 154 paired paints, no page
+errors, and Camera Contents ready at index 85. The coordinator verified actual
+blank-window bounds before releasing the unique gate; the collector's requested
+bounds alone were not accepted. Console and selected raw LCDs are opened.
+
+Private `manual-approved-sidecar/policy.md` mistakenly called the serialized
+Manual menu `manual`; the actual domain uses `app`. The original policy is
+preserved. `selector-clarification.md` records this error before pixel
+comparison. Selection remains the first chronological ready sample, index 85,
+with a valid same-paint paired receipt after Manual entry. No closest-frame
+search, clock adjustment or source edit occurs.
+
+Named static diagnostic `camera-manual-ready-sidecar-20261008` compares the
+new native own PNG `187ad2e6...` to browser index 85 upper
+`002c29195e29e6858788fe9c210b854b08623edbf3a53ba97e3d37a565e587ac`
+and lower
+`823c13e5d30e6e666acff905884acd1d1aeb9661e507975843551a7f96cc4765`.
+The empty mask SHA-256 is
+`4885cd3891b16f09cd162cecae65d22ce3ef1dcab7ae27065add872a8dde5a74`.
+Existing comparison tooling exits 2 and reports 106 upper / 9 lower pixels
+above maximum-channel delta 2, with maxima 135/57. Upper residuals are 60 icon
+edge pixels and 46 indicator pixels; lower residuals are 3 row pixels and 6
+Language-label pixels. This reproduces the prior static residual, not an
+improvement or a new animation defect.
+
+Report `manual-approved-sidecar/comparison/report.json` SHA-256 is
+`ed3fccfae6a1acfe0b3477b066d72b8e3dc8fd90ba8c52e066e31207ba5a60c9`.
+Both native/browser/heatmap sheets are inspected. Native is a later settled
+Contents frame, not the same animation epoch as browser first-ready. No matched
+motion comparison or whole-scenario pass follows. Temporary production3025 is
+stopped after capture; its listener and all five test-browser PIDs are absent.
+Azahar49552 remains hidden after Stop, not a verified clean process exit.
+
+Independent report `manual-approved-sidecar/supporting/manual-checks.json`,
+SHA-256 `9695994e972f441ac7180d63b5ccdff782109efcc59ece1c4871ca0688d8a62f`,
+checks all 308 raw PNGs, same-paint paired chronology and no orphan files.
+Both outgoing and incoming poses 0..20 are observed. It independently
+recomputes the fixed static diff, preserves the policy correction, and verifies
+selected-pair copies are byte-identical to index 85. Selector `5a42d78c...`
+and chronological sheet `897c7997...` retain 45 selected pairs with exact LCD
+pixel hashes. The coordinator opened the sheet. Six bounded ledger/mutation
+checks pass. These checks do not establish native motion epochs or audio.
 
 ## Sidecar-only testing, 8 October
 
@@ -80,9 +240,8 @@ seats are in [STATUS](../STATUS.md), with the objective in [GOAL](../GOAL.md).
 
 One coordinator integrates in `codex/animation-fidelity-20261007`. Use at most
 two workers in separate worktrees and branches based on the fetched commit.
-Replacement workers and reviews use the latest human preference, GPT-6 Astra
-high. Earlier Sol workers are idle, and the active Sol review was interrupted.
-This human request supersedes the earlier different-model reviewer preference.
+New workers use GPT-5.6 Sol high under the latest user-supplied AGENTS
+instructions. Keep the existing independent GPT-6 Astra high reviewer.
 Record actual models in STATUS; a helper override does not change the coordinator.
 Speed selection is not exposed by the
 delegation tools, so no Fast-mode setting is claimed verified.

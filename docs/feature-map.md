@@ -1,5 +1,17 @@
 # Feature map — 1:1 queue
 
+8 October approved incoming checkpoint: decoded Friends/Notifications packs and
+live callers are integrated through `a8b06ca`. Sidecar testing caught and
+verified the fix for a mixed-pack font conflict. All eight normal/reduced
+first/repeat browser cycles complete without errors; typecheck/build pass.
+Full tests have one missing historical Camera fixture failure. New silent
+native Manual/Friends movies show the opening sequences, but they are not
+matched frame-exact comparisons. A same-input Camera Manual run now reproduces
+the known ready-screen106/9 pixel residual with an empty mask; no source change.
+AN-01 through AN-04 remain fail. Native motion comparison remains next. See the
+[approved incoming record](animation-fidelity-workflow-2026-10-07.md#approved-incoming-delivery-8-october).
+Earlier pending approvals and quota stops below are historical.
+
 8 October human resume revokes the historical quota threshold. New visual tests
 must run on iPad Sidecar with muted audio. Reviewed collector1e58e04 now waits
 for verified placement before loading the site. Portfolio compact pause has

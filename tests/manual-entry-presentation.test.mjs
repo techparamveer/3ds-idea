@@ -36,6 +36,54 @@ test('incoming follows bounded elapsed updates at ordinary render cadences inste
   assert.equal(receiptCount-1,Math.ceil(20*hz/60),`${hz}Hz receipt count`);
  }
 });
+test('fresh samples and later paired render receipts cannot strand outgoing Manual in one quantized tick',()=>{
+ const s=createManualEntryPresentation();
+ for(let frame=0;frame<=12;frame++)present(s,sample(s,100+frame),100+frame);
+ // The live scene samples before painting, then acknowledges after rendering.
+ // Each receipt crosses a 60Hz boundary ahead of the next sample's tick.
+ let update=112;
+ const repeated=sample(s,update+.9);assert.deepEqual([repeated.phase,repeated.frame],['out',12]);
+ assert.equal(present(s,repeated,update+1.02),true);
+ for(let frame=13;frame<=20;frame++){
+  update++;const pose=sample(s,update+.9);
+  assert.deepEqual([pose.phase,pose.frame],['out',frame]);
+  assert.equal(sample(s,update+.95),pose,'only the paired render receipt acknowledges the pending pose');
+  assert.equal(s.ready(identity),false);assert.equal(present(s,pose,update+1.02),true);
+ }
+ update++;const incoming=sample(s,update+.9);
+ assert.deepEqual([incoming.phase,incoming.frame],['in',0]);assert.equal(present(s,incoming,update+1.02),true);
+ for(let frame=1;frame<=20;frame++){
+  update++;const pose=sample(s,update+.9);assert.deepEqual([pose.phase,pose.frame],['in',frame]);
+  assert.equal(s.ready(identity),false);assert.equal(present(s,pose,update+1.02),true);
+ }
+ assert.equal(s.ready(identity),true);
+});
+test('repeated observations in the same tick cannot mint Manual progress or accept a backwards receipt',()=>{
+ const s=createManualEntryPresentation();
+ present(s,sample(s,100.1),100.2);
+ for(const update of [100.3,100.5,100.8]){
+  const pose=sample(s,update);assert.deepEqual([pose.phase,pose.frame],['out',0]);assert.equal(present(s,pose,update+.01),true);
+ }
+ const advanced=sample(s,101.9);assert.equal(advanced.frame,1);assert.equal(present(s,advanced,102.02),true);
+ const overlap=sample(s,102.9);assert.equal(overlap.frame,2);
+ assert.equal(present(s,overlap,101.9),false,'receipt monotonicity still uses the accepted render clock');
+ assert.equal(sample(s,103.9),overlap);assert.equal(present(s,overlap,104.02),true);
+ assert.throws(()=>sample(s,103.9),/backwards/);
+});
+test('delayed Manual receipts and stalled clocks cannot spend pending time as incoming catch-up',()=>{
+ const s=createManualEntryPresentation();
+ for(let frame=0;frame<=20;frame++)present(s,sample(s,100+frame),100+frame);
+ const incoming=sample(s,121);assert.deepEqual([incoming.phase,incoming.frame],['in',0]);
+ for(const update of [122,130,1000])assert.equal(sample(s,update),incoming);
+ assert.equal(present(s,incoming,1001.02),true);
+ const resumed=sample(s,1001.9);assert.deepEqual([resumed.phase,resumed.frame],['in',0]);
+ assert.equal(present(s,resumed,1002.02),true);
+ const next=sample(s,1002.9);assert.equal(next.frame,1);assert.equal(present(s,next,1003.02),true);
+ const stall=sample(s,1010.9);assert.equal(stall.frame,1);assert.equal(present(s,stall,1011.02),true);
+ const wake=sample(s,1011.9);assert.equal(wake.frame,2);s.revoke();assert.equal(present(s,wake,1012.02),false);
+ const rebase=sample(s,1012.9);assert.equal(rebase.frame,1);assert.equal(present(s,rebase,1013.02),true);
+ assert.equal(sample(s,1013.9).frame,2);assert.equal(s.ready(identity),false);
+});
 test('a reset repeats the incoming cadence without carrying elapsed credit from the prior opening',()=>{
  const s=createManualEntryPresentation();
  for(const start of [100,1000]){

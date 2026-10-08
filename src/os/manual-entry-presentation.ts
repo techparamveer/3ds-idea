@@ -25,7 +25,8 @@ export function manualEntryUpdate(elapsedMs: number): number {
  * the outgoing terminal receipt or spend an unobserved interval. */
 export function createManualEntryPresentation() {
   let identity: ManualEntryIdentity | null = null, ticket = 0, disposed = false, rebase = true;
-  let presented: { pose: ManualEntryPose; update: number } | undefined, pending: ManualEntryPose | undefined;
+  let presented: { pose: ManualEntryPose; update: number; sampledUpdate: number } | undefined;
+  let pending: { pose: ManualEntryPose; update: number } | undefined;
   const revoke = () => { ticket++; pending = undefined; rebase = true; };
   const ready = (next: ManualEntryIdentity | null) => !rebase && sameManualEntryIdentity(identity, next)
     && presented?.pose.phase === 'in' && presented.pose.frame === MANUAL_ENTRY_LAST_FRAME;
@@ -37,28 +38,32 @@ export function createManualEntryPresentation() {
       if (!identity || !input.eligible) { revoke(); return undefined; }
       if (!identity.owner || !/^[a-f0-9]{16}$/.test(identity.manualTitleId) || !Number.isSafeInteger(identity.generation) || identity.generation < 0) throw Error('Invalid Manual entry identity');
       if (ready(identity)) return undefined;
-      if (pending) return pending;
+      if (pending) return pending.pose;
       const previous = presented?.pose;
       let phase: ManualEntryPose['phase'] = previous?.phase ?? 'out', frame = previous?.frame ?? 0;
       const updates = presented ? update - presented.update : 0;
       if (updates < 0) throw Error('Manual entry clock moved backwards');
+      // Sampling precedes the paired render receipt. Their quantized ticks can
+      // overlap on the next paint; repeated receipts must not erase that step.
+      const sampledUpdates = presented ? update - presented.sampledUpdate : 0;
+      const progress = updates === 0 && sampledUpdates > 0 && sampledUpdates <= MAX_OBSERVED_UPDATE_GAP ? 1 : updates;
       if (input.reducedMotion) {
         if (previous?.phase === 'out' && previous.frame === MANUAL_ENTRY_LAST_FRAME && !rebase && input.destinationReady) phase = 'in';
         frame = MANUAL_ENTRY_LAST_FRAME;
-      } else if (previous && !rebase && updates > 0 && updates <= MAX_OBSERVED_UPDATE_GAP) {
+      } else if (previous && !rebase && progress > 0 && progress <= MAX_OBSERVED_UPDATE_GAP) {
         if (previous.phase === 'out' && previous.frame === MANUAL_ENTRY_LAST_FRAME) {
           if (input.destinationReady) { phase = 'in'; frame = 0; }
-        } else frame = Math.min(MANUAL_ENTRY_LAST_FRAME, frame + (previous.phase === 'in' ? updates : 1));
+        } else frame = Math.min(MANUAL_ENTRY_LAST_FRAME, frame + (previous.phase === 'in' ? progress : 1));
       }
-      pending = Object.freeze({ identity: Object.freeze({ ...identity }), ticket, phase, frame });
-      return pending;
+      pending = { pose: Object.freeze({ identity: Object.freeze({ ...identity }), ticket, phase, frame }), update };
+      return pending.pose;
     },
     present(pose: ManualEntryPose, next: ManualEntryIdentity | null, elapsedMs: number, eligible: boolean, destinationReady: boolean): boolean {
-      if (disposed || !eligible || pose !== pending || pose.ticket !== ticket || !sameManualEntryIdentity(identity, next)
+      if (disposed || !eligible || !pending || pose !== pending.pose || pose.ticket !== ticket || !sameManualEntryIdentity(identity, next)
         || pose.phase === 'in' && !destinationReady) return false;
       const update = manualEntryUpdate(elapsedMs);
       if (presented && update < presented.update) return false;
-      presented = { pose, update }; pending = undefined; rebase = false; return true;
+      presented = { pose, update, sampledUpdate: pending.update }; pending = undefined; rebase = false; return true;
     },
     active(next: ManualEntryIdentity | null, destinationReady: boolean): boolean {
       return !disposed && !!next && !ready(next) && (!sameManualEntryIdentity(identity, next) || !!pending

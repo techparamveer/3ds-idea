@@ -325,3 +325,12 @@ adaptation only. See [evidence](../nvidia-transform-2026-10-08.md).
 
 User-requested caption enlarged to 18px in NVIDIA-NALA weight 700, centered
 below the logo. Playback unchanged. Portfolio adaptation. See [notes](../nvidia-transform-2026-10-08.md).
+
+
+### Hack LDN 2025 portfolio app
+
+Added the user-requested ninth app with existing CogniLink content and a Blender
+chevron-led lettering animation. No cube. Transparent pixelated one-shot banner,
+2025 completion caption, reduced-motion hold and saved-layout migration. Muted
+port3049 browser inspected. Typecheck/build/shader pass; 2,168 tests pass, one
+known missing Camera fixture fails. Portfolio adaptation. See [evidence](../hack-ldn-2025-animation.md).

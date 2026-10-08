@@ -61,8 +61,10 @@ export function isPreviousDefaultAppLayout(value: unknown): boolean {
  * portfolio NVIDIA and source-correct blue Sound remain visible adaptations.
  * Existing saved layouts retain their own positions. */
 export function initialAppLayout(): Record<number, string> {
-  const layout = Object.fromEntries(homeTitles.map((title, index) => [index, title.id]));
+  const established = homeTitles.filter(title => title.id !== 'hack-ldn-2025');
+  const layout = Object.fromEntries(established.map((title, index) => [index, title.id]));
   [layout[7], layout[11]] = [layout[11], layout[7]];
   [layout[8], layout[9]] = [layout[9], layout[8]];
+  layout[established.length] = 'hack-ldn-2025';
   return layout;
 }

@@ -55,6 +55,9 @@ const graph = [
     ['twitter', 1, 0, 'link', 'https://x.com/techparamveer'],
     ['tiktok', 1, 0, 'link', 'https://www.tiktok.com/@techparamveer'],
   ] },
+  { feature: 'P-HACKLDN', id: 'hack-ldn-2025', entries: [
+    ['cognilink', 2, 0, 'link', 'https://cognilink.vercel.app'],
+  ] },
 ];
 
 const context = { now: 0, shared: createAppRuntime().shared };
@@ -71,7 +74,7 @@ function selectedState(module, index) {
   return state;
 }
 
-test('the eight portfolio modules expose the complete declared entry graph', () => {
+test('the nine portfolio modules expose the complete declared entry graph', () => {
   assert.deepEqual(apps.map(app => app.id), graph.map(app => app.id));
   for (const expected of graph) {
     const app = apps.find(candidate => candidate.id === expected.id);

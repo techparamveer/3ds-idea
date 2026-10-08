@@ -5,7 +5,25 @@ If this SHA disagrees with `git rev-parse HEAD`, git wins; rewrite this file bef
 
 Updated: 8 October 2026.
 
-## Nvidia animation branch
+## Hack LDN 2025 branch
+
+Active checkout: `/Users/paramveer/.codex/worktrees/hack-ldn-2025/3ds-idea`.
+Branch: `codex/hack-ldn-2025`, checked base `c9a5da54fd2dc3cf330e889fbcfcde96ab1a8c00`.
+User requests a new application cloned from NVIDIA, with a Blender-authored
+animation of their supplied HACK > LDN logo. This explicitly adds a ninth
+portfolio app. Reuse the existing CogniLink content, native AppModule path and
+play-once banner behavior. NVIDIA remains intact on its own branch and here.
+Artifacts: `/Users/paramveer/.codex/3ds-artifact-overflow/hack-ldn-2025-20261008/`.
+User correction: no cube. The pixel chevron leads a unique two-row lettering
+reveal, turns the corner, then settles into the logo.
+Preview starts on `http://127.0.0.1:3049/?lcdCapture=1` with muted local preferences.
+The inherited NVIDIA preview remains on port3048.
+Implemented and browser-inspected; 34 focused checks pass. Typecheck/build/shader
+pass; full suite has 2,168 passes and one existing Camera fixture failure.
+See [Hack LDN notes](docs/hack-ldn-2025-animation.md).
+Native UI and firmware acceptance are outside this portfolio adaptation.
+
+## Nvidia animation branch (inherited history)
 
 This isolated user-requested portfolio branch is `codex/nvidia-transform` at
 `/Users/paramveer/.codex/worktrees/nvidia-transform/3ds-idea`, based on

@@ -2,6 +2,7 @@
 export type Entry = { id: string; title: string; subtitle: string; pages: string[]; images?: string[]; url?: string; app?: string };
 export type PortfolioApp = { id: string; title: string; subtitle: string; color: string; icon: string; entries: Entry[] };
 const renu: Entry = {id:'renu',title:'Renu',subtitle:'NVIDIA hackathon · 2026',pages:['Built at the NVIDIA hackathon using Swift and DGX Spark.','The project write-up is still to come. See the original portfolio page for updates.'],images:['/portfolio/renu.jpg'],url:'https://www.paramveer.co.uk/projects/renu'};
+const cognilink: Entry = {id:'cognilink',title:'CogniLink',subtitle:'Hack LDN · Knowunity track',pages:['An AI study companion that turns notes into active recall: spaced-repetition questions, explanations and quizzes.','Built in a 24-hour hackathon with Knowunity integration, reducing the friction between reading material and retaining it.'],url:'https://cognilink.vercel.app'};
 const photography: Entry = {id:'buildings',title:'The Building Collection',subtitle:'Film photography · 2025',pages:['A photographic study of brutalist and modernist buildings: geometry, texture, light and repetition.','Shot on 35mm and medium-format film. The deliberate pace changes how I see. The first series was published and sold on Gumroad.'],images:[1,2,3].map(i=>`/portfolio/building${i}.jpg`),url:'https://pmvrsi.gumroad.com/'};
 export const apps: PortfolioApp[] = [
  {id:'work',title:'Work',subtitle:'Experience & things I build',color:'#e58b32',icon:'case',entries:[
@@ -11,7 +12,7 @@ export const apps: PortfolioApp[] = [
   {id:'hackuk-work',title:'HackUK',subtitle:'Founder · 2025–present',pages:['Free hackathons and tech events for young people across the UK.'],app:'hackuk'}]},
  {id:'projects',title:'Side Projects',subtitle:'Ideas made into software',color:'#438fd7',icon:'code',entries:[
   {id:'ankicram',title:'AnkiCram',subtitle:'Anki add-on',pages:['An Anki add-on for focused exam cramming. A dedicated mode prioritises high-yield cards and surfaces weak areas.','Built after struggling with the volume of material for medical admissions tests. Shared across social media: 3k+ likes and 50k+ views.'],url:'https://ankicram.com'},
-  {id:'cognilink',title:'CogniLink',subtitle:'Hack LDN · Knowunity track',pages:['An AI study companion that turns notes into active recall: spaced-repetition questions, explanations and quizzes.','Built in a 24-hour hackathon with Knowunity integration, reducing the friction between reading material and retaining it.'],url:'https://cognilink.vercel.app'},renu]},
+  cognilink,renu]},
  {id:'hobbies',title:'Hobbies',subtitle:'Through a different lens',color:'#9770cd',icon:'camera',entries:[photography]},
  {id:'life',title:'Life',subtitle:'Learning & community',color:'#62b49c',icon:'leaf',entries:[
   {id:'keele',title:'Keele University',subtitle:'Computer Science · 2025–present',pages:['BSc Computer Science (Hons), Keele University.']},
@@ -35,5 +36,6 @@ export const apps: PortfolioApp[] = [
   {id:'youtube',title:'YouTube',subtitle:'@techparamveer',pages:['Videos and things I am building.'],url:'https://www.youtube.com/@techparamveer'},
   {id:'twitter',title:'X / Twitter',subtitle:'@techparamveer',pages:['Ideas and updates.'],url:'https://x.com/techparamveer'},
   {id:'tiktok',title:'TikTok',subtitle:'@techparamveer',pages:['Projects and short videos.'],url:'https://www.tiktok.com/@techparamveer'}]},
+ {id:'hack-ldn-2025',title:'Hack LDN 2025',subtitle:'CogniLink · Knowunity track',color:'#31373f',icon:'/portfolio/hack-ldn-2025.svg',entries:[cognilink]},
 ];
 export function getApp(id?:string|null){return apps.find(app=>app.id===id);}

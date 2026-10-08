@@ -134,11 +134,11 @@ test('reduced window endpoint uses the existing pause receipt and cannot replay 
   });
 });
 
-test('compact, dialog, close, stale capture and asset disposal keep the existing settled or explicit failure paths', async () => {
+test('compact keeps pause appearance while dialog, close, stale capture and disposal keep existing boundaries', async () => {
   await fixture(({ screens, paint, capture, assets }) => {
     const state = suspended(); paint(state, 100);
     const compact = settleHomeNavigation(selectHomeSlot(state, state.selected + 1));
-    let pair = paint(compact, 101); assert.equal(appear(pair.events), undefined); assert.equal(pane(window(pair.events), 'N_Wndw_00').alpha, 255);
+    let pair = paint(compact, 101); assert.equal(appear(pair.events), 1); assert.equal(pane(window(pair.events), 'N_Wndw_00').alpha, 7);
     const dialog = reduceSystem(state, 'back', 6700); pair = paint(dialog, 102); assert.equal(appear(pair.events), undefined);
     const close = reduceSystem(dialog, 'open', 6800); pair = paint(close, 103); assert.equal(appear(pair.events), undefined);
     assert.equal(window(pair.events).options.bindings.find(binding => binding.name.endsWith('_WhiteBlack')).frame, 0, 'close composition retains its existing selector');

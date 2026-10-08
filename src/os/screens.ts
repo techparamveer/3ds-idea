@@ -16,7 +16,7 @@ import { createFirmwareHome, type FirmwarePresentationAssets } from './firmware-
 import { createHomeLayoutManager, type HomeLayoutPreview } from './home-native-layouts';
 import {homeSoftwareDialogKey,homeSoftwareClosingDialogKey,homeSoftwareDialogTitles,drawHomeSoftwareDialog} from './home-software-dialog';
 import {drawHomeSoftwareClosingDialog} from './home-software-closing-dialog';
-import { homeSuspendedApplication, homeSuspendedIconDisappeared, retainedSuspendedApplication, selectedSuspendedApplication, drawHomeSuspendedWindow, type SuspendedWindowMetadata } from './home-suspended-window';
+import { homeSuspendedApplication, homeSuspendedIconDisappeared, homeSuspendedWindowEntryFrame, retainedSuspendedApplication, selectedSuspendedApplication, drawHomeSuspendedWindow, type SuspendedWindowMetadata } from './home-suspended-window';
 import { homeCloseWindowOpacity } from './home-close-window-fit';
 import { sampleSystemHomeApplicationTransition } from './system-home-application-transition';
 import { createHomeSuspendedPresentation, getHomeSuspendedSleepFrame, syncHomeSuspendedPresentation } from './home-suspended-presentation';
@@ -482,7 +482,8 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const folder=getHomeFolderIdentity(state,state.selected),system=state.system;
   return folder&&system?{folder,firmwareGeneration:folderEntryBannerGeneration,
    systemGeneration:system.homeFolderClose.generation,application:system.runtime.application,
-   navigationRevision:getHomeNavigation(state).selectionRevision,closeSequence:system.homeFolderClose.nextTransitionId}:null;
+   navigationRevision:getHomeNavigation(state).selectionRevision,closeSequence:system.homeFolderClose.nextTransitionId,
+   rootView:getHomeNavigation(state).rootView}:null;
  }
  function folderEntryEligible(state:MenuState):boolean {
   return !!state.system&&state.powered&&state.system.phase==='home'&&!state.system.sleeping&&!state.system.preferences&&!state.system.dialog&&!state.panel&&!isSystemHomeFolderClosing(state);
@@ -764,10 +765,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    // separately captured ordinary-close route applies the fitted upper fade.
    const closeOpacity=homeSoftwareClosingDialogKey(state)&&applicationTransition?.intent.kind==='close'
     ?homeCloseWindowOpacity(reduced?20:applicationTransition.appQuitFrame):undefined;
-   const windowAppearFrame=pauseEligible&&expanded&&!state.panel&&pauseMotion?.identity.kind==='pause'
-    &&suspendedCapture.status==='ready'&&pauseMotion.identity.owner===suspended.id
-    &&pauseMotion.identity.owner===suspendedCapture.owner&&pauseMotion.identity.captureGeneration===suspendedCapture.generation
-    ?Math.min(10,pauseMotion.elapsedUpdates):undefined;
+   const windowAppearFrame=pauseEligible?homeSuspendedWindowEntryFrame(state,suspendedCapture,pauseMotion):undefined;
    drawHomeSuspendedWindow(firmwareAssets.renderer,t,suspendedMetadata.metadata,expanded?'expanded':'compact',suspendedSleepFrame,closeOpacity,windowAppearFrame);
   }
   // Native descending layout priority: upperBase499 then HUD100, both

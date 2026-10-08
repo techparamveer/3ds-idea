@@ -38,6 +38,7 @@ checks pass with documented raster-edge residuals; exact 1:1 remains unclaimed.
 Revision 4 starts from checked HEAD `605858d2cce583fe862f43f61a943527384ceacd`.
 User asks for flat lettering again; remove wordmark depth, bevel and tilt.
 Revision 4 rendered and served on the isolated muted port 3048 preview.
+Revision 4 implementation: `9ef09d407c34b999b6d7b114a4182643eec89215` (Git supplies the documentation checkpoint HEAD).
 Revision 4 browser-inspected: flat graphite text on the NVIDIA HOME banner.
 Typecheck, build and shader pass; full suite retains the known missing Camera
 fixture failure (2,167 pass, one fail). Next: user visual review. Native queue remains unrelated.

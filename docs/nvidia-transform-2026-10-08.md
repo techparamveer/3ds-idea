@@ -3,6 +3,7 @@
 User-requested portfolio adaptation on `codex/nvidia-transform`, based on
 `5ee6fd7a42b0239c5f55f375f85593289a0ff532`. The old fidelity checkout in STATUS
 was absent; this branch uses a separate managed worktree from current `main`.
+Implementation commit: `efe4e8da743a90ed67e817c7bd0b0da4d7d87e7f`.
 
 Selecting NVIDIA previously showed the generic logo plaque on HOME, and opening
 it showed the Renu photograph immediately. HOME and the app landing screen now

@@ -18,6 +18,8 @@ because the repository instructions prohibit new artifacts on DeveloperStorage.
 Preview: `http://127.0.0.1:3048/?lcdCapture=1`, production build from this branch.
 The isolated browser session has app mute enabled and volume zero.
 Delivered and browser-inspected; see [Nvidia notes](docs/nvidia-transform-2026-10-08.md).
+Implementation commit: `efe4e8da743a90ed67e817c7bd0b0da4d7d87e7f`.
+This checkpoint records that implementation; use Git for the current documentation HEAD.
 Next for this branch: user review. Native queue below remains unrelated.
 The historical serving/seats/evidence below are preserved, not verified live.
 

@@ -60,6 +60,26 @@ test('folder banner stays selected through the lower terminal then uses the orig
  assert.equal(session.presentRelease(release,owner),true);assert.equal(session.active(owner),false);
 });
 
+test('retained banner consumes folder clock deltas without hiding in the terminal crossing receipt',()=>{
+ const session=createHomeFolderEntryBanner(),candidate=source().source;session.presentRoot(candidate,rootOwner);
+ let lifecycle=candidate.lifecycle,pending=session.sample(owner,motion(0));session.present(pending,owner,motion(0));
+ for(const elapsed of [3,6,9,12,15,18]){
+  lifecycle=advanceHomeBannerClips(advanceHomeBannerManager(lifecycle,3),3);
+  pending=session.sample(owner,motion(elapsed));assert.deepEqual(pending.primary.motion,lifecycle.active.motion);
+  assert.equal(pending.phase,'entry');assert.equal(pending.primary.motion.visible,true);
+  session.present(pending,owner,motion(elapsed));
+ }
+ lifecycle=setHomeBannerVisibility(lifecycle,false);
+ for(let update=0;update<3;update++)lifecycle=advanceHomeBannerClips(advanceHomeBannerManager(lifecycle,1),1);
+ pending=session.sample(owner,motion(21));assert.deepEqual(pending.primary.motion,lifecycle.active.motion);
+ assert.equal(pending.phase,'hiding');assert.equal(pending.primary.motion.visible,true);session.present(pending,owner,motion(21));
+ for(let update=0;update<3;update++)lifecycle=advanceHomeBannerClips(advanceHomeBannerManager(lifecycle,1),1);
+ pending=session.sample(owner,motion(24));assert.deepEqual(pending.primary.motion,lifecycle.active.motion);
+ assert.equal(pending.phase,'hidden');assert.equal(pending.primary.motion.visible,false);
+ assert.equal(session.sampleRelease(owner),null,'hidden endpoint is not releasable before its receipt');
+ session.present(pending,owner,motion(24));assert.ok(session.sampleRelease(owner));
+});
+
 test('hidden, diagnostic, failed and context revocation discard pending motion and require terminal rebasing',()=>{
  const session=createHomeFolderEntryBanner();session.presentRoot(source().source,rootOwner);
  let pending=session.sample(owner,motion(0));session.present(pending,owner,motion(0));

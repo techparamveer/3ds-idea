@@ -53,8 +53,9 @@ export function acknowledgeHomeEntryMotionCandidate(candidate: HomeEntryMotion |
   return Object.freeze({ ...candidate, observedUpdate: updateCount });
 }
 
-/** Samples the existing HOME clock. First successful live pair owns frame zero;
- * At most one source step per receipt is a browser scheduling adaptation. */
+/** Samples the existing HOME clock. First successful live pair owns frame zero.
+ * Folder entry follows bounded eligible nominal-60-Hz HOME deltas; that cadence
+ * and pause's existing one-step-per-receipt policy are browser adaptations. */
 export function sampleHomeEntryMotion(current: HomeEntryMotion | null,
   identity: HomeEntryMotionIdentity | null, updateCount: number, eligible: boolean): HomeEntryMotion | null {
   if (!Number.isSafeInteger(updateCount) || updateCount < 0) throw new RangeError('Invalid HOME entry-motion update count');
@@ -70,8 +71,11 @@ export function sampleHomeEntryMotion(current: HomeEntryMotion | null,
   if (updateCount < current.observedUpdate) throw new RangeError('HOME entry-motion clock moved backwards');
   if (updateCount === current.observedUpdate) return current;
   const updates = updateCount - current.observedUpdate;
+  const elapsedUpdates = current.elapsedUpdates + (eligible && updates <= HOME_ENTRY_MAX_OBSERVED_UPDATE_GAP
+    ? identity.kind === 'folder' ? updates : 1
+    : 0);
   return Object.freeze({ ...current, observedUpdate: updateCount,
-    elapsedUpdates: current.elapsedUpdates + (eligible && updates <= HOME_ENTRY_MAX_OBSERVED_UPDATE_GAP ? 1 : 0) });
+    elapsedUpdates });
 }
 
 export function homeFolderEntryPose(motion: HomeEntryMotion | null, reduced = false): HomeFolderEntryPose | null {

@@ -38,9 +38,9 @@ test('inhibited updates freeze entry and do not become catch-up work on resume',
   const start = sampleHomeEntryMotion(null, folder, 20, true);
   const moving = sampleHomeEntryMotion(start, folder, 24, true);
   const hidden = sampleHomeEntryMotion(moving, folder, 60, false);
-  assert.deepEqual(homeFolderEntryPose(hidden), { folderFrame: 1, captureFrame: 1 });
+  assert.deepEqual(homeFolderEntryPose(hidden), { folderFrame: 4, captureFrame: 4 });
   const resumed = sampleHomeEntryMotion(hidden, folder, 61, true);
-  assert.deepEqual(homeFolderEntryPose(resumed), { folderFrame: 2, captureFrame: 2 });
+  assert.deepEqual(homeFolderEntryPose(resumed), { folderFrame: 5, captureFrame: 5 });
   assert.equal(sampleHomeEntryMotion(null, folder, 20, false), null);
 });
 
@@ -73,21 +73,22 @@ test('pause entry selects the original AppPause scale and tint clip without an A
   }
 });
 
-test('browser stall policy preserves midpoint poses and ordinary gaps spend at most one source step', () => {
+test('browser stall policy rebases large gaps while folder and pause preserve their distinct cadence policies', () => {
   assert.equal(HOME_ENTRY_MAX_OBSERVED_UPDATE_GAP, 6);
-  for (const identity of [folder, pause]) {
+  for (const [identity, expected] of [[folder, [3, 9, 12]], [pause, [1, 2, 3]]]) {
     const start = sampleHomeEntryMotion(null, identity, 100, true);
     const moving = sampleHomeEntryMotion(start, identity, 103, true);
     const normal = sampleHomeEntryMotion(moving, identity, 109, true);
-    assert.equal(normal.elapsedUpdates, 2, 'one missed nominal pair cannot skip a source pose');
+    assert.equal(moving.elapsedUpdates, expected[0]);
+    assert.equal(normal.elapsedUpdates, expected[1]);
     const stall = sampleHomeEntryMotion(normal, identity, 2000, true);
-    assert.equal(stall.elapsedUpdates, 2);
+    assert.equal(stall.elapsedUpdates, expected[1]);
     assert.equal(stall.observedUpdate, 2000);
     assert.equal(sampleHomeEntryMotion(stall, identity, 2000, true), stall);
     const resumed = sampleHomeEntryMotion(stall, identity, 2003, true);
-    assert.equal(resumed.elapsedUpdates, 3, 'resume spends one source step after ordinary HOME updates');
+    assert.equal(resumed.elapsedUpdates, expected[2]);
     const anotherStall = sampleHomeEntryMotion(resumed, identity, 2010, true);
-    assert.equal(anotherStall.elapsedUpdates, 3, 'threshold plus one is inhibited');
+    assert.equal(anotherStall.elapsedUpdates, expected[2], 'threshold plus one is inhibited');
     assert.equal(sampleHomeEntryMotion(anotherStall, null, 2011, true), null);
     const fresh = sampleHomeEntryMotion(null, identity, 2012, true);
     assert.equal(fresh.elapsedUpdates, 0, 'a repeated entry starts from zero instead of the old midpoint');
@@ -123,20 +124,30 @@ test('owner-bound candidates retain the selected pair until receipt and drop off
   }
 });
 
-test('30 and 45 FPS receipts preserve every source pose without changing the quality budget', () => {
-  for (const gaps of [[2], [1, 2], [3], [5]]) {
-    for (const identity of [folder, pause]) {
-      let presented = null, update = 100;
-      const last = identity.kind === 'folder' ? 16 : 20;
-      for (let frame = 0; frame <= last; frame++) {
-        const candidate = sampleHomeEntryMotionCandidate(presented, null, identity, update, true);
-        assert.equal(candidate.elapsedUpdates, frame);
-        assert.equal(sampleHomeEntryMotionCandidate(presented, candidate, identity, update + 1, true), candidate);
-        presented = acknowledgeHomeEntryMotionCandidate(candidate, identity, update + 1, true);
-        update += 1 + gaps[frame % gaps.length];
-      }
-      assert.equal(homeEntryMotionActive(presented), false);
+test('folder cadence follows eligible 60, 30 and 20 FPS-style HOME deltas', () => {
+  for (const [fps, gap, expected] of [
+    [60, 1, Array.from({ length: 17 }, (_value, frame) => frame)],
+    [30, 2, [0, 2, 4, 6, 8, 10, 12, 14, 16]],
+    [20, 3, [0, 3, 6, 9, 12, 15, 16]],
+  ]) {
+    let presented = null, update = 100;
+    const actual = [];
+    while (!presented || homeEntryMotionActive(presented)) {
+      const candidate = sampleHomeEntryMotionCandidate(presented, null, folder, update, true);
+      actual.push(homeFolderEntryPose(candidate).folderFrame);
+      assert.equal(sampleHomeEntryMotionCandidate(presented, candidate, folder, update + gap, true), candidate);
+      presented = acknowledgeHomeEntryMotionCandidate(candidate, folder, update, true);
+      update += gap;
     }
+    assert.deepEqual(actual, expected, `${fps} FPS-style receipts`);
+  }
+});
+
+test('pause cadence remains one source step per eligible receipt across ordinary HOME deltas', () => {
+  let sampled = sampleHomeEntryMotion(null, pause, 100, true);
+  for (const [receipt, gap] of [1, 2, 3, 6].entries()) {
+    sampled = sampleHomeEntryMotion(sampled, pause, sampled.observedUpdate + gap, true);
+    assert.equal(sampled.elapsedUpdates, receipt + 1);
   }
 });
 
@@ -145,7 +156,7 @@ test('revoked pairs rebase the last receipt-backed pose and reduced candidates t
     const start = sampleHomeEntryMotionCandidate(null, null, identity, 100, true);
     let presented = acknowledgeHomeEntryMotionCandidate(start, identity, 100, true);
     const unpresented = sampleHomeEntryMotionCandidate(presented, null, identity, 102, true);
-    assert.equal(unpresented.elapsedUpdates, 1);
+    assert.equal(unpresented.elapsedUpdates, identity.kind === 'folder' ? 2 : 1);
     const resumed = sampleHomeEntryMotionCandidate(presented, null, identity, 104, true, true);
     assert.equal(resumed.elapsedUpdates, 0, 'brief invalid interval must discard the unpresented pose');
     presented = acknowledgeHomeEntryMotionCandidate(resumed, identity, 105, true);

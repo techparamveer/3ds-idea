@@ -41,6 +41,14 @@ function sameEntryScope(a: HomeFolderEntryBannerOwner | null, b: HomeFolderEntry
   return sameScope(a, b) && a?.rootView === b?.rootView;
 }
 
+function advanceRetainedBanner(lifecycle: HomeBannerLifecycle, updates: number): HomeBannerLifecycle {
+  let next = lifecycle;
+  for (let update = 0; update < updates; update++) {
+    next = advanceHomeBannerClips(advanceHomeBannerManager(next, 1), 1);
+  }
+  return next;
+}
+
 /** Preparation is not publication. The caller must have drawn this exact
  * native primary and acknowledge its paired WebGL render separately. */
 export function homeFolderEntryBannerSource(owner: HomeFolderEntryBannerOwner, view: HomeBannerHostView,
@@ -76,8 +84,8 @@ export function homeFolderEntryBannerSource(owner: HomeFolderEntryBannerOwner, v
 }
 
 /** Source ordering puts child refresh after lower-controller completion.
- * Lower-terminal receipt starts the original normal visibility producer. One
- * producer pass per receipt and this start boundary are browser adaptations. */
+ * The lower-terminal receipt starts the original normal visibility producer;
+ * that exact receipt boundary remains a browser adaptation. */
 export function createHomeFolderEntryBanner() {
   let source: HomeFolderEntryBannerSource | null = null;
   let entry: HomeFolderEntryBannerSource | null = null, presented: HomeFolderEntryBannerPose | null = null;
@@ -131,7 +139,7 @@ export function createHomeFolderEntryBanner() {
         if (phase === 'entry' && presented.elapsedUpdates >= HOME_FOLDER_ENTRY_LAST_FRAME) {
           lifecycle = setHomeBannerVisibility(lifecycle, false); phase = 'hiding';
         }
-        lifecycle = advanceHomeBannerClips(advanceHomeBannerManager(lifecycle, 1), 1);
+        lifecycle = advanceRetainedBanner(lifecycle, motion.elapsedUpdates - presented.elapsedUpdates);
         if (phase === 'hiding' && !lifecycle.active?.motion?.visible) phase = 'hidden';
       }
       const nextMotion = lifecycle.active?.motion;

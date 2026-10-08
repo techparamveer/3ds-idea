@@ -105,7 +105,7 @@ test('real host defers child request and activation until source receipts, then 
    setHost(getHomeBannerHostView(host));return host.clock.updateCount;
   };
   for(let cycle=0;cycle<2;cycle++){
-  const frames=reduced?[16]:Array.from({length:17},(_,i)=>i);
+  const frames=reduced?[16]:[0,3,6,9,12,15,16];
   for(const frame of frames){
    const pair=paint(state,advance(),frame!==16);assert.equal(lower(pair.events).folderFrame,frame);
    assert.equal(host.selection.kind,'folder');assert.equal(host.pending.requestEpoch,rootRequest);
@@ -163,15 +163,16 @@ test('unpresented, foreign, replaced and failed root resources cannot invent fol
 test('context, sleep, diagnostic and monotonic retry rebase source motion; terminal restoration still needs a receipt',async()=>{
  await fixture(({screens,paint,setHost,fail})=>{
   const state=prepare(root(),setHost,paint);paint(state,101);let pair=paint(state,104),visible=structuredClone(banner(pair.events).args[0]);
+  assert.equal(lower(pair.events).folderFrame,3);
   paint(state,105,false);screens.revokeHomeEntryMotionCandidate();assert.equal(screens.presentHomeEntryMotion(at(state,106)),false);
-  pair=paint(state,107);assert.equal(lower(pair.events).folderFrame,1);assert.deepEqual(banner(pair.events).args[0],visible);
-  pair=paint(state,108);visible=structuredClone(banner(pair.events).args[0]);assert.equal(lower(pair.events).folderFrame,2);
+  pair=paint(state,107);assert.equal(lower(pair.events).folderFrame,3);assert.deepEqual(banner(pair.events).args[0],visible);
+  pair=paint(state,108);visible=structuredClone(banner(pair.events).args[0]);assert.equal(lower(pair.events).folderFrame,4);
   fail(true);paint(state,109);assert.equal(screens.stockStatus(state),'error');fail(false);screens.retryStockScreen();
-  pair=paint(state,110);assert.equal(lower(pair.events).folderFrame,2);assert.deepEqual(banner(pair.events).args[0],visible);
+  pair=paint(state,110);assert.equal(lower(pair.events).folderFrame,4);assert.deepEqual(banner(pair.events).args[0],visible);
   paint(state,111,false,{homeCursorLoopFrame:0});assert.equal(screens.presentHomeEntryMotion(at(state,111)),false);
-  pair=paint(state,112);assert.equal(lower(pair.events).folderFrame,2);assert.deepEqual(banner(pair.events).args[0],visible);
+  pair=paint(state,112);assert.equal(lower(pair.events).folderFrame,4);assert.deepEqual(banner(pair.events).args[0],visible);
   paint({...state,system:{...state.system,sleeping:true}},113,false);assert.equal(screens.presentHomeEntryMotion(at(state,113)),false);
-  pair=paint(state,114);assert.equal(lower(pair.events).folderFrame,2);assert.deepEqual(banner(pair.events).args[0],visible);
+  pair=paint(state,114);assert.equal(lower(pair.events).folderFrame,4);assert.deepEqual(banner(pair.events).args[0],visible);
   for(let update=115;update<=128;update++)pair=paint(state,update);
   assert.equal(lower(pair.events).folderFrame,16);const terminal=structuredClone(banner(pair.events).args[0]);
   screens.revokeHomeEntryMotionCandidate();pair=paint(state,129,false);assert.deepEqual(banner(pair.events).args[0],terminal);
@@ -362,17 +363,17 @@ test('mid-hide failed, diagnostic, context and stalled pairs rebase without skip
  await fixture(({screens,paint,setHost,fail})=>{
   const state=prepare(root(),setHost,paint);for(let frame=0;frame<=16;frame++)paint(state,101+frame);
   let pair=paint(state,118);assert.equal(banner(pair.events).args[0].scale,.949999988079071);
-  pair=paint(state,121);assert.equal(banner(pair.events).args[0].scale,.8999999761581421);
+  pair=paint(state,121);assert.equal(banner(pair.events).args[0].scale,.800000011920929);
   const shown=structuredClone(banner(pair.events).args[0]);paint(state,122,false);
   fail(true);paint(state,123);assert.equal(screens.stockStatus(state),'error');fail(false);screens.retryStockScreen();
   pair=paint(state,124);assert.deepEqual(banner(pair.events).args[0],shown);assert.equal(screens.stockStatus(state),'loading');
   paint(state,125,false,{homeCursorLoopFrame:0});pair=paint(state,126);assert.deepEqual(banner(pair.events).args[0],shown);
   pair=paint(state,1000);assert.deepEqual(banner(pair.events).args[0],shown,'oversized HOME observations cannot spend hide motion');
-  pair=paint(state,1001);assert.equal(banner(pair.events).args[0].scale,.8500000238418579);
+  pair=paint(state,1001);assert.equal(banner(pair.events).args[0].scale,.949999988079071);
   const prior=structuredClone(banner(pair.events).args[0]);screens.revokeHomeEntryMotionCandidate();
   pair=paint(state,1002);assert.deepEqual(banner(pair.events).args[0],prior);
-  pair=paint(state,1003);assert.equal(banner(pair.events).args[0].scale,.800000011920929);
-  pair=paint(state,1004,false);assert.equal(banner(pair.events).args[0].visible,false);assert.equal(screens.stockStatus(state),'loading');
+  pair=paint(state,1003);assert.ok(!banner(pair.events));assert.ok(pair.events.some(e=>e.name==='default-banner'));
+  pair=paint(state,1004,false);assert.ok(!banner(pair.events));assert.equal(screens.stockStatus(state),'ready');
   const escaped=escapeUnreadyNativeScreen(pair.state,30000),reentered=enterHomeFolder(escaped,19);
   assert.equal(screens.presentHomeEntryMotion(at(reentered,1005)),false);paint(reentered,1005);
   assert.equal(screens.stockStatus(reentered),'error');assert.match(String(screens.stockFailure()),/matching presented root banner/);

@@ -1,5 +1,6 @@
 import type { StockModelBackground } from './stock-model-background';
 import * as THREE from 'three';
+import { createNvidiaBanner } from './nvidia-banner';
 import { apps, getApp, type PortfolioApp } from './apps';
 import { currentEntry, getActiveAppView, selectedApp } from './system';
 import { getTitle } from './app-registry';
@@ -75,12 +76,13 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
   return s&&(s.phase==='launch'||s.phase==='app')&&!s.sleeping&&!s.preferences&&!s.dialog&&s.runtime.active&&view
    ?stockScreens.status(view,s.runtime.active,nativeFonts.get(context)):'inactive' as const;
  }
+ const nvidiaBanner=createNvidiaBanner();
  const menuIcons=new Map<string,HTMLCanvasElement>();
  const images=new Map<string,HTMLImageElement>();
  // HOME needs the menu icons before its first paint. Entry photos appear only
  // inside an app, so they download in the background instead of delaying startup.
  const load=(url:string)=>{if(images.has(url))return;const image=new Image();image.src=url;images.set(url,image);return image.decode();};
- const ready=Promise.allSettled([...new Set(apps.filter(a=>a.icon.startsWith('/')).map(a=>a.icon))].map(load)).then(()=>{menuIcons.clear();});
+ const ready=Promise.allSettled([...([...new Set(apps.filter(a=>a.icon.startsWith('/')).map(a=>a.icon))].map(load)),nvidiaBanner.ready]).then(()=>{menuIcons.clear();});
  for(const url of new Set(apps.flatMap(a=>a.entries.flatMap(e=>e.images??[]))))load(url)?.catch(()=>undefined);
  function fit(c:C,url:string,x:number,y:number,w:number,h:number){const im=images.get(url);if(!im?.naturalWidth)return false;const k=Math.min(w/im.naturalWidth,h/im.naturalHeight);c.drawImage(im,x+(w-im.naturalWidth*k)/2,y+(h-im.naturalHeight*k)/2,im.naturalWidth*k,im.naturalHeight*k);return true;}
  function icon(c:C,app:PortfolioApp,x:number,y:number,size:number){
@@ -108,7 +110,7 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
   // HOME software artwork is 48×48 inside the 72×72 two-row tile.
   const size=Math.round(tileSize*2/3);menuArtwork(c,app,Math.round(x+(tileSize-size)/2),Math.round(y+(tileSize-size)/2),size,size);
  }
- // One small rasterized 3D scene shared by every HOME banner.
+ // One small rasterized 3D scene shared by the other portfolio HOME banners.
  let renderer:THREE.WebGLRenderer|undefined;
  try{renderer=new THREE.WebGLRenderer({alpha:true,antialias:false});renderer.setSize(180,148);renderer.setPixelRatio(1);renderer.outputColorSpace=THREE.SRGBColorSpace;}catch{/* Flat icon remains available on context-constrained devices. */}
  const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(34,180/148,.1,100);camera.position.z=5.3;
@@ -120,15 +122,18 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
  const art=document.createElement('canvas');art.width=art.height=128;const ac=art.getContext('2d')!;const texture=new THREE.CanvasTexture(art);texture.colorSpace=THREE.SRGBColorSpace;texture.magFilter=THREE.NearestFilter;
  const faceMaterial=new THREE.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false});const face=new THREE.Mesh(new THREE.PlaneGeometry(1.75,1.75),faceMaterial);face.position.z=.22;group.add(face);let previous='';
  function banner(c:C,app:PortfolioApp,time:number,reduced:boolean){
+  if(app.id==='nvidia'){if(!nvidiaBanner.draw(c,time,reduced))icon(c,app,151,62,98);}
+  else {nvidiaBanner.reset();
   if(renderer){if(previous!==app.id){ac.clearRect(0,0,128,128);icon(ac,app,0,0,128);texture.needsUpdate=true;previous=app.id;}
    group.rotation.set(reduced?-.06:Math.sin(time/1800)*.06,reduced?-.12:Math.sin(time/2100)*.32,0);group.position.y=reduced?0:Math.sin(time/900)*.035;renderer.render(scene,camera);c.drawImage(renderer.domElement,110,35,180,148);
   }else icon(c,app,151,62,98);
+  }
   box(c,55,183,290,33,12,'#ffffffcb');label(c,app.title,200,199,19,'#454952','center');label(c,app.subtitle,200,229,11,'#686b79','center');
  }
  function application(t:C,b:C,state:MenuState,time:number,reduced:boolean,nativeSystem=false){
   const s=state.system!;const app=getApp(s.app)!;const entry=currentEntry(state)!;
   t.fillStyle='#edf0f4';t.fillRect(0,24,400,216);
-  const photo=entry.images?.[s.photo];
+  const photo=app.id==='nvidia'&&!s.detail?undefined:entry.images?.[s.photo];
   if(photo){t.fillStyle='#25282d';t.fillRect(0,24,400,188);if(!fit(t,photo,0,24,400,188)){icon(t,app,158,65,84);if(images.get(photo)?.complete!==false)label(t,'Image unavailable',200,175,12,'#e0e4eb','center');}label(t,entry.title,200,226,14,'#454952','center');}
   else {banner(t,app,time,reduced);box(t,28,185,344,51,9,'#f9fafc');label(t,entry.title,200,200,17,'#454952','center');label(t,entry.subtitle,200,222,11,'#777e88','center');}
   b.fillStyle='#edf0f4';b.fillRect(0,0,320,240);const g=b.createLinearGradient(0,0,0,31);g.addColorStop(0,'#fff');g.addColorStop(1,'#d7dce3');b.fillStyle=g;b.fillRect(0,0,320,31);
@@ -185,5 +190,5 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    t.fillStyle=b.fillStyle=`rgba(0,0,0,${alpha})`;t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
   }
  }
- return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,readSuspendedCapture:suspendedCapture.read,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){stockScreens.dispose();notesIntro.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
+ return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,readSuspendedCapture:suspendedCapture.read,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){nvidiaBanner.dispose();stockScreens.dispose();notesIntro.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
 }

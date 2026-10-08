@@ -11,3 +11,12 @@ Retrieved 2026-09-16 for the owner's portfolio. Content is curated in `src/os/ap
 The Renu page has no complete project write-up. Alora and Microsoft also have limited descriptions. Do not invent achievements. HackUK event facts use the live organisation site instead of outdated upcoming-event language on the portfolio page. Media remains local so the console does not depend on third-party image servers at runtime.
 
 `nvidia.png` is a transparent, margin-trimmed 256 px rasterization of the preserved original SVG. The artwork itself is not redrawn.
+
+## Nvidia top-screen animation
+
+`nvidia-transform/atlas.png` is a transparent Blender render of an extruded
+version of the original SVG above. It follows the user's supplied box-to-logo
+video, with dark lettering for the light screen background and a four-second
+loop. This is a portfolio adaptation, not a Nintendo firmware resource.
+See `nvidia-transform/provenance.json` for source/output hashes and
+[the authoring and verification notes](../../docs/nvidia-transform-2026-10-08.md).

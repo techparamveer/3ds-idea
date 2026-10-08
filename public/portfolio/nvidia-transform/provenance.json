@@ -1,0 +1,36 @@
+{
+  "kind": "portfolio-adaptation",
+  "nativeFirmware": false,
+  "reference": {
+    "file": "user-provided video.mp4",
+    "sha256": "954bffa198c99480889355dfa045e68da7def8bc033c17f6f8df06b4e1432893",
+    "frames": 46,
+    "fps": 29.970029830932617
+  },
+  "blender": "5.2.1 LTS",
+  "render": "EEVEE, transparent RGBA, orthographic, extruded original SVG contours",
+  "delivery": {
+    "width": 180,
+    "height": 148,
+    "frames": 96,
+    "fps": 24,
+    "atlasColumns": 8,
+    "reducedMotionFrame": 52,
+    "color": "RGB555-style quantization; binary alpha; nearest-neighbour display"
+  },
+  "adaptations": [
+    "Dark wordmark for the light portfolio background",
+    "Extrusion and enamel materials",
+    "Four-second repeating loop with logo hold and reverse return",
+    "Pixel sampling and color quantization"
+  ],
+  "sha256": {
+    "public/portfolio/nvidia.svg": "5347e5188c74204767d2d4daa17b59b5a18ccd7ad0a7281e7961a83c20c96808",
+    "scripts/blender/nvidia-logo-contours.json": "913ebb09f53fb820f9f0efaaa895f451103af9f2c218fcf10cc2cc705549c998",
+    "scripts/blender/build-nvidia-transform.py": "82363603033253c6f1c3b498fdac857b1db7b5ccab46c64fd63bbc8e59869cd4",
+    "scripts/blender/pack-nvidia-transform.mjs": "0d5db3f3451eab273d98359865f22e62b41390f5463c8d54c2c4512d1b6414ec",
+    "assets/blender/nvidia-transform.blend": "af791cc0704ab24d8ce9f58dfbd74c1a3ff2e5cd5f0c607688da7732ba290cef",
+    "public/portfolio/nvidia-transform/atlas.png": "929ff6d94559026fad95ef0804e37d9961b901e3299d71f62eabfbfd6c39a20f",
+    "public/portfolio/nvidia-transform/poster.png": "f8506bdb2d3c089059b32a40043b90ccde0e33b8df953d75cb80ab8afafc2f5b"
+  }
+}

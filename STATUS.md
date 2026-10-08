@@ -3,7 +3,24 @@
 Rewrite this file whenever `HEAD` moves or localhost starts or stops.
 If this SHA disagrees with `git rev-parse HEAD`, git wins; rewrite this file before any worker.
 
-Updated: 6 October 2026.
+Updated: 8 October 2026.
+
+## Nvidia animation branch
+
+This isolated user-requested portfolio branch is `codex/nvidia-transform` at
+`/Users/paramveer/.codex/worktrees/nvidia-transform/3ds-idea`, based on
+`5ee6fd7a42b0239c5f55f375f85593289a0ff532` from current clean `main`.
+The historical fidelity checkout below no longer exists. Git inventory wins.
+Scope: Blender-authored transparent Nvidia box-to-logo banner, a labelled
+portfolio adaptation. No native firmware scenario is changed.
+Private scratch uses `/Users/paramveer/.codex/3ds-artifact-overflow/nvidia-transform-20261008/`
+because the repository instructions prohibit new artifacts on DeveloperStorage.
+Preview: `http://127.0.0.1:3048/?lcdCapture=1`, production build from this branch.
+The isolated browser session has app mute enabled and volume zero.
+Delivered and browser-inspected; see [Nvidia notes](docs/nvidia-transform-2026-10-08.md).
+Next for this branch: user review. Native queue below remains unrelated.
+The historical serving/seats/evidence below are preserved, not verified live.
+
 
 ## Product
 

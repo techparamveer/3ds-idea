@@ -1508,3 +1508,52 @@ endpoints, local/inert services, portfolio content and Manual placement remain
 adaptations or unresolved differences. All four whole flows remain fail;
 public incoming export remains approval-pending and audio muted/unverified.
 Weekly remaining was80% at launch and79% at closeout; pause75%.
+
+### Manual later-window gate abort - 8 October 2026
+
+At `b78ee5c`, reviewed plan `62dc468f` permits one later screenshot batch only
+after a fresh complete paired Manual cover. The already selected two-row Camera
+baseline `cd0be885` is decoded/opened and revalidated after capture. One actual
+Manual touch at logical50,226 returns in630ms. The single following AX/image
+shows a partial translucent outgoing cover, so the gate fails. No batch, wait,
+recovery, alternate input or browser/comparison follows. Incoming and complete
+Contents selectors remain null; this UI observation is not an own native PNG or
+native timing evidence. The prior onset32 Manual run remains immutable.
+
+Attestation `c7af5372` and own log `bbfa8132` are under private
+`manual-incoming-keyboard-20261008/run/`. Actual Quit/Yes ends session31843 with0;
+process absence is checked. Before/restored global bytes are exactly`ccd30d00`,
+launch/post-exit`4dc7bfa0`, custom`58b1e799` unchanged. Only screenshotPath is
+patched; no stale restore or geometry change occurs. The sole native PNG is
+the selected-Camera baseline, not an animation sample. Preview3022 remains
+16e2067 with the same build identity and HTTP200. Caller WIP remains unserved;
+no runtime/assets/model/build change, and prior code checks are not rerun.
+All four flows still fail. Existing native source mappings and unresolved
+host cadence, native epochs, fixture/HUD, reduced/local/portfolio and Manual
+placement differences remain unchanged. Public incoming export remains
+approval-pending; audio is muted/unverified. Weekly79%; pause75%.
+
+Checked closeout `0029b897` confirms one CRC/full-decoded baseline, one native
+save, no ignores/collisions, zero batch requests and exact config restoration.
+The bounded capture census `0ec8c5aa`, helper `d634f5f9`, rehashes prior pinned
+indices/inspections rather than new PNGs. Notes and Manual contain outgoing and
+healthy complete covers but no incoming/ready; the A folder run contains only
+closed root. The three runs retain58 structurally valid PNGs,8 visually
+unusable,30 duplicate excess,2 lost versions and39 ignored requests; categories
+overlap. HOME coverage is unknown in this bounded set. Root rerun reproduces
+the census apart from its timestamp. Another burst under the same host-return/
+GUI-gated premise is not justified; capture impossibility is not established.
+
+Census identity is
+`0ec8c5aa3444911846e70dd53d5b6e1209dd17ef6ea62bc1513aca43e7a629db`;
+helper identity is
+`d634f5f94f08305589ec41f5b5437fc80443fea6d45ef948eb9f316dfcdc52e5`.
+Both are in
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/capture-premise-20261008/`.
+Independent review clears the closeout, census and documentation, and finds no
+already-authorized meaningful runtime task. The unanswered public-export
+approval has persisted through the Notes, Camera Manual, folder and gate-abort
+continuations. Existing motion capture does not supply the missing stages;
+closed routes and audits stay closed. Checkpoint the goal as blocked pending
+human export approval or a supported different capture method. This is not a
+whole-scenario pass or the75% usage stop;79% remains.

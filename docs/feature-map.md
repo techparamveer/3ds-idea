@@ -5,6 +5,22 @@ for top-row opening, Manual opening, folder entry and HOME suspension. GitHub
 restart base is `5ee6fd7`; the historical static queue below is preserved.
 All four motion flows are currently fail pending matched frame-sequence proof.
 
+Manual later-window attempt at `b78ee5c` aborts at its reviewed complete-cover
+gate. One healthy selected-Camera baseline `cd0be885` and one actual Manual
+touch precede a single partial translucent-cover AX/image. No batch, retry,
+browser or comparison is performed; incoming/Contents selectors remain null.
+Session31843 exits0 and current global/custom restore byte-exact. Runtime,
+assets and served16e2067 are unchanged. This does not improve animation fidelity.
+All four flows fail; weekly79%, stop75%. See [the gate abort](animation-fidelity-workflow-2026-10-07.md#manual-later-window-gate-abort---8-october-2026).
+Checked closeout `0029b897` verifies the sole baseline and exact restoration.
+Bounded census `0ec8c5aa` finds no incoming/ready in the prior Notes/Manual
+bursts and only closed-root folder output. It does not justify another
+same-premise burst or prove capture impossible; HOME remains unknown there.
+Independent review finds no authorized meaningful runtime task. Goal is
+checkpointed blocked pending human export approval or a supported different
+native capture method, with79% remaining; the75% stop rule is not triggered.
+Whole-scenario animation status remains fail, not pass.
+
 Latest folder capability run at `e3ee6a5` does not demonstrate native A opening.
 Reviewed plan, fresh six-row empty-slot creation and healthy selected-folder
 baseline precede one original `a` plus32 Command-P calls. Index `a71ae71c` checks

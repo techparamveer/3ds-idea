@@ -19,6 +19,10 @@ export type HomePauseEntryPresentation = Readonly<{
   skeletal: readonly [Readonly<{ clip: 'BannerBG_SceneIn'; frame: 20 }>];
   material: readonly [Readonly<{ clip: 'BannerBG_AppPause'; frame: number }>];
 }>;
+export type HomePauseLowerPresentation = Readonly<{ fadeFrame: number | null; footerFrame: number | null }>;
+export const HOME_PAUSE_LOWER_CLEAR_AT_FRAME = 14;
+export const HOME_PAUSE_LOWER_FADE_LAST_FRAME = 40;
+export const HOME_PAUSE_LOWER_FOOTER_LAST_FRAME = 14;
 export type HomeSuspendedBackgroundPresentation = HomePauseEntryPresentation | HomeApplicationTransitionPresentation;
 
 function sameIdentity(a: HomeEntryMotionIdentity, b: HomeEntryMotionIdentity): boolean {
@@ -92,5 +96,17 @@ export function homePauseEntryPresentation(motion: HomeEntryMotion | null, reduc
     skeletal: Object.freeze([Object.freeze({ clip: 'BannerBG_SceneIn', frame: 20 })] as const),
     material: Object.freeze([Object.freeze({ clip: 'BannerBG_AppPause',
       frame: reduced ? HOME_PAUSE_ENTRY_LAST_FRAME : Math.min(HOME_PAUSE_ENTRY_LAST_FRAME, motion.elapsedUpdates) })] as const),
+  });
+}
+
+/** The clips are source-authored; their shared 0..20 host schedule is fitted
+ * only to the captured ordering because the native caller epochs are unknown. */
+export function homePauseLowerPresentation(motion: HomeEntryMotion | null, reduced = false): HomePauseLowerPresentation | null {
+  if (motion?.identity.kind !== 'pause' || reduced || motion.elapsedUpdates >= HOME_PAUSE_ENTRY_LAST_FRAME) return null;
+  const entryFrame = Math.min(HOME_PAUSE_ENTRY_LAST_FRAME, motion.elapsedUpdates);
+  const clearAt = HOME_PAUSE_LOWER_CLEAR_AT_FRAME, footerSpan = HOME_PAUSE_ENTRY_LAST_FRAME - clearAt;
+  return Object.freeze({
+    fadeFrame: entryFrame <= clearAt ? Math.round(entryFrame * HOME_PAUSE_LOWER_FADE_LAST_FRAME / clearAt) : null,
+    footerFrame: entryFrame >= clearAt ? Math.floor((entryFrame - clearAt) * HOME_PAUSE_LOWER_FOOTER_LAST_FRAME / footerSpan) : null,
   });
 }

@@ -13,7 +13,7 @@ import { getHomeFooter, getNativeFolderBalloon, getNativeFolderPanel, getNativeH
 import type { HomeTilePose } from './home-tile-pose';
 import { selectHomeSettingsBalloonText, selectHomeHealthBalloonText, selectHomeSoundBalloonText, selectHomeCameraBalloonText } from './home-balloon-presentation';
 import { selectNotesMetadata } from './notes-title-metadata';
-import { drawHomeSuspendedIcon } from './home-suspended-window';
+import { drawHomeSuspendedIcon, retainedSuspendedApplication } from './home-suspended-window';
 import { homeSoftwareClosingDialogKey, homeSoftwareDialogKey, homeSoftwareSwitchTitles } from './home-software-dialog';
 import { ownedHomeFooterContact } from './home-footer-touch';
 import { HOME_FOOTER_TOUCH_GEOMETRY, HOME_SETTINGS_MAX_SCROLL, clampHomeSettingsScroll } from './stock-screen-layout';
@@ -26,13 +26,14 @@ import { validateHomeFolderEntryAssets } from './home-folder-entry-assets';
 import { manualEntryBindings, validateManualEntryAssets } from './manual-entry-assets';
 import { appletEntryBindings, appletEntryOverrides, validateAppletEntryAssets, type AppletEntryAppId } from './applet-entry-assets';
 import type { ManualEntryPose } from './manual-entry-presentation';
+import { drawHomePauseLower } from './home-pause-lower';
 
 type Context=CanvasRenderingContext2D;
 export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;titleIcons:Map<string,HTMLImageElement>;titleIconPixels:Map<string,NativePixels>;titleDescriptions:Map<string,string>;settingsBalloonText:string|null;healthBalloonText:string|null;soundBalloonText:string|null;cameraBalloonText:string|null;diagnostics:string[];dispose():void};
 type Manifest={schema:number;firmware:string;fonts:{shared:string;hud:string};home:Record<string,string>;titles?:Record<string,{icon?:string}>};
 const homeSettingsLayouts=['PtDlgBg_U_00','PtDlgBg_D_00','PtDlgCnt_CTR','PtBtnL_Thm_00','PtBtnM_Mym_00','PtBtnT_Lgt_00','PtBtnT_Abl_00','PtBtnM_Shr_00','PtBtn_Sft_00','PtClose_00','PtSlideBar','PtLine_00','PtCsr_00'];
 const homeLayoutManagerLayouts=['MyMenuBtmBtn_D_00','MyMenuBtn_D_00','MyMenuCsr_00','MyMenuDlg_00','MyMenuDlg_01','MyMenuRandom','MyMenu_D_00','MyMenu_U_00'];
-const homeLayouts={common:['CmnFadeNinLogo_U_00','CmnFadeNinLogo_D_00','CmnFade_U_00','CmnFade_D_00'],sleep:['Slp_U_00','Slp_D_00'],hud:['HudMenu_00'],banner:['BnrDsTitle_00'],petit:homeSettingsLayouts,launcher:['LncPlt_00','LncBase_D_01','LncBase_U_00','LncBlln_00','LncCsr_00','LncCsrEfct_00','LncCsrEfct_01','LncBtmBtn_02','LncFolder_00','LncFolderCapture_00','LncIconFolder_00','LncIconFolderText_00','LncIconDist_01','LncIconSetSrc_00','LncArw_00','LncIconPickUp_00','LncIconFolderPickUp_00','LncIconPickUpBlank_00','LncIconFolderInT_00','LncIconFolderInB_00']};
+const homeLayouts={common:['CmnFadeNinLogo_U_00','CmnFadeNinLogo_D_00','CmnFade_U_00','CmnFade_D_00'],sleep:['Slp_U_00','Slp_D_00'],hud:['HudMenu_00'],banner:['BnrDsTitle_00'],petit:homeSettingsLayouts,launcher:['LncPlt_00','LncBase_D_01','LncBase_U_00','LncPauseFade_D_00','LncBlln_00','LncCsr_00','LncCsrEfct_00','LncCsrEfct_01','LncBtmBtn_02','LncFolder_00','LncFolderCapture_00','LncIconFolder_00','LncIconFolderText_00','LncIconDist_01','LncIconSetSrc_00','LncArw_00','LncIconPickUp_00','LncIconFolderPickUp_00','LncIconPickUpBlank_00','LncIconFolderInT_00','LncIconFolderInB_00']};
 
 export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/10.7.0-32E/manifest.json',signal?:AbortSignal):Promise<FirmwarePresentationAssets>{
  const base=new URL(manifestUrl,window.location.href),controller=new AbortController();
@@ -322,10 +323,11 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   }
   return true;
  }
- function footer(ctx:Context,state:MenuState,reduced=false,entrySceneInFrame?:number,launchSceneOutFrame?:number,launchDecideFrame?:number){
+ function footer(ctx:Context,state:MenuState,reduced=false,entrySceneInFrame?:number,launchSceneOutFrame?:number,launchDecideFrame?:number,pauseSceneInFrame?:number){
   if(entrySceneInFrame!==undefined&&(!Number.isInteger(entrySceneInFrame)||entrySceneInFrame<0||entrySceneInFrame>HOME_ENTRY_FOOTER_LAST_FRAME))throw new RangeError('Invalid HOME footer SceneIn frame');
   if(launchSceneOutFrame!==undefined&&(!Number.isInteger(launchSceneOutFrame)||launchSceneOutFrame<0||launchSceneOutFrame>14))throw new RangeError('Invalid HOME launch footer SceneOut frame');
   if(launchDecideFrame!==undefined&&(launchSceneOutFrame===undefined||!Number.isInteger(launchDecideFrame)||launchDecideFrame<0||launchDecideFrame>5))throw new RangeError('Invalid HOME launch footer Decide frame');
+  if(pauseSceneInFrame!==undefined&&(!Number.isInteger(pauseSceneInFrame)||pauseSceneInFrame<0||pauseSceneInFrame>14))throw new RangeError('Invalid HOME pause footer SceneIn frame');
   const actions=getHomeFooter(state,launchSceneOutFrame!==undefined);if(!actions)return true;
   const {two,left:leftAction,right:rightAction}=actions,middleAction=actions.middle??null,three=middleAction!==null;
   const leftTone=leftAction==='close-software'?'B':'W';
@@ -350,9 +352,14 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   const ordinaryEntry=entrySceneInFrame!==undefined&&!!system&&state.powered&&system.phase==='home'&&!system.sleeping
    &&!state.opened&&!state.panel&&!system.preferences&&!system.dialog&&system.app===null&&system.pending===null
    &&system.runtime.application===null&&system.homeApplicationTransition===null&&close===null;
+  const pauseEntry=pauseSceneInFrame!==undefined&&!!retainedSuspendedApplication(state)&&!system?.dialog
+   &&system?.homeApplicationTransition===null;
+  if(pauseSceneInFrame!==undefined&&!pauseEntry)throw Error('Invalid HOME pause footer owner');
   const footerPose=homeSoftwareSwitchTitles(state)||closingSwitch
    ?{clip:'LncBtmBtn_02_SceneOut' as const,frame:14}
-   :applicationFooterExit??applicationFooterReturn??(ordinaryEntry
+   :applicationFooterExit??applicationFooterReturn??(pauseEntry
+    ?{clip:'LncBtmBtn_02_SceneIn' as const,frame:pauseSceneInFrame}
+    :ordinaryEntry
     ?{clip:'LncBtmBtn_02_SceneIn' as const,frame:entrySceneInFrame}
     :launchSceneOutFrame!==undefined?{clip:'LncBtmBtn_02_SceneOut' as const,frame:launchSceneOutFrame}
     :selectHomeFolderFooterPose(close,close?state.system!.homeClock.updateCount:0,reduced));
@@ -556,5 +563,8 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   if(!renderer.draw(top,'common','CmnFade_U_00',{bindings:bindings.upper}))return false;
   return renderer.draw(bottom,'common','CmnFade_D_00',{bindings:bindings.lower,overrides});
  }
- return {appletEntry,manualEntry,hud,upperBase,settingsUpper,settingsLower,folderSettingsLower,folderNotEmptyLower,folderBalloon,folderBannerLabel,appletBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,ordinaryTitleIcon,suspendedIcon,captureFolder,empty,cursor,cursorAt,cursorEffectAt,launchCursorEffectAt,arrows,pickup,pickupAt,pickupBlankAt,liftedSource,pressOffset,rows:rowCount};
+ function pauseLower(ctx:Context,application:NativePixels,home:NativePixels,frame:number){
+  return drawHomePauseLower(renderer,ctx,application,home,frame);
+ }
+ return {appletEntry,manualEntry,pauseLower,hud,upperBase,settingsUpper,settingsLower,folderSettingsLower,folderNotEmptyLower,folderBalloon,folderBannerLabel,appletBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,ordinaryTitleIcon,suspendedIcon,captureFolder,empty,cursor,cursorAt,cursorEffectAt,launchCursorEffectAt,arrows,pickup,pickupAt,pickupBlankAt,liftedSource,pressOffset,rows:rowCount};
 }

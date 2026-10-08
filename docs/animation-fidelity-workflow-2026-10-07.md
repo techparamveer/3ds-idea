@@ -2,7 +2,7 @@
 
 The human resumed on8 October with "continue disregard that" and removed the
 75%-remaining stop rule. Continue from STATUS Next; quota pauses recorded below
-are historical. The latest human request selects GPT-6.1 Sol extra-high for
+are historical. The latest human request selects GPT-6 Astra extra-high for
 workers and reviewers. Review stays independent. All sessions stay
 muted and visual tests stay on Sidecar.
 

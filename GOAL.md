@@ -4,7 +4,8 @@ Updated 8 October 2026. GitHub remains at starting version:
 `5ee6fd7a42b0239c5f55f375f85593289a0ff532` on `origin/main`.
 
 The human resumed on8 October with "continue disregard that", revoking the
-75%-remaining stop condition. Continue the full animation goal. Earlier quota
+75%-remaining stop condition. The latest human request authorizes continuing
+without that usage cutoff. Continue the full animation goal. Earlier quota
 checkpoints remain history; do not stop again at that removed threshold.
 
 Latest checkpoint: the goal is active at runtime `a52bdfe`. The lower HOME
@@ -61,7 +62,7 @@ duration and the final screen. A matching endpoint or passing tests does not
 establish matching motion.
 
 Work in separate branches and worktrees with at most two workers. The latest
-human request on 8 October selects GPT-6.1 Sol, extra-high reasoning, for all
+human request on 8 October selects GPT-6 Astra, extra-high reasoning, for all
 new workers and reviewers. This supersedes earlier model preferences. Keep
 review independent of implementation. Normal speed is requested but not
 tool-verifiable.

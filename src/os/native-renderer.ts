@@ -177,6 +177,10 @@ export class NativeLayoutRenderer {
   const key=JSON.stringify(['text',layout.fonts[text.font],text,w,h,alpha,material,phase,direct,coverage,direct&&sourceSize?pane.size:undefined]);
   const canvas=this.cached(key,()=>{
    const canvas=surface(rasterWidth,rasterHeight),ctx=canvas.getContext('2d')!;ctx.imageSmoothingEnabled=true;
+   const implicitText=material.sourceFormat!=='FLYT'&&!material.unsupported.length&&!material.tevStages.length&&!material.alphaCompare;
+   const base=implicitText?material.bufferColor.map(value=>value/255):undefined;
+   const constants=implicitText?material.constantColors.map(color=>color.map(value=>value/255)):undefined;
+   const constant=constants?.[0]??[1,1,1,1];
    // Each mask uses the complete message for measurement, centering and advances.
    // Only ink is selected; spans never become independently positioned strings.
    const runs:{start:number;end:number;color?:number[]}[]=[];let start=0;
@@ -193,12 +197,22 @@ export class NativeLayoutRenderer {
     font.drawNative(ink,text.value,direct&&sourceSize?pane.size[0]:w,direct&&sourceSize?pane.size[1]:h,metrics.size,text.alignment,metrics.characterSpacing,metrics.lineSpacing,text.lineAlignment,phase,direct,coverage,text.colorSpans?.length?[run.start,run.end]:undefined,text.cursorAdvances,sourceSize,sourceTopLeftSampling,text.lineAdvanceScales,text.multilineBlockOrigin,text.glyphScaleSpans,text.fixedWidthSpans,text.singleLineBlockOrigin);
     ink.restore();
     const image=ink.getImageData(0,0,rasterWidth,rasterHeight);
-    for(let y=0;y<rasterHeight;y++)for(let x=0;x<rasterWidth;x++){
-     const at=(y*rasterWidth+x)*4;if(!image.data[at+3])continue;
-     const top=run.color??text.topColor,bottom=run.color??text.bottomColor;
-     const primary=interpolateNativeQuad([...top,...top,...bottom,...bottom],.5,(y+.5-phase[1]-above)/(direct&&sourceSize?pane.size[1]:h),4).map(v=>v/255);primary[3]*=alpha;
-     const tex=Array.from(image.data.subarray(at,at+4),v=>v/255);
-     image.data.set(evaluateNativeMaterial(material,[tex],primary).map(v=>v*255),at);
+    const top=run.color??text.topColor,bottom=run.color??text.bottomColor,colors=[...top,...top,...bottom,...bottom];
+    for(let y=0;y<rasterHeight;y++){
+     // Implicit text has one texture and a row-constant primary colour. Keep
+     // the scalar evaluator's operation order, without rebuilding registers per ink pixel.
+     const rowPrimary=implicitText?interpolateNativeQuad(colors,.5,(y+.5-phase[1]-above)/(direct&&sourceSize?pane.size[1]:h),4).map(v=>v/255):undefined;
+     if(rowPrimary)rowPrimary[3]*=alpha;
+     for(let x=0;x<rasterWidth;x++){
+      const at=(y*rasterWidth+x)*4;if(!image.data[at+3])continue;
+      if(rowPrimary){
+       for(let c=0;c<4;c++)image.data[at+c]=((base![c]+(constant[c]-base![c])*(image.data[at+c]/255))*rowPrimary[c])*255;
+      }else{
+       const primary=interpolateNativeQuad(colors,.5,(y+.5-phase[1]-above)/(direct&&sourceSize?pane.size[1]:h),4).map(v=>v/255);primary[3]*=alpha;
+       const tex=Array.from(image.data.subarray(at,at+4),v=>v/255);
+       image.data.set(evaluateNativeMaterial(material,[tex],primary).map(v=>v*255),at);
+      }
+     }
     }
     if(nativeDarkenBlend(material))for(let i=0;i<image.data.length;i+=4)image.data[i]=image.data[i+1]=image.data[i+2]=0;
     ink.putImageData(image,0,0);if(mask!==canvas)ctx.drawImage(mask,0,0);

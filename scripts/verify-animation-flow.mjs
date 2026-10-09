@@ -44,6 +44,22 @@ export async function selectAnimationTitle(title, { key, touch, wait }) {
   await wait(300);
 }
 
+export async function selectVacantFolderCaptureSlot({ key, state, wait }) {
+  // Keep the baseline's first-row navigation without assuming installed-title count.
+  for (let slot = 0; slot < 300; slot += 2) {
+    const observed = await state();
+    assert.equal(observed.menu, 'home', 'Folder fixture selection stays on HOME');
+    assert.equal(observed.rows, '2', 'Baseline folder fixture requires two rows');
+    assert.equal(observed.selected, String(slot), 'Folder fixture keys must reach the expected slot');
+    assert.equal(JSON.parse(observed.homeCursor ?? 'null')?.focus?.toolbarActive, false,
+      'Folder fixture selection remains on the grid');
+    const selection = JSON.parse(observed.folderBanner ?? 'null')?.selection;
+    if (selection?.kind === 'default' && /^HOME Menu\. Empty slot\./.test(observed.announcement)) return observed.selected;
+    if (slot < 298) { await key('ArrowRight'); await wait(180); }
+  }
+  throw new Error('No vacant first-row HOME slot for the folder fixture');
+}
+
 export function parsePauseHomeHold(value, { scenario, activation, durationMs }) {
   if (value === undefined) return null;
   assert.equal(scenario, 'pause', 'HOME hold is pause-only');
@@ -538,8 +554,7 @@ const selectTitle = () => selectAnimationTitle(title, { key, touch, wait: ms => 
       await touch(136, 160);
       await page.waitForTimeout(300);
     } else {
-      for (let n = 0; n < 7; n++) { await key('ArrowRight'); await page.waitForTimeout(180); }
-      assert.equal((await state()).selected, '14');
+      await selectVacantFolderCaptureSlot({ key, state, wait: ms => page.waitForTimeout(ms) });
     }
     const vacant = await state();
     assert.equal(vacant.menu, 'home');

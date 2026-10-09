@@ -29,6 +29,8 @@ let graphicsSource=compile('portfolio-screens');
 const graphicsDependencies={
  three:`export * from ${JSON.stringify(new URL('../node_modules/three/build/three.module.js',import.meta.url).href)};export class WebGLRenderer{constructor(){throw Error('GPU disabled in unit fixture');}}`,
  './apps':'export const apps=[];export const getApp=()=>undefined;',
+ './nvidia-banner':'export const createNvidiaBanner=()=>({ready:Promise.resolve(),draw:()=>false,reset(){},dispose(){}});',
+ './hack-ldn-banner':'export const createHackLdnBanner=()=>({ready:Promise.resolve(),draw:()=>false,reset(){},dispose(){}});',
  './app-registry':'export const getTitle=()=>undefined;',
  './bitmap-font':'export const measureBitmapText=()=>({width:0});',
  './notes-suspended-capture':"export const createSuspendedApplicationCapture=()=>({sync(){},record(){},read:()=>({status:'none'}),dispose(){}});",

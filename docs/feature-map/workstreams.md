@@ -1,5 +1,21 @@
 # Workstream Registry
 
+## Animation completion, 9 October 2026
+
+Coordinator integration is `3ds-animation-fidelity-20261007/3ds-idea` on
+`codex/animation-fidelity-20261007`. Clean coordinator verification is
+`opus-verification-20261009/3ds-idea` on `codex/opus-verification-20261009`.
+Only the coordinator operates muted Sidecar browser/Azahar.
+`manual-animation-finish-20261009/3ds-idea` on
+`codex/manual-animation-finish-20261009`, base6bee80f, belongs to
+`sol_manual_cover_performance` with GPT-6.1 Sol extra-high. It reserves the
+explicit common-cover compiled-raster interface in `native-layout.ts`,
+`native-renderer.ts`, `firmware-presentation.ts` and focused tests only.
+Different-model reviewer `opus_patch_review` remains independent. Initial
+read-only Opus workers completed; the follow-up stopped at its spending limit.
+No Fast selector is exposed. Moving-animation WIP remains excluded/unmerged.
+See [checkpoint](../animation-completion-checkpoint-2026-10-09.md).
+
 ## Shared Text-Layout 1-Pixel Vertical Origin - 4 October 2026
 
 Fidelity worker `3ds-text-y-offset-20261004` /

@@ -2,11 +2,21 @@
 
 The human resumed on8 October with "continue disregard that" and removed the
 75%-remaining stop rule. Continue from STATUS Next; quota pauses recorded below
-are historical. The latest direct user model request selects GPT-6.1 Sol extra-high
-for subagents. The worker override does not change the running coordinator
+are historical. The latest direct user model reply selects GPT-6.1 Sol extra-high
+Fast after Opus5.5 High reached its monthly spending limit. Fast is not exposed
+by agent tools. The worker override does not change the running coordinator
 model, and the tools do not expose a service-tier selector. All sessions stay
 muted. Visual testing must use the iPad Sidecar, leaving Codex on the Dell;
 verify actual owned-window placement before scenario inputs.
+
+## Populated entry and Manual composition, 9 October
+
+[Latest checkpoint](animation-completion-checkpoint-2026-10-09.md) records
+the seeded ordinary-folder fixture and opt-in CPU probe, both independently
+reviewed. New muted Sidecar captures have285 audited pairs/570 PNGs. Distinguish
+first incoming CPU cost from rAF coalescing and native timing. Build/window and
+visual-inspection attestations remain separate from script proof. Keep all four
+whole flows fail and preserve the unrelated uncommitted user edit in system.ts.
 
 ## Current scope and HOME receipt fix, 9 October
 

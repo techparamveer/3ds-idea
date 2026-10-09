@@ -3,6 +3,20 @@
 Updated 9 October 2026. Fetched GitHub version `c767757` is integrated through
 reviewed merge `b84e1b2`. Primary local main remains untouched at `5ee6fd7`.
 
+Latest human model reply selects GPT-6.1 Sol extra-high Fast after Opus hit its
+monthly spending limit. Use that model/effort for new implementation workers;
+agent tools have no Fast selector. Keep different-model review independent.
+The coordinator model has not changed through worker settings.
+
+Earlier human request resumed completion of all four animation flows with
+Opus 5.5 High Fast. Installed Claude Code 2.1.294 delivers Opus 5.5, but its
+preflight rejects Fast because the account's usage-credit limit is reached.
+Use Opus High at the observed standard fallback without changing billing.
+Keep independent different-model review and record actual models/speed.
+The coordinator model is unchanged; the goal API currently still says paused.
+No whole flow is verified 1:1. Finish concrete defects and matched comparison,
+not more capture-tool development unless required by a demonstrated failure.
+
 The human resumed on8 October with "continue disregard that", revoking the
 75%-remaining stop condition. The latest human request authorizes continuing
 without that usage cutoff. Continue the full animation goal. Earlier quota
@@ -12,7 +26,8 @@ Latest scope instruction, 9 October: skip icon-moving and drag animations.
 Do not spend more implementation or verification work on pickup/hover/drop.
 Keep the goal on top-row app opening, Manual opening, ordinary folder entry,
 and HOME suspension. The unmerged held-hover fix is preserved in its worktree.
-All new workers and independent reviewers use GPT-6.1 Sol extra-high.
+The latest Opus request above supersedes the earlier Sol worker preference.
+Keep the repository's independent different-model reviewer requirement.
 
 Latest runtime checkpoint: reviewed `d5c1c5a` fixes the captured HOME pause
 seven-update receipt-gap stall. Muted iPad Health baseline/corrected and compact
@@ -147,8 +162,8 @@ LCD frame sequences, including pressed feedback, intermediate poses, ordering,
 duration and the final screen. A matching endpoint or passing tests does not
 establish matching motion.
 
-Work in separate branches and worktrees with at most two workers. The latest
-direct human preference selects GPT-6.1 Sol, extra-high reasoning, for new
+Work in separate branches and worktrees with at most two workers. The earlier
+direct human preference selected GPT-6.1 Sol, extra-high reasoning, for new
 subagents. Record actual worker models rather than claiming existing agents
 changed. Keep implementation and review independent. Speed selection is not
 tool-verifiable.

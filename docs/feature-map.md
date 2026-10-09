@@ -1,5 +1,13 @@
 # Feature map — 1:1 queue
 
+9 October completion checkpoint: `fc8f0ce` enables populated ordinary entry
+without excluded moving setup; `6bee80f` measures diagnostic CPU composition.
+Muted Sidecar folder76/78 and Manual62/69 yield285 audited pairs/570 PNGs.
+Manual first/repeat in0 overlay169.1/110.6ms is measured; no per-pose cadence
+proof follows. All four flows still fail. Opus reached its spending limit;
+human selects Sol6.1 extra-high Fast, which agent tools cannot select. See
+[current delivery and remaining work](animation-completion-checkpoint-2026-10-09.md).
+
 Latest 9 October scope excludes moving animations; preserve the unmerged hover
 WIP without resuming it. Reviewed `d5c1c5a` fixes the captured HOME receipt-gap
 stall. Health baseline/corrected and compact Camera first/repeat are captured on

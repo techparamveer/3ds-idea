@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { IDBFactory } from 'fake-indexeddb';
 import * as THREE from 'three';
 import { createProjectedTouchInput, projectTouchInput } from '../scripts/reference/projected-touch-input.mjs';
-import { parseFolderFixture, populatedFolderObservation, preparePopulatedFolderFixture, returnFromPopulatedFolder } from '../scripts/reference/populated-folder-fixture.mjs';
-import { createPortfolioState, dispatchSystemEvent, tickSystem } from '../src/os/system.ts';
+import { parseFolderFixture, populatedFolderObservation, preparePopulatedFolderFixture, prepareSeededPopulatedFolderFixture, returnFromPopulatedFolder } from '../scripts/reference/populated-folder-fixture.mjs';
+import { buildPopulatedFolderSeed, validatePopulatedFolderSeed } from '../scripts/reference/populated-folder-seed.mjs';
+import { openFirmwareStorage } from '../src/os/app-persistence.ts';
+import { createPortfolioState, dispatchSystemEvent, restoreSettings, STORAGE_KEY, tickSystem } from '../src/os/system.ts';
 import { enableHomeControls } from '../src/os/home-controls.ts';
 import { rowCount } from '../src/os/state.ts';
 
@@ -98,9 +101,11 @@ test('hover retains actual pickup source after tileCandidate clears and waits fo
 
 test('populated fixture opts into one touch route while preserving existing fixture options', () => {
   for (const value of ['baseline','native-six-rows']) assert.equal(parseFolderFixture(value,{scenario:'folder',activation:'key'}),value);
-  assert.equal(parseFolderFixture('populated-health',{scenario:'folder',activation:'tile'}),'populated-health');
-  for (const activation of ['key','touch','physical']) assert.throws(() => parseFolderFixture('populated-health',{scenario:'folder',activation}), /same root-tile touch route/);
-  assert.throws(() => parseFolderFixture('populated-health',{scenario:'manual',activation:'tile'}), /folder-only/);
+  for (const value of ['populated-health','populated-health-entry']) {
+    assert.equal(parseFolderFixture(value,{scenario:'folder',activation:'tile'}),value);
+    for (const activation of ['key','touch','physical']) assert.throws(() => parseFolderFixture(value,{scenario:'folder',activation}), /same root-tile touch route/);
+    assert.throws(() => parseFolderFixture(value,{scenario:'manual',activation:'tile'}), /folder-only/);
+  }
 });
 
 test('setup and repeat use guarded actual touch operations and release the held pointer on failure', async () => {
@@ -151,4 +156,71 @@ test('ordinary input reducers create root 28 and carry Health root 8 into child 
   assert.equal(current.system.layout[8],undefined);
   tap(59,54); assert.equal(current.opened,false); assert.equal(current.selected,28);
   tap(136,160); assert.equal(current.opened,true); assert.equal(current.folderSelected,2);
+});
+
+test('seed is produced by ordinary layout APIs and survives the real legacy storage import', async () => {
+  const seed = buildPopulatedFolderSeed();
+  assert.equal(seed.storageKey,STORAGE_KEY); assert.equal(seed.folderIdentity,'home-folder:1'); assert.match(seed.sha256,/^[a-f0-9]{64}$/);
+  const storage = await openFirmwareStorage({ indexedDB: new IDBFactory(), databaseName: 'populated-seed', legacyPreferences: seed.raw });
+  try {
+    const loaded = await storage.load();
+    assert.deepEqual(loaded.issues,[]);
+    assert.equal(validatePopulatedFolderSeed(loaded.preferences).folderIdentity,seed.folderIdentity);
+  } finally { storage.dispose(); }
+});
+
+test('seed validation rejects persisted shapes other than populated Health folder 28', () => {
+  const raw = buildPopulatedFolderSeed().raw;
+  for (const [mutate,message] of [
+    [s => s.layout['8'] = 'health-safety', /restoreSettings accepts/],
+    [s => s.folders['29'] = '', /one root folder at slot 28/],
+    [s => s.folders['28'] = '', /generated folder label/],
+    [s => s.folderLayouts['28'] = { 0: 'health-safety' }, /Health alone at folder child 2/],
+    [s => delete s.layout[Object.keys(s.layout).find(slot => s.layout[slot] === 'hack-ldn-2025')], /hack-ldn-2025/],
+    [s => s.homeView.activeFolderSlot = 28, /starts on the root/],
+    [s => s.homeView.rootView.density = 4, /six rows/],
+    [s => s.homeView.folderViews['28'].selectedSlot = 0, /child 2 in one folder row/],
+  ]) {
+    const saved = JSON.parse(raw); mutate(saved);
+    assert.throws(() => validatePopulatedFolderSeed(JSON.stringify(saved)),message);
+  }
+});
+
+test('seeded root gate rejects wrong identity and leftover input', t => {
+  const dataset = data('root'); documentFor(t,dataset);
+  assert.equal(populatedFolderObservation({ stage: 'root', folderIdentity: 'folder:1' }).rootSelected,28);
+  assert.equal(populatedFolderObservation({ stage: 'root', folderIdentity: 'folder:2' }),null);
+  const cursor = change => d => { const value = JSON.parse(d.homeCursor); change(value); d.homeCursor = JSON.stringify(value); };
+  for (const mutate of [cursor(c => c.mode = 14), cursor(c => c.tilePickup = { source: { folder: null, slot: 8 } }),
+    cursor(c => c.tileTouch.pending = [{ pointerId: 1 }]), cursor(c => c.tileTouch.globalCapture = true),
+    cursor(c => c.tileTouch.widgets = { tile: { state: 1 } }), cursor(c => c.focus.toolbarActive = true),
+    d => d.rows = '5', d => d.selected = '8', d => d.dialog = 'open']) {
+    Object.assign(dataset,data('root')); mutate(dataset);
+    assert.equal(populatedFolderObservation({ stage: 'root', folderIdentity: 'folder:1' }),null);
+  }
+});
+
+test('seeded fixture sends no setup input and requires the exact populated identity', async () => {
+  const seed = { storageKey: STORAGE_KEY, raw: '{}', sha256: 'a'.repeat(64), method: 'seed', folderIdentity: 'home-folder:1' };
+  const observed = (change = {}) => ({ rows: 6, rootSelected: 28, selection: { kind: 'folder', key: 'home-folder:1', nativeType: 10 }, ...change });
+  const requests = [];
+  const fixture = await prepareSeededPopulatedFolderFixture({ seed, waitFor: async request => { requests.push(request); return observed(); } });
+  assert.deepEqual(requests,[{ stage: 'root', folderIdentity: 'home-folder:1' }]);
+  assert.deepEqual([fixture.entryRoute,fixture.backRoute],[{ kind: 'touch', x: 136, y: 160 },{ kind: 'touch', x: 59, y: 54 }]);
+  assert.match(fixture.adaptation,/^Verification adaptation/); assert.equal(fixture.nativeCompared,false);
+  for (const [change,message] of [[{ selection: { kind: 'folder', key: 'home-folder:2', nativeType: 10 } },/exact seeded folder identity/],
+    [{ selection: { kind: 'folder', key: 'home-folder:1', nativeType: 9 } },/populated/],[{ rows: 5 },/six rows/],[{ rootSelected: 8 },/slot 28/]])
+    await assert.rejects(prepareSeededPopulatedFolderFixture({ seed, waitFor: async () => observed(change) }),message);
+  await assert.rejects(prepareSeededPopulatedFolderFixture({ seed: { ...seed, folderIdentity: '' }, waitFor: async () => observed() }),/restored folder identity/);
+});
+
+test('restored seed reaches Health child 2 by ordinary root-tile entry on first and repeat', () => {
+  let current = enableHomeControls(tickSystem(restoreSettings(createPortfolioState(),buildPopulatedFolderSeed().raw),3001)), now = 4000;
+  const tap = (x,y) => { for (const phase of ['down','up']) current = dispatchSystemEvent(current,{ type: 'touch', phase, x, y, pointerId: 1 },now++); now += 700; current = tickSystem(current,now); };
+  assert.equal(current.opened,false); assert.equal(current.selected,28); assert.equal(rowCount(current),6);
+  for (let cycle = 0; cycle < 2; cycle++) {
+    tap(136,160); assert.equal(current.opened,true); assert.equal(current.folderSelected,2); assert.equal(rowCount(current),1);
+    assert.equal(current.system.folderLayouts[28][2],'health-safety');
+    tap(59,54); assert.equal(current.opened,false); assert.equal(current.selected,28);
+  }
 });

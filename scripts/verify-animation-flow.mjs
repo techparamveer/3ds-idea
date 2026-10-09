@@ -8,7 +8,7 @@ import { isDeepStrictEqual, parseArgs } from 'node:util';
 import { folderCapturePrecondition } from './reference/folder-capture-precondition.mjs';
 import { pauseCapturePrecondition } from './reference/pause-capture-precondition.mjs';
 import { createProjectedTouchInput } from './reference/projected-touch-input.mjs';
-import { parseFolderFixture, populatedFolderObservation, preparePopulatedFolderFixture, returnFromPopulatedFolder } from './reference/populated-folder-fixture.mjs';
+import { parseFolderFixture, populatedFolderObservation, preparePopulatedFolderFixture, prepareSeededPopulatedFolderFixture, returnFromPopulatedFolder } from './reference/populated-folder-fixture.mjs';
 
 export function manualCaptureHeading(title) {
   const headings = { settings: 'System Settings', camera: 'Nintendo 3DS Camera', browser: 'Internet Browser' };
@@ -480,7 +480,10 @@ if (values.scenario === 'pause') assert.ok(['health', 'camera', 'sound', 'portfo
 if (values.scenario === 'manual') assert.equal(values.activation, 'touch', 'Manual requires --activation touch');
 if (values.scenario === 'pause') assert.notEqual(values.activation, 'touch', 'Pause supports key or physical HOME');
 const folderFixture = parseFolderFixture(values['folder-fixture'], { scenario: values.scenario, activation: values.activation });
-const populatedFolder = folderFixture === 'populated-health';
+const seededFolder = folderFixture === 'populated-health-entry';
+const populatedFolder = folderFixture === 'populated-health' || seededFolder;
+// Verification adaptation: the fresh profile's persisted HOME layout is seeded before boot.
+const folderSeed = seededFolder ? (await import('./reference/populated-folder-seed.mjs')).buildPopulatedFolderSeed() : null;
 for (const key of ['width', 'height']) assert.ok(Number.isInteger(Number(values[key])) && Number(values[key]) > 0, key);
 const durationMs = Number(values['duration-ms']);
 assert.ok(Number.isInteger(durationMs) && durationMs >= 1000 && durationMs <= 30000, 'Capture duration must be 1000..30000ms');
@@ -500,6 +503,8 @@ const state = () => page.locator('.console-stage').evaluate(host => ({ ...host.d
 try {
 browser = await chromium.launch(animationBrowserLaunchOptions(values['browser-executable'], visibleWindow));
 page = await browser.newPage({ viewport: { width: Number(values.width), height: Number(values.height) } });
+if (folderSeed) await page.addInitScript(({ origin, key, raw }) => { if (location.origin === origin) localStorage.setItem(key, raw); },
+  { origin: new URL(values.url).origin, key: folderSeed.storageKey, raw: folderSeed.raw });
 await page.emulateMedia({ reducedMotion: values['reduced-motion'] ? 'reduce' : 'no-preference' });
 page.on('pageerror', error => errors.push(String(error)));
 if (visibleWindow) windowConfirmation = await waitForVisibleWindow(visibleWindow, page, join(output, 'visible-window.json'));
@@ -559,7 +564,11 @@ const selectTitle = () => selectAnimationTitle(title, { key, touch, wait: ms => 
   } else if (values.scenario === 'manual') {
     await selectTitle();
   } else if (values.scenario === 'folder') {
-    if (populatedFolder) {
+    if (seededFolder) {
+      folderFixtureDetails = await prepareSeededPopulatedFolderFixture({ seed: folderSeed, waitFor: waitForPopulatedFolder });
+      folderSelection = '28';
+      folderIdentity = folderFixtureDetails.folderIdentity;
+    } else if (populatedFolder) {
       folderFixtureDetails = await preparePopulatedFolderFixture({ state, touch: projectedTouch.click, pointer: projectedTouch,
         waitFor: waitForPopulatedFolder, prepareRoot: prepareFolderRoot });
       folderSelection = '28';

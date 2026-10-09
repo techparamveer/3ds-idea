@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 
 export function parseFolderFixture(value, { scenario, activation }) {
-  assert.ok(['baseline', 'native-six-rows', 'populated-health'].includes(value), 'Supported folder fixture');
+  assert.ok(['baseline', 'native-six-rows', 'populated-health', 'populated-health-entry'].includes(value), 'Supported folder fixture');
   if (scenario !== 'folder') assert.equal(value, 'baseline', 'Folder fixtures are folder-only');
   if (activation === 'tile') {
     assert.equal(scenario, 'folder', 'Tile activation is folder-only');
-    assert.ok(['native-six-rows', 'populated-health'].includes(value), 'Tile activation requires a six-row fixture');
+    assert.ok(['native-six-rows', 'populated-health', 'populated-health-entry'].includes(value), 'Tile activation requires a six-row fixture');
   }
-  if (value === 'populated-health') assert.equal(activation, 'tile', 'Populated Health capture requires the same root-tile touch route');
+  if (value.startsWith('populated-health')) assert.equal(activation, 'tile', 'Populated Health capture requires the same root-tile touch route');
   return value;
 }
 
@@ -64,6 +64,23 @@ export async function returnFromPopulatedFolder(folderIdentity, { touch, waitFor
   const root = await waitFor({ stage: 'root', folderIdentity });
   assert.equal(root.selection.key, folderIdentity, 'Back restores the exact populated folder');
   return { child, root, route: { kind: 'touch', x: 59, y: 54 } };
+}
+
+// Verification adaptation: a pre-boot persisted layout replaces setup input, so this sends none.
+export async function prepareSeededPopulatedFolderFixture({ seed, waitFor }) {
+  assert.ok(typeof seed?.folderIdentity === 'string' && seed.folderIdentity, 'Seed carries its restored folder identity');
+  const root = await waitFor({ stage: 'root', folderIdentity: seed.folderIdentity });
+  assert.equal(root.rows, 6, 'Seeded root restores six rows');
+  assert.equal(root.rootSelected, 28, 'Seeded root restores folder slot 28');
+  assert.equal(root.selection?.key, seed.folderIdentity, 'Browser restore keeps the exact seeded folder identity');
+  assert.equal(root.selection.nativeType, 10, 'Seeded folder presents as populated');
+  return { name: 'populated-health-entry', folderIdentity: seed.folderIdentity, root: { rows: 6, leftSlot: 0, selectedSlot: 28 },
+    child: { rows: 1, leftSlot: 0, selectedSlot: 2, app: 'health-safety' },
+    entryRoute: { kind: 'touch', x: 136, y: 160 }, backRoute: { kind: 'touch', x: 59, y: 54 },
+    seed: { storageKey: seed.storageKey, sha256: seed.sha256, method: seed.method, raw: seed.raw },
+    adaptation: 'Verification adaptation: a fresh browser profile is seeded before boot with a HOME layout persisted by saveSettings and imported through openFirmwareStorage legacy preferences and restoreSettings. The seeded setup is not native input parity; no native populated fixture, timing or pixel match is established.',
+    method: 'Boot restores root folder 28 holding Health at child 2; wait for exact identity, populated type and settled input before the captured ordinary root-tile entry; header Back precedes each repeat.',
+    observedRoot: root, nativeCompared: false };
 }
 
 export async function preparePopulatedFolderFixture({ state, touch, pointer, waitFor, prepareRoot }) {

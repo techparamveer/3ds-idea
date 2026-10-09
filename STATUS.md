@@ -3,9 +3,22 @@
 Rewrite this file whenever `HEAD` moves or localhost starts or stops.
 If this SHA disagrees with `git rev-parse HEAD`, git wins; rewrite this file before any worker.
 
-Updated: 8 October 2026.
+Updated: 9 October 2026.
 
-## Hack LDN 2025 branch
+## Hack LDN depth revision
+
+Active checkout: `/Users/paramveer/.codex/worktrees/hack-ldn-depth/3ds-idea`.
+Branch: `codex/hack-ldn-depth`, checked base `c76775731fe539473934365d35210d79c3cbb551`.
+The original NVIDIA and Hack LDN PRs are merged. User requests a stronger 3D
+appearance while preserving the chevron animation, then a follow-up PR.
+Artifacts: `/Users/paramveer/.codex/3ds-artifact-overflow/hack-ldn-depth-20261009/`.
+Production preview: `http://127.0.0.1:3050/?lcdCapture=1`, muted local preferences.
+Portfolio adaptation only.
+Depth revision rendered and browser-inspected. Typecheck/build/shader pass;
+2,168 tests pass with the existing missing Camera fixture failure.
+See [evidence](docs/hack-ldn-2025-animation.md). PR timing awaits user return.
+
+## Hack LDN 2025 branch (inherited history)
 
 Active checkout: `/Users/paramveer/.codex/worktrees/hack-ldn-2025/3ds-idea`.
 Branch: `codex/hack-ldn-2025`, checked base `c9a5da54fd2dc3cf330e889fbcfcde96ab1a8c00`.

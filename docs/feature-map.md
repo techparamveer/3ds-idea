@@ -8,6 +8,13 @@ Pixel-tier **0/0 is not pass**. Whole scenarios still **fail** on input, motion,
 
 Pick the first unmatched **Next** row, then any in-scope surface whose gap is `fail` and whose pair is usable. Closed leftover-§5 labels (Sound upper 316, y=177, Camera plus-tint, Settings Other HUD 169) stay in evidence, not this queue.
 
+## Portfolio update — 9 October 2026
+
+Hack LDN depth revision implemented on `codex/hack-ldn-depth`: solid bevelled
+lettering with an angled camera, preserving the chevron reveal. Muted browser
+inspection and render checks recorded in [evidence](hack-ldn-2025-animation.md).
+Portfolio adaptation; native queue unchanged.
+
 ## Next
 
 | # | Slice | Evidence | Seat |

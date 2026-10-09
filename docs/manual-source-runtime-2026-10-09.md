@@ -1,5 +1,48 @@
 # Manual source and runtime checkpoint
 
+## Partial-row delivery
+
+Reviewed runtime `486232b` includes cutoff `67c5156` and the selected native
+picture/material/texture/Wait-program gate. Browser Manual now submits the
+partially clipped third page using its authored visible bound, not its centre
+or transparent shadow. Source/cached-clone/posed validation and rejection
+tests preserve readiness. Fonts, clipping, mounts, input and clocks are unchanged.
+
+Source mapping is Manual `0004003000009b02`, v5120, content0/0000000a,
+manifest `packs/manual/layout-BtnHeadLineTxt.json`, pack SHA
+`9c0c0fb055d3b15311c0f0210bf3a89314c64edfab54a7596adc3878e1a3ca7a`.
+The CIA member is `layout/BtnHeadLineTxt.arc`, SHA
+`8c06c951ba9740058c438b69cc52c4b4bf9e2f53102b73dc8b34aad40845a1f6`.
+Complete BCLYT/BCLAN/texture and existing converter identities live in private
+`manual-partial-row-cutoff-20261009/followup-source-audit.json`, SHA
+`811e25621abeb5f27023e270f6f071b81b5234662748998d0c64092ce18f0b59`.
+
+Clean equivalent verification `d327ff3` passes82 explicit-source tests,
+nonincremental pre/post typechecks, build and4 installed-Canvas tests with no
+focused skips. Full tests have2589 passes,100 skips, one TODO and the unchanged
+missing historical Camera PNG failure. Build `8NboEHDcxjRZgLL2ZnvcV` has BUILD_ID
+SHA `56ee3c3ed44c60a719f0f2e4acf7b8621dca51c8455a56d5a8095a2993724f37`.
+
+Frozen muted Sidecar first/repeat runs produce Browser92/94, Camera95/98 and
+Settings91/92 pairs. `O/partial-row-all-audit/report.json` checks all562 pairs
+and1124 PNGs. Both cycles give Camera60upper/9lower, Settings60/57 and
+Browser60/3026 with empty masks and RGB delta2. The Browser lower improvement
+from3492 does not resolve its consecutive-page spacing defect. Native pixels
+begin nearY195; the browser's painted row remains about10px lower. A source
+trace now proves44px relative control spacing; its correction is pending.
+
+Independent source and production reviews are recorded under
+`O/reviewer-partial-row-source-review/`, `reviewer-partial-row-production-audit/`
+and `reviewer-partial-row-control-audit/`. The OS snapshots prove fitted window
+context only: Camera/Settings have black startup LCDs, and Browser's late
+content request failed after closure. They are not Manual content proof.
+Build binding is coordinator-attested; mute launch metadata is not audio proof.
+Selected in20 is still loading, with identical ready pixels one receipt later.
+Missing per-cycle poses, native epochs/input and muted audio remain open.
+All collectors exited0; server91625 exited130 and port3025 was empty.
+
+The sections below retain the preceding scrollbar/renderer checkpoint.
+
 Reviewed runtime `cbc07d7cbcc616b0deedf3d08f75619864f2f3fe` includes the
 source-derived Contents scrollbar and implicit-text preparation optimization.
 All four whole animation flows remain fail/unproven. Moving, pickup, hover and
@@ -105,7 +148,17 @@ pixels. Generator visualInspection remains false; actual inspections are separat
 Independent review inspected six Manual sheets, six console captures and twelve
 native/browser contact sheets. Camera/Settings/Browser consoles are stable
 first/repeat. No additional visible Manual transition/console regression appeared.
-The five top-row runs are still under independent visual review at this checkpoint.
+Independent top-row review also verifies963 pairs/1926 PNGs and inspects ten
+chronological sheets, ten consoles and five OS screenshots. No new visible
+transition/endpoint defect appears. The OS screenshots are blank post-navigation
+views and support window context only, not rendered-app content. Notes readiness
+follows its asynchronous screen load; the other four ready receipts follow handoff
+by one publication with identical pixels. Notes/Browser clock-only first/repeat
+differences remain recorded. Durable verdicts are
+`O/reviewer-combined-manual-audit/handoff.md`, SHA
+`d3e3d4ce462c169111b2f303916e57b4a674f7a673f24784e9368a785e3397c1`,
+and `O/reviewer-combined-toprow-audit/handoff.md`, SHA
+`7cb0bab3121e29b29b8cf737ee23f5a7fd99624a241265a7ba6b78b6e6124a6a`.
 
 ## Native endpoints and remaining defects
 
@@ -121,7 +174,10 @@ These select the first published `manualEntry in/20`, still labelled loading.
 The next ready-marked receipt and all later receipts have identical hashes.
 They are ready-equivalent static diagnostics, not readiness-timing evidence.
 The indicator correction removes the targeted46 Camera upper pixels,106 to60.
-The remaining60 upper pixels are icon boundary strips. Browser's missing partial
+The remaining60 upper pixels are icon boundary strips. Reconciliation with the
+closed `manual-upper-edges-source-20261008` audit confirms the same original
+32x32 pane atY3.5 and unchanged UV/filter/mask/TEV. The captured GPU's edge-tie
+ownership remains unsupported; no fitted tie reversal was added. Browser's missing partial
 third row contributes3340 lower pixels at x19,y195,width282,height17. A bounded
 helper-only authored-bound cutoff fix is underway, not yet integrated or recaptured.
 Settings and Camera lower glyph-edge residuals remain unexplained.
@@ -147,7 +203,10 @@ HOME-to-cover-to-Contents ordering, not exact motion or epochs.
 
 Browser source-pose gaps remain: Camera misses out18 across both cycles;
 Settings misses out11..13 across both. Browser Manual's two cycles jointly
-cover all42 poses but neither alone does. Native requested200ms held touch and
+cover all42 poses but neither alone does. Top-row persistent gaps are Friends
+incoming1,6,12,16,19, Notifications incoming4,10,13,15,18 and Browser cover9.
+Notes and Miiverse jointly cover their required source poses across cycles;
+combined coverage is not per-cycle motion verification. Native requested200ms held touch and
 browser ordinary click are not matched measured inputs. Lossy movie gaps,
 unmatched epochs and muted audio prevent animation acceptance.
 

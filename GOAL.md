@@ -31,7 +31,15 @@ and HOME suspension. The unmerged held-hover fix is preserved in its worktree.
 The latest Sol6.1 reply above supersedes the earlier Opus worker preference.
 Keep the repository's independent different-model reviewer requirement.
 
-Latest runtime checkpoint: reviewed `2a983ed` derives the Manual scrollbar from
+Latest runtime checkpoint: reviewed `67c5156` and `486232b` deliver the native
+partial-row cutoff and source-program validation. All562 new paired captures
+are audited; Browser Manual lower mismatch improves3492 to3026, while Camera
+and Settings controls hold. The source-proved44px consecutive-row correction
+is next. Build/typecheck pass;2589 full tests pass with the unchanged historical
+Camera PNG failure. Follow the [current evidence](docs/manual-source-runtime-2026-10-09.md).
+All four whole flows remain fail/unproven; no native timing or audio acceptance.
+
+Earlier runtime checkpoint: reviewed `2a983ed` derives the Manual scrollbar from
 the pinned executable; `cbc07d7` reduces implicit-text preparation work. Frozen
 production first/repeat captures contain1542 checked pairs/3084 PNGs in fitted
 Sidecar windows. Camera's static residual improves106/9 to60/9. Browser Manual

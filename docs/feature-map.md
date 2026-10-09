@@ -1,5 +1,11 @@
 # Feature map — 1:1 queue
 
+9 October partial-row delivery: reviewed `67c5156` and `486232b` complete562
+checked pairs/1124 PNGs. Browser Manual lower improves3492 to3026; Camera60/9
+and Settings60/57 hold. The remaining adjacent-page spacing has a native44px
+writer proof and a bounded correction in progress. AN-01..AN-04 stay fail.
+See [current evidence](manual-source-runtime-2026-10-09.md).
+
 9 October Manual source/runtime: reviewed `2a983ed` and `cbc07d7` complete1542
 checked pairs/3084 PNGs in fitted muted Sidecar windows. Camera static106/9
 improves to60/9; Settings60/57 and Browser Manual60/3492 stay unresolved. The

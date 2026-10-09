@@ -2,12 +2,13 @@
 
 ## Animation completion, 9 October 2026
 
-Latest integrated runtime is `cbc07d7`. The performance worker's second commit
-is reviewed/integrated; its next bounded source-only task diagnoses the60 upper
-Manual icon-boundary pixels and reserves no helper edits. The pixel worker's
-scrollbar `de847e79` integrates as `2a983ed`; it now owns only the visibly missing
-Browser partial-row cutoff in `stock-native-helpers.ts` and focused controls.
-Different-model reviewer is auditing the five top-row first/repeat captures.
+Latest integrated runtime is `486232b`. The performance worker's renderer
+commit is integrated; its bounded icon-edge and missing historical PNG lookups
+are complete and must not be repeated. No source correction was justified there.
+The pixel worker's cutoff and paint gate integrate as `67c5156` and `486232b`.
+It now owns only the source-proved44px adjacent-page spacing correction in
+`stock-native-helpers.ts` and focused tests. Different-model reviewer completed
+top-row and partial-row production/control audits and awaits the spacing patch.
 All shared GUI/server sessions are closed. See [runtime evidence](../manual-source-runtime-2026-10-09.md).
 Earlier assignments below remain history where superseded.
 

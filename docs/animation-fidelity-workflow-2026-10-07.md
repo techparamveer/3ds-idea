@@ -11,6 +11,13 @@ verify actual owned-window placement before scenario inputs.
 
 ## Manual source/runtime and fitted recapture, 9 October
 
+Reviewed `67c5156` and `486232b` submit the authored partial Browser row and
+validate its selected native paint program. The562-pair production regression
+improves Browser lower3492 to3026; Camera60/9 and Settings60/57 hold. Continue
+only the source-proved44px relative-spacing correction, then independent review,
+clean production checks and fresh first/repeat controls. OS startup snapshots
+are placement evidence, not Manual content proof. No whole-flow pass follows.
+
 Reviewed scrollbar `2a983ed` and renderer `cbc07d7` are recaptured with a
 1100x560 viewport inside actual1102x700 Sidecar windows. The
 [current checkpoint](manual-source-runtime-2026-10-09.md) records1542 pairs,

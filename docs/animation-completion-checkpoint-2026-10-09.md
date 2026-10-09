@@ -2,6 +2,13 @@
 
 ## Latest delivery
 
+Reviewed `67c5156` and `486232b` deliver the partial Browser Contents row and
+its native paint-program validation. New562-pair/1124-PNG production capture
+improves Browser lower3492 to3026. Camera60/9 and Settings60/57 controls hold.
+The third Browser row remains too low; the native44px ordinal writer and common
+unscaled parent now justify a narrow spacing correction. All four flows remain
+fail/unproven. See [current evidence](manual-source-runtime-2026-10-09.md).
+
 Reviewed scrollbar `2a983ed` and implicit-text renderer `cbc07d7` pass production
 checks and1542 paired-frame/3084-PNG recapture integrity checks. Actual fitted
 Sidecar windows are verified. Camera's fixed static residual improves106/9 to60/9;

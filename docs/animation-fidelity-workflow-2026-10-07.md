@@ -2,10 +2,19 @@
 
 The human resumed on8 October with "continue disregard that" and removed the
 75%-remaining stop rule. Continue from STATUS Next; quota pauses recorded below
-are historical. The latest user-supplied repository instructions select
-GPT-5.6 Sol high workers and an independent different-model reviewer. All sessions stay
-muted. The latest human instruction permits visible Mac testing without Sidecar;
+are historical. The latest direct user model request selects Astra extra-high
+for subagents. The worker override does not change the running coordinator
+model, and the tools do not expose a service-tier selector. All sessions stay
+muted. Visual testing must use the iPad Sidecar, leaving Codex on the Dell;
 verify actual owned-window placement before scenario inputs.
+
+## Browser and Miiverse common incoming, 9 October
+
+Reviewed `5c5c5bb` adds the omitted common SceneIn using unchanged firmware
+tracks. Seven first/repeat iPad captures pass integrity, receipt and input
+checks across 1143 pairs. The [verification record](browser-miiverse-incoming-2026-10-09.md)
+separates normal/reduced behavior, native movie evidence, endpoint adaptations
+and remaining timing gaps. No whole scenario becomes pass.
 
 ## Notes supplied poses, 9 October
 
@@ -15,8 +24,8 @@ motion audit. Shared Camera/Sound diagnostics preserve the earlier baselines;
 the checked live series retains its initial Camera image-loading residual.
 Preserve failed collector attempts and exact error URLs; a browser-chrome
 warning does not establish native resource failure or native acceptance.
-The next worktree owns Browser/Miiverse common SceneIn, using existing decoded
-clips and preserving the separate Notes and Friends/Notifications paths.
+The subsequent Browser/Miiverse worktree uses existing decoded clips and
+preserves the separate Notes and Friends/Notifications paths.
 
 ## Manual elapsed cadence, 8 October
 

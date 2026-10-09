@@ -326,6 +326,13 @@ extending claims to a different route.
 
 ## Pixel production
 
+Top-row entry uses `applet-entry-presentation.ts` and paired publication receipts.
+Browser/Miiverse reveal the exact prepared stock pair under HOME common SceneIn;
+Friends/Notifications keep title-owned incoming resources and Notes keeps its
+own reveal. Common incoming20 must be acknowledged before a separate handoff.
+Reduced motion retains distinct endpoint receipts. Native scheduling remains
+unproven; see [the incoming contract](../browser-miiverse-incoming-2026-10-09.md).
+
 `screens.ts` owns native HOME composition and system overlays; `portfolio-screens.ts`
 routes app interiors to portfolio graphics or `stock-screen-presentation.ts`.
 Stock-specific adapters select explicit layouts, child mounts, messages and clips.

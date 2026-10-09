@@ -1,6 +1,6 @@
 # Goal: finish the four remaining native animation flows
 
-Updated 8 October 2026. GitHub remains at starting version:
+Updated 9 October 2026. GitHub remains at starting version:
 `5ee6fd7a42b0239c5f55f375f85593289a0ff532` on `origin/main`.
 
 The human resumed on8 October with "continue disregard that", revoking the
@@ -8,7 +8,14 @@ The human resumed on8 October with "continue disregard that", revoking the
 without that usage cutoff. Continue the full animation goal. Earlier quota
 checkpoints remain history; do not stop again at that removed threshold.
 
-Latest checkpoint, 9 October: Notes `855c079` restores the source fade and
+Latest checkpoint, 9 October: Browser/Miiverse `5c5c5bb` restores the missing
+firmware common incoming. Seven muted iPad first/repeat runs complete with
+1143 checked pairs and 2286 raw PNGs. Build/typecheck pass; 2529 full-suite passes
+retain the historical missing Camera PNG failure. Native movie chronology
+supports the leftward clearing, not exact timing or pixel acceptance.
+All four whole flows remain fail. Continue from the [incoming record](docs/browser-miiverse-incoming-2026-10-09.md).
+
+Earlier checkpoint, 9 October: Notes `855c079` restores the source fade and
 moving title belt. All 343 paired observations, 686 PNGs, ten sheets and four
 console views are audited and inspected. Shared Camera/Sound diagnostic
 baselines are preserved; the live Camera image-loading residual is retained.
@@ -85,9 +92,9 @@ evidence, not frame-exact acceptance. All four whole animation scenarios fail.
 The old blocked goal checkpoint is superseded by the human resume. The
 [approved incoming checkpoint](docs/animation-fidelity-workflow-2026-10-07.md#approved-incoming-delivery-8-october)
 preserves that delivery's evidence.
-The latest human instruction permits browser/Azahar visual testing on the Mac
-without Sidecar. Confirm actual window placement before inputs; no new headless
-visual runs.
+The latest human instruction requires browser/Azahar visual testing on the
+iPad Sidecar, leaving Codex on the Dell. Confirm actual window placement before
+inputs; no new headless visual runs.
 The goal is incomplete.
 
 Finish the opening animations for the HOME top-row apps, opening Manual,

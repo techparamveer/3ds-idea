@@ -1,5 +1,12 @@
 # Feature map — 1:1 queue
 
+9 October Browser/Miiverse checkpoint: reviewed `5c5c5bb` adds the missing
+firmware common incoming. Seven iPad normal/reduced and regression runs verify
+1143 pairs/2286 PNGs; native movie ordering supports leftward belt clearing.
+Timing gaps, exact input epochs, endpoint adaptations, pixel residuals and muted
+audio remain open. AN-01 through AN-04 remain fail. See
+[incoming verification](browser-miiverse-incoming-2026-10-09.md).
+
 9 October Notes checkpoint: `855c079` removes the captured frozen cover by
 honoring each supplied native pose. All 343 pairs, 686 PNGs, ten sheets and
 four console views are checked. Shared Camera/Sound static baselines hold;

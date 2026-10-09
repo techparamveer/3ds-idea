@@ -1,14 +1,22 @@
 # Goal: finish the four remaining native animation flows
 
-Updated 9 October 2026. GitHub remains at starting version:
-`5ee6fd7a42b0239c5f55f375f85593289a0ff532` on `origin/main`.
+Updated 9 October 2026. Fetched GitHub version `c767757` is integrated through
+reviewed merge `b84e1b2`. Primary local main remains untouched at `5ee6fd7`.
 
 The human resumed on8 October with "continue disregard that", revoking the
 75%-remaining stop condition. The latest human request authorizes continuing
 without that usage cutoff. Continue the full animation goal. Earlier quota
 checkpoints remain history; do not stop again at that removed threshold.
 
-Latest checkpoint, 9 October: reviewed merge `b84e1b2` incorporates GitHub
+Latest checkpoint, 9 October: reviewed populated-folder collector `068c131`
+reproduces a real Health pickup/hover readiness failure in the production
+browser: no matching presented root folder banner. Fix that source-identity
+boundary without weakening paired publication, then capture matched first/repeat
+populated entry. Native setup remains unaccepted after an omitted startup
+warning. See the [capture record](docs/populated-folder-capture-2026-10-09.md).
+All new workers/reviewers use GPT-6.1 Sol extra-high. All four whole flows remain open.
+
+Earlier checkpoint, 9 October: reviewed merge `b84e1b2` incorporates GitHub
 `c767757`, including NVIDIA and the ninth portfolio app, Hack LDN 2025.
 Collector `e0aa927` preserves its slot and locates a vacant folder fixture
 through normal HOME input. The [integration record](docs/animation-upstream-sync-2026-10-09.md)

@@ -8,6 +8,17 @@ model, and the tools do not expose a service-tier selector. All sessions stay
 muted. Visual testing must use the iPad Sidecar, leaving Codex on the Dell;
 verify actual owned-window placement before scenario inputs.
 
+## Populated folder capture, 9 October
+
+Reviewed collector `068c131` uses ordinary Health pickup/hover/drop, header
+Back59,54 and the same root-tile entry136,160. Its live muted production smoke
+reproduces "Folder entry has no matching presented root banner". Preserve the
+failure and fix its runtime source-identity boundary without bypassing native
+readiness or paired receipts. The [capture record](populated-folder-capture-2026-10-09.md)
+qualifies the missed post-navigation geometry check and failed native startup.
+Root71 focused tests pass; all four whole flows remain fail. New implementation
+and independent review both used GPT-6.1 Sol extra-high.
+
 ## GitHub integration, 9 October
 
 Reviewed merge `b84e1b2` preserves the animation implementation and incorporates

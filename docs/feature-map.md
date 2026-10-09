@@ -1,5 +1,11 @@
 # Feature map — 1:1 queue
 
+9 October populated-folder checkpoint: reviewed collector `068c131` reproduces
+the Health pickup/hover failure, "no matching presented root banner", against
+unchanged production runtime. Fix this boundary before first/repeat occupied
+child capture. Native setup remains unaccepted; all whole flows remain fail.
+See [capture evidence](populated-folder-capture-2026-10-09.md).
+
 9 October GitHub synchronization: `b84e1b2` preserves NVIDIA and adds Hack LDN
 2025 as the ninth portfolio app. `e0aa927` keeps folder verification compatible
 with its occupied slot 14. Two iPad runs capture 199 pairs. Populated-folder

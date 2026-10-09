@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {join} from 'node:path';
 import ts from 'typescript';
-import {nativePaneParentPath,poseNativeLayout} from '../src/os/native-layout.ts';
+import {evaluateNativeMaterial,nativePaneParentPath,poseNativeLayout} from '../src/os/native-layout.ts';
 import {nativeTextWriterFlags} from '../src/os/bitmap-font.ts';
 
 const root=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
@@ -46,6 +46,8 @@ test('Contents culling uses the decoded visible row halves rather than the trans
   assert.deepEqual(path.map(pane=>pane.name),['RootPane','BtnHeadLineBody',name]);
   assert.deepEqual({kind:pane.kind,flags:pane.flags,alpha:pane.alpha,origin:pane.origin,translation:pane.translation,scale:pane.scale,rotation:pane.rotation,size:pane.size},
    {kind:'pic1',flags:1,alpha:255,origin:4,translation:[x,1,0],scale:[scaleX,1.2999999523162842],rotation:[0,0,0],size:[168,32]});
+  const material=posed.materials[pane.picture.material];
+  for(const alpha of [0,.5,1])assert.equal(evaluateNativeMaterial(material,[[.5,.5,.5,alpha]],pane.picture.colors[0].map(value=>value/255),[5])[3],alpha,'the original implicit program retains source texture alpha');
  }
  assert.equal(nativePaneParentPath(posed,'BtnShdw01').at(-1).alpha,0);
  assert.equal(rowPaintTop(posed),-24.799999237060547);
@@ -112,6 +114,79 @@ test('unsupported selected visible row bounds fail before drawing, including cac
  assert.throws(f.paint,/Unsupported Manual Contents row paint bounds source/);assert.equal(f.calls.length,0);f.renderer.dispose();
 });
 
+test('row-half pictures and complete selected materials reject visibility or sampler substitutions in originals and cached clones',()=>{
+ const half=(layout,name)=>nativePaneParentPath(layout,name).at(-1),edits=[];
+ for(const [name,index]of [['BtnPageTitleT_01',6],['BtnPageTitleT_02',7]])edits.push(
+  ...Array.from({length:4},(_,corner)=>layout=>{half(layout,name).picture.colors[corner][3]=0;}),
+  layout=>{half(layout,name).picture.colors[0][0]=254;},
+  layout=>{half(layout,name).picture.colors.pop();},
+  layout=>{half(layout,name).picture.material=index===6?7:6;},
+  layout=>{half(layout,name).picture.uvSets[0][0]=.5;},
+  layout=>{half(layout,name).picture.uvSets.push([0,0,1,0,0,1,1,1]);},
+  ...[
+   material=>{material.name='Different';},material=>{material.flags=0;},
+   material=>{material.textureOnly=true;},material=>{material.bufferColor[3]=255;},
+   material=>{material.constantColors[0][3]=0;},material=>{material.constantColors.pop();},
+   material=>{material.textureMaps[0].texture=0;},material=>{material.textureMaps[0].wrapS=2;},
+   material=>{material.textureMaps[0].wrapT=2;},material=>{material.textureMaps[0].minFilter=0;},
+   material=>{material.textureMaps[0].magFilter=0;},material=>{material.textureMaps.push(structuredClone(material.textureMaps[0]));},
+   material=>{material.textureMatrices[0].translation[0]=0;},material=>{material.textureMatrices[0].scale[0]=2;},
+   material=>{material.textureMatrices[0].rotation=1;},material=>{material.textureMatrices.pop();},
+   material=>{material.coordinateGenerators[0].source=1;},material=>{material.coordinateGenerators[0].reserved=1;},
+   material=>{material.tevStages.push({constantSelectors:0,color:{},alpha:{}});},
+   material=>{material.alphaCompare={function:7,reference:0};},
+   material=>{material.colorBlend={operation:1,sourceFactor:4,destinationFactor:5};},
+   material=>{material.sourceCombiners=[];},material=>{material.unsupported.push('unknown');},
+  ].map(edit=>layout=>edit(layout.materials[index])),
+ );
+ for(const layoutName of ['BtnHeadLineTxt','ManualRowImportant','ManualRowGettingStarted'])for(const [index,edit]of edits.entries()){
+  const f=fixture(browser);if(layoutName!=='BtnHeadLineTxt'){assert.equal(f.paint(),true);f.calls.length=0;}
+  edit(f.renderer.packs['manual-row'].layouts[layoutName]);
+  assert.throws(f.paint,/Unsupported Manual Contents row paint bounds source/,`${layoutName} mutation ${index}`);
+  assert.equal(f.calls.length,0);f.renderer.dispose();
+ }
+});
+
+test('row-half bound texture identity and layout binding are revalidated before every paint',()=>{
+ const edits=[
+  pack=>{delete pack.textures['BtnPageTitle00.bclim'];},
+  ...[['width',15],['height',47],['picaFormat',8],['format',1],['formatName','A8'],['sha256','0'.repeat(64)],['sourceSha256','0'.repeat(64)],['url','textures/other.png']].map(([field,value])=>pack=>{pack.textures['BtnPageTitle00.bclim'][field]=value;}),
+  pack=>{pack.layouts.BtnHeadLineTxt.textures[1]='Other.bclim';},
+  pack=>{pack.layouts.BtnHeadLineTxt.textures.push('BtnPageTitle00.bclim');},
+ ];
+ for(const cached of [false,true])for(const edit of edits){
+  const f=fixture(browser);if(cached){assert.equal(f.paint(),true);f.calls.length=0;}
+  edit(f.renderer.packs['manual-row']);assert.throws(f.paint,/Unsupported Manual Contents row paint bounds source/);assert.equal(f.calls.length,0);f.renderer.dispose();
+ }
+ for(const name of ['ManualRowImportant','ManualRowGettingStarted']){
+  const f=fixture(browser);assert.equal(f.paint(),true);f.calls.length=0;f.renderer.packs['manual-row'].layouts[name].textures[1]='Other.bclim';
+  assert.throws(f.paint,/Unsupported Manual Contents row paint bounds source/);assert.equal(f.calls.length,0);f.renderer.dispose();
+ }
+});
+
+test('row-half Wait visibility and texture programs reject changed channels even when the resulting pose has the same bounds',()=>{
+ for(const name of ['BtnPageTitleT_01','BtnPageTitleT_02']){
+  const alpha=clip=>clip.tracks.find(track=>track.target===name&&track.property==='materialColor.1.3');
+  const edits=[
+   clip=>{alpha(clip).keys[0].value=0;},clip=>{alpha(clip).keys[0].frame=0;},
+   clip=>{alpha(clip).keys[0].slope=1;},clip=>{alpha(clip).keys.push({frame:90,value:0,slope:0});},
+   clip=>{alpha(clip).property='materialColor.0.3';},clip=>{alpha(clip).binding='pane';},
+   clip=>{alpha(clip).contentIndex=0;},clip=>{alpha(clip).component=0;},clip=>{alpha(clip).index=1;},
+   clip=>{alpha(clip).interpolation='step';},clip=>{alpha(clip).tag='CLPA';},
+   clip=>{clip.tracks=clip.tracks.filter(track=>track!==alpha(clip));},
+   clip=>{clip.tracks.push(structuredClone(alpha(clip)));},
+   clip=>{clip.tracks.find(track=>track.target===name&&track.property==='texture.translation.x').keys[0].value=0;},
+   clip=>{clip.contents.find(content=>content.target===name).binding='pane';},
+   clip=>{clip.textures=['BtnLngSelBase01.bclim'];},
+  ];
+  for(const cached of [false,true])for(const edit of edits){
+   const f=fixture(browser);if(cached){assert.equal(f.paint(),true);f.calls.length=0;}
+   edit(f.renderer.packs['manual-row'].animations.BtnHeadLineTxt_Wait);
+   assert.throws(f.paint,/Unsupported Manual Contents row paint bounds source/);assert.equal(f.calls.length,0);f.renderer.dispose();
+  }
+ }
+});
+
 test('a failed partial-row draw keeps the real helper frame unready',()=>{
  const f=fixture(browser),draw=f.renderer.draw;
  f.renderer.draw=(...args)=>{const okay=draw(...args);return args[1]==='manual-row'&&args[3].overrides.TextBox_Num.text==='3'?false:okay;};
@@ -124,6 +199,8 @@ test('row source identity stays in the existing published Manual pack and shared
  assert.equal(pack.titleId,'0004003000009b02');assert.equal(pack.sourceSha256,'8c06c951ba9740058c438b69cc52c4b4bf9e2f53102b73dc8b34aad40845a1f6');
  assert.deepEqual(pack.resourceSources.layouts.BtnHeadLineTxt,{path:'layout/BtnHeadLineTxt.arc/blyt/BtnHeadLineTxt.bclyt',sha256:'c41c54be9f004b98714ff8b9dc941b09386de50cd9215894d1ac6fe95181dca2',titleId:pack.titleId});
  assert.deepEqual(pack.resourceSources.animations.BtnHeadLineTxt_Wait,{path:'layout/BtnHeadLineTxt.arc/anim/BtnHeadLineTxt_Wait.bclan',sha256:'048be32112420819a2e8bdd8693a33c3dac618adcb34b6f80c2f86e3311bcff3',titleId:pack.titleId});
+ assert.deepEqual(pack.resourceSources.textures['BtnPageTitle00.bclim'],{path:'layout/BtnHeadLineTxt.arc/timg/BtnPageTitle00.bclim',sha256:'80094660435f8016d2952e5c8a0184da9eeffbe71bb5cf5438cbbeb4666ed6da',titleId:pack.titleId});
+ assert.equal(createHash('sha256').update(readFileSync(new URL(pack.textures['BtnPageTitle00.bclim'].url,root))).digest('hex'),'d8b10a7c49643d5a9fc9aa4dea8c417b2f07cf832ecf1634119f7173162ab224');
  assert.equal(json('fonts/shared/font.json').sourceSha256,'95d5a675ae14cc22b84b5b89c8d10cc894f1e2dfaf00a1168545fe76fb1eb581');
 });
 

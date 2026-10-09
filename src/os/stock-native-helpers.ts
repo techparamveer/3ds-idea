@@ -366,19 +366,51 @@ function validateApplicationManualRowDecoration(layout:NativeLayout,bodyY:number
 }
 /** The two visible button halves supply the row's authored paint top.
  * BtnShdw01 is transparent in Wait and must not extend that bound. */
-function validateApplicationManualRowTop(layout:NativeLayout){
+function validateApplicationManualRowTop(layout:NativeLayout,pack:NativeLayoutRenderer['packs'][string]){
   const fail=()=>{throw new Error('Unsupported Manual Contents row paint bounds source');};
   const same=(value:unknown,expected:readonly number[])=>Array.isArray(value)&&value.length===expected.length&&value.every((item,index)=>item===expected[index]);
+  const keys=(value:object)=>Object.keys(value).sort().join(',');
+  const clip=pack.animations.BtnHeadLineTxt_Wait,texture=pack.textures['BtnPageTitle00.bclim'];
+  if(!clip)throw new Error('Missing native animation BtnHeadLineTxt_Wait');
+  if(clip.frames!==2||clip.loop!==false||clip.childBinding!==true||clip.groups.length||clip.textures.length||clip.shares!==undefined
+    ||!('unsupported' in clip)||!Array.isArray(clip.unsupported)||clip.unsupported.length
+    ||layout.textures[1]!=='BtnPageTitle00.bclim'||layout.textures.filter(name=>name==='BtnPageTitle00.bclim').length!==1
+    ||!texture||keys(texture)!=='format,formatName,height,picaFormat,sha256,sourceSha256,url,width'||texture.width!==16||texture.height!==48||texture.picaFormat!==5
+    ||!('format' in texture)||texture.format!==3||!('formatName' in texture)||texture.formatName!=='LA8'
+    ||!('sha256' in texture)||texture.sha256!=='d8b10a7c49643d5a9fc9aa4dea8c417b2f07cf832ecf1634119f7173162ab224'
+    ||!('sourceSha256' in texture)||texture.sourceSha256!=='80094660435f8016d2952e5c8a0184da9eeffbe71bb5cf5438cbbeb4666ed6da'
+    ||texture.url!=='textures/d8b10a7c49643d5a9fc9aa4dea8c417b2f07cf832ecf1634119f7173162ab224.png')return fail();
   const counts=new Map<string,number>();
   const visit=(panes:NativePane[])=>{for(const pane of panes){counts.set(pane.name,(counts.get(pane.name)??0)+1);visit(pane.children);}};visit(layout.roots);
   let top=Infinity;
-  for(const [name,x,scaleX]of [['BtnPageTitleT_01',84,-1],['BtnPageTitleT_02',-84,1]] as const){
+  for(const [name,x,scaleX,materialIndex,contentIndex]of [['BtnPageTitleT_01',84,-1,6,7],['BtnPageTitleT_02',-84,1,7,8]] as const){
     const path=nativePaneParentPath(layout,name);
     if(!path||path.length!==3||path.map(pane=>pane.name).join('/')!==`RootPane/BtnHeadLineBody/${name}`)return fail();
     const pane=path[2];
     if(counts.get(name)!==1||pane.kind!=='pic1'||pane.flags!==1||pane.alpha!==255||pane.origin!==4
       ||pane.unsupported?.length||pane.part||pane.text||pane.window||!pane.picture||pane.children.length
       ||!same(pane.translation,[x,1,0])||!same(pane.rotation,[0,0,0])||!same(pane.scale,[scaleX,1.2999999523162842])||!same(pane.size,[168,32]))return fail();
+    const picture=pane.picture,material=layout.materials[materialIndex];
+    if(keys(picture)!=='colors,material,uvSets'||picture.material!==materialIndex||picture.colors.length!==4
+      ||picture.colors.some(color=>!same(color,[255,255,255,255]))||picture.uvSets.length!==1||!same(picture.uvSets[0],[0,0,12,0,0,1,12,1])
+      ||!material||layout.materials.filter(item=>item.name===name).length!==1
+      ||keys(material)!=='bufferColor,constantColors,coordinateGenerators,flags,name,tevStages,textureMaps,textureMatrices,textureOnly,unsupported'
+      ||material.name!==name||!('flags' in material)||material.flags!==21||material.textureOnly!==false||!same(material.bufferColor,[0,0,0,0])
+      ||material.constantColors.length!==6||material.constantColors.some(color=>!same(color,[255,255,255,255]))||material.tevStages.length||material.unsupported.length)return fail();
+    const map=material.textureMaps[0],matrix=material.textureMatrices[0],generator=material.coordinateGenerators[0];
+    if(material.textureMaps.length!==1||!map||keys(map)!=='magFilter,minFilter,texture,wrapS,wrapT'||map.texture!==1||map.magFilter!==1||map.minFilter!==1||map.wrapS!==0||map.wrapT!==0
+      ||material.textureMatrices.length!==1||!matrix||keys(matrix)!=='rotation,scale,translation'||matrix.rotation!==0||!same(matrix.scale,[1,1])||!same(matrix.translation,[-1.8799999952316284,0])
+      ||material.coordinateGenerators.length!==1||!generator||keys(generator)!=='reserved,source,type'||!('reserved' in generator)||generator.reserved!==0||generator.source!==0||generator.type!==0)return fail();
+    const content=clip.contents?.[contentIndex],tracks=clip.tracks.filter(track=>track.target===name);
+    if(!content||keys(content)!=='binding,target'||content.target!==name||content.binding!=='material'||clip.contents?.filter(item=>item.target===name).length!==1||tracks.length!==8)return fail();
+    for(const [index,track]of tracks.entries()){
+      const key=track.keys[0],textureTrack=index===7;
+      if(keys(track)!=='binding,component,contentIndex,index,interpolation,keys,property,tag,target'
+        ||track.binding!=='material'||track.contentIndex!==contentIndex||track.index!==0||track.component!==[0,1,2,4,5,6,7,0][index]
+        ||track.interpolation!=='hermite'||!('tag' in track)||track.tag!==(textureTrack?'CLTS':'CLMC')
+        ||track.property!==(textureTrack?'texture.translation.x':`materialColor.${index<3?0:1}.${index<3?index:index-3}`)
+        ||track.keys.length!==1||!key||keys(key)!=='frame,slope,value'||key.frame!==(textureTrack?0:index<3?20:index===6?89:85)||key.slope!==0||key.value!==(textureTrack?-1.8799999952316284:index<3?0:255))return fail();
+    }
     top=Math.min(top,-path.reduce((sum,item)=>sum+item.translation[1],0)-pane.size[1]*pane.scale[1]*Math.floor(pane.origin/3)/2);
   }
   return top;
@@ -387,10 +419,11 @@ function prepareApplicationManualRows(renderer:NativeLayoutRenderer,bottom:Canva
 function prepareApplicationManualRows(renderer:NativeLayoutRenderer):void;
 function prepareApplicationManualRows(renderer:NativeLayoutRenderer,bottom?:CanvasRenderingContext2D){
   const pack=renderer.packs['manual-row'],source=bottom?validateApplicationManualRow(pack?.layouts.BtnHeadLineTxt,3):pack.layouts.BtnHeadLineTxt;
-  const rowTop=bottom?validateApplicationManualRowTop(source):undefined;
+  let rowTop:number|undefined;
   if(bottom){
     validateApplicationManualRowNumber(source,3,[0,0,0,0]);
     validateApplicationManualRowDecoration(source,3,pack);
+    rowTop=validateApplicationManualRowTop(source,pack);
     const font=renderer.getFontManifest('cbf_std.bcfnt'),transform=bottom.getTransform?.();
     if(!font||font.sourceSha256!=='95d5a675ae14cc22b84b5b89c8d10cc894f1e2dfaf00a1168545fe76fb1eb581'
       ||font.colorMode!=='alpha'||font.width!==25||font.height!==30||font.ascent!==25||font.baseline!==25||font.lineFeed!==30)throw new Error('Unsupported Manual Contents TextBox_Txt font');
@@ -419,11 +452,11 @@ function prepareApplicationManualRows(renderer:NativeLayoutRenderer,bottom?:Canv
     const color=name==='ManualRowImportant'?[237,136,136,0]:[154,212,105,0];
     validateApplicationManualRowNumber(layout,APPLICATION_MANUAL_LOWER_FIT.rowBodyY,color);
     validateApplicationManualRowDecoration(layout,APPLICATION_MANUAL_LOWER_FIT.rowBodyY,pack);
-    validateApplicationManualRowTop(layout);
+    validateApplicationManualRowTop(layout,pack);
     const posed=poseNativeLayout(layout,pack.animations,[{name:'BtnHeadLineTxt_Wait',frame:1}]);
     validateApplicationManualRow(posed,3);validateApplicationManualRowNumber(posed,3,color);
     validateApplicationManualRowDecoration(posed,3,pack);
-    if(validateApplicationManualRowTop(posed)!==rowTop)throw new Error('Unsupported Manual Contents row paint bounds source');
+    if(validateApplicationManualRowTop(posed,pack)!==rowTop)throw new Error('Unsupported Manual Contents row paint bounds source');
   }
   return rowTop;
 }

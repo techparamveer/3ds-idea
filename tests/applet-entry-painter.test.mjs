@@ -17,8 +17,8 @@ test('actual painter composes each outgoing selector and Browser/Miiverse common
  for(const appId of ids)for(const phase of ['out',...(['browser','miiverse'].includes(appId)?['in']:[])])for(const frame of [0,20]){
   assert.equal(presenter.appletEntry('upper','lower',{appId,phase,frame}),true);
   const [upper,lower]=draws.slice(-2),bindings=appletEntryBindings({appId,phase,frame});
-  assert.deepEqual([upper.ctx,upper.bank,upper.name,upper.options],['upper','common','CmnFade_U_00',{bindings:bindings.upper}]);
-  assert.deepEqual([lower.ctx,lower.bank,lower.name,lower.options],['lower','common','CmnFade_D_00',{bindings:bindings.lower,overrides:appletEntryOverrides(messages,appId)}]);
+  assert.deepEqual([upper.ctx,upper.bank,upper.name,upper.options],['upper','common','CmnFade_U_00',{bindings:bindings.upper,opaquePictureAlphaPanes:['P_Bg_U_00']}]);
+  assert.deepEqual([lower.ctx,lower.bank,lower.name,lower.options],['lower','common','CmnFade_D_00',{bindings:bindings.lower,overrides:appletEntryOverrides(messages,appId),opaquePictureAlphaPanes:['P_Bg_D_00']}]);
  }
  assert.equal(JSON.stringify(common),before);
 });

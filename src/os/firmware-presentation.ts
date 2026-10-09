@@ -553,15 +553,15 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   if(!manualEntryValidated){validateManualEntryAssets(renderer.packs.common);manualEntryValidated=true;}
   const bindings=manualEntryBindings(pose),label=nativeMessageOverride(renderer.packs.messages,'menu_msbt_LZ','lau_title_manu','');
   if(!label.text)throw Error('Native Manual entry label unavailable: menu_msbt_LZ/lau_title_manu');
-  if(!renderer.draw(top,'common','CmnFade_U_00',{bindings:bindings.upper}))return false;
-  return renderer.draw(bottom,'common','CmnFade_D_00',{bindings:bindings.lower,overrides:{T_Aplt_00:label}});
+  if(!renderer.draw(top,'common','CmnFade_U_00',{bindings:bindings.upper,opaquePictureAlphaPanes:['P_Bg_U_00']}))return false;
+  return renderer.draw(bottom,'common','CmnFade_D_00',{bindings:bindings.lower,overrides:{T_Aplt_00:label},opaquePictureAlphaPanes:['P_Bg_D_00']});
  }
  const validatedApplets=new Set<AppletEntryAppId>();
  function appletEntry(top:Context,bottom:Context,pose:{appId:AppletEntryAppId;phase:'out'|'in';frame:number}):boolean{
   if(!validatedApplets.has(pose.appId)){validateAppletEntryAssets(renderer.packs.common,pose.appId);validatedApplets.add(pose.appId);}
   const bindings=appletEntryBindings(pose),overrides=appletEntryOverrides(renderer.packs.messages,pose.appId);
-  if(!renderer.draw(top,'common','CmnFade_U_00',{bindings:bindings.upper}))return false;
-  return renderer.draw(bottom,'common','CmnFade_D_00',{bindings:bindings.lower,overrides});
+  if(!renderer.draw(top,'common','CmnFade_U_00',{bindings:bindings.upper,opaquePictureAlphaPanes:['P_Bg_U_00']}))return false;
+  return renderer.draw(bottom,'common','CmnFade_D_00',{bindings:bindings.lower,overrides,opaquePictureAlphaPanes:['P_Bg_D_00']});
  }
  function pauseLower(ctx:Context,application:NativePixels,home:NativePixels,frame:number){
   return drawHomePauseLower(renderer,ctx,application,home,frame);

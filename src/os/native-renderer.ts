@@ -1,5 +1,5 @@
 import { BitmapFont, nativeTextWriterFlags, type FontManifest } from './bitmap-font';
-import { blendNativePixel, evaluateNativeMaterial, interpolateNativeQuad, instantiateNativePart, nativeAnimationDiagnostics, nativeMultiplyBlend, nativePaneParentPath, nativeTextMetrics, nativeWindowPatches, nativeVisibleRasterRect, poseNativeLayout, rasterNativePicture,
+import { blendNativePixel, evaluateNativeMaterial, interpolateNativeQuad, instantiateNativePart, nativeAnimationDiagnostics, nativeMultiplyBlend, nativeOpaquePictureAlphaByte, nativePaneParentPath, nativeTextMetrics, nativeWindowPatches, nativeVisibleRasterRect, poseNativeLayout, rasterNativePicture,
  type AnimationBinding, type NativeLayout, type NativeText, type NativeMaterial, type NativePack, type NativePane, type NativePicture, type NativePixels, type NativeRasterRegion, type PaneOverrides } from './native-layout';
 
 type Context=CanvasRenderingContext2D;
@@ -10,6 +10,8 @@ export type NativeDrawOptions={
  textSamplingPanes?:readonly string[];
  /** Source pictures/window patches sampled once at fractional LCD positions. */
  pictureSampling?:'lcd';
+ /** Source-validated common-cover backgrounds reuse their opaque RGB samples. */
+ opaquePictureAlphaPanes?:readonly string[];
  /** Capture-fitted Health Back/Other title coverage; GPU precision remains unverified. */
  textCoverageAdaptation?:'azahar-12p4-fit';
  /** Explicit source layout links; each prt1 retains its own pane/material scope. */
@@ -90,7 +92,7 @@ export class NativeLayoutRenderer {
   while(this.bytes+size>this.cacheLimit&&this.cache.size){const first=this.cache.entries().next().value!;this.bytes-=first[1].width*first[1].height*4;first[1].width=first[1].height=0;this.cache.delete(first[0]);}
   if(size<=this.cacheLimit){this.cache.set(key,canvas);this.bytes+=size;}return canvas;
  }
- private picture(pack:string,layout:NativeLayout,picture:NativePicture,width:number,height:number,alpha:number,textures:ReadonlyMap<string,NativePixels>,override?:NativeMaterial,sampling?:NativeRasterRegion) {
+ private picture(pack:string,layout:NativeLayout,picture:NativePicture,width:number,height:number,alpha:number,textures:ReadonlyMap<string,NativePixels>,override?:NativeMaterial,sampling?:NativeRasterRegion,reuseOpaqueAlpha=false):HTMLCanvasElement {
   const w=Math.max(1,Math.ceil(width)),h=Math.max(1,Math.ceil(height));
   if(w*h>1024*1024)throw new Error('Native pane exceeds raster budget');
   const material=override??layout.materials[picture.material];
@@ -99,6 +101,17 @@ export class NativeLayoutRenderer {
   const textureIds=material.textureMaps.map(map=>{const pixels=textures.get(layout.textures[map.texture]);if(!pixels)return 0;
    let id=this.textureIds.get(pixels);if(id===undefined){id=this.nextTextureId++;this.textureIds.set(pixels,id);}return id;});
   const key=JSON.stringify([pack,material,picture.colors,picture.uvSets,w,h,alpha,layout.textures,textureIds,sampling]);
+  if(reuseOpaqueAlpha){
+   const byte=nativeOpaquePictureAlphaByte(layout,picture,textures,alpha,material);
+   const source=this.picture(pack,layout,picture,width,height,1,textures,override,sampling);
+   if(!this.opaque.has(source))throw new Error('Unsupported nonopaque native picture alpha source');
+   if(alpha===1)return source;
+   return this.cached(key,()=>{
+    const data=source.getContext('2d')!.getImageData(0,0,w,h);
+    for(let at=3;at<data.data.length;at+=4)data.data[at]=byte;
+    const canvas=surface(w,h);canvas.getContext('2d')!.putImageData(data,0,0);return canvas;
+   });
+  }
   return this.cached(key,()=>{
    const pixels=rasterNativePicture(layout,picture,w,h,textures,alpha,material,sampling),canvas=surface(w,h),ctx=canvas.getContext('2d')!;
    const data=ctx.createImageData(w,h);data.data.set(pixels.data);
@@ -318,8 +331,13 @@ export class NativeLayoutRenderer {
   const sourceTextures=instance?.textures??this.textures[packName];
   const textures=options.textures?new Map([...sourceTextures,...Object.entries(options.textures)]):sourceTextures;
   const textSamplingPanes=options.textSamplingPanes?new Set(options.textSamplingPanes):undefined;
+  const opaquePictureAlphaPanes=options.opaquePictureAlphaPanes?new Set(options.opaquePictureAlphaPanes):undefined;
   ctx.save();
   try{
+   if(options.opaquePictureAlphaPanes&&(options.opaquePictureAlphaPanes.some(name=>typeof name!=='string'||!name)||opaquePictureAlphaPanes!.size!==options.opaquePictureAlphaPanes.length))throw new Error('Invalid native opaque picture alpha pane allowlist');
+   if(opaquePictureAlphaPanes){const available=new Set<string>();const scan=(panes:NativePane[])=>panes.forEach(pane=>{if(pane.picture)available.add(pane.name);scan(pane.children);});scan(layout.roots);
+    for(const name of opaquePictureAlphaPanes)if(!available.has(name))throw new Error(`Missing native opaque picture alpha pane ${name}`);
+   }
    if(options.textSamplingPanes&&(!options.textSampling||options.textSamplingPanes.some(name=>typeof name!=='string'||!name)||textSamplingPanes!.size!==options.textSamplingPanes.length))throw new Error('Invalid native text sampling pane allowlist');
    if(textSamplingPanes){const available=new Set<string>();const scan=(panes:NativePane[])=>panes.forEach(pane=>{if(pane.text)available.add(pane.name);scan(pane.children);});scan(layout.roots);
     for(const name of textSamplingPanes)if(!available.has(name))throw new Error(`Missing native text sampling pane ${name}`);
@@ -341,7 +359,7 @@ export class NativeLayoutRenderer {
      if(w>0&&h>0&&alpha>0){
       ctx.save();ctx.translate(x,y);
       try{
-       if(pane.picture&&!this.projectedPicture(ctx,layout,pane.picture,w,h,alpha,textures,options.pictureSampling==='lcd')){this.composite(ctx,this.picture(packName,layout,pane.picture,w,h,alpha,textures),0,0,w,h,layout,pane.picture.material,undefined,allowOpaqueDarken);}
+       if(pane.picture&&!this.projectedPicture(ctx,layout,pane.picture,w,h,alpha,textures,options.pictureSampling==='lcd')){this.composite(ctx,this.picture(packName,layout,pane.picture,w,h,alpha,textures,undefined,undefined,opaquePictureAlphaPanes?.has(pane.name)),0,0,w,h,layout,pane.picture.material,undefined,allowOpaqueDarken);}
        if(pane.text){const textSampling=!textSamplingPanes||textSamplingPanes.has(pane.name)?options.textSampling:undefined;
         const raster=this.text(layout,pane,alpha,textSampling?ctx.getTransform?.():undefined,options.textCoverageAdaptation,textSampling==='lcd-source-size'||textSampling==='lcd-source-size-left',textSampling==='lcd-source-size-left',!!textSampling&&!!textSamplingPanes?.has(pane.name)),textCanvas=raster.canvas;
         // 0x18fe2c (only caller 0x190138, in 0x1900d4) does not reach scissor

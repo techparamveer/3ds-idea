@@ -8,7 +8,14 @@ The human resumed on8 October with "continue disregard that", revoking the
 without that usage cutoff. Continue the full animation goal. Earlier quota
 checkpoints remain history; do not stop again at that removed threshold.
 
-Latest checkpoint, 9 October: Browser/Miiverse `5c5c5bb` restores the missing
+Latest checkpoint, 9 October: reviewed HOME lower release `44a060c` and
+terminal evidence `77de274` preserve two terminal fade receipts before the
+footer. Three iPad first/repeat runs capture 326 pairs; two fresh muted Azahar
+movies and own PNGs are saved on iPad. Build/typecheck pass; full tests retain
+only the historical missing Camera PNG failure. Variable timing and native
+pixels remain unresolved. Continue from the [release record](docs/home-pause-release-2026-10-09.md).
+
+Earlier checkpoint, 9 October: Browser/Miiverse `5c5c5bb` restores the missing
 firmware common incoming. Seven muted iPad first/repeat runs complete with
 1143 checked pairs and 2286 raw PNGs. Build/typecheck pass; 2529 full-suite passes
 retain the historical missing Camera PNG failure. Native movie chronology
@@ -111,9 +118,9 @@ duration and the final screen. A matching endpoint or passing tests does not
 establish matching motion.
 
 Work in separate branches and worktrees with at most two workers. The latest
-user-supplied repository instructions select GPT-5.6 Sol, high reasoning, for
-new workers and an independent reviewer on a different model. This supersedes
-earlier model preferences. Normal speed is requested but not
+direct human preference selects GPT-6 Astra, extra-high reasoning, for new
+subagents. Record actual worker models rather than claiming existing agents
+changed. Keep implementation and review independent. Speed selection is not
 tool-verifiable.
 Do not claim that a helper override changes the running coordinator model.
 The coordinator alone controls Azahar and the shared browser, integrates

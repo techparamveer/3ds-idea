@@ -1,5 +1,14 @@
 # Software state, input and presentation
 
+[HOME pause release](../home-pause-release-2026-10-09.md) separates upper
+terminal frame 20 from complete motion update 22. The existing one-step-per-
+receipt policy holds lower fade 40 without a footer at updates 14 and 15,
+releases at 16 and preserves the six-step footer interval. Failed or pending
+pairs cannot spend either boundary. Reduced motion selects the complete
+endpoint; folder timing and owner/capture-generation guards are unchanged.
+The source completion order is recovered, but receipt cadence and the exact
+footer epoch remain adaptations.
+
 [Suspended Camera](../home-camera-manual-footer-2026-10-03.md) exposes source
 Close/Manual/Resume members. Shared half-open touch bounds are x `[0,105)`,
 `[107,213)`, `[215,320)` at y `[212,240)`; gaps are inert and press ownership

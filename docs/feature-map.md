@@ -1,5 +1,11 @@
 # Feature map — 1:1 queue
 
+9 October HOME release checkpoint: `44a060c` preserves two lower fade-terminal
+receipts; `77de274` waits for the lower footer before classifying completion.
+Three iPad first/repeat runs capture 326 pairs and two fresh native suspension
+movies. Timing variability and native pixels remain unresolved; AN-01 through
+AN-04 remain fail. See [release verification](home-pause-release-2026-10-09.md).
+
 9 October Browser/Miiverse checkpoint: reviewed `5c5c5bb` adds the missing
 firmware common incoming. Seven iPad normal/reduced and regression runs verify
 1143 pairs/2286 PNGs; native movie ordering supports leftward belt clearing.

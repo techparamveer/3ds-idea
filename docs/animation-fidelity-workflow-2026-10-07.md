@@ -8,6 +8,16 @@ model, and the tools do not expose a service-tier selector. All sessions stay
 muted. Visual testing must use the iPad Sidecar, leaving Codex on the Dell;
 verify actual owned-window placement before scenario inputs.
 
+## HOME lower release, 9 October
+
+Reviewed `44a060c` preserves both lower terminal receipts before release;
+`77de274` distinguishes upper terminal from complete lower motion. Three muted
+iPad runs capture 326 pairs, and new first/repeat Azahar movies and own PNGs
+are captured on iPad. Integrated tests/build pass except the historical missing
+Camera fixture. Preserve the first Health timing slowdown and reduced run's
+late post-navigation attestation. The [release record](home-pause-release-2026-10-09.md)
+separates verified ordering from unresolved exact epochs and pixel differences.
+
 ## Browser and Miiverse common incoming, 9 October
 
 Reviewed `5c5c5bb` adds the omitted common SceneIn using unchanged firmware
@@ -598,8 +608,8 @@ seats are in [STATUS](../STATUS.md), with the objective in [GOAL](../GOAL.md).
 
 One coordinator integrates in `codex/animation-fidelity-20261007`. Use at most
 two workers in separate worktrees and branches based on the fetched commit.
-New workers use GPT-5.6 Sol high under the latest user-supplied AGENTS
-instructions. Keep the existing independent GPT-6 Astra high reviewer.
+New subagents use GPT-6 Astra extra-high under the latest direct human
+instruction. Keep implementation and review independent.
 Record actual models in STATUS; a helper override does not change the coordinator.
 Speed selection is not exposed by the
 delegation tools, so no Fast-mode setting is claimed verified.

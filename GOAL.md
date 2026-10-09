@@ -9,9 +9,10 @@ Opening coverage alone does not close this work. Capture each complete
 tap/open/close/HOME sequence on muted Sidecar and compare the corresponding
 native sequence. Do not infer an exit by reversing the opening clip.
 
-Latest human model reply selects GPT-6.1 Sol extra-high Fast after Opus hit its
-monthly spending limit. Use that model/effort for new implementation workers;
-agent tools have no Fast selector. Keep different-model review independent.
+Latest human model reply selects GPT-6.1 Sol extra-high for this chat and
+GPT-6.1 Sol high for all new subagents, including reviewers. This supersedes
+the older worker/model preferences below. Tools cannot change or verify the
+running coordinator model or Fast mode. Keep review independent of implementation.
 The coordinator model has not changed through worker settings. The latest
 goal API read reports active with this four-flow objective. Earlier paused
 observations below are history; completion remains unproven.
@@ -35,9 +36,20 @@ Do not spend more implementation or verification work on pickup/hover/drop.
 Keep the goal on top-row app opening, Manual opening, ordinary folder entry,
 and HOME suspension. The unmerged held-hover fix is preserved in its worktree.
 The latest Sol6.1 reply above supersedes the earlier Opus worker preference.
-Keep the repository's independent different-model reviewer requirement.
+Keep review independent; the latest human model assignments above apply.
 
-Latest runtime checkpoint: reviewed `fbbd63b` delivers native44px relative row
+Latest runtime checkpoint: reviewed `e96e76a`, `cc8cc0b` and `a5e4e44` deliver
+Manual destination scheduling and revision-current paired readiness. Final
+source review closes both findings. Clean equivalent `76813d8` passes build
+and typechecks; full tests have2598 passes and the unchanged missing historical
+Camera PNG failure. Muted Helium on Sidecar serves buildzxL2Hk7fZpwT2O-Sayh4t
+on3025. The separate interrupted Camera collector is not accepted regression
+evidence. Top-row exit/Decide implementation remains missing. Continue from
+[the final scheduling handoff](docs/manual-destination-scheduling-2026-10-09.md)
+and the completed top-row source map, then matched native/browser observation.
+All four whole flows remain fail/unproven; no native timing or audio acceptance.
+
+Earlier runtime checkpoint: reviewed `fbbd63b` delivers native44px relative row
 spacing. Independent380-pair/760-PNG production review confirms Browser Manual
 lower3026 to16, with Camera60/9 unchanged. Build/typechecks and supporting
 source/Canvas tests pass; the historical missing Camera PNG is the sole full

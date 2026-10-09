@@ -20,16 +20,19 @@ supersedes the historical active status. The full scope remains.
 
 Latest display instruction, 9 October: "i mean can you do it on the ipad screen".
 Browser and Azahar visual testing belongs on Sidecar, not the Dell. Current
-read-only CoreGraphics inventory: built-in display1 at (0,0),1800x1169;
-Dell display2 at (-54,-1080),1920x1080; Sidecar display4 at (1800,367),1164x802.
-The built-in display has reappeared and shifted the desktop since the completed
-combined capture. New test windows must use the current Sidecar bounds. Earlier captures
+read-only CoreGraphics inventory during the Notes observation: Dell display2
+at (0,0),1920x1080; Sidecar display4 at (1920,367),1164x802. The built-in display
+is absent. During the run the desktop changed from the earlier Sidecar origin
+1800 to1920, shifting windows120 points horizontally. No cause is inferred.
+The latest inventory has returned to built-in1800x1169 at0,0, Dell1920x1080
+at-54,-1080 and Sidecar1164x802 at1800,367. Read geometry again before new inputs.
+New test windows must use the current Sidecar bounds. Earlier captures
 used the previous display arrangement and retain their own attestations.
 Verify each owned test window's actual bounds before inputs. Leave Codex on the
-Dell. All test audio stays muted. Latest direct human model instruction is
-"continue with gpt 6.1 sold extra high fast" after Opus reached its monthly
-spending limit. The implementation worker uses GPT-6.1 Sol extra-high.
-Fast is not exposed by the agent tools. Completed agents retain their recorded actual model. Do not
+Dell. All test audio stays muted. Latest direct human model instruction selects
+GPT-6.1 Sol extra-high for this chat and GPT-6.1 Sol high for all new subagents.
+The tools cannot change or verify the running coordinator model or Fast mode.
+Completed agents retain their recorded actual model. Do not
 claim to change the running coordinator model through worker settings.
 
 ## Product
@@ -46,13 +49,60 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `2e0c3d2481361ecb334eb9b4fefec94564b458e2`. Evidence records verified runtimefbbd63b native44px relative pitch and380-pair independent production audit. All four whole scenarios remain unaccepted. |
+| HEAD | `969d59c`. Reviewed Manual scheduling stack integrated as e96e76a/cc8cc0b/a5e4e44; final contract/evidence docs integrated as969d59c. Exact committed runtime matches clean76813d8; user system.ts edit remains separate. All four whole scenarios remain unaccepted. |
 
 Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9ddf309`. Date-group bind `5c0199f4` recaptured (fill `(255,161,0)`). Slider source-gap `e6bcca9f` (Grok 4.6 **APPROVE** `90be3135`). Photo-crop source-gap `b75f275d` (Grok 4.6 **APPROVE** `9d3237b6`). Date-text source-gap `82a16d1c` (Grok 4.6 **APPROVE** `62457c68`). Selection source-gap `9c431d1d` (Grok 4.6 **APPROVE** `43173720`). Settings-footer X-scale `99a4362e` (Grok 4.6 **APPROVE**; recapture `d6ce9913` Settings **954→630**). Remaining Settings third then `TxtSet` source-size `9580641b` (Grok 4.6 **APPROVE** `3e9c5170`; recapture `3bdc3192` Settings **630→0**). Welcome p5 live-feed source-gap `679db045` (Grok 4.6 **APPROVE** `f14c2241`). Sound Next `Guid1TxtW` source-size `269e8757` (Grok 4.6 **APPROVE**; recapture `a5b8aa9e` interior **195→0**). Sound volume live-slider source-gap `11f3cb3c` (Grok 4.6 **APPROVE** `c4f0fb90`). Sound Span live-spectrum source-gap `57b04572` (Grok 4.6 **APPROVE** `7614c291`). Sound birds held-offset source-gap `9e335f3a` (Grok 4.6 **APPROVE** `f67628f3`). Sound battery underbar-partition source-gap `76a3635a` (Grok 4.6 **APPROVE** `684a3418`). Sound UnderBar Line01 partition source-gap `6db7e7ef` (Grok 4.6 **APPROVE** `d0d96201`). Sound empty-entry row 1916 source-gap (Grok 4.6 **APPROVE** `2807aeb5`). Sound first-run guide perimeter compositor source-gap `02a60c52` (Grok 4.6 **APPROVE** `6cc31903`). Sound empty-entry mid `S_BG` constant source-gap `636976ad` **REJECTED** by Grok 4.6 (native is dump `S_BG_Grid` ETC1 checker `(223,215,206)`/`(231,223,215)`, bound on library path only); grid bind `603c5388` (Opus 5.5) recaptured: empty-entry lower **16021→7216**, mid **2255→0** / **1024→0**; Grok 4.6 **APPROVE-WITH-NITS** `de5c6445`. Leftover queue `cccf162e`. Camera Welcome p3 `TxtDlg` **1079** source-gap `57af95dd` (Grok 4.6 **APPROVE-WITH-NITS** `7e8e13a1`; host-gate probe `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`). Sound upper 316 labelled `14533857` (volume overhang **42** + `S_Back_U` **274**; Grok 4.6 **APPROVE** `daa93bca`). Camera large thumbs `PicL_SD` bind `89efb7a3` (recapture `6499f0af` lower **10158→8958**). Camera Slideshow header source-size `04f3d6bf` (recapture `5d25e2a5` header **837→0**). Camera thumb interiors 56×42 sample source-gap `84d636e3` (Grok 4.6 **APPROVE** `2258268a`). Product `acabb7af` kept. y=177 `22e8b0a4` (Grok 4.6 **APPROVE** `9fe268f8`). Slider 57 (Grok 4.7 **APPROVE-WITH-NITS** `444ba8e0`). GitHub `/Volumes/DeveloperStorage/GitHub/3ds-idea` on `dev-size-opt` is not this site.
 
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
 
 ## Serving
+
+Latest native observation: isolated41917 is closed, with PID/window absence
+verified after GUI Quit/Yes. Notes' first accepted foreground toolbar tap
+selected Notes, the second opened it. Footer Close showed the native HOME Menu
+common cover. Four short silent MOVs and three own400x480 PNGs are preserved
+under `opus-completion/toprow-exit-observation`; offline chronology audit is
+complete. Report SHAaea5ad268e8be643e82fcd2bde39c864def0a5c65f738452597e8ba8bc3c9fd1;
+coordinator inspected close sheet032551a6. All21 originals remain unchanged;
+four MOVs have zero audio tracks. The background tap did not select Notes and
+is not accepted input.
+Desktop geometry changed during the run and stays qualified. Screenshot path
+alone was restored after exit; volume0/Null1/Static2 remain unchanged.
+No browser match, native timing or whole-scenario pass follows.
+
+Current: the dedicated muted Helium preview and reviewed server remain live.
+The separate Camera Manual first/repeat run was stopped after an unexplained
+`e` appeared in its omnibox before the input gate. Its partial first cycle and
+interrupted repeat are preserved under `opus-completion/deferred-production-camera-v3`;
+they are not accepted animation evidence. Do not automatically retry that
+collector while the keyboard/focus interference remains unresolved. The test
+browser closed; the user's Helium preview was not driven.
+
+Reviewed76813d8 is live on3025, PID94968, HTTP200. Dedicated Helium11353
+window8313 is visibly rendered HOME at1830,420,1102x700 within Sidecar;
+process --mute-audio verified, capture SHA
+fcbd636cc07c049dd64433b77003960d1dfe8d29a74a26e7e19f3093a68e2f87.
+Old73867 has no main content window; URL-open did not create one, so a fresh
+internal-cache reviewed profile was launched without touching personal profiles.
+Only coordinator may operate GUI; leave user Helium available while a separate
+muted visible test collector checks Manual first/repeat. Freeze served source.
+Latest human model preference: coordinator6.1Sol extra-high, subagents6.1Sol
+high. Running coordinator settings are not changed by worker overrides. The
+old xhigh audit worker was stopped; replacementhigh worker finishes its handoff.
+
+Starting persistent reviewed clean76813d8 on127.0.0.1:3025, PID94968,
+buildzxL2Hk7fZpwT2O-Sayh4t, BUILD_ID SHA
+23c9ba1141172247f1c2f10adf26c1a7788e28b985c8ab89657e5fe6639cc329.
+Final2598pass/1unchanged historicalCameraPNGfail/101skip/1TODO; build and
+pre/post nonincremental typechecks pass. Source/assets/build stay frozen.
+Helium URL-open requested; verify listener, current window, mute and Sidecar.
+
+Exact independent review approves97252bf/9b2c066/fee1885, integrated as
+e96e76a/cc8cc0b/a5e4e44. Both review blockers have explicit regressions.
+Clean76813d8 final full tests/build/typecheck are finishing before3025restart.
+The user system.ts edit is excluded and untouched. Helium visibility must be
+reverified after launch. Final review SHA
+c60ff7adc9cd9d64ab2817bda446f6ab048f80fa34096e6f863359bc59367a43.
 
 Latest preview update: Helium PID73867 rendered HOME in window8059 at
 1830,420,1102x700 on Sidecar, with --mute-audio verified. The stalled external
@@ -1245,6 +1295,19 @@ NAND writes between isolated copies. Nintendo Zone remains skipped.
 
 ## Seats
 
+Current seats: the coordinator owns GUI, integration, STATUS and the progress
+record. Previous workers and reviewer are complete. New bounded helpers use
+GPT-6.1 Sol high. The completed top-row exit handoff rechecked166 identities
+without mismatch; it adds no runtime fix or native observation. Its SHA is
+1bcce8e66a568b19dc008c509186a39049120451547a3baecb9d2a46dd514e4c.
+The documentation helper completed196a637, integrated as969d59c. The high
+top-row helper completed the private Notes MOV/PNG chronology.
+notes_close_presentation, GPT-6.1 Sol high, owns source-only
+notes-close-presentation-20261009 at969d59c for the captured Notes footer close.
+manual_final_handoff, GPT-6.1 Sol high, prepares only a private CDP-attached
+Notes capture helper. No repository runtime ownership. Coordinator owns GUI.
+No worker may operate Azahar or the shared browser.
+
 Latest human report: all five top-row apps need close/exit and tap/pre-open
 inspection. sol_manual_pixel_residual owns source-only applet-exit-audit-20261009
 at2e0c3d2, not runtime or GUI. sol_manual_cover_performance fixes the exact
@@ -1439,6 +1502,17 @@ The integration checkout remains here.
 Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camera Slideshow header 0. Camera Settings third 0. Welcome p5 **7615** live-feed source-gap **APPROVE**. Volume **130** live-slider source-gap **APPROVE**. Span **2314**/**2442** live-spectrum source-gap **APPROVE**. Birds **1558** held-offset source-gap **APPROVE**. Battery `[45,216,85,240]` **1** underbar-partition source-gap **APPROVE**. Line01 `(92,220)` partition source-gap **APPROVE**. Empty-entry row **1916** **APPROVE**. Thumb interiors **846/918** **APPROVE**. Guide perimeter **6072** = **860** dimmed grid + **4416** half + **728** (**144** row + **53** footer + **531** within 2) + **68** fringe; veil **REJECT** `be862ce6`; subsets **APPROVE-WITH-NITS** `d72ab4b1`. Empty-mid **2255**/**1024** → **0**/**0** by grid bind `603c5388` **APPROVE-WITH-NITS** `de5c6445`. p3 `TxtDlg` **1079→1078** after host-gate `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`. Sound upper 316 labelled `14533857` **APPROVE** `daa93bca`. y=177 **320** labelled `22e8b0a4` **APPROVE** `9fe268f8`. Slider **57** **APPROVE-WITH-NITS** `444ba8e0`. Plus-tint strip **1992** kept `ed55865e` **APPROVE** `b6620fa4`. HOME 1-row tail **291** **APPROVE** `f72296ff`. HOME idle Health 1-row left-anchor **23182 / 14754** empty mask (title/wallpaper **12255**, vacant-vs-Settings **7045**, HUD **2328**). **Static still only.** Whole scenarios still fail.
 
 ## Next
+
+Continue from reviewed runtimea5e4e44, served as equivalent clean76813d8.
+The Helium preview and reviewed code commits are delivered. Notes native
+tap/open/footer-close is observed and audited, not browser-matched. Integrate
+only an independently reviewed source-backed Notes footer correction, then
+recapture its ordinary first/repeat sequence. Observe the other missing
+top-row tap/open/footer-close/B/HOME
+sequences in muted isolated Azahar on Sidecar. Use the completed source map;
+do not repeat a broad source audit or infer exit timing from clip names.
+The aborted Camera collector is not production regression acceptance.
+Keep moving/drag work excluded and the unrelated user system.ts edit untouched.
 
 First finish reviewed commits and the requested latest Helium preview on iPad.
 Then capture all five top-row tap/open/close/HOME sequences more closely, as

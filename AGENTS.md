@@ -31,10 +31,11 @@ STATUS **Product**. Reconcile git, then continue from STATUS **Next**.
 
 ## Agent model preference - 9 October 2026
 
-The latest direct human request is "move all models to 6.1 sol extra high".
-Use `model=gpt-6.1-sol` and `thinking=xhigh` for authorized separate Codex chats,
-and `model=gpt-6.1-sol` with `reasoning_effort=xhigh` on bounded or empty
-context forks for new or restarted workers and reviewers. This supersedes
+The latest direct human request selects GPT-6.1 Sol extra-high for this chat
+and GPT-6.1 Sol high for all subagents. Use `model=gpt-6.1-sol` with
+`reasoning_effort=high` on bounded or empty context forks for new or restarted
+workers and reviewers. The tools cannot change or verify the coordinator model.
+This supersedes
 earlier Astra and 5.6 Sol preferences and the different-model reviewer rule.
 Keep review independent by assigning a separate agent. Record the actual
 models of completed agents without claiming they changed retroactively.

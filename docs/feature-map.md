@@ -1,11 +1,24 @@
 # Feature map — 1:1 queue
 
+9 October scheduling delivery: reviewed `e96e76a`, `cc8cc0b` and `a5e4e44`
+hold cold Manual destination work under the opaque outgoing cover and reject
+stale prepared pairs after late revisions. Final code review, build/typechecks
+and supporting checks pass except the unchanged missing historical Camera PNG.
+Muted Helium HOME is available on Sidecar, but the interrupted Camera collector
+does not recertify animation timing. All AN-01..AN-04 whole scenarios remain
+fail. See [final evidence](manual-destination-scheduling-2026-10-09.md).
+
 9 October human regression report: AN-01 includes top-row exit motion and
 consistent tap/pre-open feedback across all five apps. Current close effects
 remove the applet immediately; there is no dedicated paired exit presentation.
 Native exit curves and actual input behavior need a separate matched capture.
-An isolated source-only audit is assigned; no guessed reverse-entry animation
-is authorized. All animation scenarios remain fail.
+The isolated source-only audit is complete with166 identities and zero
+mismatches. Native Notes observation now shows first tap selects, focused tap
+opens, and footer Close displays the HOME Menu cover before HOME recovery.
+The offline report and inspected sheet are recorded in STATUS. The bounded
+Notes-only implementation is assigned; footer dispatch/timing and the other
+four exits remain unproven. No guessed reverse-entry animation is authorized.
+All animation scenarios remain fail.
 
 9 October relative-spacing delivery: reviewed `fbbd63b` completes380 independently
 checked pairs/760 PNGs. Browser Manual lower3026 improves to16; Camera60/9

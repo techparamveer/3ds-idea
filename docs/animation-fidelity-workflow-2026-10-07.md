@@ -3,21 +3,31 @@
 The human resumed on8 October with "continue disregard that" and removed the
 75%-remaining stop rule. Continue from STATUS Next; quota pauses recorded below
 are historical. The latest direct user model reply selects GPT-6.1 Sol extra-high
-Fast after Opus5.5 High reached its monthly spending limit. Fast is not exposed
-by agent tools. The worker override does not change the running coordinator
-model, and the tools do not expose a service-tier selector. All sessions stay
+for this chat and GPT-6.1 Sol high for all new subagents. Older assignments retain
+their actual recorded models. Worker overrides cannot change or verify the
+running coordinator model, and tools expose no Fast selector. All sessions stay
 muted. Visual testing must use the iPad Sidecar, leaving Codex on the Dell;
 verify actual owned-window placement before scenario inputs.
 
 ## Manual source/runtime and fitted recapture, 9 October
+
+Reviewed destination scheduling is integrated through `a5e4e44`, with final
+contract/evidence docs in `969d59c`. Clean equivalent `76813d8` serves the muted
+Helium preview on Sidecar. Build/typechecks pass; the sole full-test failure is
+the unchanged missing historical Camera PNG. The separate Camera collector was
+interrupted after an unexpected pre-gate omnibox key; its preserved first93
+pairs and partial repeat are not accepted regression evidence. Do not retry
+the same focus-sensitive launch blindly. Follow the
+[final scheduling contract](manual-destination-scheduling-2026-10-09.md).
 
 Latest human report adds missing top-row exit motion and inconsistent
 tap/pre-open feedback. AN-01 now requires the complete tap/open/close/HOME
 sequence for all five top-row apps, not just opening receipts. Use ordinary
 touch and A/B/HOME inputs where native supports them. Capture each path before
 editing; do not reverse entry clips or reuse application-suspension policy
-without a source/native comparison. The new isolated applet-exit audit worker
-has source-only ownership; coordinator alone drives muted Sidecar sessions.
+without a source/native comparison. The isolated applet-exit source map is
+complete, with166 identities rechecked and no runtime change. Coordinator alone
+drives muted Sidecar sessions; no broad repeat audit is needed.
 
 Reviewed `fbbd63b` recovers44px relative ordinal spacing without changing
 capture-fitted absolute mounts. Independent380-pair review confirms Browser

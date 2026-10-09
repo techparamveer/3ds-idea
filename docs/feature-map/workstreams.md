@@ -2,6 +2,26 @@
 
 ## Animation completion, 9 October 2026
 
+Current runtime `a5e4e44` is served as equivalent clean `76813d8`; final Manual
+handoff integrates as `969d59c`. `manual_final_handoff`, GPT-6.1 Sol high,
+completed four documentation paths in `manual-final-handoff-20261009/3ds-idea`
+on `codex/manual-final-handoff-20261009`, commit196a637. It has no GUI/runtime
+ownership. `toprow_exit_handoff_high`, GPT-6.1 Sol high, completed the exit
+source map and offline Notes observation audit in
+`applet-exit-audit-20261009/3ds-idea`. No runtime edits or repeated source inventory.
+`notes_close_presentation`, GPT-6.1 Sol high, owns
+`notes-close-presentation-20261009/3ds-idea`, branch
+`codex/notes-close-presentation-20261009`, base969d59c. Its bounded scope is
+the captured missing Notes main-list footer-close cover and owner/pair retention,
+with focused tests. Necessary Stock/runtime/render interfaces are reserved to
+this worker; coordinate before changing system.ts. Other applets, physical HOME,
+subscreen Back and assets are excluded. The Notes source family is identified;
+footer dispatch and fitted sequencing remain adaptations pending matched capture.
+Coordinator alone owns integration and muted Sidecar GUI.
+All new helpers use GPT-6.1 Sol high under the latest human instruction;
+this chat's requested model is GPT-6.1 Sol extra-high, not tool-verified.
+The assignments below are historical where superseded.
+
 Latest human report extends the top-row check to exit and tap/pre-open response.
 `sol_manual_pixel_residual` completed the folder source-gap slice without code
 and now owns source-only `applet-exit-audit-20261009/3ds-idea`, branch

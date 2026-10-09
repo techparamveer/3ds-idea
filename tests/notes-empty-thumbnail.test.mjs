@@ -25,7 +25,7 @@ test('list preparation explicitly requests the derived empty texture through nat
   assert.equal(list.url, path);
   assert.deepEqual(list.textures, [textureName]);
   assert.deepEqual(list.layouts, ['MemoListDown']);
-  assert.deepEqual(list.animations, ['MemoListDown_Base', 'MemoListDown_SceneIn']);
+  assert.deepEqual(list.animations, ['MemoListDown_Base', 'MemoListDown_SceneIn', 'MemoListDown_Decide']);
 });
 
 test('delivered thumbnail is the RGB565 source initializer, not captured native colors', async () => {

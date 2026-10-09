@@ -20,6 +20,8 @@ import { NATIVE_RECOVERY_TARGETS } from './native-screen-input';
 import { stockScreenTargets } from './stock-screen-layout';
 import { createNotesBootCoverPublicationGate, type NotesBootCoverPaint } from './notes-boot-cover';
 import { appletTitleEntrySelection, drawAppletTitleEntry, validateAppletTitleEntryAssets } from './applet-title-entry-assets';
+import type { NotesFooterCloseDraw as NotesFooterClosePaint } from './notes-footer-close-assets';
+import { validateNotesFooterCloseAssets } from './notes-footer-close-assets';
 
 type Context=CanvasRenderingContext2D;
 type MediaRecord=Record<string,JsonValue>;
@@ -41,7 +43,7 @@ export type NotesIntroPaint =
     };
 export type CameraStereoFit={kind:'camera-stereo';originalWidth:number;originalHeight:number;parallaxPixels:number};
 type MediaFit='contain'|'camera-mono'|CameraStereoFit;
-export type StockScreenPaintOptions={settingsHud?:SettingsHudPose;soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground;font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number,fit?:MediaFit)=>boolean;nativeImage?:(url:string)=>NativePixels|undefined;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number;notesIntro?:NotesIntroPaint;healthEntryFrame?:number};
+export type StockScreenPaintOptions={settingsHud?:SettingsHudPose;soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground;font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number,fit?:MediaFit)=>boolean;nativeImage?:(url:string)=>NativePixels|undefined;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number;notesIntro?:NotesIntroPaint;healthEntryFrame?:number;notesFooterClose?:NotesFooterClosePaint};
 /** Portfolio media placement; native UI graphics continue through the layout renderer. */
 export function drawStockMediaImage(ctx:Context,image:CanvasImageSource,sourceWidth:number,sourceHeight:number,x:number,y:number,w:number,h:number,fit:MediaFit='contain'){
   if(typeof fit==='object'&&fit.kind==='camera-stereo'&&w===400&&h===240&&sourceWidth>=480&&sourceHeight>=240&&sourceWidth<=2*sourceHeight&&fit.originalWidth>=480&&fit.originalHeight>=240&&Number.isFinite(fit.parallaxPixels)){
@@ -317,6 +319,12 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         &&state.status==='ready'&&published===state.assets.renderer&&preparedPair?.owner===nextOwner
         &&preparedPair.appId===appId&&preparedPair.renderer===published&&preparedPair.key===painted?published:undefined;
     },
+    notesFooterCloseResources(nextOwner:string):object|undefined{
+      const state=session.getState();
+      return !disposed&&!failure&&complete&&roomReady&&owner===nextOwner&&state.status==='ready'
+        &&published===state.assets.renderer&&preparedPair?.owner===nextOwner&&preparedPair.appId==='game-notes'
+        &&preparedPair.renderer===published&&preparedPair.key===painted?published:undefined;
+    },
     drawIncoming(nextOwner:string,appId:string,top:Context,bottom:Context,frame:number,resources:object):boolean{
       const incoming=appletTitleEntrySelection(appId),state=session.getState();
       if(!incoming||disposed||failure||!complete||!roomReady||owner!==nextOwner||state.status!=='ready'
@@ -333,7 +341,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     revokeNotesBootCoverCandidate(){notesBootCandidate=undefined;notesBootGate.revoke();},
     retry(){if(!disposed&&failure){reset();changed();return true;}return false;},
     /** True only when the published pair is this owner's complete application frame. */
-    draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont,suspendedCapture?:SuspendedCapture,date=new Date(),elapsedMs=0,notesIntro?:NotesIntroPaint,verification?:{sampleCalendar?:boolean}):boolean{
+    draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont,suspendedCapture?:SuspendedCapture,date=new Date(),elapsedMs=0,notesIntro?:NotesIntroPaint,verification?:{sampleCalendar?:boolean},notesFooterClose?:NotesFooterClosePaint):boolean{
       if(disposed)return false;
       preparedPair=undefined;notesBootCandidate=undefined;
       // Pixels stay out of the key; one frozen capture has one generation.
@@ -380,7 +388,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         ?(reducedMotion||healthEntry!.complete?20:healthEntry!.origin===null?0:healthEntrySceneInFrame(healthElapsed-healthEntry!.origin))
         :undefined;
       const healthPaintKey=view.appId==='health-safety'?[healthTopLoopFrame(healthElapsed,reducedMotion),healthEntryFrame]:null;
-      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,notificationsHudKey,notesHudKey,browserHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey]);
+      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,notificationsHudKey,notesHudKey,browserHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey,notesFooterClose]);
       if(painted!==key||paintedFont!==font){
         complete=false;
         black();
@@ -388,7 +396,8 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         else if(!identity||(state.status==='ready'&&roomReady)){
           upperContext.clearRect(0,0,400,240);lowerContext.clearRect(0,0,320,240);
           try{
-            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,nativeImage,soundRoom:options.soundRoom,cameraShoot:options.cameraShoot,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs,notesIntro,settingsHud:hud??undefined,healthEntryFrame});
+            if(notesFooterClose&&state.status==='ready')validateNotesFooterCloseAssets(state.assets.renderer.packs);
+            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,nativeImage,soundRoom:options.soundRoom,cameraShoot:options.cameraShoot,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs,notesIntro,settingsHud:hud??undefined,healthEntryFrame,notesFooterClose});
             published=state.status==='ready'?state.assets.renderer:undefined;complete=true;
             if(healthEntryFrame!==undefined){
               if(reducedMotion||healthEntryFrame===20)healthEntry!.complete=true;

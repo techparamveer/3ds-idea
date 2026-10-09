@@ -26,7 +26,7 @@ export function manualEntryUpdate(elapsedMs: number): number {
 export function createManualEntryPresentation() {
   let identity: ManualEntryIdentity | null = null, ticket = 0, disposed = false, rebase = true;
   let presented: { pose: ManualEntryPose; update: number; sampledUpdate: number } | undefined;
-  let pending: { pose: ManualEntryPose; update: number } | undefined;
+  let pending: { pose: ManualEntryPose; update: number; destinationReady: boolean } | undefined;
   const revoke = () => { ticket++; pending = undefined; rebase = true; };
   const ready = (next: ManualEntryIdentity | null) => !rebase && sameManualEntryIdentity(identity, next)
     && presented?.pose.phase === 'in' && presented.pose.frame === MANUAL_ENTRY_LAST_FRAME;
@@ -60,7 +60,7 @@ export function createManualEntryPresentation() {
           if (input.destinationReady) { phase = 'in'; frame = 0; }
         } else frame = Math.min(MANUAL_ENTRY_LAST_FRAME, frame + progress);
       }
-      pending = { pose: Object.freeze({ identity: Object.freeze({ ...identity }), ticket, phase, frame }), update };
+      pending = { pose: Object.freeze({ identity: Object.freeze({ ...identity }), ticket, phase, frame }), update, destinationReady: input.destinationReady };
       return pending.pose;
     },
     present(pose: ManualEntryPose, next: ManualEntryIdentity | null, elapsedMs: number, eligible: boolean, destinationReady: boolean): boolean {
@@ -68,7 +68,10 @@ export function createManualEntryPresentation() {
         || pose.phase === 'in' && !destinationReady) return false;
       const update = manualEntryUpdate(elapsedMs);
       if (presented && update < presented.update) return false;
-      presented = { pose, update, sampledUpdate: pending.update }; pending = undefined; rebase = false; return true;
+      presented = { pose, update, sampledUpdate: pending.update };
+      // A cold incoming repaint may publish a replacement destination, but
+      // only a subsequent already-ready held receipt resumes its cadence.
+      rebase = pose.phase === 'in' && !pending.destinationReady; pending = undefined; return true;
     },
     active(next: ManualEntryIdentity | null, destinationReady: boolean): boolean {
       return !disposed && !!next && !ready(next) && (!sameManualEntryIdentity(identity, next) || !!pending

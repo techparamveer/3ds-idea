@@ -6,6 +6,22 @@ const ms=update=>update*1000/60+.01;
 const sample=(session,update,options={})=>session.sample({identity,elapsedMs:ms(update),eligible:true,destinationReady:true,reducedMotion:false,...options});
 const present=(session,pose,update,ready=true)=>session.present(pose,identity,ms(update),true,ready);
 
+test('cold incoming rebase receipts cannot spend composition time or publish terminal readiness',()=>{
+ for(const frame of [9,20]){
+  const s=createManualEntryPresentation();
+  for(let out=0;out<=20;out++)present(s,sample(s,100+out),100+out);
+  for(let incoming=0;incoming<=frame;incoming++)present(s,sample(s,121+incoming),121+incoming);
+  const update=122+frame;s.revoke();
+  const cold=sample(s,update,{destinationReady:false});assert.deepEqual([cold.phase,cold.frame],['in',frame]);
+  assert.equal(present(s,cold,update+5,true),true);assert.equal(s.ready(identity),false);
+  assert.equal(s.destinationCompositionAllowed(identity),true);
+  const cached=sample(s,update+6);assert.deepEqual([cached.phase,cached.frame],['in',frame]);
+  assert.equal(present(s,cached,update+6),true);
+  if(frame===20)assert.equal(s.ready(identity),true);
+  else assert.equal(sample(s,update+7).frame,frame+1);
+ }
+});
+
 test('destination scheduling accepts only a matching terminal receipt, without suppressing retained incoming on rebase',()=>{
  const s=createManualEntryPresentation();
  assert.equal(s.destinationCompositionAllowed(identity),false);

@@ -490,6 +490,64 @@ function applicationManualLanguageOverrides(renderer:NativeLayoutRenderer):PaneO
   }));
 }
 
+const preparedApplicationManualScroll=new WeakMap<NativeLayoutRenderer,{source:NativeLayout;count:number}>();
+function validateApplicationManualScroll(layout:NativeLayout|undefined,endWidth:number){
+  const fail=()=>{throw new Error('Unsupported Manual Contents ScrollIndicator source');};
+  const same=(value:unknown,expected:readonly number[])=>Array.isArray(value)&&value.length===expected.length&&value.every((item,index)=>item===expected[index]);
+  if(!layout||layout.unsupported.length||layout.sourceFormat||layout.canvas.width!==32||layout.canvas.height!==32||layout.canvas.origin!==1
+    ||layout.fonts.length||layout.textures.length!==1||layout.textures[0]!=='ScrollIndicator.bclim'||layout.roots.length!==1||layout.materials.length!==2)return fail();
+  const root=layout.roots[0],parent=root.children[0];
+  if(root.name!=='RootPane'||root.children.length!==1||!parent||parent.name!=='Null_00'||parent.children.length!==2)return fail();
+  for(const [index,pane] of [root,parent,...parent.children].entries()){
+    const picture=index>=2,tail=index===3;
+    if(pane.kind!==(picture?'pic1':'pan1')||pane.flags!==1||pane.alpha!==(picture?150:255)||pane.origin!==(picture?tail?3:5:4)
+      ||pane.unsupported?.length||pane.sourceFormat||pane.part||pane.window||pane.text||!same(pane.translation,[0,0,0])||!same(pane.rotation,[0,0,picture?-90:0])||!same(pane.scale,[1,1])
+      ||!same(pane.size,index===0?[32,32]:index===1?[30,40]:[tail?endWidth:8,8])||!picture&&pane.picture)return fail();
+    if(!picture)continue;
+    const ink=pane.picture,material=layout.materials[index-2],matrix=material.textureMatrices[0],map=material.textureMaps[0],generator=material.coordinateGenerators[0],scale=endWidth/8;
+    if(pane.name!==(tail?'EndPic':'StartPic')||pane.children.length||!ink||ink.material!==index-2||ink.colors.length!==4||ink.colors.some(color=>!same(color,[255,255,255,255]))
+      ||ink.uvSets.length!==1||!same(ink.uvSets[0],tail?[1,0,0,0,1,1,0,1]:[0,0,1,0,0,1,1,1])
+      ||Object.keys(ink).sort().join(',')!=='colors,material,uvSets'
+      ||Object.keys(material).sort().join(',')!=='bufferColor,constantColors,coordinateGenerators,flags,name,tevStages,textureMaps,textureMatrices,textureOnly,unsupported'
+      ||material.name!==pane.name||!('flags' in material)||material.flags!==21||material.textureOnly!==false||!same(material.bufferColor,[25,140,140,0])
+      ||material.constantColors.length!==6||material.constantColors.some(color=>!same(color,[255,255,255,255]))||material.tevStages.length||material.unsupported.length
+      ||material.textureMaps.length!==1||!map||Object.keys(map).sort().join(',')!=='magFilter,minFilter,texture,wrapS,wrapT'||map.texture!==0||map.wrapS!==0||map.wrapT!==0||map.minFilter!==1||map.magFilter!==1
+      ||material.textureMatrices.length!==1||!matrix||Object.keys(matrix).sort().join(',')!=='rotation,scale,translation'||matrix.rotation!==0||!same(matrix.scale,[tail?scale:1,1])||!same(matrix.translation,[tail?(scale-1)*.5:0,0])
+      ||material.coordinateGenerators.length!==1||!generator||Object.keys(generator).sort().join(',')!=='reserved,source,type'||!('reserved' in generator)||generator.reserved!==0||generator.source!==0||generator.type!==0)return fail();
+  }
+  return layout;
+}
+
+/** IndexNull's HeadLineAll control (0x15935c/0x13ceb0) owns Contents plus
+ * every valid category and page. Its holder at 0x139e78 retains that same
+ * control; 0x139de4/0x143074 derive integer length and EndPic's UV matrix. */
+function prepareApplicationManualScroll(renderer:NativeLayoutRenderer,entryCount:number){
+  const fail=()=>{throw new Error('Unsupported Manual Contents ScrollIndicator source');};
+  const pack=renderer.packs['manual-scroll'],source=validateApplicationManualScroll(pack?.layouts.ScrollIndicator,24),clip=pack?.animations.ScrollIndicator_Wait;
+  const texture=pack.textures['ScrollIndicator.bclim'];
+  if(!texture||texture.width!==8||texture.height!==8||texture.picaFormat!==9
+    ||texture.url!=='textures/72befbf9ad075df80a05a54fdbb448db960a26f171fe923c2ad73c4f69099623.png'
+    ||!clip||clip.frames!==2||clip.loop!==false||clip.childBinding!==true||clip.groups.length||clip.textures.length||clip.shares!==undefined
+    ||!('unsupported' in clip)||!Array.isArray(clip.unsupported)||clip.unsupported.length||clip.tracks.length!==12)return fail();
+  for(const [index,track] of clip.tracks.entries()){
+    const channel=index%6,component=[0,1,2,4,5,6][channel],key=track.keys[0];
+    if(track.binding!=='material'||track.target!==(index<6?'StartPic':'EndPic')||track.contentIndex!==(index<6?0:1)||track.index!==0||track.component!==component
+      ||track.interpolation!=='hermite'||track.property!==`materialColor.${channel<3?0:1}.${channel%3}`||!('tag' in track)||track.tag!=='CLMC'
+      ||track.keys.length!==1||!key||key.frame!==5||key.value!==[25,140,140,255,255,255][channel]||key.slope!==[21.5,-2,-10,-1.5,-7.5,-13.5][channel])return fail();
+  }
+  const count=entryCount+1,f=Math.fround;
+  const height=Math.max(32,Math.trunc(Math.min(180,Math.max(30,f(f(-9.375*count)+217.5))))),endWidth=height-8;
+  const cached=preparedApplicationManualScroll.get(renderer);
+  if(!cached||cached.source!==source||cached.count!==count){
+    const layout=structuredClone(source),tail=layout.roots[0].children[0].children[1],matrix=layout.materials[1].textureMatrices[0];
+    tail.size[0]=endWidth;matrix.scale[0]=f(endWidth*.125);matrix.translation[0]=f(f(matrix.scale[0]-1)*.5);
+    renderer.packs['manual-scroll']={...pack,layouts:{...pack.layouts,ContentsScrollIndicator:layout}};
+    preparedApplicationManualScroll.set(renderer,{source,count});
+  }
+  validateApplicationManualScroll(renderer.packs['manual-scroll'].layouts.ContentsScrollIndicator,endWidth);
+  return 'ContentsScrollIndicator';
+}
+
 /** Application manual Contents. Rows come only from
  * the application's source Index.bclyt; titles, numbers and order are source
  * data. All visible chrome below is decoded from the Manual applet packs. */
@@ -501,6 +559,7 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
   prepareApplicationManualRows(renderer,bottom);
   const languageOverrides=applicationManualLanguageOverrides(renderer);
   const entries=manualContents(index);
+  const scrollLayout=prepareApplicationManualScroll(renderer,entries.length);
   const message=(label:string)=>nativeMessageOverride(renderer.packs['helper-messages'],'ebird',label,'');
   let okay=true;
   const draw=(ctx:CanvasRenderingContext2D,pack:string,layout:string,options:Parameters<NativeLayoutRenderer['draw']>[3]={})=>{okay=renderer.draw(ctx,pack,layout,options)&&okay;};
@@ -515,7 +574,7 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
   const sourceIcon=options?.nativeImage?.(source.iconUrl);
   const icon=sourceIcon&&sourceIcon.width===48&&sourceIcon.height===48?applicationManualIconPixels(sourceIcon):undefined;
   draw(top,'manual-SoftTitleHeader','SoftTitleHeader',{center:APPLICATION_MANUAL_HEADER_CENTRE,pictureSampling:'lcd',textSampling:'lcd-source-size',textures:icon?{'IconBlank.bclim':icon}:undefined,overrides:{TextBoxTxt_00:{text:source.heading},...(!icon&&{P_Icon_00:{visible:false}})}});
-  draw(top,'manual-scroll','ScrollIndicator',{center:[392,32],pictureSampling:'lcd',bindings:[{name:'ScrollIndicator_Wait',frame:5}]});
+  draw(top,'manual-scroll',scrollLayout,{center:[392,32],pictureSampling:'lcd',bindings:[{name:'ScrollIndicator_Wait',frame:5}]});
   draw(bottom,'manual-IndexBase00','IndexBase00',{center:[160,0]});
   draw(bottom,'manual-ContentsTxt','ContentsTxt',{center:[160,APPLICATION_MANUAL_SLOTS.contentsCentre],textSampling:'lcd',overrides:{Contents_Txt:message('ContentsText')}});
   let y=APPLICATION_MANUAL_SLOTS.firstRow,categoryIndex=0;

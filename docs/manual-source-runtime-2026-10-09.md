@@ -1,5 +1,11 @@
 # Manual source and runtime checkpoint
 
+Current scheduling contract and final evidence are in
+[Manual destination scheduling](manual-destination-scheduling-2026-10-09.md),
+integrated through `a5e4e44` with clean equivalent `76813d8`. The records below
+retain their original runtime/capture identities; they do not recertify the
+scheduling stack. All four whole flows remain fail/unproven.
+
 ## Relative row spacing delivery
 
 Reviewed worker `9ffaa9e` integrates as `fbbd63b`. Manual's shared native

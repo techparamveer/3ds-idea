@@ -1,6 +1,22 @@
 # Animation completion checkpoint
 
+Current Manual scheduling and evidence are in
+[the final scheduling handoff](manual-destination-scheduling-2026-10-09.md).
+Earlier build, timing and capture records below retain their historical scope.
+
 ## Latest delivery
+
+Approved Manual stack `97252bf` + `9b2c066` + `fee1885` integrates through
+`e96e76a` + `cc8cc0b` + `a5e4e44`. Destination work waits for the accepted
+opaque outgoing gate; incoming rebase retains its frame through a cold draw,
+and late revisions revoke prepared pairs before notification. Clean equivalent
+`76813d8` passes build/typechecks; full tests have 2598 passes, 101 skips, one
+TODO and the unchanged historical missing Camera PNG failure. Helium HOME is
+preview evidence only. Camera's interrupted first 93 pairs and partial repeat are
+preserved but not accepted regression evidence. No new native comparison or
+production timing improvement is established. The completed 166-identity
+top-row audit still leaves immediate close/delete and retained Decide missing.
+All four whole flows remain fail/unproven; all audio stays muted/unverified.
 
 Reviewed `fbbd63b` delivers source-proved44px relative row spacing. Independent
 380-pair/760-PNG review confirms Browser Manual lower3026 to16; Camera60/9
@@ -111,7 +127,7 @@ coalesces receipts502..505. CPU timing excludes GPU/presentation latency.
 | Flow | Delivered | Still needed |
 | --- | --- | --- |
 | Top row | Source-backed outgoing/incoming and Notes supplied-pose fixes | Exact native input/cadence, handoff timing and pixel residuals. New Notes static diagnostic remains1107upper/731lower, empty mask. |
-| Manual | Source row/scrollbar corrections, elapsed sampling and renderer work; Browser60/16 and Camera60/9 static diagnostics | Remove observed outgoing composition spikes, recapture Settings, resolve sparse pixels and matched native cadence. |
+| Manual | Source row/scrollbar corrections, elapsed sampling, renderer work and reviewed destination scheduling through `a5e4e44`; Browser 60/16 and Camera 60/9 are historical `fbbd63b` static diagnostics | Obtain accepted first/repeat production recapture for the scheduling stack, including Settings; resolve sparse pixels and matched native input/cadence. |
 | Folder | Ordinary entry/cursor fixes and successful populated browser fixture | Matched native/browser motion and epochs; resolve pixel residuals without touching excluded moving work. |
 | HOME suspension | Lower terminal and seven-update receipt-gap fixes | Exact native timing/input and remaining pixels; fresh baseline did not reproduce old stall, so no causal wall-time speedup claim. |
 

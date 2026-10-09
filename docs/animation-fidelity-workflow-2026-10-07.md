@@ -11,6 +11,14 @@ verify actual owned-window placement before scenario inputs.
 
 ## Manual source/runtime and fitted recapture, 9 October
 
+Latest human report adds missing top-row exit motion and inconsistent
+tap/pre-open feedback. AN-01 now requires the complete tap/open/close/HOME
+sequence for all five top-row apps, not just opening receipts. Use ordinary
+touch and A/B/HOME inputs where native supports them. Capture each path before
+editing; do not reverse entry clips or reuse application-suspension policy
+without a source/native comparison. The new isolated applet-exit audit worker
+has source-only ownership; coordinator alone drives muted Sidecar sessions.
+
 Reviewed `fbbd63b` recovers44px relative ordinal spacing without changing
 capture-fitted absolute mounts. Independent380-pair review confirms Browser
 lower3026 to16 and unchanged Camera60/9. Settings was aborted before its input
@@ -684,7 +692,7 @@ seats are in [STATUS](../STATUS.md), with the objective in [GOAL](../GOAL.md).
 
 | ID | Flow | Required variants | Current acceptance |
 | --- | --- | --- | --- |
-| AN-01 | Open top-row app | Notes, Friends, Notifications, Browser, Miiverse; touch and physical A; return and repeat | fail: user reports incomplete motion; current sequence must be captured |
+| AN-01 | Top-row tap, open and exit | Notes, Friends, Notifications, Browser, Miiverse; tap feedback, touch and physical A; footer/B/HOME exits where supported; return and repeat | fail: user reports missing exits and inconsistent pre-open response; capture each complete sequence |
 | AN-02 | Open Manual | HOME Manual footer, app-origin Manual where supported; Close and reopen; suspended owner retained | fail: user reports incomplete entry motion |
 | AN-03 | Enter folder | empty and populated; root scroll/density aligned; repeated entry; Back control | fail: user reports incomplete entry motion |
 | AN-04 | Suspend with HOME | native deterministic app, Camera/Sound where available, portfolio app; repeated HOME and Resume | fail: user reports incomplete pause motion; portfolio interior is an adaptation |

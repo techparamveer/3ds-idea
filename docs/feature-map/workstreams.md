@@ -2,6 +2,16 @@
 
 ## Animation completion, 9 October 2026
 
+Latest human report extends the top-row check to exit and tap/pre-open response.
+`sol_manual_pixel_residual` completed the folder source-gap slice without code
+and now owns source-only `applet-exit-audit-20261009/3ds-idea`, branch
+`codex/applet-exit-audit-20261009`, base2e0c3d2. It may inspect the five applet
+input/lifecycle/render paths and delivered native resources, but not change
+runtime or drive GUI. The Manual worker freezes its narrow scheduling fix for
+exact different-model review. Coordinator owns commits, production preview and
+all muted Sidecar GUI. The latest Helium request resumes GUI authorization;
+earlier short-test timing questions no longer block the preview.
+
 Latest runtime is `fbbd63b`; equivalent clean verification is `79d3cdd`.
 Independent380-pair production audit confirms Browser60/16 and Camera60/9.
 Settings has no new coverage. Coordinator owns documentation, integration and

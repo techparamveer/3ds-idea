@@ -3,6 +3,12 @@
 Updated 9 October 2026. Fetched GitHub version `c767757` is integrated through
 reviewed merge `b84e1b2`. Primary local main remains untouched at `5ee6fd7`.
 
+Latest human report also requires top-row exit animations and consistent
+tap/pre-open responses for Notes, Friends, Notifications, Browser and Miiverse.
+Opening coverage alone does not close this work. Capture each complete
+tap/open/close/HOME sequence on muted Sidecar and compare the corresponding
+native sequence. Do not infer an exit by reversing the opening clip.
+
 Latest human model reply selects GPT-6.1 Sol extra-high Fast after Opus hit its
 monthly spending limit. Use that model/effort for new implementation workers;
 agent tools have no Fast selector. Keep different-model review independent.

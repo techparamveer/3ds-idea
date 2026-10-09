@@ -1,5 +1,12 @@
 # Feature map — 1:1 queue
 
+9 October human regression report: AN-01 includes top-row exit motion and
+consistent tap/pre-open feedback across all five apps. Current close effects
+remove the applet immediately; there is no dedicated paired exit presentation.
+Native exit curves and actual input behavior need a separate matched capture.
+An isolated source-only audit is assigned; no guessed reverse-entry animation
+is authorized. All animation scenarios remain fail.
+
 9 October relative-spacing delivery: reviewed `fbbd63b` completes380 independently
 checked pairs/760 PNGs. Browser Manual lower3026 improves to16; Camera60/9
 holds byte-identically. Settings setup was aborted before input and still needs

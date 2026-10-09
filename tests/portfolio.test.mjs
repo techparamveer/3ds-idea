@@ -64,6 +64,19 @@ test('reordering persists all apps; corrupt storage cannot hide portfolio conten
  assert.deepEqual(restoreSettings(home(),'{bad'),home());
  assert.deepEqual(restoreSettings(home(),JSON.stringify({layout:{0:'work'}})),home());
 });
+test('installing Hack LDN preserves the existing layout, folders and preferences',()=>{
+ let before=moveApp(home(),0,20);before.theme='blue';before.system.muted=true;
+ before.folders[30]='My folder';
+ const saved=JSON.parse(saveSettings(before));
+ const hackSlot=Object.keys(saved.layout).find(slot=>saved.layout[slot]==='hack-ldn-2025');
+ delete saved.layout[hackSlot];
+ const restored=restoreSettings(createPortfolioState(),JSON.stringify(saved));
+ assert.equal(restored.theme,'blue');assert.equal(restored.system.muted,true);
+ assert.equal(restored.folders[30],'My folder');
+ for(const [slot,id]of Object.entries(saved.layout))assert.equal(restored.system.layout[slot],id);
+ assert.equal(Object.values(restored.system.layout).filter(id=>id==='hack-ldn-2025').length,1);
+ assert.equal(restored.system.layout[5],'nvidia');assert.equal(restored.system.layout[9],'system-settings');
+});
 test('sound preferences support physical navigation and preserve power-saving settings',()=>{
  let s=send(home(),'preferences');s=send(s,'down');s=send(s,'right');assert.ok(s.system.volume>.35);
  s=send(s,'down');s=moveApp(s,0,8);s=send(s,'open');assert.equal(s.system.layout[0],'work');

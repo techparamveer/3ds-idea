@@ -8,7 +8,8 @@ Updated: 9 October 2026.
 ## Hack LDN depth revision
 
 Active checkout: `/Users/paramveer/.codex/worktrees/hack-ldn-depth/3ds-idea`.
-Branch: `codex/hack-ldn-depth`, checked base `c76775731fe539473934365d35210d79c3cbb551`.
+Branch: `codex/hack-ldn-depth`, implementation `ce41cfa6967bcafcfc42b4ff2142071ab37b72b3`.
+Base: `c76775731fe539473934365d35210d79c3cbb551`; Git supplies the documentation HEAD.
 The original NVIDIA and Hack LDN PRs are merged. User requests a stronger 3D
 appearance while preserving the chevron animation, then a follow-up PR.
 Artifacts: `/Users/paramveer/.codex/3ds-artifact-overflow/hack-ldn-depth-20261009/`.

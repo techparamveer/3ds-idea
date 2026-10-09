@@ -12,7 +12,7 @@ import { getApp } from './apps.ts';
 import { clearHomeFolderIdentities, createHomeFolderIdentities, getHomeFolderIdentities, type HomeFolderIdentities } from './home-folder-identity.ts';
 import { getTitle, initialAppLayout, isPreviousDefaultAppLayout } from './app-registry.ts';
 import { initialState, reduceMenu, touchMenu, isHomeFolderBackTouch, setHomeSettingsScroll, type MenuState, type Input } from './state.ts';
-import { HOME_FOOTER_TOUCH_GEOMETRY, homeFolderNoticeActionAt, homeFolderSettingsActionAt, homeSettingsScrollAt, homeSettingsActionAt, homeLayoutConfirmationAt, softwareDialogActionAt, powerMenuActionAt } from './stock-screen-layout.ts';
+import { HOME_FOOTER_TOUCH_GEOMETRY, homeFolderNoticeActionAt, homeFolderSettingsActionAt, homeSettingsScrollAt, homeSettingsActionAt, homeLayoutConfirmationAt, softwareDialogActionAt, powerMenuActionAt, stockScreenActionAt } from './stock-screen-layout.ts';
 import { homeFooterHit, ownedHomeFooterContact } from './home-footer-touch.ts';
 import { serializeHomeSavedLayouts, restoreHomeSavedLayouts } from './home-saved-layouts.ts';
 import { activeInstance, acknowledgeEffects, closeApplication, completeApplet, createAppRuntime, deliverCapabilityResult, dispatchRuntime, openApplet, resumeRuntimeApplication, runtimeView, setRuntimeSleeping, showRuntimeHome, startApplication, startSettingsHelper, tickRuntime, type AppRuntime } from './app-host.ts';
@@ -291,6 +291,21 @@ function reduceSystemAction(state:MenuState,input:Input,now:number):MenuState {
  return reduceMenu(state,state.panel==='home-layouts'&&(input==='x'||input==='y')?input:input==='x'?'zoom':input==='y'?'brightness':input==='select'?'zoom':input==='l'?'left':input==='r'?'right':input);
 }
 const toolbarApps:Record<string,string>={notes:'game-notes',friends:'friends',notifications:'notifications',browser:'browser',miiverse:'miiverse'};
+function requestNotesFooterClose(state:MenuState,x:number,y:number):MenuState|null {
+ const s=state.system,active=s?activeInstance(s.runtime):undefined,view=s?runtimeView(s.runtime):null;
+ if(!s||!state.powered||s.phase!=='app'||s.sleeping||s.preferences||s.dialog||!active||active.appId!=='game-notes'
+  ||s.runtime.systemApplet!==active.id||active.caller!==null||active.state.screen!=='main'||active.closing||active.suspended||!view||stockScreenActionAt(view,x,y)!=='back')return null;
+ return active.state.notesFooterClose===true?state:{...state,system:{...s,input:createInputLatch(),runtime:{...s.runtime,
+  instances:{...s.runtime.instances,[active.id]:{...active,state:{...active.state,notesFooterClose:true}}}}}};
+}
+/** Only the accepted outgoing terminal pair permits the existing close lifecycle. */
+export function completeNotesFooterClose(state:MenuState,owner:string,now:number):MenuState {
+ const s=state.system,instance=s?.runtime.instances[owner];
+ if(!s||!state.powered||!Number.isFinite(now)||s.phase!=='app'||s.sleeping||s.preferences||s.dialog||s.runtime.active!==owner
+  ||s.runtime.systemApplet!==owner||instance?.appId!=='game-notes'||instance.caller!==null||instance.closing||instance.suspended
+  ||instance.state.screen!=='main'||instance.state.notesFooterClose!==true)return state;
+ return commitRuntime(state,completeApplet(s.runtime,owner,null,true,now),now);
+}
 export function touchSystem(state:MenuState,x:number,y:number,now:number):MenuState {
  return reconcileHomeControls(state,touchSystemAction(state,x,y,now));
 }
@@ -315,6 +330,7 @@ function touchSystemAction(state:MenuState,x:number,y:number,now:number):MenuSta
  if(s.dialog){const action=softwareDialogActionAt(x,y);return action?send(action):state;}
  if(s.phase==='app'){
   const active=activeInstance(s.runtime);
+  const notesClose=requestNotesFooterClose(state,x,y);if(notesClose)return notesClose;
   if(active&&getTitle(active.appId)?.source==='firmware')return commitRuntime(state,dispatchRuntime(s.runtime,{type:'touch',phase:'up',x,y},now),now);
   if(y>=212){if(x<100)return send('back');if(x>220)return send('open');return s.detail&&(currentEntry(state)?.images?.length??0)>1?send(x<160?'left':'right'):state;}
   if(s.detail){if(y>=174)return send(x<160?'up':'down');if(y<32)return send(x<160?'left':'right');return state;}
@@ -455,6 +471,9 @@ function dispatchSystemEventAction(state: MenuState,event: AppEvent,now: number)
  if(s.phase!=='app'||s.sleeping||s.preferences||s.dialog)return event.type==='touch'&&event.phase==='up'?touchSystem(state,event.x,event.y,now):state;
  if(event.type==='touch'&&getTitle(activeInstance(s.runtime)?.appId)?.source==='portfolio'){
   const next=commitRuntime(state,dispatchRuntime(s.runtime,event,now),now);return event.phase==='up'?touchSystem(next,event.x,event.y,now):next;
+ }
+ if(event.type==='touch'&&event.phase==='up'){
+  const notesClose=requestNotesFooterClose(state,event.x,event.y);if(notesClose)return notesClose;
  }
  return commitRuntime(state,dispatchRuntime(s.runtime,event,now),now);
 }

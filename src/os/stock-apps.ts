@@ -337,6 +337,11 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
         ...(id === 'system-settings' ? { settingsHudElapsedMs: 0 } : {}), ...(id === 'eshop' ? { welcomeElapsed: 0 } : {}), ...(id === 'health-safety' ? { healthElapsedMs: 0 } : {}) };
     },
     reduce(state, event, context) {
+      // Retain the captured outgoing list. Recovery B/HOME/power still use
+      // their existing routes; only a footer request owns this presentation.
+      if(id==='game-notes'&&state.notesFooterClose===true&&event.type!=='tick'&&event.type!=='lifecycle'
+        &&!(event.type==='command'&&event.command==='back')
+        &&!(event.type==='button'&&event.command==='back'))return {state};
       if(cameraTitles.has(id)&&state.screen==='gallery'){
         const count=folder(state)?.photos.length??0,step=cameraStep(state);
         if(event.type==='tick')return {state:cameraPut(state,cameraBrowseTick(step,event.elapsedMs,count))};
@@ -364,6 +369,9 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
         }
       }
       if (id === 'game-notes') {
+        if(event.type==='lifecycle'&&event.phase==='suspend'&&state.notesFooterClose===true){
+          const {notesFooterClose:_close,...rest}=state;return {state:rest};
+        }
         if (event.type === 'tick' && Number.isFinite(event.elapsedMs) && event.elapsedMs > 0) {
           let next: AppState = { ...state, notesHostMs: num(state.notesHostMs) + event.elapsedMs };
           if (state.screen === 'drawing' && notesSwitchFrame(state) < NOTES_SWITCH_LAST_FRAME)

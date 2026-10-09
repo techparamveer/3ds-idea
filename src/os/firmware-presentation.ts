@@ -24,6 +24,7 @@ import { sampleSystemHomeApplicationTransition } from './system-home-application
 import type { HomeFolderEntryPose } from './home-entry-motion';
 import { validateHomeFolderEntryAssets } from './home-folder-entry-assets';
 import { manualEntryBindings, validateManualEntryAssets } from './manual-entry-assets';
+import { notesFooterReturnBindings, validateNotesFooterReturnAssets } from './notes-footer-close-assets';
 import { appletEntryBindings, appletEntryOverrides, validateAppletEntryAssets, type AppletEntryAppId } from './applet-entry-assets';
 import type { ManualEntryPose } from './manual-entry-presentation';
 import { drawHomePauseLower } from './home-pause-lower';
@@ -566,5 +567,18 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  function pauseLower(ctx:Context,application:NativePixels,home:NativePixels,frame:number){
   return drawHomePauseLower(renderer,ctx,application,home,frame);
  }
- return {appletEntry,manualEntry,pauseLower,hud,upperBase,settingsUpper,settingsLower,folderSettingsLower,folderNotEmptyLower,folderBalloon,folderBannerLabel,appletBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,ordinaryTitleIcon,suspendedIcon,captureFolder,empty,cursor,cursorAt,cursorEffectAt,launchCursorEffectAt,arrows,pickup,pickupAt,pickupBlankAt,liftedSource,pressOffset,rows:rowCount};
+ function notesFooterReturn(top:Context,bottom:Context,frame:number):boolean{
+  const bindings=notesFooterReturnBindings(frame);
+  validateNotesFooterReturnAssets(renderer.packs.common);
+  const label=notesFooterReturnLabel();
+  if(!label.text)throw Error('Native HOME return label unavailable');
+  if(!renderer.draw(top,'common','CmnFade_U_00',{bindings:bindings.upper,opaquePictureAlphaPanes:['P_Bg_U_00']}))return false;
+  return renderer.draw(bottom,'common','CmnFade_D_00',{bindings:bindings.lower,overrides:{T_Aplt_00:label},opaquePictureAlphaPanes:['P_Bg_D_00']});
+ }
+ function notesFooterReturnLabel(){
+  const label=nativeMessageOverride(renderer.packs.messages,'menu_msbt_LZ','lau_title_menu','');
+  if(!label.text)throw Error('Native HOME return label unavailable');
+  return label;
+ }
+ return {notesFooterReturnLabel,notesFooterReturn,appletEntry,manualEntry,pauseLower,hud,upperBase,settingsUpper,settingsLower,folderSettingsLower,folderNotEmptyLower,folderBalloon,folderBannerLabel,appletBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,ordinaryTitleIcon,suspendedIcon,captureFolder,empty,cursor,cursorAt,cursorEffectAt,launchCursorEffectAt,arrows,pickup,pickupAt,pickupBlankAt,liftedSource,pressOffset,rows:rowCount};
 }

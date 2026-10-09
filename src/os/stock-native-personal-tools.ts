@@ -12,10 +12,10 @@ const notesEmptyThumbnail='runtime-empty-note-thumbnail';
 export const personalNotesPacks:readonly NativeTitlePackRequest[]=[
   {url:notesPrefix+'memo-Bg_U_00-arc-l.json',alias:'notes-upper',layouts:['Bg_U_00'],animations:[]},
   {url:notesPrefix+'memo-Bg_D_00-arc-l.json',alias:'notes-lower',layouts:['Bg_D_00'],animations:[]},
-  {url:notesPrefix+'contents/0000-00000007/memo-MemoListDown-empty-thumbnail.json',alias:'notes-list',layouts:['MemoListDown'],animations:['MemoListDown_Base','MemoListDown_SceneIn'],textures:[notesEmptyThumbnail]},
+  {url:notesPrefix+'contents/0000-00000007/memo-MemoListDown-empty-thumbnail.json',alias:'notes-list',layouts:['MemoListDown'],animations:['MemoListDown_Base','MemoListDown_SceneIn','MemoListDown_Decide'],textures:[notesEmptyThumbnail]},
   {url:notesPrefix+'memo-MemoTutorialUp-arc-l.json',alias:'notes-help',layouts:['MemoTutorialUp'],animations:['MemoTutorialUp_Base','MemoTutorialUp_SceneIn']},
-  {url:notesPrefix+'memo-ApltBoot_U_00-arc-l.json',alias:'notes-aplt-u',layouts:['ApltBoot_U_00'],animations:['ApltBoot_U_00_SceneIn']},
-  {url:notesPrefix+'memo-ApltBoot_D_00-arc-l.json',alias:'notes-aplt-d',layouts:['ApltBoot_D_00'],animations:['ApltBoot_D_00_SceneIn']},
+  {url:notesPrefix+'memo-ApltBoot_U_00-arc-l.json',alias:'notes-aplt-u',layouts:['ApltBoot_U_00'],animations:['ApltBoot_U_00_SceneIn','ApltBoot_U_00_SceneOut']},
+  {url:notesPrefix+'memo-ApltBoot_D_00-arc-l.json',alias:'notes-aplt-d',layouts:['ApltBoot_D_00'],animations:['ApltBoot_D_00_SceneIn','ApltBoot_D_00_SceneOut']},
   {url:notesPrefix+'contents/0000-00000007/memo-HudMenuAplt_00-arc-l.json',alias:'notes-hud',layouts:['HudMenuAplt_00'],animations:['HudMenuAplt_00_SceneIn','HudMenuAplt_00_Bat','HudMenuAplt_00_NetMode','HudMenuAplt_00_NetAtn']},
   {url:notesPrefix+'contents/0000-00000007/hud-messages.json',alias:'notes-hud-messages',layouts:[],animations:[]},
   {url:notesPrefix+'messages-and-loose.json',alias:'notes-messages',layouts:[],animations:[]},
@@ -270,15 +270,25 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
   if(view.appId==='game-notes'&&view.screen==='drawing')return drawSelectedNote(renderer,top,bottom,view,options.suspendedCapture,options.reducedMotion);
   if(view.appId!=='game-notes'||view.screen!=='main')return false;
   const message=(label:string)=>nativeMessageOverride(renderer.packs['notes-messages'],'message',label,'');
+  const close=options.notesFooterClose;
+  if(close&&(!Number.isInteger(close.frame)||close.frame<0||close.frame>(close.kind==='feedback'?1:20)))throw Error('Invalid Notes footer close source frame');
   const selection=Math.max(0,Math.min(15,Math.floor(view.selection))),column=selection%4,row=Math.floor(selection/4);
   const overrides:PaneOverrides={...notesEmptyThumbnailOverrides(renderer.packs['notes-list']),
     T_BtnB_00:message('0100Exitbtn'),T_BtnF_00:message('0100Exitbtn'),
-    N_CsrMemo:{translation:[-118+column*79,90-row*51,0]},
+    N_CsrMemo:{translation:[-118+column*79,90-row*51,0],...(close&&(close.kind==='out'||close.frame>0)?{visible:false}:{})},
   };
   let okay=renderer.draw(top,'notes-upper','Bg_U_00');
   okay=drawNotesMainUpper(renderer,top,message,options)&&okay;
   okay=renderer.draw(bottom,'notes-lower','Bg_D_00')&&okay;
-  okay=renderer.draw(bottom,'notes-list','MemoListDown',{bindings:[{name:'MemoListDown_Base',frame:0},{name:'MemoListDown_SceneIn',frame:20}],overrides})&&okay;
+  okay=renderer.draw(bottom,'notes-list','MemoListDown',{bindings:[{name:'MemoListDown_Base',frame:0},{name:'MemoListDown_SceneIn',frame:20},
+    ...(close?[{name:'MemoListDown_Decide',frame:5,groups:['G_Btn_end']}]:[])],overrides})&&okay;
+  if(close){
+    if(close.kind==='out'){
+      okay=renderer.draw(top,'notes-aplt-u','ApltBoot_U_00',{bindings:[{name:'ApltBoot_U_00_SceneOut',frame:close.frame,groups:['Group_00']}],opaquePictureAlphaPanes:['P_Bg_U_00']})&&okay;
+      okay=renderer.draw(bottom,'notes-aplt-d','ApltBoot_D_00',{bindings:[{name:'ApltBoot_D_00_SceneOut',frame:close.frame,groups:['G_Scene_00']}],overrides:{T_Aplt_00:message('lau_title_memo'),T_Home_00:close.homeLabel},opaquePictureAlphaPanes:['P_Bg_D_00']})&&okay;
+    }
+    return okay;
+  }
   // Native priority-0 scene 9 draws after the list, independently of scene 10.
   // Use the owner clock's already-applied lower pose; painting never steps it.
   if((options.notesIntro?.status==='posed'||options.notesIntro?.status==='boot-cover')&&options.notesIntro.scene9Draw)

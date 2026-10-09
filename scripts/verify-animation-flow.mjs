@@ -7,6 +7,8 @@ import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual, parseArgs } from 'node:util';
 import { folderCapturePrecondition } from './reference/folder-capture-precondition.mjs';
 import { pauseCapturePrecondition } from './reference/pause-capture-precondition.mjs';
+import { createProjectedTouchInput } from './reference/projected-touch-input.mjs';
+import { parseFolderFixture, populatedFolderObservation, preparePopulatedFolderFixture, returnFromPopulatedFolder } from './reference/populated-folder-fixture.mjs';
 
 export function manualCaptureHeading(title) {
   const headings = { settings: 'System Settings', camera: 'Nintendo 3DS Camera', browser: 'Internet Browser' };
@@ -477,12 +479,8 @@ if (values.scenario === 'manual') manualCaptureHeading(title);
 if (values.scenario === 'pause') assert.ok(['health', 'camera', 'sound', 'portfolio'].includes(title));
 if (values.scenario === 'manual') assert.equal(values.activation, 'touch', 'Manual requires --activation touch');
 if (values.scenario === 'pause') assert.notEqual(values.activation, 'touch', 'Pause supports key or physical HOME');
-assert.ok(['baseline', 'native-six-rows'].includes(values['folder-fixture']));
-if (values.scenario !== 'folder') assert.equal(values['folder-fixture'], 'baseline');
-if (values.activation === 'tile') {
-  assert.equal(values.scenario, 'folder', 'Tile activation is folder-only');
-  assert.equal(values['folder-fixture'], 'native-six-rows', 'Tile activation requires the captured six-row fixture');
-}
+const folderFixture = parseFolderFixture(values['folder-fixture'], { scenario: values.scenario, activation: values.activation });
+const populatedFolder = folderFixture === 'populated-health';
 for (const key of ['width', 'height']) assert.ok(Number.isInteger(Number(values[key])) && Number(values[key]) > 0, key);
 const durationMs = Number(values['duration-ms']);
 assert.ok(Number.isInteger(durationMs) && durationMs >= 1000 && durationMs <= 30000, 'Capture duration must be 1000..30000ms');
@@ -496,7 +494,7 @@ const output = values.output;
 await mkdir(dirname(output), { recursive: true });
 await mkdir(output);
 const { chromium } = await import(pathToFileURL(values['playwright-module']));
-let browser, page, windowConfirmation;
+let browser, page, windowConfirmation, folderFixtureDetails = null;
 const errors = [], inputs = [];
 const state = () => page.locator('.console-stage').evaluate(host => ({ ...host.dataset, announcement: host.querySelector('[aria-live]')?.textContent }));
 try {
@@ -514,6 +512,21 @@ const clickTarget = async (target, input) => {
   await page.mouse.click(point[0], point[1]);
 };
 const touch = (x, y) => clickTarget(`Touch_${x}_${y}`, { kind: 'touch', x, y });
+const projectedTouch = createProjectedTouchInput(page, inputs);
+const waitForPopulatedFolder = async request => {
+  const observed = await page.waitForFunction(populatedFolderObservation, request, { timeout: 10000 });
+  try { return await observed.jsonValue(); } finally { await observed.dispose(); }
+};
+const prepareFolderRoot = async (folderIdentity, folderSelection) => {
+  const active = await page.waitForFunction(folderCapturePrecondition, { folderIdentity, folderSelection }, { timeout: 10000 });
+  const identity = await active.jsonValue();
+  await active.dispose();
+  const prepared = await page.waitForFunction(folderCapturePrecondition, { folderIdentity, folderSelection, after: identity }, { timeout: 10000 });
+  await prepared.dispose();
+  return { identity,
+    method: 'Snapshot matching active native folder generation/request/activation, then wait for a later fresh valid paired WebGL root receipt while that identity remains current.',
+    adaptation: 'Browser fixture preparation wait; not a recovered native input epoch or duration.' };
+};
 const physical = button => clickTarget(`Button_${button}`, { kind: 'physical', button });
 const key = async value => {
   inputs.push({ kind: 'key', value, at: Date.now() });
@@ -546,6 +559,12 @@ const selectTitle = () => selectAnimationTitle(title, { key, touch, wait: ms => 
   } else if (values.scenario === 'manual') {
     await selectTitle();
   } else if (values.scenario === 'folder') {
+    if (populatedFolder) {
+      folderFixtureDetails = await preparePopulatedFolderFixture({ state, touch: projectedTouch.click, pointer: projectedTouch,
+        waitFor: waitForPopulatedFolder, prepareRoot: prepareFolderRoot });
+      folderSelection = '28';
+      folderIdentity = folderFixtureDetails.folderIdentity;
+    } else {
     // An empty slot's ordinary Open action creates a native folder.
     if (values['folder-fixture'] === 'native-six-rows') {
       assert.equal(initial.rows, '2');
@@ -565,6 +584,7 @@ const selectTitle = () => selectAnimationTitle(title, { key, touch, wait: ms => 
     const created = JSON.parse((await state()).folderBanner).selection;
     assert.equal(created?.kind, 'folder');
     folderIdentity = created.key;
+    }
   } else if (values.activation !== 'accessible') {
     const x = { notes: 70, friends: 105, notifications: 145, browser: 190, miiverse: 235 }[values.scenario];
     await touch(x, 16);
@@ -575,7 +595,8 @@ const selectTitle = () => selectAnimationTitle(title, { key, touch, wait: ms => 
   if (cycle > 0) {
     if (previousPauseCompact) await restorePauseCompactSelection(previousPauseCompact, { key,
       waitForReady: request => page.waitForFunction(pauseCompactRestoreReady, request, { timeout: 10000 }) });
-    await key(values.scenario === 'folder' || values.scenario === 'manual' ? 'Escape' : values.scenario === 'pause' ? 'Enter' : 'h');
+    if (populatedFolder) await returnFromPopulatedFolder(folderIdentity, { touch: projectedTouch.click, waitFor: waitForPopulatedFolder });
+    else await key(values.scenario === 'folder' || values.scenario === 'manual' ? 'Escape' : values.scenario === 'pause' ? 'Enter' : 'h');
     await page.waitForFunction(menu => document.querySelector('.console-stage').dataset.menu === menu, values.scenario === 'pause' ? 'app' : 'home');
     await page.waitForTimeout(500);
   }
@@ -593,18 +614,7 @@ const selectTitle = () => selectAnimationTitle(title, { key, touch, wait: ms => 
       adaptation: 'Browser fixture preparation wait; not a recovered native input epoch or duration.' };
   }
   if (values.scenario === 'folder') {
-    const active = await page.waitForFunction(folderCapturePrecondition,
-      { folderIdentity, folderSelection }, { timeout: 10000 });
-    const identity = await active.jsonValue();
-    await active.dispose();
-    const prepared = await page.waitForFunction(folderCapturePrecondition,
-      { folderIdentity, folderSelection, after: identity }, { timeout: 10000 });
-    await prepared.dispose();
-    folderPreparation = {
-      identity,
-      method: 'Snapshot matching active native folder generation/request/activation, then wait for a later fresh valid paired WebGL root receipt while that identity remains current.',
-      adaptation: 'Browser fixture preparation wait; not a recovered native input epoch or duration.',
-    };
+    folderPreparation = await prepareFolderRoot(folderIdentity, folderSelection);
   }
   const before = await state();
   if (values.scenario === 'manual') validateManualCaptureOrigin(before, title);
@@ -630,7 +640,7 @@ const selectTitle = () => selectAnimationTitle(title, { key, touch, wait: ms => 
     if (!pauseCompact) values.activation === 'physical' ? await physical('HOME') : await key('h');
   }
   else if (values.scenario === 'manual') await touch(50, 226);
-  else if (values.activation === 'tile') await touch(136, 160);
+  else if (values.activation === 'tile') await (populatedFolder ? projectedTouch.click(136, 160) : touch(136, 160));
   else if (values.activation === 'accessible') await accessible();
   else if (values.activation === 'physical') await physical('A');
   else if (values.activation === 'touch') await touch(160, 226);
@@ -644,6 +654,11 @@ const selectTitle = () => selectAnimationTitle(title, { key, touch, wait: ms => 
   await page.waitForFunction(() => window.animationCapture.done, { timeout: durationMs + 10000 });
   const frames = await page.evaluate(() => window.animationCapture.frames), reports = [];
   const after = await state();
+  let folderDestination = null, folderDestinationFailure = null;
+  if (populatedFolder) {
+    try { folderDestination = await page.evaluate(populatedFolderObservation, { stage: 'child', folderIdentity }); }
+    catch (error) { folderDestinationFailure = String(error); }
+  }
   for (const [index, frame] of frames.entries()) {
     const id = String(index).padStart(3, '0'), files = {};
     for (const screen of ['top', 'bottom']) {
@@ -660,6 +675,7 @@ const selectTitle = () => selectAnimationTitle(title, { key, touch, wait: ms => 
   await page.screenshot({ path: join(output, `${cycle ? `repeat-${cycle}-` : ''}console.png`) });
   const result = { valid: false, durationMs, scenario: values.scenario, title: ['manual', 'pause'].includes(values.scenario) ? title : values.scenario, commit: values.commit, commitAttestation: 'Coordinator-supplied served-build identity; not independently discovered by this script.', cycle, activation: values.activation, folderFixture: values['folder-fixture'], reducedMotion: values['reduced-motion'], url: values.url, viewport: page.viewportSize(), muted: true,
     ...(windowConfirmation ? { visibleWindow: windowConfirmation } : {}),
+    ...(populatedFolder ? { folderFixtureDetails, folderDestination, folderDestinationFailure } : {}),
     method: 'Actual browser inputs; chronological raw screen paints. No diagnostic repaint or closest-pose search.',
     ...(values.activation === 'accessible' ? { adaptation: 'Keyboard activation of the existing screen-reader shortcut from the grid; not a native toolbar input or animation-acceptance scenario.' } : {}),
     initial, before, folderPreparation, pausePreparation, ...(pauseHomeHold ? { pauseHomeHold } : {}),
@@ -681,6 +697,7 @@ const selectTitle = () => selectAnimationTitle(title, { key, touch, wait: ms => 
   }
   if (Object.hasOwn(appletLabels, values.scenario)) assert.equal(after.announcement?.split('. ')[0], appletLabels[values.scenario], 'Requested applet is the active destination');
   if (values.scenario === 'folder') assert.equal(after.selected, folderSelection);
+  if (populatedFolder) assert.ok(folderDestination, folderDestinationFailure ?? 'Populated destination requires Health child 2 and a matching terminal lower/upper pair');
   result.valid = true;
   await writeFile(join(output, `${cycle ? `repeat-${cycle}-` : ''}capture.json`), JSON.stringify(result, null, 2) + '\n');
   console.log(JSON.stringify({ scenario: result.scenario, frames: reports.length, menu: result.after.menu, phase: result.after.phase, errors, output }));
@@ -690,6 +707,7 @@ const selectTitle = () => selectAnimationTitle(title, { key, touch, wait: ms => 
   if (page) await page.screenshot({ path: join(output, 'failure-console.png') }).catch(() => {});
   await writeFile(join(output, 'failure.json'), JSON.stringify({ valid: false, scenario: values.scenario, title, commit: values.commit,
     ...(visibleWindow ? { visibleWindow, windowConfirmation: windowConfirmation ?? null } : {}),
+    ...(populatedFolder ? { folderFixture, folderFixtureDetails } : {}),
     ...(pauseCompact ? { pauseCompact: true } : {}), failedState, inputs, errors, error: String(error), nativeCompared: false }, null, 2) + '\n');
   throw error;
 } finally {

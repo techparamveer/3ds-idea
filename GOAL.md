@@ -8,13 +8,28 @@ The human resumed on8 October with "continue disregard that", revoking the
 without that usage cutoff. Continue the full animation goal. Earlier quota
 checkpoints remain history; do not stop again at that removed threshold.
 
-Latest checkpoint, 9 October: reviewed populated-folder collector `068c131`
+Latest scope instruction, 9 October: skip icon-moving and drag animations.
+Do not spend more implementation or verification work on pickup/hover/drop.
+Keep the goal on top-row app opening, Manual opening, ordinary folder entry,
+and HOME suspension. The unmerged held-hover fix is preserved in its worktree.
+All new workers and independent reviewers use GPT-6.1 Sol extra-high.
+
+Latest runtime checkpoint: reviewed `d5c1c5a` fixes the captured HOME pause
+seven-update receipt-gap stall. Muted iPad Health baseline/corrected and compact
+Camera first/repeat captures are complete. Independent audit checks all486
+pairs/972 PNGs and inspects30 sheets/six console views. Fresh baseline does not reproduce the original stall, so these host
+durations do not prove a causal speedup. Continue the four-flow goal from the
+[receipt-gap record](docs/home-pause-receipt-gap-2026-10-09.md). All four whole
+flows remain fail; native timing/pixels and muted audio remain unaccepted.
+
+Earlier checkpoint, 9 October: reviewed populated-folder collector `068c131`
 reproduces a real Health pickup/hover readiness failure in the production
 browser: no matching presented root folder banner. Fix that source-identity
 boundary without weakening paired publication, then capture matched first/repeat
 populated entry. Native setup remains unaccepted after an omitted startup
 warning. See the [capture record](docs/populated-folder-capture-2026-10-09.md).
-All new workers/reviewers use GPT-6.1 Sol extra-high. All four whole flows remain open.
+All four whole flows remain open. The proposed drag fix below is superseded
+by the latest scope instruction above.
 
 Earlier checkpoint, 9 October: reviewed merge `b84e1b2` incorporates GitHub
 `c767757`, including NVIDIA and the ninth portfolio app, Hack LDN 2025.

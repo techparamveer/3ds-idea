@@ -8,13 +8,27 @@ model, and the tools do not expose a service-tier selector. All sessions stay
 muted. Visual testing must use the iPad Sidecar, leaving Codex on the Dell;
 verify actual owned-window placement before scenario inputs.
 
-## Populated folder capture, 9 October
+## Current scope and HOME receipt fix, 9 October
+
+The latest human instruction excludes moving animations. Do not resume the
+pickup/hover/drop fix, which remains unmerged. Reviewed `d5c1c5a` corrects valid
+HOME pause receipts rejected at seven-update gaps, without changing folder
+cadence or assets. Health baseline/corrected and compact Camera first/repeat
+captures are complete on muted iPad. Independent audit checks486 pairs/972 PNGs
+and inspects30 sheets/six console views. The baseline post-navigation timestamp
+qualification remains explicit.
+The [receipt-gap record](home-pause-receipt-gap-2026-10-09.md) separates the
+exact red-to-green regressions from a fresh baseline that did not reproduce the
+old stall. All four whole flows remain fail. Continue ordinary folder entry,
+top-row opening, Manual opening and HOME suspension only.
+
+## Earlier populated folder capture, 9 October
 
 Reviewed collector `068c131` uses ordinary Health pickup/hover/drop, header
 Back59,54 and the same root-tile entry136,160. Its live muted production smoke
 reproduces "Folder entry has no matching presented root banner". Preserve the
-failure and fix its runtime source-identity boundary without bypassing native
-readiness or paired receipts. The [capture record](populated-folder-capture-2026-10-09.md)
+failure. Its proposed runtime fix is superseded by the moving-animation exclusion
+above. The [capture record](populated-folder-capture-2026-10-09.md)
 qualifies the missed post-navigation geometry check and failed native startup.
 Root71 focused tests pass; all four whole flows remain fail. New implementation
 and independent review both used GPT-6.1 Sol extra-high.

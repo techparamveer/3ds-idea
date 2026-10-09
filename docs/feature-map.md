@@ -1,5 +1,13 @@
 # Feature map — 1:1 queue
 
+Latest 9 October scope excludes moving animations; preserve the unmerged hover
+WIP without resuming it. Reviewed `d5c1c5a` fixes the captured HOME receipt-gap
+stall. Health baseline/corrected and compact Camera first/repeat are captured on
+muted iPad. All486 pairs/972 PNGs and30 sheets/six console views are audited and
+inspected. See [receipt-gap evidence](home-pause-receipt-gap-2026-10-09.md).
+AN-01 through AN-04 remain fail. Continue the four requested opening/entry/pause
+flows, not pickup/hover/drop design. Older proposed drag work below is superseded.
+
 9 October populated-folder checkpoint: reviewed collector `068c131` reproduces
 the Health pickup/hover failure, "no matching presented root banner", against
 unchanged production runtime. Fix this boundary before first/repeat occupied

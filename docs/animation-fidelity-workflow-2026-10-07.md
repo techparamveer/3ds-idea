@@ -2,11 +2,22 @@
 
 The human resumed on8 October with "continue disregard that" and removed the
 75%-remaining stop rule. Continue from STATUS Next; quota pauses recorded below
-are historical. The latest direct user model request selects Astra extra-high
+are historical. The latest direct user model request selects GPT-6.1 Sol extra-high
 for subagents. The worker override does not change the running coordinator
 model, and the tools do not expose a service-tier selector. All sessions stay
 muted. Visual testing must use the iPad Sidecar, leaving Codex on the Dell;
 verify actual owned-window placement before scenario inputs.
+
+## GitHub integration, 9 October
+
+Reviewed merge `b84e1b2` preserves the animation implementation and incorporates
+GitHub `c767757` portfolio changes. Collector `e0aa927` no longer assumes
+slot 14 is vacant. Build/typecheck pass; 2537 full-suite tests pass with the
+historical missing Camera PNG failure. Two muted iPad first/repeat folder runs
+capture 199 pairs. See the [integration record](animation-upstream-sync-2026-10-09.md).
+Next capture must cover populated-folder entry into selected Health child 2
+and the same actual Back touch in both runtimes. Empty-folder evidence does
+not establish the occupied-child handoff. All four whole flows remain fail.
 
 ## HOME lower release, 9 October
 
@@ -608,7 +619,7 @@ seats are in [STATUS](../STATUS.md), with the objective in [GOAL](../GOAL.md).
 
 One coordinator integrates in `codex/animation-fidelity-20261007`. Use at most
 two workers in separate worktrees and branches based on the fetched commit.
-New subagents use GPT-6 Astra extra-high under the latest direct human
+New subagents use GPT-6.1 Sol extra-high under the latest direct human
 instruction. Keep implementation and review independent.
 Record actual models in STATUS; a helper override does not change the coordinator.
 Speed selection is not exposed by the

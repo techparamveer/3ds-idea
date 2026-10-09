@@ -8,7 +8,14 @@ The human resumed on8 October with "continue disregard that", revoking the
 without that usage cutoff. Continue the full animation goal. Earlier quota
 checkpoints remain history; do not stop again at that removed threshold.
 
-Latest checkpoint, 9 October: reviewed HOME lower release `44a060c` and
+Latest checkpoint, 9 October: reviewed merge `b84e1b2` incorporates GitHub
+`c767757`, including NVIDIA and the ninth portfolio app, Hack LDN 2025.
+Collector `e0aa927` preserves its slot and locates a vacant folder fixture
+through normal HOME input. The [integration record](docs/animation-upstream-sync-2026-10-09.md)
+tracks tests and the muted iPad regression. Populated-folder entry is the next
+missing first/repeat native/browser comparison. All four whole flows remain open.
+
+Earlier checkpoint, 9 October: reviewed HOME lower release `44a060c` and
 terminal evidence `77de274` preserve two terminal fade receipts before the
 footer. Three iPad first/repeat runs capture 326 pairs; two fresh muted Azahar
 movies and own PNGs are saved on iPad. Build/typecheck pass; full tests retain
@@ -118,7 +125,7 @@ duration and the final screen. A matching endpoint or passing tests does not
 establish matching motion.
 
 Work in separate branches and worktrees with at most two workers. The latest
-direct human preference selects GPT-6 Astra, extra-high reasoning, for new
+direct human preference selects GPT-6.1 Sol, extra-high reasoning, for new
 subagents. Record actual worker models rather than claiming existing agents
 changed. Keep implementation and review independent. Speed selection is not
 tool-verifiable.
@@ -230,7 +237,7 @@ Use Nintendo's original product pages, operations manual and official front/rear
 - Show only the console against a simple background. No headings, explanatory copy, floating navigation, decorative cards or unrelated UI outside the device.
 - Animate the leftward spin and opening cleanly. Support rotation and inspection of the back. Keep the console usable and fully framed on desktop and mobile, with reduced-motion support.
 - Make physical button clicks, keyboard equivalents and bottom-screen touch input operate the same menu state. Keep screen graphics correctly aligned with the display openings throughout hinge movement.
-- Recreate the 3DS HOME Menu's layout, typography, icons, selection states and transitions. Preserve the eight existing portfolio apps and their plain content. Native assets, authored adaptations and fallback graphics must be distinguished in evidence; generic fonts and approximate folders are not original OS assets.
+- Recreate the 3DS HOME Menu's layout, typography, icons, selection states and transitions. Preserve the nine portfolio apps, including the merged Hack LDN 2025 addition, and their content. Native assets, authored adaptations and fallback graphics must be distinguished in evidence; generic fonts and approximate folders are not original OS assets.
 - Firmware UI work is integrated on `codex/firmware-os-10-7` from separate worker worktrees. Decrypted resources now supply native fonts, layouts, textures, messages, model banners and audio with recorded provenance. Keep raw firmware and executables private, preserve earlier OS worktrees, and record unsupported features and missing source content explicitly. See the [asset architecture](docs/architecture/assets-and-materials.md).
 - Keep VGPU integrated and verify `npx vgpu`, the material shader and its visible output. Preserve a working texture fallback.
 

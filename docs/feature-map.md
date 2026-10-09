@@ -1,5 +1,11 @@
 # Feature map — 1:1 queue
 
+9 October GitHub synchronization: `b84e1b2` preserves NVIDIA and adds Hack LDN
+2025 as the ninth portfolio app. `e0aa927` keeps folder verification compatible
+with its occupied slot 14. Two iPad runs capture 199 pairs. Populated-folder
+entry with selected Health child 2 still lacks first/repeat matched motion.
+See [integration verification](animation-upstream-sync-2026-10-09.md).
+
 9 October HOME release checkpoint: `44a060c` preserves two lower fade-terminal
 receipts; `77de274` waits for the lower footer before classifying completion.
 Three iPad first/repeat runs capture 326 pairs and two fresh native suspension

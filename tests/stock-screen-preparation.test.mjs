@@ -19,7 +19,7 @@ const layout=url(compile('stock-screen-layout')
 source=source.replace("'./stock-native-personal-tools'",JSON.stringify(url(compile('stock-native-personal-tools').replace("'./native-layout'",JSON.stringify(url(compile('native-layout')))).replace("'./stock-screen-layout'",JSON.stringify(layout)).replace("'./device-status-profile'",JSON.stringify(url(compile('device-status-profile')))))));
 source=source.replace("'./stock-native-web'",JSON.stringify(url("export const browserScreenPacks=[{url:'browser.json',alias:'browser',layouts:[],animations:[]}],miiverseScreenPacks=[{url:'miiverse.json',alias:'miiverse',layouts:[],animations:[]}];export const drawNativeWebFrame=()=>false;export const browserHudClock=()=>null;")));
 source=source.replace("'./stock-native-services'",JSON.stringify(url('export const nativeServiceView=()=>null;export const drawNativeServiceFrame=()=>false;export const zoneClock=()=>({hour:"00",minute:"00",frame:0});export const eshopWelcomePose=()=>null;export const eshopHudClock=()=>({year:0,month:1,day:1,hour:0,minute:0});')));
-source=source.replace("'./stock-native-helpers'",JSON.stringify(url("export const nativeHelperView=view=>view.appId==='manual'?{view:'manual',titleId:'0004001000022400',packs:[{url:'manual.json',alias:'manual',layouts:[],animations:[]}]}:null;export const drawNativeHelperFrame=(renderer,top,bottom,view)=>view.appId==='manual'?globalThis.__nativeTestDraw?.(top,bottom)??false:false;")));
+source=source.replace("'./stock-native-helpers'",JSON.stringify(url("export const nativeHelperView=view=>view.appId==='manual'?{view:'manual',titleId:'0004001000022400',packs:[{url:'manual.json',alias:'manual',layouts:[],animations:[]}]}:null;export const drawNativeHelperFrame=(renderer,top,bottom,view,...args)=>view.appId==='manual'?globalThis.__nativeTestDraw?.(top,bottom,...args)??false:false;")));
 source=source.replace("'./stock-native-selectors'",JSON.stringify(url('export const nativeSelectorView=()=>null;export const drawNativeSelectorFrame=()=>false;')));
 source=source.replace("'./native-screen-input'",JSON.stringify(url(compile('native-screen-input'))));
 source=source.replace("'./notes-boot-cover'",JSON.stringify(new URL('../src/os/notes-boot-cover.ts',import.meta.url).href));
@@ -93,6 +93,28 @@ function paintFixture(options={}){
  return {screen,v,font,top,bottom,draw,drawAt,dispose(){screen.dispose();globalThis.document=old;delete globalThis.__nativeTestDraw;}};
 }
 const nativeAssets=()=>({renderer:{},diagnostics:[],disposals:0,dispose(){this.disposals++;}});
+for(const appId of ['manual','sound'])test(`${appId} late image revision invalidates a published pair until both current screens are copied`,async()=>{
+ const oldImage=globalThis.Image,images=[],owner=appId+':1',changedPairs=[];
+ globalThis.Image=class{complete=false;naturalWidth=0;naturalHeight=0;ctx={marks:[['image','late']]};constructor(){images.push(this);}};
+ let f;
+ f=paintFixture({onChange(){if(f)changedPairs.push(f.screen.preparedPair(owner));}});
+ const v=view(appId),draw=()=>f.screen.draw(f.top,f.bottom,v,owner,f.font);let draws=0;
+ globalThis.__nativeTestDraw=(top,bottom,options)=>{draws++;options.image(top,'/late-'+appId+'.png',0,0,1,1);top.fillText('native upper');bottom.fillText('native lower');return true;};
+ try{
+  assert.equal(draw(),false);await flush();const assets=nativeAssets();calls[0].resolve(assets);await flush();
+  assert.equal(draw(),true);const first=f.screen.preparedPair(owner);assert.ok(first);assert.equal(draws,1);assert.equal(images.length,1);
+  assert.equal(draw(),true);assert.equal(draws,1,'unchanged composition uses the published raster');
+  const image=images[0];image.complete=true;image.naturalWidth=image.naturalHeight=1;image.onload();
+  assert.equal(changedPairs.at(-1),undefined,'the revision is invalidated before notifying paint scheduling');
+  assert.equal(f.screen.preparedPair(owner),undefined,'paint-start readiness cannot reuse the previous revision');
+  const copy=f.bottom.drawImage;f.bottom.drawImage=()=>{throw Error('lower copy failed');};
+  assert.throws(draw,/lower copy failed/);assert.equal(draws,2);assert.equal(f.screen.preparedPair(owner),undefined);
+  f.bottom.drawImage=copy;assert.equal(draw(),true);assert.equal(draws,2,'successful outward retry can reuse the revised raster');
+  const revised=f.screen.preparedPair(owner);assert.ok(revised);assert.notEqual(revised.key,first.key);
+  assert.deepEqual(f.top.marks,[['image','late'],['text','native upper']]);assert.deepEqual(f.bottom.marks,[['text','native lower']]);
+  assert.equal(f.screen.preparedPair(appId+':old'),undefined);
+ }finally{f.dispose();globalThis.Image=oldImage;}
+});
 const incomingAssets=appId=>{
  const fixtureRoot=process.env.APPLET_INCOMING_FIXTURE_ROOT;
  if(fixtureRoot)assert.ok(isAbsolute(fixtureRoot),'Private incoming test fixture root must be absolute');

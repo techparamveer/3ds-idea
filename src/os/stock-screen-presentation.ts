@@ -209,12 +209,12 @@ export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,opt
 /** One foreground session; asynchronous resources never outlive its owner. */
 export function createStockScreenPresentation(options:{manifestUrl?:string;onChange?:()=>void;deadlineMs?:number;soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground;reducedMotion?:()=>boolean}={}){
   let revision=0,painted='',paintedFont:BitmapFont|undefined,complete=false;
-  const changed=()=>{revision++;options.onChange?.();};
+  let preparedPair:Readonly<{owner:string;appId:string;renderer:NativeLayoutRenderer;key:string}>|undefined;
+  const changed=()=>{revision++;preparedPair=undefined;options.onChange?.();};
   const session=createNativeTitleSession({manifestUrl:options.manifestUrl??'/os/firmware/10.7.0-32E/manifest.json',onChange:state=>{if((state.status==='ready'&&roomReady)||state.status==='error')clearDeadline();changed();}});
   const images=new Map<string,HTMLImageElement>(),nativeImages=new Map<string,NativePixels>();let owner:string|null=null,disposed=false;
   let identity='',failure:unknown=null,recoveryPublished=false,deadline:ReturnType<typeof setTimeout>|undefined;
   let published:NativeLayoutRenderer|undefined;
-  let preparedPair:Readonly<{owner:string;appId:string;renderer:NativeLayoutRenderer;key:string}>|undefined;
   const notesBootGate=createNotesBootCoverPublicationGate();
   let notesBootCandidate:{owner:string;pair:NotesBootCoverPaint;renderer:NativeLayoutRenderer}|undefined;
   let roomReady=true;

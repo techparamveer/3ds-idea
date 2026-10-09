@@ -30,6 +30,10 @@ export function createManualEntryPresentation() {
   const revoke = () => { ticket++; pending = undefined; rebase = true; };
   const ready = (next: ManualEntryIdentity | null) => !rebase && sameManualEntryIdentity(identity, next)
     && presented?.pose.phase === 'in' && presented.pose.frame === MANUAL_ENTRY_LAST_FRAME;
+  // Browser composition scheduling only. Incoming receipts already passed the
+  // opaque outgoing gate; their retained destination must survive a rebase.
+  const destinationCompositionAllowed = (next: ManualEntryIdentity | null) => !disposed && sameManualEntryIdentity(identity, next)
+    && (presented?.pose.phase === 'in' || !rebase && presented?.pose.phase === 'out' && presented.pose.frame === MANUAL_ENTRY_LAST_FRAME);
   return {
     sample(input: Readonly<{ identity: ManualEntryIdentity | null; elapsedMs: number; eligible: boolean; destinationReady: boolean; reducedMotion: boolean }>): ManualEntryPose | undefined {
       if (disposed) return undefined;
@@ -68,9 +72,9 @@ export function createManualEntryPresentation() {
     },
     active(next: ManualEntryIdentity | null, destinationReady: boolean): boolean {
       return !disposed && !!next && !ready(next) && (!sameManualEntryIdentity(identity, next) || !!pending
-        || !presented || presented.pose.phase === 'in' || presented.pose.frame < MANUAL_ENTRY_LAST_FRAME || destinationReady);
+        || rebase || !presented || presented.pose.phase === 'in' || presented.pose.frame < MANUAL_ENTRY_LAST_FRAME || destinationReady || destinationCompositionAllowed(next));
     },
-    ready, revoke,
+    ready, destinationCompositionAllowed, revoke,
     reset() { revoke(); identity = null; presented = undefined; },
     dispose() { disposed = true; revoke(); identity = null; presented = undefined; },
   };

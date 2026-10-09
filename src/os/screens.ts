@@ -812,7 +812,13 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   }
   if(!state.panel)dragGhost(b,view,graphics,nativeHome,firmwareAssets);panel(b,state,time,reduced,themeSprite,shopSprite,nativeHome);
   if(state.panel==='home-layouts'&&!layoutManager?.draw(t,b,state,()=>{if(!nativeHome?.hud(t,date,time,verification?.homeHudSample,homeEntry.hudSceneInFrame??undefined))status(t,date,chrome);},layoutPreview))throw new Error('Native HOME layout manager unavailable.');
-  const overlayStarted=timing?performance.now():null;graphics.overlay(t,b,state,elapsedMs,reduced,!!firmwareAssets,date,verification);if(timing&&overlayStarted!==null)timing.overlayMs=performance.now()-overlayStarted;
+  // Browser scheduling adaptation: compose Manual only after the opaque
+  // outgoing pair was presented, not invisibly beneath unfinished outgoing.
+  const deferManualDestination=!!manualIdentity&&manualEntryEligible(state)&&!diagnosticPaint&&!manualPresentation.destinationCompositionAllowed(manualIdentity);
+  // A first cold composition stays under out20 for this paired receipt. Only
+  // a destination already published at paint start can begin the reveal.
+  const manualDestinationReadyAtPaintStart=!!manualIdentity&&graphics.stockStatus(state,t)==='ready'&&!!graphics.preparedStockPair(state);
+  const overlayStarted=timing?performance.now():null;graphics.overlay(t,b,state,elapsedMs,reduced,!!firmwareAssets,date,verification,deferManualDestination);if(timing&&overlayStarted!==null)timing.overlayMs=performance.now()-overlayStarted;
   const dialogKey=homeSoftwareDialogKey(state),dialogTitles=homeSoftwareDialogTitles(state);
   if(!dialogTitles)softwareDialogIcons=undefined;
   if(dialogTitles&&softwareDialogIcons?.key!==dialogKey){
@@ -855,7 +861,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
      for(const [target,image] of [[manualBackingUpper,lastPresentedUpper],[manualBackingLower,lastPresentedLower]]){const ctx=target.getContext('2d')!;ctx.resetTransform();ctx.clearRect(0,0,target.width,240);ctx.drawImage(image,0,0);}
      manualBackingIdentity=Object.freeze({...manualIdentity});manualPresentation.reset();
     }
-    manualPose=manualPresentation.sample({identity:manualIdentity,elapsedMs:verification?.manualEntryObservedElapsedMs??elapsedMs,eligible:true,destinationReady:nativeStatus==='ready',reducedMotion:reduced});
+    manualPose=manualPresentation.sample({identity:manualIdentity,elapsedMs:verification?.manualEntryObservedElapsedMs??elapsedMs,eligible:true,destinationReady:manualDestinationReadyAtPaintStart&&nativeStatus==='ready',reducedMotion:reduced});
     if(manualPose){
      if(manualPose.phase==='out'){for(const [ctx,image] of [[t,manualBackingUpper],[b,manualBackingLower]] as const){ctx.resetTransform();ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.clearRect(0,0,ctx.canvas.width,240);ctx.drawImage(image,0,0);}}
      if(!nativeHome.manualEntry(t,b,manualPose))throw Error('Native Manual entry paired cover unavailable');

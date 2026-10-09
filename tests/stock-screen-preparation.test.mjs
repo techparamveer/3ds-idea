@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {isAbsolute,join} from 'node:path';
 import ts from 'typescript';
 import {createNativeScreenInputGate} from '../src/os/native-screen-input.ts';
-import {createPortfolioState,tickSystem,launch,dispatchSystemEvent,getActiveAppView} from '../src/os/system.ts';
+import {createPortfolioState,tickSystem,launch,dispatchSystemEvent,getActiveAppView,invokeSystemApplet,reduceSystem} from '../src/os/system.ts';
 const url=source=>'data:text/javascript;base64,'+Buffer.from(source).toString('base64');
 const compile=name=>ts.transpileModule(readFileSync(new URL('../src/os/'+name+'.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
 const calls=[];
@@ -19,7 +19,7 @@ const layout=url(compile('stock-screen-layout')
 source=source.replace("'./stock-native-personal-tools'",JSON.stringify(url(compile('stock-native-personal-tools').replace("'./native-layout'",JSON.stringify(url(compile('native-layout')))).replace("'./stock-screen-layout'",JSON.stringify(layout)).replace("'./device-status-profile'",JSON.stringify(url(compile('device-status-profile')))))));
 source=source.replace("'./stock-native-web'",JSON.stringify(url("export const browserScreenPacks=[{url:'browser.json',alias:'browser',layouts:[],animations:[]}],miiverseScreenPacks=[{url:'miiverse.json',alias:'miiverse',layouts:[],animations:[]}];export const drawNativeWebFrame=()=>false;export const browserHudClock=()=>null;")));
 source=source.replace("'./stock-native-services'",JSON.stringify(url('export const nativeServiceView=()=>null;export const drawNativeServiceFrame=()=>false;export const zoneClock=()=>({hour:"00",minute:"00",frame:0});export const eshopWelcomePose=()=>null;export const eshopHudClock=()=>({year:0,month:1,day:1,hour:0,minute:0});')));
-source=source.replace("'./stock-native-helpers'",JSON.stringify(url('export const nativeHelperView=()=>null;export const drawNativeHelperFrame=()=>false;')));
+source=source.replace("'./stock-native-helpers'",JSON.stringify(url("export const nativeHelperView=view=>view.appId==='manual'?{view:'manual',titleId:'0004001000022400',packs:[{url:'manual.json',alias:'manual',layouts:[],animations:[]}]}:null;export const drawNativeHelperFrame=(renderer,top,bottom,view)=>view.appId==='manual'?globalThis.__nativeTestDraw?.(top,bottom)??false:false;")));
 source=source.replace("'./stock-native-selectors'",JSON.stringify(url('export const nativeSelectorView=()=>null;export const drawNativeSelectorFrame=()=>false;')));
 source=source.replace("'./native-screen-input'",JSON.stringify(url(compile('native-screen-input'))));
 source=source.replace("'./notes-boot-cover'",JSON.stringify(new URL('../src/os/notes-boot-cover.ts',import.meta.url).href));
@@ -184,6 +184,34 @@ test('actual graphics pause Notes local source tracks beneath common cover and e
   assert.equal(graphics.presentNotesBootCover(state),true);at(5000+1000/60+.01);draw();assert.notDeepEqual(layouts.at(-1),first);
   graphics.setAppletEntryCovered(owner);at(10000);draw();assert.equal(graphics.presentNotesBootCover(state),false);
   graphics.setAppletEntryCovered(null);draw();assert.deepEqual(layouts.at(-1),layouts.at(-2),'hidden interval repeats the last source pose');
+ }finally{graphics.dispose();setPortfolioFont(f.top);setPortfolioFont(f.bottom);f.dispose();}
+});
+
+test('actual graphics defer only Manual composition, keep acquisition live, publish recovery and release stale owners',async()=>{
+ const f=paintFixture();Object.assign(globalThis.document,{hidden:false,addEventListener(){},removeEventListener(){}});
+ const graphics=createPortfolioGraphics(),home=tickSystem(createPortfolioState(),3001),state=invokeSystemApplet(home,'manual',3010,{manualTitleId:'0004001000022400'});
+ const owner=state.system.runtime.active;let draws=0;
+ globalThis.__nativeTestDraw=(t,b)=>{draws++;t.fillText('native upper');b.fillText('native lower');return true;};
+ setPortfolioFont(f.top,f.font);setPortfolioFont(f.bottom,f.font);
+ const draw=(defer=true,chosen=state)=>graphics.overlay(f.top,f.bottom,chosen,6200,false,false,new Date(0),undefined,defer);
+ try{
+  draw();await flush();assert.equal(calls.length,1);assert.equal(draws,0,'deferred overlay starts load without composing');
+  const assets=nativeAssets();calls[0].resolve(assets);await flush();
+  for(let i=0;i<3;i++){draw();assert.equal(graphics.stockStatus(state,f.top),'loading');}
+  assert.equal(draws,0);assert.equal(graphics.preparedStockPair(state),undefined,'loaded resources do not manufacture a published pair');
+  draw(false);assert.equal(draws,1);assert.equal(graphics.stockStatus(state,f.top),'ready');assert.ok(graphics.preparedStockPair(state));
+  assert.deepEqual(f.top.marks,[['text','native upper']]);assert.deepEqual(f.bottom.marks,[['text','native lower']]);
+  const returned=reduceSystem(state,'back',6300);graphics.syncStockView(returned,f.top);assert.equal(assets.disposals,1);
+  const fresh=invokeSystemApplet(returned,'manual',6400,{manualTitleId:'0004001000022400'});draw(true,fresh);await flush();
+  assert.notEqual(fresh.system.runtime.active,owner);calls[1].reject(Error('Manual load failed'));await flush();
+  assert.equal(graphics.stockStatus(fresh,f.top),'loading');draw(true,fresh);
+  assert.equal(graphics.stockStatus(fresh,f.top),'error');assert.ok(f.top.marks.some(mark=>mark[1]==='Website display unavailable'));
+  assert.ok(f.bottom.marks.some(mark=>mark[1]==='A: Retry'),'paired recovery is not hidden by the scheduling gate');
+  assert.equal(graphics.retryStockScreen(),true);draw(true,fresh);await flush();assert.equal(draws,1);
+  graphics.syncStockView(returned,f.top);const stale=nativeAssets();calls[2].resolve(stale);await flush();assert.equal(stale.disposals,1);
+  const sound=tickSystem(launch(home,'sound',3010),6200);draw(true,sound);await flush();const other=nativeAssets();calls[3].resolve(other);await flush();draw(true,sound);
+  assert.equal(draws,2,'the Manual flag never defers another stock app');
+  graphics.dispose();assert.equal(other.disposals,1);
  }finally{graphics.dispose();setPortfolioFont(f.top);setPortfolioFont(f.bottom);f.dispose();}
 });
 test('Notes HUD clock repaints a settled pair only when visible calendar or charging phase changes',async()=>{

@@ -24,22 +24,22 @@ const cameraHome=()=>reduceSystem(camera(),'home',6300);
 const manual=state=>invokeSystemApplet(state,'manual',6400,{manualTitleId:'0004001000022400'});
 const ms=step=>10000+step*1000/60+.01;
 
-async function fixture(run,{measurePaint=true}={}){
+async function fixture(run,{measurePaint=true,publicationGate=false}={}){
  const saved=new Map(['document','Image','FontFace','__manualGraphics'].map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
- const events=[],canvases=[];let status='ready',coverFailure=false;
+ const events=[],canvases=[];let status='ready',coverFailure=false,published=false;
  function canvas(){
   const surface={width:0,height:0};
   const ctx=new Proxy({canvas:surface,globalAlpha:1,record(name,args=[]){events.push({name,args,ctx});},drawImage(...args){ctx.record('drawImage',args);},createLinearGradient:()=>({addColorStop(){}}),getImageData(_x,_y,w,h){return {width:w,height:h,data:new Uint8ClampedArray(w*h*4)};}},{get:(target,key)=>key in target?target[key]:(()=>{})});
   surface.getContext=()=>ctx;canvases.push(surface);return surface;
  }
- Object.assign(globalThis,{document:{createElement:canvas,fonts:{add(){}}},Image:class {decode(){return Promise.resolve();}},FontFace:class {load(){return Promise.resolve(this);}},__manualGraphics:{ready:Promise.resolve(),selectedApp(){},syncStockView(){},readSuspendedCapture(runtime){return {status:'ready',owner:runtime.application,generation:1};},stockStatus:()=>status,stockFailure:()=>status==='error'?Error('Manual destination failed'):null,retryStockScreen(){status='ready';return true;},banner(){},menuIcon(){},menuArtwork(){},overlay(t,b){t.record('destination-upper');b.record('destination-lower');},dispose(){}}});
+ Object.assign(globalThis,{document:{createElement:canvas,fonts:{add(){}}},Image:class {decode(){return Promise.resolve();}},FontFace:class {load(){return Promise.resolve(this);}},__manualGraphics:{ready:Promise.resolve(),selectedApp(){},syncStockView(){events.push({name:'prepare'});},readSuspendedCapture(runtime){return {status:'ready',owner:runtime.application,generation:1};},stockStatus:()=>status==='ready'&&publicationGate&&!published?'loading':status,preparedStockPair:()=>status==='ready'&&(!publicationGate||published)?{}:undefined,stockFailure:()=>status==='error'?Error('Manual destination failed'):null,retryStockScreen(){status='ready';return true;},banner(){},menuIcon(){},menuArtwork(){},overlay(t,b,state,_time,_reduced,_native,_date,_verification,deferManualDestination=false){if(deferManualDestination&&state.system?.runtime.instances[state.system.runtime.active]?.appId==='manual'&&status!=='error')return;t.record('destination-upper');b.record('destination-lower');if(status==='ready')published=true;},dispose(){}}});
  const presenter=new Proxy({pressOffset:0,tilePressOffset:()=>0,folderChild(_ctx,_state,_empty,draw){draw(1);return true;},manualEntry(t,b,pose){t.record('cover-upper',[pose]);b.record('cover-lower',[pose]);return !coverFailure;}},{get:(target,key)=>key in target?target[key]:()=>true});
  const screens=createScreens({measurePaint,firmwareAssets:{presenter,sharedFont:{draw(){}},dispose(){},diagnostics:[],titleIcons:new Map([['0004001000022400',{}]]),titleDescriptions:new Map([['0004001000022400','Nintendo 3DS Camera']])},drawHomeBackground:()=>true,drawSuspendedBackground:()=>true});
  const paint=(state,step,receipt=true,verification)=>{
   events.length=0;const result=screens.paint(state,new Date(0),ms(step),verification);
   if(receipt)screens.presentManualEntry(state,ms(step));return result;
  };
- try{await screens.ready;await run({screens,paint,events,canvases,setStatus:value=>status=value,failCover:value=>coverFailure=value,presenter});}
+ try{await screens.ready;await run({screens,paint,events,canvases,setStatus:value=>{status=value;if(value!=='ready')published=false;},failCover:value=>coverFailure=value,presenter});}
  finally{screens.dispose();for(const [key,descriptor]of saved){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}}
 }
 
@@ -62,14 +62,69 @@ test('Manual requires a matching WebGL-presented caller pair, not an offscreen p
   assert.equal(screens.stockStatus(state),'error');assert.match(String(screens.stockFailure()),/matching presented caller pair/);
   paint(home,2);paint(state,3,false);assert.equal(screens.stockStatus(state),'loading',String(screens.stockFailure()));
   assert.equal(screens.presentManualEntry(state,ms(3)),true);assert.equal(screens.stockStatus(state),'loading');
+});
+});
+
+test('first Manual destination composition waits for an accepted outgoing terminal and remains scheduled before publication',async()=>{
+ await fixture(({screens,paint,events,setStatus})=>{
+  const home=cameraHome(),state=manual(home);paint(home,0);setStatus('loading');
+  for(let frame=0;frame<20;frame++){
+   if(frame===15)setStatus('ready');
+   const result=paint(state,frame+1);assert.equal(result.manualEntry.frame,frame);
+   assert.ok(events.some(e=>e.name==='prepare'));
+   assert.equal(events.filter(e=>e.name.startsWith('destination-')).length,0,`no invisible destination composition at out${frame}`);
+  }
+  setStatus('ready');
+  assert.equal(paint(state,21,false).manualEntry.frame,20);
+  assert.equal(events.filter(e=>e.name.startsWith('destination-')).length,0,'sampled out20 is not a receipt');
+  assert.equal(screens.stockStatus(state),'loading');assert.equal(screens.manualEntryActive(state),true);
+  assert.equal(screens.presentManualEntry(state,ms(21)),true);
+  assert.equal(screens.manualEntryActive(state),true,'first destination paint must still be scheduled while published status is loading');
+  const first=paint(state,22,false);assert.equal(events.filter(e=>e.name.startsWith('destination-')).length,2);
+  assert.deepEqual([first.manualEntry.phase,first.manualEntry.frame],['out',20],'first destination composition is held beneath the opaque outgoing pair');
+  assert.equal(screens.stockStatus(state),'loading');assert.equal(screens.presentManualEntry(state,ms(27)),true,'cold composition crosses five host ticks');
+  const incoming=paint(state,28,false);assert.deepEqual([incoming.manualEntry.phase,incoming.manualEntry.frame],['in',0]);
+  assert.equal(screens.presentManualEntry(state,ms(28)),true);
+  const next=paint(state,29);assert.deepEqual([next.manualEntry.phase,next.manualEntry.frame],['in',1],'cold destination cost cannot skip the incoming first poses');
+ },{publicationGate:true});
+});
+
+test('revoked outgoing terminal waits for a fresh receipt; incoming rebase still composes its retained destination',async()=>{
+ await fixture(({screens,paint,events})=>{
+  const home=cameraHome(),state=manual(home);paint(home,0);
+  for(let frame=0;frame<20;frame++)paint(state,frame+1);
+  paint(state,21,false);screens.revokeManualEntryCandidate();assert.equal(screens.presentManualEntry(state,ms(21)),false);
+  assert.equal(paint(state,22,false).manualEntry.frame,19);assert.equal(events.filter(e=>e.name.startsWith('destination-')).length,0);
+  assert.equal(screens.presentManualEntry(state,ms(22)),true);paint(state,23);assert.equal(events.filter(e=>e.name.startsWith('destination-')).length,0);
+  screens.revokeManualEntryCandidate();paint(state,24);assert.equal(events.filter(e=>e.name.startsWith('destination-')).length,0);
+  const incoming=paint(state,25);assert.deepEqual([incoming.manualEntry.phase,incoming.manualEntry.frame],['in',0]);
+  paint(state,30);paint(state,34);screens.revokeManualEntryCandidate();
+  const resumed=paint(state,35);assert.deepEqual([resumed.manualEntry.phase,resumed.manualEntry.frame],['in',9]);
+  assert.equal(events.filter(e=>e.name.startsWith('destination-')).length,2,'retained incoming in9 must not reveal a blank destination');
  });
+});
+
+test('reduced Manual and late assets still require terminal presentation before the first destination draw',async()=>{
+ await fixture(({screens,paint,events,setStatus})=>{
+  const home=cameraHome(),state=manual(home);paint(home,0);screens.setReducedMotion(true);setStatus('loading');
+  paint(state,1,false);assert.equal(events.filter(e=>e.name.startsWith('destination-')).length,0);
+  const stale={...state,system:{...state.system,runtime:{...state.system.runtime,active:'stale'}}};
+  assert.equal(screens.presentManualEntry(stale,ms(1)),false);
+  paint(state,2);assert.equal(events.filter(e=>e.name.startsWith('destination-')).length,0);
+  assert.equal(screens.manualEntryActive(state),true);paint(state,3);
+  assert.equal(screens.stockStatus(state),'loading');setStatus('ready');
+  const cold=paint(state,4);assert.deepEqual([cold.manualEntry.phase,cold.manualEntry.frame],['out',20]);
+  assert.equal(events.filter(e=>e.name.startsWith('destination-')).length,2);
+  const incoming=paint(state,5);assert.deepEqual([incoming.manualEntry.phase,incoming.manualEntry.frame],['in',20]);
+  assert.equal(screens.stockStatus(state),'ready');screens.dispose();assert.equal(screens.manualEntryActive(state),false);
+ },{publicationGate:true});
 });
 
 test('live Manual preserves every pose, holds an acknowledged opaque pair and gates input until reveal receipt',async()=>{
  await fixture(({screens,paint,setStatus,events})=>{
   const home=cameraHome(),state=manual(home);paint(home,0);setStatus('loading');
   for(let frame=0;frame<=20;frame++){const result=paint(state,frame+1);assert.ok(result,String(screens.stockFailure()));assert.deepEqual(result.manualEntry,{phase:'out',frame,owner:state.system.runtime.active});assert.equal(screens.stockStatus(state),'loading');}
-  assert.equal(screens.manualEntryActive(state),false);assert.equal(paint(state,22).manualEntry.frame,20);
+  assert.equal(screens.manualEntryActive(state),true);assert.equal(paint(state,22).manualEntry.frame,20);
   const timing=screens.paintTiming();assert.ok(timing&&Number.isFinite(timing.startedAt)&&Number.isFinite(timing.overlayMs),'paint timing diagnostic');
   setStatus('ready');
   for(let frame=0;frame<=20;frame++){

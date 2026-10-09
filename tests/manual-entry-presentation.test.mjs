@@ -6,6 +6,30 @@ const ms=update=>update*1000/60+.01;
 const sample=(session,update,options={})=>session.sample({identity,elapsedMs:ms(update),eligible:true,destinationReady:true,reducedMotion:false,...options});
 const present=(session,pose,update,ready=true)=>session.present(pose,identity,ms(update),true,ready);
 
+test('destination scheduling accepts only a matching terminal receipt, without suppressing retained incoming on rebase',()=>{
+ const s=createManualEntryPresentation();
+ assert.equal(s.destinationCompositionAllowed(identity),false);
+ for(let frame=0;frame<=20;frame++){
+  const pose=sample(s,100+frame,{destinationReady:false});
+  assert.equal(s.destinationCompositionAllowed(identity),false);
+  if(frame===20){assert.equal(s.present(pose,{...identity,generation:2},ms(120),true,false),false);assert.equal(s.destinationCompositionAllowed(identity),false);}
+  assert.equal(present(s,pose,100+frame,false),true);
+ }
+ assert.equal(s.destinationCompositionAllowed(identity),true);
+ assert.equal(s.active(identity,false),true,'opaque terminal schedules the first not-yet-published destination');
+ for(const key of Object.keys(identity)){
+  const next={...identity,[key]:key==='generation'?2:key==='manualTitleId'?'0004001000022000':'other:2'};
+  assert.equal(s.destinationCompositionAllowed(next),false);
+ }
+ s.revoke();assert.equal(s.destinationCompositionAllowed(identity),false);assert.equal(s.active(identity,false),true);
+ const terminal=sample(s,121,{destinationReady:false});assert.equal(present(s,terminal,121,false),true);
+ const incoming=sample(s,122);assert.equal(present(s,incoming,122),true);
+ const in9=sample(s,127);present(s,in9,127);const in10=sample(s,132);present(s,in10,132);
+ s.revoke();assert.equal(s.destinationCompositionAllowed(identity),true,'incoming rebase still draws its destination');
+ assert.equal(s.destinationCompositionAllowed({...identity,generation:2}),false,'retained incoming cannot authorize a new generation');
+ s.reset();assert.equal(s.destinationCompositionAllowed(identity),false);s.dispose();assert.equal(s.destinationCompositionAllowed(identity),false);
+});
+
 test('Manual preserves every outgoing pose and requires the incoming first and terminal receipts',()=>{
  const s=createManualEntryPresentation();
  let update=100;
@@ -133,7 +157,7 @@ test('a reset repeats the incoming cadence without carrying elapsed credit from 
 test('destination readiness cannot synthesize an outgoing terminal or spend an opaque hold',()=>{
  const s=createManualEntryPresentation();let pose;
  for(let update=0;update<=20;update++){pose=sample(s,update,{destinationReady:false});present(s,pose,update,false);}
- assert.equal(s.active(identity,false),false);
+ assert.equal(s.active(identity,false),true);
  const hold=sample(s,21,{destinationReady:false});assert.deepEqual([hold.phase,hold.frame],['out',20]);
  assert.equal(sample(s,22,{destinationReady:true}),hold,'readiness does not overwrite an unpresented hold');
  present(s,hold,22);

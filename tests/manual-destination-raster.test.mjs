@@ -10,6 +10,7 @@ import { BitmapFont } from '../src/os/bitmap-font.ts';
 import { nativeTextureSamplePixels } from '../src/os/native-layout.ts';
 import { decodeNativePng } from '../src/os/native-png.ts';
 import { manualSources } from '../src/os/stock-manual-index.ts';
+import { createManualEntryPresentation } from '../src/os/manual-entry-presentation.ts';
 
 const root = new URL('../public/os/firmware/10.7.0-32E/', import.meta.url);
 const json = path => JSON.parse(readFileSync(new URL(path, root), 'utf8'));
@@ -41,6 +42,22 @@ const { NativeLayoutRenderer } = await import(compile('native-renderer'));
 const { NativeLayoutRenderer: ScalarRenderer } = await import(compile('native-renderer', true));
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
 const canvasModule = process.env.NATIVE_DESTINATION_CANVAS_MODULE;
+const graphicsDependencies = {
+  three: `export * from ${JSON.stringify(new URL('../node_modules/three/build/three.module.js', import.meta.url).href)};export class WebGLRenderer{constructor(){throw Error('No GPU in offline Canvas fixture');}}`,
+  './apps': 'export const apps=[];export const getApp=()=>undefined;',
+  './system': 'export const currentEntry=()=>undefined;export const selectedApp=()=>undefined;export const getActiveAppView=state=>state.view;',
+  './nvidia-banner': 'export const createNvidiaBanner=()=>({ready:Promise.resolve(),dispose(){}});',
+  './hack-ldn-banner': 'export const createHackLdnBanner=()=>({ready:Promise.resolve(),dispose(){}});',
+  './stock-screen-presentation': 'export const createStockScreenPresentation=()=>globalThis.__manualSchedulingStock;',
+  './notes-suspended-capture': "export const createSuspendedApplicationCapture=()=>({sync(){},record(){},read:()=>({status:'none'}),dispose(){}});",
+  './notes-metadata-session': "export const createNotesMetadataSession=()=>({sync(){},getState:()=>({status:'none'}),dispose(){}});",
+  './notes-intro-publication': 'export const notesIntroSourcesFromPacks=()=>undefined;',
+  './notes-intro-session': 'export const createNotesIntroSession=()=>({sync(){},compose(){},getState:()=>({}),dispose(){}});',
+};
+const graphicsSource = new URL('../src/os/portfolio-screens.ts', import.meta.url);
+const { createPortfolioGraphics, setPortfolioFont } = await import(moduleUrl(readFileSync(graphicsSource, 'utf8')
+  .replace(/(from\s*['"])([^'"]+)(['"])/g, (all, prefix, path, suffix) => graphicsDependencies[path]
+    ? prefix + moduleUrl(graphicsDependencies[path]) + suffix : path.startsWith('.') ? prefix + new URL(`${path}.ts`, graphicsSource).href + suffix : all)));
 
 // This transport stub compares the renderer's source bytes, not Canvas
 // destination filtering. The optional installed-Canvas check below covers that boundary.
@@ -158,7 +175,7 @@ test('Manual destination actual Canvas equivalence and CPU profile', { skip: !ca
   const mode = process.env.NATIVE_DESTINATION_MODE ?? 'equivalence';
   assert.ok(['scalar', 'implicit', 'equivalence'].includes(mode));
   const previous = globalThis.document;
-  globalThis.document = { createElement: () => createCanvas(1, 1) };
+  globalThis.document = { createElement: () => createCanvas(1, 1), addEventListener() {}, removeEventListener() {} };
   const manifestPath = fileURLToPath(new URL('fonts/shared/font.json', root));
   const manifest = json('fonts/shared/font.json');
   const sheets = await Promise.all(manifest.sheets.map(name => loadImage(join(dirname(manifestPath), name))));
@@ -166,7 +183,7 @@ test('Manual destination actual Canvas equivalence and CPU profile', { skip: !ca
   const font = new BitmapFont(manifest, sheets), reports = [], assets = new Map();
   const asset = path => { const bytes = readFileSync(new URL(path, root)); assets.set(path, sha256(bytes)); return bytes; };
   asset('fonts/shared/font.json'); for (const name of manifest.sheets) asset(`fonts/shared/${name}`);
-  let comparedTextBytes = 0, comparedTargetBytes = 0, comparedTextRasters = 0, syntheticCanvasCases = 0;
+  let comparedTextBytes = 0, comparedTargetBytes = 0, comparedTextRasters = 0, syntheticCanvasCases = 0, scheduledTargetBytes = 0, scheduledCases = 0;
   try {
     const scenarios = [['0004001000022000', 'main'], ['0004001000022400', 'main']];
     if (mode === 'equivalence') scenarios.push(['0004003000009d02', 'main'], ['0004001000022000', 'document'], ['0004003000009d02', 'document']);
@@ -235,6 +252,34 @@ test('Manual destination actual Canvas equivalence and CPU profile', { skip: !ca
               assert.deepEqual(lower, scalarBottom.getContext('2d').getImageData(0, 0, 320, 240).data);
               comparedTextRasters += textSources.length; comparedTextBytes += textSources.reduce((sum, source) => sum + source.data.length, 0);
               comparedTargetBytes += upper.length + lower.length;
+              if (paint === 0) for (const reducedMotion of [false, true]) {
+                let draws = 0;
+                const savedStock = globalThis.__manualSchedulingStock;
+                globalThis.__manualSchedulingStock = { sync() {}, prepare: () => ({ status: 'ready', assets: { renderer } }),
+                  getFailure: () => null, dispose() {}, draw(t, b, chosen, _owner, selectedFont) {
+                    draws++; return drawNativeHelperFrame(renderer, t, b, chosen, { font: selectedFont, nativeImage: () => icon });
+                  } };
+                const graphics = createPortfolioGraphics(), session = createManualEntryPresentation();
+                const identity = { owner: `manual:${owner}`, manualTitleId: titleId, caller: null, requestId: 'manual', application: null, generation: 1 };
+                const state = { view, system: { phase: 'app', runtime: { active: identity.owner, instances: {} } } };
+                const targetTop = createCanvas(400, 240), targetBottom = createCanvas(320, 240);
+                setPortfolioFont(targetTop.getContext('2d'), font); setPortfolioFont(targetBottom.getContext('2d'), font);
+                try {
+                  for (let step = 0; step <= (reducedMotion ? 0 : 20); step++) {
+                    const elapsedMs = step * 1000 / 60 + 0.01;
+                    const pose = session.sample({ identity, elapsedMs, eligible: true, destinationReady: false, reducedMotion });
+                    graphics.overlay(targetTop.getContext('2d'), targetBottom.getContext('2d'), state, elapsedMs, reducedMotion, false, new Date(0), undefined, !session.destinationCompositionAllowed(identity));
+                    assert.equal(draws, 0, 'actual portfolio overlay cannot compose before terminal receipt');
+                    assert.equal(session.present(pose, identity, elapsedMs, true, false), true);
+                  }
+                  assert.equal(session.destinationCompositionAllowed(identity), true);
+                  graphics.overlay(targetTop.getContext('2d'), targetBottom.getContext('2d'), state, 1000, reducedMotion, false, new Date(0), undefined, false);
+                  assert.equal(draws, 1);
+                  assert.deepEqual(targetTop.getContext('2d').getImageData(0, 0, 400, 240).data, upper);
+                  assert.deepEqual(targetBottom.getContext('2d').getImageData(0, 0, 320, 240).data, lower);
+                  scheduledTargetBytes += upper.length + lower.length; scheduledCases++;
+                } finally { graphics.dispose(); session.dispose(); globalThis.__manualSchedulingStock = savedStock; }
+              }
             }
             reports.push(report);
           }
@@ -260,15 +305,15 @@ test('Manual destination actual Canvas equivalence and CPU profile', { skip: !ca
     }
   } finally { globalThis.document = previous; }
   const result = { mode, countMaterials, node: process.version, platform: process.platform, arch: process.arch, canvasModule,
-    limitations: 'Installed offline CPU Canvas, not browser/GPU/native timing; actual selected delivered packs, textures and original shared font, borrowed across owners; no asset loading or publication timing included. Equivalence mode includes readback overhead and is not a CPU benchmark. Owner0/paint0 is cold; owner1+ fresh renderer/font-warm and paint1 cached are separate.',
-    sourceFiles: Object.fromEntries(['src/os/native-renderer.ts', 'src/os/stock-native-helpers.ts', 'src/os/native-layout.ts', 'src/os/bitmap-font.ts'].map(path => [path, sha256(readFileSync(new URL(`../${path}`, import.meta.url)))])),
-    assets: Object.fromEntries(assets), comparedTextRasters, comparedTextBytes, comparedTargetBytes, syntheticCanvasCases, reports };
+    limitations: 'Installed offline CPU Canvas, not browser/GPU/native timing; actual selected delivered packs, textures and original shared font, borrowed across owners; no asset loading or publication timing included. Scheduled byte proof uses actual portfolio overlay and Manual presentation, with a stock adapter delegating to the actual helper/renderer and peripheral GPU/Notes stubs; actual async stock publication is tested separately. Equivalence mode includes readback overhead and is not a CPU benchmark. Owner0/paint0 is cold; owner1+ fresh renderer/font-warm and paint1 cached are separate.',
+    sourceFiles: Object.fromEntries(['src/os/native-renderer.ts', 'src/os/stock-native-helpers.ts', 'src/os/native-layout.ts', 'src/os/bitmap-font.ts', 'src/os/manual-entry-presentation.ts', 'src/os/portfolio-screens.ts', 'src/os/screens.ts'].map(path => [path, sha256(readFileSync(new URL(`../${path}`, import.meta.url)))])),
+    assets: Object.fromEntries(assets), comparedTextRasters, comparedTextBytes, comparedTargetBytes, syntheticCanvasCases, scheduledTargetBytes, scheduledCases, reports };
   if (process.env.NATIVE_DESTINATION_ARTIFACT_DIR) {
     const out = process.env.NATIVE_DESTINATION_ARTIFACT_DIR; assert.ok(out.startsWith('/')); mkdirSync(out, { recursive: true });
     writeFileSync(join(out, 'profile.json'), JSON.stringify(result, null, 2) + '\n');
   }
   const median = values => values.sort((a, b) => a - b)[Math.floor(values.length / 2)];
-  t.diagnostic(JSON.stringify({ mode, comparedTextRasters, comparedTextBytes, comparedTargetBytes, syntheticCanvasCases,
+  t.diagnostic(JSON.stringify({ mode, comparedTextRasters, comparedTextBytes, comparedTargetBytes, syntheticCanvasCases, scheduledTargetBytes, scheduledCases,
     summaries: scenariosFor(reports).map(([titleId, screen]) => {
       const rows = reports.filter(row => row.titleId === titleId && row.screen === screen), fresh = rows.filter(row => row.owner > 0 && row.paint === 0);
       return { titleId, screen, firstMs: rows[0].ms, freshOwnerMedianMs: median(fresh.map(row => row.ms)),

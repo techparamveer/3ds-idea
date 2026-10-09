@@ -1,5 +1,12 @@
 # Feature map — 1:1 queue
 
+9 October cover reuse: reviewed `5dc7b83`, frozen clean `b62b559`, completes
+seven muted Sidecar first/repeat regressions with1341 checked pairs/2682 PNGs.
+Camera ready residual remains106/9. Destination composition stalls, live pose
+gaps, native timing/input and pixels remain unresolved. Separate Sol6.1
+extra-high workers now target destination preparation and exact ready residuals.
+All four flows stay fail. See [delivery evidence](manual-cover-raster-reuse-2026-10-09.md).
+
 9 October completion checkpoint: `fc8f0ce` enables populated ordinary entry
 without excluded moving setup; `6bee80f` measures diagnostic CPU composition.
 Muted Sidecar folder76/78 and Manual62/69 yield285 audited pairs/570 PNGs.

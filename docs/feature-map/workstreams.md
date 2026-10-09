@@ -16,6 +16,16 @@ read-only Opus workers completed; the follow-up stopped at its spending limit.
 No Fast selector is exposed. Moving-animation WIP remains excluded/unmerged.
 See [checkpoint](../animation-completion-checkpoint-2026-10-09.md).
 
+Second bounded slice follows the visible5dc7b83 recapture. The same Sol worker
+profiles the cold Manual destination draw and reserves renderer-local changes
+and focused tests; it must coordinate before editing Manual helpers. New worker
+`sol_manual_pixel_residual` owns `manual-pixel-residual-20261009/3ds-idea`, branch
+`codex/manual-pixel-residual-20261009`, base5dc7b83. It reserves Manual helper
+composition in `stock-native-helpers.ts` and its focused tests only. Its exact
+pair is opus-completion/cover-reuse-audit/camera-0-diff,106upper/9lower. No
+renderer/layout/state or shared GUI ownership. Native/header substitutions and
+image patching are forbidden; unresolved source gaps must remain explicit.
+
 ## Shared Text-Layout 1-Pixel Vertical Origin - 4 October 2026
 
 Fidelity worker `3ds-text-y-offset-20261004` /

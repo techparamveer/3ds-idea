@@ -1,5 +1,16 @@
 # Animation completion checkpoint
 
+## Latest delivery
+
+Reviewed `5dc7b83` adds exact opaque common-cover RGB reuse. Frozen clean
+`b62b559` passes build/typecheck and2570 checks, with the unchanged historical
+Camera PNG failure. Seven muted Sidecar first/repeat runs complete1341 checked
+pairs/2682 raw PNGs; Camera ready remains106/9. Manual incoming draw is cheaper,
+but61..73ms destination draws and missing live poses remain. See the
+[current cover evidence](manual-cover-raster-reuse-2026-10-09.md), which also
+qualifies the clipped1440x1000 viewport and unmatched native epochs. Earlier
+build/timing paragraphs below describe the previous capture, not current state.
+
 ## Current scope
 
 Complete top-row app opening, Manual opening, ordinary folder entry and HOME
@@ -103,6 +114,6 @@ no patch. Billing was not changed. New implementation proceeds with explicitly
 requested GPT-6.1 Sol extra-high and independent different-model review. The
 running coordinator model was not changed through a worker override.
 
-The goal API still reports paused; it has no resume operation exposed here.
-The latest direct user instruction authorizes continued work. Do not mark the
+The latest goal API read now reports active with the correct four-flow
+objective. Earlier paused observations are superseded. Do not mark the
 goal complete or any scenario pass from these supporting observations.

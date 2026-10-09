@@ -9,6 +9,16 @@ model, and the tools do not expose a service-tier selector. All sessions stay
 muted. Visual testing must use the iPad Sidecar, leaving Codex on the Dell;
 verify actual owned-window placement before scenario inputs.
 
+## Common cover reuse, 9 October
+
+Reviewed `5dc7b83` and frozen `b62b559` complete seven first/repeat production
+regressions. [Evidence](manual-cover-raster-reuse-2026-10-09.md) separates exact
+source-byte equivalence from cheaper observed draws and unresolved destination
+work. Future visible captures must fit their Playwright viewport inside the
+verified physical window; the latest1440x1000 raw-LCD run had a clipped OS view.
+Do not infer full physical input parity from that run. Keep unmatched native
+epochs, missing browser poses and muted audio explicit. All four flows stay fail.
+
 ## Populated entry and Manual composition, 9 October
 
 [Latest checkpoint](animation-completion-checkpoint-2026-10-09.md) records

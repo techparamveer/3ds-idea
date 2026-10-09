@@ -2,6 +2,13 @@
 
 ## Latest delivery
 
+Reviewed `fbbd63b` delivers source-proved44px relative row spacing. Independent
+380-pair/760-PNG review confirms Browser Manual lower3026 to16; Camera60/9
+holds. Production checks pass except the unchanged historical missing Camera
+PNG. Settings setup ended before input and adds no coverage. Outgoing overlay
+spikes and ordinary-folder residuals are next. See [current evidence](manual-source-runtime-2026-10-09.md).
+Absolute Manual anchors remain capture fits; all four whole flows remain fail.
+
 Reviewed `67c5156` and `486232b` deliver the partial Browser Contents row and
 its native paint-program validation. New562-pair/1124-PNG production capture
 improves Browser lower3492 to3026. Camera60/9 and Settings60/57 controls hold.
@@ -104,7 +111,7 @@ coalesces receipts502..505. CPU timing excludes GPU/presentation latency.
 | Flow | Delivered | Still needed |
 | --- | --- | --- |
 | Top row | Source-backed outgoing/incoming and Notes supplied-pose fixes | Exact native input/cadence, handoff timing and pixel residuals. New Notes static diagnostic remains1107upper/731lower, empty mask. |
-| Manual | Elapsed sample correction and measured first-render cost | Remove proved composition stalls, recapture first/repeat, resolve106upper/9lower fixed ready residual and native cadence. |
+| Manual | Source row/scrollbar corrections, elapsed sampling and renderer work; Browser60/16 and Camera60/9 static diagnostics | Remove observed outgoing composition spikes, recapture Settings, resolve sparse pixels and matched native cadence. |
 | Folder | Ordinary entry/cursor fixes and successful populated browser fixture | Matched native/browser motion and epochs; resolve pixel residuals without touching excluded moving work. |
 | HOME suspension | Lower terminal and seven-update receipt-gap fixes | Exact native timing/input and remaining pixels; fresh baseline did not reproduce old stall, so no causal wall-time speedup claim. |
 

@@ -31,7 +31,16 @@ and HOME suspension. The unmerged held-hover fix is preserved in its worktree.
 The latest Sol6.1 reply above supersedes the earlier Opus worker preference.
 Keep the repository's independent different-model reviewer requirement.
 
-Latest runtime checkpoint: reviewed `67c5156` and `486232b` deliver the native
+Latest runtime checkpoint: reviewed `fbbd63b` delivers native44px relative row
+spacing. Independent380-pair/760-PNG production review confirms Browser Manual
+lower3026 to16, with Camera60/9 unchanged. Build/typechecks and supporting
+source/Canvas tests pass; the historical missing Camera PNG is the sole full
+suite failure. Settings recapture remains owed after an aborted pre-input setup.
+Continue one outgoing-render cost fix and one ordinary-folder residual in
+separate worktrees. Follow the [current evidence](docs/manual-source-runtime-2026-10-09.md).
+All four whole flows remain fail/unproven; no native timing or audio acceptance.
+
+Earlier runtime checkpoint: reviewed `67c5156` and `486232b` deliver the native
 partial-row cutoff and source-program validation. All562 new paired captures
 are audited; Browser Manual lower mismatch improves3492 to3026, while Camera
 and Settings controls hold. The source-proved44px consecutive-row correction

@@ -1,5 +1,56 @@
 # Manual source and runtime checkpoint
 
+## Relative row spacing delivery
+
+Reviewed worker `9ffaa9e` integrates as `fbbd63b`. Manual's shared native
+control writer uses a44px ordinal pitch for Contents, categories and pages.
+The unchanged page/category setters and zero-transform PureLocator/AttachNull
+parent preserve those units. Browser page3 moves from centre228 to218; visible
+Camera/Settings centres remain unchanged. The absolute42/86px mounts are still
+capture-fitted adaptations, not recovered native anchors. No native assets,
+clipping, input, clock, readiness or publication rules changed.
+
+The source is Manual `0004003000009b02`, v5120, content0/0000000a,
+`ExeFS/.code`, SHA
+`cf4658f9f618a41f8d32ff7aed40d0ea565da78a2ace349cb93698ff5f7df5d8`.
+Writer0x146164 and setter/parent identities are recorded in private
+`manual-control-pitch-source-20261009/source-audit.json`, SHA
+`00e0a6d6330e44b69ea0e5d707b4bfd58a0d4dba50f90beb62fe1bfa19386175`.
+Its adjacent handoff maps the CIA resource `layout/PureLocator.arc`, SHA
+`7e312443875ddb8ff03561e305b26d39956188975778ea700bc9c350764bedcb`,
+and converter identities. Existing row manifest/source mappings below remain.
+
+Clean equivalent verification `79d3cdd` passes83 explicitly selected source
+checks,84 checks in the distinct Manual-only set, nonincremental pre/post
+typechecks, production build and4 installed-Canvas checks without focused skips.
+Canvas checks preserve1156 text rasters and31,649,856 source RGBA bytes exactly.
+Full tests report2589 passes,101 skips, one TODO and the unchanged historical
+missing Camera PNG failure. Build `BClPrIyfEmc1JitPurber` has BUILD_ID SHA
+`b79125d98c5c9504c88e90644652fc6fe0e2bcaaff0f1db286635935b371786c`.
+
+Frozen muted Sidecar first/repeat captures contain Browser94/98 and Camera91/97
+pairs. `O/ordinal-spacing-browser-camera-audit/report.json` checks380 pairs and
+760 PNGs. With the same fixed native endpoints, empty masks and RGB delta2,
+Browser improves60upper/3026lower to60/16 in both cycles; Camera60/9 holds
+byte-identically. Independent production handoff
+`O/reviewer-ordinal-spacing-production-audit/handoff.md` hashes
+`421c2bc12b85f95dcfdfc28a1a4efc5246f6ab6a3bff12d7e423abe9d52fa413`.
+It checks all pairs, four chronology sheets, four consoles and eight contacts.
+
+Browser's remaining lower16 pixels are7 partial-row edge,6 footer and3 row
+pixels. Camera's9 are6 footer and3 row pixels. Both retain60 upper icon-edge
+pixels. Camera out18/out19 are absent across both cycles; Browser's union covers
+all poses but individual cycles have gaps. Selected in20 is loading; the next
+ready receipt has identical LCD hashes. OS content screenshots show rendered
+HOME between cycles, not Manual. Build binding remains coordinator-attested.
+Settings caught an unexpected omnibox keystroke before the input gate; no
+continue file or scenario ledger exists. That attempt timed out and closed.
+All owned collectors/server closed; no native session ran. Settings recapture
+is still owed. Audio acceptance, matched native inputs/epochs and whole-flow
+1:1 remain unproven. Outgoing overlay spikes are the next bounded renderer task.
+
+The following sections preserve earlier checkpoints and their limitations.
+
 ## Partial-row delivery
 
 Reviewed runtime `486232b` includes cutoff `67c5156` and the selected native

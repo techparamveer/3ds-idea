@@ -11,6 +11,15 @@ verify actual owned-window placement before scenario inputs.
 
 ## Manual source/runtime and fitted recapture, 9 October
 
+Reviewed `fbbd63b` recovers44px relative ordinal spacing without changing
+capture-fitted absolute mounts. Independent380-pair review confirms Browser
+lower3026 to16 and unchanged Camera60/9. Settings was aborted before its input
+gate and is excluded; do not borrow the preceding Settings control as a new
+recapture. New OS content snapshots show HOME between cycles, not Manual.
+Continue offline outgoing-render and folder tasks while GUI timing is pending.
+Source/build/capture identities and remaining gaps are in the
+[current evidence](manual-source-runtime-2026-10-09.md). No whole-flow pass follows.
+
 Reviewed `67c5156` and `486232b` submit the authored partial Browser row and
 validate its selected native paint program. The562-pair production regression
 improves Browser lower3492 to3026; Camera60/9 and Settings60/57 hold. Continue

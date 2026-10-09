@@ -2,6 +2,19 @@
 
 ## Animation completion, 9 October 2026
 
+Latest runtime is `fbbd63b`; equivalent clean verification is `79d3cdd`.
+Independent380-pair production audit confirms Browser60/16 and Camera60/9.
+Settings has no new coverage. Coordinator owns documentation, integration and
+all muted Sidecar GUI; new GUI waits for the short-test timing preference.
+`sol_manual_cover_performance` resumes one measured outgoing-render bottleneck
+in its owned manual-animation-finish worktree. `sol_manual_pixel_residual` now
+owns the clean folder-animation-finish worktree on new branch
+`codex/folder-entry-residual-20261009`, basedfbbd63b, for one ordinary-entry
+residual only. Its old Manual worktree stays untouched. Both use GPT-6.1 Sol
+extra-high. Different-model `opus_patch_review` reserves independent review.
+Closed icon-edge/PNG recovery audits must not be repeated. Moving work remains
+excluded. The following assignments are historical where superseded.
+
 Latest integrated runtime is `486232b`. The performance worker's renderer
 commit is integrated; its bounded icon-edge and missing historical PNG lookups
 are complete and must not be repeated. No source correction was justified there.

@@ -1,5 +1,12 @@
 # Feature map — 1:1 queue
 
+9 October relative-spacing delivery: reviewed `fbbd63b` completes380 independently
+checked pairs/760 PNGs. Browser Manual lower3026 improves to16; Camera60/9
+holds byte-identically. Settings setup was aborted before input and still needs
+recapture. Outgoing composition spikes and an ordinary-folder residual are next;
+moving animations remain excluded. AN-01..AN-04 stay fail. See
+[current evidence](manual-source-runtime-2026-10-09.md).
+
 9 October partial-row delivery: reviewed `67c5156` and `486232b` complete562
 checked pairs/1124 PNGs. Browser Manual lower improves3492 to3026; Camera60/9
 and Settings60/57 hold. The remaining adjacent-page spacing has a native44px

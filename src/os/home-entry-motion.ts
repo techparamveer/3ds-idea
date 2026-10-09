@@ -4,6 +4,7 @@ import { HOME_ENTRY_HUD_LAST_FRAME } from './home-entry-presentation.ts';
 export const HOME_FOLDER_ENTRY_LAST_FRAME = 16;
 export const HOME_FOLDER_CAPTURE_ENTRY_LAST_FRAME = 8;
 export const HOME_PAUSE_ENTRY_LAST_FRAME = 20;
+export const HOME_PAUSE_ENTRY_LAST_UPDATE = 22;
 // Browser policy: tolerate one missed nominal 20 FPS pair (two 3-update gaps).
 // Larger unobserved jumps rebase without spending motion, not native duration.
 export const HOME_ENTRY_MAX_OBSERVED_UPDATE_GAP = 6;
@@ -21,7 +22,8 @@ export type HomePauseEntryPresentation = Readonly<{
   material: readonly [Readonly<{ clip: 'BannerBG_AppPause'; frame: number }>];
 }>;
 export type HomePauseLowerPresentation = Readonly<{ fadeFrame: number | null; footerFrame: number | null }>;
-export const HOME_PAUSE_LOWER_CLEAR_AT_FRAME = 14;
+export const HOME_PAUSE_LOWER_FADE_END_AT_UPDATE = 14;
+export const HOME_PAUSE_LOWER_RELEASE_AT_UPDATE = 16;
 export const HOME_PAUSE_LOWER_FADE_LAST_FRAME = 40;
 export const HOME_PAUSE_LOWER_FOOTER_LAST_FRAME = 14;
 export type HomeSuspendedBackgroundPresentation = HomePauseEntryPresentation | HomeApplicationTransitionPresentation;
@@ -37,7 +39,7 @@ export function homeEntryMotionMatches(motion: HomeEntryMotion | null, identity:
 
 export function homeEntryMotionActive(motion: HomeEntryMotion | null, reduced = false): boolean {
   return !reduced && !!motion && motion.elapsedUpdates < (motion.identity.kind === 'folder'
-    ? HOME_FOLDER_ENTRY_LAST_FRAME : HOME_PAUSE_ENTRY_LAST_FRAME);
+    ? HOME_FOLDER_ENTRY_LAST_FRAME : HOME_PAUSE_ENTRY_LAST_UPDATE);
 }
 
 /** A successful Canvas pair stays selected until its render receipt. */
@@ -46,7 +48,7 @@ export function sampleHomeEntryMotionCandidate(presented: HomeEntryMotion | null
   rebase = false, reduced = false): HomeEntryMotion | null {
   const sample = sampleHomeEntryMotion(presented, identity, updateCount, eligible && !(rebase && homeEntryMotionMatches(presented, identity)));
   if (sample && eligible && reduced) return Object.freeze({ ...sample, elapsedUpdates: sample.identity.kind === 'folder'
-    ? HOME_FOLDER_ENTRY_LAST_FRAME : HOME_PAUSE_ENTRY_LAST_FRAME });
+    ? HOME_FOLDER_ENTRY_LAST_FRAME : HOME_PAUSE_ENTRY_LAST_UPDATE });
   return homeEntryMotionMatches(pending, identity) ? pending : sample;
 }
 
@@ -109,14 +111,16 @@ export function homePauseHudSceneInFrame(motion: HomeEntryMotion | null, reduced
     : Math.min(HOME_PAUSE_ENTRY_LAST_FRAME, motion.elapsedUpdates) * HOME_ENTRY_HUD_LAST_FRAME / HOME_PAUSE_ENTRY_LAST_FRAME;
 }
 
-/** The clips are source-authored; their shared 0..20 host schedule is fitted
- * only to the captured ordering because the native caller epochs are unknown. */
+/** The native lower controller applies frame 40 before stopped and idle, then
+ * a later poll hides it. Mapping those boundaries to receipts 14, 15 and 16,
+ * and starting the footer on release, remain host timing adaptations. */
 export function homePauseLowerPresentation(motion: HomeEntryMotion | null, reduced = false): HomePauseLowerPresentation | null {
-  if (motion?.identity.kind !== 'pause' || reduced || motion.elapsedUpdates >= HOME_PAUSE_ENTRY_LAST_FRAME) return null;
-  const entryFrame = Math.min(HOME_PAUSE_ENTRY_LAST_FRAME, motion.elapsedUpdates);
-  const clearAt = HOME_PAUSE_LOWER_CLEAR_AT_FRAME, footerSpan = HOME_PAUSE_ENTRY_LAST_FRAME - clearAt;
+  if (motion?.identity.kind !== 'pause' || reduced || motion.elapsedUpdates >= HOME_PAUSE_ENTRY_LAST_UPDATE) return null;
+  const update = motion.elapsedUpdates;
+  const fadeEnd = HOME_PAUSE_LOWER_FADE_END_AT_UPDATE, release = HOME_PAUSE_LOWER_RELEASE_AT_UPDATE;
+  const footerSpan = HOME_PAUSE_ENTRY_LAST_UPDATE - release;
   return Object.freeze({
-    fadeFrame: entryFrame <= clearAt ? Math.round(entryFrame * HOME_PAUSE_LOWER_FADE_LAST_FRAME / clearAt) : null,
-    footerFrame: entryFrame >= clearAt ? Math.floor((entryFrame - clearAt) * HOME_PAUSE_LOWER_FOOTER_LAST_FRAME / footerSpan) : null,
+    fadeFrame: update < release ? Math.round(Math.min(update, fadeEnd) * HOME_PAUSE_LOWER_FADE_LAST_FRAME / fadeEnd) : null,
+    footerFrame: update >= release ? Math.floor((update - release) * HOME_PAUSE_LOWER_FOOTER_LAST_FRAME / footerSpan) : null,
   });
 }

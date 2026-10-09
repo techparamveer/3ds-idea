@@ -108,11 +108,11 @@ test('actual Health HOME painter holds the source HUD, then enters it while the 
     assert.equal(launcherSceneFrame(pair.events), 0);
     assert.equal(hudFrame(pair.events), 0);
     assert.equal(screens.presentHomeEntryMotion(pair.state), true); assert.equal(screens.presentHomeEntryMotion(pair.state), false);
-    for (let frame = 1; frame <= 20; frame++) {
-      pair = paint(state, 500 + frame * 3);
+    for (let frame = 1; frame <= 22; frame++) {
+      pair = paint(state, 500 + frame * 3, false);
       assert.equal(appear(pair.events), Math.min(10, Math.max(0, frame - 10)));
-      assert.equal(launcherSceneFrame(pair.events), frame * 2);
-      assert.equal(hudFrame(pair.events), frame * 2);
+      assert.equal(launcherSceneFrame(pair.events), Math.min(20, frame) * 2);
+      assert.equal(hudFrame(pair.events), Math.min(20, frame) * 2);
       const launcherRoot = pane(window(pair.events), 'N_Root_00');
       const hudScene = pane(hud(pair.events), 'N_Scene_00');
       if (frame <= 10) {
@@ -131,17 +131,52 @@ test('actual Health HOME painter holds the source HUD, then enters it while the 
       for (const name of ['T_NetMode_00', 'T_Date_00', 'T_TimeL_00', 'P_Bat_00']) {
         assert.ok(nativePaneParentPath(hud(pair.events).pose, name).some(parent => parent.name === 'N_Scene_00'));
       }
-      assert.equal(pair.result.entryMotion.pauseFrame, frame);
-      assert.deepEqual(pair.result.entryMotion.pauseLower, frame < 20 ? {
-        fadeFrame: frame <= 14 ? Math.round(frame * 40 / 14) : null,
-        footerFrame: frame >= 14 ? Math.floor((frame - 14) * 14 / 6) : null,
+      assert.equal(pair.result.entryMotion.pauseFrame, Math.min(20, frame));
+      assert.deepEqual(pair.result.entryMotion.pauseLower, frame < 22 ? {
+        fadeFrame: frame < 16 ? Math.round(Math.min(14, frame) * 40 / 14) : null,
+        footerFrame: frame >= 16 ? Math.floor((frame - 16) * 14 / 6) : null,
       } : null);
-      assert.equal(pair.events.some(event => event.name === 'pause-lower'), frame <= 14);
-      assert.equal(pair.events.some(event => event.name === 'footer'), frame >= 14);
+      assert.equal(pair.events.some(event => event.name === 'pause-lower'), frame < 16);
+      assert.equal(pair.events.some(event => event.name === 'footer'), frame >= 16);
       assert.equal(pane(window(pair.events), 'N_Hud_00').alpha, 255);
       assert.deepEqual(pane(window(pair.events), 'W_Wndw_00').size, [296, 132]);
+      assert.equal(screens.homeEntryMotionActive(pair.state), true, 'each pending pair keeps motion active');
+      assert.equal(screens.presentHomeEntryMotion(pair.state), true);
+      assert.equal(screens.homeEntryMotionActive(pair.state), frame < 22, 'the footer endpoint receipt ends motion');
     }
     assert.equal(screens.homeEntryMotionActive(pair.state), false);
+  });
+});
+
+test('lower endpoint holds require distinct receipts before release and survive failed pairs', async () => {
+  await fixture(({ screens, paint, fail }) => {
+    const state = suspended();
+    const assertHeld = (pair, frame) => {
+      assert.equal(pair.result.entryMotion.pauseFrame, frame);
+      assert.deepEqual(pair.result.entryMotion.pauseLower, { fadeFrame: 40, footerFrame: null });
+      assert.equal(pair.events.find(event => event.name === 'pause-lower').frame, 40);
+      assert.equal(pair.events.some(event => event.name === 'footer'), false);
+    };
+    for (let frame = 0; frame <= 14; frame++) paint(state, 100 + frame);
+    assertHeld(paint(state, 114), 14);
+    for (const update of [115, 115, 118, 500]) assertHeld(paint(state, update, false), 15);
+    fail(true);
+    assert.equal(paint(state, 501).presented, false);
+    fail(false); screens.retryStockScreen();
+    assertHeld(paint(state, 502), 14);
+    let pair = paint(state, 503, false); assertHeld(pair, 15);
+    assert.equal(screens.presentHomeEntryMotion(pair.state), true);
+    assert.equal(screens.presentHomeEntryMotion(pair.state), false, 'a receipt cannot be consumed twice');
+    assertHeld(paint(state, 503), 15);
+    fail(true);
+    assert.equal(paint(state, 504).presented, false);
+    fail(false); screens.retryStockScreen();
+    assertHeld(paint(state, 505), 15);
+    pair = paint(state, 506, false);
+    assert.deepEqual(pair.result.entryMotion.pauseLower, { fadeFrame: null, footerFrame: 0 });
+    assert.equal(pair.events.some(event => event.name === 'pause-lower'), false);
+    assert.equal(pair.events.find(event => event.name === 'footer').pauseFrame, 0);
+    assert.equal(screens.presentHomeEntryMotion(pair.state), true);
   });
 });
 
@@ -174,18 +209,23 @@ test('failed window source, diagnostics, context revocation and monotonic retrie
 
 test('replacement owner or capture generation cannot acknowledge or advance an old appearance candidate', async () => {
   await fixture(({ screens, paint, capture, setOwner }) => {
-    const state = suspended(); paint(state, 100); paint(state, 103, false);
-    capture(state.system.runtime.application, 2); assert.equal(screens.presentHomeEntryMotion(at(state, 103)), false);
-    let pair = paint(state, 104); assert.equal(appear(pair.events), 0); pair = paint(state, 105); assert.equal(appear(pair.events), 0);
+    const state = suspended();
+    for (let frame = 0; frame <= 14; frame++) paint(state, 100 + frame);
+    paint(state, 115, false);
+    capture(state.system.runtime.application, 2); assert.equal(screens.presentHomeEntryMotion(at(state, 115)), false);
+    let pair = paint(state, 116); assert.equal(appear(pair.events), 0);
+    assert.deepEqual(pair.result.entryMotion.pauseLower, { fadeFrame: 0, footerFrame: null });
+    pair = paint(state, 117); assert.equal(appear(pair.events), 0);
     assert.equal(hudFrame(pair.events), 2);
     const owner = 'health-safety:replacement';
     const replacement = { ...state, system: { ...state.system, runtime: { ...state.system.runtime, application: owner, homeReturn: owner,
       instances: { [owner]: { ...state.system.runtime.instances[state.system.runtime.application], id: owner } } } } };
-    paint(state, 106, false); capture(owner, 3); setOwner(owner);
-    assert.equal(screens.presentHomeEntryMotion(at(replacement, 106)), false);
-    pair = paint(replacement, 107); assert.equal(appear(pair.events), 0); assert.equal(hudFrame(pair.events), 0);
-    pair = paint(replacement, 108); assert.equal(appear(pair.events), 0); assert.equal(hudFrame(pair.events), 2);
-    capture('foreign', 4); pair = paint(replacement, 109); assert.equal(screens.stockStatus(pair.state), 'error'); assert.equal(pair.presented, false);
+    paint(state, 118, false); capture(owner, 3); setOwner(owner);
+    assert.equal(screens.presentHomeEntryMotion(at(replacement, 118)), false);
+    pair = paint(replacement, 119); assert.equal(appear(pair.events), 0); assert.equal(hudFrame(pair.events), 0);
+    assert.deepEqual(pair.result.entryMotion.pauseLower, { fadeFrame: 0, footerFrame: null });
+    pair = paint(replacement, 120); assert.equal(appear(pair.events), 0); assert.equal(hudFrame(pair.events), 2);
+    capture('foreign', 4); pair = paint(replacement, 121); assert.equal(screens.stockStatus(pair.state), 'error'); assert.equal(pair.presented, false);
   });
 });
 
@@ -193,8 +233,9 @@ test('resuming and pausing the same owner starts a fresh lower capture generatio
   await fixture(({ screens, paint, capture }) => {
     const first = suspended(), owner = first.system.runtime.application;
     let pair = paint(first, 100); const firstApplication = pair.events.find(event => event.name === 'pause-lower').application;
-    for (let frame = 1; frame <= 20; frame++) pair = paint(first, 100 + frame);
+    for (let frame = 1; frame <= 22; frame++) pair = paint(first, 100 + frame);
     assert.equal(pair.result.entryMotion.pauseFrame, 20);
+    assert.equal(screens.homeEntryMotionActive(pair.state), false);
     const resumed = touchSystem(first, 160, 226, 7000);
     assert.equal(resumed.system.phase, 'app'); assert.equal(resumed.system.runtime.application, owner);
     const repeated = reduceSystem(resumed, 'home', 7100);

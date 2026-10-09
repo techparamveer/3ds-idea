@@ -10,16 +10,20 @@ const launcherUrl = process.env.THREE_DS_RESOURCE_ROOT
   ? pathToFileURL(resolve(process.env.THREE_DS_RESOURCE_ROOT, 'packs/home/launcher.json'))
   : new URL('../public/os/firmware/10.7.0-32E/packs/home/launcher.json', import.meta.url);
 const launcher = JSON.parse(readFileSync(launcherUrl));
-const motion = elapsedUpdates => ({ identity: { kind: 'pause', owner: 'health:1', captureGeneration: 7 }, startedAtUpdate: 10, elapsedUpdates });
+const motion = elapsedUpdates => ({ identity: { kind: 'pause', owner: 'health:1', captureGeneration: 7 }, observedUpdate: 10, elapsedUpdates });
 
-test('lower pause schedule preserves decoded fade then footer ordering', () => {
+test('lower pause holds both terminal fade samples before releasing to the full footer span', () => {
   assert.deepEqual(homePauseLowerPresentation(motion(0)), { fadeFrame: 0, footerFrame: null });
   assert.deepEqual(homePauseLowerPresentation(motion(7)), { fadeFrame: 20, footerFrame: null });
-  assert.deepEqual(homePauseLowerPresentation(motion(14)), { fadeFrame: 40, footerFrame: 0 });
-  assert.deepEqual(homePauseLowerPresentation(motion(15)), { fadeFrame: null, footerFrame: 2 });
-  assert.deepEqual(homePauseLowerPresentation(motion(19)), { fadeFrame: null, footerFrame: 11 });
-  assert.equal(homePauseLowerPresentation(motion(20)), null);
+  assert.deepEqual(homePauseLowerPresentation(motion(14)), { fadeFrame: 40, footerFrame: null });
+  assert.deepEqual(homePauseLowerPresentation(motion(15)), { fadeFrame: 40, footerFrame: null });
+  for (const [offset, footerFrame] of [0, 2, 4, 7, 9, 11].entries()) {
+    assert.deepEqual(homePauseLowerPresentation(motion(16 + offset)), { fadeFrame: null, footerFrame });
+  }
+  assert.equal(homePauseLowerPresentation(motion(22)), null);
+  assert.equal(homePauseLowerPresentation(motion(30)), null);
   assert.equal(homePauseLowerPresentation(motion(0), true), null);
+  assert.equal(homePauseLowerPresentation({ ...motion(15), identity: { kind: 'folder', folder: 'folder:7' } }), null);
 });
 
 test('lower pause source validation rejects substituted resources', () => {

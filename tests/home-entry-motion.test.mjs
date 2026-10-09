@@ -166,7 +166,7 @@ test('revoked pairs rebase the last receipt-backed pose and reduced candidates t
     assert.equal(resumed.elapsedUpdates, 0, 'brief invalid interval must discard the unpresented pose');
     presented = acknowledgeHomeEntryMotionCandidate(resumed, identity, 105, true);
     const reduced = sampleHomeEntryMotionCandidate(presented, null, identity, 106, true, true, true);
-    assert.equal(reduced.elapsedUpdates, identity.kind === 'folder' ? 16 : 20);
+    assert.equal(reduced.elapsedUpdates, identity.kind === 'folder' ? 16 : 22);
     assert.equal(presented.elapsedUpdates, 0, 'sampling an endpoint is not a receipt');
     presented = acknowledgeHomeEntryMotionCandidate(reduced, identity, 106, true);
     const normal = sampleHomeEntryMotionCandidate(presented, null, identity, 107, true, true, false);

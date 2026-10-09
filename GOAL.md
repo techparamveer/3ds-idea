@@ -3,6 +3,22 @@
 Updated 9 October 2026. Fetched GitHub version `c767757` is integrated through
 reviewed merge `b84e1b2`. Primary local main remains untouched at `5ee6fd7`.
 
+Latest human model reply selects GPT-6.1 Sol extra-high Fast after Opus hit its
+monthly spending limit. Use that model/effort for new implementation workers;
+agent tools have no Fast selector. Keep different-model review independent.
+The coordinator model has not changed through worker settings. The latest
+goal API read reports active with this four-flow objective. Earlier paused
+observations below are history; completion remains unproven.
+
+Earlier human request resumed completion of all four animation flows with
+Opus 5.5 High Fast. Installed Claude Code 2.1.294 delivers Opus 5.5, but its
+preflight rejects Fast because the account's usage-credit limit is reached.
+Those Opus attempts used the observed standard fallback without changing billing.
+Keep independent different-model review and record actual models/speed.
+The coordinator model was unchanged; that earlier goal API read said paused.
+No whole flow is verified 1:1. Finish concrete defects and matched comparison,
+not more capture-tool development unless required by a demonstrated failure.
+
 The human resumed on8 October with "continue disregard that", revoking the
 75%-remaining stop condition. The latest human request authorizes continuing
 without that usage cutoff. Continue the full animation goal. Earlier quota
@@ -12,9 +28,37 @@ Latest scope instruction, 9 October: skip icon-moving and drag animations.
 Do not spend more implementation or verification work on pickup/hover/drop.
 Keep the goal on top-row app opening, Manual opening, ordinary folder entry,
 and HOME suspension. The unmerged held-hover fix is preserved in its worktree.
-All new workers and independent reviewers use GPT-6.1 Sol extra-high.
+The latest Sol6.1 reply above supersedes the earlier Opus worker preference.
+Keep the repository's independent different-model reviewer requirement.
 
-Latest runtime checkpoint: reviewed `d5c1c5a` fixes the captured HOME pause
+Latest runtime checkpoint: reviewed `67c5156` and `486232b` deliver the native
+partial-row cutoff and source-program validation. All562 new paired captures
+are audited; Browser Manual lower mismatch improves3492 to3026, while Camera
+and Settings controls hold. The source-proved44px consecutive-row correction
+is next. Build/typecheck pass;2589 full tests pass with the unchanged historical
+Camera PNG failure. Follow the [current evidence](docs/manual-source-runtime-2026-10-09.md).
+All four whole flows remain fail/unproven; no native timing or audio acceptance.
+
+Earlier runtime checkpoint: reviewed `2a983ed` derives the Manual scrollbar from
+the pinned executable; `cbc07d7` reduces implicit-text preparation work. Frozen
+production first/repeat captures contain1542 checked pairs/3084 PNGs in fitted
+Sidecar windows. Camera's static residual improves106/9 to60/9. Browser Manual
+still omits a partial row; a bounded fix and independent review are underway.
+Build/typecheck pass;2580 full tests pass with the unchanged missing historical
+Camera PNG failure. Follow the [current evidence](docs/manual-source-runtime-2026-10-09.md).
+Native epochs, exact input, live pose gaps and muted audio remain open.
+All four whole flows stay fail/unproven.
+
+Earlier runtime checkpoint: reviewed `5dc7b83` reuses exact opaque native cover
+samples in the existing bounded cache. Build/typecheck and2570 tests pass with
+one unchanged historical Camera PNG failure. Seven muted Sidecar first/repeat
+regressions contain1341 checked pairs/2682 raw PNGs. Camera ready remains106/9;
+Manual destination CPU cost and missing live poses remain open. Continue from
+the [cover reuse record](docs/manual-cover-raster-reuse-2026-10-09.md).
+All four whole flows remain fail/unproven. Two bounded Sol6.1 extra-high
+workers target destination preparation and the exact ready residual separately.
+
+Earlier runtime checkpoint: reviewed `d5c1c5a` fixes the captured HOME pause
 seven-update receipt-gap stall. Muted iPad Health baseline/corrected and compact
 Camera first/repeat captures are complete. Independent audit checks all486
 pairs/972 PNGs and inspects30 sheets/six console views. Fresh baseline does not reproduce the original stall, so these host
@@ -147,8 +191,8 @@ LCD frame sequences, including pressed feedback, intermediate poses, ordering,
 duration and the final screen. A matching endpoint or passing tests does not
 establish matching motion.
 
-Work in separate branches and worktrees with at most two workers. The latest
-direct human preference selects GPT-6.1 Sol, extra-high reasoning, for new
+Work in separate branches and worktrees with at most two workers. The earlier
+direct human preference selected GPT-6.1 Sol, extra-high reasoning, for new
 subagents. Record actual worker models rather than claiming existing agents
 changed. Keep implementation and review independent. Speed selection is not
 tool-verifiable.

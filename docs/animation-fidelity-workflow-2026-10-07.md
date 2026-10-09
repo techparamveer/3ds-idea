@@ -2,11 +2,51 @@
 
 The human resumed on8 October with "continue disregard that" and removed the
 75%-remaining stop rule. Continue from STATUS Next; quota pauses recorded below
-are historical. The latest direct user model request selects GPT-6.1 Sol extra-high
-for subagents. The worker override does not change the running coordinator
+are historical. The latest direct user model reply selects GPT-6.1 Sol extra-high
+Fast after Opus5.5 High reached its monthly spending limit. Fast is not exposed
+by agent tools. The worker override does not change the running coordinator
 model, and the tools do not expose a service-tier selector. All sessions stay
 muted. Visual testing must use the iPad Sidecar, leaving Codex on the Dell;
 verify actual owned-window placement before scenario inputs.
+
+## Manual source/runtime and fitted recapture, 9 October
+
+Reviewed `67c5156` and `486232b` submit the authored partial Browser row and
+validate its selected native paint program. The562-pair production regression
+improves Browser lower3492 to3026; Camera60/9 and Settings60/57 hold. Continue
+only the source-proved44px relative-spacing correction, then independent review,
+clean production checks and fresh first/repeat controls. OS startup snapshots
+are placement evidence, not Manual content proof. No whole-flow pass follows.
+
+Reviewed scrollbar `2a983ed` and renderer `cbc07d7` are recaptured with a
+1100x560 viewport inside actual1102x700 Sidecar windows. The
+[current checkpoint](manual-source-runtime-2026-10-09.md) records1542 pairs,
+source and build identities, explicit-source/Canvas checks and remaining pixels.
+Keep first-in20 ready-equivalent endpoint diagnostics separate from actual
+ready-marked receipt timing. Native requested held-touch and ordinary browser
+click remain different inputs; movies with invalid PTS and gaps are not exact
+cadence. Preserve earlier clipped captures and missing poses. Browser Manual's
+partial-row defect is being fixed from authored row bounds, not a fitted clip.
+All four whole flows remain fail; audio acceptance remains unverified while muted.
+
+## Common cover reuse, 9 October
+
+Reviewed `5dc7b83` and frozen `b62b559` complete seven first/repeat production
+regressions. [Evidence](manual-cover-raster-reuse-2026-10-09.md) separates exact
+source-byte equivalence from cheaper observed draws and unresolved destination
+work. Future visible captures must fit their Playwright viewport inside the
+verified physical window; the latest1440x1000 raw-LCD run had a clipped OS view.
+Do not infer full physical input parity from that run. Keep unmatched native
+epochs, missing browser poses and muted audio explicit. All four flows stay fail.
+
+## Populated entry and Manual composition, 9 October
+
+[Latest checkpoint](animation-completion-checkpoint-2026-10-09.md) records
+the seeded ordinary-folder fixture and opt-in CPU probe, both independently
+reviewed. New muted Sidecar captures have285 audited pairs/570 PNGs. Distinguish
+first incoming CPU cost from rAF coalescing and native timing. Build/window and
+visual-inspection attestations remain separate from script proof. Keep all four
+whole flows fail and preserve the unrelated uncommitted user edit in system.ts.
 
 ## Current scope and HOME receipt fix, 9 October
 

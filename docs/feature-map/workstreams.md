@@ -1,5 +1,41 @@
 # Workstream Registry
 
+## Animation completion, 9 October 2026
+
+Latest integrated runtime is `486232b`. The performance worker's renderer
+commit is integrated; its bounded icon-edge and missing historical PNG lookups
+are complete and must not be repeated. No source correction was justified there.
+The pixel worker's cutoff and paint gate integrate as `67c5156` and `486232b`.
+It now owns only the source-proved44px adjacent-page spacing correction in
+`stock-native-helpers.ts` and focused tests. Different-model reviewer completed
+top-row and partial-row production/control audits and awaits the spacing patch.
+All shared GUI/server sessions are closed. See [runtime evidence](../manual-source-runtime-2026-10-09.md).
+Earlier assignments below remain history where superseded.
+
+Coordinator integration is `3ds-animation-fidelity-20261007/3ds-idea` on
+`codex/animation-fidelity-20261007`. Clean coordinator verification is
+`opus-verification-20261009/3ds-idea` on `codex/opus-verification-20261009`.
+Only the coordinator operates muted Sidecar browser/Azahar.
+`manual-animation-finish-20261009/3ds-idea` on
+`codex/manual-animation-finish-20261009`, base6bee80f, belongs to
+`sol_manual_cover_performance` with GPT-6.1 Sol extra-high. It reserves the
+explicit common-cover compiled-raster interface in `native-layout.ts`,
+`native-renderer.ts`, `firmware-presentation.ts` and focused tests only.
+Different-model reviewer `opus_patch_review` remains independent. Initial
+read-only Opus workers completed; the follow-up stopped at its spending limit.
+No Fast selector is exposed. Moving-animation WIP remains excluded/unmerged.
+See [checkpoint](../animation-completion-checkpoint-2026-10-09.md).
+
+Second bounded slice follows the visible5dc7b83 recapture. The same Sol worker
+profiles the cold Manual destination draw and reserves renderer-local changes
+and focused tests; it must coordinate before editing Manual helpers. New worker
+`sol_manual_pixel_residual` owns `manual-pixel-residual-20261009/3ds-idea`, branch
+`codex/manual-pixel-residual-20261009`, base5dc7b83. It reserves Manual helper
+composition in `stock-native-helpers.ts` and its focused tests only. Its exact
+pair is opus-completion/cover-reuse-audit/camera-0-diff,106upper/9lower. No
+renderer/layout/state or shared GUI ownership. Native/header substitutions and
+image patching are forbidden; unresolved source gaps must remain explicit.
+
 ## Shared Text-Layout 1-Pixel Vertical Origin - 4 October 2026
 
 Fidelity worker `3ds-text-y-offset-20261004` /

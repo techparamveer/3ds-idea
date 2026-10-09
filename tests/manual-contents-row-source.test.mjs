@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {join} from 'node:path';
 import ts from 'typescript';
-import {nativePaneParentPath,poseNativeLayout} from '../src/os/native-layout.ts';
+import {evaluateNativeMaterial,nativePaneParentPath,poseNativeLayout} from '../src/os/native-layout.ts';
 import {nativeTextWriterFlags} from '../src/os/bitmap-font.ts';
 
 const root=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
@@ -15,7 +15,7 @@ const compile=name=>{
  const url=new URL(`../src/os/${name}.ts`,import.meta.url),source=readFileSync(url,'utf8');
  return moduleUrl(source.replace(/(from\s*['"])(\.[^'"]+?)(['"])/g,(_all,prefix,path,suffix)=>prefix+(path==='./stock-native-amiibo'?amiibo:new URL(`${path}.ts`,url).href)+suffix));
 };
-const {drawNativeHelperFrame,nativeHelperView}=await import(compile('stock-native-helpers'));
+const {drawNativeHelperFrame,nativeHelperView,APPLICATION_MANUAL_SLOTS}=await import(compile('stock-native-helpers'));
 const {NativeLayoutRenderer}=await import(compile('native-renderer'));
 const settings='0004001000022000',camera='0004001000022400',browser='0004003000009d02';
 const row=layout=>nativePaneParentPath(layout,'TextBox_Txt').at(-1);
@@ -34,12 +34,173 @@ function fixture(titleId=camera,screen='main'){
   paint:()=>drawNativeHelperFrame(renderer,context,context,view)};
 }
 
+const rowPaintTop=layout=>{
+ const path=nativePaneParentPath(layout,'BtnPageTitleT_01'),pane=path.at(-1);
+ return -path.reduce((sum,pane)=>sum+pane.translation[1],0)-pane.size[1]*pane.scale[1]*Math.floor(pane.origin/3)/2;
+};
+
+test('Contents culling uses the decoded visible row halves rather than the transparent shadow or row centre',()=>{
+ const f=fixture(browser),posed=poseNativeLayout(f.source,f.renderer.packs['manual-row'].animations,[{name:'BtnHeadLineTxt_Wait',frame:1}]);
+ for(const [name,x,scaleX]of [['BtnPageTitleT_01',84,-1],['BtnPageTitleT_02',-84,1]]){
+  const path=nativePaneParentPath(posed,name),pane=path.at(-1);
+  assert.deepEqual(path.map(pane=>pane.name),['RootPane','BtnHeadLineBody',name]);
+  assert.deepEqual({kind:pane.kind,flags:pane.flags,alpha:pane.alpha,origin:pane.origin,translation:pane.translation,scale:pane.scale,rotation:pane.rotation,size:pane.size},
+   {kind:'pic1',flags:1,alpha:255,origin:4,translation:[x,1,0],scale:[scaleX,1.2999999523162842],rotation:[0,0,0],size:[168,32]});
+  const material=posed.materials[pane.picture.material];
+  for(const alpha of [0,.5,1])assert.equal(evaluateNativeMaterial(material,[[.5,.5,.5,alpha]],pane.picture.colors[0].map(value=>value/255),[5])[3],alpha,'the original implicit program retains source texture alpha');
+ }
+ assert.equal(nativePaneParentPath(posed,'BtnShdw01').at(-1).alpha,0);
+ assert.equal(rowPaintTop(posed),-24.799999237060547);
+ assert.equal(f.paint(),true);
+ const calls=f.calls.filter(call=>call.pack==='manual-row');
+ assert.deepEqual(calls.map(call=>call.options.overrides.TextBox_Num.text),['1','2','3'],'the native partial third page row is submitted; no later row is submitted');
+ assert.deepEqual(calls.map(call=>call.options.center),[[160,86],[160,174],[160,218]],'each page and category occupies one original 44px control ordinal');
+ assert.equal(calls[2].options.overrides.TextBox_Txt.text,'Browser Usage Precautio...','existing heading truncation is unchanged');
+ assert.deepEqual(calls[2].options.clip,[0,0,320,212]);
+ assert.equal(calls[2].options.center[1]+rowPaintTop(posed),193.20000076293945);
+ f.renderer.dispose();
+});
+
+test('Contents submits a partial row just inside the source-derived bottom bound, but not at or beyond it',()=>{
+ const original=APPLICATION_MANUAL_SLOTS.firstRow;
+ try{
+  for(const [delta,count]of [[-.001,3],[0,2],[.001,2]]){
+   const f=fixture(browser),posed=poseNativeLayout(f.source,f.renderer.packs['manual-row'].animations,[{name:'BtnHeadLineTxt_Wait',frame:1}]);
+   APPLICATION_MANUAL_SLOTS.firstRow=212-rowPaintTop(posed)-2*APPLICATION_MANUAL_SLOTS.row-APPLICATION_MANUAL_SLOTS.category+delta;
+   assert.equal(f.paint(),true);
+   const calls=f.calls.filter(call=>call.pack==='manual-row');
+   assert.equal(calls.length,count,`row top ${212+delta}`);
+   assert.deepEqual(calls.map(call=>call.options.overrides.TextBox_Num.text),Array.from({length:count},(_,index)=>String(index+1)));
+   for(const call of calls)assert.deepEqual(call.options.clip,[0,0,320,212]);
+   f.renderer.dispose();
+  }
+ }finally{APPLICATION_MANUAL_SLOTS.firstRow=original;}
+});
+
+for(const titleId of [camera,settings])test(`Contents ${titleId} retains its two rows and clipped second category`,()=>{
+ const f=fixture(titleId),before=JSON.stringify(f.source);assert.equal(f.paint(),true);
+ const rows=f.calls.filter(call=>call.pack==='manual-row'),categories=f.calls.filter(call=>call.pack==='manual-category');
+ assert.deepEqual(rows.map(call=>call.options.overrides.TextBox_Num.text),['1','2']);
+ assert.deepEqual(rows.map(call=>call.options.center),[[160,86],[160,174]]);
+ assert.deepEqual(categories.map(call=>call.options.center),[[160,130],[160,218]]);
+ assert.equal(categories[1].layout,'HLTxtBlue');
+ for(const call of [...rows,...categories])assert.deepEqual(call.options.clip,[0,0,320,212]);
+ assert.equal(JSON.stringify(f.source),before);f.renderer.dispose();
+});
+
+test('unsupported selected visible row bounds fail before drawing, including cached and posed geometry',()=>{
+ const half=(layout,name='BtnPageTitleT_01')=>nativePaneParentPath(layout,name).at(-1);
+ const edits=[
+  f=>{body(f.source).children=body(f.source).children.filter(pane=>pane.name!=='BtnPageTitleT_01');},
+  f=>{body(f.source).children.push(structuredClone(half(f.source)));},
+  f=>{f.source.roots.push(structuredClone(half(f.source)));},
+  ...['BtnPageTitleT_01','BtnPageTitleT_02'].flatMap(name=>[
+   f=>{half(f.source,name).kind='pan1';},f=>{half(f.source,name).flags=0;},
+   f=>{half(f.source,name).alpha=254;},f=>{half(f.source,name).origin=0;},
+   f=>{half(f.source,name).translation[1]=2;},f=>{half(f.source,name).rotation[2]=1;},
+   f=>{half(f.source,name).scale[1]=1.3;},f=>{half(f.source,name).size[1]=31;},
+   f=>{half(f.source,name).unsupported=['unknown'];},f=>{delete half(f.source,name).picture;},
+  ]),
+ ];
+ for(const edit of edits){const f=fixture(browser);edit(f);assert.throws(f.paint,/Unsupported Manual Contents row paint bounds source/);assert.equal(f.calls.length,0);f.renderer.dispose();}
+ for(const name of ['ManualRowImportant','ManualRowGettingStarted']){
+  const f=fixture(browser);assert.equal(f.paint(),true);f.calls.length=0;
+  half(f.renderer.packs['manual-row'].layouts[name]).size[1]=31;
+  assert.throws(f.paint,/Unsupported Manual Contents row paint bounds source/);assert.equal(f.calls.length,0);f.renderer.dispose();
+ }
+ const f=fixture(browser),track=structuredClone(f.renderer.packs['manual-row'].animations.BtnHeadLineTxt_Wait.tracks[0]);
+ Object.assign(track,{target:'BtnPageTitleT_01',binding:'pane',property:'scale.y',component:4,tag:'CLPA',keys:[{frame:0,value:2,slope:0}]});
+ f.renderer.packs['manual-row'].animations.BtnHeadLineTxt_Wait.tracks.push(track);
+ assert.throws(f.paint,/Unsupported Manual Contents row paint bounds source/);assert.equal(f.calls.length,0);f.renderer.dispose();
+});
+
+test('row-half pictures and complete selected materials reject visibility or sampler substitutions in originals and cached clones',()=>{
+ const half=(layout,name)=>nativePaneParentPath(layout,name).at(-1),edits=[];
+ for(const [name,index]of [['BtnPageTitleT_01',6],['BtnPageTitleT_02',7]])edits.push(
+  ...Array.from({length:4},(_,corner)=>layout=>{half(layout,name).picture.colors[corner][3]=0;}),
+  layout=>{half(layout,name).picture.colors[0][0]=254;},
+  layout=>{half(layout,name).picture.colors.pop();},
+  layout=>{half(layout,name).picture.material=index===6?7:6;},
+  layout=>{half(layout,name).picture.uvSets[0][0]=.5;},
+  layout=>{half(layout,name).picture.uvSets.push([0,0,1,0,0,1,1,1]);},
+  ...[
+   material=>{material.name='Different';},material=>{material.flags=0;},
+   material=>{material.textureOnly=true;},material=>{material.bufferColor[3]=255;},
+   material=>{material.constantColors[0][3]=0;},material=>{material.constantColors.pop();},
+   material=>{material.textureMaps[0].texture=0;},material=>{material.textureMaps[0].wrapS=2;},
+   material=>{material.textureMaps[0].wrapT=2;},material=>{material.textureMaps[0].minFilter=0;},
+   material=>{material.textureMaps[0].magFilter=0;},material=>{material.textureMaps.push(structuredClone(material.textureMaps[0]));},
+   material=>{material.textureMatrices[0].translation[0]=0;},material=>{material.textureMatrices[0].scale[0]=2;},
+   material=>{material.textureMatrices[0].rotation=1;},material=>{material.textureMatrices.pop();},
+   material=>{material.coordinateGenerators[0].source=1;},material=>{material.coordinateGenerators[0].reserved=1;},
+   material=>{material.tevStages.push({constantSelectors:0,color:{},alpha:{}});},
+   material=>{material.alphaCompare={function:7,reference:0};},
+   material=>{material.colorBlend={operation:1,sourceFactor:4,destinationFactor:5};},
+   material=>{material.sourceCombiners=[];},material=>{material.unsupported.push('unknown');},
+  ].map(edit=>layout=>edit(layout.materials[index])),
+ );
+ for(const layoutName of ['BtnHeadLineTxt','ManualRowImportant','ManualRowGettingStarted'])for(const [index,edit]of edits.entries()){
+  const f=fixture(browser);if(layoutName!=='BtnHeadLineTxt'){assert.equal(f.paint(),true);f.calls.length=0;}
+  edit(f.renderer.packs['manual-row'].layouts[layoutName]);
+  assert.throws(f.paint,/Unsupported Manual Contents row paint bounds source/,`${layoutName} mutation ${index}`);
+  assert.equal(f.calls.length,0);f.renderer.dispose();
+ }
+});
+
+test('row-half bound texture identity and layout binding are revalidated before every paint',()=>{
+ const edits=[
+  pack=>{delete pack.textures['BtnPageTitle00.bclim'];},
+  ...[['width',15],['height',47],['picaFormat',8],['format',1],['formatName','A8'],['sha256','0'.repeat(64)],['sourceSha256','0'.repeat(64)],['url','textures/other.png']].map(([field,value])=>pack=>{pack.textures['BtnPageTitle00.bclim'][field]=value;}),
+  pack=>{pack.layouts.BtnHeadLineTxt.textures[1]='Other.bclim';},
+  pack=>{pack.layouts.BtnHeadLineTxt.textures.push('BtnPageTitle00.bclim');},
+ ];
+ for(const cached of [false,true])for(const edit of edits){
+  const f=fixture(browser);if(cached){assert.equal(f.paint(),true);f.calls.length=0;}
+  edit(f.renderer.packs['manual-row']);assert.throws(f.paint,/Unsupported Manual Contents row paint bounds source/);assert.equal(f.calls.length,0);f.renderer.dispose();
+ }
+ for(const name of ['ManualRowImportant','ManualRowGettingStarted']){
+  const f=fixture(browser);assert.equal(f.paint(),true);f.calls.length=0;f.renderer.packs['manual-row'].layouts[name].textures[1]='Other.bclim';
+  assert.throws(f.paint,/Unsupported Manual Contents row paint bounds source/);assert.equal(f.calls.length,0);f.renderer.dispose();
+ }
+});
+
+test('row-half Wait visibility and texture programs reject changed channels even when the resulting pose has the same bounds',()=>{
+ for(const name of ['BtnPageTitleT_01','BtnPageTitleT_02']){
+  const alpha=clip=>clip.tracks.find(track=>track.target===name&&track.property==='materialColor.1.3');
+  const edits=[
+   clip=>{alpha(clip).keys[0].value=0;},clip=>{alpha(clip).keys[0].frame=0;},
+   clip=>{alpha(clip).keys[0].slope=1;},clip=>{alpha(clip).keys.push({frame:90,value:0,slope:0});},
+   clip=>{alpha(clip).property='materialColor.0.3';},clip=>{alpha(clip).binding='pane';},
+   clip=>{alpha(clip).contentIndex=0;},clip=>{alpha(clip).component=0;},clip=>{alpha(clip).index=1;},
+   clip=>{alpha(clip).interpolation='step';},clip=>{alpha(clip).tag='CLPA';},
+   clip=>{clip.tracks=clip.tracks.filter(track=>track!==alpha(clip));},
+   clip=>{clip.tracks.push(structuredClone(alpha(clip)));},
+   clip=>{clip.tracks.find(track=>track.target===name&&track.property==='texture.translation.x').keys[0].value=0;},
+   clip=>{clip.contents.find(content=>content.target===name).binding='pane';},
+   clip=>{clip.textures=['BtnLngSelBase01.bclim'];},
+  ];
+  for(const cached of [false,true])for(const edit of edits){
+   const f=fixture(browser);if(cached){assert.equal(f.paint(),true);f.calls.length=0;}
+   edit(f.renderer.packs['manual-row'].animations.BtnHeadLineTxt_Wait);
+   assert.throws(f.paint,/Unsupported Manual Contents row paint bounds source/);assert.equal(f.calls.length,0);f.renderer.dispose();
+  }
+ }
+});
+
+test('a failed partial-row draw keeps the real helper frame unready',()=>{
+ const f=fixture(browser),draw=f.renderer.draw;
+ f.renderer.draw=(...args)=>{const okay=draw(...args);return args[1]==='manual-row'&&args[3].overrides.TextBox_Num.text==='3'?false:okay;};
+ assert.equal(f.paint(),false);assert.equal(f.calls.filter(call=>call.pack==='manual-row').length,3);f.renderer.dispose();
+});
+
 test('row source identity stays in the existing published Manual pack and shared original font',()=>{
  const bytes=readFileSync(new URL('packs/manual/layout-BtnHeadLineTxt.json',root)),pack=JSON.parse(bytes);
  assert.equal(createHash('sha256').update(bytes).digest('hex'),'9c0c0fb055d3b15311c0f0210bf3a89314c64edfab54a7596adc3878e1a3ca7a');
  assert.equal(pack.titleId,'0004003000009b02');assert.equal(pack.sourceSha256,'8c06c951ba9740058c438b69cc52c4b4bf9e2f53102b73dc8b34aad40845a1f6');
  assert.deepEqual(pack.resourceSources.layouts.BtnHeadLineTxt,{path:'layout/BtnHeadLineTxt.arc/blyt/BtnHeadLineTxt.bclyt',sha256:'c41c54be9f004b98714ff8b9dc941b09386de50cd9215894d1ac6fe95181dca2',titleId:pack.titleId});
  assert.deepEqual(pack.resourceSources.animations.BtnHeadLineTxt_Wait,{path:'layout/BtnHeadLineTxt.arc/anim/BtnHeadLineTxt_Wait.bclan',sha256:'048be32112420819a2e8bdd8693a33c3dac618adcb34b6f80c2f86e3311bcff3',titleId:pack.titleId});
+ assert.deepEqual(pack.resourceSources.textures['BtnPageTitle00.bclim'],{path:'layout/BtnHeadLineTxt.arc/timg/BtnPageTitle00.bclim',sha256:'80094660435f8016d2952e5c8a0184da9eeffbe71bb5cf5438cbbeb4666ed6da',titleId:pack.titleId});
+ assert.equal(createHash('sha256').update(readFileSync(new URL(pack.textures['BtnPageTitle00.bclim'].url,root))).digest('hex'),'d8b10a7c49643d5a9fc9aa4dea8c417b2f07cf832ecf1634119f7173162ab224');
  assert.equal(json('fonts/shared/font.json').sourceSha256,'95d5a675ae14cc22b84b5b89c8d10cc894f1e2dfaf00a1168545fe76fb1eb581');
 });
 
@@ -359,6 +520,48 @@ test('cached centered number parents and Wait pose revalidate on every paint',()
 
 const sourceRoot=process.env.MANUAL_ROW_SOURCE_ROOT;
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
+test('optional pinned Manual position writer gives pages and categories the same 44px pitch',{skip:!sourceRoot},()=>{
+ const code=readFileSync(join(sourceRoot,'code.bin'));
+ assert.equal(sha(code),'cf4658f9f618a41f8d32ff7aed40d0ea565da78a2ace349cb93698ff5f7df5d8');
+ const words=[
+  [0x13cfcc,0xe2869001],[0x13d044,0xe1a02009],[0x13d048,0xe2841044],
+  [0x13d094,0xe2899001],[0x13d1c8,0xe1a02009],[0x13d1cc,0xe2841044],[0x13d224,0xe2899001],
+  [0x146164,0xee002a10],[0x146168,0xed9f1a06],[0x146174,0xeef80ac0],
+  [0x146178,0xed9f0a03],[0x14617c,0xee000ac1],[0x146180,0xed800a01],
+  [0x141ba8,0xe5941008],[0x141bcc,0xe5922040],[0x141bd0,0xe12fff32],
+  [0x1b828c,0x170318],[0x1b83b8,0x16fd98],
+  [0x141ab4,0x1c1838],[0x141a7c,0xe5845004],[0x141a8c,0xe5840008],[0x141bf4,0xe5900004],
+  [0x141d3c,0xe5912000],[0x141d40,0xe5911004],[0x141d4c,0xe5801028],[0x141d54,0xe5802024],
+  [0x141d64,0xe5900004],[0x141d68,0xe590000c],[0x141d70,0xe280c028],[0x141d74,0xe88c000e],
+ ];
+ const branches=[[0x13cf7c,0x146164],[0x13cf8c,0x146164],[0x13d050,0x146164],[0x13d060,0x146164],
+  [0x13d1d4,0x146164],[0x13d1e4,0x146164],[0x13cfc4,0x141b84],[0x13d090,0x141b84],[0x13d218,0x141b84],
+  [0x141bac,0x15ced0],[0x13cf14,0x141bf4],[0x13cf30,0x141d38],[0x141a58,0x15c99c],[0x141a88,0x15d220]];
+ const setters=[0x170318,0x16fd98].flatMap(base=>[[4,0xe5912000],[8,0xe5911004],[20,0xe5801030],[28,0xe580202c],[56,0xe590000c],[64,0xe280c028],[68,0xe88c000e]].map(([offset,instruction])=>[base+offset,instruction]));
+ const assertWriter=bytes=>{
+  const word=address=>bytes.readUInt32LE(address-0x100000);
+  for(const [address,expected]of words)assert.equal(word(address),expected,`original instruction ${address.toString(16)}`);
+  for(const [address,target]of branches){const instruction=word(address);assert.equal(instruction>>>24,0xeb);assert.equal(address+8+((instruction<<8)>>6),target);}
+  assert.equal(bytes.readFloatLE(0x146188-0x100000),44);assert.equal(bytes.readFloatLE(0x14618c-0x100000),-42);
+  for(const [address,instruction]of setters)assert.equal(word(address),instruction,'both setters copy x/y unchanged to the layout root');
+  const string=address=>bytes.subarray(address-0x100000).toString('utf8').split('\0')[0];
+  assert.equal(string(word(0x1c1838)),'layout/PureLocator');assert.equal(string(word(0x1c183c)),'AttachNull');
+ };
+ assertWriter(code);
+ for(const [address]of [...words,...branches,...setters,[0x146188],[0x14618c],[0x1c1838],[0x1c183c]]){
+  const mutation=Buffer.from(code);mutation.writeUInt32LE((mutation.readUInt32LE(address-0x100000)^1)>>>0,address-0x100000);
+  assert.throws(()=>assertWriter(mutation),assert.AssertionError);
+ }
+ for(const [lo,hi,expected]of [[0x13ceb0,0x13d3ec,'233b81ae8e3a070e5b6b88c86a22042661e3b3711787b89bd3fabf14309f71bc'],[0x146164,0x146190,'126ed384dad15d150eabeaaf684991bda12ce94ea452f077e12d7489ee6683a3'],[0x141b84,0x141bf4,'7eb5c53382d8d54ba85deed271ca6bd411fceb7281863e5a4b86459ed6ba9736'],[0x170318,0x170378,'9d70e8fb50b0cff001a105704e4ba4bb9cb4dbc8dbab938e067d722f41fea73a'],[0x16fd98,0x16fdf8,'9d70e8fb50b0cff001a105704e4ba4bb9cb4dbc8dbab938e067d722f41fea73a']])assert.equal(sha(code.subarray(lo-0x100000,hi-0x100000)),expected);
+ const pitch=code.readFloatLE(0x146188-0x100000);
+ assert.deepEqual([APPLICATION_MANUAL_SLOTS.row,APPLICATION_MANUAL_SLOTS.category,APPLICATION_MANUAL_SLOTS.categoryOffset],[pitch,pitch,0]);
+ assert.deepEqual(Array.from({length:5},(_,ordinal)=>pitch*ordinal),[0,44,88,132,176],'relative source displacements do not prove the retained capture-fitted LCD mounts');
+ const pack=json('packs/manual/layout-IndexNull.json'),layout=poseNativeLayout(pack.layouts.IndexNull,pack.animations,[{name:'IndexNull_Wait',frame:1}]);
+ assert.equal(pack.resourceSources.layouts.IndexNull.sha256,'af65d3ac00782bdd74f2c09ea36a61d739650bab5da39602acca4be9d85443c9');
+ assert.equal(pack.resourceSources.animations.IndexNull_Wait.sha256,'814d97dd0571e3297abe3ec63d0bb60c89a00f2c9b8de218d2e0999d439f10b3');
+ const path=nativePaneParentPath(layout,'HeadLineAll');assert.deepEqual(path.map(pane=>pane.name),['RootPane','BtnGroup','HeadLineAll']);
+ for(const pane of path){assert.ok(pane.translation.every(value=>value===0));assert.ok(pane.rotation.every(value=>value===0));assert.deepEqual(pane.scale,[1,1]);}
+});
 test('optional pinned original Manual NCCH links row constructor, plain writer and flags-zero render path',{skip:!sourceRoot},()=>{
  const provenance=JSON.parse(readFileSync(join(sourceRoot,'recovery-provenance.json'),'utf8'));
  const original=readFileSync(provenance.original),compressed=readFileSync(join(sourceRoot,'code-compressed.bin')),code=readFileSync(join(sourceRoot,'code.bin'));

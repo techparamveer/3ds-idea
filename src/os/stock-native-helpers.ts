@@ -215,12 +215,13 @@ function drawManual(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,b
   return okay;
 }
 
-/** Capture-fitted placement (adaptation, native capture 23:19:14.606, SHA-256
- * 2efb7fa7…799b): the applet positions the list in code under IndexNull
- * HeadLineAll. Values are BtnHeadLineTxt/ContentsTxt draw centres on the lower
- * LCD. A page row advances 54px and a category band 34px. */
-export const APPLICATION_MANUAL_SLOTS={firstRow:86,row:54,category:34,categoryOffset:-10,contentsCentre:42} as const;
-/** Component-level capture fit against the same settled native frame. These
+/** Manual 0x146164 positions each control at y=-42-44*ordinal. The builder
+ * 0x13ceb0 counts Contents, categories and pages in that same sequence under
+ * IndexNull/HeadLineAll; their setters retain the supplied position unchanged.
+ * Keep the capture-fitted lower-LCD mounts (first page 86, Contents 42);
+ * only the relative 44px control pitch is recovered here. */
+export const APPLICATION_MANUAL_SLOTS={firstRow:86,row:44,category:44,categoryOffset:0,contentsCentre:42} as const;
+/** Component-level capture fit against the settled native frame. These
  * values retain the delivered layouts: they position the row body and
  * compensate the source blue register for BtnShdw00's later blend. */
 export const APPLICATION_MANUAL_LOWER_FIT={rowBodyY:2,secondCategoryRegister:[118,183,218] as [number,number,number]} as const;
@@ -364,11 +365,66 @@ function validateApplicationManualRowDecoration(layout:NativeLayout,bodyY:number
       ||track.keys.length!==1||!key||keys(key)!=='frame,slope,value'||key.frame!==(index===0?52:index===1?85:0)||key.slope!==0||key.value!==[-120,255,220,196,157][index])return fail();
   }
 }
+/** The two visible button halves supply the row's authored paint top.
+ * BtnShdw01 is transparent in Wait and must not extend that bound. */
+function validateApplicationManualRowTop(layout:NativeLayout,pack:NativeLayoutRenderer['packs'][string]){
+  const fail=()=>{throw new Error('Unsupported Manual Contents row paint bounds source');};
+  const same=(value:unknown,expected:readonly number[])=>Array.isArray(value)&&value.length===expected.length&&value.every((item,index)=>item===expected[index]);
+  const keys=(value:object)=>Object.keys(value).sort().join(',');
+  const clip=pack.animations.BtnHeadLineTxt_Wait,texture=pack.textures['BtnPageTitle00.bclim'];
+  if(!clip)throw new Error('Missing native animation BtnHeadLineTxt_Wait');
+  if(clip.frames!==2||clip.loop!==false||clip.childBinding!==true||clip.groups.length||clip.textures.length||clip.shares!==undefined
+    ||!('unsupported' in clip)||!Array.isArray(clip.unsupported)||clip.unsupported.length
+    ||layout.textures[1]!=='BtnPageTitle00.bclim'||layout.textures.filter(name=>name==='BtnPageTitle00.bclim').length!==1
+    ||!texture||keys(texture)!=='format,formatName,height,picaFormat,sha256,sourceSha256,url,width'||texture.width!==16||texture.height!==48||texture.picaFormat!==5
+    ||!('format' in texture)||texture.format!==3||!('formatName' in texture)||texture.formatName!=='LA8'
+    ||!('sha256' in texture)||texture.sha256!=='d8b10a7c49643d5a9fc9aa4dea8c417b2f07cf832ecf1634119f7173162ab224'
+    ||!('sourceSha256' in texture)||texture.sourceSha256!=='80094660435f8016d2952e5c8a0184da9eeffbe71bb5cf5438cbbeb4666ed6da'
+    ||texture.url!=='textures/d8b10a7c49643d5a9fc9aa4dea8c417b2f07cf832ecf1634119f7173162ab224.png')return fail();
+  const counts=new Map<string,number>();
+  const visit=(panes:NativePane[])=>{for(const pane of panes){counts.set(pane.name,(counts.get(pane.name)??0)+1);visit(pane.children);}};visit(layout.roots);
+  let top=Infinity;
+  for(const [name,x,scaleX,materialIndex,contentIndex]of [['BtnPageTitleT_01',84,-1,6,7],['BtnPageTitleT_02',-84,1,7,8]] as const){
+    const path=nativePaneParentPath(layout,name);
+    if(!path||path.length!==3||path.map(pane=>pane.name).join('/')!==`RootPane/BtnHeadLineBody/${name}`)return fail();
+    const pane=path[2];
+    if(counts.get(name)!==1||pane.kind!=='pic1'||pane.flags!==1||pane.alpha!==255||pane.origin!==4
+      ||pane.unsupported?.length||pane.part||pane.text||pane.window||!pane.picture||pane.children.length
+      ||!same(pane.translation,[x,1,0])||!same(pane.rotation,[0,0,0])||!same(pane.scale,[scaleX,1.2999999523162842])||!same(pane.size,[168,32]))return fail();
+    const picture=pane.picture,material=layout.materials[materialIndex];
+    if(keys(picture)!=='colors,material,uvSets'||picture.material!==materialIndex||picture.colors.length!==4
+      ||picture.colors.some(color=>!same(color,[255,255,255,255]))||picture.uvSets.length!==1||!same(picture.uvSets[0],[0,0,12,0,0,1,12,1])
+      ||!material||layout.materials.filter(item=>item.name===name).length!==1
+      ||keys(material)!=='bufferColor,constantColors,coordinateGenerators,flags,name,tevStages,textureMaps,textureMatrices,textureOnly,unsupported'
+      ||material.name!==name||!('flags' in material)||material.flags!==21||material.textureOnly!==false||!same(material.bufferColor,[0,0,0,0])
+      ||material.constantColors.length!==6||material.constantColors.some(color=>!same(color,[255,255,255,255]))||material.tevStages.length||material.unsupported.length)return fail();
+    const map=material.textureMaps[0],matrix=material.textureMatrices[0],generator=material.coordinateGenerators[0];
+    if(material.textureMaps.length!==1||!map||keys(map)!=='magFilter,minFilter,texture,wrapS,wrapT'||map.texture!==1||map.magFilter!==1||map.minFilter!==1||map.wrapS!==0||map.wrapT!==0
+      ||material.textureMatrices.length!==1||!matrix||keys(matrix)!=='rotation,scale,translation'||matrix.rotation!==0||!same(matrix.scale,[1,1])||!same(matrix.translation,[-1.8799999952316284,0])
+      ||material.coordinateGenerators.length!==1||!generator||keys(generator)!=='reserved,source,type'||!('reserved' in generator)||generator.reserved!==0||generator.source!==0||generator.type!==0)return fail();
+    const content=clip.contents?.[contentIndex],tracks=clip.tracks.filter(track=>track.target===name);
+    if(!content||keys(content)!=='binding,target'||content.target!==name||content.binding!=='material'||clip.contents?.filter(item=>item.target===name).length!==1||tracks.length!==8)return fail();
+    for(const [index,track]of tracks.entries()){
+      const key=track.keys[0],textureTrack=index===7;
+      if(keys(track)!=='binding,component,contentIndex,index,interpolation,keys,property,tag,target'
+        ||track.binding!=='material'||track.contentIndex!==contentIndex||track.index!==0||track.component!==[0,1,2,4,5,6,7,0][index]
+        ||track.interpolation!=='hermite'||!('tag' in track)||track.tag!==(textureTrack?'CLTS':'CLMC')
+        ||track.property!==(textureTrack?'texture.translation.x':`materialColor.${index<3?0:1}.${index<3?index:index-3}`)
+        ||track.keys.length!==1||!key||keys(key)!=='frame,slope,value'||key.frame!==(textureTrack?0:index<3?20:index===6?89:85)||key.slope!==0||key.value!==(textureTrack?-1.8799999952316284:index<3?0:255))return fail();
+    }
+    top=Math.min(top,-path.reduce((sum,item)=>sum+item.translation[1],0)-pane.size[1]*pane.scale[1]*Math.floor(pane.origin/3)/2);
+  }
+  return top;
+}
+function prepareApplicationManualRows(renderer:NativeLayoutRenderer,bottom:CanvasRenderingContext2D):number;
+function prepareApplicationManualRows(renderer:NativeLayoutRenderer):void;
 function prepareApplicationManualRows(renderer:NativeLayoutRenderer,bottom?:CanvasRenderingContext2D){
   const pack=renderer.packs['manual-row'],source=bottom?validateApplicationManualRow(pack?.layouts.BtnHeadLineTxt,3):pack.layouts.BtnHeadLineTxt;
+  let rowTop:number|undefined;
   if(bottom){
     validateApplicationManualRowNumber(source,3,[0,0,0,0]);
     validateApplicationManualRowDecoration(source,3,pack);
+    rowTop=validateApplicationManualRowTop(source,pack);
     const font=renderer.getFontManifest('cbf_std.bcfnt'),transform=bottom.getTransform?.();
     if(!font||font.sourceSha256!=='95d5a675ae14cc22b84b5b89c8d10cc894f1e2dfaf00a1168545fe76fb1eb581'
       ||font.colorMode!=='alpha'||font.width!==25||font.height!==30||font.ascent!==25||font.baseline!==25||font.lineFeed!==30)throw new Error('Unsupported Manual Contents TextBox_Txt font');
@@ -397,10 +453,13 @@ function prepareApplicationManualRows(renderer:NativeLayoutRenderer,bottom?:Canv
     const color=name==='ManualRowImportant'?[237,136,136,0]:[154,212,105,0];
     validateApplicationManualRowNumber(layout,APPLICATION_MANUAL_LOWER_FIT.rowBodyY,color);
     validateApplicationManualRowDecoration(layout,APPLICATION_MANUAL_LOWER_FIT.rowBodyY,pack);
+    validateApplicationManualRowTop(layout,pack);
     const posed=poseNativeLayout(layout,pack.animations,[{name:'BtnHeadLineTxt_Wait',frame:1}]);
     validateApplicationManualRow(posed,3);validateApplicationManualRowNumber(posed,3,color);
     validateApplicationManualRowDecoration(posed,3,pack);
+    if(validateApplicationManualRowTop(posed,pack)!==rowTop)throw new Error('Unsupported Manual Contents row paint bounds source');
   }
+  return rowTop;
 }
 function prepareApplicationManualCategory(renderer:NativeLayoutRenderer){
   if(preparedApplicationManualCategories.has(renderer))return;
@@ -490,6 +549,64 @@ function applicationManualLanguageOverrides(renderer:NativeLayoutRenderer):PaneO
   }));
 }
 
+const preparedApplicationManualScroll=new WeakMap<NativeLayoutRenderer,{source:NativeLayout;count:number}>();
+function validateApplicationManualScroll(layout:NativeLayout|undefined,endWidth:number){
+  const fail=()=>{throw new Error('Unsupported Manual Contents ScrollIndicator source');};
+  const same=(value:unknown,expected:readonly number[])=>Array.isArray(value)&&value.length===expected.length&&value.every((item,index)=>item===expected[index]);
+  if(!layout||layout.unsupported.length||layout.sourceFormat||layout.canvas.width!==32||layout.canvas.height!==32||layout.canvas.origin!==1
+    ||layout.fonts.length||layout.textures.length!==1||layout.textures[0]!=='ScrollIndicator.bclim'||layout.roots.length!==1||layout.materials.length!==2)return fail();
+  const root=layout.roots[0],parent=root.children[0];
+  if(root.name!=='RootPane'||root.children.length!==1||!parent||parent.name!=='Null_00'||parent.children.length!==2)return fail();
+  for(const [index,pane] of [root,parent,...parent.children].entries()){
+    const picture=index>=2,tail=index===3;
+    if(pane.kind!==(picture?'pic1':'pan1')||pane.flags!==1||pane.alpha!==(picture?150:255)||pane.origin!==(picture?tail?3:5:4)
+      ||pane.unsupported?.length||pane.sourceFormat||pane.part||pane.window||pane.text||!same(pane.translation,[0,0,0])||!same(pane.rotation,[0,0,picture?-90:0])||!same(pane.scale,[1,1])
+      ||!same(pane.size,index===0?[32,32]:index===1?[30,40]:[tail?endWidth:8,8])||!picture&&pane.picture)return fail();
+    if(!picture)continue;
+    const ink=pane.picture,material=layout.materials[index-2],matrix=material.textureMatrices[0],map=material.textureMaps[0],generator=material.coordinateGenerators[0],scale=endWidth/8;
+    if(pane.name!==(tail?'EndPic':'StartPic')||pane.children.length||!ink||ink.material!==index-2||ink.colors.length!==4||ink.colors.some(color=>!same(color,[255,255,255,255]))
+      ||ink.uvSets.length!==1||!same(ink.uvSets[0],tail?[1,0,0,0,1,1,0,1]:[0,0,1,0,0,1,1,1])
+      ||Object.keys(ink).sort().join(',')!=='colors,material,uvSets'
+      ||Object.keys(material).sort().join(',')!=='bufferColor,constantColors,coordinateGenerators,flags,name,tevStages,textureMaps,textureMatrices,textureOnly,unsupported'
+      ||material.name!==pane.name||!('flags' in material)||material.flags!==21||material.textureOnly!==false||!same(material.bufferColor,[25,140,140,0])
+      ||material.constantColors.length!==6||material.constantColors.some(color=>!same(color,[255,255,255,255]))||material.tevStages.length||material.unsupported.length
+      ||material.textureMaps.length!==1||!map||Object.keys(map).sort().join(',')!=='magFilter,minFilter,texture,wrapS,wrapT'||map.texture!==0||map.wrapS!==0||map.wrapT!==0||map.minFilter!==1||map.magFilter!==1
+      ||material.textureMatrices.length!==1||!matrix||Object.keys(matrix).sort().join(',')!=='rotation,scale,translation'||matrix.rotation!==0||!same(matrix.scale,[tail?scale:1,1])||!same(matrix.translation,[tail?(scale-1)*.5:0,0])
+      ||material.coordinateGenerators.length!==1||!generator||Object.keys(generator).sort().join(',')!=='reserved,source,type'||!('reserved' in generator)||generator.reserved!==0||generator.source!==0||generator.type!==0)return fail();
+  }
+  return layout;
+}
+
+/** IndexNull's HeadLineAll control (0x15935c/0x13ceb0) owns Contents plus
+ * every valid category and page. Its holder at 0x139e78 retains that same
+ * control; 0x139de4/0x143074 derive integer length and EndPic's UV matrix. */
+function prepareApplicationManualScroll(renderer:NativeLayoutRenderer,entryCount:number){
+  const fail=()=>{throw new Error('Unsupported Manual Contents ScrollIndicator source');};
+  const pack=renderer.packs['manual-scroll'],source=validateApplicationManualScroll(pack?.layouts.ScrollIndicator,24),clip=pack?.animations.ScrollIndicator_Wait;
+  const texture=pack.textures['ScrollIndicator.bclim'];
+  if(!texture||texture.width!==8||texture.height!==8||texture.picaFormat!==9
+    ||texture.url!=='textures/72befbf9ad075df80a05a54fdbb448db960a26f171fe923c2ad73c4f69099623.png'
+    ||!clip||clip.frames!==2||clip.loop!==false||clip.childBinding!==true||clip.groups.length||clip.textures.length||clip.shares!==undefined
+    ||!('unsupported' in clip)||!Array.isArray(clip.unsupported)||clip.unsupported.length||clip.tracks.length!==12)return fail();
+  for(const [index,track] of clip.tracks.entries()){
+    const channel=index%6,component=[0,1,2,4,5,6][channel],key=track.keys[0];
+    if(track.binding!=='material'||track.target!==(index<6?'StartPic':'EndPic')||track.contentIndex!==(index<6?0:1)||track.index!==0||track.component!==component
+      ||track.interpolation!=='hermite'||track.property!==`materialColor.${channel<3?0:1}.${channel%3}`||!('tag' in track)||track.tag!=='CLMC'
+      ||track.keys.length!==1||!key||key.frame!==5||key.value!==[25,140,140,255,255,255][channel]||key.slope!==[21.5,-2,-10,-1.5,-7.5,-13.5][channel])return fail();
+  }
+  const count=entryCount+1,f=Math.fround;
+  const height=Math.max(32,Math.trunc(Math.min(180,Math.max(30,f(f(-9.375*count)+217.5))))),endWidth=height-8;
+  const cached=preparedApplicationManualScroll.get(renderer);
+  if(!cached||cached.source!==source||cached.count!==count){
+    const layout=structuredClone(source),tail=layout.roots[0].children[0].children[1],matrix=layout.materials[1].textureMatrices[0];
+    tail.size[0]=endWidth;matrix.scale[0]=f(endWidth*.125);matrix.translation[0]=f(f(matrix.scale[0]-1)*.5);
+    renderer.packs['manual-scroll']={...pack,layouts:{...pack.layouts,ContentsScrollIndicator:layout}};
+    preparedApplicationManualScroll.set(renderer,{source,count});
+  }
+  validateApplicationManualScroll(renderer.packs['manual-scroll'].layouts.ContentsScrollIndicator,endWidth);
+  return 'ContentsScrollIndicator';
+}
+
 /** Application manual Contents. Rows come only from
  * the application's source Index.bclyt; titles, numbers and order are source
  * data. All visible chrome below is decoded from the Manual applet packs. */
@@ -498,9 +615,10 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
   if(!source||!index)return false;
   if(view.screen==='document')return drawApplicationManualPage(renderer,top,bottom,view,options);
   prepareApplicationManualCategory(renderer);
-  prepareApplicationManualRows(renderer,bottom);
+  const rowTop=prepareApplicationManualRows(renderer,bottom);
   const languageOverrides=applicationManualLanguageOverrides(renderer);
   const entries=manualContents(index);
+  const scrollLayout=prepareApplicationManualScroll(renderer,entries.length);
   const message=(label:string)=>nativeMessageOverride(renderer.packs['helper-messages'],'ebird',label,'');
   let okay=true;
   const draw=(ctx:CanvasRenderingContext2D,pack:string,layout:string,options:Parameters<NativeLayoutRenderer['draw']>[3]={})=>{okay=renderer.draw(ctx,pack,layout,options)&&okay;};
@@ -515,7 +633,7 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
   const sourceIcon=options?.nativeImage?.(source.iconUrl);
   const icon=sourceIcon&&sourceIcon.width===48&&sourceIcon.height===48?applicationManualIconPixels(sourceIcon):undefined;
   draw(top,'manual-SoftTitleHeader','SoftTitleHeader',{center:APPLICATION_MANUAL_HEADER_CENTRE,pictureSampling:'lcd',textSampling:'lcd-source-size',textures:icon?{'IconBlank.bclim':icon}:undefined,overrides:{TextBoxTxt_00:{text:source.heading},...(!icon&&{P_Icon_00:{visible:false}})}});
-  draw(top,'manual-scroll','ScrollIndicator',{center:[392,32],pictureSampling:'lcd',bindings:[{name:'ScrollIndicator_Wait',frame:5}]});
+  draw(top,'manual-scroll',scrollLayout,{center:[392,32],pictureSampling:'lcd',bindings:[{name:'ScrollIndicator_Wait',frame:5}]});
   draw(bottom,'manual-IndexBase00','IndexBase00',{center:[160,0]});
   draw(bottom,'manual-ContentsTxt','ContentsTxt',{center:[160,APPLICATION_MANUAL_SLOTS.contentsCentre],textSampling:'lcd',overrides:{Contents_Txt:message('ContentsText')}});
   let y=APPLICATION_MANUAL_SLOTS.firstRow,categoryIndex=0;
@@ -528,7 +646,7 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
       categoryIndex++;
       y+=APPLICATION_MANUAL_SLOTS.category;continue;
     }
-    if(y>=APPLICATION_MANUAL_LIST_CLIP[3])break;
+    if(y+rowTop>=APPLICATION_MANUAL_LIST_CLIP[3])break;
     // The native selected row keeps its idle button under the separate
     // CsrHeadLine00 cursor, so every row uses BtnHeadLineTxt_Wait.
     // The applet truncates the first long English heading in its row control.

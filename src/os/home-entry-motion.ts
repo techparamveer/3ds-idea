@@ -5,8 +5,8 @@ export const HOME_FOLDER_ENTRY_LAST_FRAME = 16;
 export const HOME_FOLDER_CAPTURE_ENTRY_LAST_FRAME = 8;
 export const HOME_PAUSE_ENTRY_LAST_FRAME = 20;
 export const HOME_PAUSE_ENTRY_LAST_UPDATE = 22;
-// Browser policy: tolerate one missed nominal 20 FPS pair (two 3-update gaps).
-// Larger unobserved jumps rebase without spending motion, not native duration.
+// Folder policy: tolerate one missed nominal 20 FPS pair (two 3-update gaps).
+// Larger unobserved jumps rebase its elapsed clock without spending motion.
 export const HOME_ENTRY_MAX_OBSERVED_UPDATE_GAP = 6;
 
 export type HomeEntryMotionIdentity = Readonly<{ kind: 'folder'; folder: string }>
@@ -78,7 +78,7 @@ export function sampleHomeEntryMotion(current: HomeEntryMotion | null,
   if (updateCount < current.observedUpdate) throw new RangeError('HOME entry-motion clock moved backwards');
   if (updateCount === current.observedUpdate) return current;
   const updates = updateCount - current.observedUpdate;
-  const elapsedUpdates = current.elapsedUpdates + (eligible && updates <= HOME_ENTRY_MAX_OBSERVED_UPDATE_GAP
+  const elapsedUpdates = current.elapsedUpdates + (eligible && (identity.kind === 'pause' || updates <= HOME_ENTRY_MAX_OBSERVED_UPDATE_GAP)
     ? identity.kind === 'folder' ? updates : 1
     : 0);
   return Object.freeze({ ...current, observedUpdate: updateCount,

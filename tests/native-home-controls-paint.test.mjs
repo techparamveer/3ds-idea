@@ -1157,9 +1157,9 @@ test('mid-entry HOME pause stalls retain the complete capture pose through faile
   fail=false;screens.retryStockScreen();paint(at(111));assert.equal(frame(),2,'brief failed pair cannot spend a source update');
   screens.paint(at(3000),new Date(0),1200,{homeCursorLoopFrame:0});
   paint(at(3001));assert.equal(frame(),2,'diagnostic interval rebases at the next valid receipt');
-  paint(at(4000));assert.equal(frame(),2,'live stall retains, rather than clears or settles, AppPause');
-  paint(at(4000));assert.equal(frame(),2);
-  paint(at(4003));assert.equal(frame(),3,'normal multi-update sampling spends only one source step');
+  paint(at(4000));assert.equal(frame(),3,'a valid pair after a live gap spends only one source step');
+  paint(at(4000));assert.equal(frame(),3);
+  paint(at(4003));assert.equal(frame(),4,'normal multi-update sampling spends only one source step');
  },{screenOptions:{drawSuspendedBackground(ctx,_capture,presentation){ctx.record('pause-backdrop',[presentation]);return !fail;}}});
 });
 

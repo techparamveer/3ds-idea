@@ -76,26 +76,24 @@ test('pause entry advances the original SceneIn geometry with AppPause scale and
   }
 });
 
-test('browser stall policy rebases large gaps while folder and pause preserve their distinct cadence policies', () => {
+test('folder stall policy rebases large gaps without spending elapsed motion', () => {
   assert.equal(HOME_ENTRY_MAX_OBSERVED_UPDATE_GAP, 6);
-  for (const [identity, expected] of [[folder, [3, 9, 12]], [pause, [1, 2, 3]]]) {
-    const start = sampleHomeEntryMotion(null, identity, 100, true);
-    const moving = sampleHomeEntryMotion(start, identity, 103, true);
-    const normal = sampleHomeEntryMotion(moving, identity, 109, true);
-    assert.equal(moving.elapsedUpdates, expected[0]);
-    assert.equal(normal.elapsedUpdates, expected[1]);
-    const stall = sampleHomeEntryMotion(normal, identity, 2000, true);
-    assert.equal(stall.elapsedUpdates, expected[1]);
-    assert.equal(stall.observedUpdate, 2000);
-    assert.equal(sampleHomeEntryMotion(stall, identity, 2000, true), stall);
-    const resumed = sampleHomeEntryMotion(stall, identity, 2003, true);
-    assert.equal(resumed.elapsedUpdates, expected[2]);
-    const anotherStall = sampleHomeEntryMotion(resumed, identity, 2010, true);
-    assert.equal(anotherStall.elapsedUpdates, expected[2], 'threshold plus one is inhibited');
-    assert.equal(sampleHomeEntryMotion(anotherStall, null, 2011, true), null);
-    const fresh = sampleHomeEntryMotion(null, identity, 2012, true);
-    assert.equal(fresh.elapsedUpdates, 0, 'a repeated entry starts from zero instead of the old midpoint');
-  }
+  const start = sampleHomeEntryMotion(null, folder, 100, true);
+  const moving = sampleHomeEntryMotion(start, folder, 103, true);
+  const normal = sampleHomeEntryMotion(moving, folder, 109, true);
+  assert.equal(moving.elapsedUpdates, 3);
+  assert.equal(normal.elapsedUpdates, 9);
+  const stall = sampleHomeEntryMotion(normal, folder, 2000, true);
+  assert.equal(stall.elapsedUpdates, 9);
+  assert.equal(stall.observedUpdate, 2000);
+  assert.equal(sampleHomeEntryMotion(stall, folder, 2000, true), stall);
+  const resumed = sampleHomeEntryMotion(stall, folder, 2003, true);
+  assert.equal(resumed.elapsedUpdates, 12);
+  const anotherStall = sampleHomeEntryMotion(resumed, folder, 2010, true);
+  assert.equal(anotherStall.elapsedUpdates, 12, 'threshold plus one is inhibited');
+  assert.equal(sampleHomeEntryMotion(anotherStall, null, 2011, true), null);
+  const fresh = sampleHomeEntryMotion(null, folder, 2012, true);
+  assert.equal(fresh.elapsedUpdates, 0, 'a repeated entry starts from zero instead of the old midpoint');
 });
 
 test('reduced motion chooses source endpoints without mutating the normal samples', () => {
@@ -148,12 +146,15 @@ test('folder cadence follows eligible 60, 30 and 20 FPS-style HOME deltas', () =
   }
 });
 
-test('pause cadence remains one source step per eligible receipt across ordinary HOME deltas', () => {
+test('pause cadence spends one source step per eligible receipt across every HOME delta', () => {
   let sampled = sampleHomeEntryMotion(null, pause, 100, true);
-  for (const [receipt, gap] of [1, 2, 3, 6].entries()) {
+  for (const [receipt, gap] of [1, 2, 3, 6, 7, 1991].entries()) {
     sampled = sampleHomeEntryMotion(sampled, pause, sampled.observedUpdate + gap, true);
     assert.equal(sampled.elapsedUpdates, receipt + 1);
   }
+  const inhibited = sampleHomeEntryMotion(sampled, pause, sampled.observedUpdate + 2000, false);
+  assert.equal(inhibited.elapsedUpdates, sampled.elapsedUpdates, 'ineligible time spends no step');
+  assert.equal(sampleHomeEntryMotion(inhibited, pause, inhibited.observedUpdate, true), inhibited, 'same-update sampling spends no step');
 });
 
 test('revoked pairs rebase the last receipt-backed pose and reduced candidates terminalize only through a receipt', () => {

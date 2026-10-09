@@ -180,6 +180,28 @@ test('lower endpoint holds require distinct receipts before release and survive 
   });
 });
 
+test('Health pause spends one step per valid pair across the captured seven-update gaps', async t => {
+  // Valid receipts from ipad-health-normal/capture.json at 77de274.
+  for (const [frame, before, after] of [[11, 211, 218], [13, 226, 233], [18, 254, 261]]) {
+    await t.test(`pause ${frame}, HOME updates ${before} to ${after}`, async () => {
+      await fixture(({ screens, paint }) => {
+        const state = suspended();
+        for (let step = 0; step <= frame; step++) paint(state, before - frame + step);
+        const pair = paint(state, after, false);
+        assert.equal(pair.result.entryMotion.pauseFrame, frame + 1);
+        assert.equal(screens.homeEntryMotionActive(pair.state), true);
+        const pending = paint(state, after + 2, false);
+        assert.deepEqual(pending.result.entryMotion, pair.result.entryMotion, 'pending pixels retain their selected source step');
+        assert.equal(screens.presentHomeEntryMotion(pending.state), true);
+        assert.equal(screens.presentHomeEntryMotion(pending.state), false, 'each receipt is consumed once');
+        const duplicate = paint(state, after + 2);
+        assert.deepEqual(duplicate.result.entryMotion, pair.result.entryMotion, 'same-update paints spend no step');
+        assert.equal(paint(state, after + 3).result.entryMotion.pauseFrame, Math.min(20, frame + 2));
+      });
+    });
+  }
+});
+
 test('failed window source, diagnostics, context revocation and monotonic retries preserve the last presented late-entry phase', async () => {
   await fixture(({ screens, paint, fail, mutate }) => {
     const state = suspended(); paint(state, 100); let pair = paint(state, 103); assert.equal(appear(pair.events), 0);
@@ -199,9 +221,9 @@ test('failed window source, diagnostics, context revocation and monotonic retrie
     pair = paint(state, 112); assert.equal(appear(pair.events), 0); assert.equal(pair.events.find(event => event.name === 'pause-lower').frame, 3);
     assert.equal(hudFrame(pair.events), 2);
     pair = paint(state, 4000); assert.equal(appear(pair.events), 0);
-    assert.equal(hudFrame(pair.events), 2);
+    assert.equal(hudFrame(pair.events), 4, 'a valid pair after a live gap spends one step');
     pair = paint(state, 4003); assert.equal(appear(pair.events), 0);
-    assert.equal(hudFrame(pair.events), 4);
+    assert.equal(hudFrame(pair.events), 6);
     mutate(source => source.launcher.animations.LncBase_U_00_Appear.groups = ['G_Hud_00', 'G_Btm_00']);
     pair = paint(state, 4004); assert.equal(screens.stockStatus(pair.state), 'error'); assert.match(String(screens.stockFailure()), /appearance source unavailable/); assert.equal(pair.presented, false);
   });

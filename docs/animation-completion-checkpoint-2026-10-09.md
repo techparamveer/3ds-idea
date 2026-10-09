@@ -2,6 +2,13 @@
 
 ## Latest delivery
 
+Reviewed scrollbar `2a983ed` and implicit-text renderer `cbc07d7` pass production
+checks and1542 paired-frame/3084-PNG recapture integrity checks. Actual fitted
+Sidecar windows are verified. Camera's fixed static residual improves106/9 to60/9;
+Settings is60/57 and Browser Manual60/3492. The missing Browser partial row is
+under a bounded source-backed helper fix. See [current source/runtime evidence](manual-source-runtime-2026-10-09.md).
+All four flows remain fail/unproven. Earlier paragraphs describe previous runs.
+
 Reviewed `5dc7b83` adds exact opaque common-cover RGB reuse. Frozen clean
 `b62b559` passes build/typecheck and2570 checks, with the unchanged historical
 Camera PNG failure. Seven muted Sidecar first/repeat runs complete1341 checked

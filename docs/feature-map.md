@@ -1,5 +1,12 @@
 # Feature map — 1:1 queue
 
+9 October Manual source/runtime: reviewed `2a983ed` and `cbc07d7` complete1542
+checked pairs/3084 PNGs in fitted muted Sidecar windows. Camera static106/9
+improves to60/9; Settings60/57 and Browser Manual60/3492 stay unresolved. The
+Browser partial-row cutoff is the next bounded helper fix. Exact native input,
+motion/epochs, browser pose gaps and muted audio remain open. AN-01..AN-04 stay
+fail. See [current evidence](manual-source-runtime-2026-10-09.md).
+
 9 October cover reuse: reviewed `5dc7b83`, frozen clean `b62b559`, completes
 seven muted Sidecar first/repeat regressions with1341 checked pairs/2682 PNGs.
 Camera ready residual remains106/9. Destination composition stalls, live pose

@@ -9,6 +9,19 @@ model, and the tools do not expose a service-tier selector. All sessions stay
 muted. Visual testing must use the iPad Sidecar, leaving Codex on the Dell;
 verify actual owned-window placement before scenario inputs.
 
+## Manual source/runtime and fitted recapture, 9 October
+
+Reviewed scrollbar `2a983ed` and renderer `cbc07d7` are recaptured with a
+1100x560 viewport inside actual1102x700 Sidecar windows. The
+[current checkpoint](manual-source-runtime-2026-10-09.md) records1542 pairs,
+source and build identities, explicit-source/Canvas checks and remaining pixels.
+Keep first-in20 ready-equivalent endpoint diagnostics separate from actual
+ready-marked receipt timing. Native requested held-touch and ordinary browser
+click remain different inputs; movies with invalid PTS and gaps are not exact
+cadence. Preserve earlier clipped captures and missing poses. Browser Manual's
+partial-row defect is being fixed from authored row bounds, not a fitted clip.
+All four whole flows remain fail; audio acceptance remains unverified while muted.
+
 ## Common cover reuse, 9 October
 
 Reviewed `5dc7b83` and frozen `b62b559` complete seven first/repeat production

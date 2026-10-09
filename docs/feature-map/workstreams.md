@@ -2,6 +2,15 @@
 
 ## Animation completion, 9 October 2026
 
+Latest integrated runtime is `cbc07d7`. The performance worker's second commit
+is reviewed/integrated; its next bounded source-only task diagnoses the60 upper
+Manual icon-boundary pixels and reserves no helper edits. The pixel worker's
+scrollbar `de847e79` integrates as `2a983ed`; it now owns only the visibly missing
+Browser partial-row cutoff in `stock-native-helpers.ts` and focused controls.
+Different-model reviewer is auditing the five top-row first/repeat captures.
+All shared GUI/server sessions are closed. See [runtime evidence](../manual-source-runtime-2026-10-09.md).
+Earlier assignments below remain history where superseded.
+
 Coordinator integration is `3ds-animation-fidelity-20261007/3ds-idea` on
 `codex/animation-fidelity-20261007`. Clean coordinator verification is
 `opus-verification-20261009/3ds-idea` on `codex/opus-verification-20261009`.

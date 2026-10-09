@@ -39,7 +39,7 @@ async function fixture(run,{measurePaint=true,publicationGate=false}={}){
   events.length=0;const result=screens.paint(state,new Date(0),ms(step),verification);
   if(receipt)screens.presentManualEntry(state,ms(step));return result;
  };
- try{await screens.ready;await run({screens,paint,events,canvases,setStatus:value=>{status=value;if(value!=='ready')published=false;},failCover:value=>coverFailure=value,presenter});}
+ try{await screens.ready;await run({screens,paint,events,canvases,setStatus:value=>{status=value;if(value!=='ready')published=false;},dropPreparedPair:()=>{published=false;},failCover:value=>coverFailure=value,presenter});}
  finally{screens.dispose();for(const [key,descriptor]of saved){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}}
 }
 
@@ -117,6 +117,22 @@ test('reduced Manual and late assets still require terminal presentation before 
   assert.equal(events.filter(e=>e.name.startsWith('destination-')).length,2);
   const incoming=paint(state,5);assert.deepEqual([incoming.manualEntry.phase,incoming.manualEntry.frame],['in',20]);
   assert.equal(screens.stockStatus(state),'ready');screens.dispose();assert.equal(screens.manualEntryActive(state),false);
+ },{publicationGate:true});
+});
+
+test('incoming rebase after destination teardown holds its cold receipt until a cached ready receipt',async()=>{
+ await fixture(({screens,paint,events,setStatus,dropPreparedPair})=>{
+  const home=cameraHome(),state=manual(home);paint(home,0);setStatus('loading');
+  for(let frame=0;frame<=20;frame++)paint(state,frame+1);
+  setStatus('ready');paint(state,22);paint(state,23);paint(state,28);
+  const prior=paint(state,32);assert.deepEqual([prior.manualEntry.phase,prior.manualEntry.frame],['in',9]);
+  screens.revokeManualEntryCandidate();dropPreparedPair();assert.equal(screens.stockStatus(state),'loading');
+  const cold=paint(state,33,false);assert.deepEqual([cold.manualEntry.phase,cold.manualEntry.frame],['in',9]);
+  assert.equal(events.filter(e=>e.name.startsWith('destination-')).length,2,'incoming rebase composes the replacement pair');
+  assert.equal(screens.presentManualEntry(state,ms(38)),true,'the cold paired receipt crosses five ticks');
+  const cached=paint(state,39,false);assert.deepEqual([cached.manualEntry.phase,cached.manualEntry.frame],['in',9],'cold composition does not advance incoming');
+  assert.equal(screens.presentManualEntry(state,ms(39)),true);const next=paint(state,40);
+  assert.deepEqual([next.manualEntry.phase,next.manualEntry.frame],['in',10]);
  },{publicationGate:true});
 });
 

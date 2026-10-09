@@ -24,7 +24,7 @@ const cameraHome=()=>reduceSystem(camera(),'home',6300);
 const manual=state=>invokeSystemApplet(state,'manual',6400,{manualTitleId:'0004001000022400'});
 const ms=step=>10000+step*1000/60+.01;
 
-async function fixture(run){
+async function fixture(run,{measurePaint=true}={}){
  const saved=new Map(['document','Image','FontFace','__manualGraphics'].map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
  const events=[],canvases=[];let status='ready',coverFailure=false;
  function canvas(){
@@ -34,7 +34,7 @@ async function fixture(run){
  }
  Object.assign(globalThis,{document:{createElement:canvas,fonts:{add(){}}},Image:class {decode(){return Promise.resolve();}},FontFace:class {load(){return Promise.resolve(this);}},__manualGraphics:{ready:Promise.resolve(),selectedApp(){},syncStockView(){},readSuspendedCapture(runtime){return {status:'ready',owner:runtime.application,generation:1};},stockStatus:()=>status,stockFailure:()=>status==='error'?Error('Manual destination failed'):null,retryStockScreen(){status='ready';return true;},banner(){},menuIcon(){},menuArtwork(){},overlay(t,b){t.record('destination-upper');b.record('destination-lower');},dispose(){}}});
  const presenter=new Proxy({pressOffset:0,tilePressOffset:()=>0,folderChild(_ctx,_state,_empty,draw){draw(1);return true;},manualEntry(t,b,pose){t.record('cover-upper',[pose]);b.record('cover-lower',[pose]);return !coverFailure;}},{get:(target,key)=>key in target?target[key]:()=>true});
- const screens=createScreens({firmwareAssets:{presenter,sharedFont:{draw(){}},dispose(){},diagnostics:[],titleIcons:new Map([['0004001000022400',{}]]),titleDescriptions:new Map([['0004001000022400','Nintendo 3DS Camera']])},drawHomeBackground:()=>true,drawSuspendedBackground:()=>true});
+ const screens=createScreens({measurePaint,firmwareAssets:{presenter,sharedFont:{draw(){}},dispose(){},diagnostics:[],titleIcons:new Map([['0004001000022400',{}]]),titleDescriptions:new Map([['0004001000022400','Nintendo 3DS Camera']])},drawHomeBackground:()=>true,drawSuspendedBackground:()=>true});
  const paint=(state,step,receipt=true,verification)=>{
   events.length=0;const result=screens.paint(state,new Date(0),ms(step),verification);
   if(receipt)screens.presentManualEntry(state,ms(step));return result;
@@ -42,6 +42,19 @@ async function fixture(run){
  try{await screens.ready;await run({screens,paint,events,canvases,setStatus:value=>status=value,failCover:value=>coverFailure=value,presenter});}
  finally{screens.dispose();for(const [key,descriptor]of saved){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}}
 }
+
+test('paint timing is opt-in, returned by value and cleared on disposal',async()=>{
+ for(const measurePaint of [false,true])await fixture(({screens,paint})=>{
+  assert.equal(screens.paintTiming(),null);
+  paint(cameraHome(),0);
+  const timing=screens.paintTiming();
+  if(measurePaint){
+   assert.ok(Number.isFinite(timing.startedAt)&&timing.overlayMs>=0);
+   timing.overlayMs=-1;assert.ok(screens.paintTiming().overlayMs>=0);
+  }else assert.equal(timing,null);
+  screens.dispose();assert.equal(screens.paintTiming(),null);
+ },{measurePaint});
+});
 
 test('Manual requires a matching WebGL-presented caller pair, not an offscreen paint',async()=>{
  await fixture(({screens,paint})=>{
@@ -57,6 +70,7 @@ test('live Manual preserves every pose, holds an acknowledged opaque pair and ga
   const home=cameraHome(),state=manual(home);paint(home,0);setStatus('loading');
   for(let frame=0;frame<=20;frame++){const result=paint(state,frame+1);assert.ok(result,String(screens.stockFailure()));assert.deepEqual(result.manualEntry,{phase:'out',frame,owner:state.system.runtime.active});assert.equal(screens.stockStatus(state),'loading');}
   assert.equal(screens.manualEntryActive(state),false);assert.equal(paint(state,22).manualEntry.frame,20);
+  const timing=screens.paintTiming();assert.ok(timing&&Number.isFinite(timing.startedAt)&&Number.isFinite(timing.overlayMs),'paint timing diagnostic');
   setStatus('ready');
   for(let frame=0;frame<=20;frame++){
    const step=23+frame,result=paint(state,step,false);assert.deepEqual([result.manualEntry.phase,result.manualEntry.frame],['in',frame]);

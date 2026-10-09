@@ -1,5 +1,27 @@
 # Feature map — 1:1 queue
 
+9 October Notes close delivery: independently reviewed85b0ab9 retains the
+native Notes owner through footer feedback, outgoing cover and HOME recovery.
+Only caller-null main-list footer Close changes; source assets remain unchanged.
+First/repeat muted Sidecar browser inputs reach real Notes and return HOME;
+the inspected first-close movie records HOME cover and recovery. Corrected
+cleanede70eb full2610pass/1unchanged missing CameraPNGfail/101skip/1TODO;
+build and nonincremental typechecks pass. Muted Helium previews it on3026.
+Native dispatch/timing and raw matched LCDs remain unproven. Notifications has
+its own bounded implementation worktree using the captured normal-footer route.
+Friends/Browser/Miiverse gates are not normal-footer evidence. AN-01..AN-04 fail.
+See [Notes delivery and evidence limits](notes-footer-close-delivery-2026-10-09.md).
+
+9 October top-row observation: twelve new silent native movies and ten own
+PNGs cover selection/opening for Friends, Notifications, Browser and Miiverse.
+Only Notifications reaches normal footer Close, visibly retaining the outgoing
+list beneath HOME Menu cover before HOME recovery. Friends/Browser/Miiverse
+instead have separate missing-Mii/update/error gates. Offline report37dfa1cd
+preserves54 originals unchanged. Notes candidate3a84a89 retains its owner until
+an accepted outgoing terminal pair; independent review and full checks are
+pending, including a fixture import correction. Fitted scheduling remains an
+adaptation. No other exit is generalized and no animation scenario passes.
+
 9 October scheduling delivery: reviewed `e96e76a`, `cc8cc0b` and `a5e4e44`
 hold cold Manual destination work under the opaque outgoing cover and reject
 stale prepared pairs after late revisions. Final code review, build/typechecks

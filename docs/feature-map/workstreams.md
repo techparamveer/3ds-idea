@@ -2,6 +2,29 @@
 
 ## Animation completion, 9 October 2026
 
+Notes worker62fa7c is reviewed and integrated85b0ab9. Cleanede70eb finishes
+full2610pass/1historicalCameraPNGfail/101skip/1TODO, typecheck and unchanged-runtime
+build pass. Coordinator inspected all four browser sequence sheets, offline
+report65d31653; no timing/pixel acceptance. Muted Helium previews3026 on Sidecar.
+`notes_close_presentation`, actual GPT-6.1 Sol high, is reassigned to
+`notifications-close-presentation-20261009/3ds-idea`, branch
+`codex/notifications-close-presentation-20261009`, basea1d0e8f. It reserves only
+Notifications main-list footer Close, required native composition/lifecycle
+interfaces and focused tests. Notes files remain reviewed and must not be
+generalized without need; all other applets, opening and physical HOME stay out.
+Native report37dfa1cd and close sheet00fdf553 are its captured defect reference.
+Coordinator integrates sequentially and alone owns GUI, serving and evidence.
+
+Current bounded Notes runtime candidate is3a84a89 in the assigned worker tree.
+The same high-reasoning worker fixes the independent review's test-fixture
+import regression in a separate commit, without broadening runtime scope.
+manual_final_handoff independently reviews exact source. Coordinator alone
+owns clean `notes-close-verification-20261009/3ds-idea` on
+`codex/notes-close-verification-20261009`, base3a84a89, for full checks and later
+muted Sidecar inspection. The live76813d8 preview tree is frozen. Offline
+toprow_exit_handoff_high completed report37dfa1cd for twelve new native movies,
+not an implementation or acceptance. Earlier assignments below are historical.
+
 Current runtime `a5e4e44` is served as equivalent clean `76813d8`; final Manual
 handoff integrates as `969d59c`. `manual_final_handoff`, GPT-6.1 Sol high,
 completed four documentation paths in `manual-final-handoff-20261009/3ds-idea`

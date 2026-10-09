@@ -49,13 +49,67 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `969d59c`. Reviewed Manual scheduling stack integrated as e96e76a/cc8cc0b/a5e4e44; final contract/evidence docs integrated as969d59c. Exact committed runtime matches clean76813d8; user system.ts edit remains separate. All four whole scenarios remain unaccepted. |
+| HEAD | `85b0ab923df0ca1390f24c6650bab0c5bc9ea132`. Reviewed Notes footer-close stack3a84a89/a1d0e8f/62fa7c integrated. Committed runtime/tests match cleanede70eb; unrelated user system.ts edit remains unstaged. All four whole scenarios remain unaccepted. |
 
 Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9ddf309`. Date-group bind `5c0199f4` recaptured (fill `(255,161,0)`). Slider source-gap `e6bcca9f` (Grok 4.6 **APPROVE** `90be3135`). Photo-crop source-gap `b75f275d` (Grok 4.6 **APPROVE** `9d3237b6`). Date-text source-gap `82a16d1c` (Grok 4.6 **APPROVE** `62457c68`). Selection source-gap `9c431d1d` (Grok 4.6 **APPROVE** `43173720`). Settings-footer X-scale `99a4362e` (Grok 4.6 **APPROVE**; recapture `d6ce9913` Settings **954→630**). Remaining Settings third then `TxtSet` source-size `9580641b` (Grok 4.6 **APPROVE** `3e9c5170`; recapture `3bdc3192` Settings **630→0**). Welcome p5 live-feed source-gap `679db045` (Grok 4.6 **APPROVE** `f14c2241`). Sound Next `Guid1TxtW` source-size `269e8757` (Grok 4.6 **APPROVE**; recapture `a5b8aa9e` interior **195→0**). Sound volume live-slider source-gap `11f3cb3c` (Grok 4.6 **APPROVE** `c4f0fb90`). Sound Span live-spectrum source-gap `57b04572` (Grok 4.6 **APPROVE** `7614c291`). Sound birds held-offset source-gap `9e335f3a` (Grok 4.6 **APPROVE** `f67628f3`). Sound battery underbar-partition source-gap `76a3635a` (Grok 4.6 **APPROVE** `684a3418`). Sound UnderBar Line01 partition source-gap `6db7e7ef` (Grok 4.6 **APPROVE** `d0d96201`). Sound empty-entry row 1916 source-gap (Grok 4.6 **APPROVE** `2807aeb5`). Sound first-run guide perimeter compositor source-gap `02a60c52` (Grok 4.6 **APPROVE** `6cc31903`). Sound empty-entry mid `S_BG` constant source-gap `636976ad` **REJECTED** by Grok 4.6 (native is dump `S_BG_Grid` ETC1 checker `(223,215,206)`/`(231,223,215)`, bound on library path only); grid bind `603c5388` (Opus 5.5) recaptured: empty-entry lower **16021→7216**, mid **2255→0** / **1024→0**; Grok 4.6 **APPROVE-WITH-NITS** `de5c6445`. Leftover queue `cccf162e`. Camera Welcome p3 `TxtDlg` **1079** source-gap `57af95dd` (Grok 4.6 **APPROVE-WITH-NITS** `7e8e13a1`; host-gate probe `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`). Sound upper 316 labelled `14533857` (volume overhang **42** + `S_Back_U` **274**; Grok 4.6 **APPROVE** `daa93bca`). Camera large thumbs `PicL_SD` bind `89efb7a3` (recapture `6499f0af` lower **10158→8958**). Camera Slideshow header source-size `04f3d6bf` (recapture `5d25e2a5` header **837→0**). Camera thumb interiors 56×42 sample source-gap `84d636e3` (Grok 4.6 **APPROVE** `2258268a`). Product `acabb7af` kept. y=177 `22e8b0a4` (Grok 4.6 **APPROVE** `9fe268f8`). Slider 57 (Grok 4.7 **APPROVE-WITH-NITS** `444ba8e0`). GitHub `/Volumes/DeveloperStorage/GitHub/3ds-idea` on `dev-size-opt` is not this site.
 
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
 
 ## Serving
+
+Notes first/repeat visible inspection reached its real list and returned to
+Notes-selected HOME in muted testing Chrome14777 on Sidecar. Coordinator
+inspected the first-close sheet showing its HOME cover and recovery. Four
+silent movies are under opus-completion/notes-close-verification. Completed
+offline report65d31653 preserves seven original media files, four zero-audio
+MOVs and an explicit0.4s repeat-close reveal recording gap. Coordinator inspected
+all four final sequence sheets. Corrected cleanede70eb full2610pass/1unchanged historical
+CameraPNGfail/101skip/1TODO and final nonincremental typecheck pass. Build
+BUeplogFmSu04p8Eydc6Y was built at byte-identical runtime3a84a89. Frozen reviewed
+ede70eb is live3026, PID64219, HTTP200. Muted Helium11353/window8313 visibly
+renders HOME at1830,420,1102x700 on Sidecar; capture SHA
+5a06421b6cd6bb9fac21bcfdba8a6a99da93ea255e7eda9bb552ebb876444989.
+Old reviewed server94968 stopped normally and3025 has no listener. Its source
+tree remains unchanged. Candidate
+PTY21997 previously exited130;3026 listener absent before this start. Only
+owned Chrome test tabs closed; it now shows about:blank. Integrated85b0ab9
+leaves the user's edit untouched. No raw current LCD/paint receipt export is
+available through the native UI route; no 1:1 claim.
+Notifications worker now owns its bounded normal-footer exit in its separate
+worktree, startinga1d0e8f with test corrections705119a. No opening or other applet
+runtime change is authorized in that slice. Earlier Serving entries are history.
+
+Latest four-applet observation is complete. Native77080 is verified closed;
+screenshotPath alone was restored. Final config SHA
+5bf677744aa5a14aaba188ac5d2a8628a9994698f8796db3666335c057d6dcab
+retains volume0/Null1/Static2; five remaining UILayout changes are GUI-normalized
+geometry/state. Twelve silent MOVs, ten own400x480 PNGs and29 supporting PNGs
+live under `opus-completion/toprow-four-observation`. Offline report SHA
+37dfa1cdf99852aac94e3f09f00012699251a57fc0443e582e2d85a9c7564d8e
+rehashes all54 originals unchanged. Coordinator inspected Notifications Close
+sheet00fdf553. Only Notifications reaches a normal footer Close. Friends has a
+missing-Mii gate, Browser an update gate, and Miiverse two error/close notices.
+Their gate returns are not normal-footer evidence. Native timing remains open.
+
+Notes candidate3a84a89 is under independent source review. Clean candidate
+`notes-close-verification-20261009/3ds-idea` on its same-named codex branch
+runs full supporting checks without the user's system.ts edit. A new fixture
+import regression is being fixed separately before integration. Frozen76813d8
+and muted user Helium stay unchanged on3025. The dedicated muted testing
+browser14777/window9018 now visibly renders HOME on Sidecar at1830,411,
+1102x700. Cua CDP preparation was refused for debugging consent; no grant,
+permission mode, security setting or alternate debugging route was changed.
+The private collector has not run. Raw matched browser motion is still owed.
+Earlier Serving paragraphs below are history.
+
+Independent source review approves runtime3a84a89 plus first fixture correction
+a1d0e8f, report SHAdba75bbc8fea4aeaf2341a39efb9ea231f0d7b68de33bcf32e8a417962b26736.
+Initial clean full3a run exited1:2557pass/14fail/101skip/1TODO. One failure is
+the unchanged historical Camera PNG; three are data-URL fixture imports and
+ten are stale exact source/diagnostic-arity expectations. The high worker fixes
+only affected tests and the reviewer checks old-guard retention. No integration
+or runtime generalization yet. Nonincremental typecheck passes; build compiles
+and is finishing. Prepared Notifications worktree at a1d0e8f is unassigned.
 
 Latest native observation: isolated41917 is closed, with PID/window absence
 verified after GUI Quit/Yes. Notes' first accepted foreground toolbar tap
@@ -1295,6 +1349,22 @@ NAND writes between isolated copies. Nintendo Zone remains skipped.
 
 ## Seats
 
+Current coordinator owns integration, cleanede70eb checks and all GUI.
+notes_close_presentation, GPT-6.1 Sol high, implements only Notifications normal
+footer Close in notifications-close-presentation-20261009. Its reviewed Notes
+stack is integrated85b0ab9. toprow_exit_handoff_high, GPT-6.1 Sol high, audits
+four browser movies offline. manual_final_handoff completed independent source
+and fixture reviews; reserve it for the exact Notifications candidate. Workers
+never operate the shared browser or Azahar. Prior seat paragraphs are history.
+
+Latest seats: coordinator owns integration, clean Notes verification and all
+GUI. notes_close_presentation, GPT-6.1 Sol high, freezes runtime3a84a89 and
+fixes only the reviewer's test-fixture import regression in its assigned tree.
+manual_final_handoff, GPT-6.1 Sol high, independently reviews that exact runtime
+and follow-up. toprow_exit_handoff_high, GPT-6.1 Sol high, completed the bounded
+four-applet offline observation report37dfa1cd. It has no runtime/GUI ownership.
+Prior seat paragraphs below are historical. No worker operates shared GUI.
+
 Current seats: the coordinator owns GUI, integration, STATUS and the progress
 record. Previous workers and reviewer are complete. New bounded helpers use
 GPT-6.1 Sol high. The completed top-row exit handoff rechecked166 identities
@@ -1502,6 +1572,28 @@ The integration checkout remains here.
 Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camera Slideshow header 0. Camera Settings third 0. Welcome p5 **7615** live-feed source-gap **APPROVE**. Volume **130** live-slider source-gap **APPROVE**. Span **2314**/**2442** live-spectrum source-gap **APPROVE**. Birds **1558** held-offset source-gap **APPROVE**. Battery `[45,216,85,240]` **1** underbar-partition source-gap **APPROVE**. Line01 `(92,220)` partition source-gap **APPROVE**. Empty-entry row **1916** **APPROVE**. Thumb interiors **846/918** **APPROVE**. Guide perimeter **6072** = **860** dimmed grid + **4416** half + **728** (**144** row + **53** footer + **531** within 2) + **68** fringe; veil **REJECT** `be862ce6`; subsets **APPROVE-WITH-NITS** `d72ab4b1`. Empty-mid **2255**/**1024** → **0**/**0** by grid bind `603c5388` **APPROVE-WITH-NITS** `de5c6445`. p3 `TxtDlg` **1079→1078** after host-gate `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`. Sound upper 316 labelled `14533857` **APPROVE** `daa93bca`. y=177 **320** labelled `22e8b0a4` **APPROVE** `9fe268f8`. Slider **57** **APPROVE-WITH-NITS** `444ba8e0`. Plus-tint strip **1992** kept `ed55865e` **APPROVE** `b6620fa4`. HOME 1-row tail **291** **APPROVE** `f72296ff`. HOME idle Health 1-row left-anchor **23182 / 14754** empty mask (title/wallpaper **12255**, vacant-vs-Settings **7045**, HUD **2328**). **Static still only.** Whole scenarios still fail.
 
 ## Next
+
+Commit [Notes delivery evidence](docs/notes-footer-close-delivery-2026-10-09.md).
+Notes85b0ab9 is committed and live in muted Helium3026; corrected full checks
+are complete apart from the unchanged historical Camera PNG. Source/runtime
+assets match cleanede70eb. Review the
+separate bounded Notifications candidate before integration and its muted
+Sidecar visual check. Preserve the unrelated user system.ts edit. Browser raw
+motion/receipt capture remains unavailable through the approved route; no grant
+or security changes. Exact native timing/input, remaining three gated applet
+exits and matched Manual/folder/HOME regressions remain open. All four whole
+flows fail/unproven, moving stays excluded. Earlier Next paragraphs are history.
+
+Finish independent Notes3a84a89 review and the narrow fixture correction, full
+tests/typecheck/build in the separate clean verification checkout, then integrate
+only reviewed commits and inspect the changed Notes close on muted Sidecar.
+Do not rebuild the live76813d8 tree. Preserve the unrelated user system.ts edit.
+Use the completed four-applet native observation rather than repeating broad
+inventory. Notifications now has normal-footer observation; the other three
+gate paths remain distinct. Ordinary first/repeat raw capture and native timing
+still need a supported browser capture route. CDP refusal is not authorization
+to change grants or permissions. All four whole flows remain fail/unproven;
+moving/pickup/hover/drop remain excluded. Earlier Next paragraphs are history.
 
 Continue from reviewed runtimea5e4e44, served as equivalent clean76813d8.
 The Helium preview and reviewed code commits are delivered. Notes native

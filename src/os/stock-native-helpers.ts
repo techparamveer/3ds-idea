@@ -215,12 +215,13 @@ function drawManual(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,b
   return okay;
 }
 
-/** Capture-fitted placement (adaptation, native capture 23:19:14.606, SHA-256
- * 2efb7fa7…799b): the applet positions the list in code under IndexNull
- * HeadLineAll. Values are BtnHeadLineTxt/ContentsTxt draw centres on the lower
- * LCD. A page row advances 54px and a category band 34px. */
-export const APPLICATION_MANUAL_SLOTS={firstRow:86,row:54,category:34,categoryOffset:-10,contentsCentre:42} as const;
-/** Component-level capture fit against the same settled native frame. These
+/** Manual 0x146164 positions each control at y=-42-44*ordinal. The builder
+ * 0x13ceb0 counts Contents, categories and pages in that same sequence under
+ * IndexNull/HeadLineAll; their setters retain the supplied position unchanged.
+ * Keep the capture-fitted lower-LCD mounts (first page 86, Contents 42);
+ * only the relative 44px control pitch is recovered here. */
+export const APPLICATION_MANUAL_SLOTS={firstRow:86,row:44,category:44,categoryOffset:0,contentsCentre:42} as const;
+/** Component-level capture fit against the settled native frame. These
  * values retain the delivered layouts: they position the row body and
  * compensate the source blue register for BtnShdw00's later blend. */
 export const APPLICATION_MANUAL_LOWER_FIT={rowBodyY:2,secondCategoryRegister:[118,183,218] as [number,number,number]} as const;

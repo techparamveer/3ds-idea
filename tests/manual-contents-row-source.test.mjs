@@ -54,10 +54,10 @@ test('Contents culling uses the decoded visible row halves rather than the trans
  assert.equal(f.paint(),true);
  const calls=f.calls.filter(call=>call.pack==='manual-row');
  assert.deepEqual(calls.map(call=>call.options.overrides.TextBox_Num.text),['1','2','3'],'the native partial third page row is submitted; no later row is submitted');
- assert.deepEqual(calls.map(call=>call.options.center),[[160,86],[160,174],[160,228]],'the captured placement contract is unchanged');
+ assert.deepEqual(calls.map(call=>call.options.center),[[160,86],[160,174],[160,218]],'each page and category occupies one original 44px control ordinal');
  assert.equal(calls[2].options.overrides.TextBox_Txt.text,'Browser Usage Precautio...','existing heading truncation is unchanged');
  assert.deepEqual(calls[2].options.clip,[0,0,320,212]);
- assert.equal(calls[2].options.center[1]+rowPaintTop(posed),203.20000076293945);
+ assert.equal(calls[2].options.center[1]+rowPaintTop(posed),193.20000076293945);
  f.renderer.dispose();
 });
 
@@ -520,6 +520,48 @@ test('cached centered number parents and Wait pose revalidate on every paint',()
 
 const sourceRoot=process.env.MANUAL_ROW_SOURCE_ROOT;
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
+test('optional pinned Manual position writer gives pages and categories the same 44px pitch',{skip:!sourceRoot},()=>{
+ const code=readFileSync(join(sourceRoot,'code.bin'));
+ assert.equal(sha(code),'cf4658f9f618a41f8d32ff7aed40d0ea565da78a2ace349cb93698ff5f7df5d8');
+ const words=[
+  [0x13cfcc,0xe2869001],[0x13d044,0xe1a02009],[0x13d048,0xe2841044],
+  [0x13d094,0xe2899001],[0x13d1c8,0xe1a02009],[0x13d1cc,0xe2841044],[0x13d224,0xe2899001],
+  [0x146164,0xee002a10],[0x146168,0xed9f1a06],[0x146174,0xeef80ac0],
+  [0x146178,0xed9f0a03],[0x14617c,0xee000ac1],[0x146180,0xed800a01],
+  [0x141ba8,0xe5941008],[0x141bcc,0xe5922040],[0x141bd0,0xe12fff32],
+  [0x1b828c,0x170318],[0x1b83b8,0x16fd98],
+  [0x141ab4,0x1c1838],[0x141a7c,0xe5845004],[0x141a8c,0xe5840008],[0x141bf4,0xe5900004],
+  [0x141d3c,0xe5912000],[0x141d40,0xe5911004],[0x141d4c,0xe5801028],[0x141d54,0xe5802024],
+  [0x141d64,0xe5900004],[0x141d68,0xe590000c],[0x141d70,0xe280c028],[0x141d74,0xe88c000e],
+ ];
+ const branches=[[0x13cf7c,0x146164],[0x13cf8c,0x146164],[0x13d050,0x146164],[0x13d060,0x146164],
+  [0x13d1d4,0x146164],[0x13d1e4,0x146164],[0x13cfc4,0x141b84],[0x13d090,0x141b84],[0x13d218,0x141b84],
+  [0x141bac,0x15ced0],[0x13cf14,0x141bf4],[0x13cf30,0x141d38],[0x141a58,0x15c99c],[0x141a88,0x15d220]];
+ const setters=[0x170318,0x16fd98].flatMap(base=>[[4,0xe5912000],[8,0xe5911004],[20,0xe5801030],[28,0xe580202c],[56,0xe590000c],[64,0xe280c028],[68,0xe88c000e]].map(([offset,instruction])=>[base+offset,instruction]));
+ const assertWriter=bytes=>{
+  const word=address=>bytes.readUInt32LE(address-0x100000);
+  for(const [address,expected]of words)assert.equal(word(address),expected,`original instruction ${address.toString(16)}`);
+  for(const [address,target]of branches){const instruction=word(address);assert.equal(instruction>>>24,0xeb);assert.equal(address+8+((instruction<<8)>>6),target);}
+  assert.equal(bytes.readFloatLE(0x146188-0x100000),44);assert.equal(bytes.readFloatLE(0x14618c-0x100000),-42);
+  for(const [address,instruction]of setters)assert.equal(word(address),instruction,'both setters copy x/y unchanged to the layout root');
+  const string=address=>bytes.subarray(address-0x100000).toString('utf8').split('\0')[0];
+  assert.equal(string(word(0x1c1838)),'layout/PureLocator');assert.equal(string(word(0x1c183c)),'AttachNull');
+ };
+ assertWriter(code);
+ for(const [address]of [...words,...branches,...setters,[0x146188],[0x14618c],[0x1c1838],[0x1c183c]]){
+  const mutation=Buffer.from(code);mutation.writeUInt32LE((mutation.readUInt32LE(address-0x100000)^1)>>>0,address-0x100000);
+  assert.throws(()=>assertWriter(mutation),assert.AssertionError);
+ }
+ for(const [lo,hi,expected]of [[0x13ceb0,0x13d3ec,'233b81ae8e3a070e5b6b88c86a22042661e3b3711787b89bd3fabf14309f71bc'],[0x146164,0x146190,'126ed384dad15d150eabeaaf684991bda12ce94ea452f077e12d7489ee6683a3'],[0x141b84,0x141bf4,'7eb5c53382d8d54ba85deed271ca6bd411fceb7281863e5a4b86459ed6ba9736'],[0x170318,0x170378,'9d70e8fb50b0cff001a105704e4ba4bb9cb4dbc8dbab938e067d722f41fea73a'],[0x16fd98,0x16fdf8,'9d70e8fb50b0cff001a105704e4ba4bb9cb4dbc8dbab938e067d722f41fea73a']])assert.equal(sha(code.subarray(lo-0x100000,hi-0x100000)),expected);
+ const pitch=code.readFloatLE(0x146188-0x100000);
+ assert.deepEqual([APPLICATION_MANUAL_SLOTS.row,APPLICATION_MANUAL_SLOTS.category,APPLICATION_MANUAL_SLOTS.categoryOffset],[pitch,pitch,0]);
+ assert.deepEqual(Array.from({length:5},(_,ordinal)=>pitch*ordinal),[0,44,88,132,176],'relative source displacements do not prove the retained capture-fitted LCD mounts');
+ const pack=json('packs/manual/layout-IndexNull.json'),layout=poseNativeLayout(pack.layouts.IndexNull,pack.animations,[{name:'IndexNull_Wait',frame:1}]);
+ assert.equal(pack.resourceSources.layouts.IndexNull.sha256,'af65d3ac00782bdd74f2c09ea36a61d739650bab5da39602acca4be9d85443c9');
+ assert.equal(pack.resourceSources.animations.IndexNull_Wait.sha256,'814d97dd0571e3297abe3ec63d0bb60c89a00f2c9b8de218d2e0999d439f10b3');
+ const path=nativePaneParentPath(layout,'HeadLineAll');assert.deepEqual(path.map(pane=>pane.name),['RootPane','BtnGroup','HeadLineAll']);
+ for(const pane of path){assert.ok(pane.translation.every(value=>value===0));assert.ok(pane.rotation.every(value=>value===0));assert.deepEqual(pane.scale,[1,1]);}
+});
 test('optional pinned original Manual NCCH links row constructor, plain writer and flags-zero render path',{skip:!sourceRoot},()=>{
  const provenance=JSON.parse(readFileSync(join(sourceRoot,'recovery-provenance.json'),'utf8'));
  const original=readFileSync(provenance.original),compressed=readFileSync(join(sourceRoot,'code-compressed.bin')),code=readFileSync(join(sourceRoot,'code.bin'));

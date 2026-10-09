@@ -12,6 +12,9 @@ retains the existing six-update footer span through update 22. The upper
 SceneIn, AppPause, HUD and window schedules still settle at update 20. Pause
 motion remains active until the complete update 22 pair receives its receipt.
 Reduced motion selects that complete endpoint through the same receipt path.
+The compact capture verifier now requires both upper `pauseFrame === 20` and
+`pauseLower === null` before reporting `firstTerminalReceipt`. Upper frame 20
+with a moving footer no longer counts as a complete pause endpoint.
 
 The source is HOME title `0004003000009802`, version 24576, EUR 10.7.0-32E,
 content index 0 / content ID `00000082`, internal `exefs/code.bin`, SHA-256
@@ -34,6 +37,9 @@ duplicate sampling and receipts, pending and failed pairs, replacement owners
 and capture generations, reduced motion and unchanged folder cadence.
 `node --test tests/home-entry-motion.test.mjs tests/home-pause-lower.test.mjs tests/home-pause-window-entry-live.test.mjs tests/native-home-controls-paint.test.mjs tests/home-suspended-window-entry-policy.test.mjs`
 passes 138 tests. `npm run typecheck -- --incremental false` passes.
+`node --test tests/animation-flow-pause-compact.test.mjs` passes 24 tests,
+including normal and reduced endpoint evidence with incomplete, absent and
+settled lower motion.
 Logs are under `/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261009/home-pause-release/`.
 
 No browser, server or Azahar session ran in this worker. Coordinator integration

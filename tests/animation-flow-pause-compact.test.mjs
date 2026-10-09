@@ -16,9 +16,9 @@ import { selectHomeSlot, settleHomeNavigation } from '../src/os/home-navigation.
 import { retainedSuspendedApplication, selectedSuspendedApplication } from '../src/os/home-suspended-window.ts';
 
 const selection = { app: 'health-safety', originalSelected: '8', compactSelected: '10' };
-function data(selected = '10', pauseFrame = 2) {
+function data(selected = '10', pauseFrame = 2, pauseLower = null) {
   const cursor = { selectedSlot: Number(selected), focus: { toolbarActive: false } };
-  const paint = { at: 100, phase: 'home', cursor, entryMotion: { folder: null, pauseFrame } };
+  const paint = { at: 100, phase: 'home', cursor, entryMotion: { folder: null, pauseFrame, pauseLower } };
   return { menu: 'home', app: 'health-safety', selected, rows: '2', homeCursor: JSON.stringify(cursor),
     dialog: '', sleeping: 'false', nativeScreen: 'ready', nativeScreenFailure: '', screenPaint: JSON.stringify(paint),
     screenPresented: JSON.stringify({ frame: 1, validPublication: true, paint }) };
@@ -331,24 +331,44 @@ test('chronological compact evidence rejects stale/mismatched pairs and distingu
     { index: 1, at: 10, data: { ...data('10', 0), screenPresented: JSON.stringify({ validPublication: false }) } },
     { index: 2, at: 20, data: { ...data('10', 1), screenPresented: data('10', 0).screenPresented } },
     { index: 3, at: 30, data: data('10', 2) },
-    { index: 4, at: 300, data: data('10', 20) },
+    { index: 4, at: 300, data: data('10', 20, { fadeFrame: null, footerFrame: 9 }) },
+    { index: 5, at: 350, data: data('10', 20, { fadeFrame: null, footerFrame: 11 }) },
+    { index: 6, at: 400, data: data('10', 20) },
   ];
   const before = structuredClone(frames), evidence = pauseCompactEvidence(frames, selection, false);
   assert.deepEqual(evidence.firstMatchingReceipt, { index: 3, at: 30, pauseFrame: 2, selected: '10' });
   assert.deepEqual(evidence.firstAppearanceReceipt, evidence.firstMatchingReceipt);
-  assert.deepEqual(evidence.firstTerminalReceipt, { index: 4, at: 300, pauseFrame: 20, selected: '10' });
+  assert.deepEqual(evidence.firstTerminalReceipt, { index: 6, at: 400, pauseFrame: 20, selected: '10' });
   assert.equal(evidence.targetPathObserved, true);
   assert.equal(evidence.coverage, 'appearance-during-entry');
   assert.equal(evidence.nativeCompared, false);
   assert.equal(evidence.captureGeneration, null);
   assert.deepEqual(frames, before);
-  const terminal = pauseCompactEvidence(frames.slice(4), selection, false);
+  const terminal = pauseCompactEvidence(frames.slice(6), selection, false);
   assert.equal(terminal.coverage, 'terminal-or-no-entry-only');
   assert.equal(terminal.targetPathObserved, false);
   assert.equal(terminal.firstAppearanceReceipt, null);
   assert.match(terminal.limitation, /does not verify the compact fade/);
-  assert.equal(pauseCompactEvidence(frames.slice(4), selection, true).coverage, 'reduced-endpoint');
+  assert.equal(pauseCompactEvidence(frames.slice(6), selection, true).coverage, 'reduced-endpoint');
   assert.equal(pauseCompactEvidence(frames.slice(0, 3), selection, false).coverage, 'missing-valid-pair');
+});
+
+test('normal and reduced compact endpoints require explicitly settled lower motion', () => {
+  for (const reduced of [false, true]) {
+    for (const lower of [undefined, {}, { fadeFrame: 40, footerFrame: null },
+      { fadeFrame: null, footerFrame: 9 }, { fadeFrame: null, footerFrame: 11 }]) {
+      const dataset = data('10', 20), paint = JSON.parse(dataset.screenPaint);
+      paint.entryMotion.pauseLower = lower;
+      dataset.screenPaint = JSON.stringify(paint);
+      dataset.screenPresented = JSON.stringify({ validPublication: true, paint });
+      const evidence = pauseCompactEvidence([{ index: 0, at: 300, data: dataset }], selection, reduced);
+      assert.equal(evidence.firstTerminalReceipt, null);
+      assert.equal(evidence.coverage, reduced ? 'reduced-no-entry-only' : 'terminal-or-no-entry-only');
+    }
+    const settled = pauseCompactEvidence([{ index: 0, at: 400, data: data('10', 20) }], selection, reduced);
+    assert.deepEqual(settled.firstTerminalReceipt, { index: 0, at: 400, pauseFrame: 20, selected: '10' });
+    assert.equal(settled.coverage, reduced ? 'reduced-endpoint' : 'terminal-or-no-entry-only');
+  }
 });
 
 test('terminal-only sampling limitation remains in the written original capture without a retry', async t => {

@@ -201,7 +201,10 @@ export function pauseCompactEvidence(frames, selection, reducedMotion) {
     const frameNumber = JSON.parse(frame.data.screenPaint).entryMotion?.pauseFrame;
     return Number.isInteger(frameNumber) && frameNumber >= 0 && frameNumber < 10;
   });
-  const terminal = matching.find(frame => JSON.parse(frame.data.screenPaint).entryMotion?.pauseFrame === 20);
+  const terminal = matching.find(frame => {
+    const entry = JSON.parse(frame.data.screenPaint).entryMotion;
+    return entry?.pauseFrame === 20 && entry.pauseLower === null;
+  });
   const describe = frame => frame ? { index: frame.index, at: frame.at,
     pauseFrame: JSON.parse(frame.data.screenPaint).entryMotion?.pauseFrame ?? null,
     selected: frame.data.selected } : null;

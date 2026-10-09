@@ -364,8 +364,30 @@ function validateApplicationManualRowDecoration(layout:NativeLayout,bodyY:number
       ||track.keys.length!==1||!key||keys(key)!=='frame,slope,value'||key.frame!==(index===0?52:index===1?85:0)||key.slope!==0||key.value!==[-120,255,220,196,157][index])return fail();
   }
 }
+/** The two visible button halves supply the row's authored paint top.
+ * BtnShdw01 is transparent in Wait and must not extend that bound. */
+function validateApplicationManualRowTop(layout:NativeLayout){
+  const fail=()=>{throw new Error('Unsupported Manual Contents row paint bounds source');};
+  const same=(value:unknown,expected:readonly number[])=>Array.isArray(value)&&value.length===expected.length&&value.every((item,index)=>item===expected[index]);
+  const counts=new Map<string,number>();
+  const visit=(panes:NativePane[])=>{for(const pane of panes){counts.set(pane.name,(counts.get(pane.name)??0)+1);visit(pane.children);}};visit(layout.roots);
+  let top=Infinity;
+  for(const [name,x,scaleX]of [['BtnPageTitleT_01',84,-1],['BtnPageTitleT_02',-84,1]] as const){
+    const path=nativePaneParentPath(layout,name);
+    if(!path||path.length!==3||path.map(pane=>pane.name).join('/')!==`RootPane/BtnHeadLineBody/${name}`)return fail();
+    const pane=path[2];
+    if(counts.get(name)!==1||pane.kind!=='pic1'||pane.flags!==1||pane.alpha!==255||pane.origin!==4
+      ||pane.unsupported?.length||pane.part||pane.text||pane.window||!pane.picture||pane.children.length
+      ||!same(pane.translation,[x,1,0])||!same(pane.rotation,[0,0,0])||!same(pane.scale,[scaleX,1.2999999523162842])||!same(pane.size,[168,32]))return fail();
+    top=Math.min(top,-path.reduce((sum,item)=>sum+item.translation[1],0)-pane.size[1]*pane.scale[1]*Math.floor(pane.origin/3)/2);
+  }
+  return top;
+}
+function prepareApplicationManualRows(renderer:NativeLayoutRenderer,bottom:CanvasRenderingContext2D):number;
+function prepareApplicationManualRows(renderer:NativeLayoutRenderer):void;
 function prepareApplicationManualRows(renderer:NativeLayoutRenderer,bottom?:CanvasRenderingContext2D){
   const pack=renderer.packs['manual-row'],source=bottom?validateApplicationManualRow(pack?.layouts.BtnHeadLineTxt,3):pack.layouts.BtnHeadLineTxt;
+  const rowTop=bottom?validateApplicationManualRowTop(source):undefined;
   if(bottom){
     validateApplicationManualRowNumber(source,3,[0,0,0,0]);
     validateApplicationManualRowDecoration(source,3,pack);
@@ -397,10 +419,13 @@ function prepareApplicationManualRows(renderer:NativeLayoutRenderer,bottom?:Canv
     const color=name==='ManualRowImportant'?[237,136,136,0]:[154,212,105,0];
     validateApplicationManualRowNumber(layout,APPLICATION_MANUAL_LOWER_FIT.rowBodyY,color);
     validateApplicationManualRowDecoration(layout,APPLICATION_MANUAL_LOWER_FIT.rowBodyY,pack);
+    validateApplicationManualRowTop(layout);
     const posed=poseNativeLayout(layout,pack.animations,[{name:'BtnHeadLineTxt_Wait',frame:1}]);
     validateApplicationManualRow(posed,3);validateApplicationManualRowNumber(posed,3,color);
     validateApplicationManualRowDecoration(posed,3,pack);
+    if(validateApplicationManualRowTop(posed)!==rowTop)throw new Error('Unsupported Manual Contents row paint bounds source');
   }
+  return rowTop;
 }
 function prepareApplicationManualCategory(renderer:NativeLayoutRenderer){
   if(preparedApplicationManualCategories.has(renderer))return;
@@ -556,7 +581,7 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
   if(!source||!index)return false;
   if(view.screen==='document')return drawApplicationManualPage(renderer,top,bottom,view,options);
   prepareApplicationManualCategory(renderer);
-  prepareApplicationManualRows(renderer,bottom);
+  const rowTop=prepareApplicationManualRows(renderer,bottom);
   const languageOverrides=applicationManualLanguageOverrides(renderer);
   const entries=manualContents(index);
   const scrollLayout=prepareApplicationManualScroll(renderer,entries.length);
@@ -587,7 +612,7 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
       categoryIndex++;
       y+=APPLICATION_MANUAL_SLOTS.category;continue;
     }
-    if(y>=APPLICATION_MANUAL_LIST_CLIP[3])break;
+    if(y+rowTop>=APPLICATION_MANUAL_LIST_CLIP[3])break;
     // The native selected row keeps its idle button under the separate
     // CsrHeadLine00 cursor, so every row uses BtnHeadLineTxt_Wait.
     // The applet truncates the first long English heading in its row control.

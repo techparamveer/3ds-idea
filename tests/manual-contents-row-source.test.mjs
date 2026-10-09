@@ -15,7 +15,7 @@ const compile=name=>{
  const url=new URL(`../src/os/${name}.ts`,import.meta.url),source=readFileSync(url,'utf8');
  return moduleUrl(source.replace(/(from\s*['"])(\.[^'"]+?)(['"])/g,(_all,prefix,path,suffix)=>prefix+(path==='./stock-native-amiibo'?amiibo:new URL(`${path}.ts`,url).href)+suffix));
 };
-const {drawNativeHelperFrame,nativeHelperView}=await import(compile('stock-native-helpers'));
+const {drawNativeHelperFrame,nativeHelperView,APPLICATION_MANUAL_SLOTS}=await import(compile('stock-native-helpers'));
 const {NativeLayoutRenderer}=await import(compile('native-renderer'));
 const settings='0004001000022000',camera='0004001000022400',browser='0004003000009d02';
 const row=layout=>nativePaneParentPath(layout,'TextBox_Txt').at(-1);
@@ -33,6 +33,90 @@ function fixture(titleId=camera,screen='main'){
  return {view,renderer,calls,context,font,fonts,source:packs['manual-row'].layouts.BtnHeadLineTxt,
   paint:()=>drawNativeHelperFrame(renderer,context,context,view)};
 }
+
+const rowPaintTop=layout=>{
+ const path=nativePaneParentPath(layout,'BtnPageTitleT_01'),pane=path.at(-1);
+ return -path.reduce((sum,pane)=>sum+pane.translation[1],0)-pane.size[1]*pane.scale[1]*Math.floor(pane.origin/3)/2;
+};
+
+test('Contents culling uses the decoded visible row halves rather than the transparent shadow or row centre',()=>{
+ const f=fixture(browser),posed=poseNativeLayout(f.source,f.renderer.packs['manual-row'].animations,[{name:'BtnHeadLineTxt_Wait',frame:1}]);
+ for(const [name,x,scaleX]of [['BtnPageTitleT_01',84,-1],['BtnPageTitleT_02',-84,1]]){
+  const path=nativePaneParentPath(posed,name),pane=path.at(-1);
+  assert.deepEqual(path.map(pane=>pane.name),['RootPane','BtnHeadLineBody',name]);
+  assert.deepEqual({kind:pane.kind,flags:pane.flags,alpha:pane.alpha,origin:pane.origin,translation:pane.translation,scale:pane.scale,rotation:pane.rotation,size:pane.size},
+   {kind:'pic1',flags:1,alpha:255,origin:4,translation:[x,1,0],scale:[scaleX,1.2999999523162842],rotation:[0,0,0],size:[168,32]});
+ }
+ assert.equal(nativePaneParentPath(posed,'BtnShdw01').at(-1).alpha,0);
+ assert.equal(rowPaintTop(posed),-24.799999237060547);
+ assert.equal(f.paint(),true);
+ const calls=f.calls.filter(call=>call.pack==='manual-row');
+ assert.deepEqual(calls.map(call=>call.options.overrides.TextBox_Num.text),['1','2','3'],'the native partial third page row is submitted; no later row is submitted');
+ assert.deepEqual(calls.map(call=>call.options.center),[[160,86],[160,174],[160,228]],'the captured placement contract is unchanged');
+ assert.equal(calls[2].options.overrides.TextBox_Txt.text,'Browser Usage Precautio...','existing heading truncation is unchanged');
+ assert.deepEqual(calls[2].options.clip,[0,0,320,212]);
+ assert.equal(calls[2].options.center[1]+rowPaintTop(posed),203.20000076293945);
+ f.renderer.dispose();
+});
+
+test('Contents submits a partial row just inside the source-derived bottom bound, but not at or beyond it',()=>{
+ const original=APPLICATION_MANUAL_SLOTS.firstRow;
+ try{
+  for(const [delta,count]of [[-.001,3],[0,2],[.001,2]]){
+   const f=fixture(browser),posed=poseNativeLayout(f.source,f.renderer.packs['manual-row'].animations,[{name:'BtnHeadLineTxt_Wait',frame:1}]);
+   APPLICATION_MANUAL_SLOTS.firstRow=212-rowPaintTop(posed)-2*APPLICATION_MANUAL_SLOTS.row-APPLICATION_MANUAL_SLOTS.category+delta;
+   assert.equal(f.paint(),true);
+   const calls=f.calls.filter(call=>call.pack==='manual-row');
+   assert.equal(calls.length,count,`row top ${212+delta}`);
+   assert.deepEqual(calls.map(call=>call.options.overrides.TextBox_Num.text),Array.from({length:count},(_,index)=>String(index+1)));
+   for(const call of calls)assert.deepEqual(call.options.clip,[0,0,320,212]);
+   f.renderer.dispose();
+  }
+ }finally{APPLICATION_MANUAL_SLOTS.firstRow=original;}
+});
+
+for(const titleId of [camera,settings])test(`Contents ${titleId} retains its two rows and clipped second category`,()=>{
+ const f=fixture(titleId),before=JSON.stringify(f.source);assert.equal(f.paint(),true);
+ const rows=f.calls.filter(call=>call.pack==='manual-row'),categories=f.calls.filter(call=>call.pack==='manual-category');
+ assert.deepEqual(rows.map(call=>call.options.overrides.TextBox_Num.text),['1','2']);
+ assert.deepEqual(rows.map(call=>call.options.center),[[160,86],[160,174]]);
+ assert.deepEqual(categories.map(call=>call.options.center),[[160,130],[160,218]]);
+ assert.equal(categories[1].layout,'HLTxtBlue');
+ for(const call of [...rows,...categories])assert.deepEqual(call.options.clip,[0,0,320,212]);
+ assert.equal(JSON.stringify(f.source),before);f.renderer.dispose();
+});
+
+test('unsupported selected visible row bounds fail before drawing, including cached and posed geometry',()=>{
+ const half=(layout,name='BtnPageTitleT_01')=>nativePaneParentPath(layout,name).at(-1);
+ const edits=[
+  f=>{body(f.source).children=body(f.source).children.filter(pane=>pane.name!=='BtnPageTitleT_01');},
+  f=>{body(f.source).children.push(structuredClone(half(f.source)));},
+  f=>{f.source.roots.push(structuredClone(half(f.source)));},
+  ...['BtnPageTitleT_01','BtnPageTitleT_02'].flatMap(name=>[
+   f=>{half(f.source,name).kind='pan1';},f=>{half(f.source,name).flags=0;},
+   f=>{half(f.source,name).alpha=254;},f=>{half(f.source,name).origin=0;},
+   f=>{half(f.source,name).translation[1]=2;},f=>{half(f.source,name).rotation[2]=1;},
+   f=>{half(f.source,name).scale[1]=1.3;},f=>{half(f.source,name).size[1]=31;},
+   f=>{half(f.source,name).unsupported=['unknown'];},f=>{delete half(f.source,name).picture;},
+  ]),
+ ];
+ for(const edit of edits){const f=fixture(browser);edit(f);assert.throws(f.paint,/Unsupported Manual Contents row paint bounds source/);assert.equal(f.calls.length,0);f.renderer.dispose();}
+ for(const name of ['ManualRowImportant','ManualRowGettingStarted']){
+  const f=fixture(browser);assert.equal(f.paint(),true);f.calls.length=0;
+  half(f.renderer.packs['manual-row'].layouts[name]).size[1]=31;
+  assert.throws(f.paint,/Unsupported Manual Contents row paint bounds source/);assert.equal(f.calls.length,0);f.renderer.dispose();
+ }
+ const f=fixture(browser),track=structuredClone(f.renderer.packs['manual-row'].animations.BtnHeadLineTxt_Wait.tracks[0]);
+ Object.assign(track,{target:'BtnPageTitleT_01',binding:'pane',property:'scale.y',component:4,tag:'CLPA',keys:[{frame:0,value:2,slope:0}]});
+ f.renderer.packs['manual-row'].animations.BtnHeadLineTxt_Wait.tracks.push(track);
+ assert.throws(f.paint,/Unsupported Manual Contents row paint bounds source/);assert.equal(f.calls.length,0);f.renderer.dispose();
+});
+
+test('a failed partial-row draw keeps the real helper frame unready',()=>{
+ const f=fixture(browser),draw=f.renderer.draw;
+ f.renderer.draw=(...args)=>{const okay=draw(...args);return args[1]==='manual-row'&&args[3].overrides.TextBox_Num.text==='3'?false:okay;};
+ assert.equal(f.paint(),false);assert.equal(f.calls.filter(call=>call.pack==='manual-row').length,3);f.renderer.dispose();
+});
 
 test('row source identity stays in the existing published Manual pack and shared original font',()=>{
  const bytes=readFileSync(new URL('packs/manual/layout-BtnHeadLineTxt.json',root)),pack=JSON.parse(bytes);

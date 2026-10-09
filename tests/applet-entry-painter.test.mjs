@@ -12,6 +12,24 @@ const {outputText}=ts.transpileModule(readFileSync(sourceUrl,'utf8'),{compilerOp
 const {createFirmwareHome}=await import(data(outputText.replace(/(from\s*['"])(\.[^'"]+)(['"])/g,(_all,prefix,path,suffix)=>prefix+(path==='./native-renderer'?data('export class NativeLayoutRenderer {}'):new URL(path.endsWith('.ts')?path:`${path}.ts`,sourceUrl).href)+suffix)));
 const ids=['game-notes','friends','notifications','browser','miiverse'];
 
+test('actual Notifications footer cover uses selected HOME common resources and fails on either unavailable LCD or label',()=>{
+ const draws=[],top={},bottom={},presenter=createFirmwareHome({renderer:{packs:{common,messages,launcher},draw(ctx,bank,name,options){draws.push({ctx,bank,name,options});return true;}}});
+ for(const kind of ['out','in'])for(const frame of [0,20]){
+  assert.equal(presenter.notificationsFooterCover(top,bottom,kind,frame),true);
+  const [upper,lower]=draws.slice(-2);
+  assert.deepEqual([upper.ctx,upper.bank,upper.name,upper.options.bindings],[top,'common','CmnFade_U_00',[{name:'CmnFade_U_00_'+(kind==='out'?'SceneOut':'SceneIn'),frame}]]);
+  assert.deepEqual([lower.ctx,lower.bank,lower.name,lower.options.bindings],[bottom,'common','CmnFade_D_00',[{name:'CmnFade_D_00_Aplt',frame:6},{name:'CmnFade_D_00_'+(kind==='out'?'SceneOut':'SceneIn'),frame}]]);
+  assert.equal(lower.options.overrides.T_Aplt_00.text,'HOME Menu');
+ }
+ for(const refused of ['CmnFade_U_00','CmnFade_D_00']){
+  const broken=createFirmwareHome({renderer:{packs:{common,messages,launcher},draw:(_ctx,_bank,name)=>name!==refused}});
+  assert.equal(broken.notificationsFooterCover(top,bottom,'out',20),false);
+ }
+ const absent=structuredClone(messages);delete absent.messages.menu_msbt_LZ.labels.lau_title_menu;
+ const noLabel=createFirmwareHome({renderer:{packs:{common,messages:absent,launcher},draw:()=>true}});
+ assert.throws(()=>noLabel.notificationsFooterCover(top,bottom,'out',0),/label/);
+});
+
 test('actual painter composes each outgoing selector and Browser/Miiverse common incoming over both caller LCDs',()=>{
  const before=JSON.stringify(common),draws=[],presenter=createFirmwareHome({renderer:{packs:{common,messages,launcher},draw(ctx,bank,name,options){draws.push({ctx,bank,name,options});return true;}}});
  for(const appId of ids)for(const phase of ['out',...(['browser','miiverse'].includes(appId)?['in']:[])])for(const frame of [0,20]){

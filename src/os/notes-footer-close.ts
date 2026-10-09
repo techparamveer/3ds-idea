@@ -18,6 +18,9 @@ export const notesFooterCloseEligible = manualEntryEligible;
 /** Fitted footer feedback and 60 Hz scheduling are adaptations. The recording
  * establishes order, not dispatch, elapsed duration or native LCD cadence. */
 export function createNotesFooterClosePresentation() {
+  return createAppletFooterClosePresentation(notesFooterCloseIdentity);
+}
+export function createAppletFooterClosePresentation(identityOf: typeof notesFooterCloseIdentity) {
   let identity: NotesFooterCloseIdentity | null = null, ticket = 0, disposed = false, recovering = false, done = false;
   let presented: NotesFooterClosePose | undefined, acceptedAt: number | undefined;
   let pending: { pose: NotesFooterClosePose; sampledAt: number; pair?: object; resources?: object } | undefined;
@@ -26,7 +29,7 @@ export function createNotesFooterClosePresentation() {
   const reset = () => { revoke(); identity = null; presented = undefined; resourceOwner = undefined; recovering = done = false; };
   function matches(state: MenuState, generation: number) {
     if (!identity || generation !== identity.generation) return false;
-    if (!recovering) return same(identity, notesFooterCloseIdentity(state, generation));
+    if (!recovering) return same(identity, identityOf(state, generation));
     const s = state.system;
     return s?.phase === 'home' && !s.runtime.active && !s.runtime.systemApplet && !s.runtime.instances[identity.owner]
       && s.runtime.application === identity.application && s.runtime.sequence === identity.sequence;
@@ -34,7 +37,7 @@ export function createNotesFooterClosePresentation() {
   return {
     sample(state: MenuState, generation: number, now: number, eligible: boolean, reduced: boolean): NotesFooterClosePose | undefined {
       if (disposed || !Number.isFinite(now)) return undefined;
-      const next = notesFooterCloseIdentity(state, generation);
+      const next = identityOf(state, generation);
       if (!identity && next) identity = Object.freeze({ ...next });
       if (identity && !matches(state, generation)) { reset(); if (next) identity = Object.freeze({ ...next }); }
       if (!identity || done || !eligible) { revoke(); return undefined; }
@@ -74,7 +77,7 @@ export function createNotesFooterClosePresentation() {
       return null;
     },
     active(state: MenuState, generation: number) {
-      return !disposed && !done && (matches(state, generation) || !!notesFooterCloseIdentity(state, generation));
+      return !disposed && !done && (matches(state, generation) || !!identityOf(state, generation));
     },
     revoke, reset,
     dispose() { reset(); disposed = true; },

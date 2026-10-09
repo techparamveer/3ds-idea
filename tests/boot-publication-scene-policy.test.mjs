@@ -24,7 +24,7 @@ test('boot cannot hand off until its native terminal pair was rendered in an ear
 
 test('failed paints cannot reuse a boot candidate and retries remain selected',()=>{
  const clear=source.indexOf('lastBootPaintIdentity=null;lastLaunchPaintIdentity=null;lastShutdownPaintIdentity=null;const painted=screens.paint');
- const record=source.indexOf('recordScreenPaint(now-start,painted?.nativeSystem===true,painted?.entryMotion,painted?.manualEntry,painted?.appletEntry,painted?.notesClose)',clear);
+ const record=source.indexOf('recordScreenPaint(now-start,painted?.nativeSystem===true,painted?.entryMotion,painted?.manualEntry,painted?.appletEntry,painted?.notesClose,painted?.notificationsClose)',clear);
  const failure=source.indexOf("host.dataset[bootPublicationPending?'bootPublicationFailure':launchPublicationPending?'launchPublicationFailure':'shutdownPublicationFailure']=String(error)");
  assert.ok(clear>=0&&record>clear&&failure>record);
  assert.match(source,/lastBootPaintIdentity=nativeSystem\?bootTerminalIdentity/);

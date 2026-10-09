@@ -34,7 +34,7 @@ const captureUpperTexture='suspended-capture-upper',captureLowerTexture='suspend
 const personalAllNotePacks:readonly NativeTitlePackRequest[]=[...personalNotesPacks,...personalSelectedNotePacks.filter(({alias})=>!personalNotesPacks.some(pack=>pack.alias===alias))];
 export const personalNotificationPacks:readonly NativeTitlePackRequest[]=[
   {url:'packs/notifications/incoming.json',alias:'notifications-incoming',layouts:['CmnFade_U_00','CmnFade_D_00'],animations:['CmnFade_U_00_SceneIn','CmnFade_D_00_SceneIn']},
-  {url:'packs/notifications/news.json',alias:'notifications',layouts:['NewsTopUI_U_00','NewsTopUI_D_00','NewsUnread_U_00','NewsTopBtn_D_00','NewsWndwNews_D_00'],animations:['NewsUnread_U_00_SceneIn','NewsUnread_U_00_NumAnim','NewsTopBtn_D_00_SceneIn','NewsWndwNews_D_00_SceneIn','NewsWndwNews_D_00_Select'],textures:['special.cic']},
+  {url:'packs/notifications/news.json',alias:'notifications',layouts:['NewsTopUI_U_00','NewsTopUI_D_00','NewsUnread_U_00','NewsTopBtn_D_00','NewsWndwNews_D_00'],animations:['NewsUnread_U_00_SceneIn','NewsUnread_U_00_NumAnim','NewsTopBtn_D_00_SceneIn','NewsTopBtn_D_00_Decide','NewsWndwNews_D_00_SceneIn','NewsWndwNews_D_00_Select'],textures:['special.cic']},
   {url:'packs/notifications/hud.json',alias:'notification-hud',layouts:['HudMenu_00'],animations:['HudMenu_00_SceneIn','HudMenu_00_WhiteBlack','HudMenu_00_NetMode','HudMenu_00_NetAtn','HudMenu_00_Bat']},
   {url:'packs/notifications/contents/0000-00000012/receivelamp.json',alias:'notification-receivelamp',layouts:['RcvLamp_00'],animations:['RcvLamp_00_ReceiveBlue','RcvLamp_00_SceneIn']},
   {url:'packs/notifications/slidebar.json',alias:'notification-slidebar',layouts:['SlideBar'],animations:['SlideBar_Select']},
@@ -193,6 +193,7 @@ export function nativePersonalToolView(view:AppView):{view:string;titleId:string
 /** Source notification components for the empty, offline portfolio state. */
 export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,options:StockScreenPaintOptions):boolean{
   if(view.appId==='notifications'&&view.screen==='main'){
+    if(options.notificationsFooterClose&&(!Number.isInteger(options.notificationsFooterClose.frame)||options.notificationsFooterClose.frame<0||options.notificationsFooterClose.frame>20))throw Error('Invalid Notifications footer source frame');
     const message=(label:string)=>nativeMessageOverride(renderer.packs['notification-messages'],'newslist_msbt_LZ',label,'');
     const hud=(label:string,fallback:string)=>nativeMessageOverride(renderer.packs['notification-messages'],'hud_msbt_LZ',label,fallback);
     const unread=view.rows.filter(row=>row.value==='New').length;
@@ -262,7 +263,10 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
     // origin, the same one-line X as T_EndB_00's 0x111. T_EndB_00 (y 26.5)
     // samples the atlas once at its final LCD rows; the pane raster plus a
     // half-pixel Canvas move would filter it twice.
-    okay=renderer.draw(bottom,'notifications','NewsTopBtn_D_00',{bindings:[{name:'NewsTopBtn_D_00_SceneIn',frame:20}],textSampling:'lcd',textSamplingPanes:['T_EndB_00'],overrides:{T_EndB_00:message('new_back'),T_EndF_00:{...message('new_back'),singleLineBlockOrigin:'writer-0x110'}}})&&okay;
+    if(options.notificationsFooterClose)okay=renderer.draw(bottom,'notifications','NewsTopBtn_D_00',{
+      bindings:[{name:'NewsTopBtn_D_00_SceneIn',frame:20},{name:'NewsTopBtn_D_00_Decide',frame:5,groups:['G_BtnEnd_00']}],
+      textSampling:'lcd',textSamplingPanes:['T_EndB_00'],overrides:{T_EndB_00:message('new_back'),T_EndF_00:{...message('new_back'),singleLineBlockOrigin:'writer-0x110'}}})&&okay;
+    else okay=renderer.draw(bottom,'notifications','NewsTopBtn_D_00',{bindings:[{name:'NewsTopBtn_D_00_SceneIn',frame:20}],textSampling:'lcd',textSamplingPanes:['T_EndB_00'],overrides:{T_EndB_00:message('new_back'),T_EndF_00:{...message('new_back'),singleLineBlockOrigin:'writer-0x110'}}})&&okay;
     if(!view.rows.length)options.font?.draw(bottom,view.text?.[0]??'',160,110,14,'#666','center');
     return okay;
   }

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import ts from 'typescript';
-import { completeNotesFooterClose, createPortfolioState, tickSystem, invokeSystemApplet, touchSystem } from '../src/os/system.ts';
+import { completeNotesFooterClose, completeNotificationsFooterClose, createPortfolioState, tickSystem, invokeSystemApplet, touchSystem } from '../src/os/system.ts';
 const source=readFileSync(new URL('../src/scene/console-scene.ts',import.meta.url),'utf8');
 const ast=ts.createSourceFile('console-scene.ts',source,ts.ScriptTarget.Latest,true);
 const functions=new Map();
@@ -13,6 +13,7 @@ const load=new Function('runtime',`
  const {document,angle,topScreen,touchScreen,renderer,screens,performance}=runtime;
  let state=runtime.state;
  const completeNotesFooterClose=runtime.completeNotesFooterClose,observeFolderBanner=runtime.observeFolderBanner??(()=>{}),effects=runtime.effects??{drain(){}},paint=runtime.paint??(()=>{});
+ const completeNotificationsFooterClose=runtime.completeNotificationsFooterClose;
  const start=1000,scene={updateMatrixWorld(){}},camera={updateProjectionMatrix(){}},schedule={plan:()=>({shadows:false}),presented(){}};
  const poseSample=()=>({}),fitConsole=()=>{},publishProjectedTargets=()=>{},paintScreens=()=>{};
  const revokeTerminalPublications=()=>screens.revokeAppletEntryCandidate();
@@ -31,6 +32,22 @@ test('actual render acknowledges common cover after WebGL success, before Notes,
   if(patch.renderFailure)assert.throws(run,/GPU failed/);else run();
   if(Object.keys(patch).length===0){assert.ok(events.findIndex(e=>e[0]==='render')<events.findIndex(e=>e[0]==='presentAppletEntry'));assert.ok(events.findIndex(e=>e[0]==='presentAppletEntry')<events.findIndex(e=>e[0]==='presentNotesBootCover'));assert.deepEqual(events.find(e=>e[0]==='presentAppletEntry'),['presentAppletEntry',400]);}
   else{assert.equal(events.some(e=>e[0]==='presentAppletEntry'),false);assert.ok(events.some(e=>e[0]==='revokeAppletEntryCandidate'));}
+ }
+});
+
+test('actual Notifications removal requires a visible awake paired render, including context/sleep/lid/dispose-candidate guards',()=>{
+ for(const patch of [{},{hidden:true},{sleeping:true},{powered:false},{angle:12},{upper:false},{lower:false},{lost:true},{renderFailure:true}]){
+  const events=[];
+  let state=touchSystem(invokeSystemApplet(tickSystem(createPortfolioState(),3001),'notifications',3100),160,226,3200),owner=state.system.runtime.active;
+  state={...state,powered:patch.powered??true,system:{...state.system,sleeping:!!patch.sleeping}};
+  const screens=new Proxy({presentNotesFooterClose:()=>null,presentNotificationsFooterClose(){events.push('receipt');return owner;}},{get:(target,key)=>target[key]??(()=>null)});
+  const run=load({document:{hidden:!!patch.hidden},state,angle:patch.angle??100,topScreen:{visible:patch.upper??true},touchScreen:{visible:patch.lower??true},screens,
+   renderer:{getContext:()=>({isContextLost:()=>!!patch.lost}),render(){events.push('render');if(patch.renderFailure)throw Error('GPU failed');}},performance:{now:()=>5000},
+   completeNotificationsFooterClose(current,id,now){events.push('complete');return completeNotificationsFooterClose(current,id,now);},
+   effects:{drain(){events.push('cleanup');}},observeFolderBanner(){events.push('banner');},paint(){events.push('paint');}});
+  if(patch.renderFailure)assert.throws(run,/GPU failed/);else run();
+  if(Object.keys(patch).length===0){assert.deepEqual(events,['render','receipt','complete','banner','cleanup','paint']);assert.equal(run.state().system.runtime.instances[owner],undefined);assert.equal(run.state().system.phase,'home');}
+  else{assert.equal(events.includes('receipt'),false);assert.ok(run.state().system.runtime.instances[owner]);}
  }
 });
 

@@ -29,7 +29,7 @@ test('a restored context repaints and rearms before its first valid render, and 
 });
 
 test('eligible HOME and Notes motion share the existing transition LCD budget', () => {
-  assert.match(scene, /const entryActive=state\.powered&&angle>12&&!homeClockSuspended&&!document\.hidden&&!state\.system!\.sleeping&&topScreen\.visible&&touchScreen\.visible&&!renderer\.getContext\(\)\.isContextLost\(\)\s*&&\(screens\.homeEntryMotionActive\(state\)\|\|screens\.notesBootCoverActive\(state\)\|\|screens\.manualEntryActive\(state\)\|\|screens\.notesFooterCloseActive\(state\)\|\|screens\.appletEntryActive\(state\)\);/);
+  assert.match(scene, /const entryActive=state\.powered&&angle>12&&!homeClockSuspended&&!document\.hidden&&!state\.system!\.sleeping&&topScreen\.visible&&touchScreen\.visible&&!renderer\.getContext\(\)\.isContextLost\(\)\s*&&\(screens\.homeEntryMotionActive\(state\)\|\|screens\.notesBootCoverActive\(state\)\|\|screens\.manualEntryActive\(state\)\|\|screens\.notesFooterCloseActive\(state\)\|\|screens\.notificationsFooterCloseActive\(state\)\|\|screens\.appletEntryActive\(state\)\);/);
   assert.match(scene, /const lcdFps=screenPaintFps\(quality,closeAdvanced\|\|entryActive\);/);
   assert.match(scene, /const renderDue=bootPublishDue\|\|quality\.renderFps>=60\|\|now-lastRender>=1000\/quality\.renderFps;/);
 });

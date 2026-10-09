@@ -342,6 +342,13 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
       if(id==='game-notes'&&state.notesFooterClose===true&&event.type!=='tick'&&event.type!=='lifecycle'
         &&!(event.type==='command'&&event.command==='back')
         &&!(event.type==='button'&&event.command==='back'))return {state};
+      if(id==='notifications'&&state.notificationsFooterClose===true){
+        if(event.type==='lifecycle'&&event.phase==='suspend'){
+          const {notificationsFooterClose:_close,...rest}=state;return {state:rest};
+        }
+        if(event.type!=='tick'&&event.type!=='lifecycle'&&!(event.type==='command'&&event.command==='back')
+          &&!(event.type==='button'&&event.command==='back'))return {state};
+      }
       if(cameraTitles.has(id)&&state.screen==='gallery'){
         const count=folder(state)?.photos.length??0,step=cameraStep(state);
         if(event.type==='tick')return {state:cameraPut(state,cameraBrowseTick(step,event.elapsedMs,count))};

@@ -306,6 +306,20 @@ export function completeNotesFooterClose(state:MenuState,owner:string,now:number
   ||instance.state.screen!=='main'||instance.state.notesFooterClose!==true)return state;
  return commitRuntime(state,completeApplet(s.runtime,owner,null,true,now),now);
 }
+function requestNotificationsFooterClose(state:MenuState,x:number,y:number):MenuState|null {
+ const s=state.system,active=s?activeInstance(s.runtime):undefined,view=s?runtimeView(s.runtime):null;
+ if(!s||!state.powered||s.phase!=='app'||s.sleeping||s.preferences||s.dialog||!active||active.appId!=='notifications'
+  ||s.runtime.systemApplet!==active.id||active.caller!==null||active.state.screen!=='main'||active.closing||active.suspended||!view||stockScreenActionAt(view,x,y)!=='back')return null;
+ return active.state.notificationsFooterClose===true?state:{...state,system:{...s,input:createInputLatch(),runtime:{...s.runtime,
+  instances:{...s.runtime.instances,[active.id]:{...active,state:{...active.state,notificationsFooterClose:true}}}}}};
+}
+export function completeNotificationsFooterClose(state:MenuState,owner:string,now:number):MenuState {
+ const s=state.system,instance=s?.runtime.instances[owner];
+ if(!s||!state.powered||!Number.isFinite(now)||s.phase!=='app'||s.sleeping||s.preferences||s.dialog||s.runtime.active!==owner
+  ||s.runtime.systemApplet!==owner||instance?.appId!=='notifications'||instance.caller!==null||instance.closing||instance.suspended
+  ||instance.state.screen!=='main'||instance.state.notificationsFooterClose!==true)return state;
+ return commitRuntime(state,completeApplet(s.runtime,owner,null,true,now),now);
+}
 export function touchSystem(state:MenuState,x:number,y:number,now:number):MenuState {
  return reconcileHomeControls(state,touchSystemAction(state,x,y,now));
 }
@@ -330,7 +344,7 @@ function touchSystemAction(state:MenuState,x:number,y:number,now:number):MenuSta
  if(s.dialog){const action=softwareDialogActionAt(x,y);return action?send(action):state;}
  if(s.phase==='app'){
   const active=activeInstance(s.runtime);
-  const notesClose=requestNotesFooterClose(state,x,y);if(notesClose)return notesClose;
+  const notesClose=requestNotesFooterClose(state,x,y)??requestNotificationsFooterClose(state,x,y);if(notesClose)return notesClose;
   if(active&&getTitle(active.appId)?.source==='firmware')return commitRuntime(state,dispatchRuntime(s.runtime,{type:'touch',phase:'up',x,y},now),now);
   if(y>=212){if(x<100)return send('back');if(x>220)return send('open');return s.detail&&(currentEntry(state)?.images?.length??0)>1?send(x<160?'left':'right'):state;}
   if(s.detail){if(y>=174)return send(x<160?'up':'down');if(y<32)return send(x<160?'left':'right');return state;}
@@ -473,7 +487,7 @@ function dispatchSystemEventAction(state: MenuState,event: AppEvent,now: number)
   const next=commitRuntime(state,dispatchRuntime(s.runtime,event,now),now);return event.phase==='up'?touchSystem(next,event.x,event.y,now):next;
  }
  if(event.type==='touch'&&event.phase==='up'){
-  const notesClose=requestNotesFooterClose(state,event.x,event.y);if(notesClose)return notesClose;
+  const notesClose=requestNotesFooterClose(state,event.x,event.y)??requestNotificationsFooterClose(state,event.x,event.y);if(notesClose)return notesClose;
  }
  return commitRuntime(state,dispatchRuntime(s.runtime,event,now),now);
 }

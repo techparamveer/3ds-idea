@@ -8,9 +8,14 @@ verifies714 originals and476 decoded PNGs with complete inventory and no
 structural issues. This is browser capture support, not native acceptance.
 Repeat Notes closes with 600 saved frame-limited pairs; combined audit verifies
 838 pairs without structural issues. Start/Cancel discards without exporting.
-First/repeat Notifications each visibly save 600 frame-limited pairs; offline
-closure is pending. An isolated muted native HOME baseline decodes, but no
-new matched Manual/folder/HOME motion is captured. Those comparisons remain open.
+First/repeat Notifications each save 600 frame-limited pairs. Scoped audit
+`f1ddd798` verifies 3600 unchanged originals and 2400 decoded PNGs without
+structural issues. Six inspected paired sheets show HOME before the returning
+graphic/label; full continuous growth and native cadence remain unresolved.
+Ordinary Camera Manual reaches Contents in muted Azahar and frozen browser.
+Native has baseline, pressed feedback and ready PNGs, but lacks raw intermediate
+motion. Browser saves 448 user-stopped pairs; audit/comparison are pending.
+Manual/folder/HOME native matched-motion acceptance remains open.
 All AN-01..AN-04 whole flows still fail. See
 [recorder delivery](live-lcd-recorder-delivery-2026-10-10.md).
 

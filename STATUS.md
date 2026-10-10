@@ -56,8 +56,8 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `4346ca7a3d424620241a6721ac923214a391a22e`. Reviewed recorder integrates as `2ad758b` and `bcceb54`; reviewed delivery docs are `4346ca7`. All three commits are pushed. Committed src/public/tests match frozen clean `ba2455e`. The unrelated user system.ts edit remains unstaged. All four whole scenarios remain unaccepted. |
-| Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, pushed through `4346ca7`. No merge or deployment. |
+| HEAD | `af789ef9b50dad34a1cce89f5987870d401df212`. Reviewed recorder integrates as `2ad758b` and `bcceb54`; delivery docs are `4346ca7` and reviewed repeat capture checkpoint is `af789ef`. All are pushed. Committed src/public/tests match frozen clean `ba2455e`. The unrelated user system.ts edit remains unstaged. All four whole scenarios remain unaccepted. |
+| Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, pushed through `af789ef` with updated evidence. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
 create PRs. Commit each coherent reviewed chunk using explicit owned paths,
@@ -70,6 +70,23 @@ Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9dd
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
 
 ## Serving
+
+Notifications scoped auditf1ddd798 is closed:1200 triples,3600 unchanged
+originals,2400 decoded PNGs and no structural issues. Root inspected paired
+pages002,021,022 from each run. Both show HOME before selected graphic/label;
+full continuous growth remains unresolved. Native population differs; no
+native mask/diff, cadence or whole-scenario acceptance follows.
+Later ordinary Camera Manual reaches Contents in both muted sessions on the
+MacBook. Native has own baseline/pressed/ready PNGs but no raw intermediate
+motion. Its first baseline save failed into an absent directory; preserved log
+records that failure and successful retries. Native55711 is absent; restoring
+only screenshotPath yields byte-exact configa0a3b837. Native window-movie
+audit is pending. Frozen browser3029 saves448 user-stopped pairs, session
+57930ad4-1614-49c7-bbae-1016560da529. Scoped audit/policy-v2 endpoint comparison
+are pending, exports frozen. Initial touch no-reaction and read-only console
+warnings do not establish a runtime exception or cause. Physical D-pad selects
+Camera and Manual footer reaches Contents. No recorder is running. Earlier
+pending Notifications and baseline-only paragraphs describe previous checkpoints.
 
 First/repeat Notifications are saved600/600 each, both frame-limit, not user
 stop. Sessions215e99d9-e484-45a5-a602-aadd20517c87 and
@@ -1727,9 +1744,11 @@ Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camer
 Recorder capture gap is addressed by reviewed `2ad758b`/`bcceb54`, not by
 debugging-permission changes. First Notes footer close has238 raw paired LCDs
 with verified chronology/hash closure; repeated opening/close has600
-frame-limited pairs with the same structural closure. Complete first/repeat
-Notifications offline closure, then matched muted Azahar/browser Manual,
-ordinary folder and HOME suspension. Use frozen3029 and declared policy-v2;
+frame-limited pairs with the same structural closure. Notifications scoped
+closure is complete with six coordinator-inspected paired sheets. Finish
+Camera Manual448 scoped audit, native movie audit and frozen policy-v2 endpoint
+comparison, then ordinary folder and HOME suspension. Native raw intermediate
+Manual poses and identical setup-input timing remain missing. Use frozen3029;
 do not rebuild its served tree. Keep capture overhead and native epoch/input
 uncertainties explicit. Update draft PR7 at each reviewed coherent delivery.
 All four goal flows remain fail/unproven; moving stays excluded. Preserve the

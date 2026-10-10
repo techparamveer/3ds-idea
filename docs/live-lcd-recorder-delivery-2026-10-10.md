@@ -70,8 +70,28 @@ Ordinary first and repeated Notifications opening and footer Close each
 visibly reach the real list and return to selected HOME on the MacBook.
 Sessions `215e99d9-e484-45a5-a602-aadd20517c87` and
 `3e0c8925-840f-45b8-b702-908fd62d1442` each stop at the 600-frame limit
-and visibly save all 600 pairs. Their separate offline audit is pending.
-These bounded recordings do not establish full animation or native cadence.
+and visibly save all 600 pairs. Their completed scoped audit verifies 1200
+triples, 3600 unchanged originals and 2400 decoded PNGs, with no structural
+errors or warnings. Report SHA-256 is
+`f1ddd79896671df632e26e8af0879d1c4917de2778513addcd17de75f2c76c2c`;
+manifest SHA-256 is
+`33150f5babd0eb4a49f7a219a499594648d3799bed33d17b4140fe3a4c62d091`.
+The audit excludes the exact 838 already-audited Notes names, without re-reading
+those originals, and keeps its explicit 2GiB selected-original read bound.
+Its 68 full paired sheets and two fixed-stride overviews are under
+`offline-audit/notifications-first-repeat/` in the verification root.
+
+Coordinator inspected paired pages 002, 021 and 022 from each Notifications
+session. They show opening cover into the list with unread count 8, closing
+cover, uncovered HOME and the later selected graphic/label. The first run
+shows HOME without that graphic/label through sequences 382-388, with its
+return at 389; repeat shows the same order through 386-391, returning at 392.
+The first visible graphic is already formed. Full continuous growth remains
+unresolved. First/repeat encode means are 5.917/5.795ms and maxima 13.4/13.7ms;
+maximum retained receipt intervals are 109.6/100.3ms. These are instrumented
+browser observations, not native cadence or compositor acceptance. No native
+diff or mask is produced for this Notifications checkpoint. Native profile
+population differs, so the unread count is not a native equality claim.
 
 The isolated native-folder-slow Azahar session launches the selected private
 HOME file with volume zero and produces one valid own 400x480 HOME PNG,
@@ -84,7 +104,25 @@ only after verified process absence; GUI-normalized geometry, layout and ROM
 path changes are retained. Restored config SHA-256 is
 `a0a3b837b59d66e083dc5887ff4d5c91a07b4dcbef3503fa686673a8181ed129`.
 Policy, original config and own PNG remain under the private root's
-`matched-regressions-20261010/`. No native comparison is claimed.
+`matched-regressions-20261010/`. No native comparison is claimed for that run.
+
+A later ordinary Camera-to-Manual run reaches Contents in both muted Azahar
+and the same frozen browser. Native supplies three own 400x480 PNGs: selected
+Camera HOME, pressed Manual feedback and Contents ready. Its first baseline
+save failed because the output directory was absent; the later successful
+files and original log remain preserved. Native raw intermediate cover and
+incoming-partial PNGs are missing. A silent-intended window movie has a separate
+offline track/sequence audit pending. After native process absence, the owned
+screenshot path is restored and config SHA-256 matches `a0a3b837` byte-for-byte.
+
+Browser session `57930ad4-1614-49c7-bbae-1016560da529` saves all 448 pairs
+after user Stop. Its scoped audit and policy-v2 endpoint comparison are pending;
+exports are frozen. Initial browser touches did not visibly advance selection.
+A read-only DevTools inspection reports a missing favicon and canvas/WebGL
+warnings, but no observed JavaScript exception. Physical D-pad selection then
+reaches Camera and actual Manual footer input reaches Contents. No cause or
+runtime fix is inferred from that observation. Setup input paths differ, so
+this run alone does not establish identical native/browser input timing.
 
 ## Evidence and limits
 
@@ -104,6 +142,6 @@ Recording metadata is a pre-save snapshot; closure uses actual output files.
 The QA panel is an instrumentation adaptation, not firmware UI. No native
 visual/audio asset, source mapping, title version, shader or sound changes.
 Existing capture-fitted applet scheduling and portfolio adaptations remain.
-Notifications offline closure, Manual/folder/HOME native matched motion and
+Manual audit/comparison, folder/HOME native matched motion and
 production save-error checks remain open. All four whole flows stay
 fail/unproven. Audio acceptance is unverified while muted.

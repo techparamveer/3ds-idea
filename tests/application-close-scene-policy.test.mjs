@@ -69,7 +69,7 @@ test('terminal system transitions cannot retire until their native paired termin
 });
 
 test('shutdown publication is invalidated across WebGL loss and restoration', () => {
-  assert.match(source, /const contextLost=\(event:Event\)=>\{event\.preventDefault\(\);resetTerminalPublications\(\);schedule\.invalidate\(\);\}/);
+  assert.match(source, /const contextLost=\(event:Event\)=>\{liveLcdRecorder\?\.unavailable\('context-lost'\);event\.preventDefault\(\);resetTerminalPublications\(\);schedule\.invalidate\(\);\}/);
   assert.match(source, /const contextRestored=\(\)=>\{resetTerminalPublications\(\);schedule\.invalidate\(\);renderer\.shadowMap\.needsUpdate=true;\}/);
   assert.match(source, /addEventListener\('webglcontextlost',contextLost\)/);
   assert.match(source, /removeEventListener\('webglcontextlost',contextLost\)/);

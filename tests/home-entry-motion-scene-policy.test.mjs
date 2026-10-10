@@ -21,11 +21,11 @@ test('context and hidden revocation include the new paired candidates', () => {
 
 test('a restored context repaints and rearms before its first valid render, and failed render revokes candidates', () => {
   assert.match(scene, /const revokeTerminalPublications=\(\)=>\{entryPublicationRepaintPending=true;/);
-  assert.match(render, /if\(renderer\.getContext\(\)\.isContextLost\(\)\)\{revokeTerminalPublications\(\);return;\}/);
+  assert.match(render, /if\(renderer\.getContext\(\)\.isContextLost\(\)\)\{liveLcdRecorder\?\.unavailable\('context-lost'\);revokeTerminalPublications\(\);return;\}/);
   const repaint=render.indexOf('paintScreens(performance.now());entryPublicationRepaintPending=false;');
   assert.ok(repaint>0&&repaint<render.indexOf('renderer.render(scene,camera)'));
   assert.match(render, /if\(entryPublicationRepaintPending&&!document\.hidden&&state\.powered&&!state\.system!\.sleeping&&angle>12&&topScreen\.visible&&touchScreen\.visible\)/);
-  assert.match(render, /catch\(error\)\{entryPublicationRepaintPending=true;screens\.revokeHomeEntryMotionCandidate\(\);screens\.revokeNotesBootCoverCandidate\(\);screens\.revokeManualEntryCandidate\(\);screens\.revokeAppletEntryCandidate\(\);screens\.revokeNotesFooterCloseCandidate\(\);throw error;\}/);
+  assert.match(render, /catch\(error\)\{liveLcdRecorder\?\.unavailable\('render-error'\);entryPublicationRepaintPending=true;screens\.revokeHomeEntryMotionCandidate\(\);screens\.revokeNotesBootCoverCandidate\(\);screens\.revokeManualEntryCandidate\(\);screens\.revokeAppletEntryCandidate\(\);screens\.revokeNotesFooterCloseCandidate\(\);throw error;\}/);
 });
 
 test('eligible HOME and Notes motion share the existing transition LCD budget', () => {

@@ -4,7 +4,7 @@ type Pair = ReturnType<typeof encodeNativeLcdPair>;
 type Limits = { durationMs: number; frames: number; bytes: number; inputs: number };
 type Input = { type: string; code?: string; x?: number; y?: number; button?: number };
 type Saved = { sequence: number; scenario: string; directory: string };
-type Failure = { sequence: number; scenario: string; error: string };
+type Failure = { sequence: number; scenario: string; error: string; writeStatus: 'unknown' | 'not-sent' };
 type State = 'idle' | 'recording' | 'stopped' | 'saving' | 'cancelled' | 'disposed';
 const DEFAULT_LIMITS: Limits = { durationMs: 30_000, frames: 600, bytes: 96 * 1024 * 1024, inputs: 2048 };
 const MAX_PAIR_BYTES = 8 * 1024 * 1024;
@@ -104,7 +104,7 @@ export function createLiveLcdRecorder(options: {
   }
   function cancel() {
     if (state === 'disposed') return;
-    if (inFlight) failures.push({ ...inFlight, error: 'Cancelled in-flight export; write status unknown' });
+    if (inFlight) failures.push({ ...inFlight, error: 'Cancelled in-flight export; write status unknown', writeStatus: 'unknown' });
     inFlight = undefined;
     abort?.abort(); abort = undefined; clearTimer();
     reason = `cancelled; discarded ${frames.length} buffered pairs; in-flight writes may have completed`;
@@ -112,7 +112,7 @@ export function createLiveLcdRecorder(options: {
   }
   async function save() {
     if (state !== 'stopped' || frames.length === 0) return;
-    state = 'saving'; error = ''; failures = [];
+    state = 'saving'; error = '';
     const controller = new AbortController(); abort = controller;
     const recording = { ...summary(), state: 'stopped', inputs: inputs.map(value => JSON.parse(value)),
       sequence: frames.map((value, index) => ({ sequence: index + 1, receipt: JSON.parse(value.receipt), capturedAt: value.capturedAt, overheadMs: value.overheadMs, inputCount: value.inputCount })) };
@@ -131,14 +131,15 @@ export function createLiveLcdRecorder(options: {
           inFlight = { sequence: index + 1, scenario };
           const result = await options.post(body, controller.signal);
           if (controller.signal.aborted) break;
-          inFlight = undefined;
           if (!object(result) || typeof result.directory !== 'string' || !result.directory) throw new Error('Export response has no directory; write status unknown');
+          inFlight = undefined;
           saved.push({ sequence: index + 1, scenario, directory: result.directory }); changed();
         } catch (caught) {
           if (controller.signal.aborted) break;
+          const writeStatus = inFlight ? 'unknown' : 'not-sent';
           inFlight = undefined;
-          failures.push({ sequence: index + 1, scenario, error: message(caught) });
-          error = `Save incomplete: ${message(caught)}; failed write may have completed. Retry uses new paths.`;
+          failures.push({ sequence: index + 1, scenario, error: message(caught), writeStatus });
+          error = `Save incomplete: ${message(caught)}; ${writeStatus === 'unknown' ? 'failed write may have completed' : 'request not sent'}. Retry uses new paths.`;
           break;
         }
       }
@@ -204,7 +205,7 @@ export function mountLiveLcdRecorder(host: HTMLElement, location: Pick<Location,
   const observeInput = (event: Event) => {
     if (event.composedPath().includes(panel) || !host.contains(event.target instanceof Node ? event.target : null)) return;
     if (event.target instanceof Element && event.target.closest('input,textarea,[contenteditable=true]')) return;
-    if (event instanceof KeyboardEvent && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'Escape', 'Space', 'KeyA', 'KeyB', 'KeyH', 'KeyP'].includes(event.code)) recorder.input({ type: event.type, code: event.code }, event.isTrusted);
+    if (event instanceof KeyboardEvent && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'NumpadEnter', 'Escape', 'Space', 'KeyA', 'KeyB', 'KeyH', 'KeyP', 'KeyX', 'KeyY', 'KeyQ', 'KeyE', 'KeyM', 'Equal', 'Minus', 'NumpadAdd', 'NumpadSubtract'].includes(event.code)) recorder.input({ type: event.type, code: event.code }, event.isTrusted);
     else if (event instanceof PointerEvent) recorder.input({ type: event.type, x: event.clientX, y: event.clientY, button: event.button }, event.isTrusted);
   };
   const hidden = () => { if (document.hidden) recorder.unavailable('hidden'); };

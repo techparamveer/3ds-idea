@@ -111,3 +111,56 @@ footer completion, inspect status/error feedback and test a regular app path.
 Then record first/repeat Notes and Notifications closes. No scenario or native
 comparison is accepted by these source tests; all whole-scenario claims stay
 open. Browser inspection and real successful endpoint capture are pending.
+
+## Review Corrections After 4d44e0f
+
+The original candidate `4d44e0f1cedfd5635a3cbcef813200bd340669e5` and all its
+logs remain unchanged. Coordinator full verification found 13 new scene-test
+fixture failures and one unchanged historical Camera PNG failure. Independent
+review also found lost failed-attempt history on retry and omitted trusted
+X/Y/Q/E console key observations. This follow-up addresses those findings only.
+
+The extracted `renderFrame` fixture now binds an inert recorder and host. Five
+exact scene-policy source checks now include the added recorder calls while
+retaining every prior context, visibility, sleep, lid, candidate-revocation and
+publication assertion. No assertions were removed and no tests were skipped.
+Console runtime wiring is unchanged from the original candidate.
+
+Save retries no longer clear failure history. Failed and cancelled in-flight
+attempts retain their unique scenario identity with `writeStatus: unknown`;
+requests rejected before sending are labelled `not-sent`. Unknown response
+validation stays within the in-flight attempt. Later successful retries keep
+the history in the summary and copy it into subsequent exported metadata.
+The direct fail-then-retry-success regression checks the failed path, fresh
+retry path, unchanged successful path, complete scenario identity coverage and
+history retention even after an additional fully-saved Save call.
+
+Mounted observation now covers all existing console keyboard controls,
+including KeyX/KeyY/KeyQ/KeyE, KeyM, plus/minus and numpad equivalents. The mounted
+test dispatches trusted keydown and keyup observations for the complete list,
+verifies exported event order, and checks that an untrusted event is excluded.
+No app input bindings or dispatch behavior changed.
+
+Corrected supporting results:
+
+- Focused tests: 142 passed, zero failed/skipped. This is the earlier nine-file
+  focused command plus the six affected scene-policy test files.
+- Full `npm test`: 2746 tests, 2643 passed, one failed, 101 skipped, one TODO.
+  All 13 new scene failures are cleared. The only failure is
+  `tests/camera-date-group.test.mjs:44`, frozen HNI pair hash coverage, because
+  `/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/camera-3d-badge-sdmc-recapture-20261005/browser/lower.png`
+  is absent. The same ENOENT is in the coordinator's original full log. That
+  unrelated fixture was not altered or skipped; the full suite is not green.
+- `./node_modules/.bin/tsc --noEmit --incremental false` and diff-check passed.
+
+Separate private files under the worker evidence directory above are
+`correction-focused-tests.log`, `correction-full-tests.log`,
+`correction-typecheck.log` and `correction.diff`. Original `candidate.diff`,
+`focused-tests.log` and `typecheck.log` are preserved. Coordinator's original
+full log is under the sibling `live-lcd-verification-20261010` directory as
+`full-tests-4d44e0f.log`.
+
+No GUI, server, build, API/security, OS behavior, native asset or audio changes
+were made during this correction. Exact independent re-review and real muted
+MacBook raw-pair capture remain required before integration. No native1:1 or
+whole-scenario acceptance claim is made.

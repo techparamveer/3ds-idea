@@ -124,18 +124,26 @@ test('save cannot run during animation and names each pair uniquely through unch
 });
 
 test('failed output retains partial success; retry uses new path and never resends successful pair', async () => {
-  let calls = 0; const scenarios = [];
-  const f = fixture({ post: async body => { const value = JSON.parse(body); scenarios.push(value.scenario); if (++calls === 2) throw new Error('network failure'); return { directory: `/private/${value.scenario}` }; } });
+  let calls = 0; const scenarios = [], bodies = [];
+  const f = fixture({ post: async body => { const value = JSON.parse(body); bodies.push(value); scenarios.push(value.scenario); if (++calls === 2) throw new Error('network failure'); return { directory: `/private/${value.scenario}` }; } });
   f.recorder.start(); f.observe(1); f.observe(2); f.recorder.stop(); await f.recorder.save();
   assert.equal(f.recorder.summary().saved.length, 1); assert.equal(f.recorder.summary().failures.length, 1);
   assert.match(f.recorder.summary().error, /may have completed/);
+  const failed = f.recorder.summary().failures[0];
+  assert.equal(failed.scenario, scenarios[1]); assert.equal(failed.writeStatus, 'unknown');
   await f.recorder.save(); assert.equal(f.recorder.summary().saved.length, 2);
   assert.equal(new Set(scenarios).size, 3);
+  assert.deepEqual(f.recorder.summary().failures, [failed]);
+  assert.deepEqual(bodies[2].recording.failures, [failed]);
+  assert.deepEqual(new Set([...f.recorder.summary().saved, ...f.recorder.summary().failures].map(value => value.scenario)), new Set(scenarios));
+  await f.recorder.save();
+  assert.deepEqual(f.recorder.summary().failures, [failed]); assert.equal(calls, 3);
 });
 
 test('invalid save response is explicit and retains pair for a fresh-path retry', async () => {
   const f = fixture({ post: async () => ({}) }); f.recorder.start(); f.observe(1); f.recorder.stop(); await f.recorder.save();
   assert.match(f.recorder.summary().error, /no directory/); assert.equal(f.recorder.summary().saved.length, 0); f.recorder.dispose();
+  assert.equal(f.recorder.summary().failures[0].writeStatus, 'unknown');
 });
 
 test('cancel/dispose abort pending save and late replies cannot restore state or paths', async () => {
@@ -164,7 +172,7 @@ test('remote and non-opt-in mounts perform zero DOM/surface work even in develop
   for (const location of [{ hostname: 'example.com', search: '?lcdCapture=1' }, { hostname: 'localhost', search: '' }]) assert.equal(mountLiveLcdRecorder({}, location, surfaces), undefined);
 });
 
-test('local controls and shortcuts start/stop/save without seeking; disposal removes controls/listeners', async () => {
+test('mounted local controls and trusted console keys record without seeking; disposal removes controls/listeners', async () => {
   class Element extends EventTarget {
     constructor(tag) { super(); this.tag = tag; this.children = []; this.style = {}; this.dataset = {}; }
     setAttribute(key, value) { this[key] = value; }
@@ -173,9 +181,19 @@ test('local controls and shortcuts start/stop/save without seeking; disposal rem
     contains(value) { return value === this || this.children.some(child => child.contains(value)); }
     closest() { return null; }
   }
-  class KeyboardEvent extends Event { constructor(code) { super('keydown'); this.code = code; this.ctrlKey = true; this.shiftKey = true; } }
+  class KeyboardEvent {
+    constructor(code, options = {}) { this.type = options.type ?? 'keydown'; this.code = code; this.ctrlKey = options.shortcut ?? true; this.shiftKey = options.shortcut ?? true; this.isTrusted = options.trusted ?? false; this.target = options.target; }
+    preventDefault() {}
+    stopImmediatePropagation() { this.stopped = true; }
+    composedPath() { return [this.target]; }
+  }
   const originals = new Map(['document', 'window', 'Element', 'Node', 'KeyboardEvent', 'PointerEvent', 'fetch'].map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
-  const window = new EventTarget(), document = new EventTarget(); document.createElement = tag => new Element(tag);
+  const listeners = new Map();
+  const window = {
+    addEventListener(type, callback) { const entries = listeners.get(type) ?? []; entries.push(callback); listeners.set(type, entries); },
+    removeEventListener(type, callback) { listeners.set(type, (listeners.get(type) ?? []).filter(value => value !== callback)); },
+    dispatchEvent(event) { for (const callback of listeners.get(event.type) ?? []) { callback(event); if (event.stopped) break; } },
+  }, document = new EventTarget(); document.createElement = tag => new Element(tag);
   const sent = [];
   Object.assign(globalThis, { window, document, Element, Node: Element, KeyboardEvent, PointerEvent: class extends Event {}, fetch: async (url, options) => { sent.push({ url, options }); return { ok: true, json: async () => ({ directory: '/local/output' }) }; } });
   let mounted;
@@ -186,12 +204,16 @@ test('local controls and shortcuts start/stop/save without seeking; disposal rem
     const panel = host.children[0]; assert.equal(panel['aria-label'], 'Live LCD recorder');
     assert.deepEqual(panel.children.filter(child => child.tag === 'button').map(child => child.textContent), ['Start', 'Stop', 'Save', 'Cancel']);
     window.dispatchEvent(new KeyboardEvent('Digit7'));
+    const supported = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'NumpadEnter', 'Escape', 'Space', 'KeyA', 'KeyB', 'KeyH', 'KeyP', 'KeyX', 'KeyY', 'KeyQ', 'KeyE', 'KeyM', 'Equal', 'Minus', 'NumpadAdd', 'NumpadSubtract'];
+    for (const code of supported) for (const type of ['keydown', 'keyup']) window.dispatchEvent(new KeyboardEvent(code, { type, shortcut: false, trusted: true, target: host }));
+    window.dispatchEvent(new KeyboardEvent('KeyA', { shortcut: false, target: host }));
     const paint = JSON.stringify({ at: 1 });
     mounted.observe(JSON.stringify({ at: 1, frame: 1, validPublication: true, paint: { at: 1 } }), paint);
     version = 'after'; window.dispatchEvent(new KeyboardEvent('Digit8'));
     window.dispatchEvent(new KeyboardEvent('Digit9')); await new Promise(resolve => setImmediate(resolve));
     assert.equal(sent.length, 1); assert.equal(sent[0].url, '/api/verification/lcd-capture?lcdCapture=1');
     assert.equal(JSON.parse(sent[0].options.body).top, 'data:image/png;base64,before');
+    assert.deepEqual(JSON.parse(sent[0].options.body).recording.inputs.map(value => [value.code, value.type]), supported.flatMap(code => [[code, 'keydown'], [code, 'keyup']]));
     assert.equal(sent[0].options.credentials, 'same-origin');
     assert.match(panel.children.at(-1).textContent, /\/local\/output/);
     mounted.dispose(); mounted = undefined;

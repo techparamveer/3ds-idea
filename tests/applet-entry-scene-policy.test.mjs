@@ -15,6 +15,7 @@ visit(ast);
 const render=ts.transpileModule(functions.get('renderFrame').getText(ast),{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
 const loadScene=new Function('runtime','banner',`
  const {document,angle,topScreen,touchScreen,renderer,screens,performance}=runtime;
+ const liveLcdRecorder=runtime.liveLcdRecorder??{observe(){},unavailable(){}},host=runtime.host??{dataset:{}};
  let state=runtime.state;
  let bannerHost=runtime.bannerHost??banner.createHomeBannerHost({generation:'test',updateCount:0},{managerInhibited:false,sceneInhibited:false,loadInhibited:false,nativeWorkerReady:true,resourceReady:null});
  const resetHomeBannerPrimary=banner.resetHomeBannerPrimary;

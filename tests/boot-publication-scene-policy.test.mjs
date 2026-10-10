@@ -36,7 +36,7 @@ test('boot, launch and shutdown receipts share visibility, sleep and context inv
  const blur=source.indexOf('blur();',hidden);
  const revoke=source.indexOf('revokeTerminalPublications();',blur);
  assert.ok(hidden>=0&&blur>hidden&&revoke>blur);
- assert.match(source,/const contextLost=\(event:Event\)=>\{event\.preventDefault\(\);resetTerminalPublications\(\);schedule\.invalidate\(\);\}/);
+ assert.match(source,/const contextLost=\(event:Event\)=>\{liveLcdRecorder\?\.unavailable\('context-lost'\);event\.preventDefault\(\);resetTerminalPublications\(\);schedule\.invalidate\(\);\}/);
  assert.match(source,/const contextRestored=\(\)=>\{resetTerminalPublications\(\);schedule\.invalidate\(\);renderer\.shadowMap\.needsUpdate=true;\}/);
  assert.match(source,/const revokeTerminalPublications=\(\)=>\{entryPublicationRepaintPending=true;lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastLaunchPaintIdentity=null;lastLaunchPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;screens\.revokeHomeEntryFooterCandidate\(\);screens\.revokeHomeEntryBannerCandidate\(\);screens\.revokeHomeEntryNoBannerCandidate\(\);screens\.revokeHomeEntryMotionCandidate\(\);screens\.revokeNotesBootCoverCandidate\(\);screens\.revokeManualEntryCandidate\(\);screens\.revokeAppletEntryCandidate\(\);screens\.revokeNotesFooterCloseCandidate\(\);\};/);
 });

@@ -263,7 +263,7 @@ test('HOME HUD wiring is capture-only, records its sample, and restores live pai
   assert.match(block, /phase!=='home'/);
   assert.match(block, /try\{lastBootPaintIdentity=null;lastLaunchPaintIdentity=null;lastShutdownPaintIdentity=null;const painted=screens.paint\(state,date,elapsedMs,\{sampleCalendar:isoDate!==undefined,homeHudSample/);
   assert.match(block, /homeHudSample:homeHudSample\?\?null/);
-  assert.match(block, /finally\{verificationBannerFrame=undefined;verificationBannerSkeletalFrame=undefined;verificationHealthBannerFrame=undefined;const restoredAt=performance.now\(\)-start;lastBootPaintIdentity=null;lastLaunchPaintIdentity=null;lastShutdownPaintIdentity=null;const restored=screens.paint\(state,new Date\(\),restoredAt\);recordScreenPaint\(restoredAt,restored\?\.nativeSystem===true,restored\?\.entryMotion\)/);
+  assert.match(block, /finally\{verificationBannerFrame=undefined;verificationBannerSkeletalFrame=undefined;verificationHealthBannerFrame=undefined;const restoredAt=performance.now\(\)-start;lastBootPaintIdentity=null;lastLaunchPaintIdentity=null;lastShutdownPaintIdentity=null;const restored=screens.paint\(state,new Date\(\),restoredAt\);recordScreenPaint\(restoredAt,restored\?\.nativeSystem===true,restored\?\.entryMotion,undefined,undefined,undefined,undefined,restored\?\.resume\)/);
 });
 
 

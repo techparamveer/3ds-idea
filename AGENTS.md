@@ -12,7 +12,7 @@ read [STATUS.md](STATUS.md). If STATUS SHA ≠ `git rev-parse HEAD`, git wins;
 rewrite STATUS before spawning work. A new human thread pastes [RESTART.md](RESTART.md)
 with this folder bound. Append history to
 `/Volumes/Sandisk1/3ds-claude-codex-handoff/LOG.md`. Seats: one Coordinator,
-at most two Workers, one Reviewer on a different model. Do not write new
+at most two Workers, one independent Reviewer. Do not write new
 artifacts to the full DeveloperStorage sparsebundle.
 
 ## Pointers
@@ -29,13 +29,17 @@ STATUS **Product**. Reconcile git, then continue from STATUS **Next**.
 - **Subsystem** contract when Next names one: the matching doc from [architecture](docs/architecture/README.md).
 - **Archive** of older evidence: [progress](docs/progress-2026-09-24.md). STATUS Evidence is the live subset.
 
-## Agent model preference - 2 October 2026
+## Agent model preference - 9 October 2026
 
-The latest user-supplied repository instructions select **GPT-5.6 Sol, high
-reasoning**, superseding earlier Astra and Sol preferences. Use
-`model=gpt-5.6-sol` and `thinking=high` for separate Codex chats, and
-`model=gpt-5.6-sol` with `reasoning_effort=high` on bounded or empty context
-forks for helpers. The user requests normal speed, no Fast; the tools do not
+The latest direct human request selects GPT-6.1 Sol extra-high for this chat
+and GPT-6.1 Sol high for all subagents. Use `model=gpt-6.1-sol` with
+`reasoning_effort=high` on bounded or empty context forks for new or restarted
+workers and reviewers. The tools cannot change or verify the coordinator model.
+This supersedes
+earlier Astra and 5.6 Sol preferences and the different-model reviewer rule.
+Keep review independent by assigning a separate agent. Record the actual
+models of completed agents without claiming they changed retroactively.
+The tools do not
 expose a service-tier selector, so do not claim speed is verified. Do not
 claim that an in-flight coordinator model changed through a worker override.
 
@@ -43,11 +47,12 @@ claim that an in-flight coordinator model changed through a worker override.
 
 - The page shows only an original **2012 Silver + Black Nintendo 3DS XL
   (SPR-001)** and its background. Preserve the sourced model, leftward spin,
-  opening, physical controls, lower touchscreen and eight portfolio apps.
+  opening, physical controls, lower touchscreen and nine portfolio apps,
+  including the merged Hack LDN 2025 addition.
 - Target **EUR 10.7.0-32E**, original hardware mode, English locale. In scope:
   HOME; Settings and helpers; Health; read-only Camera; Sound UI and supplied-song
   playback; eShop; Zone; Notes; Friends; Notifications; local Browser and
-  Miiverse; the amiibo helper; power/app transitions; and eight portfolio apps.
+  Miiverse; the amiibo helper; power/app transitions; and nine portfolio apps.
 - Excluded: Software Keyboard, Activity Log, Download Play, Mii Maker,
   StreetPass Mii Plaza, AR Games, Face Raiders; capture, remote web, network,
   account and PIN operations. Internal helpers need no invented HOME entry.

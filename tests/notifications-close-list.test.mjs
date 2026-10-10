@@ -74,14 +74,14 @@ test('writer-0x110 single line reuses the 0x111 ceil-half origin and pixel-centr
 
 test('painter binds writer-0x110 on T_EndF_00 and LCD sampling on T_EndB_00; row titles sample separately; new_back and SceneIn stay as before', ()=>{
   assert.match(painter, /renderer\.draw\(bottom,'notifications','NewsTopBtn_D_00',\{bindings:\[\{name:'NewsTopBtn_D_00_SceneIn',frame:20\}\],textSampling:'lcd',textSamplingPanes:\['T_EndB_00'\],overrides:\{T_EndB_00:message\('new_back'\),T_EndF_00:\{\.\.\.message\('new_back'\),singleLineBlockOrigin:'writer-0x110'\}\}\}\)/);
-  assert.equal(painter.match(/singleLineBlockOrigin/g).length, 1);
+  assert.equal(painter.match(/singleLineBlockOrigin/g).length, 2, 'normal and footer-close branches retain the native text origin');
   assert.match(painter, /T_NewsTitleB_00:\{text:row\.label\},T_NewsTitleF_00:\{text:row\.label\}/);
   assert.equal(/new_close/.test(painter), false);
   const section=painter.slice(painter.indexOf("renderer.packs['notification-messages']"), painter.indexOf("options.font?.draw(bottom,view.text"));
   assert.ok(section.includes("'NewsTopBtn_D_00'"));
   // Close: only the y-26.5 shadow (notifications-close-240-2026-10-04.md). Row titles:
   // writer-0x101 allowlist (notifications-list-direct-2026-10-04.md).
-  assert.deepEqual(section.match(/textSampling[^,]*/g), ["textSampling:'lcd'", "textSamplingPanes:['T_NewsTitleB_00'", "textSampling:'lcd'", "textSamplingPanes:['T_EndB_00']"]);
+  assert.deepEqual(section.match(/textSampling[^,]*/g), ["textSampling:'lcd'", "textSamplingPanes:['T_NewsTitleB_00'", "textSampling:'lcd'", "textSamplingPanes:['T_EndB_00']", "textSampling:'lcd'", "textSamplingPanes:['T_EndB_00']"]);
   assert.equal(/azahar-12p4-fit|textCoverageAdaptation/.test(section), false);
   assert.match(section, /'notification-slidebar','SlideBar',\{pictureSampling:'lcd'/);
   assert.equal(/'NewsWndwNews_D_00',[^{]*\{[^}]*pictureSampling/.test(section), false);

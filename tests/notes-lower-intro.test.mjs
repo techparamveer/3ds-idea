@@ -24,7 +24,7 @@ function fixture() {
 }
 function paint(intro) {
   const top = {}, bottom = {}, calls = [];
-  const renderer = { packs: { 'notes-messages': pack('messages-and-loose.json') }, draw(ctx, alias, layout, options) { calls.push({ ctx, alias, layout, options }); return true; }, drawLayout(ctx, alias, layout, pose, options) { calls.push({ ctx, alias, layout, pose, options }); return true; } };
+  const renderer = { packs: { 'notes-list': pack('contents/0000-00000007/memo-MemoListDown-empty-thumbnail.json'), 'notes-messages': pack('messages-and-loose.json'), 'notes-hud-messages': pack('contents/0000-00000007/hud-messages.json') }, draw(ctx, alias, layout, options) { calls.push({ ctx, alias, layout, options }); return true; }, drawLayout(ctx, alias, layout, pose, options) { calls.push({ ctx, alias, layout, pose, options }); return true; } };
   assert.equal(drawNativePersonalToolFrame(renderer, top, bottom, { appId: 'game-notes', screen: 'main', selection: 0, rows: [] }, { notesIntro: intro }), true);
   return calls.filter(c => c.ctx === bottom);
 }

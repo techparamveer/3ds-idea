@@ -21,6 +21,16 @@ const material={name:'picture',bufferColor:[0,0,0,0],constantColors:[[255,255,25
 const pane={kind:'pic1',name:'picture',flags:1,origin:4,alpha:255,translation:[0,0,0],rotation:[0,0,0],scale:[1,1],size:[1,1],children:[],picture:{material:0,colors:white,uvSets:[[0,0,1,0,0,1,1,1]]}};
 const layout={canvas:{width:1,height:1,origin:1},roots:[pane],materials:[material],textures:['dynamic'],fonts:[],groups:[],unsupported:[]};
 
+test('font metadata query exposes only the actually bound native manifest identity',()=>{
+ const manifest=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/shared/font.json',import.meta.url),'utf8'));
+ const font={manifest},fonts=new Map([['cbf_std.bcfnt',font]]),renderer=new NativeLayoutRenderer({}, {},fonts);
+ const before=JSON.stringify(manifest);
+ assert.equal(renderer.getFontManifest('cbf_std.bcfnt'),manifest);
+ assert.equal(renderer.getFontManifest('unbound.bcfnt'),undefined);
+ assert.equal(JSON.stringify(manifest),before);assert.equal(fonts.size,1);
+ renderer.dispose();assert.equal(fonts.get('cbf_std.bcfnt'),font,'renderer does not own or replace the borrowed font');
+});
+
 test('per-draw native texture bindings isolate glyphs and renames, restore the source, and reuse cached raster snapshots',()=>{
  const prior=globalThis.document;globalThis.document={createElement:canvas};
  try{
@@ -34,6 +44,35 @@ test('per-draw native texture bindings isolate glyphs and renames, restore the s
   assert.deepEqual(paint(),[10,20,30,255]);assert.equal(textures.get('dynamic'),source);assert.equal(JSON.stringify(pack),original);
   assert.equal(renderer.draw(ctx,'test','test',{textures:{dynamic:{...first,width:0}}}),false);assert.match(renderer.diagnostics.at(-1),/Invalid dynamic native texture/);
   renderer.dispose();assert.equal(renderer.cacheBytes,0);assert.equal(renderer.draw(ctx,'test','test'),false);assert.equal(firstSurface.width,0);
+ }finally{globalThis.document=prior;}
+});
+
+test('pre-posed Notes layouts publish replacement alpha and belt poses while ordinary draws keep their cached source',()=>{
+ const prior=globalThis.document;globalThis.document={createElement:canvas};
+ try{
+  const upper={...layout,roots:[{...pane,name:'P_Bg_U_00'}]};
+  const lower={...layout,roots:[{...pane,name:'P_Belt_00'}]};
+  const pack={schema:1,layouts:{upper,lower},animations:{},textures:{},messages:{}},before=JSON.stringify(pack);
+  const renderer=new NativeLayoutRenderer({notes:pack},{notes:new Map([['dynamic',pixels([255,255,255])]])},new Map());
+  const target=canvas(),ctx=target.getContext('2d'),translations=[];ctx.translate=(...values)=>translations.push(values);
+  assert.equal(renderer.draw(ctx,'notes','upper'),true);const ordinarySurface=target.source;
+  assert.equal(renderer.draw(ctx,'notes','upper'),true);assert.equal(target.source,ordinarySurface,'ordinary source draw keeps its raster cache');
+
+  const upperPose=structuredClone(upper);upperPose.roots[0].alpha=192;
+  assert.equal(renderer.drawLayout(ctx,'notes','upper',upperPose),true);assert.equal(target.image.data[3],192);
+  upperPose.roots[0].alpha=64;
+  assert.equal(renderer.drawLayout(ctx,'notes','upper',upperPose),true);assert.equal(target.image.data[3],64,'same-object alpha mutation must replace the prior pose');
+
+  const lowerPose=structuredClone(lower);lowerPose.roots[0].alpha=160;lowerPose.roots[0].translation=[10,0,0];translations.length=0;
+  assert.equal(renderer.drawLayout(ctx,'notes','lower',lowerPose),true);assert.ok(translations.some(([x,y])=>x===10&&Object.is(y,-0)));
+  assert.equal(target.image.data[3],160);
+  lowerPose.roots[0].alpha=32;lowerPose.roots[0].translation=[20,0,0];translations.length=0;
+  assert.equal(renderer.drawLayout(ctx,'notes','lower',lowerPose),true);assert.ok(translations.some(([x,y])=>x===20&&Object.is(y,-0)));
+  assert.equal(target.image.data[3],32,'same-object belt mutation must replace translation and alpha together');
+
+  assert.equal(JSON.stringify(pack),before,'renderer never takes ownership of source layouts');
+  assert.equal(renderer.draw(ctx,'notes','upper'),true);assert.equal(target.source,ordinarySurface,'pre-posed draws do not evict the ordinary raster');
+  renderer.dispose();assert.equal(renderer.cacheBytes,0);
  }finally{globalThis.document=prior;}
 });
 

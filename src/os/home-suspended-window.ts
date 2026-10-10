@@ -1,8 +1,10 @@
 import { homeSlotAppId } from './system.ts';
 import type { MenuState } from './state';
-import { nativeMessageOverride, nativePaneParentPath, type NativePixels } from './native-layout.ts';
+import { nativeMessageOverride, nativePaneParentPath, type AnimationBinding, type NativePixels } from './native-layout.ts';
 import type { NativeLayoutRenderer } from './native-renderer';
 import { sampleSystemHomeApplicationTransition } from './system-home-application-transition.ts';
+import { homePauseWindowAppearFrame, type HomeEntryMotion } from './home-entry-motion.ts';
+import type { SuspendedCapture } from './notes-suspended-capture.ts';
 
 export function homeSuspendedApplication(state: MenuState) {
  const s=state.system;
@@ -17,6 +19,20 @@ export function retainedSuspendedApplication(state: MenuState) {
 export function selectedSuspendedApplication(state: MenuState) {
  const application=retainedSuspendedApplication(state);
  return application&&homeSlotAppId(state,state.opened?state.folderSelected:state.selected)===application.appId?application:null;
+}
+
+/** The original G_Wndw Appear request is independent of ScaleUpDown's target.
+ * Its source phase follows the guarded pause candidate; native epochs remain
+ * untraced and the source-phase alignment is an adaptation. */
+export function homeSuspendedWindowEntryFrame(state:MenuState,capture:SuspendedCapture,motion:HomeEntryMotion|null):number|undefined {
+ const application=retainedSuspendedApplication(state);
+ if(!application||state.system?.dialog||sampleSystemHomeApplicationTransition(state)
+  ||capture.status!=='ready'||motion?.identity.kind!=='pause'
+  ||capture.owner!==application.id||motion.identity.owner!==application.id
+  ||motion.identity.captureGeneration!==capture.generation)return undefined;
+ if(!Number.isSafeInteger(capture.generation)||capture.generation<0
+  ||!Number.isSafeInteger(motion.elapsedUpdates)||motion.elapsedUpdates<0)throw new RangeError('Invalid suspended window entry pose');
+ return homePauseWindowAppearFrame(motion)??undefined;
 }
 
 /** Capture-fitted exit policy; the native disappearance start epoch is untraced. */
@@ -45,19 +61,61 @@ export function drawHomeSuspendedIcon(renderer:NativeLayoutRenderer,ctx:CanvasRe
 }
 
 /** Source geometry and Sleep loop. Close opacity is an explicit capture-fit input. */
-export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,metadata:SuspendedWindowMetadata,mode:'expanded'|'compact'='expanded',sleepFrame=0,closeOpacity?:number){
+export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,metadata:SuspendedWindowMetadata,mode:'expanded'|'compact'='expanded',sleepFrame=0,closeOpacity?:number,windowAppearFrame?:number,sceneInFrame?:number,sceneOutFrame?:number){
  const pack=renderer.packs.launcher,bank=renderer.packs.messages?.messages.menu_msbt_LZ;
  validateSleepFrame(sleepFrame);
  if(closeOpacity!==undefined&&(!Number.isFinite(closeOpacity)||closeOpacity<0||closeOpacity>1))throw new RangeError('Invalid suspended close opacity');
- const bindings=[
-  {name:'LncBase_U_00_SceneIn',frame:40},
+ if(windowAppearFrame!==undefined&&(!Number.isSafeInteger(windowAppearFrame)||windowAppearFrame<0||windowAppearFrame>10))throw new RangeError('Invalid suspended window appearance frame');
+ if(sceneInFrame!==undefined&&(!Number.isSafeInteger(sceneInFrame)||sceneInFrame<0||sceneInFrame>40))throw new RangeError('Invalid suspended window scene-in frame');
+ if(sceneOutFrame!==undefined&&(!Number.isSafeInteger(sceneOutFrame)||sceneOutFrame<0||sceneOutFrame>40))throw new RangeError('Invalid suspended window scene-out frame');
+ const bindings:AnimationBinding[]=[
+  {name:'LncBase_U_00_SceneIn',frame:sceneInFrame??40},
   {name:'LncBase_U_00_Appear',frame:10},
+  // Native upper +0x290 binds Appear only to G_Wndw_00, separate from HUD/bottom.
+  ...(windowAppearFrame===undefined?[]:[{name:'LncBase_U_00_Appear',frame:windowAppearFrame,groups:['G_Wndw_00']}]),
   {name:'LncBase_U_00_ScaleUpDown',frame:mode==='expanded'?15:0},
   {name:'LncBase_U_00_Sleep',frame:sleepFrame},
   {name:'LncBase_U_00_WhiteBlack',frame:closeOpacity===undefined?1:0},
+  ...(sceneOutFrame===undefined?[]:[{name:'LncBase_U_00_SceneOut',frame:sceneOutFrame}]),
  ];
  if(!pack?.layouts.LncBase_U_00)throw Error('Native suspended window layout unavailable');
  for(const binding of bindings)if(!pack.animations[binding.name])throw Error(`Native suspended window animation unavailable: ${binding.name}`);
+ if(sceneOutFrame!==undefined){
+  const clip=pack.animations.LncBase_U_00_SceneOut,source=pack.resourceSources?.animations?.LncBase_U_00_SceneOut;
+  const track=(property:string,from:number,to:number)=>{const tracks=clip.tracks.filter(track=>track.target==='N_Root_00'&&track.property===property);return tracks.length===1&&tracks[0].interpolation==='hermite'&&tracks[0].keys.length===2&&tracks[0].keys.every((key,index)=>key.frame===index*20&&key.value===(index?to:from)&&key.slope===0);};
+  if(source?.titleId!=='0004003000009802'||source.path!=='launcher_LZ.bin/anim/LncBase_U_00_SceneOut.bclan'||source.sha256!=='ba54b2de5825ab966a6bfd1e480d84c4479510688b1e36a20336493afdb174e9'
+   ||clip.frames!==41||clip.loop||!clip.childBinding||JSON.stringify(clip.groups)!=='["G_Scene_00"]'
+   ||!track('alpha',255,0)||!track('scale.x',1,1.100000023841858)||!track('scale.y',1,1.100000023841858))throw Error('Native suspended window scene-out source unavailable');
+ }
+ if(sceneInFrame!==undefined){
+  const sceneIn=pack.animations.LncBase_U_00_SceneIn;
+  const group=pack.layouts.LncBase_U_00.groups.flatMap(root=>root.children).find(group=>group.name==='G_Scene_00');
+  const alpha=sceneIn.tracks.filter(track=>track.target==='N_Root_00'&&track.property==='alpha');
+  const scale=['scale.x','scale.y'].every(property=>{
+   const tracks=sceneIn.tracks.filter(track=>track.target==='N_Root_00'&&track.property===property);
+   return tracks.length===1&&tracks[0].interpolation==='hermite'&&tracks[0].keys.length===2
+    &&tracks[0].keys.every((key,index)=>key.frame===(index?39:20)&&key.value===(index?1:1.100000023841858)&&key.slope===0);
+  });
+  if(sceneIn.frames!==41||sceneIn.loop||sceneIn.childBinding!==true||!sceneIn.groups.includes('G_Scene_00')
+   ||group?.panes.length!==1||group.panes[0]!=='N_Root_00'||!scale||alpha.length!==1
+   ||alpha[0].interpolation!=='hermite'||alpha[0].keys.length!==2
+   ||!alpha[0].keys.every((key,index)=>key.frame===(index?40:20)&&key.value===(index?255:0)&&key.slope===0))throw Error('Native suspended window scene-in source unavailable');
+ }
+ if(windowAppearFrame!==undefined){
+  const appear=pack.animations.LncBase_U_00_Appear;
+  const group=pack.layouts.LncBase_U_00.groups.flatMap(root=>root.children).find(group=>group.name==='G_Wndw_00');
+  const alpha=appear.tracks.filter(track=>track.target==='N_Wndw_00'&&track.property==='alpha');
+  const unitScale=['scale.x','scale.y'].every(property=>{
+   const tracks=appear.tracks.filter(track=>track.target==='N_Wndw_00'&&track.property===property);
+   const key=tracks[0]?.keys[0];
+   return tracks.length===1&&tracks[0].interpolation==='hermite'&&tracks[0].keys.length===1
+    &&key.frame===0&&key.value===1&&key.slope===0;
+  });
+  if(appear.frames!==11||appear.loop||appear.childBinding!==true||!appear.groups.includes('G_Wndw_00')
+   ||group?.panes.length!==1||group.panes[0]!=='N_Wndw_00'||!nativePaneParentPath(pack.layouts.LncBase_U_00,'N_Wndw_00')
+   ||!unitScale||alpha.length!==1||alpha[0].interpolation!=='hermite'||alpha[0].keys.length!==2
+   ||!alpha[0].keys.every((key,index)=>key.frame===index*10&&key.value===(index?255:0)&&key.slope===0))throw Error('Native suspended window appearance source unavailable');
+ }
  for(const key of ['lau_pose_title_u','lau_rest_comm_u'])if(bank?.labels[key]===undefined)throw Error(`Native suspended window message unavailable: ${key}`);
  if(!metadata.description.trim()||metadata.icon.width!==64||metadata.icon.height!==64||metadata.icon.data.length!==64*64*4)throw Error('Native suspended window metadata unavailable');
  const message=(key:string)=>nativeMessageOverride(renderer.packs.messages,'menu_msbt_LZ',key,'');

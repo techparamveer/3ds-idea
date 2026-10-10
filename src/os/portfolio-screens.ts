@@ -7,12 +7,14 @@ import { currentEntry, getActiveAppView, selectedApp } from './system';
 import { getTitle } from './app-registry';
 import type { AppView } from './app-types';
 import type { MenuState } from './state';
+import type { NotesFooterCloseDraw as NotesFooterClosePaint } from './notes-footer-close-assets';
 import { measureBitmapText, type BitmapFont } from './bitmap-font';
 import { createStockScreenPresentation, type NotesIntroPaint } from './stock-screen-presentation';
 import { createSuspendedApplicationCapture } from './notes-suspended-capture';
 import { createNotesMetadataSession } from './notes-metadata-session';
 import { notesIntroSourcesFromPacks } from './notes-intro-publication';
 import { createNotesIntroSession } from './notes-intro-session';
+import { createNotesBootCoverSession, notesBootCoverSourcesFromPacks } from './notes-boot-cover';
 import type { NativePack } from './native-layout';
 type C=CanvasRenderingContext2D;
 const nativeFonts=new WeakMap<C,BitmapFont>();
@@ -39,15 +41,26 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    const metadata={selection:{titleId:`portfolio:${appId}`,description:app.title},icon:{width:64,height:64,data:pixels.data},dispose(){pixels.data.fill(0);}};
    signal.throwIfAborted();return metadata;
   },
- }),notesIntro=createNotesIntroSession();
+ }),notesIntro=createNotesIntroSession(),notesBootCover=createNotesBootCoverSession();
+ let appletCoveredOwner:string|null=null,resumeCoveredOwner:string|null=null;
+ const pauseNotesBootCover=()=>notesBootCover.pause();
+ document.addEventListener('visibilitychange',pauseNotesBootCover);
  function syncNotesIntro(state:MenuState,view:AppView|null|undefined,packs:Record<string,NativePack|undefined>|undefined):NotesIntroPaint|undefined{
   const s=state.system,meta=notesMetadata.getState(),data=view?.data??{};
   const sources=packs?notesIntroSourcesFromPacks(packs):undefined;
   const host=typeof data.notesHostMs==='number'&&Number.isFinite(data.notesHostMs)?data.notesHostMs:0;
+  const notes=s?.runtime.systemApplet?s.runtime.instances[s.runtime.systemApplet]:undefined;
+  const noSoftware=notes?.appId==='game-notes'&&!notes.closing&&!s?.runtime.application;
+  const commonCovered=notes?.id===appletCoveredOwner;
+  const bootCover=notesBootCover.sync({
+   owner:noSoftware?notes.id:null,now:host,
+   paused:commonCovered||document.hidden||!s||!!s.sleeping||!!s.preferences||!!s.dialog||view?.appId!=='game-notes',
+   reducedMotion:options.reducedMotion?.()??false,sources:packs?notesBootCoverSourcesFromPacks(packs):undefined,
+  });
   notesIntro.sync({
    owner:meta.status==='ready'?{notesOwner:meta.notesOwner,applicationOwner:meta.applicationOwner,captureGeneration:meta.captureGeneration,titleId:meta.titleId}:undefined,
    metadata:meta,assetsReady:!!sources,
-   paused:!s||!!s.sleeping||!!s.preferences||!!s.dialog||view?.appId!=='game-notes',
+   paused:commonCovered||!s||!!s.sleeping||!!s.preferences||!!s.dialog||view?.appId!=='game-notes',
    startup:'nonzero-history',now:host,screen:typeof view?.screen==='string'?view.screen:'main',
    sources,
   });
@@ -57,7 +70,7 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    status:'posed',title:composed.title,upper:composed.upper,lower:composed.lower,scene9Draw:composed.scene9Draw,scene10Draw:composed.scene10Draw,titleUserVisible:composed.titleUserVisible,
    ticket:session.ticket,steps:session.observation?.steps??0,icon:meta.metadata.icon,description:meta.metadata.selection.description,
   };
-  return meta.status==='ready'?{status:'pending'}:undefined;
+  return meta.status==='ready'?{status:'pending'}:bootCover;
  }
  function syncStockView(state:MenuState,context?:C){
   if(state.system)suspendedCapture.sync(state.system.runtime);
@@ -68,14 +81,52 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
   const view=owner?getActiveAppView(state):undefined;
   if(owner&&context&&view){
    const native=stockScreens.prepare(view,owner,nativeFonts.get(context));
-   syncNotesIntro(state,view,native.status==='ready'?native.assets.renderer.packs:undefined);
-  }else syncNotesIntro(state,view,undefined);
+   return syncNotesIntro(state,view,native.status==='ready'?native.assets.renderer.packs:undefined);
+  }else return syncNotesIntro(state,view,undefined);
  }
  function stockStatus(state:MenuState,context:C){
-  syncStockView(state,context);
+  const notesPaint=syncStockView(state,context);
   const s=state.system,view=getActiveAppView(state);
   return s&&(s.phase==='launch'||s.phase==='app')&&!s.sleeping&&!s.preferences&&!s.dialog&&s.runtime.active&&view
-   ?stockScreens.status(view,s.runtime.active,nativeFonts.get(context)):'inactive' as const;
+   ?stockScreens.status(view,s.runtime.active,nativeFonts.get(context),notesPaint):'inactive' as const;
+ }
+ function presentNotesBootCover(state:MenuState):boolean{
+  const s=state.system,view=getActiveAppView(state);
+  if(appletCoveredOwner===s?.runtime.active||document.hidden||!s||s.phase!=='app'||s.sleeping||s.preferences||s.dialog||s.runtime.application
+   ||!s.runtime.active||view?.appId!=='game-notes'||view.screen!=='main')return false;
+  const now=view.data?.notesHostMs;
+  return stockScreens.presentNotesBootCover(s.runtime.active,pair=>notesBootCover.present(pair,typeof now==='number'&&Number.isFinite(now)?now:0));
+ }
+ function notesBootCoverActive(state:MenuState):boolean{
+  const s=state.system,view=getActiveAppView(state),notes=s?.runtime.systemApplet?s.runtime.instances[s.runtime.systemApplet]:undefined;
+  return stockScreens.getFailure()===null&&!!s&&!document.hidden&&(s.phase==='launch'||s.phase==='app')&&!s.sleeping&&!s.preferences&&!s.dialog&&!s.runtime.application
+   &&notes?.appId==='game-notes'&&!notes.closing&&s.runtime.active===notes.id&&view?.appId==='game-notes'&&view.screen==='main'
+   &&notesBootCover.pending(notes.id);
+ }
+ function revokeNotesBootCoverCandidate(){stockScreens.revokeNotesBootCoverCandidate();notesBootCover.pause();}
+ function setAppletEntryCovered(owner:string|null){
+  if(owner!==appletCoveredOwner){appletCoveredOwner=owner;revokeNotesBootCoverCandidate();}
+ }
+ function preparedStockPair(state:MenuState):object|undefined{
+  const s=state.system;
+  return s?.phase==='app'&&s.runtime.active?stockScreens.preparedPair(s.runtime.active):undefined;
+ }
+ function notesFooterCloseResources(state:MenuState):object|undefined{
+  const s=state.system;
+  return s?.phase==='app'&&s.runtime.active?stockScreens.notesFooterCloseResources(s.runtime.active):undefined;
+ }
+ function notificationsFooterCloseResources(state:MenuState):object|undefined{
+  const s=state.system;
+  return s?.phase==='app'&&s.runtime.active?stockScreens.notificationsFooterCloseResources(s.runtime.active):undefined;
+ }
+ function appletIncomingResources(state:MenuState):object|undefined{
+  const s=state.system,view=getActiveAppView(state);
+  return s?.phase==='app'&&s.runtime.active&&view?stockScreens.incomingResources(s.runtime.active,view.appId):undefined;
+ }
+ function drawAppletIncoming(state:MenuState,top:C,bottom:C,frame:number,resources:object):boolean{
+  const s=state.system,view=getActiveAppView(state);
+  return !!s&&s.phase==='app'&&!!s.runtime.active&&!!view
+   &&stockScreens.drawIncoming(s.runtime.active,view.appId,top,bottom,frame,resources);
  }
  const nvidiaBanner=createNvidiaBanner();
  const hackLdnBanner=createHackLdnBanner(c=>label(c,'2025',200,165,17,'#454952','center'));
@@ -156,22 +207,27 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
   if(s.detail&&entry.images&&entry.images.length>1)label(b,`◀ ${s.photo+1}/${entry.images.length} ▶`,157,226,12,'#6b7380','center');
   button(b,222,214,95,24,s.detail?(entry.app?'Ⓐ Open':entry.url?'Ⓐ Visit':'Ⓐ Done'):'Ⓐ Open');
  }
- function semanticApplication(t:C,b:C,view:AppView,state:MenuState,owner:string,date:Date,time:number,verification?:{sampleCalendar?:boolean}){
+ function semanticApplication(t:C,b:C,view:AppView,state:MenuState,owner:string,date:Date,time:number,verification?:{sampleCalendar?:boolean},notesFooterClose?:NotesFooterClosePaint,notificationsFooterClose?:{frame:number}){
   const runtime=state.system!.runtime;
   const capture=view.appId==='game-notes'?suspendedCapture.read(runtime):undefined;
   notesMetadata.sync(runtime,capture??{status:'none'});
   const native=stockScreens.prepare(view,owner,nativeFonts.get(t));
   const notesPaint=syncNotesIntro(state,view,native.status==='ready'?native.assets.renderer.packs:undefined);
-  return stockScreens.draw(t,b,view,owner,nativeFonts.get(t),capture,date,time,notesPaint,verification);
+  return stockScreens.draw(t,b,view,owner,nativeFonts.get(t),capture,date,time,notesPaint,verification,notesFooterClose,notificationsFooterClose);
  }
- function overlay(t:C,b:C,state:MenuState,time:number,reduced:boolean,nativeSystem=false,date=new Date(),verification?:{sampleCalendar?:boolean}){
+ function overlay(t:C,b:C,state:MenuState,time:number,reduced:boolean,nativeSystem=false,date=new Date(),verification?:{sampleCalendar?:boolean},deferManualDestination=false,notesFooterClose?:NotesFooterClosePaint,notificationsFooterClose?:{frame:number}){
   const s=state.system;if(!s)return;
   if(s.phase==='app'){
    const view=getActiveAppView(state,time);let complete=false;
    if(view&&getApp(view.appId)&&currentEntry(state)){application(t,b,state,time,reduced);complete=true;}
-   else if(view&&s.runtime.active)complete=semanticApplication(t,b,view,state,s.runtime.active,date,time,verification);
+   else if(view&&s.runtime.active){
+    // Keep acquisition live while the caller pair is covered. Resource errors
+    // still draw the existing paired recovery rather than waiting for a cover.
+    if(view.appId==='manual'&&deferManualDestination)syncStockView(state,t);
+    if(view.appId!=='manual'||!deferManualDestination||stockScreens.getFailure()!==null)complete=semanticApplication(t,b,view,state,s.runtime.active,date,time,verification,notesFooterClose,notificationsFooterClose);
+   }
    // Retain the application slot's last complete pair, before host overlays.
-   if(complete&&s.runtime.active&&!s.sleeping&&!s.preferences&&!s.dialog)suspendedCapture.record(s.runtime,s.runtime.active,t.canvas,b.canvas);
+   if(complete&&s.runtime.active&&s.runtime.active!==resumeCoveredOwner&&!s.sleeping&&!s.preferences&&!s.dialog)suspendedCapture.record(s.runtime,s.runtime.active,t.canvas,b.canvas);
   }
   if(s.phase==='launch'&&!nativeSystem){
    t.fillStyle=b.fillStyle='#fff';t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
@@ -195,5 +251,5 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    t.fillStyle=b.fillStyle=`rgba(0,0,0,${alpha})`;t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
   }
  }
- return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,readSuspendedCapture:suspendedCapture.read,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){nvidiaBanner.dispose();hackLdnBanner.dispose();stockScreens.dispose();notesIntro.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
+ return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,setAppletEntryCovered,preparedStockPair,notesFooterCloseResources,notificationsFooterCloseResources,appletIncomingResources,drawAppletIncoming,presentNotesBootCover,notesBootCoverActive,revokeNotesBootCoverCandidate,readSuspendedCapture:suspendedCapture.read,readRetainedApplicationCapture:suspendedCapture.readRetained,setResumeCoveredOwner(owner:string|null){resumeCoveredOwner=owner;},retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){document.removeEventListener('visibilitychange',pauseNotesBootCover);nvidiaBanner.dispose();hackLdnBanner.dispose();stockScreens.dispose();notesIntro.dispose();notesBootCover.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
 }

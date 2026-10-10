@@ -20,6 +20,7 @@ const transpile = (name, overrides = {}) => {
 };
 const empty = moduleUrl('export const drawNativeAmiibo=()=>false;export const amiiboScreenPacks=[];');
 const nativeLayoutStub = moduleUrl(`
+  export {poseNativeLayout} from ${JSON.stringify(new URL('../src/os/native-layout.ts',import.meta.url).href)};
   export const nativeMessageOverride=()=>({});
   export const nativePaneParentPath=(layout,name)=>{
     let found=null;
@@ -127,10 +128,11 @@ test('Camera Contents requests its real index, source icon, and Close-only inter
   assert.deepEqual(helpers.nativeHelperTargets(view), [{ action: 'back', x: 0, y: 212, width: 160, height: 28 }]);
   const renderer = {
     packs: Object.fromEntries(request.packs.map(item => [item.alias, json(item.url)])),
+    getFontManifest: () => json('fonts/shared/font.json'),
     draw(_context, packName, layout, options) { calls.push({ pack: packName, layout, options }); return true; },
   };
   const pixels = { width: 48, height: 48, data: new Uint8ClampedArray(48 * 48 * 4) };
-  const context = { fillStyle: '', fillRect() {} };
+  const context = { fillStyle: '', fillRect() {}, getTransform: () => ({a:1,b:0,c:0,d:1,e:0,f:0}) };
   assert.equal(helpers.drawNativeHelperFrame(renderer, context, context, view, { nativeImage(url) { requestedImages.push(url); return pixels; } }), true);
   assert.deepEqual(requestedImages, ['/os/firmware/10.7.0-32E/icons/camera.png']);
   const header = calls.find(call => call.pack === 'manual-SoftTitleHeader');
@@ -187,15 +189,13 @@ test('Settings Contents loads source chrome, lets Close act, and leaves unfinish
   assert.deepEqual(helpers.APPLICATION_MANUAL_LOWER_FIT, {
     rowBodyY: 2,
     secondCategoryRegister: [118, 183, 218],
-    languageGlyphX: -43,
-    languageLabelX: 13,
   });
 });
 
-test('only source-backed HOME routes supply a manual title argument', () => {
+test('Manual title arguments stay within source-backed routes, stock rendering and read-only entry consumers', () => {
   const files = readdirSync(resolve('src'), { recursive: true }).filter(file => /\.(ts|tsx)$/.test(file));
   const users = files.filter(file => readFileSync(resolve('src', file), 'utf8').includes('manualTitleId')).sort();
-  assert.deepEqual(users, ['os/stock-apps.ts', 'os/stock-helper-views.ts', 'os/stock-native-helpers.ts', 'os/stock-screen-layout.ts', 'os/system.ts']);
+  assert.deepEqual(users, ['os/manual-entry-identity.ts', 'os/manual-entry-presentation.ts', 'os/stock-apps.ts', 'os/stock-helper-views.ts', 'os/stock-native-helpers.ts', 'os/stock-screen-layout.ts', 'os/system.ts']);
 });
 
 
@@ -261,8 +261,8 @@ test('Browser Contents loads and draws its own source, then opens only delivered
   assert.deepEqual(helpers.nativeHelperTargets(view),[{action:'manual-page-0',x:24,y:67.5,width:272,height:37},{action:'back',x:0,y:212,width:160,height:28}]);
   const request=helpers.nativeHelperView(view), index=request.packs.find(item=>item.alias==='manual-index'), calls=[], images=[];
   assert.deepEqual(index,{url:manualSources[browser].url,alias:'manual-index',layouts:['Index'],animations:[],titleId:browser});
-  const renderer={packs:Object.fromEntries(request.packs.map(item=>[item.alias,json(item.url)])),draw(_context,packName,layout,options){calls.push({pack:packName,layout,options});return true;}};
-  const pixels={width:48,height:48,data:new Uint8ClampedArray(48*48*4)},context={fillStyle:'',fillRect(){}};
+  const renderer={packs:Object.fromEntries(request.packs.map(item=>[item.alias,json(item.url)])),getFontManifest:()=>json('fonts/shared/font.json'),draw(_context,packName,layout,options){calls.push({pack:packName,layout,options});return true;}};
+  const pixels={width:48,height:48,data:new Uint8ClampedArray(48*48*4)},context={fillStyle:'',fillRect(){},getTransform:()=>({a:1,b:0,c:0,d:1,e:0,f:0})};
   assert.equal(helpers.drawNativeHelperFrame(renderer,context,context,view,{nativeImage(url){images.push(url);return pixels;}}),true);
   assert.deepEqual(images,['/os/firmware/10.7.0-32E/icons/browser.png']);
   assert.equal(calls.find(call=>call.pack==='manual-SoftTitleHeader').options.overrides.TextBoxTxt_00.text,'Internet Browser');

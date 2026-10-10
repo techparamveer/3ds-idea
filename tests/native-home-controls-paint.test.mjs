@@ -6,7 +6,7 @@ import { createPortfolioState, dispatchSystemEvent, launchHomeShortcut, tickSyst
 import { createHomeInputAdapter } from '../src/os/home-input-adapter.ts';
 import { createHomeInputProducer } from '../src/os/home-input-producer.ts';
 import { createHomeCursorPresentation, getHomeToolbarCursorAnchor } from '../src/os/home-cursor-presentation.ts';
-import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostView, resolveHomeBannerHostObservation } from '../src/os/home-banner-host.ts';
+import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostView, resolveHomeBannerHostObservation, resolveHomeBannerHostSelection } from '../src/os/home-banner-host.ts';
 import { commitHomeScroll, enterHomeFolder, getHomeNavigation, writeHomeNavigation, selectHomeSlot, setHomeDensity, settleHomeNavigation } from '../src/os/home-navigation.ts';
 import { advanceSystemHomeFolderCloseNative, beginSystemHomeFolderClose, isSystemHomeFolderClosing } from '../src/os/home-folder-close-system.ts';
 import { getHomeFooter, getHomePresentation } from '../src/os/home-presentation.ts';
@@ -33,7 +33,7 @@ async function loadPresentation(name, overrides = {}) {
 // Execute the real screen painter. Resource transport and unrelated artwork
 // are stubbed; real resource/controller bindings have their own focused tests.
 const overrides = {
-  './home-suspended-window':moduleUrl(`export {homeSuspendedApplication,homeSuspendedIconDisappeared,retainedSuspendedApplication,selectedSuspendedApplication} from '${new URL('../src/os/home-suspended-window.ts',import.meta.url).href}';export const drawHomeSuspendedWindow=(_r,ctx,_meta,_mode,_sleep,opacity)=>ctx.record('suspended-window',[opacity]);`),
+  './home-suspended-window':moduleUrl(`export {homeSuspendedApplication,homeSuspendedIconDisappeared,homeSuspendedWindowEntryFrame,retainedSuspendedApplication,selectedSuspendedApplication} from '${new URL('../src/os/home-suspended-window.ts',import.meta.url).href}';export const drawHomeSuspendedWindow=(_r,ctx,_meta,_mode,_sleep,opacity)=>ctx.record('suspended-window',[opacity]);`),
   './home-software-dialog':moduleUrl(`import {drawHomeSoftwareDialog as actual} from '${new URL('../src/os/home-software-dialog.ts',import.meta.url).href}';export {homeSoftwareDialogKey,homeSoftwareClosingDialogKey,homeSoftwareDialogTitles} from '${new URL('../src/os/home-software-dialog.ts',import.meta.url).href}';export const drawHomeSoftwareDialog=(r,top,bottom,state,icons)=>{if(r?.packs?.messages)return actual(r,top,bottom,state,icons);if(globalThis.__testSoftwareDialogFailure)throw Error(globalThis.__testSoftwareDialogFailure);bottom.record('software-dialog',[state.system.dialog,icons]);return true;};`),
   './home-software-closing-dialog':moduleUrl('export const drawHomeSoftwareClosingDialog=(_r,_top,bottom,frame,exitFrame,intent)=>{if(bottom.failClosing===true)throw Error("Closing resource unavailable");bottom.record("closing-lower",[frame,exitFrame,intent]);};'),
   './home-native-layouts':moduleUrl('export const createHomeLayoutManager=()=>({draw(top,bottom,_state,hud,preview){top.record("layout-manager-upper",[preview]);bottom.record("layout-manager-lower");hud?.();return true;}});'),
@@ -49,6 +49,12 @@ const { createFirmwareHome } = await loadPresentation('firmware-presentation', {
 const pack = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/home/launcher.json', import.meta.url)));
 const messagesPack = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/home/messages-and-loose.json', import.meta.url)));
 const nativeCursorNames = new Set(['cursor', 'cursorAt', 'cursorEffectAt']);
+function pauseEntryReceiptFrame(events){
+ const presentation=events.find(event=>event.name==='pause-backdrop').args[0],frame=presentation.skeletal[0].frame;
+ assert.equal(presentation.material[0].frame,[0,3,6,9,11,14,17][frame]??20,
+  `authored retained material phase at SceneIn receipt ${frame}`);
+ return frame;
+}
 
 function realAppBannerView(id,{active=false}={}){
  const inputs={managerInhibited:false,sceneInhibited:false,loadInhibited:false,nativeWorkerReady:true,resourceReady:null};
@@ -1060,6 +1066,199 @@ function home() {
 function controls(state, patch) {
   return { ...state, system: { ...state.system, homeControls: { ...state.system.homeControls, ...patch } } };
 }
+
+test('live folder entry shares source poses across capture, chrome and both child paths',async()=>{
+ const base=home(),root={...base,folders:{19:'Folder'},system:{...base.system,folderLayouts:{19:{2:'work'}}}};
+ const entered=enterHomeFolder(root,19);
+ const at=updateCount=>({...entered,system:{...entered.system,homeClock:{...entered.system.homeClock,updateCount}}});
+ await withScreens(({screens,paint,events})=>{
+  const pose=()=>events.find(event=>event.name==='folderChrome').args.at(-1);
+  paint(at(100));assert.deepEqual(pose(),{folderFrame:0,captureFrame:0});
+  paint(at(105));assert.deepEqual(pose(),{folderFrame:5,captureFrame:5});
+  assert.deepEqual(events.find(event=>event.name==='folderBackdrop').args.at(-1),pose());
+  const children=events.filter(event=>event.name==='entry-child');
+  assert.ok(children.some(event=>event.args[1]===true)&&children.some(event=>event.args[1]===false));
+  assert.ok(children.every(event=>JSON.stringify(event.args[0])===JSON.stringify(pose())));
+  paint(at(105));assert.deepEqual(pose(),{folderFrame:5,captureFrame:5});
+  screens.paint(at(106),new Date(0),1200,{homeCursorLoopFrame:0});
+  paint(at(107));assert.deepEqual(pose(),{folderFrame:5,captureFrame:5},'first pair after diagnostic pixels rebases the last receipt');
+  for(let update=108;update<=122;update++)paint(at(update));
+  assert.deepEqual(pose(),{folderFrame:16,captureFrame:8});
+  paint({...root,system:{...root.system,homeClock:{...root.system.homeClock,updateCount:123}}});
+  paint(at(124));assert.deepEqual(pose(),{folderFrame:0,captureFrame:0},'re-entry restarts the source clips');
+ },{presenterPatch:{folderChild(ctx,_state,empty,draw,_reduced,entry){ctx.record('entry-child',[entry,empty]);draw(1);}}});
+});
+
+test('folder entry withholds child cursor and effects until its paired panel endpoint',async()=>{
+ const root={...home(),folders:{19:'Folder'}},entered=enterHomeFolder(root,19);
+ const at=updateCount=>({...entered,system:{...entered.system,homeClock:{...entered.system.homeClock,updateCount}}});
+ await withScreens(({screens,paint,events})=>{
+  paint(root);assert.ok(events.some(event=>nativeCursorNames.has(event.name)),'root cursor remains visible');
+  for(let update=100;update<116;update++){
+   paint(at(update));
+   assert.equal(events.some(event=>nativeCursorNames.has(event.name)),false,`no child cursor at folder frame ${update-100}`);
+  }
+  paint(at(116),1000,false);
+  assert.ok(events.some(event=>event.name==='cursorAt'),'cursor shares the terminal panel candidate');
+  assert.equal(screens.presentHomeEntryMotion(at(116)),true);
+  paint({...root,system:{...root.system,homeClock:{...root.system.homeClock,updateCount:117}}});
+  assert.ok(events.some(event=>event.name==='cursorAt'),'root return is not hidden');
+  paint(at(118));assert.equal(events.some(event=>nativeCursorNames.has(event.name)),false,'repeat entry starts hidden');
+  screens.setReducedMotion(true);paint(at(119));
+  assert.ok(events.some(event=>event.name==='cursorAt'),'reduced motion publishes the settled cursor');
+ });
+});
+
+test('live HOME suspension binds AppPause from the complete capture and keeps failed or diagnostic paints out of its clock',async()=>{
+ const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',3010),6500),'home',6600);
+ const at=updateCount=>({...suspended,system:{...suspended.system,homeClock:{...suspended.system.homeClock,updateCount}}});
+ let fail=true;
+ await withScreens(({screens,paint,events})=>{
+  const frame=()=>pauseEntryReceiptFrame(events);
+  paint(at(100));assert.equal(frame(),0);assert.equal(screens.stockStatus(at(100)),'error');
+  fail=false;screens.retryStockScreen();
+  paint(at(104));assert.equal(frame(),0,'failed paired paint did not acquire the pause origin');
+  paint(at(109));assert.equal(frame(),1);
+  screens.paint(at(110),new Date(0),1200,{homeCursorLoopFrame:0});
+  paint(at(111));assert.equal(frame(),1,'diagnostic pixels require a rebase receipt');
+  for(let update=112;update<=130;update++)paint(at(update));
+  assert.equal(frame(),20);
+ },{screenOptions:{drawSuspendedBackground(ctx,_capture,presentation){ctx.record('pause-backdrop',[presentation]);return !fail;}}});
+});
+
+test('mid-entry folder brief failures and stalls discard pending pixels and rebase with a monotonic clock',async()=>{
+ const base=home(),root={...base,folders:{19:'Folder'}},entered=enterHomeFolder(root,19);
+ const at=updateCount=>({...entered,system:{...entered.system,homeClock:{...entered.system.homeClock,updateCount}}});
+ let fail=false;
+ await withScreens(({screens,paint,events})=>{
+  const pose=()=>events.find(event=>event.name==='folderChrome').args.at(-1);
+  paint(at(100));paint(at(103));assert.deepEqual(pose(),{folderFrame:3,captureFrame:3});
+  fail=true;paint(at(107));assert.equal(screens.stockStatus(at(107)),'error');fail=false;screens.retryStockScreen();
+  paint(at(108));assert.deepEqual(pose(),{folderFrame:3,captureFrame:3},'a five-update monotonic failure/retry gap is not animation work');
+  paint(at(109));assert.deepEqual(pose(),{folderFrame:4,captureFrame:4});
+  fail=true;paint(at(110));assert.equal(screens.stockStatus(at(110)),'error');fail=false;screens.retryStockScreen();
+  paint(at(111));assert.deepEqual(pose(),{folderFrame:4,captureFrame:4},'brief retry also rebases without spending phase');
+  paint(at(500));assert.deepEqual(pose(),{folderFrame:4,captureFrame:4},'large live jump retains the last visible midpoint');
+  paint(at(500));assert.deepEqual(pose(),{folderFrame:4,captureFrame:4},'same update repeats the same pose');
+  paint(at(503));assert.deepEqual(pose(),{folderFrame:7,captureFrame:7});
+  screens.paint(at(3000),new Date(0),1200,{homeCursorLoopFrame:0});
+  paint(at(3001));assert.deepEqual(pose(),{folderFrame:7,captureFrame:7},'diagnostic interval is not backfilled');
+  paint(at(3002));assert.deepEqual(pose(),{folderFrame:8,captureFrame:8});
+  paint({...root,system:{...root.system,homeClock:{...root.system.homeClock,updateCount:3003}}});
+  paint(at(3004));assert.deepEqual(pose(),{folderFrame:0,captureFrame:0},'leaving and repeating binds a fresh entry');
+ },{presenterPatch:{folderChrome(ctx,...args){ctx.record('folderChrome',args);if(fail)throw Error('folder entry fixture failure');return true;}}});
+});
+
+test('mid-entry HOME pause stalls retain the complete capture pose through failed and diagnostic pairs',async()=>{
+ const suspended=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',3010),6500),'home',6600);
+ const at=updateCount=>({...suspended,system:{...suspended.system,homeClock:{...suspended.system.homeClock,updateCount}}});
+ let fail=false;
+ await withScreens(({screens,paint,events})=>{
+  const frame=()=>pauseEntryReceiptFrame(events);
+  paint(at(100));paint(at(103));assert.equal(frame(),1);
+  fail=true;paint(at(107));assert.equal(screens.stockStatus(at(107)),'error');
+  fail=false;screens.retryStockScreen();paint(at(108));assert.equal(frame(),1,'monotonic short failure gap cannot commit a midpoint advance');
+  paint(at(109));assert.equal(frame(),2);
+  fail=true;paint(at(110));assert.equal(screens.stockStatus(at(110)),'error');
+  fail=false;screens.retryStockScreen();paint(at(111));assert.equal(frame(),2,'brief failed pair cannot spend a source update');
+  screens.paint(at(3000),new Date(0),1200,{homeCursorLoopFrame:0});
+  paint(at(3001));assert.equal(frame(),2,'diagnostic interval rebases at the next valid receipt');
+  paint(at(4000));assert.equal(frame(),3,'a valid pair after a live gap spends only one source step');
+  paint(at(4000));assert.equal(frame(),3);
+  paint(at(4003));assert.equal(frame(),4,'normal multi-update sampling spends only one source step');
+ },{screenOptions:{drawSuspendedBackground(ctx,_capture,presentation){ctx.record('pause-backdrop',[presentation]);return !fail;}}});
+});
+
+test('folder entry keeps frame zero and terminal pairs pending until matching render receipts',async()=>{
+ const base=home(),root={...base,folders:{19:'Folder',20:'Other'}},entered=enterHomeFolder(root,19);
+ const at=updateCount=>({...entered,system:{...entered.system,homeClock:{...entered.system.homeClock,updateCount}}});
+ await withScreens(({screens,paint,events})=>{
+  const pose=()=>events.find(event=>event.name==='folderChrome').args.at(-1);
+  paint(at(100),1000,false);assert.deepEqual(pose(),{folderFrame:0,captureFrame:0});
+  paint(at(103),1000,false);assert.deepEqual(pose(),{folderFrame:0,captureFrame:0});
+  paint(at(500),1000,false);assert.deepEqual(pose(),{folderFrame:0,captureFrame:0},'offscreen stall cannot overwrite frame zero');
+  assert.equal(screens.homeEntryMotionPublicationPending(),true);
+  assert.equal(screens.presentHomeEntryMotion(at(500)),true);
+  assert.equal(screens.presentHomeEntryMotion(at(500)),false,'receipt is one-shot');
+  paint(at(503),1000,false);assert.deepEqual(pose(),{folderFrame:3,captureFrame:3});
+  screens.revokeHomeEntryMotionCandidate();assert.equal(screens.presentHomeEntryMotion(at(503)),false);
+  paint(at(505),1000,false);assert.deepEqual(pose(),{folderFrame:0,captureFrame:0},'brief revocation drops the unpresented pose');
+  assert.equal(screens.presentHomeEntryMotion({...at(505),system:{...at(505).system,sleeping:true}}),false);
+  paint(at(506),1000,false);assert.deepEqual(pose(),{folderFrame:0,captureFrame:0});
+  assert.equal(screens.presentHomeEntryMotion(at(506)),true);
+  for(let update=507;update<=521;update++)paint(at(update));
+  paint(at(522),1000,false);assert.deepEqual(pose(),{folderFrame:16,captureFrame:8});
+  assert.equal(screens.homeEntryMotionActive(at(522)),true,'terminal remains active until render receipt');
+  paint(at(1000),1000,false);assert.deepEqual(pose(),{folderFrame:16,captureFrame:8});
+  assert.equal(screens.presentHomeEntryMotion(at(1000)),true);
+  assert.equal(screens.homeEntryMotionActive(at(1000)),false,'settled entry releases transition cadence');
+  paint(at(1001),1000,false);assert.equal(screens.homeEntryMotionPublicationPending(),false);
+  assert.equal(screens.presentHomeEntryMotion(enterHomeFolder(root,20)),false,'different folder cannot consume an old candidate');
+ });
+});
+
+test('HOME pause receipts reject diagnostics, replacement owners and asset/disposal revocation',async()=>{
+ const base=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',3010),6500),'home',6600);
+ const at=updateCount=>({...base,system:{...base.system,homeClock:{...base.system.homeClock,updateCount}}});
+ await withScreens(({screens,paint,events,presenter})=>{
+  const frame=()=>pauseEntryReceiptFrame(events);
+  paint(at(100),1000,false);paint(at(103),1000,false);assert.equal(frame(),0);
+  screens.paint(at(500),new Date(0),1200,{homeCursorLoopFrame:0});
+  assert.equal(screens.presentHomeEntryMotion(at(500)),false,'synthetic canvas cannot receive a live render receipt');
+  paint(at(600),1000,false);assert.equal(frame(),0);
+  const different={...at(600),system:{...at(600).system,runtime:{...base.system.runtime,application:'other:1',homeReturn:'other:1',instances:{'other:1':{...base.system.runtime.instances[base.system.runtime.application],id:'other:1'}}}}};
+  assert.equal(screens.presentHomeEntryMotion(different),false);
+  paint(at(603),1000,false);assert.equal(frame(),0);assert.equal(screens.presentHomeEntryMotion(at(603)),true);
+  paint(at(606),1000,false);assert.equal(frame(),1);
+  screens.setFirmwareAssets({presenter,sharedFont:{draw(){}},dispose(){},diagnostics:[]});
+  assert.equal(screens.presentHomeEntryMotion(at(606)),false,'asset replacement revokes the old pair generation');
+  paint(at(610),1000,false);assert.equal(frame(),0);
+  screens.dispose();assert.equal(screens.presentHomeEntryMotion(at(610)),false);
+ },{screenOptions:{drawSuspendedBackground(ctx,_capture,presentation){ctx.record('pause-backdrop',[presentation]);return true;}}});
+});
+
+test('dynamic reduced motion publishes a terminal source state and cannot replay a presented midpoint',async()=>{
+ const folder=enterHomeFolder({...home(),folders:{19:'Folder'}},19);
+ const pause=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',3010),6500),'home',6600);
+ for(const [base,last] of [[folder,16],[pause,20]]){
+  const at=updateCount=>({...base,system:{...base.system,homeClock:{...base.system.homeClock,updateCount}}});
+  await withScreens(({screens,paint,events})=>{
+   const frame=()=>last===16?events.find(event=>event.name==='folderChrome').args.at(-1).folderFrame:pauseEntryReceiptFrame(events);
+   for(let update=100;update<=105;update++)paint(at(update));
+   assert.equal(frame(),5);
+   screens.setReducedMotion(true);paint(at(106),1000,false);assert.equal(frame(),last);
+   screens.setReducedMotion(false);assert.equal(screens.presentHomeEntryMotion(at(107)),false,'unpresented accessibility endpoint was revoked');
+   paint(at(107));assert.equal(frame(),5,'only receipt-backed phase survives a toggle');
+   screens.setReducedMotion(true);paint(at(108),1000,false);assert.equal(frame(),last);
+   assert.equal(screens.presentHomeEntryMotion(at(108)),true);
+   screens.setReducedMotion(false);paint(at(109));assert.equal(frame(),last,'acknowledged terminal cannot return to the old midpoint');
+   paint(at(111));assert.equal(frame(),last);
+   assert.equal(screens.homeEntryMotionActive(at(111)),false);
+  },{screenOptions:{drawSuspendedBackground(ctx,_capture,presentation){ctx.record('pause-backdrop',[presentation]);return true;}}});
+ }
+});
+
+test('unsupported folder capture, chrome and child draws recover both LCDs without a motion receipt',async()=>{
+ const root=home(),state=enterHomeFolder({...root,folders:{19:'Folder'}},19);
+ for(const name of ['folderBackdrop','folderChrome','folderChild']){
+  await withScreens(({screens,paint,events})=>{
+   paint(state,1000,false);assert.equal(screens.stockStatus(state),'error',name);
+   assert.equal(screens.homeEntryMotionActive(state),false,'failed native pair releases transition cadence');
+   assert.equal(screens.presentHomeEntryMotion(state),false,name);
+   assert.ok(events.filter(event=>event.name==='fillRect').some(event=>event.context.canvas.width===400));
+   assert.ok(events.filter(event=>event.name==='fillRect').some(event=>event.context.canvas.width===320));
+  },{presenterPatch:{[name](){return false;}}});
+ }
+});
+
+test('source folder parent rejection never draws an untransformed entry child',()=>{
+ const state=enterHomeFolder({...home(),folders:{19:'Folder'}},19);
+ const homePresenter=createFirmwareHome({renderer:{packs:{launcher:pack},withPaneParent(){return false;},draw(){return true;}}});
+ let draws=0;
+ for(const empty of [false,true])assert.throws(()=>homePresenter.folderChild({},state,empty,()=>draws++,false,{folderFrame:0,captureFrame:0}),/Native folder entry parent unavailable/);
+ assert.equal(draws,0);
+});
+
 function canvas(events) {
   const surface = { width: 0, height: 0 }, stack = [];
   let clips = [], path = [];
@@ -1102,15 +1301,16 @@ async function withScreens(run, { native = true, legacyCursorDrawn = true, realT
     toolbar(ctx, ...args) { ctx.record('toolbar', args); return realToolbar ? actual.toolbar(ctx, ...args) : true; },
     folderBannerLabel(text) { events.push({ name: 'banner-label', args: [text] }); },
     appletBannerLabel(key) { events.push({ name: 'applet-label', args: [key] }); },
-    folderChild(ctx, _state, _empty, draw) { ctx.record('folderChild'); draw(1); },
+    folderChild(ctx, _state, _empty, draw) { ctx.record('folderChild'); draw(1); return true; },
     cursor(ctx, ...args) { ctx.record('cursor', args); return legacyCursorDrawn; },
     ...presenterPatch,
   }, { get: (target, key) => key in target ? target[key] : ((ctx, ...args) => { ctx.record(key, args); return true; }) });
   const diagnostics = [];
   const screens = createScreens({ drawHomeBackground:()=>true, ...(native ? { firmwareAssets: { presenter, sharedFont: { draw() {} }, diagnostics, dispose() {}, ...firmwarePatch } } : {}), ...screenOptions });
-  const paint = (state, elapsed = 1000) => {
+  const paint = (state, elapsed = 1000, receipt = true) => {
     events.length = 0; screens.bottom.getContext('2d').curves.length = 0;
     screens.paint(state, new Date(0), elapsed);
+    if(receipt)screens.presentHomeEntryMotion(state);
     return events;
   };
   const cursorCalls = () => events.filter(event => nativeCursorNames.has(event.name));
@@ -1188,25 +1388,35 @@ test('all five hosted toolbar resources stay blank while pending and report only
 });
 
 test('held pickup hides both footers while root visibility history suppresses its upper banner after re-entry',async()=>{
- const selection={kind:'app',id:'health-safety'},motion={visible:true,scale:1,yawRadians:0,
+ const selection={kind:'app',id:'health-safety'},motion={visible:true,requestedVisible:true,scale:1,yawRadians:0,
   skeletal:{frame:123},material:{frame:0}};
  const hosted={status:'active',selection,generation:'held-test',requestEpoch:1,
   resourceTicket:{generation:'held-test',requestEpoch:1},stage:'active',waitUpdates:0,
   primary:{generation:'held-test',requestEpoch:1,activationEpoch:1,selection,motion}};
+ let currentHost=hosted;
  const pickup=(source,density,center)=>createHomeTilePickup(source,density,center,{x:244,y:137},{x:0,y:0});
  await withScreens(({paint,events})=>{
   const initial=home(),rootHeld=freeze(controls(initial,{tilePickup:pickup({folder:20,slot:1},5,{x:59,y:54})}));
   paint(rootHeld);assert.equal(events.filter(e=>e.name==='stock-title-banner').length,0);assert.equal(events.filter(e=>e.name==='footer').length,0);
   paint(freeze(controls(rootHeld,{tilePickup:null})));assert.equal(events.filter(e=>e.name==='stock-title-banner').length,1);assert.equal(events.filter(e=>e.name==='footer').length,1);
   const childId=initial.system.layout[1];
-  let folder=selectHomeSlot(enterHomeFolder({...initial,folders:{20:'A'},system:{...initial.system,folderLayouts:{20:{1:childId}}}},20),1);
+  const caller=selectHomeSlot({...initial,folders:{20:'A'},system:{...initial.system,folderLayouts:{20:{1:childId}}}},20);
+  const inputs={managerInhibited:false,sceneInhibited:false,loadInhibited:false,nativeWorkerReady:true,resourceReady:null};
+  let host=createHomeBannerHost({generation:'held-entry',updateCount:0},inputs);
+  host=crossHomeBannerBoundary(host,host.clock,{selection:resolveHomeBannerHostSelection(caller)});
+  host=crossHomeBannerBoundary(host,host.clock,{inputs:{...inputs,resourceReady:getHomeBannerHostView(host).resourceTicket}});
+  currentHost=getHomeBannerHostView(crossHomeBannerBoundary(host,{...host.clock,updateCount:20}));paint(caller);
+  currentHost=hosted;
+  let folder=enterHomeFolder(caller,20);
+  for(let updateCount=1;updateCount<=23;updateCount++){folder={...folder,system:{...folder.system,homeClock:{...folder.system.homeClock,updateCount}}};paint(folder);}
+  folder=selectHomeSlot(folder,1);
   folder=freeze(controls(folder,{tilePickup:pickup({folder:20,slot:1},1,{x:244,y:137})}));
   paint(folder);assert.equal(events.filter(e=>e.name==='stock-title-banner').length,1);assert.equal(events.filter(e=>e.name==='footer').length,0);
   const reentered=freeze(controls(folder,{tilePickup:markHomeTilePickupRootVisit(folder.system.homeControls.tilePickup)}));
   paint(reentered);assert.equal(events.filter(e=>e.name==='stock-title-banner').length,0);assert.equal(events.filter(e=>e.name==='footer').length,0);
   paint(freeze(controls(folder,{tilePickup:null})));assert.equal(events.filter(e=>e.name==='stock-title-banner').length,1);assert.equal(events.filter(e=>e.name==='footer').length,1);
- },{presenterPatch:{footer(ctx,state){if(getHomeFooter(state))ctx.record('footer');return true;}},screenOptions:{
-  getHomeBanner:()=>hosted,drawStockTitleBannerFrame:ctx=>{ctx.record('stock-title-banner');return true;},
+ },{presenterPatch:{footer(ctx,state){if(getHomeFooter(state))ctx.record('footer');return true;},folderBannerLabel:()=>({width:1,height:1,data:new Uint8ClampedArray(4)})},screenOptions:{
+  getHomeBanner:()=>currentHost,drawFolderBannerFrame:()=>true,drawStockTitleBannerFrame:ctx=>{ctx.record('stock-title-banner');return true;},
  }});
 });
 
@@ -1748,20 +1958,20 @@ test('elapsed paint time and reduced-motion toggles never advance or replace ret
   });
 });
 
-test('folder background capture excludes all controls while the live child paints them outside its clip', async () => {
+test('folder background capture excludes controls and the settled child paints them outside its clip', async () => {
   await withScreens(({ screens, paint, events, cursorCalls }) => {
     const state = freeze(enterHomeFolder({ ...home(), folders: { 20: 'A' } }, 20)), before = JSON.stringify(state);
     paint(state);
     const capture = events.find(event => event.name === 'capture-read');
     assert.ok(capture && capture.context !== screens.bottom.getContext('2d'));
     assert.ok(!events.some(event => event.context === capture.context && nativeCursorNames.has(event.name)));
-    assert.equal(cursorCalls().length, 3);
-    assert.ok(cursorCalls().every(call => call.context === screens.bottom.getContext('2d') && call.clips.length === 0));
+    assert.equal(cursorCalls().length, 0, 'first entry pair does not expose the child cursor');
     assert.ok(events.some(event => event.name === 'empty' && event.context === screens.bottom.getContext('2d')
       && event.clips.some(rect => JSON.stringify(rect) === '[0,49,320,159]')));
-    paint(state);
+    for(let update=1;update<=16;update++)paint({...state,system:{...state.system,homeClock:{...state.system.homeClock,updateCount:update}}});
     assert.ok(!events.some(event => event.name === 'capture-read'), 'same folder capture remains cached');
     assert.equal(cursorCalls().length, 3);
+    assert.ok(cursorCalls().every(call => call.context === screens.bottom.getContext('2d') && call.clips.length === 0));
     assert.equal(JSON.stringify(state), before);
   });
 });

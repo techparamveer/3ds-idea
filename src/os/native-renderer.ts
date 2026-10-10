@@ -1,5 +1,5 @@
 import { BitmapFont, nativeTextWriterFlags, type FontManifest } from './bitmap-font';
-import { blendNativePixel, evaluateNativeMaterial, interpolateNativeQuad, instantiateNativePart, nativeAnimationDiagnostics, nativeMultiplyBlend, nativePaneParentPath, nativeTextMetrics, nativeWindowPatches, nativeVisibleRasterRect, poseNativeLayout, rasterNativePicture,
+import { blendNativePixel, evaluateNativeMaterial, interpolateNativeQuad, instantiateNativePart, nativeAnimationDiagnostics, nativeMultiplyBlend, nativeOpaquePictureAlphaByte, nativePaneParentPath, nativeTextMetrics, nativeWindowPatches, nativeVisibleRasterRect, poseNativeLayout, rasterNativePicture,
  type AnimationBinding, type NativeLayout, type NativeText, type NativeMaterial, type NativePack, type NativePane, type NativePicture, type NativePixels, type NativeRasterRegion, type PaneOverrides } from './native-layout';
 
 type Context=CanvasRenderingContext2D;
@@ -10,6 +10,8 @@ export type NativeDrawOptions={
  textSamplingPanes?:readonly string[];
  /** Source pictures/window patches sampled once at fractional LCD positions. */
  pictureSampling?:'lcd';
+ /** Source-validated common-cover backgrounds reuse their opaque RGB samples. */
+ opaquePictureAlphaPanes?:readonly string[];
  /** Capture-fitted Health Back/Other title coverage; GPU precision remains unverified. */
  textCoverageAdaptation?:'azahar-12p4-fit';
  /** Explicit source layout links; each prt1 retains its own pane/material scope. */
@@ -62,6 +64,7 @@ export class NativeLayoutRenderer {
  private parentAlpha=new WeakMap<Context,number>();
  readonly diagnostics:string[]=[];
  constructor(readonly packs:Record<string,NativePack>,private textures:Record<string,Map<string,NativePixels>>,private fonts:ReadonlyMap<string,BitmapFont>,private cacheLimit=8*1024*1024){}
+ getFontManifest(fontName:string):Readonly<FontManifest>|undefined{return this.fonts.get(fontName)?.manifest;}
  /** Source single-line writer width used by Settings' title/icon centering. */
  measureSingleLineText(fontName:string,text:NativeText):number{
   const font=this.fonts.get(fontName);if(!font)throw new Error(`Missing native font ${fontName}`);
@@ -89,7 +92,7 @@ export class NativeLayoutRenderer {
   while(this.bytes+size>this.cacheLimit&&this.cache.size){const first=this.cache.entries().next().value!;this.bytes-=first[1].width*first[1].height*4;first[1].width=first[1].height=0;this.cache.delete(first[0]);}
   if(size<=this.cacheLimit){this.cache.set(key,canvas);this.bytes+=size;}return canvas;
  }
- private picture(pack:string,layout:NativeLayout,picture:NativePicture,width:number,height:number,alpha:number,textures:ReadonlyMap<string,NativePixels>,override?:NativeMaterial,sampling?:NativeRasterRegion) {
+ private picture(pack:string,layout:NativeLayout,picture:NativePicture,width:number,height:number,alpha:number,textures:ReadonlyMap<string,NativePixels>,override?:NativeMaterial,sampling?:NativeRasterRegion,reuseOpaqueAlpha=false):HTMLCanvasElement {
   const w=Math.max(1,Math.ceil(width)),h=Math.max(1,Math.ceil(height));
   if(w*h>1024*1024)throw new Error('Native pane exceeds raster budget');
   const material=override??layout.materials[picture.material];
@@ -98,6 +101,17 @@ export class NativeLayoutRenderer {
   const textureIds=material.textureMaps.map(map=>{const pixels=textures.get(layout.textures[map.texture]);if(!pixels)return 0;
    let id=this.textureIds.get(pixels);if(id===undefined){id=this.nextTextureId++;this.textureIds.set(pixels,id);}return id;});
   const key=JSON.stringify([pack,material,picture.colors,picture.uvSets,w,h,alpha,layout.textures,textureIds,sampling]);
+  if(reuseOpaqueAlpha){
+   const byte=nativeOpaquePictureAlphaByte(layout,picture,textures,alpha,material);
+   const source=this.picture(pack,layout,picture,width,height,1,textures,override,sampling);
+   if(!this.opaque.has(source))throw new Error('Unsupported nonopaque native picture alpha source');
+   if(alpha===1)return source;
+   return this.cached(key,()=>{
+    const data=source.getContext('2d')!.getImageData(0,0,w,h);
+    for(let at=3;at<data.data.length;at+=4)data.data[at]=byte;
+    const canvas=surface(w,h);canvas.getContext('2d')!.putImageData(data,0,0);return canvas;
+   });
+  }
   return this.cached(key,()=>{
    const pixels=rasterNativePicture(layout,picture,w,h,textures,alpha,material,sampling),canvas=surface(w,h),ctx=canvas.getContext('2d')!;
    const data=ctx.createImageData(w,h);data.data.set(pixels.data);
@@ -163,6 +177,10 @@ export class NativeLayoutRenderer {
   const key=JSON.stringify(['text',layout.fonts[text.font],text,w,h,alpha,material,phase,direct,coverage,direct&&sourceSize?pane.size:undefined]);
   const canvas=this.cached(key,()=>{
    const canvas=surface(rasterWidth,rasterHeight),ctx=canvas.getContext('2d')!;ctx.imageSmoothingEnabled=true;
+   const implicitText=material.sourceFormat!=='FLYT'&&!material.unsupported.length&&!material.tevStages.length&&!material.alphaCompare;
+   const base=implicitText?material.bufferColor.map(value=>value/255):undefined;
+   const constants=implicitText?material.constantColors.map(color=>color.map(value=>value/255)):undefined;
+   const constant=constants?.[0]??[1,1,1,1];
    // Each mask uses the complete message for measurement, centering and advances.
    // Only ink is selected; spans never become independently positioned strings.
    const runs:{start:number;end:number;color?:number[]}[]=[];let start=0;
@@ -179,12 +197,22 @@ export class NativeLayoutRenderer {
     font.drawNative(ink,text.value,direct&&sourceSize?pane.size[0]:w,direct&&sourceSize?pane.size[1]:h,metrics.size,text.alignment,metrics.characterSpacing,metrics.lineSpacing,text.lineAlignment,phase,direct,coverage,text.colorSpans?.length?[run.start,run.end]:undefined,text.cursorAdvances,sourceSize,sourceTopLeftSampling,text.lineAdvanceScales,text.multilineBlockOrigin,text.glyphScaleSpans,text.fixedWidthSpans,text.singleLineBlockOrigin);
     ink.restore();
     const image=ink.getImageData(0,0,rasterWidth,rasterHeight);
-    for(let y=0;y<rasterHeight;y++)for(let x=0;x<rasterWidth;x++){
-     const at=(y*rasterWidth+x)*4;if(!image.data[at+3])continue;
-     const top=run.color??text.topColor,bottom=run.color??text.bottomColor;
-     const primary=interpolateNativeQuad([...top,...top,...bottom,...bottom],.5,(y+.5-phase[1]-above)/(direct&&sourceSize?pane.size[1]:h),4).map(v=>v/255);primary[3]*=alpha;
-     const tex=Array.from(image.data.subarray(at,at+4),v=>v/255);
-     image.data.set(evaluateNativeMaterial(material,[tex],primary).map(v=>v*255),at);
+    const top=run.color??text.topColor,bottom=run.color??text.bottomColor,colors=[...top,...top,...bottom,...bottom];
+    for(let y=0;y<rasterHeight;y++){
+     // Implicit text has one texture and a row-constant primary colour. Keep
+     // the scalar evaluator's operation order, without rebuilding registers per ink pixel.
+     const rowPrimary=implicitText?interpolateNativeQuad(colors,.5,(y+.5-phase[1]-above)/(direct&&sourceSize?pane.size[1]:h),4).map(v=>v/255):undefined;
+     if(rowPrimary)rowPrimary[3]*=alpha;
+     for(let x=0;x<rasterWidth;x++){
+      const at=(y*rasterWidth+x)*4;if(!image.data[at+3])continue;
+      if(rowPrimary){
+       for(let c=0;c<4;c++)image.data[at+c]=((base![c]+(constant[c]-base![c])*(image.data[at+c]/255))*rowPrimary[c])*255;
+      }else{
+       const primary=interpolateNativeQuad(colors,.5,(y+.5-phase[1]-above)/(direct&&sourceSize?pane.size[1]:h),4).map(v=>v/255);primary[3]*=alpha;
+       const tex=Array.from(image.data.subarray(at,at+4),v=>v/255);
+       image.data.set(evaluateNativeMaterial(material,[tex],primary).map(v=>v*255),at);
+      }
+     }
     }
     if(nativeDarkenBlend(material))for(let i=0;i<image.data.length;i+=4)image.data[i]=image.data[i+1]=image.data[i+2]=0;
     ink.putImageData(image,0,0);if(mask!==canvas)ctx.drawImage(mask,0,0);
@@ -298,27 +326,32 @@ export class NativeLayoutRenderer {
   if(this.disposed)return false;
   if(!this.packs[packName]||!layout){this.report(`Missing layout ${packName}/${layoutName}`);return false;}
   return this.drawResolved(ctx,packName,layoutName,{...options,bindings:options.bindings??[]},{
-   layout,textures:this.textures[packName],key:JSON.stringify(['posed',packName,layoutName]),depth:0,
+   layout,textures:this.textures[packName],key:JSON.stringify(['posed',packName,layoutName]),depth:0,cachePose:false,
   });
  }
- private drawResolved(ctx:Context,packName:string,layoutName:string,options:NativeDrawOptions,instance?:{layout:NativeLayout;textures:ReadonlyMap<string,NativePixels>;key:string;depth:number}):boolean {
+ private drawResolved(ctx:Context,packName:string,layoutName:string,options:NativeDrawOptions,instance?:{layout:NativeLayout;textures:ReadonlyMap<string,NativePixels>;key:string;depth:number;cachePose?:boolean}):boolean {
   if(this.disposed)return false;
   const pack=this.packs[packName],original=instance?.layout??pack?.layouts[layoutName];if(!original){this.report(`Missing layout ${packName}/${layoutName}`);return false;}
   const poseKey=JSON.stringify([instance?.key,packName,layoutName,options.bindings,options.overrides,options.textByCallName]);
-  let posed=this.poses.get(poseKey);
+  let posed=instance?.cachePose===false?undefined:this.poses.get(poseKey);
   if(posed){this.poses.delete(poseKey);this.poses.set(poseKey,posed);}
   else{for(const binding of options.bindings??[]){const animation=pack.animations[binding.name];if(animation)for(const message of nativeAnimationDiagnostics(original,animation))this.report(`${layoutName}: ${message}`);}
    posed=poseNativeLayout(original,pack.animations,options.bindings,options.overrides);
    const textByCallName=options.textByCallName;
    if(textByCallName){const bind=(panes:NativePane[])=>panes.forEach(p=>{if(p.text?.callName&&options.overrides?.[p.name]?.text===undefined&&Object.hasOwn(textByCallName,p.text.callName))p.text.value=textByCallName[p.text.callName];bind(p.children);});bind(posed.roots);}
-   if(this.poses.size>=16)this.poses.delete(this.poses.keys().next().value!);this.poses.set(poseKey,posed);}
+   if(instance?.cachePose!==false){if(this.poses.size>=16)this.poses.delete(this.poses.keys().next().value!);this.poses.set(poseKey,posed);}}
   const layout=posed;
   // Bind replacements for this draw only; shared source packs/textures stay intact.
   const sourceTextures=instance?.textures??this.textures[packName];
   const textures=options.textures?new Map([...sourceTextures,...Object.entries(options.textures)]):sourceTextures;
   const textSamplingPanes=options.textSamplingPanes?new Set(options.textSamplingPanes):undefined;
+  const opaquePictureAlphaPanes=options.opaquePictureAlphaPanes?new Set(options.opaquePictureAlphaPanes):undefined;
   ctx.save();
   try{
+   if(options.opaquePictureAlphaPanes&&(options.opaquePictureAlphaPanes.some(name=>typeof name!=='string'||!name)||opaquePictureAlphaPanes!.size!==options.opaquePictureAlphaPanes.length))throw new Error('Invalid native opaque picture alpha pane allowlist');
+   if(opaquePictureAlphaPanes){const available=new Set<string>();const scan=(panes:NativePane[])=>panes.forEach(pane=>{if(pane.picture)available.add(pane.name);scan(pane.children);});scan(layout.roots);
+    for(const name of opaquePictureAlphaPanes)if(!available.has(name))throw new Error(`Missing native opaque picture alpha pane ${name}`);
+   }
    if(options.textSamplingPanes&&(!options.textSampling||options.textSamplingPanes.some(name=>typeof name!=='string'||!name)||textSamplingPanes!.size!==options.textSamplingPanes.length))throw new Error('Invalid native text sampling pane allowlist');
    if(textSamplingPanes){const available=new Set<string>();const scan=(panes:NativePane[])=>panes.forEach(pane=>{if(pane.text)available.add(pane.name);scan(pane.children);});scan(layout.roots);
     for(const name of textSamplingPanes)if(!available.has(name))throw new Error(`Missing native text sampling pane ${name}`);
@@ -340,7 +373,7 @@ export class NativeLayoutRenderer {
      if(w>0&&h>0&&alpha>0){
       ctx.save();ctx.translate(x,y);
       try{
-       if(pane.picture&&!this.projectedPicture(ctx,layout,pane.picture,w,h,alpha,textures,options.pictureSampling==='lcd')){this.composite(ctx,this.picture(packName,layout,pane.picture,w,h,alpha,textures),0,0,w,h,layout,pane.picture.material,undefined,allowOpaqueDarken);}
+       if(pane.picture&&!this.projectedPicture(ctx,layout,pane.picture,w,h,alpha,textures,options.pictureSampling==='lcd')){this.composite(ctx,this.picture(packName,layout,pane.picture,w,h,alpha,textures,undefined,undefined,opaquePictureAlphaPanes?.has(pane.name)),0,0,w,h,layout,pane.picture.material,undefined,allowOpaqueDarken);}
        if(pane.text){const textSampling=!textSamplingPanes||textSamplingPanes.has(pane.name)?options.textSampling:undefined;
         const raster=this.text(layout,pane,alpha,textSampling?ctx.getTransform?.():undefined,options.textCoverageAdaptation,textSampling==='lcd-source-size'||textSampling==='lcd-source-size-left',textSampling==='lcd-source-size-left',!!textSampling&&!!textSamplingPanes?.has(pane.name)),textCanvas=raster.canvas;
         // 0x18fe2c (only caller 0x190138, in 0x1900d4) does not reach scissor
@@ -393,7 +426,7 @@ export class NativeLayoutRenderer {
       try{
        const key=JSON.stringify([poseKey,pane.name,pane.part]);
        if(!this.drawResolved(ctx,link.pack,link.layout,{parts:options.parts,partBindings:options.partBindings,textByCallName:options.textByCallName,
-        bindings:partOptions?.bindings,overrides:partOptions?.overrides,center:[0,0]}, {layout:prepared.layout,textures:images,key,depth}))throw new Error(`Failed native part ${pane.name}`);
+        bindings:partOptions?.bindings,overrides:partOptions?.overrides,center:[0,0]}, {layout:prepared.layout,textures:images,key,depth,cachePose:instance?.cachePose}))throw new Error(`Failed native part ${pane.name}`);
       }finally{if(previous===undefined)this.parentAlpha.delete(ctx);else this.parentAlpha.set(ctx,previous);}
      }
      // InfluenceAlpha transmits this pane's alpha; an unflagged pane keeps the inherited chain.

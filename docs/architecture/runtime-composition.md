@@ -209,6 +209,32 @@ HOME/B escapes without destroying the suspended caller chain. This is a website
 recovery policy, not native firmware error UI. See
 [native readiness](../native-screen-readiness.md) for the tested/live subset.
 
+### Manual destination scheduling
+
+Through `a5e4e44`, Manual's presentation owner authorizes destination composition
+only for the same owner/title/caller/request/application/generation identity
+after an accepted opaque outgoing frame 20 without rebase, or an accepted
+incoming pose including rebase. Acquisition continues during outgoing motion.
+Pending and revoked outgoing poses do not authorize the expensive draw.
+The first cold draw remains beneath another outgoing frame 20. Incoming begins
+only when status is ready and the current-owner prepared pair exists at paint
+start. An incoming rebase holds its accepted frame through a cold rebuild and
+one subsequent already-ready held receipt before progressing. Cold incoming
+frame 20 cannot publish public readiness.
+
+`stock-screen-presentation.ts` invalidates `preparedPair` whenever `changed()`
+advances the native-session/image revision, before calling `onChange`.
+Both current outward LCD copies must succeed before a replacement pair is
+available. Failed copying cannot expose an old prepared receipt. The shared
+applet incoming-resource consumers use the same revision-current contract.
+Other stock apps and diagnostic paints are not deferred. Failure/retry,
+owner/generation validation and disposal remain in the existing owners.
+This is a browser scheduling adaptation with no new native assets, input or
+curve and no raster-cost reduction claim. Final source/test approval, offline
+Canvas limits, preview identity and incomplete recapture are recorded in the
+[Manual scheduling handoff](../manual-destination-scheduling-2026-10-09.md).
+Production motion and native ordering remain unproven.
+
 ## Shutdown and disposal
 
 Power-off changes virtual console state; it does not unmount Three.js. Suspended

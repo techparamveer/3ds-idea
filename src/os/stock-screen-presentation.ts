@@ -14,15 +14,21 @@ import { drawNativeSoundFrame, soundHudTimeKey, soundScreenPacks } from './stock
 import { drawNativeCameraFrame, cameraScreenPacks } from './stock-native-camera';
 import { healthEntrySceneInFrame, healthTopLoopFrame } from './stock-health-scroll';
 import { drawNativeHealthFrame, healthScreenPacks } from './stock-native-health';
-import { drawNativePersonalToolFrame, nativePersonalToolView, notificationsHudClock } from './stock-native-personal-tools';
+import { drawNativePersonalToolFrame, nativePersonalToolView, notificationsHudClock, notesHudClock } from './stock-native-personal-tools';
 import { drawNativeWebFrame, browserHudClock, browserScreenPacks, miiverseScreenPacks } from './stock-native-web';
 import { NATIVE_RECOVERY_TARGETS } from './native-screen-input';
 import { stockScreenTargets } from './stock-screen-layout';
+import { createNotesBootCoverPublicationGate, type NotesBootCoverPaint } from './notes-boot-cover';
+import { appletTitleEntrySelection, drawAppletTitleEntry, validateAppletTitleEntryAssets } from './applet-title-entry-assets';
+import type { NotesFooterCloseDraw as NotesFooterClosePaint } from './notes-footer-close-assets';
+import { validateNotesFooterCloseAssets } from './notes-footer-close-assets';
+import { validateNotificationsFooterFeedbackAssets } from './notifications-footer-close-assets';
 
 type Context=CanvasRenderingContext2D;
 type MediaRecord=Record<string,JsonValue>;
 export type NotesIntroPaint =
   | { status: 'pending' }
+  | NotesBootCoverPaint
   | {
       status: 'posed';
       title: NativeLayout;
@@ -38,7 +44,7 @@ export type NotesIntroPaint =
     };
 export type CameraStereoFit={kind:'camera-stereo';originalWidth:number;originalHeight:number;parallaxPixels:number};
 type MediaFit='contain'|'camera-mono'|CameraStereoFit;
-export type StockScreenPaintOptions={settingsHud?:SettingsHudPose;soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground;font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number,fit?:MediaFit)=>boolean;nativeImage?:(url:string)=>NativePixels|undefined;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number;notesIntro?:NotesIntroPaint;healthEntryFrame?:number};
+export type StockScreenPaintOptions={settingsHud?:SettingsHudPose;soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground;font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number,fit?:MediaFit)=>boolean;nativeImage?:(url:string)=>NativePixels|undefined;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number;notesIntro?:NotesIntroPaint;healthEntryFrame?:number;notesFooterClose?:NotesFooterClosePaint;notificationsFooterClose?:{frame:number}};
 /** Portfolio media placement; native UI graphics continue through the layout renderer. */
 export function drawStockMediaImage(ctx:Context,image:CanvasImageSource,sourceWidth:number,sourceHeight:number,x:number,y:number,w:number,h:number,fit:MediaFit='contain'){
   if(typeof fit==='object'&&fit.kind==='camera-stereo'&&w===400&&h===240&&sourceWidth>=480&&sourceHeight>=240&&sourceWidth<=2*sourceHeight&&fit.originalWidth>=480&&fit.originalHeight>=240&&Number.isFinite(fit.parallaxPixels)){
@@ -206,11 +212,14 @@ export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,opt
 /** One foreground session; asynchronous resources never outlive its owner. */
 export function createStockScreenPresentation(options:{manifestUrl?:string;onChange?:()=>void;deadlineMs?:number;soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground;reducedMotion?:()=>boolean}={}){
   let revision=0,painted='',paintedFont:BitmapFont|undefined,complete=false;
-  const changed=()=>{revision++;options.onChange?.();};
+  let preparedPair:Readonly<{owner:string;appId:string;renderer:NativeLayoutRenderer;key:string}>|undefined;
+  const changed=()=>{revision++;preparedPair=undefined;options.onChange?.();};
   const session=createNativeTitleSession({manifestUrl:options.manifestUrl??'/os/firmware/10.7.0-32E/manifest.json',onChange:state=>{if((state.status==='ready'&&roomReady)||state.status==='error')clearDeadline();changed();}});
   const images=new Map<string,HTMLImageElement>(),nativeImages=new Map<string,NativePixels>();let owner:string|null=null,disposed=false;
   let identity='',failure:unknown=null,recoveryPublished=false,deadline:ReturnType<typeof setTimeout>|undefined;
   let published:NativeLayoutRenderer|undefined;
+  const notesBootGate=createNotesBootCoverPublicationGate();
+  let notesBootCandidate:{owner:string;pair:NotesBootCoverPaint;renderer:NativeLayoutRenderer}|undefined;
   let roomReady=true;
   let settingsHud:SettingsHudSample|null=null,settingsHudOwner:string|null=null;
   // This receipt is independent of native asset-session teardown. The same
@@ -223,11 +232,13 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
   const upperContext=upper.getContext('2d')!,lowerContext=lower.getContext('2d')!;
   const clearDeadline=()=>{if(deadline!==undefined)clearTimeout(deadline);deadline=undefined;};
   function fail(error:unknown){
+    preparedPair=undefined;
+    notesBootCandidate=undefined;notesBootGate.revoke();
     options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);roomReady=true;clearDeadline();failure=error??new Error('Native screen preparation failed');recoveryPublished=false;published=undefined;
     // Invalidates the generation as well as aborting a cooperative loader.
     session.update(null);changed();
   }
-  function reset(){options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);roomReady=true;clearDeadline();identity='';failure=null;recoveryPublished=false;published=undefined;session.update(null);painted='';}
+  function reset(){preparedPair=undefined;notesBootCandidate=undefined;options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);roomReady=true;clearDeadline();identity='';failure=null;recoveryPublished=false;published=undefined;session.update(null);painted='';}
   function releaseImages(){for(const image of images.values()){image.onload=null;image.onerror=null;image.src='';}images.clear();nativeImages.clear();}
   function sourceImage(url:string){
     let im=images.get(url);
@@ -246,7 +257,11 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     const pixels={width:canvas.width,height:canvas.height,data:context.getImageData(0,0,canvas.width,canvas.height).data};
     nativeImages.set(url,pixels);canvas.width=canvas.height=0;return pixels;
   }
-  function sync(nextOwner:string|null){if(disposed)return;if(owner!==nextOwner){owner=nextOwner;reset();releaseImages();}}
+  function sync(nextOwner:string|null){if(disposed)return;if(owner!==nextOwner){owner=nextOwner;notesBootGate.reset();reset();releaseImages();}}
+  function syncNotesBootGate(view:AppView,nextOwner:string,notesIntro?:NotesIntroPaint){
+    if(view.appId==='game-notes'&&notesIntro?.status==='posed')notesBootGate.reset();
+    notesBootGate.sync(nextOwner,view.appId==='game-notes'&&notesIntro?.status==='boot-cover'?notesIntro:undefined);
+  }
   function prepare(view:AppView,nextOwner:string,font?:BitmapFont){
     if(disposed)return session.getState();
     sync(nextOwner);
@@ -255,6 +270,11 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     if(!descriptor||failure)return session.getState();
     const state=session.update(font?{owner:nextOwner,...descriptor,sharedFonts:new Map([['cbf_std.bcfnt',font]])}:null);
     if(state.status==='error'){fail(state.error);return state;}
+    const incoming=appletTitleEntrySelection(view.appId);
+    if(state.status==='ready'&&incoming){
+      try{const pack=state.assets.renderer.packs[incoming.alias];if(!pack)throw Error('Native title-owned incoming pack unavailable');validateAppletTitleEntryAssets(pack,incoming.appId);}
+      catch(error){fail(error);return state;}
+    }
     const room=options.soundRoom?.prepare(view.appId==='sound'&&(view.screen==='main'||view.screen==='guide')?nextOwner:null,changed);
     const shoot=options.cameraShoot?.prepare(view.appId==='camera'&&view.screen==='guide'?nextOwner:null,changed);
     roomReady=[room,shoot].every(background=>!background||background.status==='inactive'||background.status==='ready');
@@ -264,11 +284,12 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     else if(deadline===undefined)deadline=setTimeout(()=>{if(!disposed&&identity===next)fail(new Error('Native screen preparation timed out'));},deadlineMs);
     return state;
   }
-  function status(view:AppView,nextOwner:string,font?:BitmapFont):NativeScreenStatus{
+  function status(view:AppView,nextOwner:string,font?:BitmapFont,notesIntro?:NotesIntroPaint):NativeScreenStatus{
     const state=prepare(view,nextOwner,font);
+    syncNotesBootGate(view,nextOwner,notesIntro);
     if(!identity||disposed)return 'inactive';
     if(failure)return recoveryPublished?'error':'loading';
-    return state.status==='ready'&&roomReady&&published===state.assets.renderer?'ready':'loading';
+    return state.status==='ready'&&roomReady&&published===state.assets.renderer&&notesBootGate.ready()?'ready':'loading';
   }
   function black(){
     // CmnFadeNinLogo_U/D_00 SceneOut frame20: full-screen RGB0, alpha255.
@@ -288,10 +309,48 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
   }
   return {
     sync,prepare,status,
+    preparedPair(nextOwner:string):object|undefined{
+      const state=session.getState();
+      return !disposed&&!failure&&complete&&owner===nextOwner&&state.status==='ready'&&roomReady
+        &&published===state.assets.renderer&&preparedPair?.owner===nextOwner&&preparedPair.renderer===published&&preparedPair.key===painted?preparedPair:undefined;
+    },
+    incomingResources(nextOwner:string,appId:string):object|undefined{
+      const state=session.getState();
+      return appletTitleEntrySelection(appId)&&!disposed&&!failure&&complete&&roomReady&&owner===nextOwner
+        &&state.status==='ready'&&published===state.assets.renderer&&preparedPair?.owner===nextOwner
+        &&preparedPair.appId===appId&&preparedPair.renderer===published&&preparedPair.key===painted?published:undefined;
+    },
+    notesFooterCloseResources(nextOwner:string):object|undefined{
+      const state=session.getState();
+      return !disposed&&!failure&&complete&&roomReady&&owner===nextOwner&&state.status==='ready'
+        &&published===state.assets.renderer&&preparedPair?.owner===nextOwner&&preparedPair.appId==='game-notes'
+        &&preparedPair.renderer===published&&preparedPair.key===painted?published:undefined;
+    },
+    notificationsFooterCloseResources(nextOwner:string):object|undefined{
+      const state=session.getState();
+      return !disposed&&!failure&&complete&&roomReady&&owner===nextOwner&&state.status==='ready'
+        &&published===state.assets.renderer&&preparedPair?.owner===nextOwner&&preparedPair.appId==='notifications'
+        &&preparedPair.renderer===published&&preparedPair.key===painted?published:undefined;
+    },
+    drawIncoming(nextOwner:string,appId:string,top:Context,bottom:Context,frame:number,resources:object):boolean{
+      const incoming=appletTitleEntrySelection(appId),state=session.getState();
+      if(!incoming||disposed||failure||!complete||!roomReady||owner!==nextOwner||state.status!=='ready'
+        ||resources!==state.assets.renderer||resources!==published||preparedPair?.owner!==nextOwner||preparedPair.appId!==appId
+        ||preparedPair.renderer!==published||preparedPair.key!==painted)return false;
+      return drawAppletTitleEntry(state.assets.renderer,top,bottom,{appId:incoming.appId,frame});
+    },
+    presentNotesBootCover(nextOwner:string,accept:(pair:NotesBootCoverPaint)=>boolean):boolean{
+      const candidate=notesBootCandidate,state=session.getState();
+      if(disposed||failure||!candidate||candidate.owner!==nextOwner||owner!==nextOwner||state.status!=='ready'
+        ||candidate.renderer!==published||candidate.renderer!==state.assets.renderer||!accept(candidate.pair))return false;
+      notesBootGate.present(nextOwner,candidate.pair);notesBootCandidate=undefined;return true;
+    },
+    revokeNotesBootCoverCandidate(){notesBootCandidate=undefined;notesBootGate.revoke();},
     retry(){if(!disposed&&failure){reset();changed();return true;}return false;},
     /** True only when the published pair is this owner's complete application frame. */
-    draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont,suspendedCapture?:SuspendedCapture,date=new Date(),elapsedMs=0,notesIntro?:NotesIntroPaint,verification?:{sampleCalendar?:boolean}):boolean{
+    draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont,suspendedCapture?:SuspendedCapture,date=new Date(),elapsedMs=0,notesIntro?:NotesIntroPaint,verification?:{sampleCalendar?:boolean},notesFooterClose?:NotesFooterClosePaint,notificationsFooterClose?:{frame:number}):boolean{
       if(disposed)return false;
+      preparedPair=undefined;notesBootCandidate=undefined;
       // Pixels stay out of the key; one frozen capture has one generation.
       const capture=suspendedCapture?.status==='ready'?[suspendedCapture.owner,suspendedCapture.generation]:suspendedCapture?.status??null;
       const reducedMotion=options.reducedMotion?.()??false;
@@ -302,8 +361,9 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       const data=view.data&&typeof view.data==='object'&&!Array.isArray(view.data)?view.data:{};
       const clockField=view.appId==='game-notes'?'notesHostMs':view.appId==='health-safety'?'healthElapsedMs':view.appId==='system-settings'?'settingsHudElapsedMs':null;
       const notesView=clockField?{...view,data:Object.fromEntries(Object.entries(data).filter(([key])=>key!==clockField))}:view;
-      const introKey=notesIntro?.status==='posed'?[notesIntro.ticket,notesIntro.steps,notesIntro.scene9Draw,notesIntro.scene10Draw,notesIntro.titleUserVisible]:notesIntro?.status??null;
+      const introKey=notesIntro?.status==='posed'?[notesIntro.ticket,notesIntro.steps,notesIntro.scene9Draw,notesIntro.scene10Draw,notesIntro.titleUserVisible]:notesIntro?.status==='boot-cover'?[notesIntro.status,notesIntro.owner,notesIntro.ticket,notesIntro.steps,notesIntro.scene9Draw,notesIntro.scene10Draw]:notesIntro?.status??null;
       const state=prepare(view,nextOwner,font);
+      syncNotesBootGate(view,nextOwner,notesIntro);
       // Poses, not passes, key the eShop pair: settled passes do not repaint.
       const eshop=nativeServiceView(view)?.view==='eshop-welcome';
       const keyView=eshop?{...notesView,data:{...notesView.data,welcomePass:null,welcomeDecidedPass:null}}:notesView,eshopPaintKey=eshop?eshopWelcomePose(view,reducedMotion):null;
@@ -324,6 +384,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       const eshopHudKey=eshop?eshopHudClock(date):null;
       // notificationsHudClock includes batteryFrame so 0x181018 1 Hz Bat republishes.
       const notificationsHudKey=view.appId==='notifications'?notificationsHudClock(date):null;
+      const notesHudKey=view.appId==='game-notes'?notesHudClock(date):null;
       // browserHudClock includes batteryFrame and colonVisible so Battery_Bat / TimeC 1 Hz republishes.
       const browserHudKey=view.appId==='browser'?browserHudClock(date):null;
       const healthElapsed=typeof data.healthElapsedMs==='number'&&Number.isFinite(data.healthElapsedMs)?Math.max(0,data.healthElapsedMs):0;
@@ -334,7 +395,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         ?(reducedMotion||healthEntry!.complete?20:healthEntry!.origin===null?0:healthEntrySceneInFrame(healthElapsed-healthEntry!.origin))
         :undefined;
       const healthPaintKey=view.appId==='health-safety'?[healthTopLoopFrame(healthElapsed,reducedMotion),healthEntryFrame]:null;
-      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,notificationsHudKey,browserHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey]);
+      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,notificationsHudKey,notesHudKey,browserHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey,notesFooterClose,notificationsFooterClose]);
       if(painted!==key||paintedFont!==font){
         complete=false;
         black();
@@ -342,7 +403,9 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         else if(!identity||(state.status==='ready'&&roomReady)){
           upperContext.clearRect(0,0,400,240);lowerContext.clearRect(0,0,320,240);
           try{
-            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,nativeImage,soundRoom:options.soundRoom,cameraShoot:options.cameraShoot,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs,notesIntro,settingsHud:hud??undefined,healthEntryFrame});
+            if(notesFooterClose&&state.status==='ready')validateNotesFooterCloseAssets(state.assets.renderer.packs);
+            if(notificationsFooterClose&&state.status==='ready')validateNotificationsFooterFeedbackAssets(state.assets.renderer.packs.notifications);
+            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,nativeImage,soundRoom:options.soundRoom,cameraShoot:options.cameraShoot,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs,notesIntro,settingsHud:hud??undefined,healthEntryFrame,notesFooterClose,notificationsFooterClose});
             published=state.status==='ready'?state.assets.renderer:undefined;complete=true;
             if(healthEntryFrame!==undefined){
               if(reducedMotion||healthEntryFrame===20)healthEntry!.complete=true;
@@ -355,11 +418,13 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         painted=key;paintedFont=font;
       }
       top.drawImage(upper,0,0);bottom.drawImage(lower,0,0);
+      if(complete&&!failure&&state.status==='ready')preparedPair=Object.freeze({owner:nextOwner,appId:view.appId,renderer:state.assets.renderer,key:painted});
       if(failure)recoveryPublished=true;
+      else if(complete&&state.status==='ready'&&view.appId==='game-notes'&&notesIntro?.status==='boot-cover')notesBootCandidate={owner:nextOwner,pair:notesIntro,renderer:state.assets.renderer};
       return complete&&!failure;
     },
     getState:session.getState,
     getFailure:()=>failure,
-    dispose(){if(disposed)return;disposed=true;clearDeadline();session.dispose();options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);releaseImages();owner=null;healthEntry=null;published=undefined;upper.width=upper.height=lower.width=lower.height=0;},
+    dispose(){if(disposed)return;disposed=true;preparedPair=undefined;clearDeadline();session.dispose();options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);releaseImages();owner=null;healthEntry=null;notesBootCandidate=undefined;notesBootGate.reset();published=undefined;upper.width=upper.height=lower.width=lower.height=0;},
   };
 }

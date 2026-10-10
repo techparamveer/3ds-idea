@@ -1,5 +1,133 @@
 # Verification and evidence architecture
 
+[Compact pause appearance](../home-pause-compact-entry-2026-10-08.md) separates
+the source reset/request from its visibility-latch-controlled start. Browser
+entry counters do not establish native compact activation. The compact capture
+workflow must use ordinary HOME then ArrowRight, not a combined held-HOME
+route. Require ready/failure-free same-paint paired HOME at the changed grid
+selection. Report entry0..9 coverage separately from terminal-only or reduced
+output. Restore the selected retained title and a matching HOME pair before
+Resume. Preserve partial captures without fitting a clock or automatic retry.
+
+[Folder recovery scope](../workstream-handoffs/animation-folder-motion-20261008.md)
+uses the immutable root-view record as a browser entry lifetime token. First
+entry accepts structural source scope and the next selection revision; later
+release/child receipts require that lifetime. Resource-failure escape and
+same-folder re-entry cannot reuse a previous child completion. Healthy browser
+first/repeat captures are regression evidence; native has no equivalent resource
+failure. An endpoint-only native run cannot match browser folderFrame16 or prove
+the original intermediate sequence.
+
+[7 October native touch recovery](../animation-fidelity-workflow-2026-10-07.md#native-touch-recovery-and-fixed-stage-diagnostics)
+obtains normal-speed native opening and folder samples through a separate
+Azahar render window. Count actual own PNGs, preserve file/mtime chronology,
+exclude visibly corrupt readbacks and retain duplicates/stale frames explicitly.
+Manual's clear-before-partial anomaly must not be reordered. Native upper
+exposure before lower-belt clearing is not proof of independent LCD clocks or
+epochs. Fixed first-observed stages and source-pose browser receipts are
+diagnostics only until their input, timing and publication are matched.
+An empty cartridge placeholder is not a valid Create Folder fixture.
+
+The [original-A folder capability run](../animation-fidelity-workflow-2026-10-07.md#original-a-folder-capability-capture---8-october-2026)
+does not demonstrate native opening despite a healthy selected-folder baseline
+and focused render window. Do not repeat that short tap as a proven input route.
+Retain lost same-path versions, keep absent stage/comparison selectors null,
+and record created folders as isolated HOME/NAND fixture changes. Restore only
+owned temporary fields and enumerate actual GUI-normalized geometry changes.
+
+[Held-HOME recovery](../animation-fidelity-workflow-2026-10-07.md#held-home-recovery-and-fixed-pause-diagnostics)
+establishes native Health suspend/resume/repeat through a requested500ms
+foreground Shift gesture. Record requested host hold separately from measured
+input duration and native activation epoch. Native screenshot request count is
+not delivered PNG count or renderer cadence. The new first chronological valid
+suspended pairs and browser first same-paint paired pause20 are fixed static
+diagnostics. Browser banner identity does not identify the private pause owner
+or capture generation; absent fields remain null. Do not infer matching motion
+from terminal window geometry or mask population differences wholesale.
+
+[Recorded browser HOME holds](../animation-fidelity-workflow-2026-10-07.md#recorded-browser-home-holds)
+use an optional capture-collector hold, not a runtime input change. Record
+requested duration, matching trusted DOM down/up observations, observed host
+duration and positive retained frame/distinct-paint counts separately. Validate
+observed boundaries against the capture window. Retain invalid ledgers and raw
+PNGs before rejection, and do not borrow a prior input when setup fails.
+Browser DOM timing does not measure native hold or source activation epochs.
+Preserve default tap fields and reduced-motion accessibility labels. A shorter
+native gesture whose tool returns after entry remains settled-only evidence.
+
+[Manual capture caller checks](../animation-fidelity-workflow-2026-10-07.md#manual-contents-row-correction-and-visible-verification)
+permit only delivered Settings/Camera/Browser manuals. Before every cycle,
+require the requested grid slot or Browser toolbar focus 4, then the exact
+application Manual heading at readiness. Health's Open is not a Manual route.
+These visible attestations do not expose the private Manual title/caller or
+capture generation. Page/Contents supporting captures require a valid paired
+terminal inside the recorded window, a changed lower hash on each input and
+exact Contents-to-document-to-Contents hash closure. A late ready state or an
+ignored touch cannot validate the captured phase. Still inspect the console
+images, preserve raw ledgers and freeze selector/driver hashes before diffs.
+Reduced intermediate absence is an accessibility adaptation, not native motion.
+
+[Combined Manual verification](../animation-fidelity-workflow-2026-10-07.md#manual-number-header-and-footer-corrections)
+keeps the served-base build separate from pending incoming dependencies. Declare
+the chronological stage policy before capture, freeze the selector before pixel
+comparison, and pin policy/script/native/comparator/mask hashes. Rehash and
+decode every raw pair, check receipt chronology and orphan closure, and inspect
+console views plus each comparison sheet. Region bands must sum to the full
+fixed-pair counts; a region name alone does not establish component execution.
+The provenance sidecar distinguishes historical null/unsupported fields from
+the recovered NCCH/code/TMD-file identities and rehashes mapped public assets.
+Neither source hashes nor a lower mismatch count passes the animation scenario.
+
+[Contents visibility verification](../animation-fidelity-workflow-2026-10-07.md#manual-contents-decoration-visibility)
+uses a separate immutable policy revision to distinguish pre-existing test logs
+from selection outputs. The original declaration remains unchanged. Bind the
+unchanged selector to the corrected policy before capture; do not silently
+rewrite the policy after seeing pixels. Supporting checks pin the served
+checkout commit, not the coordinator's equivalent cherry-pick. Preserve failed
+import or identity checks before retrying with the resolved module or correct
+commit. Capture and build identities stay separate from source equivalence.
+
+[Existing CTM transport trial](../animation-fidelity-workflow-2026-10-07.md#existing-ctm-capture-transport-trial-8-october-2026)
+requires current route verification, not merely a reproducible movie and old
+configuration. A visible window baseline is not an own-PNG baseline, and a
+successful shortcut call without an output is not screenshot delivery. Preserve
+wrong-target runs and completion modals. Distinguish file hashes/decoding checked
+by a generator from embedded coordinator GUI/process attestations. Snapshot a
+temporary configuration before launch when possible; if its bytes are absent,
+label its observed SHA as an attestation. Restore only the owned temporary field
+after verified exit, and check the exact restored identity. A settled wrong-app
+PNG provides no motion, timing or scenario acceptance.
+Removing a later CTM A press creates a different input scenario; verify the
+precise byte range and leave original-replay equivalence false. A baseline plus
+later idle poses does not fill the intervening motion gap. Count host requests,
+actual PNG outputs and unique hashes separately. Record failure to quit before
+EOF rather than treating a later successful exit as the planned early stop.
+
+[Raised-window keyboard capture](../animation-fidelity-workflow-2026-10-07.md#raised-window-keyboard-capture-8-october-2026)
+distinguishes configured Qt shortcuts from physical macOS modifier keys. Verify
+delivery with one decoded own PNG on a freshly raised owned window before any
+bounded sequential batch. Preserve every surviving file and native-log save/
+ignore event; same-path collisions lose earlier bytes, and numerical count
+closure is not a request/file bijection. Interpret the pinned Qt `ss.z` format
+as fractional seconds without trailing zeros, never integer suffix milliseconds.
+Screenshot pause/resume and host call/file gaps do not prove native cadence.
+For Notes, selection and Open require fresh separate checks. Open plus capture
+requests may share one call, but missing stages still mean incomplete coverage.
+The unchanged browser applet collector has no explicit paired-readiness wait:
+check its before state and chronological pre-input diagnostics for the selected
+toolbar owner and current valid matching paint/receipt. A preparation delay is
+not readiness. Fix chronological complete-cover selectors before diffing and
+retain noise/black readbacks without treating them as source transition stages.
+Static cover agreement never passes opening motion, input, timing or muted audio.
+
+[Camera Manual capture](../animation-fidelity-workflow-2026-10-07.md#camera-manual-keyboard-capture-8-october-2026)
+also requires non-Camera selection before a sole Camera selection touch and
+fresh Camera/Manual readiness after the baseline screenshot. One passive second
+loading observation is allowed, without input/sleep or a third retry. Check
+browser before/frame0 independently; changing HOME poses need not match across
+snapshots, but each must match its own valid paired receipt. Report GUI-normalized
+geometry separately from the restored screenshot field and retained mute settings.
+
 [HOME launch onset](../home-launch-onset-2026-10-03.md) now has continuous
 native pre-A/feedback/fade/logo evidence. Distinguish first Open pressed
 feedback from footer SceneOut, and last pre-fade banner from disappearance.

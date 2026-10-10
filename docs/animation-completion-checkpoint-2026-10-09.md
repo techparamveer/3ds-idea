@@ -1,0 +1,156 @@
+# Animation completion checkpoint
+
+Current Manual scheduling and evidence are in
+[the final scheduling handoff](manual-destination-scheduling-2026-10-09.md).
+Earlier build, timing and capture records below retain their historical scope.
+
+## Latest delivery
+
+Approved Manual stack `97252bf` + `9b2c066` + `fee1885` integrates through
+`e96e76a` + `cc8cc0b` + `a5e4e44`. Destination work waits for the accepted
+opaque outgoing gate; incoming rebase retains its frame through a cold draw,
+and late revisions revoke prepared pairs before notification. Clean equivalent
+`76813d8` passes build/typechecks; full tests have 2598 passes, 101 skips, one
+TODO and the unchanged historical missing Camera PNG failure. Helium HOME is
+preview evidence only. Camera's interrupted first 93 pairs and partial repeat are
+preserved but not accepted regression evidence. No new native comparison or
+production timing improvement is established. The completed 166-identity
+top-row audit still leaves immediate close/delete and retained Decide missing.
+All four whole flows remain fail/unproven; all audio stays muted/unverified.
+
+Reviewed `fbbd63b` delivers source-proved44px relative row spacing. Independent
+380-pair/760-PNG review confirms Browser Manual lower3026 to16; Camera60/9
+holds. Production checks pass except the unchanged historical missing Camera
+PNG. Settings setup ended before input and adds no coverage. Outgoing overlay
+spikes and ordinary-folder residuals are next. See [current evidence](manual-source-runtime-2026-10-09.md).
+Absolute Manual anchors remain capture fits; all four whole flows remain fail.
+
+Reviewed `67c5156` and `486232b` deliver the partial Browser Contents row and
+its native paint-program validation. New562-pair/1124-PNG production capture
+improves Browser lower3492 to3026. Camera60/9 and Settings60/57 controls hold.
+The third Browser row remains too low; the native44px ordinal writer and common
+unscaled parent now justify a narrow spacing correction. All four flows remain
+fail/unproven. See [current evidence](manual-source-runtime-2026-10-09.md).
+
+Reviewed scrollbar `2a983ed` and implicit-text renderer `cbc07d7` pass production
+checks and1542 paired-frame/3084-PNG recapture integrity checks. Actual fitted
+Sidecar windows are verified. Camera's fixed static residual improves106/9 to60/9;
+Settings is60/57 and Browser Manual60/3492. The missing Browser partial row is
+under a bounded source-backed helper fix. See [current source/runtime evidence](manual-source-runtime-2026-10-09.md).
+All four flows remain fail/unproven. Earlier paragraphs describe previous runs.
+
+Reviewed `5dc7b83` adds exact opaque common-cover RGB reuse. Frozen clean
+`b62b559` passes build/typecheck and2570 checks, with the unchanged historical
+Camera PNG failure. Seven muted Sidecar first/repeat runs complete1341 checked
+pairs/2682 raw PNGs; Camera ready remains106/9. Manual incoming draw is cheaper,
+but61..73ms destination draws and missing live poses remain. See the
+[current cover evidence](manual-cover-raster-reuse-2026-10-09.md), which also
+qualifies the clipped1440x1000 viewport and unmatched native epochs. Earlier
+build/timing paragraphs below describe the previous capture, not current state.
+
+## Current scope
+
+Complete top-row app opening, Manual opening, ordinary folder entry and HOME
+suspension. Moving, pickup, hover and drop animation work is excluded. The
+unmerged hover worktree is preserved. Whole-scenario 1:1 remains unproven for
+all four flows. Latest user reply selects GPT-6.1 Sol extra-high Fast after
+Opus reached its spending limit; the agent tools have no Fast selector.
+
+## Delivered changes
+
+- `fc8f0ce` adds an opt-in persisted populated-folder fixture. Ordinary tile
+  entry and Back remain actual inputs; fixture preparation is a verification
+  adaptation, not a native input sequence. Health stays at child2, root28,
+  and all nine portfolio apps remain present. Old failed drag evidence stays.
+- `6bee80f` adds CPU timing only to existing diagnostic screen receipts. Normal
+  production sessions do not call the timing clock. Disposal/bypass clear it.
+  It changes no native graphics, source curve or readiness check.
+
+The clean verification branch has equivalent source commits `14ff6be` and
+`e374c24`. `git diff e374c24 6bee80f -- src tests scripts` was empty. A new
+unrelated uncommitted `hello world` in integration `system.ts` is preserved
+pending the user's answer. Verification excludes that syntax error.
+
+Native visual/audio asset identities are unchanged. Source mappings remain in
+[Manual entry](workstream-handoffs/animation-manual-entry-20261007.md),
+[folder motion](workstream-handoffs/animation-folder-motion-20261008.md),
+[common applet incoming](browser-miiverse-incoming-2026-10-09.md) and
+[HOME suspension](home-pause-receipt-gap-2026-10-09.md).
+
+## Supporting verification
+
+Focused24 and independent109 animation/manual checks pass. Nonincremental
+typecheck, production build and post-build typecheck pass. The new checkout's
+initial full run had40 unhydrated-model failures plus the historical Camera
+PNG failure. Local canonical Git LFS checkout hydrated131 objects. Rerun has
+2566 passes, one historical missing Camera PNG failure,98 skips andone TODO.
+No dependency version or original model changed.
+
+Build ID `jFDOkmZGy8WIMgumaUim4` hashes
+`e074b669af89f033d8b6f936311377ffd5f82450bb64c87e76731f617ea00d5c`.
+The build/source identity is a separate coordinator attestation, not something
+the collector independently discovers. Frozen production served3025; server
+18502 subsequently exited130 and the port was empty.
+
+## Browser observations
+
+Private evidence root:
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261009/opus-completion/`.
+
+Folder first/repeat76/78 and Manual Settings62/69 contain285 paired receipts
+and570 SHA-256-checked, decoded raw LCD PNGs. Both dedicated browsers were
+muted. Actual pre-navigation and post-navigation window bounds were observed
+on Sidecar at1830,420,1102x700 inside display4 at1800,367,1164x802. The exact
+post-navigation observation time relative to first setup input is unsupported.
+Codex stayed on Dell. No system or unrelated-app audio was changed.
+
+The coordinator opened four chronological sheets, four folder comparison
+sheets and four console images. `audit/report.json` deliberately records only
+script proof with visualInspection:false. Separate
+`coordinator-attestation.json` records visual inspection and build/window facts.
+Independent different-model review reconciles all285 pairs/570 PNGs.
+
+Populated folder first native-ready lower16/capture8 is index20/receipt221;
+repeat is index21/receipt346. Empty-mask comparisons to the fixed native own
+settled PNGs differ by54322upper/5868lower first and26265upper/6149lower repeat.
+The native PNGs are not matched native frame16 epochs. Wallpaper/banner/HUD
+phase and cursor/back-tab residuals remain visible, not masked or fitted.
+
+Manual first observed in0 has169.1ms overlay and171.7ms CPU composition;
+repeat has110.6ms and115.0ms. Out20 was already acknowledged. These captures
+locate the observed delay at first incoming rendering; they do not establish
+every intermediate presentation. The repeat rAF ledger lacks out19 and
+coalesces receipts502..505. CPU timing excludes GPU/presentation latency.
+
+## Remaining work
+
+| Flow | Delivered | Still needed |
+| --- | --- | --- |
+| Top row | Source-backed outgoing/incoming and Notes supplied-pose fixes | Exact native input/cadence, handoff timing and pixel residuals. New Notes static diagnostic remains1107upper/731lower, empty mask. |
+| Manual | Source row/scrollbar corrections, elapsed sampling, renderer work and reviewed destination scheduling through `a5e4e44`; Browser 60/16 and Camera 60/9 are historical `fbbd63b` static diagnostics | Obtain accepted first/repeat production recapture for the scheduling stack, including Settings; resolve sparse pixels and matched native input/cadence. |
+| Folder | Ordinary entry/cursor fixes and successful populated browser fixture | Matched native/browser motion and epochs; resolve pixel residuals without touching excluded moving work. |
+| HOME suspension | Lower terminal and seven-update receipt-gap fixes | Exact native timing/input and remaining pixels; fresh baseline did not reproduce old stall, so no causal wall-time speedup claim. |
+
+The new silent Notes movie/own PNG and fixed unmasked diagnostic live under
+sibling `home-suspend-gap/notes-native-comparison/handoff.md`. Movie ordering
+agrees with leftward clearing; compression, gaps and cold-cover duration prevent
+exact timing acceptance. Dispatch ordinals from `2ebc0d1` frame capture tooling
+are host requests, not native epochs.
+
+Remaining adaptations include portfolio contents/population, seeded browser
+fixture, nominal60Hz bounded host scheduling, reduced-motion endpoints and
+earlier explicitly recorded capture fits. No new native visual/audio substitutes
+were added. Audio acceptance remains unverified while muted.
+
+## Models and continuation
+
+Actual authenticated Claude Code2.1.294 workers used `claude-opus-5-5` at high
+effort. Fast was rejected by the usage-credit limit; actual speed was standard.
+The third bounded follow-up exited1 at the monthly spending limit and returned
+no patch. Billing was not changed. New implementation proceeds with explicitly
+requested GPT-6.1 Sol extra-high and independent different-model review. The
+running coordinator model was not changed through a worker override.
+
+The latest goal API read now reports active with the correct four-flow
+objective. Earlier paused observations are superseded. Do not mark the
+goal complete or any scenario pass from these supporting observations.

@@ -13,7 +13,7 @@ import { getHomeFooter, getNativeFolderBalloon, getNativeFolderPanel, getNativeH
 import type { HomeTilePose } from './home-tile-pose';
 import { selectHomeSettingsBalloonText, selectHomeHealthBalloonText, selectHomeSoundBalloonText, selectHomeCameraBalloonText } from './home-balloon-presentation';
 import { selectNotesMetadata } from './notes-title-metadata';
-import { drawHomeSuspendedIcon } from './home-suspended-window';
+import { drawHomeSuspendedIcon, retainedSuspendedApplication } from './home-suspended-window';
 import { homeSoftwareClosingDialogKey, homeSoftwareDialogKey, homeSoftwareSwitchTitles } from './home-software-dialog';
 import { ownedHomeFooterContact } from './home-footer-touch';
 import { HOME_FOOTER_TOUCH_GEOMETRY, HOME_SETTINGS_MAX_SCROLL, clampHomeSettingsScroll } from './stock-screen-layout';
@@ -21,13 +21,21 @@ import { selectHomeFolderFooterPose } from './home-folder-footer-return';
 import { HOME_ENTRY_FOOTER_LAST_FRAME, HOME_ENTRY_HUD_LAST_FRAME } from './home-entry-presentation';
 import { homeApplicationTransitionFooterExit, homeApplicationTransitionFooterReturn } from './home-application-transition';
 import { sampleSystemHomeApplicationTransition } from './system-home-application-transition';
+import type { HomeFolderEntryPose } from './home-entry-motion';
+import { validateHomeFolderEntryAssets } from './home-folder-entry-assets';
+import { manualEntryBindings, validateManualEntryAssets } from './manual-entry-assets';
+import { notesFooterReturnBindings, validateNotesFooterReturnAssets } from './notes-footer-close-assets';
+import { notificationsFooterCoverBindings, validateNotificationsFooterCoverAssets } from './notifications-footer-close-assets';
+import { appletEntryBindings, appletEntryOverrides, validateAppletEntryAssets, type AppletEntryAppId } from './applet-entry-assets';
+import type { ManualEntryPose } from './manual-entry-presentation';
+import { drawHomePauseLower } from './home-pause-lower';
 
 type Context=CanvasRenderingContext2D;
 export type FirmwarePresentationAssets={sharedFont:BitmapFont;hudFont:BitmapFont;renderer:NativeLayoutRenderer;titleIcons:Map<string,HTMLImageElement>;titleIconPixels:Map<string,NativePixels>;titleDescriptions:Map<string,string>;settingsBalloonText:string|null;healthBalloonText:string|null;soundBalloonText:string|null;cameraBalloonText:string|null;diagnostics:string[];dispose():void};
 type Manifest={schema:number;firmware:string;fonts:{shared:string;hud:string};home:Record<string,string>;titles?:Record<string,{icon?:string}>};
 const homeSettingsLayouts=['PtDlgBg_U_00','PtDlgBg_D_00','PtDlgCnt_CTR','PtBtnL_Thm_00','PtBtnM_Mym_00','PtBtnT_Lgt_00','PtBtnT_Abl_00','PtBtnM_Shr_00','PtBtn_Sft_00','PtClose_00','PtSlideBar','PtLine_00','PtCsr_00'];
 const homeLayoutManagerLayouts=['MyMenuBtmBtn_D_00','MyMenuBtn_D_00','MyMenuCsr_00','MyMenuDlg_00','MyMenuDlg_01','MyMenuRandom','MyMenu_D_00','MyMenu_U_00'];
-const homeLayouts={common:['CmnFadeNinLogo_U_00','CmnFadeNinLogo_D_00'],sleep:['Slp_U_00','Slp_D_00'],hud:['HudMenu_00'],banner:['BnrDsTitle_00'],petit:homeSettingsLayouts,launcher:['LncPlt_00','LncBase_D_01','LncBase_U_00','LncBlln_00','LncCsr_00','LncCsrEfct_00','LncCsrEfct_01','LncBtmBtn_02','LncFolder_00','LncFolderCapture_00','LncIconFolder_00','LncIconFolderText_00','LncIconDist_01','LncIconSetSrc_00','LncArw_00','LncIconPickUp_00','LncIconFolderPickUp_00','LncIconPickUpBlank_00','LncIconFolderInT_00','LncIconFolderInB_00']};
+const homeLayouts={common:['CmnFadeNinLogo_U_00','CmnFadeNinLogo_D_00','CmnFade_U_00','CmnFade_D_00'],sleep:['Slp_U_00','Slp_D_00'],hud:['HudMenu_00'],banner:['BnrDsTitle_00'],petit:homeSettingsLayouts,launcher:['LncPlt_00','LncBase_D_01','LncBase_U_00','LncPauseFade_D_00','LncBlln_00','LncCsr_00','LncCsrEfct_00','LncCsrEfct_01','LncBtmBtn_02','LncFolder_00','LncFolderCapture_00','LncIconFolder_00','LncIconFolderText_00','LncIconDist_01','LncIconSetSrc_00','LncArw_00','LncIconPickUp_00','LncIconFolderPickUp_00','LncIconPickUpBlank_00','LncIconFolderInT_00','LncIconFolderInB_00']};
 
 export async function loadFirmwarePresentationAssets(manifestUrl='/os/firmware/10.7.0-32E/manifest.json',signal?:AbortSignal):Promise<FirmwarePresentationAssets>{
  const base=new URL(manifestUrl,window.location.href),controller=new AbortController();
@@ -251,15 +259,27 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  // Calendar Date is the injected adapter; +0xcc, +0xa9/0x32f144, +0xb0
  // hold, +0xbb low-battery P_Bat blink and WhiteBlack 1/2 skips are not
  // replayed. Charging=true is the declared reference-profile adaptation.
- function hud(ctx:Context,date:Date,time:number,sample?:DiagnosticHomeHudSample,sceneInFrame?:number){
+ function hud(ctx:Context,date:Date,time:number,sample?:DiagnosticHomeHudSample,sceneInFrame?:number,sceneOutFrame?:number){
   if(sample)validateHomeHudSample(sample,renderer.packs.hud);
   if(sceneInFrame!==undefined&&(!Number.isInteger(sceneInFrame)||sceneInFrame<0||sceneInFrame>HOME_ENTRY_HUD_LAST_FRAME))throw new RangeError('Invalid HOME HUD SceneIn frame');
+  if(sceneOutFrame!==undefined){
+   const clip=renderer.packs.hud.animations.HudMenu_00_SceneOut,source=renderer.packs.hud.resourceSources?.animations?.HudMenu_00_SceneOut;
+   if(!Number.isSafeInteger(sceneOutFrame)||sceneOutFrame<0||sceneOutFrame>20)throw new RangeError('Invalid HOME HUD SceneOut frame');
+   const track=(target:string,property:string,keys:readonly (readonly [number,number,number])[])=>{
+    const tracks=clip?.tracks.filter(track=>track.target===target&&track.property===property);
+    return tracks?.length===1&&tracks[0].binding==='pane'&&tracks[0].interpolation==='hermite'
+     &&tracks[0].keys.length===keys.length&&tracks[0].keys.every((key,index)=>key.frame===keys[index][0]&&key.value===keys[index][1]&&key.slope===keys[index][2]);
+   };
+   if(source?.titleId!=='0004003000009802'||source.path!=='hud_LZ.bin/anim/HudMenu_00_SceneOut.bclan'||source.sha256!=='8aac97fa97651d5c021e2937e2fbeebb69aee6e8d884beb75314c6453cdff1e5'||clip?.frames!==21||clip.loop||!clip.childBinding||JSON.stringify(clip.groups)!=='["G_Scene_00"]'||clip.tracks.length!==5
+    ||!['scale.x','scale.y'].every(property=>track('N_Scene_00',property,[[0,1,0],[20,1.100000023841858,0]]))
+    ||!track('N_Scene_00','alpha',[[0,255,-12.75],[20,0,0]])||!track('P_Walk_00','alpha',[[-148,255,0]])||!track('P_Coin_00','alpha',[[-170,0,0]]))throw Error('Native HOME HUD SceneOut unavailable');
+  }
   const table='hud_msbt_LZ',day=message(table,`day_${date.getDate()}`,String(date.getDate()).padStart(2,'0')).text!,month=message(table,`month_${date.getMonth()+1}`,String(date.getMonth()+1).padStart(2,'0')).text!;
   const weekday=message(table,`week_${['sun','mon','tue','wed','thu','fri','sat'][date.getDay()]}`,'').text!;
   const dateText=message(table,'lau_date','%d/%M (%w)');dateText.text=dateText.text!.replace('%d',day).replace('%M',month).replace('%w',weekday);
   const seconds=date.getSeconds(),profile=REFERENCE_DEVICE_STATUS;
   const battery=sample?.batteryFrame??deviceStatusBatteryFrame(profile,seconds);
-  return renderer.draw(ctx,'hud','HudMenu_00',{bindings:[binding('HudMenu_00_SceneIn',sceneInFrame??41),binding('HudMenu_00_WhiteBlack',profile.whiteBlackFrame),binding('HudMenu_00_NetMode',sample?.netModeFrame??profile.netModeFrame),binding('HudMenu_00_NetAtn',sample?.netAtnFrame??profile.netAtnFrame),binding('HudMenu_00_Bat',battery),binding('HudMenu_00_WalkCoin',sample?.walkCoinFrame??time*.06)],overrides:{
+  return renderer.draw(ctx,'hud','HudMenu_00',{bindings:[binding('HudMenu_00_SceneIn',sceneInFrame??41),binding('HudMenu_00_WhiteBlack',profile.whiteBlackFrame),binding('HudMenu_00_NetMode',sample?.netModeFrame??profile.netModeFrame),binding('HudMenu_00_NetAtn',sample?.netAtnFrame??profile.netAtnFrame),binding('HudMenu_00_Bat',battery),binding('HudMenu_00_WalkCoin',sample?.walkCoinFrame??time*.06),...(sceneOutFrame===undefined?[]:[binding('HudMenu_00_SceneOut',sceneOutFrame)])],overrides:{
    T_NetMode_00:message(table,sample?.networkMessage??profile.networkMessage,'Internet'),T_Date_00:dateText,T_TimeL_00:{text:String(date.getHours()).padStart(2,'0')},T_TimeC_00:{visible:hudColonVisible(seconds)},T_TimeR_00:{text:String(date.getMinutes()).padStart(2,'0')},T_Walk_00:{text:String(sample?.steps??profile.steps)},T_Coin_00:{text:String(sample?.coins??profile.coins)}
   }});
  }
@@ -286,8 +306,9 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   const panel=getNativeHomePanel(state);
   return renderer.draw(ctx,'launcher','LncPlt_00',{bindings:[binding('LncPlt_00_PaletteOut',11)],overrides:{W_Plt_00:{translation:[panel.x,-92,0],size:[panel.width,175]},W_Shdw_00:{translation:[panel.x,-102,0],size:[panel.shadowWidth,193]}}});
  }
- function folderBackdrop(ctx:Context,capture:NativePixels,state:MenuState,reduced=false){
-  const close=sampleSystemHomeFolderClose(state),frame=!reduced&&close?.controller.phase==='closing'?close.controller.capture.appliedFrame??8:8;
+ function folderBackdrop(ctx:Context,capture:NativePixels,state:MenuState,reduced=false,entry:HomeFolderEntryPose|null=null){
+  if(entry)validateHomeFolderEntryAssets(renderer.packs.launcher);
+  const close=sampleSystemHomeFolderClose(state),frame=reduced?8:close?.controller.phase==='closing'?close.controller.capture.appliedFrame??8:entry?.captureFrame??8;
   // PicUp's authored endpoint applies P_Capture_01's full-LCD multiply material.
   // The controller call site remains unresolved, so select that decoded endpoint
   // only for the independently owned, capture-observed folder-held phase.
@@ -297,23 +318,40 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   const texture='runtime:folder-background';
   return renderer.draw(ctx,'launcher','LncFolderCapture_00',{bindings:[binding('LncFolderCapture_00_Fade',frame),binding('LncFolderCapture_00_PicUp',pickupFrame)],textures:{[texture]:capture},overrides:{P_Capture_00:{textureBindings:{0:texture}}}});
  }
- function folderChrome(ctx:Context,state:MenuState,reduced=false){
+ function folderChrome(ctx:Context,state:MenuState,reduced=false,entry:HomeFolderEntryPose|null=null){
   const panel=getNativeFolderPanel(state);if(!panel)return false;
-  const close=sampleSystemHomeFolderClose(state),frame=!reduced&&close?.controller.phase==='closing'?close.controller.folder.appliedFrame??16:16;
+  if(entry)validateHomeFolderEntryAssets(renderer.packs.launcher);
+  const close=sampleSystemHomeFolderClose(state),frame=reduced?16:close?.controller.phase==='closing'?close.controller.folder.appliedFrame??16:entry?.folderFrame??16;
   const gesture=state.system?.homeNavigation.gesture;
   const pressed=ownedHomeFolderBackContact(state,gesture);
   return renderer.draw(ctx,'launcher','LncFolder_00',{bindings:[binding('LncFolder_00_FadeIn',frame),binding('LncFolder_00_Select',pressed?1:0,['G_Btn_00'])],overrides:{W_Plt_00:{translation:[panel.x,-16,0],size:[panel.width,144]},W_Shdw_00:{translation:[panel.x,-20,0],size:[panel.shadowWidth,164]}}});
  }
- function folderChild(ctx:Context,state:MenuState,empty:boolean,draw:(alpha:number)=>void,reduced=false){
+ function folderChild(ctx:Context,state:MenuState,empty:boolean,draw:(alpha:number)=>void,reduced=false,entry:HomeFolderEntryPose|null=null){
+  if(entry)validateHomeFolderEntryAssets(renderer.packs.launcher);
   const close=sampleSystemHomeFolderClose(state);
-  if(reduced||!state.opened||close?.controller.phase!=='closing'){draw(1);return;}
-  const frame=close.controller.folder.appliedFrame??16;
-  if(!renderer.withPaneParent(ctx,'launcher','LncFolder_00',empty?'N_BlankAnime_00':'N_Dlg_00',[binding('LncFolder_00_FadeIn',frame)],draw))draw(1);
+  if(reduced||!state.opened||close?.controller.phase!=='closing'&&!entry){draw(1);return true;}
+  const frame=close?.controller.phase==='closing'?close.controller.folder.appliedFrame??16:entry?.folderFrame??16;
+  if(!renderer.withPaneParent(ctx,'launcher','LncFolder_00',empty?'N_BlankAnime_00':'N_Dlg_00',[binding('LncFolder_00_FadeIn',frame)],draw)){
+   if(entry)throw Error('Native folder entry parent unavailable');
+   draw(1);
+  }
+  return true;
  }
- function footer(ctx:Context,state:MenuState,reduced=false,entrySceneInFrame?:number,launchSceneOutFrame?:number,launchDecideFrame?:number){
+ function footer(ctx:Context,state:MenuState,reduced=false,entrySceneInFrame?:number,launchSceneOutFrame?:number,launchDecideFrame?:number,pauseSceneInFrame?:number,resumeSceneOutFrame?:number){
+  if(resumeSceneOutFrame!==undefined&&(!Number.isInteger(resumeSceneOutFrame)||resumeSceneOutFrame<0||resumeSceneOutFrame>14||getHomeFooter(state)?.right!=='resume'))throw new RangeError('Invalid HOME Resume footer owner/frame');
+  if(resumeSceneOutFrame!==undefined){
+   const clip=renderer.packs.launcher.animations.LncBtmBtn_02_SceneOut,source=renderer.packs.launcher.resourceSources?.animations?.LncBtmBtn_02_SceneOut;
+   const tracks=clip?.tracks.filter(track=>track.target==='N_Scene_00');
+   if(source?.titleId!=='0004003000009802'||source.path!=='launcher_LZ.bin/anim/LncBtmBtn_02_SceneOut.bclan'||source.sha256!=='df95bfcc74135a116fe14b39604cdd1300197e48b2c864989d3b40d35f13cf1d'
+    ||clip?.frames!==15||clip.loop||!clip.childBinding||JSON.stringify(clip.groups)!=='["G_Scene_00"]'||clip.tracks.length!==26
+    ||JSON.stringify(tracks?.map(track=>[track.binding,track.interpolation,track.property,track.keys.map(key=>[key.frame,key.value,key.slope])]))!==JSON.stringify([
+     ['pane','hermite','translation.y',[[0,0,-2.2857143878936768],[14,-32,0]]],['pane','hermite','alpha',[[0,255,-18.214284896850586],[14,0,0]]],
+    ]))throw Error('Native HOME Resume footer source unavailable');
+  }
   if(entrySceneInFrame!==undefined&&(!Number.isInteger(entrySceneInFrame)||entrySceneInFrame<0||entrySceneInFrame>HOME_ENTRY_FOOTER_LAST_FRAME))throw new RangeError('Invalid HOME footer SceneIn frame');
   if(launchSceneOutFrame!==undefined&&(!Number.isInteger(launchSceneOutFrame)||launchSceneOutFrame<0||launchSceneOutFrame>14))throw new RangeError('Invalid HOME launch footer SceneOut frame');
   if(launchDecideFrame!==undefined&&(launchSceneOutFrame===undefined||!Number.isInteger(launchDecideFrame)||launchDecideFrame<0||launchDecideFrame>5))throw new RangeError('Invalid HOME launch footer Decide frame');
+  if(pauseSceneInFrame!==undefined&&(!Number.isInteger(pauseSceneInFrame)||pauseSceneInFrame<0||pauseSceneInFrame>14))throw new RangeError('Invalid HOME pause footer SceneIn frame');
   const actions=getHomeFooter(state,launchSceneOutFrame!==undefined);if(!actions)return true;
   const {two,left:leftAction,right:rightAction}=actions,middleAction=actions.middle??null,three=middleAction!==null;
   const leftTone=leftAction==='close-software'?'B':'W';
@@ -338,9 +376,14 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   const ordinaryEntry=entrySceneInFrame!==undefined&&!!system&&state.powered&&system.phase==='home'&&!system.sleeping
    &&!state.opened&&!state.panel&&!system.preferences&&!system.dialog&&system.app===null&&system.pending===null
    &&system.runtime.application===null&&system.homeApplicationTransition===null&&close===null;
+  const pauseEntry=pauseSceneInFrame!==undefined&&!!retainedSuspendedApplication(state)&&!system?.dialog
+   &&system?.homeApplicationTransition===null;
+  if(pauseSceneInFrame!==undefined&&!pauseEntry)throw Error('Invalid HOME pause footer owner');
   const footerPose=homeSoftwareSwitchTitles(state)||closingSwitch
    ?{clip:'LncBtmBtn_02_SceneOut' as const,frame:14}
-   :applicationFooterExit??applicationFooterReturn??(ordinaryEntry
+   :applicationFooterExit??applicationFooterReturn??(pauseEntry
+    ?{clip:'LncBtmBtn_02_SceneIn' as const,frame:pauseSceneInFrame}
+    :ordinaryEntry
     ?{clip:'LncBtmBtn_02_SceneIn' as const,frame:entrySceneInFrame}
     :launchSceneOutFrame!==undefined?{clip:'LncBtmBtn_02_SceneOut' as const,frame:launchSceneOutFrame}
     :selectHomeFolderFooterPose(close,close?state.system!.homeClock.updateCount:0,reduced));
@@ -349,9 +392,12 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   if(launchSceneOutFrame!==undefined&&!renderer.packs.launcher.animations.LncBtmBtn_02_SceneOut)throw Error('Native HOME launch footer exit unavailable');
   if(launchDecideFrame!==undefined&&!renderer.packs.launcher.animations.LncBtmBtn_02_Decide)throw Error('Native HOME launch footer Decide unavailable');
   if(retainedCloseDecide&&!renderer.packs.launcher.animations.LncBtmBtn_02_Decide)throw Error('Native software-close footer Decide unavailable');
-  // Capture-fit direct binding keeps the compact ChangeDw departure on its
-  // authored scene member, preserving the separately settled button channels.
-  const bindings=applicationFooterExit
+  // Resume's settled Decide5 and direct scene binding are host adaptations;
+  // the original button feedback epoch has not been recovered.
+  // The compact close branch separately uses its capture-fitted ChangeDw.
+  const bindings=resumeSceneOutFrame!==undefined
+   ?[binding('LncBtmBtn_02_SceneIn',15),binding('LncBtmBtn_02_Decide',5,['G_BtnW_R_02']),{...binding('LncBtmBtn_02_SceneOut',resumeSceneOutFrame),childBinding:false}]
+   :applicationFooterExit
    ?[binding('LncBtmBtn_02_SceneIn',15),binding('LncBtmBtn_02_Decide',5,['G_BtnB_L_03']),{...binding(footerPose.clip,footerPose.frame),childBinding:false}]
    :applicationFooterReturn
     ?[binding('LncBtmBtn_02_SceneIn',15),{...binding(footerPose.clip,footerPose.frame),childBinding:false}]
@@ -529,5 +575,42 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  function liftedSource(ctx:Context,x:number,y:number,size:number,density:number){
   return pickupBlankAt(ctx,x+size/2,y+size/2,nativeHomeDensityFrame(density));
  }
- return {hud,upperBase,settingsUpper,settingsLower,folderSettingsLower,folderNotEmptyLower,folderBalloon,folderBannerLabel,appletBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,ordinaryTitleIcon,suspendedIcon,captureFolder,empty,cursor,cursorAt,cursorEffectAt,launchCursorEffectAt,arrows,pickup,pickupAt,pickupBlankAt,liftedSource,pressOffset,rows:rowCount};
+ let manualEntryValidated=false;
+ function manualEntry(top:Context,bottom:Context,pose:ManualEntryPose):boolean{
+  if(!manualEntryValidated){validateManualEntryAssets(renderer.packs.common);manualEntryValidated=true;}
+  const bindings=manualEntryBindings(pose),label=nativeMessageOverride(renderer.packs.messages,'menu_msbt_LZ','lau_title_manu','');
+  if(!label.text)throw Error('Native Manual entry label unavailable: menu_msbt_LZ/lau_title_manu');
+  if(!renderer.draw(top,'common','CmnFade_U_00',{bindings:bindings.upper,opaquePictureAlphaPanes:['P_Bg_U_00']}))return false;
+  return renderer.draw(bottom,'common','CmnFade_D_00',{bindings:bindings.lower,overrides:{T_Aplt_00:label},opaquePictureAlphaPanes:['P_Bg_D_00']});
+ }
+ const validatedApplets=new Set<AppletEntryAppId>();
+ function appletEntry(top:Context,bottom:Context,pose:{appId:AppletEntryAppId;phase:'out'|'in';frame:number}):boolean{
+  if(!validatedApplets.has(pose.appId)){validateAppletEntryAssets(renderer.packs.common,pose.appId);validatedApplets.add(pose.appId);}
+  const bindings=appletEntryBindings(pose),overrides=appletEntryOverrides(renderer.packs.messages,pose.appId);
+  if(!renderer.draw(top,'common','CmnFade_U_00',{bindings:bindings.upper,opaquePictureAlphaPanes:['P_Bg_U_00']}))return false;
+  return renderer.draw(bottom,'common','CmnFade_D_00',{bindings:bindings.lower,overrides,opaquePictureAlphaPanes:['P_Bg_D_00']});
+ }
+ function pauseLower(ctx:Context,application:NativePixels,home:NativePixels,frame:number){
+  return drawHomePauseLower(renderer,ctx,application,home,frame);
+ }
+ function notesFooterReturn(top:Context,bottom:Context,frame:number):boolean{
+  const bindings=notesFooterReturnBindings(frame);
+  validateNotesFooterReturnAssets(renderer.packs.common);
+  const label=notesFooterReturnLabel();
+  if(!label.text)throw Error('Native HOME return label unavailable');
+  if(!renderer.draw(top,'common','CmnFade_U_00',{bindings:bindings.upper,opaquePictureAlphaPanes:['P_Bg_U_00']}))return false;
+  return renderer.draw(bottom,'common','CmnFade_D_00',{bindings:bindings.lower,overrides:{T_Aplt_00:label},opaquePictureAlphaPanes:['P_Bg_D_00']});
+ }
+ function notesFooterReturnLabel(){
+  const label=nativeMessageOverride(renderer.packs.messages,'menu_msbt_LZ','lau_title_menu','');
+  if(!label.text)throw Error('Native HOME return label unavailable');
+  return label;
+ }
+ function notificationsFooterCover(top:Context,bottom:Context,kind:'out'|'in',frame:number):boolean{
+  validateNotificationsFooterCoverAssets(renderer.packs.common);
+  const bindings=notificationsFooterCoverBindings(kind,frame),label=notesFooterReturnLabel();
+  return renderer.draw(top,'common','CmnFade_U_00',{bindings:bindings.upper,opaquePictureAlphaPanes:['P_Bg_U_00']})
+   &&renderer.draw(bottom,'common','CmnFade_D_00',{bindings:bindings.lower,overrides:{T_Aplt_00:label},opaquePictureAlphaPanes:['P_Bg_D_00']});
+ }
+ return {notificationsFooterCover,notesFooterReturnLabel,notesFooterReturn,appletEntry,manualEntry,pauseLower,hud,upperBase,settingsUpper,settingsLower,folderSettingsLower,folderNotEmptyLower,folderBalloon,folderBannerLabel,appletBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,ordinaryTitleIcon,suspendedIcon,captureFolder,empty,cursor,cursorAt,cursorEffectAt,launchCursorEffectAt,arrows,pickup,pickupAt,pickupBlankAt,liftedSource,pressOffset,rows:rowCount};
 }

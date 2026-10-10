@@ -4,7 +4,7 @@ import { createFirmwareModel, loadFirmwareModel, type FirmwareModelAsset, type F
 import { homeBannerYaw } from '../os/banner-motion';
 import { loadFirmwareCamera } from './firmware-camera';
 import type { NativePixels } from '../os/native-layout';
-import type { HomeApplicationTransitionPresentation } from '../os/home-application-transition';
+import type { HomeSuspendedBackgroundPresentation } from '../os/home-entry-motion';
 import { copyNativeOverlay } from './native-overlay';
 import { paddedHomeCapture, suspendedBackgroundAsset, suspendedBackgroundPlayback } from './home-suspended-background';
 import type { SuspendedCapture } from '../os/notes-suspended-capture';
@@ -304,7 +304,7 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
   let backgroundSample:{data:Uint8ClampedArray;time:number}|undefined;
   let backgroundLifecycleSample:{data:Uint8ClampedArray;key:string}|undefined;
   function drawSuspendedBackground(ctx: CanvasRenderingContext2D, capture: SuspendedCapture,
-    presentation: HomeApplicationTransitionPresentation | null = null) {
+    presentation: HomeSuspendedBackgroundPresentation | null = null) {
     if (capture.status !== 'ready') {
       if (suspendedCaptureBinding && suspendedPlaceholder) suspendedBackground?.setTexture('BG_DmyApp_00', suspendedPlaceholder, { allowSizeChange: true });
       suspendedCaptureBinding = undefined; suspendedSample = undefined; return false;

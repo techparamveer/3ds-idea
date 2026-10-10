@@ -27,6 +27,8 @@ test('missing or unsupported suspended assets fail explicitly', () => {
   }
   const changed = asset(); changed.data.sourceSha256 = 'unknown';
   assert.throws(() => suspendedBackgroundAsset(changed), /Unsupported native/);
+  const missingSceneIn = asset(); missingSceneIn.data.skeletalAnimations = missingSceneIn.data.skeletalAnimations.filter(clip => clip.Name !== 'BannerBG_SceneIn');
+  assert.throws(() => suspendedBackgroundAsset(missingSceneIn), /Unsupported native/);
   const missingQuit = asset(); missingQuit.data.materialAnimations = missingQuit.data.materialAnimations.filter(clip => clip.Name !== 'BannerBG_AppQuit');
   assert.throws(() => suspendedBackgroundAsset(missingQuit), /Unsupported native/);
   const changedAlpha = asset();
@@ -49,11 +51,67 @@ test('suspended close playback preserves the source override order and bounded f
     material: [{ name: 'BannerBG_AppPause', frame: 20 }, { name: 'BannerBG_AppQuit', frame: 13 }],
   });
   for (const frame of [-1, 21, 1.5]) assert.throws(() => suspendedBackgroundPlayback({
+    ...presentation, skeletal: [{ ...presentation.skeletal[0], frame }],
+  }), /Unsupported native suspended presentation/);
+  for (const frame of [-1, 21, 1.5]) assert.throws(() => suspendedBackgroundPlayback({
     ...presentation, material: [presentation.material[0], { ...presentation.material[1], frame }],
   }), /Unsupported native suspended presentation/);
   assert.throws(() => suspendedBackgroundPlayback({
     ...presentation, material: [...presentation.material].reverse(),
   }), /Unsupported native suspended presentation/);
+  assert.throws(() => suspendedBackgroundPlayback({
+    ...presentation, skeletal: [{ ...presentation.skeletal[0], frame: 10 }],
+  }), /Unsupported native suspended presentation/);
+  assert.deepEqual(suspendedBackgroundPlayback({
+    skeletal: [{ clip: 'BannerBG_SceneIn', frame: 10 }],
+    material: [{ clip: 'BannerBG_AppPause', frame: 20 }],
+  }), {
+    skeletal: [{ name: 'BannerBG_SceneIn', frame: 10 }],
+    material: [{ name: 'BannerBG_AppPause', frame: 20 }],
+  });
+  for (const frame of [-1, 21, 1.5]) assert.throws(() => suspendedBackgroundPlayback({
+    skeletal: [{ clip: 'BannerBG_SceneIn', frame: 10 }],
+    material: [{ clip: 'BannerBG_AppPause', frame }],
+  }), /Unsupported native suspended presentation/);
+});
+
+test('pinned SceneIn transform channels reject source mutations', () => {
+  const channels = ['ScaleX', 'ScaleY', 'ScaleZ', 'TranslationY', 'TranslationZ'];
+  for (const channel of channels) {
+    for (const mutate of [curve => { curve.KeyFrames.at(-1).Value += .01; }, curve => { curve.Exists = false; },
+      curve => { curve.EndFrame += 1; }, curve => { curve.InterpolationType = 'Step'; },
+      curve => { curve.PostRepeat = 'Repeat'; }, curve => { curve.KeyFrames[0].OutSlope += .01; }]) {
+      const input = asset(), sceneIn = input.data.skeletalAnimations.find(clip => clip.Name === 'BannerBG_SceneIn');
+      mutate(sceneIn.Elements[0].Content[channel]);
+      assert.throws(() => suspendedBackgroundAsset(input), /Unsupported native suspended background/, channel);
+    }
+  }
+  const duplicate = asset();
+  duplicate.data.skeletalAnimations.push(structuredClone(duplicate.data.skeletalAnimations.find(clip => clip.Name === 'BannerBG_SceneIn')));
+  assert.throws(() => suspendedBackgroundAsset(duplicate), /Unsupported native suspended background/);
+});
+
+test('pinned AppPause tint and both texture-scale channels reject source mutations', () => {
+  const channels = [
+    ...['MaterialConstant0', 'MaterialConstant1'].flatMap(target => ['R', 'G', 'B'].map(channel => [target, channel])),
+    ...['MaterialTexCoord0Scale', 'MaterialTexCoord1Scale'].flatMap(target => ['X', 'Y'].map(channel => [target, channel])),
+  ];
+  for (const [target, channel] of channels) {
+    for (const mutate of [curve => { curve.KeyFrames.at(-1).Value += .01; }, curve => { curve.Exists = false; },
+      curve => { curve.EndFrame += 1; }, curve => { curve.InterpolationType = 'Step'; },
+      curve => { curve.PostRepeat = 'Repeat'; }, curve => { curve.KeyFrames[0].OutSlope = .1; }]) {
+      const input = asset(), clip = input.data.materialAnimations.find(clip => clip.Name === 'BannerBG_AppPause');
+      mutate(clip.Elements.find(element => element.TargetType === target).Content[channel]);
+      assert.throws(() => suspendedBackgroundAsset(input), /Unsupported native suspended background/, `${target}/${channel}`);
+    }
+  }
+  for (const mutate of [clip => { clip.Elements.splice(0, 1); }, clip => { clip.Elements.push(structuredClone(clip.Elements[0])); },
+    clip => { clip.Elements[0].Name = 'other'; }, clip => { clip.Elements[0].PrimitiveType = 'Vector2D'; }]) {
+    const input = asset(); mutate(input.data.materialAnimations.find(clip => clip.Name === 'BannerBG_AppPause'));
+    assert.throws(() => suspendedBackgroundAsset(input), /Unsupported native suspended background/);
+  }
+  const duplicate = asset(); duplicate.data.materialAnimations.push(structuredClone(duplicate.data.materialAnimations.find(clip => clip.Name === 'BannerBG_AppPause')));
+  assert.throws(() => suspendedBackgroundAsset(duplicate), /Unsupported native suspended background/);
 });
 
 test('pinned AppQuit source channels are the alpha reveal and step-scale override', () => {

@@ -1,5 +1,428 @@
 # Workstream Registry
 
+## Exact-window native capture recovery, 10 October 2026
+
+Coordinator now integrates recorder86ce542 as87a5168 and gate handoff98898bc
+asdbd0836 after independent reviews44dba9e5/37467dc3. All12 native-v1
+display movies remain excluded because their scope samples show Codex.
+Both new exact-window pilots passed full decode and root's five fixed sample
+inspections. Loaded HOME uses muted Azahar72164/render2496 on the MacBook.
+Two new60-second native-v2 movies now finalize first/repeat Notes and
+Notifications open/ready/footer Close/return. Movie inclusion awaits audit;
+repeat selection was retained, not retouched. Do not repeat display recording
+or the closed Manual edge-pixel investigation.
+
+Worker `resume_sol_high`, GPT-6.1 Sol high, owns only new
+`scripts/reference/azahar-window-record.swift`, `tests/azahar-window-record.test.mjs`
+and `docs/workstream-handoffs/azahar-window-capture-20261010.md` in
+`/Users/paramveer/.codex/worktrees/azahar-window-capture-20261010/3ds-idea`,
+branch `codex/azahar-window-capture-20261010`, base11c10b4.
+Implement read-only, silent, exact-PID/window ScreenCaptureKit recording with
+explicit identity, unused absolute output, bounded duration and finalized
+status. No activation, input, permission changes, profile edits, GUI or live
+capture by the worker. Coordinator alone performs a short decoded scope pilot
+before animation inputs. Reviewer `resume_review_sol_high` independently
+reviews the tool and checks. Existing source/build/captures remain frozen.
+All whole flows still fail; this reservation is capture tooling, not UI acceptance.
+
+That source reservation is released. New worker `resume_capture_audit_high`,
+GPT-6.1 Sol high, owns only private `toprow-current-20261010/native-v2/audit-sol-high-v1`
+for full movie decode, checksums, ledger-linked chronological input/terminal
+and boundary inspection. All six capture files and new coordinator ledger are
+immutable after root closes it. No GUI, profile, source/build/original edits,
+semantic selection seal, native epoch or pixel comparison. Reviewer remains
+independent. All current helpers use the latest GPT-6.1 Sol high preference.
+
+## Same-paint Resume diagnostics, 10 October 2026
+
+All current helpers use GPT-6.1 Sol high under the latest human instruction.
+Implementation worker `resume_sol_high` completes source d9b4a18, test3489c33
+and fullgate3fd9ed9 in its own health-resume-diagnostics-20261010 worktree.
+Reviewed integration2ea00db/ac80a3a/8700945 is pushed to PR7. Source/public/
+tests/.next stay frozen; no source reservation is open. Coordinator alone
+serves3031 and operates the dedicated muted MacBook browser.
+
+Offline worker `resume_capture_audit_high` owns only private
+browser-touch-resume-20261010/audit-diagnostics-sol-high-v2 for the two new
+600-pair source-pose recordings. It cannot write originals or operate GUI.
+Reviewer `resume_review_sol_high` independently reviews the separate closed
+old-build audit-sol-high-v1 evidence, preserving its incomplete497-pair repeat.
+Both write only their named private outputs. Old sources/builds/captures stay
+immutable. See [source, checks and current evidence](../animation-verification-checkpoint-2026-10-10.md#same-paint-resume-diagnostics-and-touch-capture).
+
+That diagnostic audit reservation is now released. Final reportfb075b04/
+manifest7196163a closes1,200 pairs and all148 derived checksums; all finite
+audit handles exit. Root inspects8 chronological/6 boundary/4 comparison
+sheets. No source/build/original lease is reopened. Reviewer completes
+independent evidence6821fc77 and exact-doc2ad6a84a approvals, then releases
+its private review reservation with all finite handles closed. Both
+actual inputs/ready and browser source poses are evidenced; whole flows fail.
+
+## HOME dialog ordering, 10 October 2026
+
+Worker resume_sol_high, GPT-6.1 Sol high, owns
+`/Users/paramveer/.codex/worktrees/home-dialog-order-20261010/3ds-idea`, branch
+`codex/home-dialog-order-20261010`, basef0768c4. Completed scope is a new actual
+rendered-pixel ordering regression and handoff only. Baseline and fresh repeat
+already show dialog7 before lower HOME8. A deliberate window-only mutation
+is rejected, not a reproduced baseline fault. No runtime paths are reserved.
+Reviewer resume_review_sol_high independently verifies the test and additive
+raw diagnostic. The older visual coincidence interpretation is retracted as
+an established defect; old captures/reports/seals remain immutable. See
+[correction](../animation-verification-checkpoint-2026-10-10.md#additive-dialog-order-correction).
+Only coordinator operates GUI or serving; frozen footer source/build/exports
+remain unchanged. Scratch is private Sandisk1/home-dialog-order-20261010.
+All whole flows fail; no native cadence or audio acceptance is claimed.
+
+## Resume footer withdrawal, 10 October 2026
+
+Worker `resume_sol_high` uses GPT-6.1 Sol high in
+`/Users/paramveer/.codex/worktrees/health-resume-footer-20261010/3ds-idea`, branch
+`codex/health-resume-footer-20261010`, base c3f74d5. Initial ownership is the
+actual-input red regression, pinned caller/resource trace and a new footer
+handoff. Actual-input red reproduces premature lower HOME departure. Runtime
+reservation now includes `src/os/screens.ts`, `home-resume-presentation.ts`,
+`firmware-presentation.ts`, existing `tests/home-resume-presentation.test.mjs`
+and `tests/health-resume-retained-live.test.mjs`, plus the new footer test and
+handoff. The two unqualified runtime paths are under `src/os/`.
+No reducer, scene, public asset or `system.ts` edits are reserved.
+Target only the captured native footer withdrawal before HOME departure.
+Do not guess curves/delays or broaden unchanged-origin Health Resume acceptance.
+The served retained worker/build and original captures remain frozen.
+Coordinator alone drives muted MacBook GUI, serving and integration.
+Independent review uses GPT-6.1 Sol high per the latest human instruction.
+
+The reservation is now released. Runtime ba19fd1, provenance ed71fd9 and
+fullgate handoff6614478 integrate as aacd774,22c1581 and ddfe288. Source review
+e99cdb14 and freeze review df4d3f36 approve separately. Coordinator also verifies
+all223 build files and supporting identities in freeze55898feb. Worker source,
+public, tests and .next stay frozen at build5pTgJwKjDtqJGe-Um3UEF. No worker
+operates GUI or serving. Coordinator closes first/repeat actual keyboard input
+captures at600 pairs each in the muted MacBook browser. Audit worker
+resume_capture_audit_high owns only private footer/browser-v1/offline-audit;
+reviewer resume_review_sol_high owns only its private capture-review output.
+Both use GPT-6.1 Sol high. All1,200 pairs/2,400 PNGs verify; selection0977210c
+seals before four fixed comparisons. Root inspects eight raw sheets, exact
+boundary PNGs and all four comparison sheets. Footer withdrawal before HOME
+departure is delivered browser ordering; exact native motion/input stays open.
+Whole-flow comparisons fail. No source/build/original-capture lease is reopened.
+
+## Retained application Resume, 10 October 2026
+
+Current integration `b64e797` includes reviewed runtime `dbfcb45`, provenance
+`ad143a9`, test-only `cd23059` and freeze/check handoff `b64e797`, all pushed.
+Worker `resume_sol_high` completes `ed40f3b` and releases a frozen serving lease.
+Reviewer `resume_review_sol_high` approves exact source/test/fullgate reports
+`b5302b99`, `11bf7038` and `c62035d9`. All current helpers use GPT-6.1 Sol high
+per the latest human instruction; older model clauses below are history.
+Coordinator alone serves3029 and drives muted MacBook GUI. No worker source
+reservation remains. `resume_capture_audit_high` owns only private
+`health-resume-retained-20261010/browser-v1/offline-audit`, auditing first600,
+complete repeat519 and preserved incomplete repeat513 pairs. No GUI/server or
+original capture edits. All exports are closed. Coordinator inspects all five
+raw boundary sheets; final audit, sealed selection and comparisons are pending.
+Separate footer departure and whole-flow acceptance stay open.
+
+Final audit `181440a5` closes all1,632 pairs including incomplete513. Offline
+worker releases its reservation and all finite handles; no source/audit worker
+remains active. Coordinator inspects12 raw sheets and four fixed comparisons.
+No fully black saved LCD occurs; native footer departure remains the next
+bounded captured defect. Reviewer owns independent audit/document closure only.
+Frozen worker/build/exports remain unchanged. All whole scenarios fail.
+
+The original worker health-resume-retained-20261010 starts at c058ec9 in its own worktree
+and branch. GPT-6.1 Sol extra-high targets actual both-black Resume311-312
+before ready313 from closed audit2a7c4044. Start with a real-compositor red
+regression, then identify the original resume resources/caller and preserve
+retained owner, generation, readiness and paired publication. Reserve exact
+paths before runtime edits; coordinator owns GUI, serving and integration.
+Use authored decrypted resources, not reversed opening or guessed delay/curve.
+Native movie samples show retained Health through HOME departure but do not
+recover timing. Existing health-home-order source/build/exports stay frozen.
+Independent different-model review and visible recapture are required.
+
+The actual-compositor red regression is recorded in private
+`health-resume-retained-20261010/red-04.log`. Actual Health touch launch, HOME
+and footer Resume keep owner `health-safety:1`, start a second native load and
+paint both LCDs black. Earlier red-01 through red-03 are setup failures, not
+bug evidence. The bounded pinned caller investigation identifies lower
+`LncPauseFade_D_00_SceneOut`, upper `SceneOut`, `BannerBG_SceneOut`,
+`BannerBG_AppRestart` and HUD departure. Caller predicates and unresolved host
+cadence must stay explicit in the source handoff.
+
+The worker owns `screens.ts`, `portfolio-screens.ts`,
+`notes-suspended-capture.ts`, new `home-resume-presentation.ts`,
+`home-entry-motion.ts`, `home-pause-lower.ts`, `home-suspended-window.ts`,
+`firmware-presentation.ts`, `src/scene/home-suspended-background.ts` and focused
+Resume tests. These filenames are under `src/os/` unless stated otherwise.
+No reducer or `system.ts` change is reserved. The existing runtime remains the
+state owner; screen composition gates visible and input handoff on a prepared
+same-owner LCD pair and its terminal publication receipt.
+
+## HOME suspension reveal order, 10 October 2026
+
+Final browser audit `2a7c4044` is complete and its private reservation released.
+Coordinator inspects all six raw boundary and both comparison sheets. No source
+worker is active; served worker6abb45cf remains frozen. Reviewer owns only final
+documentation closure. Status improves, but dialog/lower coincidence and Resume
+black pairs remain captured defects, not native acceptance. Earlier pending
+audit assignments below are historical.
+
+Runtime worker completes8112d47 and handofff7c6d9d; coordinator integrates and
+pushes2ea5068/cf91eb9 after independent approval5ef3143c. Checks-only6abb45cf
+integrates/pushes407055f after independent approvale1e8f521. Worker releases
+all source reservations and freezes source/public/tests/.next at build
+MHwPOu1oLhQcWrZ9Ke1TE. No implementation worker remains active. Coordinator
+alone serves3029 and operates muted MacBook GUI. Native offline audit112531b9
+is complete. Its worker now owns only the new600-pair candidate browser audit
+under private health-home-order-20261010/browser-v1/offline-audit, not source,
+GUI or server. Exact native cadence remains open; alignment is adapted.
+The initial assignment below is historical.
+
+Worker tree `health-home-order-20261010/3ds-idea`, branch
+`codex/health-home-order-20261010`, starts at `8b36555`. GPT-6.1 Sol extra-high
+owns the captured lower-first HOME reveal defect, `src/os/home-entry-motion.ts`,
+necessary suspension composition/presenter interfaces, focused regressions and
+one handoff. Coordinate additional paths before editing. New source work must
+begin with a real-compositor failing regression and bounded pinned-controller
+inspection. Unknown host alignment remains an adaptation, never recovered
+native cadence. No guessed graphics, curves or delays. Frozen dimming tree,
+build and captures remain untouched. Coordinator alone owns integration,
+serving and muted MacBook GUI. Different-model review precedes integration.
+
+## Health retained-LCD dimming and HOME order, 10 October 2026
+
+Completed runtimef6e83c4/testb955d8c integrate/push e7ac460/115696e after exact
+different-model approvals15f821dc/11581308. Handoff9c67472 integrates b14d3de.
+Worker releases source/public/tests/.next frozen at buildna-t0YK-P1Kxs8zcVSbX_.
+No implementation worker is active. Coordinator owns3029 serving and all muted
+MacBook GUI. Offline worker owns only new456-pair session753b5713's private
+structural/semantic audit, now closed at8241e7ba, not runtime or GUI. No active
+worker reservation remains. Source-phase alignment remains
+an adaptation; lower-first HOME order is the next captured defect. Earlier
+assignment paragraphs below retain their historical in-progress states.
+
+Managed worktree `health-suspend-dimming-20261010/3ds-idea` starts at a5a6c11.
+GPT-6.1 Sol extra-high owns one bounded source-backed correction for the
+coordinator-inspected ordinary Health audit dc5a9a3b. Browser upper remains
+bright while lower dims, then lower HOME appears before upper status/dialog.
+Native saved partial evidence dims both and exposes upper HOME while lower
+still retains Health. Worker owns necessary suspended presenter/composition
+wiring, actual behavior regressions and one handoff. No native curve, delay,
+graphic reconstruction, global-clock fitting, unrelated applet or GUI/server
+changes. Coordinate any cross-owner path before editing. Coordinator alone
+integrates, serves and recaptures on muted MacBook; served shortcut tree stays
+frozen. Independent different-model review precedes integration.
+Worker also reserves src/os/home-entry-motion.ts following pinned-source caller
+inspection. A possible authored-phase alignment is explicitly an adaptation;
+it must not be described as recovered native cadence. The real-compositor red
+test reproduces upper/lower color-phase disagreement. No candidate is integrated.
+Offline worker closes315 shortcut pairs in session ecc0cd5b, then separately
+owns599 ordinary HOME/Resume pairs in session3a224b94 and private output only.
+It has no source or GUI access. Earlier assignments below are history.
+
+## Health shortcut HOME ownership, 10 October 2026
+
+Worker `health-home-selection-20261010/3ds-idea`, branch
+`codex/health-home-selection-20261010`, completes runtime7214ff7, fixture5cd5ea7
+and handoff8dbdb93. Independent different-model review730c1aff approves the
+corrected range. Runtime/tests integrate and push as2a0629e. Its frozen build
+YUOmZy1gnxALpXL-fNhqB is handed to the coordinator for3029 verification; no
+worker may edit or rebuild that tree. No shared source reservation remains.
+The corrected Notifications-focus to accessibility-Health to physical-HOME
+sequence now visibly reaches suspended Health and Close/Resume on the muted
+MacBook. All315 user-stopped pairs save. Post-fix Resume and ordinary/top-row
+regressions remain open. No native source curve, asset or delay changed.
+Private Health offline auditor owns only914 ordinary production pairs from
+sessions0a718d7d/bfc3e4fe and comparison to sealed nativev3 chronology, not the
+new315-pair shortcut session. Coordinator alone drives GUI, serving and delivery.
+Whole-flow native acceptance remains open. Earlier assignments below are history.
+
+## Folder Back orbit retirement, 10 October 2026
+
+Worker `folder-back-orbit-20261010/3ds-idea`, branch
+`codex/folder-back-orbit-20261010`, starts at `bd0927e`. GPT-6.1 Sol extra-high
+owns the observed upper-orbit retirement boundary in `src/os/home-banner-host.ts`,
+`src/scene/console-scene.ts`, a necessary folder-readiness interface in
+`src/os/screens.ts`, focused tests and one handoff. Coordinate any extra path.
+Native audit `1a6080c3` and browser audit `929fde84` are its visible defect.
+Browser root cursor precedes orbit retirement in both Back captures; native
+bounded samples retire the orbit before root/cursor exposure. Fixtures differ
+at root slot 22 versus 28; no native timing/dispatch claim follows.
+No native graphics/curves, arbitrary delay, moving setup or unrelated applet
+changes. Coordinator alone integrates, runs clean production checks, drives
+muted MacBook GUI and recaptures. Frozen `ba2455e`/3029 remains unchanged.
+Independent review follows the exact candidate. Earlier assignments are history.
+
+Completed worker `a689569`/`d8fe06a` is independently approved by different-model
+GPT-5.6 Sol high, reviewbbe5e1a, and integrated as52faeda/07052d0. Only the scene
+adapter, focused regression and handoff changed. Worker ownership is released.
+Coordinator owns pending first/repeat production Back/entry and adjacent-applet
+recapture. No whole-scenario acceptance follows supporting checks.
+
+## Animation completion, 9 October 2026
+
+10 October recorder delivery: exact correction `fda21db` is independently
+approved and integrated with its parent as `2ad758b`/`bcceb54`. Worker is done.
+Coordinator's clean `ba2455e` production serves only loopback3029, frozen.
+First ordinary Notes footer-close exports238 verified chronological raw pairs.
+Private offline audit remains a separate worker task, with no GUI or runtime
+ownership. Repeat Notes/Notifications and native comparisons remain open.
+Earlier rejected-candidate reservation below is historical.
+
+Recorder correction reservation:4d44e0f full tests expose13 new extracted-scene
+fixture regressions and one unchanged historical Camera PNG failure. The same
+worker additionally owns only the affected scene test fixtures, retaining all
+existing guard coverage, and recorder retry-history correction/tests. Earlier
+candidate remains immutable; no integration or production build before exact
+independent re-review. Coordinator's clean verification checkout is
+live-lcd-verification-20261010 on its same-named codex branch at4d44e0f.
+
+10 October receipt capture assignment: `applet_return_banner`, GPT-6.1 Sol high,
+works only in `live-lcd-recorder-20261010/3ds-idea` on
+`codex/live-lcd-recorder-20261010`, base159142d. Reserved paths are a new bounded
+local-only receipt capture module, `src/scene/console-scene.ts`, focused tests
+and one handoff. Existing export endpoint/security guards remain unchanged.
+No OS behavior/native assets/GUI/server/build ownership. This addresses the
+demonstrated static-repaint-only UI export gap, not native timing acceptance.
+Coordinator alone operates the muted MacBook browser and Azahar.
+
+10 October current assignment: return-banner worker a4802b8 is frozen and
+integrated31fe8c0 after independent GPT-6.1 Sol high APPROVE19fb8d7b and visible
+first/repeat footer closing plus B/HOME regressions. Its five owned files match
+clean c85b9b6 production verification. Coordinator alone owns integration,
+muted MacBook GUI and frozen3028 serving/Helium preview. No implementation
+worker is active. notifications_movie_audit, GPT-6.1 Sol high, completed private
+report7b0d4b19 for four new close movies/four HOME PNGs without GUI/source/build/
+server access. Coordinator inspected all four final chronological sheets.
+The fitted return boundary does not prove native caller/timing or whole1:1.
+[Evidence](../applet-return-banner-delivery-2026-10-10.md). Assignments below
+are historical where superseded.
+
+Next bounded assignment,10 October: `applet-return-banner-20261010/3ds-idea`,
+branch `codex/applet-return-banner-20261010`, base5df8132. GPT-6.1 Sol high worker
+traces the captured normal-footer HOME banner return-order gap and may correct
+only source-supported Notes/Notifications host lifecycle boundaries. It reserves
+`src/os/home-banner-host.ts`, relevant banner lifecycle helpers, `src/os/screens.ts`,
+`src/scene/console-scene.ts`, focused tests and one new handoff. No other active
+worker shares these paths. No invented delay, wallpaper/global-clock reset or
+opening/B/HOME/caller/folder/other-applet change. Coordinator alone integrates,
+operates GUI and recaptures; frozen18137f4/3027 remains unchanged.
+
+10 October: Notifications4e767fc is reviewed and integrated0196913; worker
+is frozen. Fresh independent GPT-6.1 Sol high reviewer approves exact SHA,
+353tests341pass0fail12skip. Coordinator's clean18137f4 production checks finish
+2622pass/1historicalCameraPNGfail/101skip/1TODO, build/typechecks pass. Muted
+MacBook first/repeat footer closing, B/HOME and Notes recovery are inspected.
+notifications_movie_audit, GPT-6.1 Sol high, completed private reportdfe67a2d;
+it has no runtime/GUI/serving ownership. Coordinator inspected four final sheets
+and the native close sheet. HOME banner return order remains different in the
+recorded samples and needs a bounded source-backed correction, not a guessed
+delay. No implementation worker is active. Coordinator alone serves frozen
+18137f4/3027 and owns integration, muted MacBook Helium preview and evidence.
+No whole1:1 pass. [Delivery](../notifications-footer-close-delivery-2026-10-10.md).
+Earlier active worker/preview paragraphs below are history.
+
+Notes worker62fa7c is reviewed and integrated85b0ab9. Cleanede70eb finishes
+full2610pass/1historicalCameraPNGfail/101skip/1TODO, typecheck and unchanged-runtime
+build pass. Coordinator inspected all four browser sequence sheets, offline
+report65d31653; no timing/pixel acceptance. Muted Helium previews3026 on Sidecar.
+`notes_close_presentation`, actual GPT-6.1 Sol high, is reassigned to
+`notifications-close-presentation-20261009/3ds-idea`, branch
+`codex/notifications-close-presentation-20261009`, basea1d0e8f. It reserves only
+Notifications main-list footer Close, required native composition/lifecycle
+interfaces and focused tests. Notes files remain reviewed and must not be
+generalized without need; all other applets, opening and physical HOME stay out.
+Native report37dfa1cd and close sheet00fdf553 are its captured defect reference.
+Coordinator integrates sequentially and alone owns GUI, serving and evidence.
+
+Current bounded Notes runtime candidate is3a84a89 in the assigned worker tree.
+The same high-reasoning worker fixes the independent review's test-fixture
+import regression in a separate commit, without broadening runtime scope.
+manual_final_handoff independently reviews exact source. Coordinator alone
+owns clean `notes-close-verification-20261009/3ds-idea` on
+`codex/notes-close-verification-20261009`, base3a84a89, for full checks and later
+muted Sidecar inspection. The live76813d8 preview tree is frozen. Offline
+toprow_exit_handoff_high completed report37dfa1cd for twelve new native movies,
+not an implementation or acceptance. Earlier assignments below are historical.
+
+Current runtime `a5e4e44` is served as equivalent clean `76813d8`; final Manual
+handoff integrates as `969d59c`. `manual_final_handoff`, GPT-6.1 Sol high,
+completed four documentation paths in `manual-final-handoff-20261009/3ds-idea`
+on `codex/manual-final-handoff-20261009`, commit196a637. It has no GUI/runtime
+ownership. `toprow_exit_handoff_high`, GPT-6.1 Sol high, completed the exit
+source map and offline Notes observation audit in
+`applet-exit-audit-20261009/3ds-idea`. No runtime edits or repeated source inventory.
+`notes_close_presentation`, GPT-6.1 Sol high, owns
+`notes-close-presentation-20261009/3ds-idea`, branch
+`codex/notes-close-presentation-20261009`, base969d59c. Its bounded scope is
+the captured missing Notes main-list footer-close cover and owner/pair retention,
+with focused tests. Necessary Stock/runtime/render interfaces are reserved to
+this worker; coordinate before changing system.ts. Other applets, physical HOME,
+subscreen Back and assets are excluded. The Notes source family is identified;
+footer dispatch and fitted sequencing remain adaptations pending matched capture.
+Coordinator alone owns integration and muted Sidecar GUI.
+All new helpers use GPT-6.1 Sol high under the latest human instruction;
+this chat's requested model is GPT-6.1 Sol extra-high, not tool-verified.
+The assignments below are historical where superseded.
+
+Latest human report extends the top-row check to exit and tap/pre-open response.
+`sol_manual_pixel_residual` completed the folder source-gap slice without code
+and now owns source-only `applet-exit-audit-20261009/3ds-idea`, branch
+`codex/applet-exit-audit-20261009`, base2e0c3d2. It may inspect the five applet
+input/lifecycle/render paths and delivered native resources, but not change
+runtime or drive GUI. The Manual worker freezes its narrow scheduling fix for
+exact different-model review. Coordinator owns commits, production preview and
+all muted Sidecar GUI. The latest Helium request resumes GUI authorization;
+earlier short-test timing questions no longer block the preview.
+
+Latest runtime is `fbbd63b`; equivalent clean verification is `79d3cdd`.
+Independent380-pair production audit confirms Browser60/16 and Camera60/9.
+Settings has no new coverage. Coordinator owns documentation, integration and
+all muted Sidecar GUI; new GUI waits for the short-test timing preference.
+`sol_manual_cover_performance` resumes one measured outgoing-render bottleneck
+in its owned manual-animation-finish worktree. `sol_manual_pixel_residual` now
+owns the clean folder-animation-finish worktree on new branch
+`codex/folder-entry-residual-20261009`, basedfbbd63b, for one ordinary-entry
+residual only. Its old Manual worktree stays untouched. Both use GPT-6.1 Sol
+extra-high. Different-model `opus_patch_review` reserves independent review.
+Closed icon-edge/PNG recovery audits must not be repeated. Moving work remains
+excluded. The following assignments are historical where superseded.
+
+Latest integrated runtime is `486232b`. The performance worker's renderer
+commit is integrated; its bounded icon-edge and missing historical PNG lookups
+are complete and must not be repeated. No source correction was justified there.
+The pixel worker's cutoff and paint gate integrate as `67c5156` and `486232b`.
+It now owns only the source-proved44px adjacent-page spacing correction in
+`stock-native-helpers.ts` and focused tests. Different-model reviewer completed
+top-row and partial-row production/control audits and awaits the spacing patch.
+All shared GUI/server sessions are closed. See [runtime evidence](../manual-source-runtime-2026-10-09.md).
+Earlier assignments below remain history where superseded.
+
+Coordinator integration is `3ds-animation-fidelity-20261007/3ds-idea` on
+`codex/animation-fidelity-20261007`. Clean coordinator verification is
+`opus-verification-20261009/3ds-idea` on `codex/opus-verification-20261009`.
+Only the coordinator operates muted Sidecar browser/Azahar.
+`manual-animation-finish-20261009/3ds-idea` on
+`codex/manual-animation-finish-20261009`, base6bee80f, belongs to
+`sol_manual_cover_performance` with GPT-6.1 Sol extra-high. It reserves the
+explicit common-cover compiled-raster interface in `native-layout.ts`,
+`native-renderer.ts`, `firmware-presentation.ts` and focused tests only.
+Different-model reviewer `opus_patch_review` remains independent. Initial
+read-only Opus workers completed; the follow-up stopped at its spending limit.
+No Fast selector is exposed. Moving-animation WIP remains excluded/unmerged.
+See [checkpoint](../animation-completion-checkpoint-2026-10-09.md).
+
+Second bounded slice follows the visible5dc7b83 recapture. The same Sol worker
+profiles the cold Manual destination draw and reserves renderer-local changes
+and focused tests; it must coordinate before editing Manual helpers. New worker
+`sol_manual_pixel_residual` owns `manual-pixel-residual-20261009/3ds-idea`, branch
+`codex/manual-pixel-residual-20261009`, base5dc7b83. It reserves Manual helper
+composition in `stock-native-helpers.ts` and its focused tests only. Its exact
+pair is opus-completion/cover-reuse-audit/camera-0-diff,106upper/9lower. No
+renderer/layout/state or shared GUI ownership. Native/header substitutions and
+image patching are forbidden; unresolved source gaps must remain explicit.
+
 ## Shared Text-Layout 1-Pixel Vertical Origin - 4 October 2026
 
 Fidelity worker `3ds-text-y-offset-20261004` /

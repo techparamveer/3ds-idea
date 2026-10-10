@@ -1,7 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {isAbsolute,join} from 'node:path';
 import ts from 'typescript';
+import {createNativeScreenInputGate} from '../src/os/native-screen-input.ts';
+import {createPortfolioState,tickSystem,launch,dispatchSystemEvent,getActiveAppView,invokeSystemApplet,reduceSystem} from '../src/os/system.ts';
 const url=source=>'data:text/javascript;base64,'+Buffer.from(source).toString('base64');
 const compile=name=>ts.transpileModule(readFileSync(new URL('../src/os/'+name+'.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
 const calls=[];
@@ -16,10 +19,32 @@ const layout=url(compile('stock-screen-layout')
 source=source.replace("'./stock-native-personal-tools'",JSON.stringify(url(compile('stock-native-personal-tools').replace("'./native-layout'",JSON.stringify(url(compile('native-layout')))).replace("'./stock-screen-layout'",JSON.stringify(layout)).replace("'./device-status-profile'",JSON.stringify(url(compile('device-status-profile')))))));
 source=source.replace("'./stock-native-web'",JSON.stringify(url("export const browserScreenPacks=[{url:'browser.json',alias:'browser',layouts:[],animations:[]}],miiverseScreenPacks=[{url:'miiverse.json',alias:'miiverse',layouts:[],animations:[]}];export const drawNativeWebFrame=()=>false;export const browserHudClock=()=>null;")));
 source=source.replace("'./stock-native-services'",JSON.stringify(url('export const nativeServiceView=()=>null;export const drawNativeServiceFrame=()=>false;export const zoneClock=()=>({hour:"00",minute:"00",frame:0});export const eshopWelcomePose=()=>null;export const eshopHudClock=()=>({year:0,month:1,day:1,hour:0,minute:0});')));
-source=source.replace("'./stock-native-helpers'",JSON.stringify(url('export const nativeHelperView=()=>null;export const drawNativeHelperFrame=()=>false;')));
+source=source.replace("'./stock-native-helpers'",JSON.stringify(url("export const nativeHelperView=view=>view.appId==='manual'?{view:'manual',titleId:'0004001000022400',packs:[{url:'manual.json',alias:'manual',layouts:[],animations:[]}]}:null;export const drawNativeHelperFrame=(renderer,top,bottom,view,...args)=>view.appId==='manual'?globalThis.__nativeTestDraw?.(top,bottom,...args)??false:false;")));
 source=source.replace("'./stock-native-selectors'",JSON.stringify(url('export const nativeSelectorView=()=>null;export const drawNativeSelectorFrame=()=>false;')));
 source=source.replace("'./native-screen-input'",JSON.stringify(url(compile('native-screen-input'))));
+source=source.replace("'./notes-boot-cover'",JSON.stringify(new URL('../src/os/notes-boot-cover.ts',import.meta.url).href));
+source=source.replace("'./applet-title-entry-assets'",JSON.stringify(new URL('../src/os/applet-title-entry-assets.ts',import.meta.url).href));
+source=source.replace("'./notes-footer-close-assets'",JSON.stringify(new URL('../src/os/notes-footer-close-assets.ts',import.meta.url).href));
+source=source.replace("'./notifications-footer-close-assets'",JSON.stringify(new URL('../src/os/notifications-footer-close-assets.ts',import.meta.url).href));
 const {createStockScreenPresentation,drawStockMediaImage}=await import(url(source));
+let graphicsSource=compile('portfolio-screens');
+const graphicsDependencies={
+ three:`export * from ${JSON.stringify(new URL('../node_modules/three/build/three.module.js',import.meta.url).href)};export class WebGLRenderer{constructor(){throw Error('GPU disabled in unit fixture');}}`,
+ './apps':'export const apps=[];export const getApp=()=>undefined;',
+ './nvidia-banner':'export const createNvidiaBanner=()=>({ready:Promise.resolve(),draw:()=>false,reset(){},dispose(){}});',
+ './hack-ldn-banner':'export const createHackLdnBanner=()=>({ready:Promise.resolve(),draw:()=>false,reset(){},dispose(){}});',
+ './app-registry':'export const getTitle=()=>undefined;',
+ './bitmap-font':'export const measureBitmapText=()=>({width:0});',
+ './notes-suspended-capture':"export const createSuspendedApplicationCapture=()=>({sync(){},record(){},read:()=>({status:'none'}),dispose(){}});",
+ './notes-metadata-session':"export const createNotesMetadataSession=()=>({sync(){},getState:()=>({status:'none'}),dispose(){}});",
+ './notes-intro-publication':'export const notesIntroSourcesFromPacks=packs=>packs?{}:undefined;',
+ './notes-intro-session':'export const createNotesIntroSession=()=>({sync(){},compose(){},getState:()=>({}),dispose(){}});',
+};
+for(const [dependency,stub]of Object.entries(graphicsDependencies))graphicsSource=graphicsSource.replace(`'${dependency}'`,JSON.stringify(url(stub)));
+graphicsSource=graphicsSource.replace("'./system'",JSON.stringify(new URL('../src/os/system.ts',import.meta.url).href))
+ .replace("'./stock-screen-presentation'",JSON.stringify(url(source)))
+ .replace("'./notes-boot-cover'",JSON.stringify(new URL('../src/os/notes-boot-cover.ts',import.meta.url).href));
+const {createPortfolioGraphics,setPortfolioFont}=await import(url(graphicsSource));
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 const view=appId=>({appId,screen:'main',heading:'',rows:[],selection:0,footer:{}});
 test('launch preparation acquires native assets before any screen is drawn and coalesces the app view',async()=>{
@@ -48,7 +73,7 @@ test('Friend profiles and selected Notes retain loaded native title assets acros
  try{for(const [appId,screen]of [['friends','profile'],['game-notes','drawing']]){
   calls.length=0;const presentation=createStockScreenPresentation(),font={},main={...view(appId),rows:appId==='friends'?[{id:'profile',label:'Your friend card'}]:[]};
   presentation.prepare(main,appId+':1',font);await flush();assert.equal(calls.length,1);
-  let disposed=0;const assets={renderer:{},diagnostics:[],dispose(){disposed++;}};calls[0].resolve(assets);await flush();
+  let disposed=0;const assets={renderer:appId==='friends'?incomingAssets('friends').renderer:{},diagnostics:[],dispose(){disposed++;}};calls[0].resolve(assets);await flush();
   assert.equal(presentation.prepare({...main,screen,rows:[]},appId+':1',font).assets,assets);assert.equal(calls.length,1);
   assert.equal(presentation.prepare(main,appId+':1',font).assets,assets);presentation.dispose();assert.equal(disposed,1);
  }}finally{globalThis.document=old;}
@@ -70,6 +95,257 @@ function paintFixture(options={}){
  return {screen,v,font,top,bottom,draw,drawAt,dispose(){screen.dispose();globalThis.document=old;delete globalThis.__nativeTestDraw;}};
 }
 const nativeAssets=()=>({renderer:{},diagnostics:[],disposals:0,dispose(){this.disposals++;}});
+for(const appId of ['manual','sound'])test(`${appId} late image revision invalidates a published pair until both current screens are copied`,async()=>{
+ const oldImage=globalThis.Image,images=[],owner=appId+':1',changedPairs=[];
+ globalThis.Image=class{complete=false;naturalWidth=0;naturalHeight=0;ctx={marks:[['image','late']]};constructor(){images.push(this);}};
+ let f;
+ f=paintFixture({onChange(){if(f)changedPairs.push(f.screen.preparedPair(owner));}});
+ const v=view(appId),draw=()=>f.screen.draw(f.top,f.bottom,v,owner,f.font);let draws=0;
+ globalThis.__nativeTestDraw=(top,bottom,options)=>{draws++;options.image(top,'/late-'+appId+'.png',0,0,1,1);top.fillText('native upper');bottom.fillText('native lower');return true;};
+ try{
+  assert.equal(draw(),false);await flush();const assets=nativeAssets();calls[0].resolve(assets);await flush();
+  assert.equal(draw(),true);const first=f.screen.preparedPair(owner);assert.ok(first);assert.equal(draws,1);assert.equal(images.length,1);
+  assert.equal(draw(),true);assert.equal(draws,1,'unchanged composition uses the published raster');
+  const image=images[0];image.complete=true;image.naturalWidth=image.naturalHeight=1;image.onload();
+  assert.equal(changedPairs.at(-1),undefined,'the revision is invalidated before notifying paint scheduling');
+  assert.equal(f.screen.preparedPair(owner),undefined,'paint-start readiness cannot reuse the previous revision');
+  const copy=f.bottom.drawImage;f.bottom.drawImage=()=>{throw Error('lower copy failed');};
+  assert.throws(draw,/lower copy failed/);assert.equal(draws,2);assert.equal(f.screen.preparedPair(owner),undefined);
+  f.bottom.drawImage=copy;assert.equal(draw(),true);assert.equal(draws,2,'successful outward retry can reuse the revised raster');
+  const revised=f.screen.preparedPair(owner);assert.ok(revised);assert.notEqual(revised.key,first.key);
+  assert.deepEqual(f.top.marks,[['image','late'],['text','native upper']]);assert.deepEqual(f.bottom.marks,[['text','native lower']]);
+  assert.equal(f.screen.preparedPair(appId+':old'),undefined);
+ }finally{f.dispose();globalThis.Image=oldImage;}
+});
+const incomingAssets=appId=>{
+ const fixtureRoot=process.env.APPLET_INCOMING_FIXTURE_ROOT;
+ if(fixtureRoot)assert.ok(isAbsolute(fixtureRoot),'Private incoming test fixture root must be absolute');
+ const source=fixtureRoot?join(fixtureRoot,appId,'incoming.json'):new URL('../public/os/firmware/10.7.0-32E/packs/'+appId+'/incoming.json',import.meta.url);
+ const assets=nativeAssets(),pack=JSON.parse(readFileSync(source,'utf8'));
+ const messages=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/'+appId+'/messages-and-loose.json',import.meta.url),'utf8'));
+ assets.renderer={packs:{[appId+'-incoming']:pack,[appId==='friends'?'friend-messages':'notification-messages']:messages},draw(ctx,alias,name,options){ctx.fillText(name+':'+(options?.bindings?.[0]?.frame??'body'));return true;}};
+ return assets;
+};
+for(const appId of ['friends','notifications'])test(`${appId} incoming resources require the current complete outward pair and are invalidated by failed copies, retry and disposal`,async()=>{
+ const f=paintFixture(),v={...view(appId),rows:appId==='friends'?[{id:'profile',label:'Your friend card'}]:[]},owner=appId+':1';
+ const draw=()=>f.screen.draw(f.top,f.bottom,v,owner,f.font);
+ try{
+  assert.equal(draw(),false);await flush();
+  const assets=incomingAssets(appId);calls[0].resolve(assets);await flush();
+  assert.equal(f.screen.incomingResources(owner,appId),undefined,'loaded assets alone do not publish an incoming resource');
+  assert.equal(f.screen.drawIncoming(owner,appId,f.top,f.bottom,0,assets.renderer),false);
+  assert.equal(draw(),true,String(f.screen.getFailure()));
+  const first=f.screen.preparedPair(owner),resources=f.screen.incomingResources(owner,appId);assert.ok(first);assert.equal(resources,assets.renderer);
+  assert.equal(f.screen.incomingResources(appId+':old',appId),undefined);
+  assert.equal(f.screen.incomingResources(owner,appId==='friends'?'notifications':'friends'),undefined);
+  assert.equal(f.screen.incomingResources(owner,'browser'),undefined);
+  assert.equal(f.screen.drawIncoming(owner,appId,f.top,f.bottom,10,{}),false);
+  assert.equal(f.screen.drawIncoming(appId+':old',appId,f.top,f.bottom,10,resources),false);
+  assert.equal(f.screen.drawIncoming(owner,appId,f.top,f.bottom,10,resources),true);
+  assert.ok(f.top.marks.at(-1)[1].endsWith(':10'));assert.ok(f.bottom.marks.at(-1)[1].endsWith(':10'));
+  draw();assert.notEqual(f.screen.preparedPair(owner),first,'each cached body paint still publishes fresh outward copies');
+  assert.equal(f.screen.incomingResources(owner,appId),resources,'the original renderer token remains stable across those copies');
+  const copy=f.bottom.drawImage;f.bottom.drawImage=()=>{throw Error('lower copy failed');};
+  assert.throws(draw,/lower copy failed/);assert.equal(f.screen.incomingResources(owner,appId),undefined);
+  assert.equal(f.screen.drawIncoming(owner,appId,f.top,f.bottom,20,resources),false);
+  f.bottom.drawImage=copy;assert.equal(draw(),true);assert.equal(f.screen.incomingResources(owner,appId),resources);
+  f.screen.sync(null);assert.equal(f.screen.incomingResources(owner,appId),undefined);assert.equal(assets.disposals,1);
+  draw();await flush();const replacement=incomingAssets(appId);calls.at(-1).resolve(replacement);await flush();assert.equal(draw(),true);
+  assert.notEqual(f.screen.incomingResources(owner,appId),resources);assert.equal(f.screen.drawIncoming(owner,appId,f.top,f.bottom,0,resources),false);
+  delete replacement.renderer.packs[appId+'-incoming'];assert.equal(draw(),false);assert.match(String(f.screen.getFailure()),/incoming pack unavailable/);
+  assert.equal(f.screen.incomingResources(owner,appId),undefined);assert.equal(f.screen.retry(),true);
+  assert.equal(f.screen.drawIncoming(owner,appId,f.top,f.bottom,0,replacement.renderer),false);
+  f.screen.dispose();assert.equal(f.screen.incomingResources(owner,appId),undefined);assert.equal(f.screen.drawIncoming(owner,appId,f.top,f.bottom,0,replacement.renderer),false);
+ }finally{f.dispose();}
+});
+const notesPack=name=>JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/game-notes/'+name,import.meta.url),'utf8'));
+const notesAssets=()=>{const assets=nativeAssets();assets.renderer={packs:{'notes-list':notesPack('contents/0000-00000007/memo-MemoListDown-empty-thumbnail.json'),'notes-messages':notesPack('messages-and-loose.json'),'notes-image':notesPack('memo-ImageScreenUp-arc-l.json'),'notes-hud-messages':notesPack('contents/0000-00000007/hud-messages.json')},draw:()=>true,drawLayout:()=>true};return assets;};
+const notesCover=(owner,steps=0,ticket=1)=>({status:'boot-cover',owner,ticket,steps,upper:{},lower:{},scene9Draw:steps<=20,scene10Draw:steps<=20});
+async function notesFixture(){
+ const f=paintFixture();
+ let state=tickSystem(launch(tickSystem(createPortfolioState(),3001),'game-notes',3010),6200);
+ const owner=state.system.runtime.active,v=getActiveAppView(state),cover=notesCover(owner),terminal=notesCover(owner,21);
+ const draw=pair=>f.screen.draw(f.top,f.bottom,v,owner,f.font,undefined,undefined,0,pair);
+ const status=pair=>f.screen.status(v,owner,f.font,pair);
+ draw(cover);await flush();
+ const assets=notesAssets();
+ calls[0].resolve(assets);await flush();
+ const present=()=>f.screen.presentNotesBootCover(owner,()=>true);
+ return {...f,owner,v,cover,terminal,draw,status,present,assets,getState:()=>state,dispatch:event=>{state=dispatchSystemEvent(state,event,6300);}};
+}
+test('prepared Notes pair is independent of local input readiness but requires both outward copies and current resources',async()=>{
+ const f=await notesFixture();
+ try{
+  assert.equal(f.screen.preparedPair(f.owner),undefined);
+  f.draw(f.cover);const first=f.screen.preparedPair(f.owner);assert.ok(first);assert.equal(f.status(f.cover),'loading');
+  assert.equal(f.screen.preparedPair('game-notes:old'),undefined);
+  f.draw(f.cover);assert.notEqual(f.screen.preparedPair(f.owner),first,'even a cached paint binds the current pair copies');
+  const copy=f.bottom.drawImage;f.bottom.drawImage=()=>{throw Error('copy failed');};
+  assert.throws(()=>f.draw(f.cover),/copy failed/);assert.equal(f.screen.preparedPair(f.owner),undefined);
+  f.bottom.drawImage=copy;f.draw(f.cover);assert.ok(f.screen.preparedPair(f.owner));
+  f.assets.renderer.draw=()=>false;assert.equal(f.draw(notesCover(f.owner,1)),false);assert.equal(f.screen.preparedPair(f.owner),undefined);
+  assert.equal(f.screen.retry(),true);assert.equal(f.screen.preparedPair(f.owner),undefined);
+  f.screen.sync(null);assert.equal(f.screen.preparedPair(f.owner),undefined);
+  f.screen.dispose();assert.equal(f.screen.preparedPair(f.owner),undefined);
+ }finally{f.dispose();}
+});
+test('actual graphics pause Notes local source tracks beneath common cover and expose a prepared pair without consuming the local gate',async()=>{
+ const f=paintFixture();Object.assign(globalThis.document,{hidden:false,addEventListener(){},removeEventListener(){}});
+ const graphics=createPortfolioGraphics();let state=tickSystem(launch(tickSystem(createPortfolioState(),3001),'game-notes',3010),6200);
+ const owner=state.system.runtime.active,layouts=[];
+ const at=host=>{const runtime=state.system.runtime,instance=runtime.instances[owner];state={...state,system:{...state.system,runtime:{...runtime,instances:{...runtime.instances,[owner]:{...instance,state:{...instance.state,notesHostMs:host}}}}}};};
+ const draw=()=>graphics.overlay(f.top,f.bottom,state,6200,false,new Date(2026,8,22,20,18));
+ setPortfolioFont(f.top,f.font);setPortfolioFont(f.bottom,f.font);
+ try{
+  graphics.setAppletEntryCovered(owner);graphics.stockStatus(state,f.top);await flush();
+  const assets=notesAssets();Object.assign(assets.renderer.packs,{'notes-aplt-u':notesPack('memo-ApltBoot_U_00-arc-l.json'),'notes-aplt-d':notesPack('memo-ApltBoot_D_00-arc-l.json')});
+  assets.renderer.drawLayout=(_ctx,alias,_name,layout)=>{if(alias==='notes-aplt-u')layouts.push(layout);return true;};
+  calls[0].resolve(assets);await flush();
+  for(let step=0;step<25;step++){at(step*1000/60);draw();assert.ok(graphics.preparedStockPair(state));assert.equal(graphics.presentNotesBootCover(state),false);}
+  assert.equal(layouts.length,0,'paused local controller emits no source pose beneath the common cover');
+  at(5000);graphics.setAppletEntryCovered(null);draw();const first=layouts.at(-1);assert.ok(first);
+  assert.equal(graphics.stockStatus(state,f.top),'loading');assert.ok(graphics.preparedStockPair(state),'local input readiness cannot deadlock the outer handoff');
+  assert.equal(graphics.presentNotesBootCover(state),true);at(5000+1000/60+.01);draw();assert.notDeepEqual(layouts.at(-1),first);
+  graphics.setAppletEntryCovered(owner);at(10000);draw();assert.equal(graphics.presentNotesBootCover(state),false);
+  graphics.setAppletEntryCovered(null);draw();assert.deepEqual(layouts.at(-1),layouts.at(-2),'hidden interval repeats the last source pose');
+ }finally{graphics.dispose();setPortfolioFont(f.top);setPortfolioFont(f.bottom);f.dispose();}
+});
+
+test('actual graphics defer only Manual composition, keep acquisition live, publish recovery and release stale owners',async()=>{
+ const f=paintFixture();Object.assign(globalThis.document,{hidden:false,addEventListener(){},removeEventListener(){}});
+ const graphics=createPortfolioGraphics(),home=tickSystem(createPortfolioState(),3001),state=invokeSystemApplet(home,'manual',3010,{manualTitleId:'0004001000022400'});
+ const owner=state.system.runtime.active;let draws=0;
+ globalThis.__nativeTestDraw=(t,b)=>{draws++;t.fillText('native upper');b.fillText('native lower');return true;};
+ setPortfolioFont(f.top,f.font);setPortfolioFont(f.bottom,f.font);
+ const draw=(defer=true,chosen=state)=>graphics.overlay(f.top,f.bottom,chosen,6200,false,false,new Date(0),undefined,defer);
+ try{
+  draw();await flush();assert.equal(calls.length,1);assert.equal(draws,0,'deferred overlay starts load without composing');
+  const assets=nativeAssets();calls[0].resolve(assets);await flush();
+  for(let i=0;i<3;i++){draw();assert.equal(graphics.stockStatus(state,f.top),'loading');}
+  assert.equal(draws,0);assert.equal(graphics.preparedStockPair(state),undefined,'loaded resources do not manufacture a published pair');
+  draw(false);assert.equal(draws,1);assert.equal(graphics.stockStatus(state,f.top),'ready');assert.ok(graphics.preparedStockPair(state));
+  assert.deepEqual(f.top.marks,[['text','native upper']]);assert.deepEqual(f.bottom.marks,[['text','native lower']]);
+  const returned=reduceSystem(state,'back',6300);graphics.syncStockView(returned,f.top);assert.equal(assets.disposals,1);
+  const fresh=invokeSystemApplet(returned,'manual',6400,{manualTitleId:'0004001000022400'});draw(true,fresh);await flush();
+  assert.notEqual(fresh.system.runtime.active,owner);calls[1].reject(Error('Manual load failed'));await flush();
+  assert.equal(graphics.stockStatus(fresh,f.top),'loading');draw(true,fresh);
+  assert.equal(graphics.stockStatus(fresh,f.top),'error');assert.ok(f.top.marks.some(mark=>mark[1]==='Website display unavailable'));
+  assert.ok(f.bottom.marks.some(mark=>mark[1]==='A: Retry'),'paired recovery is not hidden by the scheduling gate');
+  assert.equal(graphics.retryStockScreen(),true);draw(true,fresh);await flush();assert.equal(draws,1);
+  graphics.syncStockView(returned,f.top);const stale=nativeAssets();calls[2].resolve(stale);await flush();assert.equal(stale.disposals,1);
+  const sound=tickSystem(launch(home,'sound',3010),6200);draw(true,sound);await flush();const other=nativeAssets();calls[3].resolve(other);await flush();draw(true,sound);
+  assert.equal(draws,2,'the Manual flag never defers another stock app');
+  graphics.dispose();assert.equal(other.disposals,1);
+ }finally{graphics.dispose();setPortfolioFont(f.top);setPortfolioFont(f.bottom);f.dispose();}
+});
+test('Notes HUD clock repaints a settled pair only when visible calendar or charging phase changes',async()=>{
+ const f=await notesFixture();let draws=0;
+ f.assets.renderer.draw=(_ctx,alias)=>{if(alias==='notes-hud')draws++;return true;};
+ const draw=date=>f.screen.draw(f.top,f.bottom,f.v,f.owner,f.font,undefined,date,0,f.terminal);
+ try{
+  assert.equal(draw(new Date(2026,8,22,20,18,0)),true);assert.equal(draws,1);
+  assert.equal(draw(new Date(2026,8,22,20,18,2)),true);assert.equal(draws,1);
+  assert.equal(draw(new Date(2026,8,22,20,18,3)),true);assert.equal(draws,2);
+  assert.equal(draw(new Date(2026,8,22,20,19,3)),true);assert.equal(draws,3);
+  assert.equal(draw(new Date(2027,8,22,20,19,3)),true);assert.equal(draws,4);
+ }finally{f.dispose();}
+});
+for(const activation of ['A','slot touch'])test(`Notes ${activation} before cover completion cannot enter drawing or carry into readiness`,async()=>{
+ const f=await notesFixture(),gate=createNativeScreenInputGate();
+ const button=phase=>({type:'button',command:'open',phase,source:'key-a'});
+ const touch=phase=>({type:'touch',phase,x:42,y:42,pointerId:3});
+ const event=phase=>activation==='A'?button(phase):touch(phase);
+ const send=(input,pair)=>{const decision=gate(input,f.status(pair));if(decision==='pass')f.dispatch(input);return decision;};
+ try{
+  assert.equal(f.draw(f.cover),true,String(f.screen.getFailure()));
+  assert.equal(f.status(f.cover),'loading','a complete covered pair is not input-ready');
+  assert.equal(send(event('down'),f.cover),'block');
+  assert.equal(getActiveAppView(f.getState()).screen,'main');
+  assert.equal(gate({type:'button',command:'home',phase:'down',source:'home'},f.status(f.cover)),'home');
+  assert.equal(gate({type:'button',command:'power',phase:'down',source:'power'},f.status(f.cover)),'pass');
+  assert.equal(f.status(f.terminal),'loading','sampling the terminal does not publish it');
+  f.draw(f.terminal);assert.equal(f.status(f.terminal),'loading','the Canvas terminal still awaits valid renderFrame');
+  assert.equal(f.present(),true);assert.equal(f.status(f.terminal),'ready');
+  assert.equal(send(event('up'),f.terminal),'block','loading input is quarantined through release');
+  assert.equal(getActiveAppView(f.getState()).screen,'main');
+  assert.equal(send(event('down'),f.terminal),'pass');
+  if(activation==='slot touch')assert.equal(send(event('up'),f.terminal),'pass');
+  assert.equal(getActiveAppView(f.getState()).screen,'drawing');
+ }finally{f.dispose();}
+});
+test('Notes terminal input receipt waits for both outward LCD copies, rejects a new ticket, and preserves recovery',async()=>{
+ const f=await notesFixture();
+ try{
+  f.draw(f.cover);
+  const copy=f.bottom.drawImage;f.bottom.drawImage=()=>{throw Error('LCD copy failed');};
+  assert.throws(()=>f.draw(f.terminal),/LCD copy failed/);
+  assert.equal(f.status(f.terminal),'loading');
+  assert.equal(f.present(),false);
+  f.bottom.drawImage=copy;f.draw(f.terminal);assert.equal(f.status(f.terminal),'loading');
+  assert.equal(f.screen.presentNotesBootCover('game-notes:old',()=>true),false);
+  assert.equal(f.screen.presentNotesBootCover(f.owner,()=>false),false,'failed render acknowledgement cannot release input');
+  assert.equal(f.status(f.terminal),'loading');
+  assert.equal(f.present(),true);assert.equal(f.status(f.terminal),'ready');
+  assert.equal(f.present(),false,'a successful candidate receipt is consumed once');
+  f.screen.revokeNotesBootCoverCandidate();assert.equal(f.status(f.terminal),'loading');
+  f.draw(f.terminal);assert.equal(f.present(),true);assert.equal(f.status(f.terminal),'ready');
+  const next=notesCover(f.owner,0,2);assert.equal(f.status(next),'loading');
+  f.assets.renderer.draw=()=>false;
+  assert.equal(f.draw(next),false);assert.equal(f.status(next),'error','recovery readiness supersedes the Notes gate');
+  assert.equal(createNativeScreenInputGate()({type:'command',command:'open'},f.status(next)),'retry');
+ }finally{f.dispose();}
+});
+test('Notes metadata-ready posed publication keeps its existing readiness path',async()=>{
+ const f=await notesFixture();
+ try{
+  f.draw(f.cover);assert.equal(f.status(f.cover),'loading');
+  const posed={status:'posed',title:{},upper:{},lower:{},scene9Draw:true,scene10Draw:true,titleUserVisible:false,ticket:3,steps:0};
+  f.draw(posed);assert.equal(f.status(posed),'ready');
+ }finally{f.dispose();}
+});
+test('Notes receipt cannot survive resource owner teardown or acknowledge after disposal',async()=>{
+ const f=await notesFixture();
+ try{
+  f.draw(f.terminal);
+  f.screen.sync(null);
+  let accepted=0;
+  assert.equal(f.screen.presentNotesBootCover(f.owner,()=>{accepted++;return true;}),false);
+  assert.equal(accepted,0);assert.equal(f.assets.disposals,1);
+  assert.equal(f.status(f.terminal),'loading');
+  f.screen.dispose();
+  assert.equal(f.screen.presentNotesBootCover(f.owner,()=>{accepted++;return true;}),false);
+  assert.equal(accepted,0);
+ }finally{f.dispose();}
+});
+test('Notes transition cadence stops for failed load/draw and resumes only after explicit retry',async()=>{
+ const f=paintFixture();Object.assign(globalThis.document,{hidden:false,addEventListener(){},removeEventListener(){}});
+ const graphics=createPortfolioGraphics(),state=tickSystem(launch(tickSystem(createPortfolioState(),3001),'game-notes',3010),6200);
+ setPortfolioFont(f.top,f.font);setPortfolioFont(f.bottom,f.font);
+ const readyAssets=notesAssets;
+ try{
+  assert.equal(graphics.notesBootCoverActive(state),true);
+  assert.equal(graphics.stockStatus(state,f.top),'loading');await flush();
+  calls[0].reject(Error('Notes load failed'));await flush();
+  assert.equal(graphics.stockStatus(state,f.top),'loading','recovery is gated until its pair is copied');
+  assert.match(String(graphics.stockFailure()),/Notes load failed/);
+  assert.equal(graphics.notesBootCoverActive(state),false,'load failure cannot boost the recovery screen');
+  graphics.overlay(f.top,f.bottom,state,6200,false);
+  assert.equal(graphics.stockStatus(state,f.top),'error');
+  assert.equal(graphics.retryStockScreen(),true);
+  assert.equal(graphics.notesBootCoverActive(state),true,'explicit retry restores incomplete entry cadence');
+  graphics.stockStatus(state,f.top);await flush();
+  const failedDraw=readyAssets();failedDraw.renderer.draw=()=>false;calls[1].resolve(failedDraw);await flush();
+  graphics.overlay(f.top,f.bottom,state,6200,false);
+  assert.match(String(graphics.stockFailure()),/Native screen composition failed/);
+  assert.equal(graphics.notesBootCoverActive(state),false,'draw failure cannot boost the recovery screen');
+  assert.equal(graphics.retryStockScreen(),true);
+  assert.equal(graphics.notesBootCoverActive(state),true);
+  graphics.stockStatus(state,f.top);await flush();calls[2].resolve(readyAssets());await flush();
+  graphics.overlay(f.top,f.bottom,state,6200,false);
+  assert.equal(graphics.stockFailure(),null);
+  assert.equal(graphics.notesBootCoverActive(state),true,'successful retry still awaits the boot-cover receipt');
+ }finally{graphics.dispose();setPortfolioFont(f.top);setPortfolioFont(f.bottom);f.dispose();}
+});
 test('absent font and repeated deferred paints show only source black, then publish both native screens',async()=>{
  const f=paintFixture();
  try{

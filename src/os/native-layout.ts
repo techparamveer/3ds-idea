@@ -14,7 +14,8 @@ export type NativeAnimationShare={sourcePane:string;targetGroup:string};
 export type NativeAnimation={frames:number;loop:boolean;groups:string[];tracks:NativeTrack[];contents?:{target:string;binding:string}[];childBinding?:boolean;textures:string[];shares?:NativeAnimationShare[]};
 export type NativeGroup={name:string;panes:string[];children:NativeGroup[]};
 export type NativeLayout={sourceFormat?:string;canvas:{width:number;height:number;origin:number};roots:NativePane[];materials:NativeMaterial[];textures:string[];fonts:string[];groups:NativeGroup[];unsupported:unknown[]};
-export type NativePack={schema:1;name:string;layouts:Record<string,NativeLayout>;animations:Record<string,NativeAnimation>;textures:Record<string,{url:string;width:number;height:number;picaFormat?:number}>;messages:Record<string,{labels:Record<string,number>;styleTable?:string;messages:{text:string;tokens:unknown[];styleIndex?:number|null}[]}>;styles?:Record<string,{styles:NativeMessageStyle[]}>};
+type NativeResourceSource={titleId:string;path:string;sha256:string;contentId?:string;contentIndex?:number};
+export type NativePack={schema:1;name:string;titleId?:string;sourceSha256?:string;resourceSources?:Partial<Record<'layouts'|'animations'|'textures'|'messages'|'styles',Record<string,NativeResourceSource>>>;layouts:Record<string,NativeLayout>;animations:Record<string,NativeAnimation>;textures:Record<string,{url:string;width:number;height:number;picaFormat?:number}>;messages:Record<string,{labels:Record<string,number>;styleTable?:string;messages:{text:string;tokens:unknown[];styleIndex?:number|null}[]}>;styles?:Record<string,{styles:NativeMessageStyle[]}>};
 export type PaneOverrides=Record<string,{cursorAdvances?:{index:number;advance:number}[];colorSpans?:NativeTextColorSpan[];glyphScaleSpans?:NativeTextScaleSpan[];fixedWidthSpans?:NativeTextFixedWidthSpan[];lineAdvanceScales?:number[];multilineBlockOrigin?:'writer-0x110'|'writer-0x111';singleLineBlockOrigin?:'writer-0x110';text?:string;lineSpacing?:number;vertexColors?:number[][];messageStyle?:NativeMessageStyle;fontSize?:number[];visible?:boolean;alpha?:number;translation?:number[];scale?:number[];size?:number[];texture?:string;frame?:number;textureBindings?:Record<number,string>}>;
 export type AnimationBinding={name:string;frame:number;groups?:string[];childBinding?:boolean};
 /** HOME RI_mstl changes font metrics and spacing only; unresolved words stay uninterpreted. */
@@ -375,6 +376,28 @@ export function evaluateNativeMaterial(material:NativeMaterial, textures:number[
  return previous;
 }
 export type NativePixels={width:number;height:number;data:Uint8ClampedArray;picaFormat?:number};
+/** These common-cover programs keep RGB independent of pane alpha and multiply
+ * opaque texture alpha by the integer source pane alpha. The belt does not. */
+export function nativeOpaquePictureAlphaByte(layout:NativeLayout,picture:NativePicture,textures:ReadonlyMap<string,NativePixels>,alpha:number,material=layout.materials[picture.material]):number {
+ const byte=alpha*255,stages=material?.tevStages;
+ const expected:readonly (readonly [number,number,readonly number[]])[]=[
+  [17,0,[0,4,4]], [17,4,[4,7,6]], [34,1,[5,6,6]], [34,0,[6,6,6]],
+ ];
+ if(!material||!['P_Bg_U_00','P_Bg_D_00'].includes(material.name)||material.sourceFormat==='FLYT'||material.unsupported.length
+  ||!Number.isInteger(byte)||byte<0||byte>255||picture.colors.length!==4||picture.colors.some(color=>color.length!==4||color[3]!==255)
+  ||material.alphaCompare?.function!==7||material.bufferColor[3]!==0||material.constantColors[0]?.[3]!==255
+  ||material.colorBlend?.operation!==1||material.colorBlend.sourceFactor!==4||material.colorBlend.destinationFactor!==5
+  ||(stages.length!==3&&stages.length!==4)||stages.some((stage,index)=>{
+   const [selector,mode,sources]=expected[index],a=stage.alpha;
+   return stage.constantSelectors!==selector||a.mode!==mode||JSON.stringify(a.sources)!==JSON.stringify(sources)
+    ||a.operands.length!==3||a.operands.some(value=>value!==0)||a.scale!==1||a.savePrevious
+    ||stage.color.sources.some((source,at)=>source>=5&&Math.floor(stage.color.operands[at]/2)===1);
+  }))throw new Error('Unsupported native opaque picture alpha reuse');
+ const map=material.textureMaps[0],texture=map&&textures.get(layout.textures[map.texture]);
+ if(!texture||texture.data.length!==texture.width*texture.height*4||texture.data.some((value,index)=>index%4===3&&value!==255))
+  throw new Error('Unsupported native opaque picture alpha texture');
+ return byte;
+}
 /** HOME 10.7's 0x202940 first-character outline pass. Input is the decoded
  * 32×32 RGB565 target; output is one decoded RGBA4444 atlas cell. Badge mode
  * uses different tables and is deliberately outside this path.

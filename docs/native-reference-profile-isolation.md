@@ -1,5 +1,41 @@
 # Azahar reference profile isolation — 24 September 2026
 
+## Separate render window recovery - 7 October 2026
+
+STATUS is authoritative for the live checkout and profile. The current
+animation copies are private `native-manual-slow` and `native-folder-slow`
+under `/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/`.
+Disabling only their Single Window Mode restored real touchscreen input;
+the previous full-screen single-window mapping repeatedly failed. Persisted
+separate-window mode also worked after the folder copy restarted. Verify its
+fresh screenshot geometry before input, not the former desktop coordinates.
+The `cua_repl` wrapper does not expose `listWindows` on macOS. The persistent
+`cua_driver` MCP route does expose `list_windows` and modifier-held dragging;
+use only the APIs documented by the selected route, with exact-path binding.
+Volume0, Null output1 and Static input2 stayed unchanged. Quit/Yes reported134
+for the Manual copy and0 for the folder copy; both PID absences were verified.
+[Capture validity and remaining gaps](animation-fidelity-workflow-2026-10-07.md#native-touch-recovery-and-fixed-stage-diagnostics)
+separates corrupted/nonmonotonic own readbacks from usable static evidence.
+
+The later held-HOME continuation uses the same `native-folder-slow` copy.
+Its window inventory omitted a direct-executable camera-emulation warning.
+Canceling the unsaved Preferences inspection exposed it. Dismissing its actual
+OK control restored the same Health tile input without changing touch mapping.
+Keep `use_touch_from_button=true/default=false`; an empty window inventory does
+not establish that input is unblocked.
+
+Only HOME was temporarily changed from B66/default=true to Shift16777248/
+default=false, together with a new private screenshot directory. Foreground
+Shift-held upper-LCD gestures requested500ms and20 steps. Health suspended,
+resumed through its actual footer, then suspended again. These are requested
+host gestures, not measured native holds or renderer cadence. The56 own PNGs
+are indexed separately. GUI Quit/Yes exited139; PID66315 absence was verified.
+Only HOME and screenshot path were restored after exit. Do not restore the
+whole backup over GUI-normalized window geometry. Volume0/Null1/Static2 and
+normal100% remained unchanged. See the
+[held-HOME checkpoint](animation-fidelity-workflow-2026-10-07.md#held-home-recovery-and-fixed-pause-diagnostics)
+for executable, HOME, config and capture identities.
+
 ## Exact Binding - 2 October 2026
 
 During the folder replay, a display-name `cua.getApp('Azahar')` lookup

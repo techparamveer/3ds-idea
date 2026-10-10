@@ -1,27 +1,30 @@
 import type { AppView } from './app-types';
-import { REFERENCE_DEVICE_STATUS, deviceStatusBatteryFrame } from './device-status-profile';
+import { REFERENCE_DEVICE_STATUS, deviceStatusBatteryFrame, hudColonVisible } from './device-status-profile';
 import type { NativeDrawOptions, NativeLayoutRenderer } from './native-renderer';
 import type { NativeTitlePackRequest } from './native-title-assets';
 import type { NotesIntroPaint, StockScreenPaintOptions } from './stock-screen-presentation';
 import type { SuspendedCapture } from './notes-suspended-capture';
-import { nativeMessageOverride, type NativePixels, type PaneOverrides } from './native-layout';
+import { nativeMessageOverride, sampleNativeTrack, type NativePack, type NativePixels, type PaneOverrides } from './native-layout';
 import { notesCaptureView, NOTES_SWITCH_LAST_FRAME } from './stock-screen-layout';
 
 const notesPrefix='packs/game-notes/';
+const notesEmptyThumbnail='runtime-empty-note-thumbnail';
 export const personalNotesPacks:readonly NativeTitlePackRequest[]=[
   {url:notesPrefix+'memo-Bg_U_00-arc-l.json',alias:'notes-upper',layouts:['Bg_U_00'],animations:[]},
   {url:notesPrefix+'memo-Bg_D_00-arc-l.json',alias:'notes-lower',layouts:['Bg_D_00'],animations:[]},
-  {url:notesPrefix+'memo-MemoListDown-arc-l.json',alias:'notes-list',layouts:['MemoListDown'],animations:['MemoListDown_Base','MemoListDown_SceneIn']},
+  {url:notesPrefix+'contents/0000-00000007/memo-MemoListDown-empty-thumbnail.json',alias:'notes-list',layouts:['MemoListDown'],animations:['MemoListDown_Base','MemoListDown_SceneIn','MemoListDown_Decide'],textures:[notesEmptyThumbnail]},
   {url:notesPrefix+'memo-MemoTutorialUp-arc-l.json',alias:'notes-help',layouts:['MemoTutorialUp'],animations:['MemoTutorialUp_Base','MemoTutorialUp_SceneIn']},
-  {url:notesPrefix+'memo-ApltBoot_U_00-arc-l.json',alias:'notes-aplt-u',layouts:['ApltBoot_U_00'],animations:['ApltBoot_U_00_SceneIn']},
-  {url:notesPrefix+'memo-ApltBoot_D_00-arc-l.json',alias:'notes-aplt-d',layouts:['ApltBoot_D_00'],animations:['ApltBoot_D_00_SceneIn']},
+  {url:notesPrefix+'memo-ApltBoot_U_00-arc-l.json',alias:'notes-aplt-u',layouts:['ApltBoot_U_00'],animations:['ApltBoot_U_00_SceneIn','ApltBoot_U_00_SceneOut']},
+  {url:notesPrefix+'memo-ApltBoot_D_00-arc-l.json',alias:'notes-aplt-d',layouts:['ApltBoot_D_00'],animations:['ApltBoot_D_00_SceneIn','ApltBoot_D_00_SceneOut']},
+  {url:notesPrefix+'contents/0000-00000007/memo-HudMenuAplt_00-arc-l.json',alias:'notes-hud',layouts:['HudMenuAplt_00'],animations:['HudMenuAplt_00_SceneIn','HudMenuAplt_00_Bat','HudMenuAplt_00_NetMode','HudMenuAplt_00_NetAtn']},
+  {url:notesPrefix+'contents/0000-00000007/hud-messages.json',alias:'notes-hud-messages',layouts:[],animations:[]},
   {url:notesPrefix+'messages-and-loose.json',alias:'notes-messages',layouts:[],animations:[]},
 ];
 export const personalSelectedNotePacks:readonly NativeTitlePackRequest[]=[
   ...personalNotesPacks.filter(({alias})=>alias!=='notes-list'&&alias!=='notes-help'),
   {url:notesPrefix+'memo-MemoWriteDown-arc-l.json',alias:'notes-write',layouts:['MemoWriteDown'],animations:['MemoWriteDown_Base','MemoWriteDown_SceneIn','MemoWriteDown_Invalid']},
   {url:notesPrefix+'memo-ImageScreenUp-arc-l.json',alias:'notes-image',layouts:['ImageScreenUp'],animations:[
-    'ImageScreenUp_PanelNoGameIn','ImageScreenUp_SwitchDouble','ImageScreenUp_SwitchUp','ImageScreenUp_SwitchDown',
+    'ImageScreenUp_PanelNoGameIn','ImageScreenUp_SceneOut','ImageScreenUp_SwitchDouble','ImageScreenUp_SwitchUp','ImageScreenUp_SwitchDown',
     'ImageScreenUp_TextPanelInOut','ImageScreenUp_TextPanelStay',
     'ImageScreenUp_HudDoubleInOut','ImageScreenUp_HudUpInOut','ImageScreenUp_HudDownInOut',
   ]},
@@ -30,13 +33,50 @@ export const personalSelectedNotePacks:readonly NativeTitlePackRequest[]=[
 const captureUpperTexture='suspended-capture-upper',captureLowerTexture='suspended-capture-lower';
 const personalAllNotePacks:readonly NativeTitlePackRequest[]=[...personalNotesPacks,...personalSelectedNotePacks.filter(({alias})=>!personalNotesPacks.some(pack=>pack.alias===alias))];
 export const personalNotificationPacks:readonly NativeTitlePackRequest[]=[
-  {url:'packs/notifications/news.json',alias:'notifications',layouts:['NewsTopUI_U_00','NewsTopUI_D_00','NewsUnread_U_00','NewsTopBtn_D_00','NewsWndwNews_D_00'],animations:['NewsUnread_U_00_SceneIn','NewsUnread_U_00_NumAnim','NewsTopBtn_D_00_SceneIn','NewsWndwNews_D_00_SceneIn','NewsWndwNews_D_00_Select'],textures:['special.cic']},
+  {url:'packs/notifications/incoming.json',alias:'notifications-incoming',layouts:['CmnFade_U_00','CmnFade_D_00'],animations:['CmnFade_U_00_SceneIn','CmnFade_D_00_SceneIn']},
+  {url:'packs/notifications/news.json',alias:'notifications',layouts:['NewsTopUI_U_00','NewsTopUI_D_00','NewsUnread_U_00','NewsTopBtn_D_00','NewsWndwNews_D_00'],animations:['NewsUnread_U_00_SceneIn','NewsUnread_U_00_NumAnim','NewsTopBtn_D_00_SceneIn','NewsTopBtn_D_00_Decide','NewsWndwNews_D_00_SceneIn','NewsWndwNews_D_00_Select'],textures:['special.cic']},
   {url:'packs/notifications/hud.json',alias:'notification-hud',layouts:['HudMenu_00'],animations:['HudMenu_00_SceneIn','HudMenu_00_WhiteBlack','HudMenu_00_NetMode','HudMenu_00_NetAtn','HudMenu_00_Bat']},
   {url:'packs/notifications/contents/0000-00000012/receivelamp.json',alias:'notification-receivelamp',layouts:['RcvLamp_00'],animations:['RcvLamp_00_ReceiveBlue','RcvLamp_00_SceneIn']},
   {url:'packs/notifications/slidebar.json',alias:'notification-slidebar',layouts:['SlideBar'],animations:['SlideBar_Select']},
   {url:'packs/notifications/messages-and-loose.json',alias:'notification-messages',layouts:[],animations:[]},
 ];
 const WEEKDAYS=['sun','mon','tue','wed','thu','fri','sat'] as const;
+/** Notes 0x196f8c toggles T_TimeC_00 after one second; 0x197364 selects
+ * charging Bat = 4 + that visibility. Calendar parity is the existing host
+ * clock-phase adaptation, not a native SysTick/scene-start measurement. */
+export function notesHudClock(date:Date){
+  return {year:date.getFullYear(),month:date.getMonth()+1,day:date.getDate(),
+    hour:date.getHours(),minute:date.getMinutes(),colonVisible:hudColonVisible(date.getSeconds()),
+    batteryFrame:deviceStatusBatteryFrame(REFERENCE_DEVICE_STATUS,date.getSeconds())};
+}
+export function notesHudPaintOptions(messages:NativePack,date:Date):NativeDrawOptions{
+  const bank=messages.messages.hud;
+  const message=(label:string)=>{
+    const index=bank?.labels[label];
+    if(index===undefined||!bank?.messages[index])throw new Error('Missing native Notes HUD message: '+label);
+    return nativeMessageOverride(messages,'hud',label,'');
+  };
+  const dateText=message('lau_date'),hours=message('lau_hours'),minutes=message('lau_minutes');
+  if(dateText.text!=='%d/%M (%w)'||!['%I','%H'].includes(hours.text??'')||minutes.text!=='%m')
+    throw new Error('Unsupported native Notes HUD calendar format');
+  // Notes 0x196cdc..0x196d28 uses custom tokens: %I -> %02d, %H -> %d,
+  // both with the unchanged 0..23 hour. These are not strftime semantics.
+  const clock=notesHudClock(date),status=REFERENCE_DEVICE_STATUS;
+  dateText.text=dateText.text.replace('%d',message('day_'+clock.day).text??'')
+    .replace('%M',message('month_'+clock.month).text??'')
+    .replace('%w',message('week_'+WEEKDAYS[date.getDay()]).text??'');
+  return {bindings:[
+    {name:'HudMenuAplt_00_SceneIn',frame:20},
+    {name:'HudMenuAplt_00_NetMode',frame:status.netModeFrame},
+    {name:'HudMenuAplt_00_NetAtn',frame:status.netAtnFrame},
+    {name:'HudMenuAplt_00_Bat',frame:clock.batteryFrame},
+  ],overrides:{T_NetMode_00:message(status.networkMessage),T_Date_00:dateText,
+    T_TimeL_00:{text:String(clock.hour).padStart(hours.text==='%I'?2:1,'0')},
+    T_TimeC_00:{visible:clock.colonVisible},T_TimeR_00:{text:String(clock.minute).padStart(2,'0')}}};
+}
+function drawNotesHud(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,date:Date):boolean{
+  return renderer.draw(top,'notes-hud','HudMenuAplt_00',notesHudPaintOptions(renderer.packs['notes-hud-messages'],date));
+}
 /** N_Scene_00 default alpha is 0. SceneIn last key is frame 40 (HOME idle is
  * also 40). WalkCoin is not started. The native still shows no steps/coins,
  * but P_Walk_00 is visible by layout default, so hiding Walk/Coin below is a
@@ -65,6 +105,7 @@ export function notificationsHudClock(date:Date){
 }
 const friendLayouts=['FrdTopBG_U_00','FrdTopBG_D_00','FrdTopUIUp_D_00','FrdTopUIDw_D_00','FrdElemCard_UB_00','FrdElemCard_UF_00','FrdElemCard_DB_00','FrdElemCard_DF_00'];
 export const personalFriendPacks:readonly NativeTitlePackRequest[]=[
+  {url:'packs/friends/incoming.json',alias:'friends-incoming',layouts:['FrdCmnFade_U_00','FrdCmnFade_D_00'],animations:['FrdCmnFade_U_00_SceneIn','FrdCmnFade_D_00_SceneIn']},
   {url:'packs/friends/friend.json',alias:'friends',layouts:friendLayouts,animations:[
     ...friendLayouts.slice(2).map(name=>name+'_SceneIn'),
     'FrdElemCard_UB_00_NotConnect','FrdElemCard_UF_00_NotConnect',
@@ -152,6 +193,7 @@ export function nativePersonalToolView(view:AppView):{view:string;titleId:string
 /** Source notification components for the empty, offline portfolio state. */
 export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,options:StockScreenPaintOptions):boolean{
   if(view.appId==='notifications'&&view.screen==='main'){
+    if(options.notificationsFooterClose&&(!Number.isInteger(options.notificationsFooterClose.frame)||options.notificationsFooterClose.frame<0||options.notificationsFooterClose.frame>20))throw Error('Invalid Notifications footer source frame');
     const message=(label:string)=>nativeMessageOverride(renderer.packs['notification-messages'],'newslist_msbt_LZ',label,'');
     const hud=(label:string,fallback:string)=>nativeMessageOverride(renderer.packs['notification-messages'],'hud_msbt_LZ',label,fallback);
     const unread=view.rows.filter(row=>row.value==='New').length;
@@ -221,7 +263,10 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
     // origin, the same one-line X as T_EndB_00's 0x111. T_EndB_00 (y 26.5)
     // samples the atlas once at its final LCD rows; the pane raster plus a
     // half-pixel Canvas move would filter it twice.
-    okay=renderer.draw(bottom,'notifications','NewsTopBtn_D_00',{bindings:[{name:'NewsTopBtn_D_00_SceneIn',frame:20}],textSampling:'lcd',textSamplingPanes:['T_EndB_00'],overrides:{T_EndB_00:message('new_back'),T_EndF_00:{...message('new_back'),singleLineBlockOrigin:'writer-0x110'}}})&&okay;
+    if(options.notificationsFooterClose)okay=renderer.draw(bottom,'notifications','NewsTopBtn_D_00',{
+      bindings:[{name:'NewsTopBtn_D_00_SceneIn',frame:20},{name:'NewsTopBtn_D_00_Decide',frame:5,groups:['G_BtnEnd_00']}],
+      textSampling:'lcd',textSamplingPanes:['T_EndB_00'],overrides:{T_EndB_00:message('new_back'),T_EndF_00:{...message('new_back'),singleLineBlockOrigin:'writer-0x110'}}})&&okay;
+    else okay=renderer.draw(bottom,'notifications','NewsTopBtn_D_00',{bindings:[{name:'NewsTopBtn_D_00_SceneIn',frame:20}],textSampling:'lcd',textSamplingPanes:['T_EndB_00'],overrides:{T_EndB_00:message('new_back'),T_EndF_00:{...message('new_back'),singleLineBlockOrigin:'writer-0x110'}}})&&okay;
     if(!view.rows.length)options.font?.draw(bottom,view.text?.[0]??'',160,110,14,'#666','center');
     return okay;
   }
@@ -229,27 +274,48 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
   if(view.appId==='game-notes'&&view.screen==='drawing')return drawSelectedNote(renderer,top,bottom,view,options.suspendedCapture,options.reducedMotion);
   if(view.appId!=='game-notes'||view.screen!=='main')return false;
   const message=(label:string)=>nativeMessageOverride(renderer.packs['notes-messages'],'message',label,'');
+  const close=options.notesFooterClose;
+  if(close&&(!Number.isInteger(close.frame)||close.frame<0||close.frame>(close.kind==='feedback'?1:20)))throw Error('Invalid Notes footer close source frame');
   const selection=Math.max(0,Math.min(15,Math.floor(view.selection))),column=selection%4,row=Math.floor(selection/4);
-  const overrides:PaneOverrides={
+  const overrides:PaneOverrides={...notesEmptyThumbnailOverrides(renderer.packs['notes-list']),
     T_BtnB_00:message('0100Exitbtn'),T_BtnF_00:message('0100Exitbtn'),
-    N_CsrMemo:{translation:[-118+column*79,90-row*51,0]},
+    N_CsrMemo:{translation:[-118+column*79,90-row*51,0],...(close&&(close.kind==='out'||close.frame>0)?{visible:false}:{})},
   };
   let okay=renderer.draw(top,'notes-upper','Bg_U_00');
   okay=drawNotesMainUpper(renderer,top,message,options)&&okay;
   okay=renderer.draw(bottom,'notes-lower','Bg_D_00')&&okay;
-  okay=renderer.draw(bottom,'notes-list','MemoListDown',{bindings:[{name:'MemoListDown_Base',frame:0},{name:'MemoListDown_SceneIn',frame:20}],overrides})&&okay;
+  okay=renderer.draw(bottom,'notes-list','MemoListDown',{bindings:[{name:'MemoListDown_Base',frame:0},{name:'MemoListDown_SceneIn',frame:20},
+    ...(close?[{name:'MemoListDown_Decide',frame:5,groups:['G_Btn_end']}]:[])],overrides})&&okay;
+  if(close){
+    if(close.kind==='out'){
+      okay=renderer.draw(top,'notes-aplt-u','ApltBoot_U_00',{bindings:[{name:'ApltBoot_U_00_SceneOut',frame:close.frame,groups:['Group_00']}],opaquePictureAlphaPanes:['P_Bg_U_00']})&&okay;
+      okay=renderer.draw(bottom,'notes-aplt-d','ApltBoot_D_00',{bindings:[{name:'ApltBoot_D_00_SceneOut',frame:close.frame,groups:['G_Scene_00']}],overrides:{T_Aplt_00:message('lau_title_memo'),T_Home_00:close.homeLabel},opaquePictureAlphaPanes:['P_Bg_D_00']})&&okay;
+    }
+    return okay;
+  }
   // Native priority-0 scene 9 draws after the list, independently of scene 10.
   // Use the owner clock's already-applied lower pose; painting never steps it.
-  if(options.notesIntro?.status==='posed'&&options.notesIntro.scene9Draw)
+  if((options.notesIntro?.status==='posed'||options.notesIntro?.status==='boot-cover')&&options.notesIntro.scene9Draw)
     okay=renderer.drawLayout(bottom,'notes-aplt-d','ApltBoot_D_00',options.notesIntro.lower,{overrides:{T_Aplt_00:message('lau_title_memo')}})&&okay;
   else if(options.notesIntro?.status==='pending')
     okay=renderer.draw(bottom,'notes-aplt-d','ApltBoot_D_00',{bindings:[{name:'ApltBoot_D_00_SceneIn',frame:0}],overrides:{T_Aplt_00:message('lau_title_memo')}})&&okay;
   return okay;
 }
 
+/** 0x1037ec initializes all 16 slots; 0x13d578/0x13d580 replaces their
+ * archive dummy sampler with each initialized runtime thumbnail buffer. */
+export function notesEmptyThumbnailOverrides(list:NativePack):PaneOverrides{
+  const texture=list?.textures?.[notesEmptyThumbnail];
+  if(!texture||texture.width!==128||texture.height!==64||texture.picaFormat!==3)
+    throw new Error('Missing or unsupported native Notes empty thumbnail');
+  return Object.fromEntries(Array.from({length:16},(_,slot)=>[
+    'P_BtnMemoThum'+String(slot).padStart(2,'0'),{textureBindings:{0:notesEmptyThumbnail}},
+  ]));
+}
+
 /** Live list upper: composed title/HUD under ApltBoot while scene-10 draw is
  * set. The painter only samples a precomposed pose. Drawing still hides the
- * title. MemoTutorialUp remains the no-metadata fallback. */
+ * title. The no-software list is distinct from missing application metadata. */
 function notesIntroTitleOptions(intro:Extract<NotesIntroPaint,{status:'posed'}>,capture:SuspendedCapture):NativeDrawOptions{
   const hidden={visible:false},textures:Record<string,NativePixels>={};
   if(intro.icon)textures['notes-icon']=intro.icon;
@@ -263,15 +329,42 @@ function notesIntroTitleOptions(intro:Extract<NotesIntroPaint,{status:'posed'}>,
       :{P_ScreenUpL:hidden,P_ScreenDown:hidden,P_ScreenShdwUp:hidden,P_ScreenShdwDown:hidden,W_ScreenShdwUp:hidden,W_ScreenShdwDown:hidden}),
   }};
 }
+/** Scene 3's no-software branch keeps T_TextList's source alpha and initializes
+ * the pane-bound P_Mask SceneOut at 20, independently of tutorial history. */
+export function notesNoSoftwareListOverrides(image:NativePack,messages:NativePack):PaneOverrides{
+  const clip=image.animations.ImageScreenUp_SceneOut;
+  const masks=clip?.tracks.filter(track=>track.binding==='pane'&&track.target==='P_Mask'&&track.property==='alpha');
+  const mask=masks?.[0];
+  if(!clip||clip.frames!==21||clip.loop||masks?.length!==1||!mask||sampleNativeTrack(mask,20)!==0)
+    throw new Error('Unsupported native Notes no-software mask track');
+  const bank=messages.messages.message,label=bank?.labels['9900NoBreakGameMesList'];
+  if(label===undefined||!bank?.messages[label])
+    throw new Error('Missing native Notes no-software list message');
+  const hidden={visible:false};
+  return {
+    T_TextList:{...nativeMessageOverride(messages,'message','9900NoBreakGameMesList',''),visible:true},
+    T_TextWrite:hidden,W_TextPanel:hidden,
+    P_ScreenShdwUp:hidden,P_ScreenShdwDown:hidden,P_ScreenUpR:hidden,
+    P_ScreenUpL:hidden,P_ScreenDown:hidden,W_ScreenShdwUp:hidden,W_ScreenShdwDown:hidden,
+    P_Mask:{alpha:sampleNativeTrack(mask,20)},
+  };
+}
 function drawNotesMainUpper(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,message:(label:string)=>PaneOverrides[string],options:StockScreenPaintOptions):boolean{
   const intro=options.notesIntro,capture=options.suspendedCapture??{status:'none'};
   if(intro?.status==='posed'){
     let okay=renderer.drawLayout(top,'notes-image','ImageScreenUp',intro.title,notesIntroTitleOptions(intro,capture));
+    okay=drawNotesHud(renderer,top,options.date??new Date())&&okay;
     if(intro.scene10Draw)okay=renderer.drawLayout(top,'notes-aplt-u','ApltBoot_U_00',intro.upper)&&okay;
     return okay;
   }
   if(intro?.status==='pending')return renderer.draw(top,'notes-aplt-u','ApltBoot_U_00');
-  return renderer.draw(top,'notes-help','MemoTutorialUp',{bindings:[{name:'MemoTutorialUp_Base',frame:1},{name:'MemoTutorialUp_SceneIn',frame:20}],overrides:{T_PartsTxt00b:message('1000Help_WelcomeP1')}});
+  // The boot-cover owner is created only when no runtime application exists.
+  let okay=intro?.status==='boot-cover'&&capture.status==='none'
+    ?renderer.draw(top,'notes-image','ImageScreenUp',{overrides:notesNoSoftwareListOverrides(renderer.packs['notes-image'],renderer.packs['notes-messages'])})
+    :renderer.draw(top,'notes-help','MemoTutorialUp',{bindings:[{name:'MemoTutorialUp_Base',frame:1},{name:'MemoTutorialUp_SceneIn',frame:20}],overrides:{T_PartsTxt00b:message('1000Help_WelcomeP1')}});
+  okay=drawNotesHud(renderer,top,options.date??new Date())&&okay;
+  if(intro?.status==='boot-cover'&&intro.scene10Draw)okay=renderer.drawLayout(top,'notes-aplt-u','ApltBoot_U_00',intro.upper)&&okay;
+  return okay;
 }
 
 /** Read-only own-card composition; dynamic Mii surfaces are deliberately absent. */

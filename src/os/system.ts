@@ -18,7 +18,7 @@ import { serializeHomeSavedLayouts, restoreHomeSavedLayouts } from './home-saved
 import { activeInstance, acknowledgeEffects, closeApplication, completeApplet, createAppRuntime, deliverCapabilityResult, dispatchRuntime, openApplet, resumeRuntimeApplication, runtimeView, setRuntimeSleeping, showRuntimeHome, startApplication, startSettingsHelper, tickRuntime, type AppRuntime } from './app-host.ts';
 import { createInputLatch, latchInput, latchTouch, repeatInput, type InputLatch } from './app-input.ts';
 import type { AppEvent, AppState, SaveRecord } from './app-types.ts';
-import { homeSlotAppId, moveHomeItem, restoreHomeLayout, selectHomeLocation, type FolderLayouts } from './home-layout.ts';
+import { homeSlotAppId, moveHomeItem, restoreHomeLayout, selectHomeLocation, type FolderLayouts, type HomeLocation } from './home-layout.ts';
 import { cancelHomeGesture, createHomeNavigation, ownedHomeToolbarContact, resetHomeNavigation, tickHomeGesture, touchHomeGesture, homeTouchLocation, type HomeNavigation } from './home-gestures.ts';
 import { selectHomeSlot, settleHomeNavigation, getHomeNavigation, getHomeExposedExtent, saveHomeView, restoreHomeView, homeDensityIndex, HOME_DENSITIES, writeHomeNavigation, createHomeGridFocus, createHomeUpdateClock, stepHomeUpdateClock, type HomeUpdateClock } from './home-navigation.ts';
 import { pageHomeViewport } from './home-scroll-consumer.ts';
@@ -73,10 +73,18 @@ export function launchHomeShortcut(state:MenuState,id:string,now:number):MenuSta
  state=reconcileSystemHomeApplicationTransition(state);
  const system=state.system;if(!system||system.phase!=='home'||isSystemHomeApplicationTransitionActive(state))return state;
  const root=Object.entries(system.layout).find(([,title])=>title===id);
- if(root)state=selectHomeLocation(state,{folder:null,slot:Number(root[0])});
- else for(const [folder,layout] of Object.entries(system.folderLayouts)){
+ let location:HomeLocation|null=root?{folder:null,slot:Number(root[0])}:null;
+ if(!location)for(const [folder,layout] of Object.entries(system.folderLayouts)){
   const child=Object.entries(layout).find(([,title])=>title===id);
-  if(child){state=selectHomeLocation(state,{folder:Number(folder),slot:Number(child[0])});break;}
+  if(child){location={folder:Number(folder),slot:Number(child[0])};break;}
+ }
+ const toolbarFocus:Readonly<Partial<Record<string,number>>>={'game-notes':1,friends:2,notifications:3,browser:4,miiverse:5};
+ const focus=toolbarFocus[id];
+ if(location||focus!==undefined){
+  if(location)state=selectHomeLocation(state,location);
+  const navigation=state.system!.homeNavigation;
+  // Accessibility selects a destination directly, without replaying native touch or cursor motion.
+  state=writeHomeNavigation(state,{...navigation,focus:focus===undefined?createHomeGridFocus():{...createHomeGridFocus(),toolbarActive:true,currentFocus:focus}});
  }
  return launch(state,id,now);
 }

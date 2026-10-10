@@ -105,9 +105,10 @@ behavior; only a reviewed coordinator pilot can check those paths.
 | `checks/self-test.log` |0, offline passed|`1b3ca5c9fe0ad1520eb146562d54d7416ad438ed9aba52048e325e5da189e86a`|
 | `checks/help.log` |0|`7486f53291a1b3620c8072415aa52b4862a60d7d87052a9b765df761797576a2`|
 
-`git diff --check` passes. No application test/build/typecheck was run because
-this Swift-only capture-tool slice changes no application contract and must
-leave the served source/dependencies/build frozen. No live capture, GUI,
+`git diff --check` passes. At initial source freeze no application gates had
+run; the later coordinator-authorized supporting checks are recorded below.
+This tool changes no application contract and leaves the served sibling
+source/dependencies/build frozen. No live capture, GUI,
 grant query or permission prompt was performed by this worker. All finite
 compile/test handles are closed.
 
@@ -136,3 +137,50 @@ the raw endpoint role. Native9/browser8 remains an explicit content mismatch.
 No UI, assets, native cue, font or native graphic changed. Prior footer and
 banner timing/boundary adaptations remain labelled; all whole flows still
 fail/unproven and audio acceptance remains unverified while muted.
+
+## Independent review and supporting gates
+
+Immutable source/test/handoff commit
+`86ce54264d89057dba7c74d6feebc50fa7859e1a` was independently approved by
+GPT-6.1 Sol high. Private `toprow-current-20261010/window-recorder-review-v1/review.md`
+SHA is `44dba9e51c6e8a3acecf9b7b8958a78da24d16380418041c8883561853d21c4d`.
+Independent compile and30 offline tests pass without warnings or skips. Live
+idle/render pilots remain coordinator-only and were not run by this worker.
+
+After that source freeze, the coordinator requested full application gates
+in this unserved worktree. Dependencies were APFS-cloned from the frozen
+diagnostics worker into this tree, not symlinked, installed or modified in
+the donor. All77 tracked GLB pointer OID/size/magic values were verified against
+the same frozen donor before any copy. Only exact pointer files were hydrated
+with APFS clones. Donor and target bytes were reverified after the gates.
+`glb-preflight.json` SHA is
+`b0e37aaacab86a9191843e5be839bfca670fbe78d70c53ff9f02fd29b4419d3f`.
+The initial preflight mistakenly asserted77 files in the three-file public
+subset and exited1 before copying. Its `checks/glb-preflight.log` is preserved;
+the corrected full tracked inventory passed in `checks/glb-preflight-02.log`.
+No asset was staged. Git status may retain stat-only GLB marks; the explicit
+filter-backed diff is empty and all77 payload hashes equal their tracked OIDs.
+
+These gates ran strictly sequentially against86ce542, with recorder-test
+scratch redirected beneath `O/checks`:
+
+| Check under O/checks | Result | SHA-256 |
+| --- | --- | --- |
+| `npm-test.log` |exit1,2726 pass/1 fail/102 skip/1 TODO,total2830|`39023552addbf95b9b4fac03ea240143ee1926d339a36f579e867de751e69306`|
+| `typecheck.log`, `npm run typecheck -- --incremental false` |exit0|`4fc0605d19e61064e88aacb22f7ce2f8e4f6fb7310ec41794d4c846765c72382`|
+| `build.log`, `npm run build` |exit0|`4911cfd7100c19a44559f0657dee7762073e590587df5ef9616e64ab42e999fc`|
+
+The sole full-suite failure is unchanged `tests/camera-date-group.test.mjs:44`,
+which cannot open historical private
+`/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/camera-3d-badge-sdmc-recapture-20261005/browser/lower.png`.
+No new skip, assertion weakening, replacement PNG or fixture search hides it.
+No shader/material change exists, so no shader check was required for this slice.
+
+The new unserved build ID is `M6VitVx7ByG7epgpL19zE`, BUILD_ID file SHA
+`ccc04cb9f69241d18f73588b41ccc5718822c5df7d7fe1bd7a9e66b9169e4285`.
+`O/supporting-checks.json` pins the complete own `.next` file inventory,
+eleven retained logs, committed src/public/tests trees, binary/source/test
+hashes and GLB inventory. Application source/public/tests and the reviewed
+recorder source/test remain unchanged. This later handoff-only commit does
+not alter the build or binary identity. All finite handles are closed; no
+server, GUI, capture or permission request was started by this worker.

@@ -7,7 +7,9 @@ Worker base `c058ec9d1bbab91b9dfb44c5edbec016eaf07c71`, assigned branch
 `/Users/paramveer/.codex/worktrees/health-resume-retained-20261010/3ds-idea`.
 Initial source/tests `969b3676691c82c1b197882b212c8e074a7b2eb4` remain
 immutable. The corrected source range ends at follow-up
-`a03504e50b2dae1ac0fb4bef6d95f494f929124b`, frozen for exact review.
+`cf52bd57f0f922a50e473a660b7ef22819b49978`, independently approved by
+a separate GPT-6.1 Sol high reviewer. Full checks/build and freeze follow
+that source approval; browser/native recapture remains pending.
 This is one Health-scoped retained-owner correction, not general Resume or
 whole-flow completion. Every other application Resume route is unchanged
 and unaccepted. Reducers, `system.ts`, `app-host.ts`, the scene input adapter,
@@ -197,7 +199,7 @@ and slot assembly, status/calendar profile, reduced motion, source-phase and
 paired-publication scheduling, and portfolio content. No non-native artwork
 or sound is added.
 
-## Checks and next visible gate
+## Historical checks before the transient correction
 
 All logs are preserved in `R`. `red-01..03.log` are fixture setup failures;
 `red-04.log` is the real black-pair behavior red. `green-01.log` passes the
@@ -245,13 +247,13 @@ worker's node_modules, not a symlink. Only own source/tests were committed;
 local STATUS reconciliation is unstaged. Every finite command is reaped.
 
 Source-identified, delivered, implemented and focused-tested evidence is
-reported separately from browser/native comparison. Exact independent review
-of the corrected `c058ec9..a03504e` range is pending. Full tests, production build and any new shader supporting check
+reported separately from browser/native comparison. At this historical
+checkpoint, exact independent review of `c058ec9..a03504e` was pending. Full tests, production build and any new shader supporting check
 have not run for this candidate. No browser, server, Azahar, system volume or
 other worktree was operated or modified. The previous source/public/tests and
 served `.next` stay frozen. Normal service speed cannot be verified by tools.
 
-After exact different-model approval, the coordinator may authorize full
+After exact independent source approval, the coordinator may authorize full
 checks/build and freeze. Coordinator-only muted MacBook first/repeat ordinary
 Health HOME/Resume recordings then determine visible progress. Native
 footer-only departure, exact retained bounds/softness, RGB/pixels, live epochs,
@@ -306,9 +308,11 @@ No motion state is fabricated and no native cadence is inferred.
 Final `R/focused-07-transient.log` passes 178/178, no skips, across the same
 16 files listed above. `R/typecheck-06-transient.log` passes nonincremental
 typecheck. Whitespace and explicit staged path checks pass. All finite
-command handles are reaped. Independent review of exact source range
-`c058ec9..cf52bd5` is pending. Full tests, shader supporting check, production
-build, GLB preflight and freeze are authorized only after that source approval.
+command handles are reaped. A separate GPT-6.1 Sol high reviewer approves
+exact source range `c058ec9..cf52bd5`, independently passing 178 focused and
+124 supplementary checks with one unavailable-private-fixture skip, plus
+nonincremental typecheck. Full tests, shader supporting check, production
+build, GLB preflight and freeze are now authorized and in progress.
 The worker has not operated a server, browser or Azahar. The old production
 build remains frozen. Separate native footer departure, retained bounds and
 pixels, native clock/cadence, input equivalence and muted audio remain open;

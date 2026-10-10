@@ -49,6 +49,12 @@ const { createFirmwareHome } = await loadPresentation('firmware-presentation', {
 const pack = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/home/launcher.json', import.meta.url)));
 const messagesPack = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/home/messages-and-loose.json', import.meta.url)));
 const nativeCursorNames = new Set(['cursor', 'cursorAt', 'cursorEffectAt']);
+function pauseEntryReceiptFrame(events){
+ const presentation=events.find(event=>event.name==='pause-backdrop').args[0],frame=presentation.skeletal[0].frame;
+ assert.equal(presentation.material[0].frame,[0,3,6,9,11,14,17][frame]??20,
+  `authored retained material phase at SceneIn receipt ${frame}`);
+ return frame;
+}
 
 function realAppBannerView(id,{active=false}={}){
  const inputs={managerInhibited:false,sceneInhibited:false,loadInhibited:false,nativeWorkerReady:true,resourceReady:null};
@@ -1108,7 +1114,7 @@ test('live HOME suspension binds AppPause from the complete capture and keeps fa
  const at=updateCount=>({...suspended,system:{...suspended.system,homeClock:{...suspended.system.homeClock,updateCount}}});
  let fail=true;
  await withScreens(({screens,paint,events})=>{
-  const frame=()=>events.find(event=>event.name==='pause-backdrop').args[0].material[0].frame;
+  const frame=()=>pauseEntryReceiptFrame(events);
   paint(at(100));assert.equal(frame(),0);assert.equal(screens.stockStatus(at(100)),'error');
   fail=false;screens.retryStockScreen();
   paint(at(104));assert.equal(frame(),0,'failed paired paint did not acquire the pause origin');
@@ -1148,7 +1154,7 @@ test('mid-entry HOME pause stalls retain the complete capture pose through faile
  const at=updateCount=>({...suspended,system:{...suspended.system,homeClock:{...suspended.system.homeClock,updateCount}}});
  let fail=false;
  await withScreens(({screens,paint,events})=>{
-  const frame=()=>events.find(event=>event.name==='pause-backdrop').args[0].material[0].frame;
+  const frame=()=>pauseEntryReceiptFrame(events);
   paint(at(100));paint(at(103));assert.equal(frame(),1);
   fail=true;paint(at(107));assert.equal(screens.stockStatus(at(107)),'error');
   fail=false;screens.retryStockScreen();paint(at(108));assert.equal(frame(),1,'monotonic short failure gap cannot commit a midpoint advance');
@@ -1195,7 +1201,7 @@ test('HOME pause receipts reject diagnostics, replacement owners and asset/dispo
  const base=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'work',3010),6500),'home',6600);
  const at=updateCount=>({...base,system:{...base.system,homeClock:{...base.system.homeClock,updateCount}}});
  await withScreens(({screens,paint,events,presenter})=>{
-  const frame=()=>events.find(event=>event.name==='pause-backdrop').args[0].material[0].frame;
+  const frame=()=>pauseEntryReceiptFrame(events);
   paint(at(100),1000,false);paint(at(103),1000,false);assert.equal(frame(),0);
   screens.paint(at(500),new Date(0),1200,{homeCursorLoopFrame:0});
   assert.equal(screens.presentHomeEntryMotion(at(500)),false,'synthetic canvas cannot receive a live render receipt');
@@ -1217,7 +1223,7 @@ test('dynamic reduced motion publishes a terminal source state and cannot replay
  for(const [base,last] of [[folder,16],[pause,20]]){
   const at=updateCount=>({...base,system:{...base.system,homeClock:{...base.system.homeClock,updateCount}}});
   await withScreens(({screens,paint,events})=>{
-   const frame=()=>last===16?events.find(event=>event.name==='folderChrome').args.at(-1).folderFrame:events.find(event=>event.name==='pause-backdrop').args[0].material[0].frame;
+   const frame=()=>last===16?events.find(event=>event.name==='folderChrome').args.at(-1).folderFrame:pauseEntryReceiptFrame(events);
    for(let update=100;update<=105;update++)paint(at(update));
    assert.equal(frame(),5);
    screens.setReducedMotion(true);paint(at(106),1000,false);assert.equal(frame(),last);

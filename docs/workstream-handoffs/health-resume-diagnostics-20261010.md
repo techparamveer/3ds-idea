@@ -6,6 +6,8 @@ This worker uses GPT-6.1 Sol high in
 `/Users/paramveer/.codex/worktrees/health-resume-diagnostics-20261010/3ds-idea`,
 branch `codex/health-resume-diagnostics-20261010`, based on
 `a724248599f4346f2867ee78bd4ff80a55f21943`.
+The immutable source/test checkpoint is
+`d9b4a186a98d8325d5d1dcce07d8534c009fe566`.
 The coordinator owns integration and live verification. This worker did not
 operate a GUI, Azahar, a browser, or a server, and did not change a frozen
 checkout. Local STATUS reconciliation is excluded from the commit.
@@ -68,6 +70,16 @@ Artifacts are under
   filesystem root. No dependency installation or Next configuration change
   was made. `build-01.log` SHA-256
   `514cadef24195a6d5a0cf0075261da21b70b013d94c06507434861ca5d00ad2d`.
+- With coordinator authorization, only the newly created dependency symlink
+  was replaced by an APFS clone of the same installed donor dependencies from
+  the unserved `home-dialog-order-20261010/3ds-idea/node_modules`. The donor
+  was read-only; the copy exited 0. No reinstall or source/configuration change
+  was needed. Standard `npm run build` then exited 0, including its TypeScript
+  check. `build-02.log` SHA-256
+  `fe9e6685c32b5cdc58995734aa9ddb235e78a8a0e3dfa8a801926764d164b633`.
+  Build ID `yxuVETpiy4-0vizBemf9Z` is unserved. Source, public assets, and tests
+  remain unchanged from the immutable source/test checkpoint. Build success
+  does not validate the unchanged unhydrated LFS asset pointers.
 - `git diff --check` exited 0. All finite check handles are closed.
 
 The full suite was not requested for this capture-only slice. Its known missing
@@ -76,7 +88,7 @@ Public assets are unchanged; this worker has not hydrated LFS files.
 
 ## Remaining verification
 
-Independent review and a successful build are pending. The coordinator must
+Independent review is pending. The coordinator must
 integrate the reviewed commit and capture new first/repeat Resume records to
 associate exported pixels with their own paint poses. Old captures remain
 immutable and still lack this field. No native fidelity, raster, timing, audio,

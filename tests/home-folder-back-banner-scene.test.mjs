@@ -3,13 +3,14 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import ts from 'typescript';
 import * as banner from '../src/os/home-banner-host.ts';
-import { createPortfolioState, reduceSystem, tickSystem, tickHomeNavigationClockObserved } from '../src/os/system.ts';
+import { createPortfolioState, reduceSystem, tickSystem, tickHomeNavigationClockObserved, dispatchSystemEvent } from '../src/os/system.ts';
 import { enableHomeControls, reconcileHomeControls, isHomeSwitchPresentationActive } from '../src/os/home-controls.ts';
 import { enterHomeFolder, selectHomeSlot, leaveHomeFolder, getHomeNavigation, writeHomeNavigation } from '../src/os/home-navigation.ts';
 import { sampleSystemHomeFolderClose, isSystemHomeFolderClosing, cancelSystemHomeFolderClose } from '../src/os/home-folder-close-system.ts';
 import { releaseUnreadyNativeInput } from '../src/os/native-screen-system.ts';
 import { applicationCloseAllowsInput, applicationCloseNeedsReadyScreen } from '../src/scene/application-close-input.ts';
 import { getMenuActionSound } from '../src/os/menu-action-sound.ts';
+import { createNativeScreenInputGate } from '../src/os/native-screen-input.ts';
 
 function functionsAt(path) {
   const source = readFileSync(new URL(path, import.meta.url), 'utf8');
@@ -41,7 +42,8 @@ const bindScene = new Function('runtime', 'api', `
     getHomeBannerCloseReadyUpdate,homeApplicationBannerBoundary}=api.banner;
   const {tickHomeNavigationClockObserved,reconcileHomeControls,isHomeSwitchPresentationActive,
     sampleSystemHomeFolderClose,releaseUnreadyNativeInput,applicationCloseAllowsInput,
-    applicationCloseNeedsReadyScreen,applicationCloseNeedsPaint,getMenuActionSound}=api;
+    applicationCloseNeedsReadyScreen,applicationCloseNeedsPaint,getMenuActionSound,
+    dispatchSystemEvent,createNativeScreenInputGate}=api;
   let state=runtime.state,bannerHost=runtime.bannerHost,reduced=runtime.reduced;
   let homeClockSuspended=false,bannerObservedPhase=state.system.phase,lastBannerRestartBootSince=null,
     bannerEntryFooterBootSince=null,bannerLabelFailure=false,closePublicationEffectNow=null,lastInput;
@@ -49,15 +51,17 @@ const bindScene = new Function('runtime', 'api', `
     homeEntryActivationReady:()=>true,homeAppletFooterBannerReady:()=>true,prepareFolderBannerLabel:()=>({})};
   const bannerClock=()=>({generation:runtime.generation,updateCount:state.system.homeClock.updateCount});
   const folderBanner={syncStockTitles(){},status:()=>({ready:true,defaultReady:true})},homeTitleBannerKind=()=>null;
-  const nativeScreenInput={cancelHeld(){}},document={hidden:false},started=false,start=0;
+  const nativeScreenInput=createNativeScreenInputGate(),document={hidden:false},started=false,start=0;
+  const performance={now:()=>runtime.now};
   const audio={play(){}},effects={drain(){}},updateAudio=()=>{},observeLaunchEffect=()=>{},
     paint=()=>{},writeState=()=>{},renderFrame=()=>{},revokeTerminalPublications=()=>{};
-  ${sceneFunctions(['observeFolderBanner', 'advanceBeforeMutation', 'reducedBannerKey', 'commit'])}
+  ${sceneFunctions(['observeFolderBanner', 'advanceBeforeMutation', 'reducedBannerKey', 'commit', 'dispatch'])}
   return {
     state:()=>state,host:()=>bannerHost,
     observe(selection){observeFolderBanner(bannerClock(),selection);},
     advance(now){advanceBeforeMutation(now);},
     back(now){commit((current,time)=>api.reduceSystem(current,'back',time),'back',false,now);},
+    event(event,now){runtime.now=now;dispatch(event);},
     replace(next){state=next;observeFolderBanner();},
     suspend(value){homeClockSuspended=value;observeFolderBanner();},
   };
@@ -82,11 +86,27 @@ function fixture({ reduced = false, offscreen = false, generation = 'folder-back
     banner, reduceSystem, tickHomeNavigationClockObserved, reconcileHomeControls, isHomeSwitchPresentationActive,
     sampleSystemHomeFolderClose, releaseUnreadyNativeInput, applicationCloseAllowsInput,
     applicationCloseNeedsReadyScreen, applicationCloseNeedsPaint, getMenuActionSound,
+    dispatchSystemEvent, createNativeScreenInputGate,
   });
   return { scene, readiness, host, state, entryReady };
 }
 const view = scene => banner.getHomeBannerHostView(scene.host());
 const visibleOrbit = scene => view(scene).status === 'active' && view(scene).primary.selection.kind === 'default' && view(scene).primary.motion.visible;
+
+test('actual Back-tab touch dispatch forwards clear on its owned release', () => {
+  const { scene } = fixture();
+  const contact = { type: 'touch', pointerId: 4, x: 59, y: 54 };
+  scene.event({ ...contact, phase: 'down' }, START);
+  assert.equal(sampleSystemHomeFolderClose(scene.state()), null);
+  assert.equal(visibleOrbit(scene), true);
+  const releasedAt = START + 4 * FRAME + .001;
+  scene.event({ ...contact, phase: 'up' }, releasedAt);
+  assert.equal(isSystemHomeFolderClosing(scene.state()), true);
+  assert.deepEqual(scene.host().selection, { kind: 'clear' });
+  for (let update = 1; update <= 5; update++) scene.advance(releasedAt + update * FRAME + .001);
+  assert.equal(scene.state().opened, true);
+  assert.equal(visibleOrbit(scene), false);
+});
 
 for (const reduced of [false, true]) for (const offscreen of [false, true]) test(`actual Back clears the orbit before root restoration, reduced=${reduced}, offscreen=${offscreen}`, () => {
   const { scene, readiness, host } = fixture({ reduced, offscreen });

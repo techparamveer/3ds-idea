@@ -47,18 +47,19 @@ It must not be reported as recovered native dispatch or timing.
 ## Verification
 
 The new [behavior regression](../../tests/home-folder-back-banner-scene.test.mjs)
-executes the actual scene `commit`, `observeFolderBanner` and
+executes the actual scene `dispatch`, `commit`, `observeFolderBanner` and
 `advanceBeforeMutation` functions, the actual screen readiness functions, and
 real OS close/navigation and banner host/service code. Browser-only audio,
 resource readiness and rendering side effects are fixture dependencies.
 
 Before the runtime fix, four normal/reduced and visible/offscreen-root cases
 failed because the actual commit retained `{kind:'default'}` instead of clear.
-After the fix, all eight new cases pass. Coverage includes unchanged hide-track
+After the fix, all nine new cases pass. Coverage includes Back-tab down/up
+dispatch through the real native input gate, unchanged hide-track
 visibility, entry request/activation gating, idempotent clear, root reacquisition,
 repeat Back, batch equivalence, suspension and context cancellation.
 
-Focused command, exit0,118pass,0fail:
+Focused command, exit0,119pass,0fail:
 
 ```sh
 node --test --test-reporter=dot tests/home-folder-back-banner-scene.test.mjs tests/home-folder-entry-host-scene-policy.test.mjs tests/home-folder-entry-banner-live.test.mjs tests/home-folder-entry-banner.test.mjs tests/home-banner-host.test.mjs tests/home-folder-close-system.test.mjs tests/home-folder-close.test.mjs tests/applet-entry-scene-policy.test.mjs

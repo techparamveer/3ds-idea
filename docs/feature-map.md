@@ -1,5 +1,14 @@
 # Feature map — 1:1 queue
 
+Latest production verification uses clean5dab027, buildAbU0doePk5fpJYzR19WW_,
+on the muted MacBook. First/repeat Back save466/182 pairs. Inspected raw sheets
+show orbit retirement before selected root cursor return, but fading tray
+overlap remains unresolved. Adjacent Notes420/Notifications466 pairs save;
+raw audits remain pending. Native Health repeat suspension chronology is now
+inspected. Browser Health setup uses an accessibility shortcut and captures
+an inconsistent suspended state, not accepted native matching. All four whole
+flows stay fail. See [the verification checkpoint](animation-verification-checkpoint-2026-10-10.md).
+
 10 October folder Back correction: independently reviewed worker
 `a689569`/`d8fe06a` integrates as `52faeda`/`07052d0` and forwards the
 existing explicit clear past the folder entry-readiness gate. Child requests

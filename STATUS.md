@@ -56,7 +56,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `07052d0794ddd00fcc10fa3b47b72eb0853a9f50`. Reviewed folder Back worker integrates as `52faeda` and `07052d0`, now pushed; supporting checks use equivalent worker `d8fe06a`. Frozen `ba2455e`/3029 remains the pre-fix comparison, unchanged. The unrelated user system.ts edit remains unstaged. All four whole scenarios remain unaccepted. |
+| HEAD | `5dab02752cfcb42e2a1a7e0efc97525966c71515`. Reviewed folder Back worker integrates as `52faeda` and `07052d0`; documentation/delivery checkpoint is `5dab027`. Supporting checks use equivalent worker `d8fe06a`. Frozen `ba2455e`/3029 remains the pre-fix comparison, unchanged. The unrelated user system.ts edit remains unstaged. All four whole scenarios remain unaccepted. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks and pending recapture. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -71,6 +71,25 @@ Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` /
 
 ## Serving
 
+Current verification candidate is clean5dab027 in
+`/Users/paramveer/.codex/worktrees/folder-back-verification-20261010/3ds-idea`,
+branch `codex/folder-back-verification-20261010`, production build
+`AbU0doePk5fpJYzR19WW_`. Build exits0. The owned pre-fix3029 server43643
+is stopped via its live terminal handle and listener absence is verified.
+Frozen pre-fix ba2455e source/assets/build and exports are preserved unchanged.
+Candidate now serves loopback3029, listener73083, persistent server session39598.
+Ordinary browser Reload loads it without changing browser security or bypassing
+key-delivery limits. No recorder is running. All GUI uses the muted dedicated
+MacBook browser. First/repeat Back save466/182 pairs; inspected raw pages015/002
+show orbit retirement before selected root cursor return, with fading tray
+overlap still open. Adjacent Notes420/Notifications466 pairs save; audits pending.
+Health451 duration-limited pairs save. Accessibility Open Health is a setup
+deviation; later visible Notifications/Open contradicts suspended-state text.
+This is not accepted suspension or an established cause. Native Health audit
+5e78d332 and coordinator-inspected chronology/closer establish repeat native
+poses, not browser matching. See the
+[verification checkpoint](docs/animation-verification-checkpoint-2026-10-10.md).
+
 Folder Back correction integrates as52faeda/07052d0 after independent
 different-model APPROVEbbe5e1a. Existing explicit clear now bypasses only the
 entry-readiness gate; child requests, native service lengths and clocks remain
@@ -79,11 +98,14 @@ nonincremental typecheck and production build pass in workerd8fe06a. Full suite
 2652pass/1unchanged missing historical Camera PNG failure/101skip/1TODO.
 Initial build failed on external dependency symlink; local-copy retry passes.
 Logs live in private opus-completion/folder-back-checks-20261010. The correction
-is not yet browser-inspected or native-compared. First/repeat Back, entry and
-adjacent applet recapture are Next; no new server is started and3029 stays frozen.
-New native Health HOME policyb4047d1c captures10 own PNGs and two18s movies,
-but chronological/audio/hash audit and browser match are pending. Native68446
-is absent and owned config restoration is byte-exacta0a3b837. Modifier-only
+is now browser-inspected in the bounded Back sheets above; full native comparison
+remains open. Scoped auditc0ea06a0 closes648 triples/1944 unchanged originals/
+1296 decoded PNGs without structural issues; selected Back sheets are inspected.
+The new3029 production build stays frozen.
+New native Health HOME policyb4047d1c captures10 own PNGs and two18s movies.
+Audit5e78d332 closes integrity and zero-audio checks; own chronology and repeat
+closer are inspected. Browser matching remains open. Native68446 is absent
+and owned config restoration is byte-exacta0a3b837. Modifier-only
 Shift request was rejected before input; successful upper held-Shift click is
 an input adaptation, not identical browser HOME or measured native timing.
 All four whole flows remain fail and audio acceptance stays unverified.

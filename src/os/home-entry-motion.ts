@@ -1,4 +1,5 @@
 import type { HomeApplicationTransitionPresentation } from './home-application-transition.ts';
+import type { HomeResumeBackgroundPresentation } from './home-resume-presentation.ts';
 import { HOME_ENTRY_HUD_LAST_FRAME } from './home-entry-presentation.ts';
 
 export const HOME_FOLDER_ENTRY_LAST_FRAME = 16;
@@ -26,7 +27,7 @@ export const HOME_PAUSE_LOWER_FADE_END_AT_UPDATE = 14;
 export const HOME_PAUSE_LOWER_RELEASE_AT_UPDATE = 16;
 export const HOME_PAUSE_LOWER_FADE_LAST_FRAME = 40;
 export const HOME_PAUSE_LOWER_FOOTER_LAST_FRAME = 14;
-export type HomeSuspendedBackgroundPresentation = HomePauseEntryPresentation | HomeApplicationTransitionPresentation;
+export type HomeSuspendedBackgroundPresentation = HomePauseEntryPresentation | HomeApplicationTransitionPresentation | HomeResumeBackgroundPresentation;
 
 function sameIdentity(a: HomeEntryMotionIdentity, b: HomeEntryMotionIdentity): boolean {
   return a.kind === 'folder' ? b.kind === 'folder' && a.folder === b.folder

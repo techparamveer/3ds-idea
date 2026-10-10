@@ -3,6 +3,7 @@ import type { NativeLayoutRenderer } from './native-renderer.ts';
 
 const LAYOUT = 'LncPauseFade_D_00';
 const SCENE_IN = 'LncPauseFade_D_00_SceneIn';
+const SCENE_OUT = 'LncPauseFade_D_00_SceneOut';
 const APP_TEXTURE = 'runtime:pause-lower-application';
 const HOME_TEXTURE = 'runtime:pause-lower-home';
 const MASK_TEXTURE = 'LncPauseMask_00.bclim';
@@ -16,14 +17,29 @@ function sourceEntry(pack: NativePack, kind: 'layouts' | 'animations' | 'texture
   return entry?.titleId === '0004003000009802' && entry.path === path && entry.sha256 === sha256;
 }
 
-function exactTrack(pack: NativePack, target: string, property: string, binding: 'pane' | 'material', keys: readonly SourceKey[]): boolean {
-  const tracks = pack.animations[SCENE_IN]?.tracks.filter(track => track.target === target && track.property === property);
+function exactTrack(pack: NativePack, target: string, property: string, binding: 'pane' | 'material', keys: readonly SourceKey[], clip=SCENE_IN): boolean {
+  const tracks = pack.animations[clip]?.tracks.filter(track => track.target === target && track.property === property);
   return tracks?.length === 1 && tracks[0].binding === binding && tracks[0].interpolation === 'hermite'
     && tracks[0].keys.length === keys.length && tracks[0].keys.every((key, index) => {
       const expected = keys[index];
       return key.frame === expected.frame && key.value === expected.value
         && (expected.slope === undefined || key.slope === expected.slope);
     });
+}
+
+export function validateHomeResumeLowerAssets(pack:NativePack):void {
+  validateHomePauseLowerAssets(pack);
+  const animation=pack.animations[SCENE_OUT];
+  const track=(target:string,property:string,binding:'pane'|'material',start:number,end:number,from:number,to:number)=>
+    exactTrack(pack,target,property,binding,[{frame:start,value:from,slope:0},{frame:end,value:to,slope:0}],SCENE_OUT);
+  if(!sourceEntry(pack,'animations',SCENE_OUT,'launcher_LZ.bin/anim/LncPauseFade_D_00_SceneOut.bclan','9880faca7e0caa8d3fa401cc8bfa59e823e1c33a36e1e2ce35d7d29fe0c834fd')
+    ||animation?.frames!==41||animation.loop||animation.childBinding!==true||JSON.stringify(animation.groups)!=='["G_Scene_00"]'||animation.tracks.length!==10
+    ||!['x','y'].every(axis=>track('P_App_00','scale.'+axis,'pane',20,40,.8999999761581421,1)
+      &&track('P_Lnc_00','scale.'+axis,'pane',0,20,1,1.100000023841858))
+    ||!track('P_Lnc_00','alpha','pane',0,20,255,0)
+    ||![102,115,128].every((value,index)=>track('P_App_00','materialColor.1.'+index,'material',20,40,value,255))
+    ||!track('P_App_00','texture.scale.x','material',20,40,1,.8500000238418579)
+    ||!track('P_App_00','texture.scale.y','material',20,40,1,.800000011920929))throw Error('Native HOME lower resume source unavailable');
 }
 
 /** Reject a partial or substituted lower pause conversion before publishing it. */
@@ -77,11 +93,22 @@ export function paddedHomeLowerCapture(capture: NativePixels): NativePixels {
 
 export function drawHomePauseLower(renderer: NativeLayoutRenderer, ctx: CanvasRenderingContext2D,
   application: NativePixels, home: NativePixels, frame: number): boolean {
+  return drawLower(renderer,ctx,application,home,frame,SCENE_IN);
+}
+
+export function drawHomeResumeLower(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,
+  application:NativePixels,home:NativePixels,frame:number):boolean {
+  return drawLower(renderer,ctx,application,home,frame,SCENE_OUT);
+}
+
+function drawLower(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,
+  application:NativePixels,home:NativePixels,frame:number,clip:string):boolean {
   if (!Number.isSafeInteger(frame) || frame < 0 || frame > 40) throw new RangeError('Invalid HOME lower pause frame');
   if (home.width !== 320 || home.height !== 240 || home.data.length !== 320 * 240 * 4) throw new Error('Invalid HOME lower snapshot');
   validateHomePauseLowerAssets(renderer.packs.launcher);
+  if(clip===SCENE_OUT)validateHomeResumeLowerAssets(renderer.packs.launcher);
   return renderer.draw(ctx, 'launcher', LAYOUT, {
-    bindings: [{ name: SCENE_IN, frame }],
+    bindings: [{ name: clip, frame }],
     textures: { [APP_TEXTURE]: paddedHomeLowerCapture(application), [HOME_TEXTURE]: home },
     overrides: {
       P_App_00: { textureBindings: { 0: APP_TEXTURE, 1: MASK_TEXTURE } },

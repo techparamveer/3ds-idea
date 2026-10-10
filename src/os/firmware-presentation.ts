@@ -259,15 +259,27 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
  // Calendar Date is the injected adapter; +0xcc, +0xa9/0x32f144, +0xb0
  // hold, +0xbb low-battery P_Bat blink and WhiteBlack 1/2 skips are not
  // replayed. Charging=true is the declared reference-profile adaptation.
- function hud(ctx:Context,date:Date,time:number,sample?:DiagnosticHomeHudSample,sceneInFrame?:number){
+ function hud(ctx:Context,date:Date,time:number,sample?:DiagnosticHomeHudSample,sceneInFrame?:number,sceneOutFrame?:number){
   if(sample)validateHomeHudSample(sample,renderer.packs.hud);
   if(sceneInFrame!==undefined&&(!Number.isInteger(sceneInFrame)||sceneInFrame<0||sceneInFrame>HOME_ENTRY_HUD_LAST_FRAME))throw new RangeError('Invalid HOME HUD SceneIn frame');
+  if(sceneOutFrame!==undefined){
+   const clip=renderer.packs.hud.animations.HudMenu_00_SceneOut,source=renderer.packs.hud.resourceSources?.animations?.HudMenu_00_SceneOut;
+   if(!Number.isSafeInteger(sceneOutFrame)||sceneOutFrame<0||sceneOutFrame>20)throw new RangeError('Invalid HOME HUD SceneOut frame');
+   const track=(target:string,property:string,keys:readonly (readonly [number,number,number])[])=>{
+    const tracks=clip?.tracks.filter(track=>track.target===target&&track.property===property);
+    return tracks?.length===1&&tracks[0].binding==='pane'&&tracks[0].interpolation==='hermite'
+     &&tracks[0].keys.length===keys.length&&tracks[0].keys.every((key,index)=>key.frame===keys[index][0]&&key.value===keys[index][1]&&key.slope===keys[index][2]);
+   };
+   if(source?.titleId!=='0004003000009802'||source.path!=='hud_LZ.bin/anim/HudMenu_00_SceneOut.bclan'||source.sha256!=='8aac97fa97651d5c021e2937e2fbeebb69aee6e8d884beb75314c6453cdff1e5'||clip?.frames!==21||clip.loop||!clip.childBinding||JSON.stringify(clip.groups)!=='["G_Scene_00"]'||clip.tracks.length!==5
+    ||!['scale.x','scale.y'].every(property=>track('N_Scene_00',property,[[0,1,0],[20,1.100000023841858,0]]))
+    ||!track('N_Scene_00','alpha',[[0,255,-12.75],[20,0,0]])||!track('P_Walk_00','alpha',[[-148,255,0]])||!track('P_Coin_00','alpha',[[-170,0,0]]))throw Error('Native HOME HUD SceneOut unavailable');
+  }
   const table='hud_msbt_LZ',day=message(table,`day_${date.getDate()}`,String(date.getDate()).padStart(2,'0')).text!,month=message(table,`month_${date.getMonth()+1}`,String(date.getMonth()+1).padStart(2,'0')).text!;
   const weekday=message(table,`week_${['sun','mon','tue','wed','thu','fri','sat'][date.getDay()]}`,'').text!;
   const dateText=message(table,'lau_date','%d/%M (%w)');dateText.text=dateText.text!.replace('%d',day).replace('%M',month).replace('%w',weekday);
   const seconds=date.getSeconds(),profile=REFERENCE_DEVICE_STATUS;
   const battery=sample?.batteryFrame??deviceStatusBatteryFrame(profile,seconds);
-  return renderer.draw(ctx,'hud','HudMenu_00',{bindings:[binding('HudMenu_00_SceneIn',sceneInFrame??41),binding('HudMenu_00_WhiteBlack',profile.whiteBlackFrame),binding('HudMenu_00_NetMode',sample?.netModeFrame??profile.netModeFrame),binding('HudMenu_00_NetAtn',sample?.netAtnFrame??profile.netAtnFrame),binding('HudMenu_00_Bat',battery),binding('HudMenu_00_WalkCoin',sample?.walkCoinFrame??time*.06)],overrides:{
+  return renderer.draw(ctx,'hud','HudMenu_00',{bindings:[binding('HudMenu_00_SceneIn',sceneInFrame??41),binding('HudMenu_00_WhiteBlack',profile.whiteBlackFrame),binding('HudMenu_00_NetMode',sample?.netModeFrame??profile.netModeFrame),binding('HudMenu_00_NetAtn',sample?.netAtnFrame??profile.netAtnFrame),binding('HudMenu_00_Bat',battery),binding('HudMenu_00_WalkCoin',sample?.walkCoinFrame??time*.06),...(sceneOutFrame===undefined?[]:[binding('HudMenu_00_SceneOut',sceneOutFrame)])],overrides:{
    T_NetMode_00:message(table,sample?.networkMessage??profile.networkMessage,'Internet'),T_Date_00:dateText,T_TimeL_00:{text:String(date.getHours()).padStart(2,'0')},T_TimeC_00:{visible:hudColonVisible(seconds)},T_TimeR_00:{text:String(date.getMinutes()).padStart(2,'0')},T_Walk_00:{text:String(sample?.steps??profile.steps)},T_Coin_00:{text:String(sample?.coins??profile.coins)}
   }});
  }

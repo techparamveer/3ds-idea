@@ -3,6 +3,13 @@
 Updated 10 October 2026. Fetched GitHub version `c767757` is integrated through
 reviewed merge `b84e1b2`. Primary local main remains untouched at `5ee6fd7`.
 
+Latest [dialog-order correction](docs/animation-verification-checkpoint-2026-10-10.md#additive-dialog-order-correction)
+retracts the established coincidence defect claimed in older entries below.
+The real-pixel baseline and fresh repeat already show dialog before lower HOME;
+a deliberate window-only mutation is rejected. No runtime change is justified.
+Preserve sealed evidence and failed fixed comparisons. Whole-flow1:1 remains
+unproven; proceed only from a demonstrated remaining defect.
+
 Latest human model instruction selects GPT-6.1 Sol high for workers, reviews
 and audits, superseding all older model preferences below. Tools cannot change
 or verify the running coordinator model or service tier. Keep independent

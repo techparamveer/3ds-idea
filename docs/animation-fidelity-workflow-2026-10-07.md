@@ -1,5 +1,17 @@
 # Animation fidelity workflow
 
+## Corrected dialog-order premise
+
+Do not fix the older dialog/lower coincidence claim without a demonstrated
+failure. Real native-renderer/Canvas controls already show dialog before lower
+HOME, and a deliberate window-only mutation is rejected by the same assertion.
+The raw caption diagnostic supports weak earlier output but is not an actual
+Three.js counterfactual or native pixel pass. Preserve the old sealed reports,
+selections and fixed comparison counts. See [additive correction](animation-verification-checkpoint-2026-10-10.md#additive-dialog-order-correction).
+The native ordinary-A setup attempt also failed and is closed with byte-exact
+configuration restoration. Do not repeat that identical route. Select a real
+remaining defect or a genuinely different bounded verification method next.
+
 ## Resume footer withdrawal
 
 Reviewed aacd774/22c1581 separates original footer SceneOut0..14 from retained

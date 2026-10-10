@@ -63,7 +63,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `23ba659fa53c98ddeb0a6e840c1f5c9862daef03`. Reviewed footer runtime aacd774, provenance22c1581, frozen-check handoff ddfe288 and delivery23ba659 are integrated. Frozen worker6614478/build5pTgJwKjDtqJGe-Um3UEF serves3029, listener31363/session59716. First/repeat keyboard HOME/Resume each save600 pairs; all1,200 pairs/2,400 PNGs verify. Inspected footer withdrawal334/365 and absent343/374 precede HOME departure348/379. Fixed complete/ready comparisons fail; lower ready alone meets static delta2. Final capture closure review is in progress. Full suite2,692 passes/1known missing Camera PNG failure; typecheck/shader/build pass. All whole scenarios fail; human system.ts stays excluded. |
+| HEAD | `6ccba35fc5404ff48133e342fc36f5cac8a08766`. Reviewed test-only workerff16a02 integrates as6ccba35. Independent review14250141 passes57 actual-Canvas checks without skips and typecheck. Baseline dialog7 precedes lower8; controlled mutation is rejected. No runtime defect established. Prior capture closuref0768c4 is pushed; additive classification correction is being reviewed. Frozen worker6614478/build5pTgJwKjDtqJGe-Um3UEF serves3029, listener31363/session59716. All whole flows fail; human system.ts stays excluded. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -77,6 +77,23 @@ Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9dd
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
 
 ## Serving
+
+Latest explicit render-focus check is closed: policy617627ee precedes isolated
+PID39214/session95184. Render1779 lies at40,81,511x645 on the sole MacBook.
+Exposed Raise is invoked once and refreshed AX reports render focus; ordinary
+a still leaves actual HOME/Open. No HOME/Resume or own-PNG action occurs.
+Quit/Yes exits0, PID absence verifies and config stays byte-exact031bc535.
+Private native-focus-v1 reporte45763fb records failure. Do not repeat either
+ordinary-A route unchanged. No native process or recorder runs.
+
+Coordinator native keyboard alternate is closed: isolated native-folder-slow
+PID34931/session2582 exits0 after actual Quit/Yes. Policye787704a permits one
+ordinary A attempt, but the actual render remains HOME/Open rather than ready
+Health. No HOME/Resume or own-PNG burst starts; no new native motion is claimed.
+Only screenshotPath changed and restores byte-exact031bc535 after PID absence.
+Volume0/Null1/Static2 remain unchanged. Private native-keyboard-v1 report records
+the failure. Built-in display1 alone is1800x1169; render1729 lies at40,81,511x645.
+Existing browser/build/exports remain frozen; no native process or recorder runs.
 
 Current footer production: frozen worker6614478/build5pTgJwKjDtqJGe-Um3UEF
 serves127.0.0.1:3029, listener31363, persistent session59716. HTTP200 and
@@ -106,11 +123,13 @@ pixel-tier claim for those stages. Complete130/158 differ13,810/33,300 and
 delta2. Lower ready maximum2 is static only. GPT-6.1 Sol high audit/reviewer
 helpers close final audita8f701e7, manifestb2d5e9df and all120+72 checksums.
 Coordinator independently verifies those checksums; all3,600 originals remain
-unchanged after comparison. Final independent delivery review remains next.
+unchanged after comparison. Independent capture reviewea1baaf5 and eight-doc
+review7b4b7c1e approve; closuref0768c4 is pushed. This post-commit HEAD metadata
+is separate from exact reviewed diff fc2545ba.
 No source, build, GUI, profile
 or original-capture edits are reserved. Coordinator alone serves31363/session
 59716. No recorder runs. Whole scenarios fail; touch, missing pressed samples,
-dialog/lower coincidence and native post-HOME raw phases remain open.
+exact actual-3D dialog attribution and native post-HOME raw phases remain open.
 
 Historical switch preparation, completed by the current serving block above:
 coordinator stopped only old listener20956 through
@@ -2135,9 +2154,27 @@ Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camer
 
 ## Next
 
-Current next at23ba659: finish independent eight-document delivery review,
-then commit explicit owned paths, push and
-update draft PR7. First/repeat600-pair capture and fixed comparison inspection
+Current slice at6ccba35 closes without a runtime correction. The real-pixel
+baseline and fresh repeat show dialog7 before lower HOME8; a deliberate
+window-only mutation is rejected. Raw115/143 contain matching weak caption-like
+detail. Retract the older coincidence claim as an established defect. Preserve
+sealed selections, original reports/captures and failed comparison counts.
+See [additive correction](docs/animation-verification-checkpoint-2026-10-10.md#additive-dialog-order-correction).
+GPT-6.1 Sol high worker/reviewer independently check the two new test/handoff
+paths. Workerff16a02 integrates as6ccba35 after review14250141,57checks with
+no skips and typecheck. Finish review of the additive correction and full
+supporting checks, push the coherent checkpoint, then select a demonstrated
+remaining defect. Final unserved checks2,692pass/1known Camera fixture failure/
+102skip/1TODO; typecheck/build pass after77 exact-OID GLB restorations. Initial
+pointer-failure logs remain preserved. BuildA5Jx8aK16Xu0NvmKq7fAO is not served.
+No runtime reservation is open. Do not repeat either closed ordinary-A setup
+failure, including explicit render Raise. Missing post-HOME
+native phases, pressed/touch evidence, other app/compact Resume, Manual60/9,
+top-row motion and populated/held folder coverage remain open. Frozen footer
+serving/build and all originals stay unchanged. All whole flows fail.
+
+Historical next atf0768c4: capture audit and independent eight-document delivery
+review are closed and pushed; draft PR7 is updated. First/repeat600-pair capture and fixed comparison inspection
 are closed. Footer withdrawal before HOME departure is browser-observed only;
 all whole comparisons fail. Next unresolved visible ordering is dialog/lower
 HOME coincidence, but a new source slice needs a named native/raw defect and

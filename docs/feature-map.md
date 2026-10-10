@@ -1,5 +1,13 @@
 # Feature map — 1:1 queue
 
+Latest [dialog-order correction](animation-verification-checkpoint-2026-10-10.md#additive-dialog-order-correction)
+supersedes older coincidence claims below. Real native-renderer pixels already
+contribute dialog at receipt7 before lower HOME8; a deliberate window-only
+mutation is rejected. First115/repeat143 contain matching weak caption-like
+detail. No source defect or runtime fix is established. All whole flows fail;
+pressed Resume, touch, native post-HOME phases and remaining app/folder/Manual
+coverage stay open. Original audits, seals and comparison counts are unchanged.
+
 Latest footer slice integrates reviewed aacd774/22c1581. Source-backed footer
 SceneOut and an accepted absent-terminal pair now precede HOME departure;
 footer-free retained lower pixels prevent reappearance. Focused54 pass and

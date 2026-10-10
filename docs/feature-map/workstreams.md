@@ -1,5 +1,21 @@
 # Workstream Registry
 
+## HOME dialog ordering, 10 October 2026
+
+Worker resume_sol_high, GPT-6.1 Sol high, owns
+`/Users/paramveer/.codex/worktrees/home-dialog-order-20261010/3ds-idea`, branch
+`codex/home-dialog-order-20261010`, basef0768c4. Completed scope is a new actual
+rendered-pixel ordering regression and handoff only. Baseline and fresh repeat
+already show dialog7 before lower HOME8. A deliberate window-only mutation
+is rejected, not a reproduced baseline fault. No runtime paths are reserved.
+Reviewer resume_review_sol_high independently verifies the test and additive
+raw diagnostic. The older visual coincidence interpretation is retracted as
+an established defect; old captures/reports/seals remain immutable. See
+[correction](../animation-verification-checkpoint-2026-10-10.md#additive-dialog-order-correction).
+Only coordinator operates GUI or serving; frozen footer source/build/exports
+remain unchanged. Scratch is private Sandisk1/home-dialog-order-20261010.
+All whole flows fail; no native cadence or audio acceptance is claimed.
+
 ## Resume footer withdrawal, 10 October 2026
 
 Worker `resume_sol_high` uses GPT-6.1 Sol high in

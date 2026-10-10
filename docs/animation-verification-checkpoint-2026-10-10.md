@@ -1,5 +1,72 @@
 # Animation verification checkpoint, 10 October 2026
 
+## Additive dialog-order correction
+
+This correction supersedes the dialog/lower coincidence interpretation below,
+not the sealed selections, original captures or fixed comparison counts. The
+suspected source fault is **unproven**. Do not alter runtime to fix it.
+
+Actual native-renderer/Canvas controls find dialog RGB at accepted receipt7
+(45,480 changed pixels, maximum channel delta3), with no lower HOME contribution
+until receipt8. A fresh compositor repeats that result. A deliberate window-only
+SceneIn21 mutation removes receipt7's contribution and the same ordering assertion
+rejects it. This is a negative control, not a reproduced baseline bug.
+See [the exact test and limitations](workstream-handoffs/home-dialog-order-20261010.md).
+
+Reviewed workerff16a02 integrates as6ccba35. Independent GPT-6.1 Sol high
+review `test-review.md`, SHA-256
+`14250141ee8be8d199eb3bc3612093fae5f41bd84c3c870bc313bb8587789359`,
+passes57 actual-Canvas focused tests with no skips and nonincremental typecheck.
+It lives beside the private additive diagnostic below. Unserved worker checks
+finish with2,692pass/1known missing Camera PNG failure/102skip/1TODO out of2,796.
+The new optional Canvas test skips in ordinary npm test without private paths;
+the explicit independent57-test run does not skip. Nonincremental typecheck
+and build pass. BuildA5Jx8aK16Xu0NvmKq7fAO is not served. Initial unhydrated
+checks had40 additional GLB-pointer failures; their logs/build are preserved.
+All77 models restore only after exact tracked OID/size/magic validation before
+copy and after restoration, with no donor mutation or asset staging.
+Private `home-dialog-order-20261010/final-checks/results.md`, SHA-256
+`0a6baec11c72ba9d0b023880d4ad7b783c6a9c7dd7fcc8d96723c397498d672a`,
+pins both runs and log hashes. The existing frozen production is unchanged.
+
+First115/repeat143 are valid receipt7/fade20 publications, before116/144's
+receipt8/fade23. Independent raw diagnostics find the same weak caption-shaped
+detail at115/143 in both recordings. The old visual selector missed possible
+faint dialog contribution; its absence/coincidence claim is retracted as an
+established defect. The CPU test uses a fixed captured upper destination, not
+the actual Three.js counterfactual. The raw median/cosine diagnostic supports
+pattern attribution only, not native pixel acceptance or an exact alpha epoch.
+
+Private additive diagnostic:
+`home-dialog-order-20261010/review-sol-high-v1/ordering-diagnostic.md`, SHA-256
+`13c6b2c9fa27db05566a77608a13af0c3fcb59c31088bcb383f1d370b5323689`.
+Its no-write reproduction script is
+`raw-caption-diagnostic.cjs`, SHA-256
+`6253080d8c9dbdbd737ef9e3f12139979c35858cc9ef02be1e0df5a6e11763c2`.
+Both live under the private opus-completion artifact root. Coordinator reruns
+the diagnostic successfully; all12 affected original hashes/sizes match the
+frozen inventory. Old reporta8f701e7 and seal0977210c remain unchanged.
+
+The separate native keyboard setup attempt stops after ordinary A leaves the
+actual render at HOME/Open. No Health HOME/Resume capture starts. Owned native
+PID34931/session2582 exits0; only screenshotPath was changed and it restores
+byte-exact config031bc535. Volume0/Null1/Static2 remain unchanged. Private
+`home-dialog-order-20261010/native-keyboard-v1/report.md` records that failure.
+No repeated identical input attempt is authorized by this correction.
+
+A distinct explicit-render-Raise prerequisite also fails to recover ordinary
+A. Policy617627ee precedes isolatedPID39214/session95184; render1779 is wholly
+within the sole MacBook display. Fresh AX confirms exposed Raise/focused render,
+but actual screenshot remains HOME/Open after one a. No HOME/Resume/own-PNG
+action occurs. Quit/Yes exits0, process absence verifies and config stays
+byte-exact031bc535 without restoration. Private native-focus-v1/report.md has
+SHA-256 `e45763fb37a4f29acdc8cf6b8f27c66108ce9241e7fb07e1d94fbb56eece9627`.
+Do not repeat either ordinary-A route unchanged. All finite handles are closed.
+
+All four whole flows remain fail. Missing native post-HOME raw phases, pressed
+Resume samples, touch, other app/compact Resume, Manual60/9, top-row motion and
+populated/held folder coverage remain open. Audio acceptance stays unverified.
+
 ## Footer production capture
 
 Final report SHA-256:

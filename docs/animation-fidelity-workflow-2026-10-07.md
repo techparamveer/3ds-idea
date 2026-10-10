@@ -1,5 +1,22 @@
 # Animation fidelity workflow
 
+## Slowed native raw capture
+
+The own-PNG Tools menu route now delivers intermediate native400x480 frames
+at GUI5% speed. Declare speed, input holds, capture cap and actual screenshot
+route before animation input. Preserve every file and its original filename;
+use verified mtimes for chronology because lexical Qt filename order differs.
+Menu sampling and slowed holds are adaptations, not native epochs or matched
+normal-speed cadence. Restore only owned temporary fields after verified quit.
+
+The81-PNG Notifications trial and two fixed opaque-cover diagnostics are
+closed. Both static pairs meet delta2 with empty masks, reviewedf3e5ef2d.
+No moving-phase or whole-flow acceptance follows. Close40 has no selected-HOME
+banner; later live observations cannot fill a saved capture gap. Continue with
+the missing raw phases/terminal, not the closed frame-advance/backend/video-dump
+probes. Preserve frozen browser build/originals and declare new pairs before
+metrics. See [capture identities and limits](toprow-capture-2026-10-10.md#slowed-raw-png-diagnostics).
+
 ## Same-paint touch verification
 
 Closed auditfb075b04 completes the new-candidate sequence below, preserving all

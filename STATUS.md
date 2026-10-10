@@ -63,7 +63,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `dbd0836e5887e189e0e0bc18118b017b5a69e16b`. Recorder86ce542 integrates as87a5168, reviewed44dba9e5; gate handoff98898bc integrates asdbd0836, reviewed37467dc3. Thirty offline tests pass; full2726pass/1known Camera PNG failure/102skip/1TODO, typecheck/build pass. Both scope pilots passed inspection. New first/repeat Notes and Notifications windows finalize; audit pending, not fidelity acceptance. Committed src/public still match frozen3fd9ed9/buildYVjVi3jRi1zYUhIFY5NkX. Human system.ts untouched/excluded. This HEAD-row reconciliation is mandatory post-commit metadata. |
+| HEAD | `43dbcbab9ff02861e8d0fcb3cff1e5fa38b4f08a`. Capture checkpoint43dbcba equals exact six-doc patch5ecbd52a, approved by review76380d38. Recorder86ce542 integrates as87a5168, reviewed44dba9e5; gate handoff98898bc integrates asdbd0836, reviewed37467dc3. Thirty offline tests pass; full2726pass/1known Camera PNG failure/102skip/1TODO, typecheck/build pass. Native-v2 auditda1aca45/review7f01ad83 and raw81-PNG audit8ce19f0d are closed. Two fixed opaque-cover pairs meet static delta2, reviewedf3e5ef2d; motion and whole-flow fidelity remain unaccepted. Committed src/public still match frozen3fd9ed9/buildYVjVi3jRi1zYUhIFY5NkX. Human system.ts untouched/excluded. This HEAD-row reconciliation supersedes the prior pending-audit metadata. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -2329,6 +2329,77 @@ The integration checkout remains here.
 Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camera Slideshow header 0. Camera Settings third 0. Welcome p5 **7615** live-feed source-gap **APPROVE**. Volume **130** live-slider source-gap **APPROVE**. Span **2314**/**2442** live-spectrum source-gap **APPROVE**. Birds **1558** held-offset source-gap **APPROVE**. Battery `[45,216,85,240]` **1** underbar-partition source-gap **APPROVE**. Line01 `(92,220)` partition source-gap **APPROVE**. Empty-entry row **1916** **APPROVE**. Thumb interiors **846/918** **APPROVE**. Guide perimeter **6072** = **860** dimmed grid + **4416** half + **728** (**144** row + **53** footer + **531** within 2) + **68** fringe; veil **REJECT** `be862ce6`; subsets **APPROVE-WITH-NITS** `d72ab4b1`. Empty-mid **2255**/**1024** → **0**/**0** by grid bind `603c5388` **APPROVE-WITH-NITS** `de5c6445`. p3 `TxtDlg` **1079→1078** after host-gate `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`. Sound upper 316 labelled `14533857` **APPROVE** `daa93bca`. y=177 **320** labelled `22e8b0a4` **APPROVE** `9fe268f8`. Slider **57** **APPROVE-WITH-NITS** `444ba8e0`. Plus-tint strip **1992** kept `ed55865e` **APPROVE** `b6620fa4`. HOME 1-row tail **291** **APPROVE** `f72296ff`. HOME idle Health 1-row left-anchor **23182 / 14754** empty mask (title/wallpaper **12255**, vacant-vs-Settings **7045**, HUD **2328**). **Static still only.** Whole scenarios still fail.
 
 ## Next
+
+Latest closure at43dbcba: native raw audit8ce19f0d/manifest335f6b28/checksums
+f149b4b8 verifies81 originals and all31 final derived checksums. Root opens all
+nine chronological1x sheets. Opening11..25 and Close11..34 are identical opaque
+plateaus; Close40 has a faint HOME Menu tail and no selected banner. Exact
+native epochs/fully cleared terminals remain null. Proposal7fb14d87 is unsealed.
+Static cover reviewf3e5ef2d independently reproduces both fixed0/0 delta2
+comparisons, maxima1/2 and empty masks. Approval is static-only, not motion or
+matched inputs. Native-v2 review7f01ad83 is also closed. Both helpers release
+their reservations; all finite handles are closed. No runtime/public changes.
+Next use the demonstrated own-PNG route for missing moving phases and saved
+selected-HOME terminal, with input/sampling declared first. Do not repeat the
+closed frame-advance/backend/video-dump probes or infer a defect from matching
+opaque poses. All whole flows fail; audio is unverified-muted. GUI stays
+coordinator-only on muted MacBook; all helpers/reviews use GPT-6.1 Sol high.
+Frozen3032/buildYVjVi3jRi1zYUhIFY5NkX and originals remain unchanged. Native81524
+is absent; private config is restored exactly031bc535. Earlier reservations
+and pending statements below are historical and superseded by this closure.
+
+Bounded raw-PNG trial at43dbcba is closed with81 own PNGs,3,056,203bytes:
+one HOME baseline,40 opening,40 footer Close. Isolated81524 uses5% speed and
+requested2s touches per pre-input addendum1abc7c13/policy39aae551. Live view
+shows intermediate opening, ready Notifications, Close cover and HOME return;
+the last raw sample's terminal inclusion remains unproven. GUI Quit/Yes exits;
+only three temporary config lines differ and are restored. Native audio muted.
+resume_capture_audit_high owns only new private native-raw-slow-v1/audit-sol-high-v1
+for inventory, complete PNG decode and chronological1x sheets, no seal/diff.
+Independent native-v2 bounded review7f01ad83 approves reporting, not fidelity.
+
+Fixed static cover diagnostics are declared by5ffea638 before metrics. Native
+own ordinals16/56 vs frozen browser first-open cover20 sequence210 and Close
+out20 sequence152 have0/0 pixels overdelta2, empty masks; maxima1/2 upper/lower.
+Reports362814b0/5adebb74; coordinator opens all four native/browser/heatmap
+sheets. Native5%/2s inputs differ from browser100%/500ms, so these are static
+opaque-pose checks only, no motion semantic seal. resume_review_sol_high owns
+new private native-raw-slow-v1/cover-review-sol-high-v1 for bounded independent
+review of these exact fixed pairs and policy. No runtime change is justified
+by these matching poses. Wait for the81-PNG chronology to choose next phases.
+
+Active continuation at43dbcba: resume_review_sol_high is assigned an independent,
+read-only review of the closed native-v2 audit, with new private output only at
+native-v2/review-sol-high-v1. Coordinator investigates a distinct raw-capture
+route that preserves pause and the pinned original executable/profile. Do not
+repeat the closed frame-advance, backend or Dump Video probes. No runtime
+source reservation, new native capture or fidelity acceptance is authorized by
+this review. All helpers use GPT-6.1 Sol high; coordinator alone owns GUI.
+
+New bounded native-raw-slow-v1 trial is declared before launch. Previous72164
+quits through GUI; postquit profile/backup return to031bc535. Only temporary
+screenshotPath is changed before boot; GUI speed at most5% is planned after
+selected HOME. Forty own-PNG requests per opening/Close maximum, Notifications
+only, requested10s holds. These are slowed diagnostic inputs, not matched
+normal-speed motion acceptance. Restore owned fields after verified quit.
+
+Latest native-v2 audit is closedda1aca45/manifestdb165e1e/checksums756c4f43.
+Root reads it, rehashes those identities and verifies all355 output checksums.
+All six originals/closed ledger stay unchanged;6948 frames decode twice with
+matching same-decoder BGRA hashes;323 PNGs pass CRC/dual independent RGBA.
+Root inspects four resized cycle overviews and16 full-window1x sheets. All four
+cycles are visible, but exact fully cleared-title and fully uncovered-HOME
+selectors remain null: legacy ready/uncovered names conceal possible faint
+belt tails. Recorder-provided first-PNG pixels also differ from AVAssetReader
+first-PNG pixels; both decode consistently, difference undiagnosed. No pixel
+equivalence, native epoch/cadence, seal or comparison is approved. Native repeat
+retains selection, unlike the browser repeat-selection plan. Do not relabel
+these lossy window videos as matched raw LCD evidence. Audit worker releases
+its reservation with all finite handles closed. Next independent Sol-high
+review of this bounded audit, then declare matched inputs/raw-phase capture
+needed before any source correction. Existing audits/builds/originals stay
+frozen; all whole flows fail, audio unverified-muted. This live post-checkpoint
+update is outside exact six-doc review76380d38/commit43dbcba.
 
 Current native motion audit reservation atdbd0836: recorder source and gates
 are integrated/reviewed, and both exact-window pilots decode with all five

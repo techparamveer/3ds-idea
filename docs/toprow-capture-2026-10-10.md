@@ -97,8 +97,13 @@ First selection is tested in each movie. After Close, HOME retains the same
 selection, so repeat uses one focused-open touch. Notes explicitly records
 this input-plan deviation; policy clarifies it before Notifications input.
 No repeated-selection evidence is claimed. Root observes both ready and
-returned HOME states, but full chronological movie inclusion and boundary
-audit remain pending. Native unread9/browser8 remains unmasked.
+returned HOME states. Closed auditda1aca45/manifestdb165e1e/checksums756c4f43
+verifies six originals,6948 decoded frames and323 CRC/dual-decoded PNGs.
+Independent review7f01ad83 approves bounded reporting. Exact fully cleared
+title and fully uncovered HOME selectors remain null because of faint tails.
+Recorder-first and decoder-first PNG pixels differ for an undiagnosed reason;
+the two video decode runs use the same decoder. Native unread9/browser8
+remains unmasked. No native pixel equivalence or timing acceptance follows.
 
 Full-window1022x1290 H264 is lossy ordering evidence, not native400x480 raw
 pixels, native epochs or cadence acceptance. Host UTC action brackets are
@@ -106,12 +111,45 @@ not native timestamps. No semantic seal, mask, fit, comparison or runtime fix
 is authorized from these observations alone. Earlier native-v1 exclusions
 and all runtime adaptations remain unchanged. All whole flows fail/unproven.
 
+## Slowed raw PNG diagnostics
+
+Policy39aae551 and pre-input addendum1abc7c13 precede a separate Notifications
+opening and ready-footer Close at GUI5% speed with requested2s touches. These
+inputs differ from the normal-speed browser and are diagnostic adaptations.
+Private `native-raw-slow-v1/` contains81 Azahar own400x480 PNGs: one baseline,
+40 opening and40 Close. Closed ledger a85896bf preserves the action brackets.
+GUI Quit/Yes exits PID81524; restoring only speed/default/path returns the
+private profile byte-exactly to031bc535. All 3DS audio stays muted.
+
+Closed audit8ce19f0d/manifest335f6b28/checksumsf149b4b8 preserves all81 originals
+and verifies their CRC and independent full RGBA decodes. Root opens all nine
+chronological1x sheets. Ordering uses actual mtimes, not lexical Qt filenames.
+There are44 distinct images. First observed opaque opening11 and Close11
+begin identical saved plateaus11..25 and11..34. Opening26 first shows title
+content; Close35 first shows HOME content. Close40 still has a faint HOME Menu
+tail and no selected banner. The later live selected-HOME observation is not
+inside this raw cap. Exact native epochs and fully cleared terminals stay null.
+Proposal7fb14d87 remains descriptive and unsealed.
+
+Policy5ffea638 fixes two opaque-cover pairs before metrics, without search or
+fitting. Native global16 versus browser first-opening cover20/sequence210 and
+native global56 versus first-Close out20/sequence152 each differ by0/0 pixels
+above delta2 on upper/lower LCDs. Maxima are1/2, with empty masks and only the
+declared native screen split. Reports362814b0/5adebb74 are under
+`native-raw-slow-v1/cover-diagnostics-v1/`. Root opens all four contact sheets;
+independent reviewf3e5ef2d reproduces every metric and approves static reporting.
+These are two static-pose matches, not matched-input, moving-phase, cadence or
+whole-flow acceptance. No runtime correction or native asset is added.
+
 ## Next
 
-Browser evidence review41e040db approves bounded integrity only. Native scope
-recovery now succeeds; finish new movie chronological inspection, then approve named pairs before
-diffing. Fix only demonstrated defects in separate owned worktrees and commit
-reviewed changes to draft PR7. All AN-01 through AN-04 whole flows remain fail.
+Browser evidence review41e040db approves bounded integrity only. Movie and raw
+PNG audits are closed, and two opaque poses meet the static pixel threshold.
+Next capture missing raw moving phases and a selected-HOME terminal through
+the demonstrated own-PNG route, with inputs and sampling declared beforehand.
+Do not repeat closed frame-advance/backend/video-dump probes. Fix only a
+demonstrated defect in a separate owned worktree, then review, integrate and
+recapture. Push coherent commits to draft PR7. All AN-01 through AN-04 whole flows remain fail.
 Audio remains unverified-muted. Manual, populated-folder, other-app/compact
 Resume and remaining top-row coverage stay open. Existing runtime adaptations
 and unsupported native fields are unchanged; no new native assets were added.

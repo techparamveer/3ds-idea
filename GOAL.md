@@ -3,12 +3,14 @@
 Latest [top-row checkpoint](docs/toprow-capture-2026-10-10.md) recovers native
 window recording through reviewed recorder87a5168 and gate handoffdbd0836.
 Both decoded scope pilots show Azahar. Two new60-second silent movies capture
-first/repeat Notes and Notifications open/ready/footer Close/return observations;
-full chronological audit is pending. These are lossy window videos, not raw
-native phase pixels or timing acceptance. Browser integrity is independently
-reviewed; the12 earlier wrong-scope movies remain excluded. Matched comparison
-and all four whole flows remain fail/unproven. Use GPT-6.1 Sol high helpers,
-muted MacBook testing and reviewed commits pushed to draft PR7.
+first/repeat Notes and Notifications open/ready/footer Close/return observations.
+Movie auditda1aca45/review7f01ad83 are closed. A separate slowed Notifications
+trial saves81 own PNGs, audited8ce19f0d and inspected in nine1x sheets. Two
+predeclared opaque-cover pairs match both LCDs at delta2 with empty masks,
+independently reviewedf3e5ef2d. Moving phases, matched input/cadence and a raw
+selected-HOME terminal remain open. All four whole flows remain fail/unproven.
+Use GPT-6.1 Sol high helpers, muted MacBook testing and reviewed commits pushed
+to draft PR7. The12 earlier wrong-scope movies remain excluded.
 
 Updated 10 October 2026. Fetched GitHub version `c767757` is integrated through
 reviewed merge `b84e1b2`. Primary local main remains untouched at `5ee6fd7`.

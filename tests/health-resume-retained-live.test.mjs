@@ -4,7 +4,8 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import ts from 'typescript';
-import { createPortfolioState, tickSystem, touchSystem, reduceSystem, dispatchSystemEvent, setSystemSleeping, launchHomeShortcut } from '../src/os/system.ts';
+import { createPortfolioState, tickSystem, touchSystem, reduceSystem, dispatchSystemEvent, setSystemSleeping, launchHomeShortcut, invokeSystemApplet } from '../src/os/system.ts';
+import { enableHomeControls, selectHomeToolbarControlTouch } from '../src/os/home-controls.ts';
 import { createNativeScreenInputGate } from '../src/os/native-screen-input.ts';
 import { escapeUnreadyNativeScreen } from '../src/os/native-screen-system.ts';
 import { sampleHomeGrid, selectHomeSlot, settleHomeNavigation } from '../src/os/home-navigation.ts';
@@ -267,5 +268,65 @@ test('HUD departure validates every original channel before paired publication',
       key.value=original;assert.equal(f.screens.retryStockScreen(),true);
     }
     assert.equal(f.paint(state).result.resume.frame,0,'failed source validation never spends the first departure frame');
+  });
+});
+
+test('stale expanded Health source cannot replay after actual touch selects another HOME tile before physical HOME',async()=>{
+  for(const publish of [false,true])await fixture(async f=>{
+    let state=home(f,await ordinaryHealth(f)),owner=state.system.runtime.application;
+    const grid=sampleHomeGrid(state.system.homeNavigation),selected=state.selected;
+    const slot=Number(Object.keys(state.system.layout).find(slot=>Number(slot)!==selected&&grid.slots[slot].x-grid.scrollPixels>30&&grid.slots[slot].x-grid.scrollPixels<290));
+    const point=grid.slots[slot];state=touchSystem(state,point.x-grid.scrollPixels,point.y,7200);
+    assert.equal(state.selected,slot);if(publish)f.paint(state);
+    state=dispatchSystemEvent(state,{type:'button',command:'home',phase:'down',source:'physical:HOME'},7300);
+    assert.equal(state.system.phase,'app');assert.equal(state.system.runtime.application,owner);
+    const pair=f.paint(state,false);
+    assert.equal(pair.result?.resume,undefined,'changed HOME origin must fall through to its unchanged route, not replay expanded Health');
+    assert.ok(!pair.events.some(event=>event.name==='retained-upper'&&event.presentation?.skeletal[0].clip==='BannerBG_SceneOut'));
+    assert.equal(f.screens.presentHomeEntryMotion(state),false);
+  });
+});
+
+test('selection away and back needs a fresh expanded Health pair receipt before Resume can use that origin',async()=>{
+  for(const receipt of [false,true])await fixture(async f=>{
+    let state=home(f,await ordinaryHealth(f)),owner=state.system.runtime.application;
+    const selected=state.selected,grid=sampleHomeGrid(state.system.homeNavigation);
+    const away=grid.slots[selected+1],back=grid.slots[selected];
+    state=touchSystem(state,away.x-grid.scrollPixels,away.y,7200);
+    state=touchSystem(state,back.x-grid.scrollPixels,back.y,7210);
+    assert.equal(state.selected,selected);
+    f.paint(state,receipt);
+    state=dispatchSystemEvent(state,{type:'button',command:'home',phase:'down',source:'physical:HOME'},7300);
+    assert.equal(state.system.runtime.application,owner);
+    const pair=f.paint(state,false);
+    assert.equal(pair.result?.resume?.frame,receipt?0:undefined,'old selection cannot revive the old snapshot, but a newly accepted matching source can depart');
+  });
+});
+
+test('toolbar focus and an actual applet open/back cycle cannot reuse the old expanded Health origin',async()=>{
+  for(const route of ['toolbar','applet'])await fixture(async f=>{
+    let state=home(f,await ordinaryHealth(f)),owner=state.system.runtime.application;
+    if(route==='toolbar'){
+      state=selectHomeToolbarControlTouch(enableHomeControls(state),2);
+      assert.equal(state.system.homeNavigation.focus.toolbarActive,true);
+    }else{
+      state=invokeSystemApplet(state,'friends',7200);assert.equal(state.system.runtime.instances[state.system.runtime.active].appId,'friends');
+      state=dispatchSystemEvent(state,{type:'command',command:'back'},7210);
+      assert.equal(state.system.phase,'home');assert.equal(state.system.runtime.homeReturn,owner);
+    }
+    state=dispatchSystemEvent(state,{type:'button',command:'home',phase:'down',source:'physical:HOME'},7300);
+    assert.equal(state.system.phase,'app');assert.equal(state.system.runtime.application,owner);
+    const pair=f.paint(state,false);assert.equal(pair.result?.resume,undefined);
+    assert.ok(!pair.events.some(event=>event.name==='retained-upper'&&event.presentation?.skeletal[0].clip==='BannerBG_SceneOut'));
+    assert.equal(f.screens.presentHomeEntryMotion(state),false);
+  });
+});
+
+test('HOME lid sleep keeps an unchanged accepted expanded origin for Resume after wake',async()=>{
+  await fixture(async f=>{
+    let state=home(f,await ordinaryHealth(f));state=setSystemSleeping(state,true,7200);f.paint(state);
+    state=setSystemSleeping(state,false,7300);
+    state=dispatchSystemEvent(state,{type:'button',command:'home',phase:'down',source:'physical:HOME'},7400);
+    assert.equal(state.system.phase,'app');assert.equal(f.paint(state).result.resume.frame,0);
   });
 });

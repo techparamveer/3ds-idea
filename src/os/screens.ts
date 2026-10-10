@@ -8,7 +8,7 @@ import { createNativeChrome } from './native-chrome';
 import { createPortfolioGraphics, setPortfolioFont } from './portfolio-screens';
 import { getApp } from './apps';
 import { getTitle } from './app-registry';
-import { getHomeNavigation, getHomePageBoundary, leaveHomeFolder, saveHomeView } from './home-navigation';
+import { activeHomeRecord, getHomeNavigation, getHomePageBoundary, leaveHomeFolder, saveHomeView } from './home-navigation';
 import { getHomeFooter, getHomeLaunchPresentation, getHomePresentation, type HomePresentation, type HomeLaunchPresentation } from './home-presentation';
 import { type MenuState, type Theme, isFolder, pageStart, rowCount, slotCount, themeChoices } from './state';
 import { type BitmapFont } from './bitmap-font';
@@ -436,15 +436,22 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  let layoutCapture:{identity:string;preview:HomeLayoutPreview}|undefined;
  let suspendedMetadata:{owner:string;metadata:SuspendedWindowMetadata}|undefined;
  let pauseLowerHomeCapture:{owner:string;generation:number;pixels:NativePixels}|undefined;
- type ResumeSource={identity:HomeResumeIdentity;capture:Extract<SuspendedCapture,{status:'ready'}>;metadata:SuspendedWindowMetadata;lower:NativePixels;sleepFrame:number};
+ type ResumeSource={identity:HomeResumeIdentity;origin:string;capture:Extract<SuspendedCapture,{status:'ready'}>;metadata:SuspendedWindowMetadata;lower:NativePixels;sleepFrame:number};
  const resumePresentation=createHomeResumePresentation();
  let resumeGeneration=0,resumeSource:ResumeSource|undefined,resumeSourceCandidate:ResumeSource|undefined,resumeCandidate:HomeResumePose|undefined;
  function resetHomeResume(){resumeGeneration++;resumeSource=undefined;resumeSourceCandidate=undefined;resumeCandidate=undefined;resumePresentation.reset();graphics.setResumeCoveredOwner?.(null);}
+ function resumeHomeOrigin(state:MenuState):string|null {
+  const s=state.system;if(!s)return null;
+  const nav=getHomeNavigation(state),view=activeHomeRecord(nav);
+  return JSON.stringify([s.runtime.sequence,s.runtime.systemApplet,s.runtime.libraryApplet,nav.selectionRevision,nav.activeFolderSlot,
+   state.opened,state.selected,state.folderSelected,nav.focus.toolbarActive,nav.focus.currentFocus,
+   view.selectedSlot,view.currentLeftSlot,view.targetLeftSlot,view.density]);
+ }
  function resumeIdentity(state:MenuState):HomeResumeIdentity|null {
   const s=state.system,runtime=s?.runtime,owner=runtime?.application,instance=owner?runtime?.instances[owner]:undefined;
   if(!s||!runtime||!resumeSource||!state.powered||s.phase!=='app'||s.sleeping||s.preferences||s.dialog||state.panel
    ||instance?.appId!=='health-safety'||instance.suspended||instance.closing||runtime?.active!==owner||runtime.homeReturn!==null
-   ||owner!==resumeSource.identity.owner||resumeSource.identity.resourceGeneration!==resumeGeneration)return null;
+   ||owner!==resumeSource.identity.owner||resumeSource.identity.resourceGeneration!==resumeGeneration||resumeSource.origin!==resumeHomeOrigin(state))return null;
   const capture=graphics.readRetainedApplicationCapture?.(runtime);
   return capture?.status==='ready'&&capture.owner===owner&&capture.generation===resumeSource.identity.captureGeneration?resumeSource.identity:null;
  }
@@ -576,7 +583,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  function presentHomeEntryMotion(state:MenuState):boolean {
   const source=resumeSourceCandidate;resumeSourceCandidate=undefined;
   if(!disposed&&!panelFailure&&!document.hidden&&state.powered&&!state.system?.sleeping&&graphics.stockFailure()===null&&source&&source.identity.resourceGeneration===resumeGeneration
-   &&selectedSuspendedApplication(state)?.id===source.identity.owner){
+   &&selectedSuspendedApplication(state)?.id===source.identity.owner&&source.origin===resumeHomeOrigin(state)){
    const capture=graphics.readSuspendedCapture(state.system!.runtime);
    if(capture.status==='ready'&&capture.owner===source.identity.owner&&capture.generation===source.identity.captureGeneration){resumeSource=source;resumePresentation.reset();}
   }
@@ -720,7 +727,8 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const time=reduced?0:elapsedMs;if(verification?.homeCursorLoopFrame!==undefined&&(!Number.isInteger(verification.homeCursorLoopFrame)||verification.homeCursorLoopFrame<0||verification.homeCursorLoopFrame>=60))throw new Error('HOME cursor loop frame must be an integer from 0 to 59');const palette=themes[state.theme];background(t,state,time);if(state.theme==='white'){const drawn=options.drawHomeBackground?.(t,time,reduced,verification?.homeWallpaperFrame,verification?.reuseHomeBackgroundMs);if(verificationPaint)verificationPaint.homeWallpaper=drawn===true;if(state.panel==='home-layouts'&&drawn!==true)throw new Error('Native HOME layout preview wallpaper unavailable');}
   const layoutPreview=currentLayoutPreview(state,time);
   const suspended=retainedSuspendedApplication(state),expanded=!!selectedSuspendedApplication(state);
-  if(!diagnosticPaint&&resumeSource&&state.system?.runtime.application!==resumeSource.identity.owner)resetHomeResume();
+  if(!diagnosticPaint&&resumeSource&&(state.system?.runtime.application!==resumeSource.identity.owner||resumeSource.origin!==resumeHomeOrigin(state)
+   ||state.system?.phase==='home'&&!state.system.sleeping&&!selectedSuspendedApplication(state)))resetHomeResume();
   const resume=resumeIdentity(state);
   graphics.setResumeCoveredOwner?.(resume&&!resumePresentation.ready(resume)?resume.owner:null);
   const suspendedCapture:SuspendedCapture=suspended?graphics.readSuspendedCapture(state.system!.runtime):{status:'none'};
@@ -1028,7 +1036,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   output.imageSmoothingEnabled=false;output.clearRect(0,0,800,240);output.drawImage(native,0,0,800,240);
   if(!diagnosticPaint&&expanded&&suspended?.appId==='health-safety'&&suspendedCapture.status==='ready'&&suspendedCapture.owner===suspended.id
    &&suspendedMetadata?.owner===suspended.id&&!state.system?.dialog&&!applicationTransition&&!homeEntryMotionActive(pauseMotion,reduced)){
-   resumeSourceCandidate={identity:{owner:suspended.id,captureGeneration:suspendedCapture.generation,resourceGeneration:resumeGeneration},capture:suspendedCapture,
+   resumeSourceCandidate={identity:{owner:suspended.id,captureGeneration:suspendedCapture.generation,resourceGeneration:resumeGeneration},origin:resumeHomeOrigin(state)!,capture:suspendedCapture,
     metadata:suspendedMetadata.metadata,lower:{width:320,height:240,data:new Uint8ClampedArray(b.getImageData(0,0,320,240).data)},sleepFrame:suspendedSleepFrame};
   }
   if(!diagnosticPaint&&state.system?.phase==='home'&&appletEntryEligible(state)&&nativeHome&&nativeStatus!=='error'&&nativeStatus!=='loading')appletSourceCandidate={source:appletEntryHomePair(state,appletGeneration),application:state.system.runtime.application,generation:appletGeneration};

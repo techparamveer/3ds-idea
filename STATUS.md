@@ -63,7 +63,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `6ccba35fc5404ff48133e342fc36f5cac8a08766`. Reviewed test-only workerff16a02 integrates as6ccba35. Independent review14250141 passes57 actual-Canvas checks without skips and typecheck. Baseline dialog7 precedes lower8; controlled mutation is rejected. No runtime defect established. Prior capture closuref0768c4 is pushed; additive classification correction is being reviewed. Frozen worker6614478/build5pTgJwKjDtqJGe-Um3UEF serves3029, listener31363/session59716. All whole flows fail; human system.ts stays excluded. |
+| HEAD | `eb43a435c5877851dc512874937f50a776627070`. Reviewed test-only6ccba35 and additive correctioneb43a43 are pushed to draft PR7. Independent reviews14250141/dcb0970f approve the test and exact seven-doc delta82177e48 separately. Baseline dialog7 precedes lower8; controlled mutation is rejected. No runtime defect established. Full checks2,692pass/1known Camera fixture failure/102skip/1TODO; typecheck/build pass. New build is unserved. Frozen worker6614478/build5pTgJwKjDtqJGe-Um3UEF serves3029, listener31363/session59716. All whole flows fail; human system.ts stays excluded. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -77,6 +77,44 @@ Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9dd
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
 
 ## Serving
+
+Latest held-HOME capture is closed. Policy952e0cd8 changes only private HOME
+binding toShift and screenshot path before exact-bundle launch. PID44218 uses
+the verified private cwd, pinned executable/HOME, Volume0/Null1/Static2/100%.
+Render1971 is40,81,511x645 on the sole MacBook, verified frontmost before
+recording. Both500ms/20step Shift-held upper gestures visibly suspend Health;
+both500ms/20step footer touches visibly Resume Health. Five native own PNGs
+and first/repeat silent videos are finalized in native-held-input-20261010.
+Closed audit5e76c3e9 verifies both native videos and all53 original files.
+Fixed comparison5fd6c0f1 still fails all upper LCDs and both paused lower LCDs;
+ready lower alone is within delta2. Coordinator opens all four comparison
+sheets and both Resume boundary sequences. Independent evidence review161dab1e
+and exact six-doc review02af21f1 approve bounded reporting, not fidelity.
+Do not equate these observations with timing or pixel acceptance. Earlier v4
+video is wrong-scope and supplies
+no native motion evidence. Quit/Yes is observed through the actual modal,
+PID44218 absence verifies, and only HOME/default/screenshot path restore.
+No native process or recorder runs. Frozen browser/build/exports are unchanged.
+
+Historical v3/v4 native held-touch recovery is closed: exact private native-folder-slow
+bundle PID42845, render1915 at40,81,511x645 on the sole MacBook display.
+Policy955a45be precedes the foreground500ms/20-step Open gesture, from
+screenshot(500,1225) to(502,1225). Actual subsequent images show the 3DS
+launch logo then ready Health. Earlier ordinary A and instantaneous clicks
+failed. Duration, target coordinates and route/setup differ; no single cause
+is established. Volume0/Null1/Static2 and config031bc535 remain pinned.
+Separate policy40d50253 permits a fresh screenshot path through Preferences.
+Native baseline644b24d6 decodes400x480. One exact-render foreground B attempt
+leaves actual Health unchanged; no Resume input occurs. Silent trajectory-v4
+is finalized with one action ledger. Closed audit e530c35a uses AVFoundation
+after system ffprobe fails to load x265; independent review24709805 approves
+the wrong-scope exclusion. No packages are reinstalled.
+Quit/Yes is followed by verified PID absence. Only the temporary screenshot
+path is restored after exit; config returns byte-exact031bc535.
+No native process or recorder runs at that closure. The subsequent policy-v5
+temporarily mapped HOME toShift and used fresh own-png-v5/ output before launch.
+Frozen browser/build/exports stay unchanged.
+Earlier native-absent paragraphs below describe closed attempts.
 
 Latest explicit render-focus check is closed: policy617627ee precedes isolated
 PID39214/session95184. Render1779 lies at40,81,511x645 on the sole MacBook.
@@ -2154,7 +2192,24 @@ Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camer
 
 ## Next
 
-Current slice at6ccba35 closes without a runtime correction. The real-pixel
+Held-Shift HOME and touch Resume visibly complete twice in isolated native
+Health. Phase audit5e76c3e9 and fixed endpoint report5fd6c0f1 are closed.
+Root verifies729 audit and36 comparison checksums,53 original files and their
+11 directory inventories, then opens all four comparison sheets and actual
+Resume boundary PNGs. Dialog precedes lower HOME in both native runs. Footer
+withdrawal, footer absence, HOME departure, retained dim Health and full-bright
+Health are observed. No runtime ordering correction is justified. Native raw
+intermediate phases and matched browser touch/cadence remain missing.
+Independent evidence review161dab1e and six-doc review02af21f1 approve the
+bounded checkpoint. Next commit/push it to PR7,
+then capture the same browser touch route with chronological raw LCDs and
+source diagnostics. Manual triage9d5a29a7 reproduces Camera60/9 and historical
+Browser60/16 but finds no source-backed correction. Do not repeat its closed
+B02/pitch/cutoff work or create a fix worktree from those counts. No runtime
+reservation is open. Do not repeat the closed v4 B attempt or wrong-scope video.
+All whole flows remain fail; exact timing/input/audio remain unverified.
+
+Historical correction slice ateb43a43 closed without a runtime correction. The real-pixel
 baseline and fresh repeat show dialog7 before lower HOME8; a deliberate
 window-only mutation is rejected. Raw115/143 contain matching weak caption-like
 detail. Retract the older coincidence claim as an established defect. Preserve
@@ -2162,9 +2217,11 @@ sealed selections, original reports/captures and failed comparison counts.
 See [additive correction](docs/animation-verification-checkpoint-2026-10-10.md#additive-dialog-order-correction).
 GPT-6.1 Sol high worker/reviewer independently check the two new test/handoff
 paths. Workerff16a02 integrates as6ccba35 after review14250141,57checks with
-no skips and typecheck. Finish review of the additive correction and full
-supporting checks, push the coherent checkpoint, then select a demonstrated
-remaining defect. Final unserved checks2,692pass/1known Camera fixture failure/
+no skips and typecheck. Exact seven-doc reviewdcb0970f approves delta82177e48;
+correctioneb43a43 is committed and pushed. Post-commit HEAD metadata is separate.
+Its next-work instruction was to select a demonstrated remaining defect,
+not the retracted dialog claim; the current Next above supersedes it.
+Final unserved checks2,692pass/1known Camera fixture failure/
 102skip/1TODO; typecheck/build pass after77 exact-OID GLB restorations. Initial
 pointer-failure logs remain preserved. BuildA5Jx8aK16Xu0NvmKq7fAO is not served.
 No runtime reservation is open. Do not repeat either closed ordinary-A setup

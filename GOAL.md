@@ -3,6 +3,14 @@
 Updated 10 October 2026. Fetched GitHub version `c767757` is integrated through
 reviewed merge `b84e1b2`. Primary local main remains untouched at `5ee6fd7`.
 
+The latest [native motion recapture](docs/animation-verification-checkpoint-2026-10-10.md#native-motion-recapture)
+visibly completes Health suspension and touchscreen Resume twice on the muted
+MacBook. Both videos decode and show Azahar; five own PNGs decode at 400x480.
+Earlier wrong-scope video is excluded. These observations do not establish raw
+phase pixels or exact input/cadence. The four-flow goal remains incomplete.
+Fixed endpoint comparisons still fail the upper LCDs and paused lower LCDs;
+ready lower alone is within delta 2. No runtime ordering fix is justified.
+
 Latest [dialog-order correction](docs/animation-verification-checkpoint-2026-10-10.md#additive-dialog-order-correction)
 retracts the established coincidence defect claimed in older entries below.
 The real-pixel baseline and fresh repeat already show dialog before lower HOME;

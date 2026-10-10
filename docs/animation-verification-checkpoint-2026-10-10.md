@@ -1,5 +1,95 @@
 # Animation verification checkpoint, 10 October 2026
 
+## Native motion recapture
+
+At coordinator eb43a43, the exact private native-folder-slow bundle recovers
+Health opening through a 500 ms, 20-step held touch. Prior instantaneous clicks
+used different coordinates/setup; duration alone is not an established cause.
+Separate ordinary foreground B leaves actual Health unchanged. Its video is
+wrong-scope and excluded from all native motion conclusions. Closed v3/v4
+audit e530c35a and independent review 24709805 verify those limits.
+
+Policy 952e0cd8 then permits temporary HOME Shift16777248/default=false and a
+fresh screenshot path while stopped. PID 44218 uses the verified private cwd,
+executable 3dfdfbed and EUR HOME c622d1c5, Volume 0/Null 1/Static 2/100%.
+Render 1971 is wholly on the sole MacBook display at 40,81,511x645. Exact-window
+bring_to_front verifies actual focus/frontmost before both silent recordings.
+Both Shift-held upper gestures visibly suspend Health; both actual footer
+held touches visibly Resume Health. All gestures request 500 ms and 20 steps;
+requested host duration is not measured native input duration.
+
+The five native own 400x480 PNGs are baseline 9fe5e154, first paused 2e4bd858,
+first ready 7fc2cb50, repeat paused 185488ff and repeat ready 4a650b8c. Coordinator
+CRC/full decode verifies all five and opens first paused/ready originals.
+First/repeat videos decode to 938/1004 frames at 1800x1170 with zero audio tracks.
+Their actual content includes Azahar ready, paused HOME and resumed Health.
+Window-video crops are compressed supporting evidence, not own 400x480 pixels.
+
+Initial chronological inspection finds first inset at video frame 46, first
+dimmed retained Health at 48, faint suspended window/HUD at 55, then lower HOME
+contribution at 56 in both runs. Video dim-to-window is about 242/238 ms; the
+existing browser receipt intervals are 225.4/217 ms. Window-to-lower is about
+33.3 ms in the video and 55.2/47.6 ms between browser receipts. These different
+sampled clocks do not establish an ordering defect or aligned source epochs.
+Coordinator opens both HOME contribution sheets, the first boundary sheet and
+exact frame 55. Both Resume footer and ready-boundary sheets are opened, plus
+exact first frames 698/699/703/716/728 and repeat 794/797/810/822. The larger
+sheets are tool-resized; phase observations also use the unscaled individual
+511x646 compressed video crops. First Resume footer withdrawal/absence is
+699/703, HOME departure is 708, retained dim Health without HOME is 716 and
+full-bright border-free Health is observed by 728. Repeat observations are
+794/797/802/810/822. These are sampled visual boundaries, not native epochs.
+
+Closed phase report 5e76c3e9, manifest a055cf5c and checksums a8e4fd5a index
+729 derived files. The coordinator independently verifies those checksums and
+the scoped freeze eb6e184b, all 53 original files, 48,743,292 bytes and 11
+directory inventories. Both complete AVFoundation decodes reproduce frame
+hashes and increasing PTS. Thirty PNGs pass CRC and two full-RGBA decoders.
+
+Policy 723d23c4 fixes the following endpoint diagnostics before comparison.
+Native own upper crop is [0,0,400,240], lower [40,240,320,240]. Browser raw LCDs
+stay unscaled. The whole-LCD mask is empty and maximum RGB channel delta is 2.
+
+| Fixed native/browser pair | Upper pixels over 2 | Lower pixels over 2 | Upper/lower maximum |
+| --- | ---: | ---: | --- |
+| First paused 2e4bd858 / browser 130 | 11,770 | 33,082 | 255/255 |
+| Repeat paused 185488ff / browser 158 | 16,542 | 33,084 | 255/255 |
+| First ready 7fc2cb50 / browser 389 | 18,539 | 0 | 48/2 |
+| Repeat ready 4a650b8c / browser 420 | 23,985 | 0 | 42/2 |
+
+Report 5fd6c0f1, manifest 179434b6 and checksums 9cdfc646 close the fixed set.
+Independent pixel counts reproduce all eight screen metrics. Twelve PNG inputs
+pass CRC and two full-RGBA decoders; originals match both freezes before/after.
+The coordinator verifies all 36 output checksums and opens all four annotated
+native/browser/heatmap sheets. Paused differences include upper HUD/window/
+artwork and lower population/placement; ready upper artwork epochs differ.
+No shift, registration, phase fit, clock/population exclusion or reselection
+occurs. Ready lower alone reaches the static delta-2 threshold. Native held
+Shift/touch and old browser H/A inputs differ; this is not matched animation
+acceptance. Earlier endpoint counts and sealed selections remain unchanged.
+Independent evidence review 161dab1e and exact six-doc review 02af21f1 approve
+the bounded checkpoint. The reviewed diff is fc57a977; later pending-review
+identity replacements and post-commit HEAD metadata are separate publication
+metadata, not additional runtime or fidelity evidence.
+
+Quit confirmation is visible on the actual desktop but omitted from window
+inventory. Exact-path Cua exposes Yes; actual App quit and PID absence verify.
+Only temporary HOME/default/screenshot fields restore; config is byte-exact
+031bc535. No native process or recorder remains. Frozen production 6614478,
+build 5pTgJwKjDtqJGe-Um3UEF and listener 31363/session 59716 stay unchanged.
+
+Private artifacts are under
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261009/opus-completion/native-held-input-20261010/`.
+Policies, full source/config/PNG identities and actual inputs are in
+`coordinator-run.md`. Audit outputs are separate `audit-sol-high-v1/` and
+`audit-sol-high-v5/`; fixed comparison policy 723d23c4 reserves `compare-v5/`.
+Prior originals, reports and seals remain unchanged. Static microphone input,
+browser receipt timing and fitted source mappings remain adaptations. No native
+asset, source mapping or runtime fix is delivered. All four whole flows remain
+fail; matched input/timing, native intermediate raw pixels, other-app/compact
+Resume, Manual, top-row and populated-folder coverage remain incomplete.
+Audio acceptance remains unverified while muted.
+
 ## Additive dialog-order correction
 
 This correction supersedes the dialog/lower coincidence interpretation below,
@@ -573,9 +663,22 @@ coverage is claimed from this recording.
 
 ## Remaining work
 
-Explain the fading overlap against native chronology without claiming aligned
-epochs. Audit adjacent applet recordings. Reproduce Health through ordinary
-tile input before comparing suspension/resume. Manual retains the known60 upper
-and9 lower endpoint residual. Native motion/input timing, gated applet exits,
-populated folders and muted audio acceptance remain open. Supporting runtime
+Health now opens through actual held touch, and first/repeat native suspension
+and touch Resume are captured above. Next obtain the same browser touch route
+with chronological raw LCDs and source diagnostics before a timing correction.
+The existing native video does not supply raw intermediate 400x480 phases.
+Audit adjacent applet recordings; gated exits and populated folders remain open.
+
+Bounded Manual triage report9d5a29a7 independently reproduces Camera60/9 and
+Browser60/16 from five fixed endpoint pairs. Latest Camera is ba2455e/build
+_SwbJfk4BZ6hHVXO20d-4, sequence211. Browser counts are from the historical
+ordinal build BClPrIyfEmc1JitPurber, not current-build recertification. Upper
+residuals are the header icon's half-pixel boundary; lower residuals are sparse
+glyph coverage. Browser's extra seven pixels overlap the same `t` glyph in
+both source and fitted titles, not the changed suffix. No source-backed fix
+is justified. Do not repeat the closed B02, row-pitch or cutoff fixes. Report
+and per-pixel readback386a5fca live in private `manual-next-defect-20261010/`.
+No new runtime worktree is reserved for these unexplained edge pixels.
+
+Native motion/input timing and muted audio acceptance remain open. Supporting runtime
 checks are recorded in the [folder correction handoff](workstream-handoffs/folder-back-orbit-20261010.md).

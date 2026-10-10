@@ -1,5 +1,23 @@
 # Animation fidelity workflow
 
+## Native held-input recapture
+
+The exact private bundle and screenshot-grounded held-touch Open route now
+reach Health. Ordinary B still fails. The separately declared Shift-held HOME
+route and held-touch Resume complete twice, with verified render fronting before
+each silent video. Always inspect actual recorded scope: the earlier B-test
+video shows an unrelated desktop and supplies no native motion evidence.
+Keep the five own PNGs separate from compressed window-video phase crops.
+Video PTS and browser receipt timestamps are different clocks; neither identifies
+native source epochs. Do not turn their sampling uncertainty into a runtime fix.
+Keep fixed endpoint diagnostics separate from whole-flow acceptance. The current
+empty-mask comparison still fails upper LCDs and paused lower LCDs. Native held
+touch and browser keyboard inputs differ. Do not reselect poses or hide HOME
+population/clock differences after seeing the result.
+Restore only owned temporary fields after verified process absence. Current
+config returns byte-exactly to 031bc535. All workers/reviews use GPT-6.1 Sol high;
+GUI stays coordinator-only on the muted MacBook. See [the capture checkpoint](animation-verification-checkpoint-2026-10-10.md#native-motion-recapture).
+
 ## Corrected dialog-order premise
 
 Do not fix the older dialog/lower coincidence claim without a demonstrated

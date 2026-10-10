@@ -1,5 +1,17 @@
 # Feature map — 1:1 queue
 
+AN-04 now has [first/repeat native Health suspension and touchscreen Resume](animation-verification-checkpoint-2026-10-10.md#native-motion-recapture)
+with five own 400x480 endpoint PNGs and correctly scoped silent videos. This
+recovers native input and adds observed motion, not a whole-flow pass. Native
+raw intermediate phases, matched browser touch/input/cadence and other-app
+coverage remain open. AN-01 through AN-04 still fail. Manual residual triage
+is separate from the Health capture audit; neither worker drives the GUI.
+Closed fixed diagnostics fail every upper LCD and both paused lower LCDs.
+Ready lower alone is within delta 2; no new runtime correction follows.
+Manual triage9d5a29a7 reproduces Camera60/9 and historical Browser60/16.
+Sparse icon/glyph coverage remains unexplained; no fix worktree is reserved.
+The closed B02, row-pitch and cutoff fixes must not be repeated.
+
 Latest [dialog-order correction](animation-verification-checkpoint-2026-10-10.md#additive-dialog-order-correction)
 supersedes older coincidence claims below. Real native-renderer pixels already
 contribute dialog at receipt7 before lower HOME8; a deliberate window-only

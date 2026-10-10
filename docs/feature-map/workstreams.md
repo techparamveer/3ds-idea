@@ -2,6 +2,22 @@
 
 ## Animation completion, 9 October 2026
 
+10 October recorder delivery: exact correction `fda21db` is independently
+approved and integrated with its parent as `2ad758b`/`bcceb54`. Worker is done.
+Coordinator's clean `ba2455e` production serves only loopback3029, frozen.
+First ordinary Notes footer-close exports238 verified chronological raw pairs.
+Private offline audit remains a separate worker task, with no GUI or runtime
+ownership. Repeat Notes/Notifications and native comparisons remain open.
+Earlier rejected-candidate reservation below is historical.
+
+Recorder correction reservation:4d44e0f full tests expose13 new extracted-scene
+fixture regressions and one unchanged historical Camera PNG failure. The same
+worker additionally owns only the affected scene test fixtures, retaining all
+existing guard coverage, and recorder retry-history correction/tests. Earlier
+candidate remains immutable; no integration or production build before exact
+independent re-review. Coordinator's clean verification checkout is
+live-lcd-verification-20261010 on its same-named codex branch at4d44e0f.
+
 10 October receipt capture assignment: `applet_return_banner`, GPT-6.1 Sol high,
 works only in `live-lcd-recorder-20261010/3ds-idea` on
 `codex/live-lcd-recorder-20261010`, base159142d. Reserved paths are a new bounded

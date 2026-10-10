@@ -56,13 +56,35 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `159142d893daea61865535bf76b1f05c2cb02758`. Reviewed return-banner worker a4802b8 integrates as31fe8c0; reviewed delivery evidence is159142d. Committed src/public/tests match frozen clean c85b9b6. The unrelated user system.ts edit remains unstaged. All four whole scenarios remain unaccepted. |
+| HEAD | `bcceb5455ffc04751345c037f6630bd8bb900a64`. Reviewed recorder `4d44e0f` plus correction `fda21db` integrate as `2ad758b` and `bcceb54`. Committed src/public/tests match frozen clean `ba2455e`. The unrelated user system.ts edit remains unstaged. All four whole scenarios remain unaccepted. |
+| Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`. Incremental recorder commits are being pushed. No merge or deployment. |
+
+10 October human delivery instruction: commit changes as work proceeds and
+create PRs. Commit each coherent reviewed chunk using explicit owned paths,
+push integrated checkpoints and update draft PR7 with actual checks and open
+defects. Do not accumulate finished worker code uncommitted or publish the
+unrelated user edit. Keep incomplete fidelity work clearly marked draft.
 
 Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9ddf309`. Date-group bind `5c0199f4` recaptured (fill `(255,161,0)`). Slider source-gap `e6bcca9f` (Grok 4.6 **APPROVE** `90be3135`). Photo-crop source-gap `b75f275d` (Grok 4.6 **APPROVE** `9d3237b6`). Date-text source-gap `82a16d1c` (Grok 4.6 **APPROVE** `62457c68`). Selection source-gap `9c431d1d` (Grok 4.6 **APPROVE** `43173720`). Settings-footer X-scale `99a4362e` (Grok 4.6 **APPROVE**; recapture `d6ce9913` Settings **954→630**). Remaining Settings third then `TxtSet` source-size `9580641b` (Grok 4.6 **APPROVE** `3e9c5170`; recapture `3bdc3192` Settings **630→0**). Welcome p5 live-feed source-gap `679db045` (Grok 4.6 **APPROVE** `f14c2241`). Sound Next `Guid1TxtW` source-size `269e8757` (Grok 4.6 **APPROVE**; recapture `a5b8aa9e` interior **195→0**). Sound volume live-slider source-gap `11f3cb3c` (Grok 4.6 **APPROVE** `c4f0fb90`). Sound Span live-spectrum source-gap `57b04572` (Grok 4.6 **APPROVE** `7614c291`). Sound birds held-offset source-gap `9e335f3a` (Grok 4.6 **APPROVE** `f67628f3`). Sound battery underbar-partition source-gap `76a3635a` (Grok 4.6 **APPROVE** `684a3418`). Sound UnderBar Line01 partition source-gap `6db7e7ef` (Grok 4.6 **APPROVE** `d0d96201`). Sound empty-entry row 1916 source-gap (Grok 4.6 **APPROVE** `2807aeb5`). Sound first-run guide perimeter compositor source-gap `02a60c52` (Grok 4.6 **APPROVE** `6cc31903`). Sound empty-entry mid `S_BG` constant source-gap `636976ad` **REJECTED** by Grok 4.6 (native is dump `S_BG_Grid` ETC1 checker `(223,215,206)`/`(231,223,215)`, bound on library path only); grid bind `603c5388` (Opus 5.5) recaptured: empty-entry lower **16021→7216**, mid **2255→0** / **1024→0**; Grok 4.6 **APPROVE-WITH-NITS** `de5c6445`. Leftover queue `cccf162e`. Camera Welcome p3 `TxtDlg` **1079** source-gap `57af95dd` (Grok 4.6 **APPROVE-WITH-NITS** `7e8e13a1`; host-gate probe `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`). Sound upper 316 labelled `14533857` (volume overhang **42** + `S_Back_U` **274**; Grok 4.6 **APPROVE** `daa93bca`). Camera large thumbs `PicL_SD` bind `89efb7a3` (recapture `6499f0af` lower **10158→8958**). Camera Slideshow header source-size `04f3d6bf` (recapture `5d25e2a5` header **837→0**). Camera thumb interiors 56×42 sample source-gap `84d636e3` (Grok 4.6 **APPROVE** `2258268a`). Product `acabb7af` kept. y=177 `22e8b0a4` (Grok 4.6 **APPROVE** `9fe268f8`). Slider 57 (Grok 4.7 **APPROVE-WITH-NITS** `444ba8e0`). GitHub `/Volumes/DeveloperStorage/GitHub/3ds-idea` on `dev-size-opt` is not this site.
 
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
 
 ## Serving
+
+Corrected recorder candidate `ba2455e` serves frozen production build
+`_SwbJfk4BZ6hHVXO20d-4` on loopback3029, listener43643. Typecheck/build pass;
+full tests2643pass/1unchanged missing Camera PNG failure/101skip/1TODO.
+Independent exact correction review `ea068ede` approves source/tests.
+Muted dedicated Chrome20594/window136 is verified on MacBook650,150,1102x700.
+Default URL has no recorder; explicit `?lcdCapture=1` exposes its own controls.
+Ordinary Notes toolbar selection/open reaches its empty grid. Start, footer
+Close, Stop and Save produce238 paired raw LCDs, all238 saved with user stop.
+Final offline audit `14b87be3` closes714 unchanged originals and476 decoded PNGs,
+no gaps/duplicates/errors/warnings. Coordinator inspected chronological
+sheets1-4 and14, showing retained Notes, cover, HOME exposure and later banner.
+The238-pair encode overhead totals1432.5ms, maximum13.5ms; maximum retained
+receipt gap57.7ms. Synchronous capture can perturb scheduling. No native timing,
+compositor or whole-scenario acceptance follows. Existing Helium3028 is unchanged.
 
 Reviewed a4802b8 integrates as31fe8c0 after exact independent APPROVE19fb8d7b
 and visible first/repeat Notes/Notifications closing plus separate B/HOME
@@ -1408,6 +1430,23 @@ NAND writes between isolated copies. Nintendo Zone remains skipped.
 
 ## Seats
 
+Recorder correction `fda21db` is now independently approved and integrated
+as `bcceb54` after a successful real238-pair Notes export. Original rejected
+candidate/check logs remain historical. Worker stopped with only its STATUS
+reconciled. Reviewer approved all three corrections with142 passing checks.
+Offline audit worker owns only private export validation and chronological
+sheets; coordinator alone owns GUI, serving and integration.
+
+Recorder candidate4d44e0f is committed but rejected for corrections. Its109
+focused tests/typecheck pass; clean full tests have2630pass/14fail/101skip/1TODO.
+Thirteen new failures are extracted scene fixture bindings/source expectations;
+the historical Camera PNG is the other failure. Independent reviewer also
+finds save retries erase earlier uncertain-write paths. Worker owns the recorder
+fix and affected scene fixtures, retaining all prior guard assertions. Clean
+verification checkout is live-lcd-verification-20261010 at4d44e0f, no server or
+build yet. No integration or live raw-pair verification has occurred. Existing
+3028 source/assets/build remain frozen; all GUI tests use the muted MacBook.
+
 10 October continuation: `applet_return_banner`, GPT-6.1 Sol high, is assigned
 `live-lcd-recorder-20261010/3ds-idea`, branch `codex/live-lcd-recorder-20261010`,
 base159142d. It owns the bounded localhost-only same-receipt LCD recorder,
@@ -1659,6 +1698,16 @@ The integration checkout remains here.
 Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camera Slideshow header 0. Camera Settings third 0. Welcome p5 **7615** live-feed source-gap **APPROVE**. Volume **130** live-slider source-gap **APPROVE**. Span **2314**/**2442** live-spectrum source-gap **APPROVE**. Birds **1558** held-offset source-gap **APPROVE**. Battery `[45,216,85,240]` **1** underbar-partition source-gap **APPROVE**. Line01 `(92,220)` partition source-gap **APPROVE**. Empty-entry row **1916** **APPROVE**. Thumb interiors **846/918** **APPROVE**. Guide perimeter **6072** = **860** dimmed grid + **4416** half + **728** (**144** row + **53** footer + **531** within 2) + **68** fringe; veil **REJECT** `be862ce6`; subsets **APPROVE-WITH-NITS** `d72ab4b1`. Empty-mid **2255**/**1024** → **0**/**0** by grid bind `603c5388` **APPROVE-WITH-NITS** `de5c6445`. p3 `TxtDlg` **1079→1078** after host-gate `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`. Sound upper 316 labelled `14533857` **APPROVE** `daa93bca`. y=177 **320** labelled `22e8b0a4` **APPROVE** `9fe268f8`. Slider **57** **APPROVE-WITH-NITS** `444ba8e0`. Plus-tint strip **1992** kept `ed55865e` **APPROVE** `b6620fa4`. HOME 1-row tail **291** **APPROVE** `f72296ff`. HOME idle Health 1-row left-anchor **23182 / 14754** empty mask (title/wallpaper **12255**, vacant-vs-Settings **7045**, HUD **2328**). **Static still only.** Whole scenarios still fail.
 
 ## Next
+
+Recorder capture gap is addressed by reviewed `2ad758b`/`bcceb54`, not by
+debugging-permission changes. First Notes footer close has238 raw paired LCDs
+with verified chronology/hash closure. Continue separate repeated Notes and
+first/repeat Notifications captures, then matched muted Azahar/browser Manual,
+ordinary folder and HOME suspension. Use frozen3029 and declared policy-v2;
+do not rebuild its served tree. Keep capture overhead and native epoch/input
+uncertainties explicit. Update draft PR7 at each reviewed coherent delivery.
+All four goal flows remain fail/unproven; moving stays excluded. Preserve the
+unrelated user edit and unchanged Helium3028 preview. Earlier Next is history.
 
 Reviewed return-banner boundary integrates31fe8c0. Clean equivalent c85b9b6
 passes production checks apart from the unchanged historical Camera PNG.

@@ -1,5 +1,15 @@
 # Feature map — 1:1 queue
 
+10 October raw-motion capture delivery: reviewed recorder `2ad758b`/`bcceb54`
+is opt-in and loopback-only. Frozen clean `ba2455e` builds/typechecks; full
+2643 pass with one unchanged historical Camera PNG failure. Ordinary muted
+MacBook Notes footer-close exports238 chronological paired LCDs. Offline audit
+verifies714 originals and476 decoded PNGs with complete inventory and no
+structural issues. This is browser capture support, not native acceptance.
+Repeat Notes/Notifications and matched Manual/folder/HOME remain open.
+All AN-01..AN-04 whole flows still fail. See
+[recorder delivery](live-lcd-recorder-delivery-2026-10-10.md).
+
 10 October return-banner delivery: exact reviewed a4802b8 integrates31fe8c0.
 Notes/Notifications footer returns retire the old primary and hold replacement
 activation through existing accepted HOME handoff, without wallpaper/global

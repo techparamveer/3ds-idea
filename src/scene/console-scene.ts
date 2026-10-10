@@ -315,7 +315,8 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     const inputs={managerInhibited:inhibited,sceneInhibited:inhibited,loadInhibited:false,nativeWorkerReady:bannerEntryFooterBootSince===null,activationReady:screens.homeEntryActivationReady(state)&&screens.homeFolderBannerActivationReady(state)&&screens.homeAppletFooterBannerReady(state),resourceReady:bannerHost.inputs.resourceReady};
     // Child refresh follows lower completion. Actual child activation also
     // waits for the retained root's hidden receipt, without restarting its host.
-    bannerHost=crossHomeBannerBoundary(bannerHost,clock,{selection:folderRequestReady?(selection??(switchPresentation?{kind:'app',id:system.pending!}:system.homeControls&&!state.opened?undefined:resolveHomeBannerHostSelection(state))):undefined,inputs});
+    // Back's explicit clear retires the current primary while entry is ineligible.
+    bannerHost=crossHomeBannerBoundary(bannerHost,clock,{selection:folderRequestReady?(selection??(switchPresentation?{kind:'app',id:system.pending!}:system.homeControls&&!state.opened?undefined:resolveHomeBannerHostSelection(state))):selection?.kind==='clear'?selection:undefined,inputs});
     let view=getHomeBannerHostView(bannerHost);bannerLabelFailure=false;
     // Retain both outgoing and incoming requests until the manager retires
     // the old primary. Each title has its own resource owner and ticket.

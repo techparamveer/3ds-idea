@@ -1,5 +1,13 @@
 # Feature map — 1:1 queue
 
+Final candidate audit `2a7c4044` closes600 pairs without structural issues.
+Coordinator inspects all boundary and comparison sheets. Status-before-lower
+improves, but dialog-before-lower remains unmatched. Resume311-312 is black
+before ready313; repeat Resume is outside capture. Fixed first-complete endpoint
+still fails13,091/33,877 upper/lower pixels at empty-mask delta2 with unmatched
+clocks/populations/phases. All AN-01 through AN-04 whole flows remain fail.
+The pending-audit paragraphs below describe the earlier delivery state.
+
 Latest HOME reveal-order delivery is pushed as runtime/tests `2ea5068`, handoff
 `cf91eb9` and production-check checkpoint `407055f`. Independent reviews
 `5ef3143c` and `e1e8f521` approve source and frozen checks. The new source selects

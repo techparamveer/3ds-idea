@@ -2,6 +2,14 @@
 
 ## Current HOME suspension comparison
 
+Final600-pair audit `2a7c4044` and coordinator inspection close the pending
+capture audit below. Selection `e623453b` is sealed before comparison. Upper
+status136/417 precedes lower137/418, while dialog still coincides with lower.
+Resume311-312 is black before ready313; repeat Resume lies outside the export.
+Fixed first-complete endpoint remains an empty-mask delta-2 failure13,091/
+33,877 upper/lower pixels. Preserve population/clock/phase mismatches, not a
+native pass. Next source work must target one of these captured residuals.
+
 The bounded reveal-order slice is reviewed and pushed as `2ea5068`, handoff
 `cf91eb9` and full-check/freeze checkpoint `407055f`. Exact source review
 `5ef3143c` and checks review `e1e8f521` are separate. Full suite has2,667 passes

@@ -2,6 +2,35 @@
 
 ## Upper-first HOME candidate
 
+Final candidate audit closes the pending state below. Report SHA-256:
+`2a7c4044ce4eff8dbfbf79d72cc53c791456d8e4117035b0b110f38cbbf410e7`.
+Manifest SHA-256:
+`bad85e5fa8a82c839a328f2a9189224c5a1be71cc39e5f82fc258da7d4bf62b1`.
+Pre-comparison selection SHA-256:
+`e623453b02816a7216507a13f47d19939a6a595f12b0dce1f02a8d1af8600e43`.
+Audit output is private `browser-v1/offline-audit` under the root below. All600
+paired receipts close with zero errors/warnings,1800 originals remain unchanged
+and1200 PNGs pass CRC plus independent full decoding. All64 derived and37
+structural checksum entries verify. All finite audit handles are reaped.
+
+Coordinator inspects `first-home-onset`, `first-home-footer`, `first-resume`,
+`repeat-home-onset`, `repeat-home-footer` and `recording-end` raw paired sheets.
+Status136/417 precedes lower HOME137/418; first discernible dialog137/418
+coincides with lower HOME, unlike the native partial. Complete footer150/431
+is distinct from lower-motion retirement151/432. Resume311-312 is both-black
+before first ready313. Final600 is paused; repeat Resume has no captured input.
+Its visible recovery remains outside the export, not captured success.
+
+Coordinator also inspects the fixed first-complete endpoint diagnostic sheet,
+SHA-256 `1dba0b382f62fa17f205d1853f35e43a522604781cc540c796f84e899858475e`,
+and qualitative native-partial sheet,
+SHA-256 `8986c97c617e8c5a630995601a7d1919c84afeeac37ceef77e199f2da49f70fa`.
+First-complete browser150 versus own native `.16.58.43.924` fails whole-LCD
+empty-mask delta2 at13,091 upper/33,877 lower pixels. No registration, shift or
+closest-frame choice is made. Clocks, populations and source phases remain
+unmatched, unmasked failures. The qualitative partial confirms the remaining
+dialog/lower coincidence mismatch, not native timing. All four whole flows fail.
+
 Reviewed source/tests `8112d47` integrate as pushed `2ea5068`; initial handoff
 `f7c6d9d` as `cf91eb9`; production-check follow-up `6abb45cf` as `407055f`.
 Source approval SHA-256:

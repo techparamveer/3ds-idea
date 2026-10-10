@@ -56,7 +56,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `407055f37d5f92c85c8d4cffb3cbaad81b5630ef`. Reviewed upper-first HOME source/tests integrate and push as `2ea5068`; handoff as `cf91eb9`; reviewed production checks/freeze as `407055f`. Independent source approval `5ef3143c` verifies 190 focused and 15 supplemental tests. Checks approval `e1e8f521` independently verifies the frozen build. Production `MHwPOu1oLhQcWrZ9Ke1TE` serves3029. All600 frame-limited candidate pairs save; offline audit is pending. Earlier dimming source/build/456-pair exports stay unchanged. Reveal alignment remains an explicit adaptation, not native cadence. All four whole scenarios remain unaccepted. Human system.ts stays excluded. |
+| HEAD | `85d01fb2f940c29b7b761bb44bdfd57571e97f2d`. Reviewed source/tests `2ea5068`, handoff `cf91eb9`, production checks `407055f` and seven-document delivery `85d01fb` are pushed. Source approval `5ef3143c`, checks approval `e1e8f521` and documentation approval `10e2f052` remain separate. Frozen production `MHwPOu1oLhQcWrZ9Ke1TE` serves3029. All600 candidate pairs save; final audit `2a7c4044` is closed without structural issues. Earlier source/build/exports stay unchanged. Upper status precedes lower tray, but dialog still coincides with it; source alignment remains adapted, not native cadence. All four whole scenarios remain unaccepted. Human system.ts stays excluded. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -70,6 +70,17 @@ Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9dd
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
 
 ## Serving
+
+Final candidate audit2a7c4044 closes600 triples,1800 unchanged originals and
+1200 independently decoded PNGs with no structural issues. Selectione623453b
+seals before comparison. Coordinator inspects all six boundary sheets and both
+comparison sheets. Upper status136/417 precedes lower137/418, but dialog still
+coincides with lower. Complete footer150/431 is distinct from lower-motion
+retirement151/432. First Resume311-312 is black before313ready; final600 stays
+paused, with repeat Resume outside the capture. Fixed first-complete endpoint
+fails empty-mask delta2 at13091 upper/33877 lower pixels; different clocks,
+populations and source phases remain unmasked failures. All64 audit and37
+structural checksums verify. Earlier pending audit statements are history.
 
 Current upper-first candidate: worker HEAD 6abb45cf, reviewed runtime 8112d47
 equal integrated 2ea5068, production build MHwPOu1oLhQcWrZ9Ke1TE. Coordinator
@@ -1610,6 +1621,12 @@ NAND writes between isolated copies. Nintendo Zone remains skipped.
 
 ## Seats
 
+Final browser audit2a7c4044 is closed; offline worker releases its private
+reservation and reaps all finite handles. No implementation/audit worker
+remains active. Coordinator owns the next captured defect; reviewer owns only
+the final documentation delta. Frozen serving and MacBook-only muted GUI stay
+unchanged. Earlier pending seats below are historical.
+
 Current seats at407055f: reveal-order implementation worker completes and
 releases all source reservations. Its frozen6abb45cf tree/build serves3029
 under coordinator-only control. Offline GPT-6.1 Sol extra-high worker owns only
@@ -1951,6 +1968,17 @@ The integration checkout remains here.
 Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camera Slideshow header 0. Camera Settings third 0. Welcome p5 **7615** live-feed source-gap **APPROVE**. Volume **130** live-slider source-gap **APPROVE**. Span **2314**/**2442** live-spectrum source-gap **APPROVE**. Birds **1558** held-offset source-gap **APPROVE**. Battery `[45,216,85,240]` **1** underbar-partition source-gap **APPROVE**. Line01 `(92,220)` partition source-gap **APPROVE**. Empty-entry row **1916** **APPROVE**. Thumb interiors **846/918** **APPROVE**. Guide perimeter **6072** = **860** dimmed grid + **4416** half + **728** (**144** row + **53** footer + **531** within 2) + **68** fringe; veil **REJECT** `be862ce6`; subsets **APPROVE-WITH-NITS** `d72ab4b1`. Empty-mid **2255**/**1024** → **0**/**0** by grid bind `603c5388` **APPROVE-WITH-NITS** `de5c6445`. p3 `TxtDlg` **1079→1078** after host-gate `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`. Sound upper 316 labelled `14533857` **APPROVE** `daa93bca`. y=177 **320** labelled `22e8b0a4` **APPROVE** `9fe268f8`. Slider **57** **APPROVE-WITH-NITS** `444ba8e0`. Plus-tint strip **1992** kept `ed55865e` **APPROVE** `b6620fa4`. HOME 1-row tail **291** **APPROVE** `f72296ff`. HOME idle Health 1-row left-anchor **23182 / 14754** empty mask (title/wallpaper **12255**, vacant-vs-Settings **7045**, HUD **2328**). **Static still only.** Whole scenarios still fail.
 
 ## Next
+
+Current next: candidate600-pair audit2a7c4044 and coordinator inspection are
+closed. Preserve sealed selectione623453b. Status-before-lower is visibly
+improved, but dialog-before-lower remains unmatched. Ordinary Resume311-312
+still publishes both-black LCDs before313ready, unlike sampled native retained
+departure. Choose one of these captured residuals for the next bounded source
+slice, preserving unknown native timing and the served frozen build. Failed
+shortcut Resume, missing raw native departure and repeat browser Resume,
+Manual60/9 endpoint, top-row exact input/motion and populated/held folder
+verification remain open. All four whole flows fail; continue reviewed commits
+and draft PR7 updates. The pending-audit Next below is historical.
 
 Current next after407055f: close the new600-pair candidate audit and inspect
 its raw boundary/comparison sheets before another source slice. Native audit

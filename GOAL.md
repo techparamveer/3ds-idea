@@ -14,6 +14,14 @@ offline audit must establish exact repeat coverage and reveal ordering.
 Existing decoded upper SceneIn/HUD/window phases now follow the lower reveal
 boundary. This is a captured-order/source-phase adaptation, not native cadence.
 
+Final candidate audit `2a7c4044` supersedes the pending audit above. All600 pairs
+close without structural issues. Upper status136/417 precedes lower137/418,
+but dialog137/418 coincides with lower HOME, unlike the native partial. First
+Resume311-312 is black before ready313; repeat Resume is outside the export.
+The fixed first-complete empty-mask delta-2 diagnostic still fails13,091 upper
+and33,877 lower pixels with different populations/clocks/phases. Coordinator
+inspects every boundary and both comparison sheets. No whole-flow pass follows.
+
 Native audit `112531b9` closes10 unchanged originals: seven own PNGs and two
 fully decoded zero-audio movies plus log. Raw PNGs confirm upper-first
 suspension. Coordinator-inspected Resume samples show retained Health through

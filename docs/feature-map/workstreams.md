@@ -2,6 +2,13 @@
 
 ## HOME suspension reveal order, 10 October 2026
 
+Final browser audit `2a7c4044` is complete and its private reservation released.
+Coordinator inspects all six raw boundary and both comparison sheets. No source
+worker is active; served worker6abb45cf remains frozen. Reviewer owns only final
+documentation closure. Status improves, but dialog/lower coincidence and Resume
+black pairs remain captured defects, not native acceptance. Earlier pending
+audit assignments below are historical.
+
 Runtime worker completes8112d47 and handofff7c6d9d; coordinator integrates and
 pushes2ea5068/cf91eb9 after independent approval5ef3143c. Checks-only6abb45cf
 integrates/pushes407055f after independent approvale1e8f521. Worker releases

@@ -111,18 +111,78 @@ and the same frozen browser. Native supplies three own 400x480 PNGs: selected
 Camera HOME, pressed Manual feedback and Contents ready. Its first baseline
 save failed because the output directory was absent; the later successful
 files and original log remain preserved. Native raw intermediate cover and
-incoming-partial PNGs are missing. A silent-intended window movie has a separate
-offline track/sequence audit pending. After native process absence, the owned
+incoming-partial PNGs are missing. Native movie audit report SHA-256
+`972722b485e1ddbcb758c9192ad8d12e35bcb881e83672c0657dff21f7448002`
+confirms zero audio through AVFoundation. Installed ffprobe is unusable; its
+failure and the compressed/decoded sample-count difference remain explicit.
+Coordinator inspected outgoing and incoming closer sheets. The broad cover
+order agrees with browser semantic stages, without raw native pose alignment.
+After native process absence, the owned
 screenshot path is restored and config SHA-256 matches `a0a3b837` byte-for-byte.
 
 Browser session `57930ad4-1614-49c7-bbae-1016560da529` saves all 448 pairs
-after user Stop. Its scoped audit and policy-v2 endpoint comparison are pending;
-exports are frozen. Initial browser touches did not visibly advance selection.
+after user Stop. Completed scoped audit report SHA-256 is
+`7199c3fb17fd5b3631397bb6b9b962f78605df96e507f2aa3db1c0715e1b9de1`;
+manifest SHA-256 is
+`fcb8bc253e72f0d771308e254f3dd66b13b36b9e21cc8369961853e9c7eb87be`.
+It verifies 1344 unchanged originals and 896 decoded PNGs without structural
+issues, excluding the exact 2038 prior Notes/Notifications scenario names.
+The selected 506620629 bytes stay below the explicit 2GiB bound.
+
+The selection manifest was sealed before comparison, SHA-256
+`9b6950b1c93bf7a59df00d1cb39e0b817e5eb034122756423291d2a0665ba5a7`.
+First semantic stages are HOME sequence 1, complete cover 188, incoming partial
+192 and Contents-ready 211. The first ready pair versus the first surviving
+native ready PNG fails the empty whole-LCD delta-2 tier at 60 upper and 9 lower
+pixels. Mask SHA-256 is
+`2d094aa4cdf3548032b038fa1926877d098569ab5de2ce9ca7b5ace51b07aa96`;
+diagnostic SHA-256 is
+`453dbe956a7fd92d81b8aaa5d06180c3cda98de1f5613a625b335ab432acfcf6`.
+Residuals occupy Camera header edges, the selected Health & Safety row and
+Language footer. No added mask hides them. Coordinator inspected semantic
+stages and both endpoint sheets. This reproduces the known 60/9 residual,
+not a new runtime diagnosis or animation acceptance. The audit and comparison
+live under `offline-audit/manual-camera-v2/` in the verification root.
+
+Initial browser touches did not visibly advance selection.
 A read-only DevTools inspection reports a missing favicon and canvas/WebGL
 warnings, but no observed JavaScript exception. Physical D-pad selection then
 reaches Camera and actual Manual footer input reaches Contents. No cause or
 runtime fix is inferred from that observation. Setup input paths differ, so
 this run alone does not establish identical native/browser input timing.
+
+## Ordinary empty-folder checkpoint
+
+Predeclared native policy is `matched-regressions-20261010/folder-policy-v3.md`,
+SHA-256 `afe2086a1af98f16ed33ced9fe76fb59201469ede0bc28c2187ae4f753f3b838`.
+Actual native inputs create an empty folder at root slot 28 with six rows,
+enter it, use Back, then repeat. No pickup, hover or drop setup is used.
+Native audit report SHA-256 is
+`1a6080c3fe1449b52d6c253a79c73c9c872c55137d489815c48e3bf7063fd12d`;
+manifest SHA-256 is
+`5b83b8e398800910d1204c06bab6f2a36f0b00a34bc0e3e96be3386183544e7d`.
+All 12 originals remain unchanged; nine own PNGs decode at 400x480. Both movies
+have zero audio tracks via AVFoundation. Compressed/decoded count differences
+and timestamp qualifications remain unresolved.
+
+Coordinator inspected the native first-entry and repeat-Back closer sheets.
+Entry exposes the lower tray and empty-cell cursor while the upper selected
+folder remains, then retires that graphic before the icon orbit appears.
+Back removes the orbit and exposes root before the selected upper folder
+graphic grows back. The first movie ends inside the folder, despite its
+entry-back filename. Own open-folder PNGs are neutral; none proves held Back.
+These movie diagrams are not raw native pixels or aligned motion epochs.
+Native process 57590 is absent. Restoring only screenshotPath gives the exact
+original config `a0a3b837`; isolated HOME folder/density fixture changes remain.
+
+Browser first entry saves all 600 pairs at the frame limit, session
+`c8ee8287-410a-44ed-bcf3-c283808f3fa5`. The next capture starts inside the
+folder and records Back, repeated entry and Back. It saves all 492 user-stopped
+pairs, session `e61934f3-4e1a-4851-ab38-4bfd7a6be17c`. Selected HOME visibly
+recovers. Exports are frozen for the pending `offline-audit/folder-empty-v3/`
+audit. No recorder is running. Native/browser root populations differ and no
+broad underlay mask is justified. This empty-folder run does not replace the
+populated-folder or held-Back scenarios, nor establish strict 1:1.
 
 ## Evidence and limits
 
@@ -142,6 +202,6 @@ Recording metadata is a pre-save snapshot; closure uses actual output files.
 The QA panel is an instrumentation adaptation, not firmware UI. No native
 visual/audio asset, source mapping, title version, shader or sound changes.
 Existing capture-fitted applet scheduling and portfolio adaptations remain.
-Manual audit/comparison, folder/HOME native matched motion and
+Manual's 60/9 residual, folder audit/comparison, HOME native matched motion and
 production save-error checks remain open. All four whole flows stay
 fail/unproven. Audio acceptance is unverified while muted.

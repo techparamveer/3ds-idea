@@ -56,8 +56,8 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `af789ef9b50dad34a1cce89f5987870d401df212`. Reviewed recorder integrates as `2ad758b` and `bcceb54`; delivery docs are `4346ca7` and reviewed repeat capture checkpoint is `af789ef`. All are pushed. Committed src/public/tests match frozen clean `ba2455e`. The unrelated user system.ts edit remains unstaged. All four whole scenarios remain unaccepted. |
-| Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, pushed through `af789ef` with updated evidence. No merge or deployment. |
+| HEAD | `f9c5a18bdc415d4d85e26a78269d9571de6334a8`. Reviewed recorder integrates as `2ad758b` and `bcceb54`; delivery docs are `4346ca7`, repeat capture checkpoint is `af789ef`, and reviewed Notifications audit checkpoint is `f9c5a18`. All are pushed. Committed src/public/tests match frozen clean `ba2455e`. The unrelated user system.ts edit remains unstaged. All four whole scenarios remain unaccepted. |
+| Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, verified open/draft through `f9c5a18` with updated evidence. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
 create PRs. Commit each coherent reviewed chunk using explicit owned paths,
@@ -70,6 +70,29 @@ Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9dd
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
 
 ## Serving
+
+Reviewed four-document checkpointf9c5a18 is pushed and PR7 updated/attached.
+Independent APPROVE9e0a3593 checks438 relative links, all72 Notifications
+generated hashes and whitespace. User system.ts remains unstaged. Native
+Manual movie audit972722b4 is complete, with zero audio via AVFoundation.
+Coordinator inspected outgoing/incoming closer sheets, the browser semantic
+stages and endpoint diff. Browser audit7199c3fb closes448 triples and896 decoded
+PNGs without structural issues. The first chronological Contents endpoint
+still fails the empty-mask delta2 tier at60 upper/9 lower pixels. Native raw
+intermediate poses, exact input timing and the movie sample-count difference
+remain unresolved. No runtime change or acceptance follows.
+
+Ordinary empty-folder native audit1a6080c3 closes12 unchanged originals, nine
+own PNGs and two zero-audio movies. Coordinator inspected first-entry and
+repeat-Back closer sheets. Entry exposes the lower tray before upper folder
+retirement; Back exposes root before the selected upper graphic grows back.
+The first movie ends inside the folder, despite its filename. All open-folder
+own PNGs show neutral Back, not held feedback. Native57590 is absent; restoring
+only screenshotPath gives byte-exact configa0a3b837. Isolated HOME folder/density
+fixture changes remain. Browser3029 saves600 frame-limited entry pairs, then492
+user-stopped Back/repeat-entry/Back pairs; all1092 save. Sessionsc8ee8287 and
+e61934f3 are frozen for the scoped folder audit, which is pending. No recorder
+is running. Root populations differ; no broad underlay mask is justified.
 
 Notifications scoped auditf1ddd798 is closed:1200 triples,3600 unchanged
 originals,2400 decoded PNGs and no structural issues. Root inspected paired
@@ -1745,9 +1768,11 @@ Recorder capture gap is addressed by reviewed `2ad758b`/`bcceb54`, not by
 debugging-permission changes. First Notes footer close has238 raw paired LCDs
 with verified chronology/hash closure; repeated opening/close has600
 frame-limited pairs with the same structural closure. Notifications scoped
-closure is complete with six coordinator-inspected paired sheets. Finish
-Camera Manual448 scoped audit, native movie audit and frozen policy-v2 endpoint
-comparison, then ordinary folder and HOME suspension. Native raw intermediate
+closure is complete with six coordinator-inspected paired sheets. Camera Manual
+audit and endpoint comparison are closed, still failing60 upper/9 lower pixels.
+Finish the ordinary empty-folder1092-pair scoped audit and compare its stage
+order with native1a6080c3, then HOME suspension. Empty-folder motion does not
+replace the populated-folder or held-Back scenarios. Native raw intermediate
 Manual poses and identical setup-input timing remain missing. Use frozen3029;
 do not rebuild its served tree. Keep capture overhead and native epoch/input
 uncertainties explicit. Update draft PR7 at each reviewed coherent delivery.

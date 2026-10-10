@@ -14,7 +14,15 @@ structural issues. Six inspected paired sheets show HOME before the returning
 graphic/label; full continuous growth and native cadence remain unresolved.
 Ordinary Camera Manual reaches Contents in muted Azahar and frozen browser.
 Native has baseline, pressed feedback and ready PNGs, but lacks raw intermediate
-motion. Browser saves 448 user-stopped pairs; audit/comparison are pending.
+motion. Completed audit `7199c3fb` verifies all 448 user-stopped pairs and 896
+decoded PNGs without structural issues. Its first chronological ready endpoint
+still fails the empty-mask delta-2 tier at 60 upper and 9 lower pixels.
+Ordinary empty-folder native audit `1a6080c3` verifies nine own PNGs and two
+zero-audio movies. Inspected native entry exposes the lower tray before upper
+folder retirement; Back exposes root before upper folder growth. First-return
+movie and held-Back raw evidence are missing. Browser saves 600 entry pairs
+and 492 Back/repeat-entry/Back pairs; the scoped audit is pending. Populations
+differ. This empty-folder run does not replace populated-folder verification.
 Manual/folder/HOME native matched-motion acceptance remains open.
 All AN-01..AN-04 whole flows still fail. See
 [recorder delivery](live-lcd-recorder-delivery-2026-10-10.md).

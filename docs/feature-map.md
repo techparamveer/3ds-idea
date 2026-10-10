@@ -6,7 +6,11 @@ is opt-in and loopback-only. Frozen clean `ba2455e` builds/typechecks; full
 MacBook Notes footer-close exports238 chronological paired LCDs. Offline audit
 verifies714 originals and476 decoded PNGs with complete inventory and no
 structural issues. This is browser capture support, not native acceptance.
-Repeat Notes/Notifications and matched Manual/folder/HOME remain open.
+Repeat Notes closes with 600 saved frame-limited pairs; combined audit verifies
+838 pairs without structural issues. Start/Cancel discards without exporting.
+First/repeat Notifications each visibly save 600 frame-limited pairs; offline
+closure is pending. An isolated muted native HOME baseline decodes, but no
+new matched Manual/folder/HOME motion is captured. Those comparisons remain open.
 All AN-01..AN-04 whole flows still fail. See
 [recorder delivery](live-lcd-recorder-delivery-2026-10-10.md).
 

@@ -45,6 +45,47 @@ Coordinator inspected chronological sheets1-4 and14: retained Notes, outgoing
 HOME cover, HOME exposure without banner, then returning Notes banner.
 No native comparison pair or diff mask is produced by this recorder check.
 
+## Repeat capture checkpoint
+
+Repeated Notes opening and footer Close produce session
+`d4a49ff8-1966-4944-bace-eb05da348c5b`, sequences 1-600. The recorder stops
+at its frame limit, not on the later Stop request; all 600 pairs save.
+Combined Notes audit report SHA-256 is
+`27bda0fc4190fc245c4126bbd59f50cf930fcffc04cf5535ed28b4413baa33f7`.
+It verifies 838 triples, 2514 unchanged originals and 1676 decoded PNGs,
+with no structural errors or warnings. The 48 chronological sheets include
+opening cover, ready empty grid, closing cover and HOME before its formed
+banner. Coordinator inspected repeat sheets 1, 3, 24, 26, 27 and 34.
+Full banner growth remains unresolved. Repeat encode mean is 6.912ms,
+maximum 13.3ms; the maximum retained receipt interval is 76.8ms.
+
+The combined audit is `offline-audit/notes-first-repeat-complete/` beneath
+the verification root. Earlier serialization failure and size-bound incomplete
+attempts remain preserved. Exact snapshot interning and an explicit 2GiB
+read bound permit the completed audit without changing the captures.
+Own Start/Cancel also visibly discards two buffered pairs without export
+or an application-state change.
+
+Ordinary first and repeated Notifications opening and footer Close each
+visibly reach the real list and return to selected HOME on the MacBook.
+Sessions `215e99d9-e484-45a5-a602-aadd20517c87` and
+`3e0c8925-840f-45b8-b702-908fd62d1442` each stop at the 600-frame limit
+and visibly save all 600 pairs. Their separate offline audit is pending.
+These bounded recordings do not establish full animation or native cadence.
+
+The isolated native-folder-slow Azahar session launches the selected private
+HOME file with volume zero and produces one valid own 400x480 HOME PNG,
+SHA-256 `14bf2749e6bb60cbc80893a51d2e0b404b1b9e1612357c8f36d2ace3c625c201`.
+The screenshot request reports a closed native pipe; the surviving PNG decodes
+and shows selected Miiverse, but its exact input delivery remains qualified.
+No Manual, folder or suspension motion is captured in this baseline-only run.
+The process exits after Quit/Yes. Its temporary screenshot path is restored
+only after verified process absence; GUI-normalized geometry, layout and ROM
+path changes are retained. Restored config SHA-256 is
+`a0a3b837b59d66e083dc5887ff4d5c91a07b4dcbef3503fa686673a8181ed129`.
+Policy, original config and own PNG remain under the private root's
+`matched-regressions-20261010/`. No native comparison is claimed.
+
 ## Evidence and limits
 
 Private root is
@@ -63,6 +104,6 @@ Recording metadata is a pre-save snapshot; closure uses actual output files.
 The QA panel is an instrumentation adaptation, not firmware UI. No native
 visual/audio asset, source mapping, title version, shader or sound changes.
 Existing capture-fitted applet scheduling and portfolio adaptations remain.
-Repeated Notes, Notifications, Manual/folder/HOME native matched motion and
-error/cancel production checks remain open. All four whole flows stay
+Notifications offline closure, Manual/folder/HOME native matched motion and
+production save-error checks remain open. All four whole flows stay
 fail/unproven. Audio acceptance is unverified while muted.

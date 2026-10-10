@@ -56,8 +56,8 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `bcceb5455ffc04751345c037f6630bd8bb900a64`. Reviewed recorder `4d44e0f` plus correction `fda21db` integrate as `2ad758b` and `bcceb54`. Committed src/public/tests match frozen clean `ba2455e`. The unrelated user system.ts edit remains unstaged. All four whole scenarios remain unaccepted. |
-| Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`. Incremental recorder commits are being pushed. No merge or deployment. |
+| HEAD | `4346ca7a3d424620241a6721ac923214a391a22e`. Reviewed recorder integrates as `2ad758b` and `bcceb54`; reviewed delivery docs are `4346ca7`. All three commits are pushed. Committed src/public/tests match frozen clean `ba2455e`. The unrelated user system.ts edit remains unstaged. All four whole scenarios remain unaccepted. |
+| Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, pushed through `4346ca7`. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
 create PRs. Commit each coherent reviewed chunk using explicit owned paths,
@@ -70,6 +70,31 @@ Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9dd
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
 
 ## Serving
+
+First/repeat Notifications are saved600/600 each, both frame-limit, not user
+stop. Sessions215e99d9-e484-45a5-a602-aadd20517c87 and
+3e0c8925-840f-45b8-b702-908fd62d1442 visibly reach the real list and selected
+HOME through ordinary Open/footer Close. Offline closure is pending; exports
+are frozen for that audit. Native-folder-slow launches the verified private
+HOME file muted. One own400x480 baseline14bf2749 decodes as Miiverse-selected
+HOME. Screenshot request reports closed native pipe; exact delivery remains
+qualified. No Manual/folder/HOME motion is captured. Quit/Yes exits, confirmed
+by process absence. Only owned screenshotPath is restored; GUI layout/geometry
+and ROM path changes remain. Current configa0a3b837. Private policy/baseline
+are under matched-regressions-20261010. No native or audio acceptance.
+
+Repeat Notes capture is closed: sessiond4a49ff8-1966-4944-bace-eb05da348c5b,
+600 pairs saved600, automatic frame-limit, not user stop. Frozen combined
+audit27bda0fc verifies838 triples/2514 unchanged originals/1676 decoded PNGs,
+48 sheets and no structural errors/warnings. Root inspected repeat sheets
+1,3,24,26,27,34: opening cover, ready empty grid, close cover, HOME before
+formed banner and later endpoint. Full banner growth/native cadence remain
+unproved. Repeat encode mean6.912/max13.3ms; retained receipt max76.8ms.
+The private auditor preserved initial serialization failure and512MiB-bound
+incomplete result, then used exact snapshot interning and explicit2GiB limit;
+originals and the sealed first audit remain unchanged. Own Start/Cancel also
+visibly discarded2 buffered pairs without export or app-state change.
+No recorder is running; candidate3029 and old Helium3028 remain frozen.
 
 Corrected recorder candidate `ba2455e` serves frozen production build
 `_SwbJfk4BZ6hHVXO20d-4` on loopback3029, listener43643. Typecheck/build pass;
@@ -1701,8 +1726,9 @@ Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camer
 
 Recorder capture gap is addressed by reviewed `2ad758b`/`bcceb54`, not by
 debugging-permission changes. First Notes footer close has238 raw paired LCDs
-with verified chronology/hash closure. Continue separate repeated Notes and
-first/repeat Notifications captures, then matched muted Azahar/browser Manual,
+with verified chronology/hash closure; repeated opening/close has600
+frame-limited pairs with the same structural closure. Complete first/repeat
+Notifications offline closure, then matched muted Azahar/browser Manual,
 ordinary folder and HOME suspension. Use frozen3029 and declared policy-v2;
 do not rebuild its served tree. Keep capture overhead and native epoch/input
 uncertainties explicit. Update draft PR7 at each reviewed coherent delivery.

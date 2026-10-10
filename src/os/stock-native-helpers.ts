@@ -659,7 +659,9 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
   }
   draw(bottom,'manual-cursor','CsrHeadLine00',{center:[160,APPLICATION_MANUAL_SLOTS.firstRow+4],bindings:[{name:'CsrHeadLine00_Wait',frame:22}],clip:APPLICATION_MANUAL_LIST_CLIP});
   draw(bottom,'manual-footer-shadow','BtnShdw00',{bindings:[{name:'BtnShdw00_SceneIn',frame:20}]});
-  draw(bottom,options?.manualFooterClose?prepareManualFooterFeedback(renderer):'manual-footer-close','BtnCloseLng00',{textSampling:'lcd-source-size',bindings:[{name:'BtnCloseLng00_SceneIn',frame:20},...(options?.manualFooterClose?[{name:'BtnCloseLng00_Decide',frame:manualFooterFeedbackFrame(options.manualFooterClose.frame)}]:[])],overrides:{T_BtnB_01:message('BtnCloseLng'),T_BtnF_01:message('BtnCloseLng')}});
+  const closeOptions:Parameters<NativeLayoutRenderer['draw']>[3]={textSampling:'lcd-source-size',bindings:[{name:'BtnCloseLng00_SceneIn',frame:20},...(options?.manualFooterClose?[{name:'BtnCloseLng00_Decide',frame:manualFooterFeedbackFrame(options.manualFooterClose.frame)}]:[])],overrides:{T_BtnB_01:message('BtnCloseLng'),T_BtnF_01:message('BtnCloseLng')}};
+  if(options?.manualFooterClose)okay=renderer.drawLayout(bottom,'manual-footer-close','BtnCloseLng00',prepareManualFooterFeedback(renderer),closeOptions)&&okay;
+  else draw(bottom,'manual-footer-close','BtnCloseLng00',closeOptions);
   draw(bottom,'manual-footer-language','BtnLngSel00',{textSampling:'lcd-source-size',bindings:[{name:'BtnLngSel00_SceneIn',frame:20}],overrides:languageOverrides});
   return okay;
 }

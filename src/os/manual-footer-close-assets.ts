@@ -1,4 +1,4 @@
-import { nativePaneParentPath, type NativePack } from './native-layout.ts';
+import { nativePaneParentPath, type NativeLayout, type NativePack } from './native-layout.ts';
 import type { NativeLayoutRenderer } from './native-renderer.ts';
 import { validateNotificationsFooterCoverAssets, notificationsFooterCoverBindings } from './notifications-footer-close-assets.ts';
 
@@ -19,20 +19,19 @@ export function validateManualFooterFeedbackAssets(pack:NativePack):void {
     if(!path||path[1]?.name!=='BtnCloseLng01'||!clip.tracks.some(track=>track.target===name))throw Error('Unsupported Manual footer feedback panes');
   }
 }
-const feedbackPacks=new WeakMap<NativeLayoutRenderer,{source:NativePack;prepared:NativePack}>();
+const feedbackLayouts=new WeakMap<NativeLayoutRenderer,{source:NativePack;prepared:NativeLayout}>();
 /** Fitted binding adaptation: the source hit-bound group does not include the
  * painted button sibling. Bind its unchanged Decide tracks to that subtree. */
-export function prepareManualFooterFeedback(renderer:NativeLayoutRenderer):string {
+export function prepareManualFooterFeedback(renderer:NativeLayoutRenderer):NativeLayout {
   const source=renderer.packs['manual-footer-close'];validateManualFooterFeedbackAssets(source);
-  let cached=feedbackPacks.get(renderer);
+  let cached=feedbackLayouts.get(renderer);
   if(!cached||cached.source!==source){
     const layout=structuredClone(source.layouts.BtnCloseLng00);
     const group=layout.groups[0].children.find(g=>g.name==='G_Btn_01');
     if(!group)throw Error('Unsupported Manual feedback group');
     group.panes=['BtnCloseLng01'];
-    cached={source,prepared:{...source,layouts:{...source.layouts,BtnCloseLng00:layout}}};
-    feedbackPacks.set(renderer,cached);
+    cached={source,prepared:layout};
+    feedbackLayouts.set(renderer,cached);
   }
-  renderer.packs['manual-footer-feedback']=cached.prepared;
-  return 'manual-footer-feedback';
+  return cached.prepared;
 }

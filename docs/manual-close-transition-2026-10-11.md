@@ -66,10 +66,33 @@ feedback selection, common-cover dispatch and accepted-pair60Hz scheduling are
 explicit host adaptations, not recovered native dispatch or duration. No
 reconstructed white button, guessed cue or unrelated banner/grid changes.
 
+### Production renderer correction
+
+The first integrated candidate `fbffd8e` failed in production immediately after
+the Contents footer release: saved Close sequence11/receipt1372 is Contents;
+sequence12/receipt1373 is Website display unavailable with
+`Native screen composition failed: manual/main`. No Close pose was saved.
+The initial raster/marker tests and code review did not catch this regression.
+
+The decoded-loader/renderer regression now reproduces the precise cause:
+the added `manual-footer-feedback` pack alias had no corresponding loaded
+texture map, so the real draw returned false while ordinary Contents succeeded.
+The fitted group remains a private cloned layout, but now uses the existing
+`drawLayout` API under the original loaded `manual-footer-close` alias.
+No renderer API, original pack, texture map, assets, receipt gate or timing
+policy changes. Real PNG decoding, real bitmap fonts and the actual Contents
+painter exercise both feedback poses across first/repeat loads and disposal.
+Missing selected texture bytes and
+missing decoded textures still fail closed. The test Canvas is byte transport,
+not a native geometry or browser acceptance oracle. Prior build/captures stay
+frozen; the coordinator must recapture this corrected candidate. Corrected
+checks and red/green regression logs live privately under
+`manual-close-renderer-fix-v1`.
+
 ## Verification and remaining work
 
 The real Camera Manual footer-release regression failed before implementation
-because its owner became null immediately. Focused checks now pass135 tests,
+because its owner became null immediately. Initial focused checks passed135 tests,
 including lifecycle/retry/resource replacement, first/repeat, physical and
 keyboard input, document Back, caller return, reduced motion, stale identities,
 render guards and exact terminal handoff. Actual decoded button raster pixels

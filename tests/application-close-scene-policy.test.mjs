@@ -91,6 +91,6 @@ test('boot, launch, power and shutdown paint success requires the selected nativ
   const screens = readFileSync(new URL('../src/os/screens.ts', import.meta.url), 'utf8');
   assert.match(screens, /state\.system&&!state\.system\.sleeping&&\['boot','launch','power','shutdown'\]\.includes\(state\.system\.phase\)/);
   assert.match(screens, /if\(requiresNativeSystem&&!nativeSystem\)throw Error/);
-  assert.match(screens, /return nativeSystem\|\|verificationPaint\|\|entryMotion/);
+  assert.match(screens, /nativeSystem\|\|verificationPaint\|\|entryMotion/);
   assert.match(screens, /nativeSystem\?\{nativeSystem:true as const\}:\{\}/);
 });

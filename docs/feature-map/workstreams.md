@@ -1,5 +1,27 @@
 # Workstream Registry
 
+## Folder Back orbit retirement, 10 October 2026
+
+Worker `folder-back-orbit-20261010/3ds-idea`, branch
+`codex/folder-back-orbit-20261010`, starts at `bd0927e`. GPT-6.1 Sol extra-high
+owns the observed upper-orbit retirement boundary in `src/os/home-banner-host.ts`,
+`src/scene/console-scene.ts`, a necessary folder-readiness interface in
+`src/os/screens.ts`, focused tests and one handoff. Coordinate any extra path.
+Native audit `1a6080c3` and browser audit `929fde84` are its visible defect.
+Browser root cursor precedes orbit retirement in both Back captures; native
+bounded samples retire the orbit before root/cursor exposure. Fixtures differ
+at root slot 22 versus 28; no native timing/dispatch claim follows.
+No native graphics/curves, arbitrary delay, moving setup or unrelated applet
+changes. Coordinator alone integrates, runs clean production checks, drives
+muted MacBook GUI and recaptures. Frozen `ba2455e`/3029 remains unchanged.
+Independent review follows the exact candidate. Earlier assignments are history.
+
+Completed worker `a689569`/`d8fe06a` is independently approved by different-model
+GPT-5.6 Sol high, reviewbbe5e1a, and integrated as52faeda/07052d0. Only the scene
+adapter, focused regression and handoff changed. Worker ownership is released.
+Coordinator owns pending first/repeat production Back/entry and adjacent-applet
+recapture. No whole-scenario acceptance follows supporting checks.
+
 ## Animation completion, 9 October 2026
 
 10 October recorder delivery: exact correction `fda21db` is independently

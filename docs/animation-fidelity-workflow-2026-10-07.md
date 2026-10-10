@@ -1,5 +1,14 @@
 # Animation fidelity workflow
 
+## Incremental delivery
+
+Commit each coherent code or evidence change after review, then push it to
+draft PR7. Update the PR with actual checks and remaining defects at each
+checkpoint. Do not wait for whole-project acceptance to commit finished work.
+Do not merge, deploy, include unrelated human edits or claim native fidelity
+from supporting tests. Reviewed code may be committed before recapture only
+when its pending browser/native verification is explicit.
+
 The human resumed on8 October with "continue disregard that" and removed the
 75%-remaining stop rule. Continue from STATUS Next; quota pauses recorded below
 are historical. The latest direct user model reply selects GPT-6.1 Sol extra-high

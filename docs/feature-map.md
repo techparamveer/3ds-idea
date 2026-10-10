@@ -1,5 +1,21 @@
 # Feature map — 1:1 queue
 
+10 October folder Back correction: independently reviewed worker
+`a689569`/`d8fe06a` integrates as `52faeda`/`07052d0` and forwards the
+existing explicit clear past the folder entry-readiness gate. Child requests
+retain their gate; no native asset, service length or global clock changes.
+Nine new behavior cases include actual Back-tab touch dispatch. Focused119/119
+and nonincremental typecheck pass. Full suite2652pass/1unchanged missing Camera
+PNG failure/101skip/1TODO; production build passes with local dependencies.
+The initial external dependency-symlink build failure is preserved. The native
+caller remains capture-fitted; first/repeat production recapture is pending.
+The completed folder audit `929fde84` closes1092 triples without structural
+issues and identifies the Back ordering defect, not matched native timing.
+Native root28 differs from browser22. All four whole flows remain fail.
+See [the correction handoff](workstream-handoffs/folder-back-orbit-20261010.md).
+Independent different-model review SHA-256:
+`bbe5e1a1517f97b32b8c77c61333549e6b2ad136d35c9bdb594a602776071cd4`.
+
 10 October raw-motion capture delivery: reviewed recorder `2ad758b`/`bcceb54`
 is opt-in and loopback-only. Frozen clean `ba2455e` builds/typechecks; full
 2643 pass with one unchanged historical Camera PNG failure. Ordinary muted

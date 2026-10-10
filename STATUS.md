@@ -56,8 +56,8 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `f9c5a18bdc415d4d85e26a78269d9571de6334a8`. Reviewed recorder integrates as `2ad758b` and `bcceb54`; delivery docs are `4346ca7`, repeat capture checkpoint is `af789ef`, and reviewed Notifications audit checkpoint is `f9c5a18`. All are pushed. Committed src/public/tests match frozen clean `ba2455e`. The unrelated user system.ts edit remains unstaged. All four whole scenarios remain unaccepted. |
-| Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, verified open/draft through `f9c5a18` with updated evidence. No merge or deployment. |
+| HEAD | `07052d0794ddd00fcc10fa3b47b72eb0853a9f50`. Reviewed folder Back worker integrates as `52faeda` and `07052d0`, now pushed; supporting checks use equivalent worker `d8fe06a`. Frozen `ba2455e`/3029 remains the pre-fix comparison, unchanged. The unrelated user system.ts edit remains unstaged. All four whole scenarios remain unaccepted. |
+| Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks and pending recapture. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
 create PRs. Commit each coherent reviewed chunk using explicit owned paths,
@@ -71,9 +71,26 @@ Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` /
 
 ## Serving
 
-Reviewed four-document checkpointf9c5a18 is pushed and PR7 updated/attached.
-Independent APPROVE9e0a3593 checks438 relative links, all72 Notifications
-generated hashes and whitespace. User system.ts remains unstaged. Native
+Folder Back correction integrates as52faeda/07052d0 after independent
+different-model APPROVEbbe5e1a. Existing explicit clear now bypasses only the
+entry-readiness gate; child requests, native service lengths and clocks remain
+unchanged. Nine new behavior tests include actual touch dispatch. Focused119/119,
+nonincremental typecheck and production build pass in workerd8fe06a. Full suite
+2652pass/1unchanged missing historical Camera PNG failure/101skip/1TODO.
+Initial build failed on external dependency symlink; local-copy retry passes.
+Logs live in private opus-completion/folder-back-checks-20261010. The correction
+is not yet browser-inspected or native-compared. First/repeat Back, entry and
+adjacent applet recapture are Next; no new server is started and3029 stays frozen.
+New native Health HOME policyb4047d1c captures10 own PNGs and two18s movies,
+but chronological/audio/hash audit and browser match are pending. Native68446
+is absent and owned config restoration is byte-exacta0a3b837. Modifier-only
+Shift request was rejected before input; successful upper held-Shift click is
+an input adaptation, not identical browser HOME or measured native timing.
+All four whole flows remain fail and audio acceptance stays unverified.
+
+Reviewed four-document checkpointbd0927e is pushed and PR7 updated/attached.
+Independent APPROVEd4b97e54 checks438 relative links, nine quoted private
+evidence hashes and whitespace. User system.ts remains unstaged. Native
 Manual movie audit972722b4 is complete, with zero audio via AVFoundation.
 Coordinator inspected outgoing/incoming closer sheets, the browser semantic
 stages and endpoint diff. Browser audit7199c3fb closes448 triples and896 decoded
@@ -91,8 +108,16 @@ own PNGs show neutral Back, not held feedback. Native57590 is absent; restoring
 only screenshotPath gives byte-exact configa0a3b837. Isolated HOME folder/density
 fixture changes remain. Browser3029 saves600 frame-limited entry pairs, then492
 user-stopped Back/repeat-entry/Back pairs; all1092 save. Sessionsc8ee8287 and
-e61934f3 are frozen for the scoped folder audit, which is pending. No recorder
-is running. Root populations differ; no broad underlay mask is justified.
+e61934f3 have completed scoped audit929fde84:1092 triples,3276 unchanged
+originals,2184 decoded PNGs, no structural issues. Coordinator inspected first
+entry pages010/011 and second-session Back page007 against native closers.
+Browser root cursor116 coexists with orbit117 before blank118; native repeat
+Back retires the orbit before root/cursor exposure. Repeat browser Back has
+the same broad discrepancy. This is not aligned timing or a source diagnosis.
+Browser metadata identifies root22 versus native28, child0, and does not attest
+row density. Selection1c20002e is frozen before diagnostics; no static diff or
+mask was added. No recorder is running. The prior committed checkpoint calls
+the browser audit pending; its closure awaits the next reviewed doc checkpoint.
 
 Notifications scoped auditf1ddd798 is closed:1200 triples,3600 unchanged
 originals,2400 decoded PNGs and no structural issues. Root inspected paired
@@ -1495,6 +1520,17 @@ NAND writes between isolated copies. Nintendo Zone remains skipped.
 
 ## Seats
 
+10 October completed runtime slice: `folder-back-orbit-20261010/3ds-idea`, branch
+`codex/folder-back-orbit-20261010`, basebd0927e. One GPT-6.1 Sol extra-high worker
+owns only the observed Back orbit-retirement boundary in banner-host/scene
+wiring, necessary folder readiness interface, focused tests and one handoff.
+No native assets, guessed timing, movement, other applet or GUI/server changes.
+Coordinator owns integration, frozen3029 comparison, new clean verification,
+all muted MacBook GUI and documentation. Existing reviewers are idle and will
+review the exact candidate independently. Different-model GPT-5.6 Sol high
+reviewbbe5e1a approves exacta689569/d8fe06a, now integrated52faeda/07052d0.
+No implementation worker is active; coordinator owns pending recapture.
+
 Recorder correction `fda21db` is now independently approved and integrated
 as `bcceb54` after a successful real238-pair Notes export. Original rejected
 candidate/check logs remain historical. Worker stopped with only its STATUS
@@ -1770,8 +1806,12 @@ with verified chronology/hash closure; repeated opening/close has600
 frame-limited pairs with the same structural closure. Notifications scoped
 closure is complete with six coordinator-inspected paired sheets. Camera Manual
 audit and endpoint comparison are closed, still failing60 upper/9 lower pixels.
-Finish the ordinary empty-folder1092-pair scoped audit and compare its stage
-order with native1a6080c3, then HOME suspension. Empty-folder motion does not
+The ordinary empty-folder1092-pair audit is closed and its Back-order defect
+has a reviewed correction52faeda/07052d0. Build a separately frozen production
+candidate and recapture first/repeat Back, entry and adjacent applet regressions
+against native chronology without inventing timing. Keep3029 unchanged.
+Audit new home-health-native-v3 captures before matching browser HOME
+suspension; first movie scope and supported held-click input differ. Empty-folder motion does not
 replace the populated-folder or held-Back scenarios. Native raw intermediate
 Manual poses and identical setup-input timing remain missing. Use frozen3029;
 do not rebuild its served tree. Keep capture overhead and native epoch/input

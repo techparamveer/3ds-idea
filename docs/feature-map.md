@@ -1,6 +1,21 @@
 # Feature map — 1:1 queue
 
-Final candidate audit `2a7c4044` closes600 pairs without structural issues.
+Current delivery through `b64e797` includes reviewed retained Health Resume
+`dbfcb45`, provenance `ad143a9`, policy repair `cd23059` and freeze/check
+handoff `b64e797`. Actual-compositor black Resume, stale origin and transient
+source regressions pass. Expanded unchanged-origin Health uses authored
+departure over retained accepted LCDs; accepted-receipt advancement is an
+adaptation. Other app/compact/changed-origin Resume remains unaccepted.
+Full suite2,687pass/1known missing Camera PNG failure/101skip/1TODO; typecheck,
+shader validation,77 GLB checks and build pass. Frozen worker `ed40f3b` serves3029.
+First600 and complete repeat519 pairs save; incomplete byte-limited repeat513
+is preserved without Resume. Five raw boundary sheets are inspected; final
+audit, sealed selection and fixed comparisons remain pending. Native12-PNG audit
+`57ae4729` shows early footer withdrawal still missing from the candidate.
+All AN-01 through AN-04 whole flows remain fail. Use GPT-6.1 Sol high helpers
+and muted MacBook testing. See [source/check handoff](workstream-handoffs/health-resume-retained-20261010.md).
+
+Earlier candidate audit `2a7c4044` closes600 pairs without structural issues.
 Coordinator inspects all boundary and comparison sheets. Status-before-lower
 improves, but dialog-before-lower remains unmatched. Resume311-312 is black
 before ready313; repeat Resume is outside capture. Fixed first-complete endpoint

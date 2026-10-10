@@ -3,7 +3,30 @@
 Updated 10 October 2026. Fetched GitHub version `c767757` is integrated through
 reviewed merge `b84e1b2`. Primary local main remains untouched at `5ee6fd7`.
 
-Latest 10 October delivery: reviewed HOME reveal-order source/tests `2ea5068`,
+Latest human model instruction selects GPT-6.1 Sol high for workers, reviews
+and audits, superseding all older model preferences below. Tools cannot change
+or verify the running coordinator model or service tier. Keep independent
+review, separate worktrees and reviewed commits pushed to draft PR7. Every
+GUI test uses the MacBook screen and every 3DS session stays muted.
+
+Current delivery through `b64e797` includes reviewed retained Health Resume
+runtime `dbfcb45`, provenance `ad143a9`, test-only policy repair `cd23059` and
+frozen verification handoff `b64e797`. The actual-compositor black Resume,
+stale-origin and transient-source regressions pass. Authored departure retains
+an accepted same-owner LCD pair until terminal paired native publication.
+Accepted-receipt cadence is an adaptation, not recovered native timing. Scope
+is unchanged-origin expanded Health; other app/compact Resume is unaccepted.
+Focused178 and supplemental124 tests pass with one absent private fixture skip.
+Full suite2,687pass/1known missing Camera PNG failure/101skip/1TODO; typecheck,
+shader validation,77 GLB checks and build pass. Frozen worker `ed40f3b`, build
+`itZdGEQJDzlDwPZnssuUe`, serves3029. Actual first/repeat HOME/Resume visibly
+return ready. First600 and complete repeat519 pairs save; incomplete byte-limited
+repeat513 remains preserved without Resume. Five raw boundary sheets are
+inspected; final audit, sealed selection and fixed comparisons are pending.
+Native12-PNG audit `57ae4729` shows early footer withdrawal still absent from
+the candidate. All four whole flows remain fail; audio is unverified while muted.
+
+Earlier 10 October delivery: reviewed HOME reveal-order source/tests `2ea5068`,
 handoff `cf91eb9` and production-check checkpoint `407055f` are pushed to
 draft PR7. Independent reviews `5ef3143c` and `e1e8f521` approve source and
 checks separately. Full suite has2,667 passes and the unchanged missing private
@@ -85,7 +108,7 @@ HOME banner return-order difference. Latest reviewed build is visible in muted
 Helium on MacBook at3027. [Delivery evidence](docs/notifications-footer-close-delivery-2026-10-10.md).
 All four whole flows remain fail/unproven. Continue the full scope.
 
-Latest human model reply selects GPT-6.1 Sol extra-high for this chat and
+Earlier human model reply selected GPT-6.1 Sol extra-high for this chat and
 GPT-6.1 Sol high for all new subagents, including reviewers. This supersedes
 the older worker/model preferences below. Tools cannot change or verify the
 running coordinator model or Fast mode. Keep review independent of implementation.

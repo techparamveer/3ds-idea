@@ -8,7 +8,7 @@ verification backlog, not an acceptance record. Scope comes from
 
 Every strict whole scenario is still unaccepted. Unit tests prove contracts,
 not pixels, input cadence, motion, or audio. All future visible verification is
-coordinator-only; the user now authorizes the entire Mac without an iPad. All
+coordinator-only; the latest user instruction requires the MacBook screen. All
 3DS audio remains muted. "Adaptation" below
 means an intentional browser/portfolio difference; "source gap" means the
 pinned dump has not yet established the required native producer or content.
@@ -168,6 +168,17 @@ not distinguish host-delivery failure from the native notification boundary.
 **Next/acceptance:** Launch, navigate, idle, close, relaunch, and inject a stale result for one portfolio and one firmware title. Require a new owner, correct restored state policy, no old frame/effect, and stable HOME selection.
 
 ### L-05 - HOME suspend, same-owner resume, and Notes retirement
+**10 October correction:** Reviewed `dbfcb45` retains the last accepted complete
+expanded Health HOME pair while native Health prepares, advances authored
+departure only on accepted paired receipts and releases input after terminal
+same-receipt native readiness. Origin revisions and settled gesture checks
+reject stale/transient snapshots. Existing runtime remains the owner; no
+parallel app state is added. Accepted-receipt cadence is an adaptation, and
+early footer withdrawal, other apps/compact/changed-origin Resume and whole
+native fidelity remain unaccepted. Frozen `ed40f3b` production first/repeat
+returns and five raw boundary sheets are inspected; final audit remains pending. See
+[source/check contract](../workstream-handoffs/health-resume-retained-20261010.md).
+
 **Code/tests/evidence:** [app-host.ts](../../src/os/app-host.ts), [system.ts](../../src/os/system.ts), [runtime tests](../../tests/app-runtime.test.mjs), [Notes owner note](../notes-home-owner-exit.md), [eShop close route](../eshop-close-investigation.md).
 **Now/gap/dependency:** HOME suspends the active owner, releases capabilities, stores `homeReturn`, and A/HOME resumes it. Accepted Notes HOME exit is special: Notes retires while its caller stays suspended. Native per-title resume animation and clocks vary and remain app-specific.
 **Next/acceptance:** For Work, Settings, eShop, and Notes-with-Work-caller, run launch -> HOME -> resume -> HOME -> close. Require exact owner graph, retained page, first resumed LCD pair, Notes retirement semantics, and no stale resource generation.

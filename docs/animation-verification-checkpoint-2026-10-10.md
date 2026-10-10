@@ -1,5 +1,44 @@
 # Animation verification checkpoint, 10 October 2026
 
+## Retained Health Resume candidate
+
+Reviewed source `dbfcb45` and checks through `b64e797` are pushed. Source/test/
+fullgate reviews are `b5302b99`/`11bf7038`/`c62035d9`. Freeze SHA-256
+`b81078087e6d85322aea095e290d499e85bf620da4f9871459d319a91faf66a0`
+pins worker `ed40f3b`, build `itZdGEQJDzlDwPZnssuUe`. All223 build files,
+logs, manifests, GLBs and review hashes verify independently. Full tests have
+2,687 passes, one unchanged missing private Camera PNG failure,101 skips and
+one TODO. Typecheck, shader checks,77 GLB identities and build pass.
+See [source, tracks and provenance](workstream-handoffs/health-resume-retained-20261010.md).
+
+Private root is
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261009/opus-completion/health-resume-retained-20261010/`.
+Production serves3029, listener20956/session72167. Dedicated browser20594 keeps
+`--mute-audio`, window136 at650,150,1102x700 within sole built-in display1 at
+0,0,1800x1169. Old-tab blank Reload/hard reload is an unknown-cause setup failure;
+fresh-tab recovery precedes recording. Actual selected Health tile opens ready,
+physical HOME reveals suspended HOME and lower Resume visibly blends retained
+Health through HOME before ready Health.
+
+First `76a9f29e-d2b7-4d14-b6a3-f4a883214c4a` saves600 after frame-limit with
+both input pairs. Intervening `cbc9851a-f584-42e6-b3de-ce85787e7e6e` saves513
+after byte-limit with HOME only; Resume is outside that capture. Complete
+repeat `ed7c22d0-b86d-4aa5-b662-5a863aabb204` saves519 after user-stop, initial
+app/inputCount0 to app/inputCount4. All exports are closed. Coordinator inspects
+five raw boundary sheets. Final audit, sealed selection and comparisons remain
+pending. Serialized Resume
+source-frame diagnostics are absent; no association/native cadence claim
+follows. Every session is preserved. All four whole scenarios remain fail.
+
+Native raw-departure audit SHA-256
+`57ae4729a9592c07ecaf24f243e2987d50f8f7ceabbf534378286a153a06494a`
+verifies12 own PNGs under `native-raw-v1/offline-audit`. Both sheets are inspected.
+Early footer withdrawal before HOME departure is visible and still absent
+from the candidate. Raw post-HOME dim/expansion is missing, one overwritten
+version is lost and audio is unverified while muted. Authored phases with
+accepted-receipt advancement are explicitly adapted. Scope is unchanged-origin
+expanded Health only, not other apps/compact.
+
 ## Upper-first HOME candidate
 
 Final candidate audit closes the pending state below. Report SHA-256:

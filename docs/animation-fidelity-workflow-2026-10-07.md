@@ -1,8 +1,33 @@
 # Animation fidelity workflow
 
+## Current retained Resume verification
+
+Use GPT-6.1 Sol high for implementation, review and audit helpers under the
+latest human instruction. Review stays independent. Tools cannot change or
+verify the running coordinator model or service tier. Only the coordinator
+drives muted Azahar and the production browser, on the MacBook screen.
+
+Reviewed delivery through `b64e797` is pushed to draft PR7. Keep worker
+`ed40f3b` source/public/tests/.next frozen while approved build
+`itZdGEQJDzlDwPZnssuUe` serves3029. Do not edit the human `system.ts` change.
+The retained Health departure uses authored tracks and accepted paired receipts;
+the host clock is explicitly adapted. Other app/compact/changed-origin Resume
+is not accepted. Separate native footer withdrawal remains missing.
+
+Actual first HOME/Resume saves600 pairs; complete repeat saves519. Intervening
+byte-limited513-pair repeat omits Resume and must remain explicit, not silently
+excluded or substituted. All exports are closed. Audit every original, input
+ledger and full PNG decode. Inspect chronological raw boundary sheets and seal
+semantic selections before fixed endpoint comparisons. Receipts do not prove
+compositor acceptance or native cadence; serialized Resume source-frame
+diagnostics are absent. Finish audit/inspection before another source slice.
+Five raw boundary sheets are already coordinator-inspected; final audit,
+sealed selection and fixed comparison inspection remain pending.
+All four whole flows remain fail.
+
 ## Current HOME suspension comparison
 
-Final600-pair audit `2a7c4044` and coordinator inspection close the pending
+Earlier600-pair audit `2a7c4044` and coordinator inspection close the pending
 capture audit below. Selection `e623453b` is sealed before comparison. Upper
 status136/417 precedes lower137/418, while dialog still coincides with lower.
 Resume311-312 is black before ready313; repeat Resume lies outside the export.
@@ -57,8 +82,9 @@ reviewed commits, runs focused/full tests and typecheck/build, then freezes and
 serves a distinct production candidate for actual Health/Open/HOME/Resume
 recapture. Never edit or rebuild the currently served tree. Compare affected
 native and browser stages, inspect the sheets and leave unexplained differences
-failing. Current workers use the active objective's GPT-6.1 Sol extra-high
-setting; the reviewer is independent and on a different model. No Fast or
+failing. That earlier slice used GPT-6.1 Sol extra-high workers and a
+different-model reviewer. The latest human model instruction above supersedes
+that preference, not review independence. No Fast or
 coordinator-model change is verified. All four whole flows remain unaccepted.
 
 ## Incremental delivery
@@ -72,8 +98,8 @@ when its pending browser/native verification is explicit.
 
 The human resumed on8 October with "continue disregard that" and removed the
 75%-remaining stop rule. Continue from STATUS Next; quota pauses recorded below
-are historical. The latest direct user model reply selects GPT-6.1 Sol extra-high
-for this chat and GPT-6.1 Sol high for all new subagents. Older assignments retain
+are historical. An earlier user model reply selected GPT-6.1 Sol extra-high
+for this chat and GPT-6.1 Sol high for new subagents. Older assignments retain
 their actual recorded models. Worker overrides cannot change or verify the
 running coordinator model, and tools expose no Fast selector. All sessions stay
 muted. On10 October the human authorized the MacBook screen instead of

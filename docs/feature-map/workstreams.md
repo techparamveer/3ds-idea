@@ -2,7 +2,21 @@
 
 ## Retained application Resume, 10 October 2026
 
-Worker health-resume-retained-20261010 starts at c058ec9 in its own worktree
+Current integration `b64e797` includes reviewed runtime `dbfcb45`, provenance
+`ad143a9`, test-only `cd23059` and freeze/check handoff `b64e797`, all pushed.
+Worker `resume_sol_high` completes `ed40f3b` and releases a frozen serving lease.
+Reviewer `resume_review_sol_high` approves exact source/test/fullgate reports
+`b5302b99`, `11bf7038` and `c62035d9`. All current helpers use GPT-6.1 Sol high
+per the latest human instruction; older model clauses below are history.
+Coordinator alone serves3029 and drives muted MacBook GUI. No worker source
+reservation remains. `resume_capture_audit_high` owns only private
+`health-resume-retained-20261010/browser-v1/offline-audit`, auditing first600,
+complete repeat519 and preserved incomplete repeat513 pairs. No GUI/server or
+original capture edits. All exports are closed. Coordinator inspects all five
+raw boundary sheets; final audit, sealed selection and comparisons are pending.
+Separate footer departure and whole-flow acceptance stay open.
+
+The original worker health-resume-retained-20261010 starts at c058ec9 in its own worktree
 and branch. GPT-6.1 Sol extra-high targets actual both-black Resume311-312
 before ready313 from closed audit2a7c4044. Start with a real-compositor red
 regression, then identify the original resume resources/caller and preserve

@@ -38,9 +38,44 @@ The coordinator inspects both raw LCDs. Upper SHA-256 is
 `0a51559a3a016e06ae2f672bda1060d4c47e63e7b8fd458ce3d6992d8c492bc9`,
 lower is `da25aa66ed4adf2fd6bbb82580d5aac500bbb33df902044291362ccb70e67522`,
 capture metadata is `64f9de179d1712729f6838fa0b2e25338c142087dba12f96e325eb2173c7159b`.
-These hashes and inspected endpoint do not close the pending 315-pair structural
-audit or prove native fidelity. Existing direct-selection/entry-cover-skip
+These hashes and inspected endpoint do not themselves prove native fidelity.
+The completed isolated315-pair audit verifies945 unchanged originals,630 decoded
+PNGs and zero structural issues. Report SHA-256 is
+`2f7720a985037c213d03c7384b22dcc21a213b41be1734ba89ecbd589b54b7e6`;
+manifest is `6afdc0dac70f21c5a48d01fb493ab67a23b57c790d8f31af61a719edc578f7ca`.
+Chronological selection seals at
+`106a99976fd9dfcb115ff108f5cf1fadf133a40a69d0caa24bb79144eeafbb09`.
+The coordinator inspects `offline-audit/shortcut-home-v1/selection/shortcut-suspension-chronology.png`.
+It shows inset upper93, dim lower/bright upper99, lower tray100, upper status103,
+dialog105, Health cursor108 and fully formed Close/Resume114. Pair315 remains
+suspended Health. Resume is outside this scope. No native mask/diff is added.
+Existing direct-selection/entry-cover-skip
 accessibility adaptations and capture-fitted native boundaries remain explicit.
+
+## Ordinary Resume control and source diagnosis
+
+The failed shortcut Resume later remains loading/blank. Ordinary Reload recovers
+the page; it is not successful Resume. Read-only developer-console inspection
+shows two Canvas2D readback performance warnings and no displayed exception.
+No page expression, browser security setting or profile setting changes.
+
+Predeclared `postfix-ordinary-policy.md` then uses actual tile-open Health,
+Start, physical HOME, settled Close/Resume, actual lower Resume and ready Health.
+All599 pairs save at duration-limit in separate session
+`3a224b94-f491-4299-900e-258173c3e851`. Metadata contains HOME and Resume down/up.
+Last raw pair is `live-lcd-80818391-de25-4d3a-9959-beb725524ff9-0599/browser/`.
+The isolated ordinary audit remains pending. Subsequent physical HOME,
+accessibility Open Notes and actual Notes footer Close reach ready Notes and
+selected Notes HOME. The shortcut skips its native entry cover. These browser
+controls do not prove native motion, input identity or timing.
+
+The isolated dimming worker reproduces the captured retained-color disagreement
+through real screen composition and pinned material players. At first lower
+HOME alpha, upper AppPause samples frame8 and lower fade samples frame23.
+Both pinned retained-color tracks finish at20. Host phase mappings remain
+adaptations; native caller inspection does not yet recover a shared cadence.
+Any narrow source-phase alignment must remain labelled adaptation and undergo
+independent review plus visible recapture. No runtime correction is integrated.
 
 ## Ordinary Health motion defect
 

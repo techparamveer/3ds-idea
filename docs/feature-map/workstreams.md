@@ -1,5 +1,26 @@
 # Workstream Registry
 
+## Health retained-LCD dimming and HOME order, 10 October 2026
+
+Managed worktree `health-suspend-dimming-20261010/3ds-idea` starts at a5a6c11.
+GPT-6.1 Sol extra-high owns one bounded source-backed correction for the
+coordinator-inspected ordinary Health audit dc5a9a3b. Browser upper remains
+bright while lower dims, then lower HOME appears before upper status/dialog.
+Native saved partial evidence dims both and exposes upper HOME while lower
+still retains Health. Worker owns necessary suspended presenter/composition
+wiring, actual behavior regressions and one handoff. No native curve, delay,
+graphic reconstruction, global-clock fitting, unrelated applet or GUI/server
+changes. Coordinate any cross-owner path before editing. Coordinator alone
+integrates, serves and recaptures on muted MacBook; served shortcut tree stays
+frozen. Independent different-model review precedes integration.
+Worker also reserves src/os/home-entry-motion.ts following pinned-source caller
+inspection. A possible authored-phase alignment is explicitly an adaptation;
+it must not be described as recovered native cadence. The real-compositor red
+test reproduces upper/lower color-phase disagreement. No candidate is integrated.
+Offline worker closes315 shortcut pairs in session ecc0cd5b, then separately
+owns599 ordinary HOME/Resume pairs in session3a224b94 and private output only.
+It has no source or GUI access. Earlier assignments below are history.
+
 ## Health shortcut HOME ownership, 10 October 2026
 
 Worker `health-home-selection-20261010/3ds-idea`, branch

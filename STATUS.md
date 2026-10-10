@@ -56,7 +56,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `87228a8a247891fcb07da6c74a97fc8c0632e7ec`. Reviewed Health shortcut worker `7214ff7` plus fixture correction `5cd5ea7` integrates as pushed `2a0629e`, independent APPROVE `730c1aff`. Worker handoff integrates as `87228a8`. Frozen build `YUOmZy1gnxALpXL-fNhqB` now serves 3029. MacBook shortcut regression visibly reaches suspended Health with Close/Resume; all 315 user-stopped pairs save. Frozen pre-fix source/build/exports remain unchanged. The unrelated user system.ts edit remains unstaged. All four whole scenarios remain unaccepted. |
+| HEAD | `a5a6c11d46ebb1caab877a1f7340ffb62ab4f95f`. Reviewed Health shortcut worker `7214ff7` plus fixture correction `5cd5ea7` integrates as pushed `2a0629e`, independent APPROVE `730c1aff`. Worker handoff integrates as `87228a8`; reviewed verification checkpoint `a5a6c11` is pushed, documentation APPROVE `40cd05ae`. Frozen build `YUOmZy1gnxALpXL-fNhqB` now serves 3029. MacBook shortcut regression visibly reaches suspended Health with Close/Resume; all 315 user-stopped pairs save. Frozen pre-fix source/build/exports remain unchanged. The unrelated user system.ts edit remains unstaged. All four whole scenarios remain unaccepted. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -81,9 +81,15 @@ YUOmZy1gnxALpXL-fNhqB. Ordinary Reload and shortcut regression follow without re
 Ordinary Reload loads the candidate. Actual Notifications selection followed
 by accessibility Open Health and physical HOME now visibly reaches suspended
 Health with its grid cursor and Close/Resume. Session ecc0cd5b saves all 315
-user-stopped pairs. Last raw pair is inspected and hashed; scoped structural
-audit remains pending. Resume is outside capture. Attempted footer Resume
-reaches loading, with no new ready endpoint accepted. No recorder is running.
+user-stopped pairs. Audit2f7720a9 closes945 unchanged originals/630 decoded PNGs
+without structural issues; the coordinator inspects its chronological sheet.
+Resume is outside that capture and remains a failed loading/blank observation.
+Ordinary Reload recovers the page. Separate ordinary tile-open session3a224b94
+records actual HOME and Resume, visibly returning to ready Health. All599 pairs
+save after duration-limit; its isolated audit is pending. Subsequent physical
+HOME, accessibility Open Notes and actual Notes footer Close reach ready Notes
+and selected Notes HOME. This shortcut skips its entry cover and does not prove
+native opening. No recorder is running. No native fidelity acceptance follows.
 Earlier3029 serving paragraph below is historical.
 
 Current verification candidate is clean5dab027 in
@@ -1556,6 +1562,22 @@ process remains untouched. Never launch `/Applications/Azahar.app` or share
 NAND writes between isolated copies. Nintendo Zone remains skipped.
 
 ## Seats
+
+Current slice at a5a6c11: health-suspend-dimming-20261010/3ds-idea is a new
+managed worker tree. GPT-6.1 Sol extra-high owns only the captured missing upper
+retained-Health dimming and cross-LCD HOME exposure order, necessary presenter/
+composition wiring, focused regressions and one handoff. No guessed source
+curves, delays, native graphics, endpoint pixel fitting or served-tree edits.
+Worker additionally reserves src/os/home-entry-motion.ts after pinned-source
+caller inspection. Its real-compositor regression is red: upper AppPause frame8
+and lower fade frame23 disagree when lower HOME first appears. Both authored
+retained-color tracks end at20. A narrow source-phase alignment remains an
+explicit adaptation, not recovered native cadence. No runtime candidate is
+integrated yet. Private offline worker closes only shortcut session ecc0cd5b
+at report2f7720a9, then separately audits ordinary session3a224b94's599 pairs.
+Coordinator owns integration, all GUI and frozen3029; different-model reviewer
+remains independent. Preserve the failed shortcut Resume separately from the
+new visibly successful ordinary Resume; Reload is not Resume evidence.
 
 Worker `health_home_selection`, GPT-6.1 Sol extra-high, has completed and
 released the verification tree to the coordinator. Independent different-model

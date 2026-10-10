@@ -1,5 +1,22 @@
 # Workstream Registry
 
+## Health shortcut HOME ownership, 10 October 2026
+
+Worker `health-home-selection-20261010/3ds-idea`, branch
+`codex/health-home-selection-20261010`, completes runtime7214ff7, fixture5cd5ea7
+and handoff8dbdb93. Independent different-model review730c1aff approves the
+corrected range. Runtime/tests integrate and push as2a0629e. Its frozen build
+YUOmZy1gnxALpXL-fNhqB is handed to the coordinator for3029 verification; no
+worker may edit or rebuild that tree. No shared source reservation remains.
+The corrected Notifications-focus to accessibility-Health to physical-HOME
+sequence now visibly reaches suspended Health and Close/Resume on the muted
+MacBook. All315 user-stopped pairs save. Post-fix Resume and ordinary/top-row
+regressions remain open. No native source curve, asset or delay changed.
+Private Health offline auditor owns only914 ordinary production pairs from
+sessions0a718d7d/bfc3e4fe and comparison to sealed nativev3 chronology, not the
+new315-pair shortcut session. Coordinator alone drives GUI, serving and delivery.
+Whole-flow native acceptance remains open. Earlier assignments below are history.
+
 ## Folder Back orbit retirement, 10 October 2026
 
 Worker `folder-back-orbit-20261010/3ds-idea`, branch

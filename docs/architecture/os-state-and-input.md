@@ -1,5 +1,12 @@
 # Software state, input and presentation
 
+[Accessibility title shortcuts](../workstream-handoffs/health-home-selection-20261010.md)
+resolve their destination before launch. Grid titles select root or child grid
+focus; the five top-row shortcuts select their corresponding toolbar focus.
+The scene uses the same OS adapter and preserves its existing entry-cover skip.
+This direct selection and cover skip are accessibility adaptations, not native
+cursor or opening-motion evidence. Ordinary touch and physical input are unchanged.
+
 [HOME pause release](../home-pause-release-2026-10-09.md) separates upper
 terminal frame 20 from complete motion update 22. The existing one-step-per-
 receipt policy holds lower fade 40 without a footer at updates 14 and 15,

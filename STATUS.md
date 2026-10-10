@@ -56,8 +56,8 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `5dab02752cfcb42e2a1a7e0efc97525966c71515`. Reviewed folder Back worker integrates as `52faeda` and `07052d0`; documentation/delivery checkpoint is `5dab027`. Supporting checks use equivalent worker `d8fe06a`. Frozen `ba2455e`/3029 remains the pre-fix comparison, unchanged. The unrelated user system.ts edit remains unstaged. All four whole scenarios remain unaccepted. |
-| Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks and pending recapture. No merge or deployment. |
+| HEAD | `87228a8a247891fcb07da6c74a97fc8c0632e7ec`. Reviewed Health shortcut worker `7214ff7` plus fixture correction `5cd5ea7` integrates as pushed `2a0629e`, independent APPROVE `730c1aff`. Worker handoff integrates as `87228a8`. Frozen build `YUOmZy1gnxALpXL-fNhqB` now serves 3029. MacBook shortcut regression visibly reaches suspended Health with Close/Resume; all 315 user-stopped pairs save. Frozen pre-fix source/build/exports remain unchanged. The unrelated user system.ts edit remains unstaged. All four whole scenarios remain unaccepted. |
+| Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
 create PRs. Commit each coherent reviewed chunk using explicit owned paths,
@@ -70,6 +70,21 @@ Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9dd
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
 
 ## Serving
+
+Current server: candidateYUOmZy1gnxALpXL-fNhqB serves3029, listener80193,
+persistent session66736, from the handed-over health-home-selection tree.
+Coordinator stopped only owned5dab027 listener73083
+through live session39598, exit130;3029 listener absence is verified. Its frozen
+source/build/exports are preserved. Worker hands over health-home-selection tree
+at8dbdb93, committed runtime/tests identical integrated2a0629e, frozen build
+YUOmZy1gnxALpXL-fNhqB. Ordinary Reload and shortcut regression follow without rebuilding.
+Ordinary Reload loads the candidate. Actual Notifications selection followed
+by accessibility Open Health and physical HOME now visibly reaches suspended
+Health with its grid cursor and Close/Resume. Session ecc0cd5b saves all 315
+user-stopped pairs. Last raw pair is inspected and hashed; scoped structural
+audit remains pending. Resume is outside capture. Attempted footer Resume
+reaches loading, with no new ready endpoint accepted. No recorder is running.
+Earlier3029 serving paragraph below is historical.
 
 Current verification candidate is clean5dab027 in
 `/Users/paramveer/.codex/worktrees/folder-back-verification-20261010/3ds-idea`,
@@ -1542,6 +1557,15 @@ NAND writes between isolated copies. Nintendo Zone remains skipped.
 
 ## Seats
 
+Worker `health_home_selection`, GPT-6.1 Sol extra-high, has completed and
+released the verification tree to the coordinator. Independent different-model
+review APPROVE730c1aff clears the corrected exact range; source/tests integrate
+as2a0629e. The frozen served tree is not available for further worker edits.
+Private health_suspend_capture_audit closes914 ordinary first/repeat browser
+pairs and sealed native chronology, with no GUI/source/server access.
+Coordinator alone owns serving, integration, muted MacBook GUI and delivery.
+Earlier seats below are historical.
+
 10 October completed runtime slice: `folder-back-orbit-20261010/3ds-idea`, branch
 `codex/folder-back-orbit-20261010`, basebd0927e. One GPT-6.1 Sol extra-high worker
 owns only the observed Back orbit-retirement boundary in banner-host/scene
@@ -1821,6 +1845,17 @@ The integration checkout remains here.
 Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camera Slideshow header 0. Camera Settings third 0. Welcome p5 **7615** live-feed source-gap **APPROVE**. Volume **130** live-slider source-gap **APPROVE**. Span **2314**/**2442** live-spectrum source-gap **APPROVE**. Birds **1558** held-offset source-gap **APPROVE**. Battery `[45,216,85,240]` **1** underbar-partition source-gap **APPROVE**. Line01 `(92,220)` partition source-gap **APPROVE**. Empty-entry row **1916** **APPROVE**. Thumb interiors **846/918** **APPROVE**. Guide perimeter **6072** = **860** dimmed grid + **4416** half + **728** (**144** row + **53** footer + **531** within 2) + **68** fringe; veil **REJECT** `be862ce6`; subsets **APPROVE-WITH-NITS** `d72ab4b1`. Empty-mid **2255**/**1024** → **0**/**0** by grid bind `603c5388` **APPROVE-WITH-NITS** `de5c6445`. p3 `TxtDlg` **1079→1078** after host-gate `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`. Sound upper 316 labelled `14533857` **APPROVE** `daa93bca`. y=177 **320** labelled `22e8b0a4` **APPROVE** `9fe268f8`. Slider **57** **APPROVE-WITH-NITS** `444ba8e0`. Plus-tint strip **1992** kept `ed55865e` **APPROVE** `b6620fa4`. HOME 1-row tail **291** **APPROVE** `f72296ff`. HOME idle Health 1-row left-anchor **23182 / 14754** empty mask (title/wallpaper **12255**, vacant-vs-Settings **7045**, HUD **2328**). **Static still only.** Whole scenarios still fail.
 
 ## Next
+
+Current next after2a0629e: shortcut focus is corrected, reviewed, pushed and
+browser-inspected at suspended Health. Finish successful post-fix Resume and
+ordinary/top-row regression without claiming the 315-pair capture contains it.
+Close its scoped raw audit. Ordinary Health's914-pair audit identifies missing
+upper retained-LCD dimming and lower-first HOME exposure. Coordinator inspects
+the semantic and repeat endpoint diff sheets; take that captured defect into
+one separate source-backed worker slice, then review/integrate/recapture.
+Do not edit or rebuild the frozen served tree. Preserve all earlier exports.
+Commit/push reviewed coherent chunks and update PR7 as work proceeds.
+All four whole flows remain fail. The older Next paragraph below is history.
 
 Recorder capture gap is addressed by reviewed `2ad758b`/`bcceb54`, not by
 debugging-permission changes. First Notes footer close has238 raw paired LCDs

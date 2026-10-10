@@ -4,6 +4,81 @@ This checkpoint follows the reviewed folder Back correction `52faeda` and
 touch-dispatch tests `07052d0`, already pushed to draft PR7. It changes no
 runtime, native assets or sounds. All four whole animation flows remain fail.
 
+## Shortcut correction and current candidate
+
+Reviewed source/test worker `7214ff7` plus fixture correction `5cd5ea7` integrate
+as pushed `2a0629e`. The [handoff](workstream-handoffs/health-home-selection-20261010.md)
+records the real dispatch/journal regression, correction, exact log hashes and
+the unchanged historical Camera fixture failure. Different-model review report
+SHA-256 is `730c1affb7d9530194274c47b68d1e8566e5009e78b23c5a007dd77e7f461ab2`.
+No native asset, sound, manifest entry or source curve changes.
+
+The coordinator stops only the owned `5dab027` server through its live terminal
+handle and verifies listener absence. Its source, build and exports stay frozen.
+Handed-over worker source/assets/tests equal integrated `2a0629e`. Frozen build
+`YUOmZy1gnxALpXL-fNhqB` now serves loopback 3029, listener 80193. Ordinary Reload
+loads the candidate in the dedicated muted MacBook browser. Startup arguments
+still include `--mute-audio`; no system or unrelated application audio changes.
+
+Predeclared verification policy SHA-256 is
+`cdcf302c0a722041f8759215426f194078779d983c66591b6eb5c380d15568e0`.
+Actual Notifications toolbar selection, accessibility Open Health, ready Health,
+then recorder Start and physical HOME now produce a settled suspended Health
+dialog, Health grid cursor and Close/Resume. This explicitly tests a shortcut
+adaptation, not native opening covers or identical native input. User Stop and
+Save export all 315 pairs in session `ecc0cd5b-7481-4243-b1b7-9472a0b986fe`.
+Metadata contains HOME down/up only. Resume is outside this recording.
+An attempted footer Resume reaches loading state; no new ready endpoint or
+ordinary/top-row post-fix regression is accepted yet. No recorder remains running.
+
+Private root is `opus-completion/health-home-selection-20261010/` beneath the
+same continuation root used below. The last pair is
+`reference/scenario-matrix/v1/captures/live-lcd-1e6c1f48-f690-4660-9ebe-ad794e8d2295-0315/browser/`.
+The coordinator inspects both raw LCDs. Upper SHA-256 is
+`0a51559a3a016e06ae2f672bda1060d4c47e63e7b8fd458ce3d6992d8c492bc9`,
+lower is `da25aa66ed4adf2fd6bbb82580d5aac500bbb33df902044291362ccb70e67522`,
+capture metadata is `64f9de179d1712729f6838fa0b2e25338c142087dba12f96e325eb2173c7159b`.
+These hashes and inspected endpoint do not close the pending 315-pair structural
+audit or prove native fidelity. Existing direct-selection/entry-cover-skip
+accessibility adaptations and capture-fitted native boundaries remain explicit.
+
+## Ordinary Health motion defect
+
+Sessions `0a718d7d-1108-4b6b-83be-22241f6a9f07` and
+`bfc3e4fe-e481-413e-a3fd-2621907254e1` contain 458 and 456 pairs, totaling 914.
+Both follow ordinary Reload and actual Health tile opening on old `5dab027`.
+Both save at the duration limit. First Resume is after capture; repeat records
+Resume and ready Health. This control distinguishes ordinary suspension from
+the shortcut-focus error above, but still fails native motion comparison.
+
+Audit `folder-back-verification-20261010/offline-audit/health-home-v4/` closes
+914 triples, 2,742 unchanged originals and 1,828 decoded PNGs without structural
+errors or warnings. Chronological selection SHA-256 is
+`a562df7daa50d2ef9c6c2cea63e18757036ef309d99b1cdd625d86c389eae855`.
+Final report SHA-256 is
+`dc5a9a3b88bc84b9368584cd95be57910af60697b5cd80c1904b51d36c38ed84`;
+final manifest is `a8d551187a8015834e0b01571562e2134523f47c4aaacf2ae9bafadeb0ffe65c`.
+All 196 final checksum entries verify. The new shortcut session is excluded.
+The coordinator inspects `native-comparison-v2/semantic-ready-retained-partial.png`
+and `repeat-complete-home/side-by-side.png`. Native dimming affects both retained
+LCDs before HOME. Browser lower dims while upper stays bright, then exposes
+lower HOME at 106/143, upper status at 109/146 and dialog at 111/148. Native own
+repeat partial PNG instead shows upper HOME with lower Health still retained.
+This is an unexplained observed order/brightness mismatch, not aligned epochs
+or an established source cause.
+
+First complete endpoints are 120/157, chosen chronologically before diagnostics.
+The empty whole-LCD mask SHA-256 is
+`82296e38211692bd9a52e0d14927258a2a9e6a64b8dc78d97b188c8d565bca68`.
+With channel tolerance 2, first upper/lower fail at 9,432/33,324 pixels and
+repeat at 9,751/33,297. Populations, clocks and Health TopLoop phases differ;
+no shift, colour fit or ignored population regions apply. Shared warning icon,
+hint glyph and footer residuals remain. Repeat has two all-black pairs before
+ready Health; native resume motion is absent, so that is not a proven mismatch.
+Native input adaptation, exact timing and audio acceptance remain open.
+
+The older sections below retain their own build and pending-audit identities.
+
 ## Production candidate and delivery
 
 Clean source `5dab02752cfcb42e2a1a7e0efc97525966c71515` builds successfully in

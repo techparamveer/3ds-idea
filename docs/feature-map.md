@@ -1,5 +1,17 @@
 # Feature map — 1:1 queue
 
+Latest runtime `2a0629e` fixes destination focus for accessibility shortcuts.
+Reviewed source, red/green regression, full checks and frozen production build
+are delivered. MacBook verification now shows suspended Health and Close/Resume
+after actual Notifications selection followed by Open Health and physical HOME.
+All 315 user-stopped pairs save; structural audit and successful post-fix Resume
+remain open. Ordinary Health's separate 914-pair audit identifies upper dimming
+and cross-LCD exposure-order mismatches. Those are the next captured motion
+defects, not corrected by this shortcut fix. All AN-01..AN-04 whole flows remain
+fail. See [the shortcut handoff](workstream-handoffs/health-home-selection-20261010.md)
+and [current evidence](animation-verification-checkpoint-2026-10-10.md).
+The earlier production paragraph below describes the preceding build.
+
 Latest production verification uses clean5dab027, buildAbU0doePk5fpJYzR19WW_,
 on the muted MacBook. First/repeat Back save466/182 pairs. Inspected raw sheets
 show orbit retirement before selected root cursor return, but fading tray

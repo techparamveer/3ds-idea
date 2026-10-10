@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import ts from 'typescript';
-import { completeNotesFooterClose, completeNotificationsFooterClose, createPortfolioState, tickSystem, invokeSystemApplet, touchSystem } from '../src/os/system.ts';
+import { completeManualFooterClose, completeNotesFooterClose, completeNotificationsFooterClose, createPortfolioState, tickSystem, invokeSystemApplet, touchSystem } from '../src/os/system.ts';
+import { manualFooterCloseIdentity } from '../src/os/manual-footer-close.ts';
 import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostView, getHomeBannerHostBackgroundFrame, resetHomeBannerPrimary, resolveHomeBannerHostSelection } from '../src/os/home-banner-host.ts';
 import { enableHomeControls, selectHomeToolbarControlTouch } from '../src/os/home-controls.ts';
 import { createNotesFooterClosePresentation } from '../src/os/notes-footer-close.ts';
@@ -21,6 +22,7 @@ const loadScene=new Function('runtime','banner',`
  const resetHomeBannerPrimary=banner.resetHomeBannerPrimary;
  const completeNotesFooterClose=runtime.completeNotesFooterClose,observeFolderBanner=runtime.observeFolderBanner??(()=>{}),effects=runtime.effects??{drain(){}},paint=runtime.paint??(()=>{});
  const completeNotificationsFooterClose=runtime.completeNotificationsFooterClose;
+ const completeManualFooterClose=runtime.completeManualFooterClose;
  const start=1000,scene={updateMatrixWorld(){}},camera={updateProjectionMatrix(){}},schedule={plan:()=>({shadows:false}),presented(){}};
  const poseSample=()=>({}),fitConsole=()=>{},publishProjectedTargets=()=>{},paintScreens=()=>{};
  const revokeTerminalPublications=()=>screens.revokeAppletEntryCandidate();
@@ -38,7 +40,7 @@ const screensAst=ts.createSourceFile('screens.ts',screensSource,ts.ScriptTarget.
 function findReady(node){if(ts.isFunctionDeclaration(node)&&node.name?.text==='homeAppletFooterBannerReady')readyFunction=node;ts.forEachChild(node,findReady);}
 findReady(screensAst);
 const readyCode=ts.transpileModule(readyFunction.getText(screensAst),{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
-const bindReady=new Function('notesClosePresentation','notificationsClosePresentation',`${readyCode};const appletGeneration=2;return homeAppletFooterBannerReady;`);
+const bindReady=new Function('notesClosePresentation','notificationsClosePresentation',`${readyCode};const appletGeneration=2,manualCloseGeneration=0,manualClosePresentation={active:()=>false};return homeAppletFooterBannerReady;`);
 const bindObserver=new Function('runtime','banner',`
  const {crossHomeBannerBoundary,getHomeBannerHostView,resolveHomeBannerHostSelection,resetHomeBannerPrimary}=banner;
  const {screens}=runtime;
@@ -178,6 +180,19 @@ test('actual scene removes Notes only after a valid outgoing terminal receipt, t
   if(valid){assert.deepEqual(events,['render','close-receipt','complete','banner','cleanup','paint']);assert.equal(run.state().system.runtime.instances[owner],undefined);}
   else{assert.deepEqual(events,['render']);assert.ok(run.state().system.runtime.instances[owner]);assert.equal(run.banner(),bannerHost);assert.equal(getHomeBannerHostView(run.banner()).primary.motion.visible,true);}
  }
+});
+
+test('actual Manual completion is gated by the successful visible paired WebGL publication and exact identity',()=>{
+ for(const patch of[{},{hidden:true},{sleeping:true},{powered:false},{angle:12},{upper:false},{lower:false},{lost:true},{renderFailure:true},{stale:true}]){
+  const events=[];let state=touchSystem(invokeSystemApplet(tickSystem(createPortfolioState(),3001),'manual',3100,{manualTitleId:'0004001000022400'}),80,226,3200);
+  const identity=manualFooterCloseIdentity(state,0),owner=identity.owner;state={...state,powered:patch.powered??true,system:{...state.system,sleeping:!!patch.sleeping}};
+  const screens=new Proxy({presentManualFooterClose(){events.push('receipt');return patch.stale?{...identity,manualTitleId:'0004001000022000'}:identity;}},{get:(o,k)=>o[k]??(()=>null)}),bannerHost=selectedBanner(1);
+  const run=load({document:{hidden:!!patch.hidden},state,bannerHost,angle:patch.angle??100,topScreen:{visible:patch.upper??true},touchScreen:{visible:patch.lower??true},screens,renderer:{getContext:()=>({isContextLost:()=>!!patch.lost}),render(){events.push('render');if(patch.renderFailure)throw Error('GPU failed');}},performance:{now:()=>5000},completeManualFooterClose(s,id,now){events.push('complete');return completeManualFooterClose(s,id,now);},effects:{drain(){events.push('cleanup');}},observeFolderBanner(){events.push('banner');},paint(){events.push('paint');}});
+  if(patch.renderFailure)assert.throws(run,/GPU failed/);else run();
+  if(!Object.keys(patch).length){assert.deepEqual(events,['render','receipt','complete','banner','cleanup','paint']);assert.equal(run.state().system.runtime.instances[owner],undefined);}
+  else{assert.ok(run.state().system.runtime.instances[owner]);assert.equal(run.banner(),bannerHost);assert.equal(events.includes('cleanup'),false);if(!patch.stale)assert.equal(events.includes('receipt'),false);}
+ }
+ assert.match(source,/manualClose:manualClose\?\?null/);assert.match(source,/screens\.manualFooterCloseActive\(state\)/);
 });
 
 test('common entry joins only the existing guarded transition LCD cadence; diagnostics retain kind/frame/owner',()=>{

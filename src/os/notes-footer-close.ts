@@ -3,8 +3,9 @@ import { manualEntryEligible } from './manual-entry-identity.ts';
 
 export type NotesFooterCloseIdentity = Readonly<{ owner: string; application: string | null; sequence: number; generation: number }>;
 export type NotesFooterClosePaint = Readonly<{ kind: 'feedback' | 'out'; frame: number }>;
-export type NotesFooterClosePose = Readonly<{ identity: NotesFooterCloseIdentity; ticket: number }> &
+export type AppletFooterClosePose<Identity extends NotesFooterCloseIdentity> = Readonly<{ identity: Identity; ticket: number }> &
   (NotesFooterClosePaint | Readonly<{ kind: 'in'; frame: number }> | Readonly<{ kind: 'handoff' }>);
+export type NotesFooterClosePose = AppletFooterClosePose<NotesFooterCloseIdentity>;
 export function notesFooterCloseIdentity(state: MenuState, generation: number): NotesFooterCloseIdentity | null {
   const s = state.system, owner = s?.runtime.active, instance = owner ? s?.runtime.instances[owner] : undefined;
   return s?.phase === 'app' && owner && s.runtime.systemApplet === owner && instance?.appId === 'game-notes'
@@ -20,22 +21,26 @@ export const notesFooterCloseEligible = manualEntryEligible;
 export function createNotesFooterClosePresentation() {
   return createAppletFooterClosePresentation(notesFooterCloseIdentity);
 }
-export function createAppletFooterClosePresentation(identityOf: typeof notesFooterCloseIdentity) {
-  let identity: NotesFooterCloseIdentity | null = null, ticket = 0, disposed = false, recovering = false, done = false;
-  let presented: NotesFooterClosePose | undefined, acceptedAt: number | undefined;
-  let pending: { pose: NotesFooterClosePose; sampledAt: number; pair?: object; resources?: object } | undefined;
+export function createAppletFooterClosePresentation<Identity extends NotesFooterCloseIdentity>(
+  identityOf: (state: MenuState, generation: number) => Identity | null,
+  sameIdentity: (a: Identity | null, b: Identity | null) => boolean = same,
+  retainRecoveryOnResourceReplacement = false,
+) {
+  let identity: Identity | null = null, ticket = 0, disposed = false, recovering = false, done = false;
+  let presented: AppletFooterClosePose<Identity> | undefined, acceptedAt: number | undefined;
+  let pending: { pose: AppletFooterClosePose<Identity>; sampledAt: number; pair?: object; resources?: object } | undefined;
   let resourceOwner: object | undefined;
   const revoke = () => { ticket++; pending = undefined; acceptedAt = undefined; };
   const reset = () => { revoke(); identity = null; presented = undefined; resourceOwner = undefined; recovering = done = false; };
   function matches(state: MenuState, generation: number) {
     if (!identity || generation !== identity.generation) return false;
-    if (!recovering) return same(identity, identityOf(state, generation));
+    if (!recovering) return sameIdentity(identity, identityOf(state, generation));
     const s = state.system;
     return s?.phase === 'home' && !s.runtime.active && !s.runtime.systemApplet && !s.runtime.instances[identity.owner]
       && s.runtime.application === identity.application && s.runtime.sequence === identity.sequence;
   }
   return {
-    sample(state: MenuState, generation: number, now: number, eligible: boolean, reduced: boolean): NotesFooterClosePose | undefined {
+    sample(state: MenuState, generation: number, now: number, eligible: boolean, reduced: boolean): AppletFooterClosePose<Identity> | undefined {
       if (disposed || !Number.isFinite(now)) return undefined;
       const next = identityOf(state, generation);
       if (!identity && next) identity = Object.freeze({ ...next });
@@ -46,7 +51,7 @@ export function createAppletFooterClosePresentation(identityOf: typeof notesFoot
       if (gap < 0 || gap > 100) acceptedAt = undefined;
       const advance = acceptedAt !== undefined && (reduced || gap >= 1000 / 60 - .01 && gap <= 100);
       const base = { identity, ticket };
-      let pose: NotesFooterClosePose;
+      let pose: AppletFooterClosePose<Identity>;
       if (recovering) {
         pose = presented?.kind === 'in' && presented.frame === 20 && advance
           ? Object.freeze({ ...base, kind: 'handoff' })
@@ -56,12 +61,16 @@ export function createAppletFooterClosePresentation(identityOf: typeof notesFoot
       } else pose = Object.freeze({ ...base, kind: 'feedback', frame: reduced ? 1 : Math.min(1, (presented?.kind === 'feedback' ? presented.frame : 0) + (advance ? 1 : 0)) });
       pending = { pose, sampledAt: now }; return pose;
     },
-    bind(pose: NotesFooterClosePose, pair: object, resources: object): boolean {
+    bind(pose: AppletFooterClosePose<Identity>, pair: object, resources: object): boolean {
       if (disposed || !pending || pending.pose !== pose) return false;
-      if (resourceOwner && resourceOwner !== resources) { reset(); return false; }
+      if (resourceOwner && resourceOwner !== resources) {
+        if(recovering&&retainRecoveryOnResourceReplacement){revoke();resourceOwner=undefined;}
+        else reset();
+        return false;
+      }
       resourceOwner = resources; pending = { ...pending, pair, resources }; return true;
     },
-    present(pose: NotesFooterClosePose, state: MenuState, generation: number, now: number, eligible: boolean, pair: object | undefined, resources: object | undefined): string | null {
+    present(pose: AppletFooterClosePose<Identity>, state: MenuState, generation: number, now: number, eligible: boolean, pair: object | undefined, resources: object | undefined): string | null {
       if (disposed || !eligible || !Number.isFinite(now) || !pending || pending.pose !== pose || pose.ticket !== ticket
         || !matches(state, generation) || !pair || pair !== pending.pair || !resources || resources !== pending.resources
         || resources !== resourceOwner || now < pending.sampledAt || acceptedAt !== undefined && now < acceptedAt) return null;
@@ -77,7 +86,7 @@ export function createAppletFooterClosePresentation(identityOf: typeof notesFoot
       return null;
     },
     active(state: MenuState, generation: number) {
-      return !disposed && !done && (matches(state, generation) || !!identityOf(state, generation));
+      return !disposed && (!!identityOf(state, generation) || !done && matches(state, generation));
     },
     revoke, reset,
     dispose() { reset(); disposed = true; },

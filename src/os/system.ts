@@ -18,6 +18,7 @@ import { serializeHomeSavedLayouts, restoreHomeSavedLayouts } from './home-saved
 import { activeInstance, acknowledgeEffects, closeApplication, completeApplet, createAppRuntime, deliverCapabilityResult, dispatchRuntime, openApplet, resumeRuntimeApplication, runtimeView, setRuntimeSleeping, showRuntimeHome, startApplication, startSettingsHelper, tickRuntime, type AppRuntime } from './app-host.ts';
 import { createInputLatch, latchInput, latchTouch, repeatInput, type InputLatch } from './app-input.ts';
 import type { AppEvent, AppState, SaveRecord } from './app-types.ts';
+import { manualFooterCloseIdentity, sameManualFooterCloseIdentity, type ManualFooterCloseIdentity } from './manual-footer-close.ts';
 import { homeSlotAppId, moveHomeItem, restoreHomeLayout, selectHomeLocation, type FolderLayouts, type HomeLocation } from './home-layout.ts';
 import { cancelHomeGesture, createHomeNavigation, ownedHomeToolbarContact, resetHomeNavigation, tickHomeGesture, touchHomeGesture, homeTouchLocation, type HomeNavigation } from './home-gestures.ts';
 import { selectHomeSlot, settleHomeNavigation, getHomeNavigation, getHomeExposedExtent, saveHomeView, restoreHomeView, homeDensityIndex, HOME_DENSITIES, writeHomeNavigation, createHomeGridFocus, createHomeUpdateClock, stepHomeUpdateClock, type HomeUpdateClock } from './home-navigation.ts';
@@ -326,6 +327,18 @@ export function completeNotificationsFooterClose(state:MenuState,owner:string,no
  if(!s||!state.powered||!Number.isFinite(now)||s.phase!=='app'||s.sleeping||s.preferences||s.dialog||s.runtime.active!==owner
   ||s.runtime.systemApplet!==owner||instance?.appId!=='notifications'||instance.caller!==null||instance.closing||instance.suspended
   ||instance.state.screen!=='main'||instance.state.notificationsFooterClose!==true)return state;
+ return commitRuntime(state,completeApplet(s.runtime,owner,null,true,now),now);
+}
+export function completeManualFooterClose(state:MenuState,identity:ManualFooterCloseIdentity,now:number):MenuState {
+ const s=state.system;
+ if(!s||!state.powered||!Number.isFinite(now)||s.sleeping||s.preferences||s.dialog||state.panel
+  ||!sameManualFooterCloseIdentity(identity,manualFooterCloseIdentity(state,identity.generation)))return state;
+ return commitRuntime(state,completeApplet(s.runtime,identity.owner,null,true,now),now);
+}
+/** Explicit unready-screen recovery bypasses presentation, never normal Close. */
+export function cancelManualForRecovery(state:MenuState,now:number):MenuState {
+ const s=state.system,owner=s?.runtime.active;
+ if(!s||!owner||!Number.isFinite(now)||s.runtime.instances[owner]?.appId!=='manual')return state;
  return commitRuntime(state,completeApplet(s.runtime,owner,null,true,now),now);
 }
 export function touchSystem(state:MenuState,x:number,y:number,now:number):MenuState {

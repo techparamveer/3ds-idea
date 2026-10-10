@@ -14,6 +14,13 @@ export function createAppRuntime(shared?: AppState, saves: Record<string, SaveRe
   return { instances: {}, application: null, systemApplet: null, libraryApplet: null, active: null, homeReturn: null, sleeping: false, sequence: 0, effectSequence: 0, effects: [], shared: { ...initialSharedData(), ...shared }, saves, pendingLaunch: null, link: null, lastTick: 0 };
 }
 export function activeInstance(runtime: AppRuntime) { return runtime.active ? runtime.instances[runtime.active] : undefined; }
+/** Only HOME-owned application Contents use the retained paired Close route. */
+export function manualFooterCloseRequestEligible(runtime: AppRuntime, owner: string): boolean {
+  const instance = runtime.instances[owner];
+  return !runtime.sleeping && runtime.active === owner && runtime.systemApplet === owner
+    && instance?.appId === 'manual' && instance.caller === null && !instance.closing && !instance.suspended
+    && instance.state.screen === 'main' && typeof instance.state.manualTitleId === 'string' && /^[0-9a-f]{16}$/.test(instance.state.manualTitleId);
+}
 export function runtimeView(runtime: AppRuntime, now = runtime.lastTick): AppView | null {
   const active = activeInstance(runtime); return active ? getAppModule(active.appId)!.view(active.state, { now, shared: runtime.shared }) : null;
 }
@@ -55,7 +62,9 @@ function applyEffects(runtime: AppRuntime, owner: string, effects: readonly AppE
     else if (effect.type === 'home') next = returnFromSettingsHelper(next, owner, now) ?? showRuntimeHome(next, now);
     else if (effect.type === 'close') {
       const instance = next.instances[owner];
-      if (getTitle(instance.appId)!.kind === 'application') next = closeApplication(next, now);
+      if (manualFooterCloseRequestEligible(next, owner)) next = instance.state.manualFooterClose === true ? next
+        : { ...next, instances: { ...next.instances, [owner]: { ...instance, state: { ...instance.state, manualFooterClose: true } } } };
+      else if (getTitle(instance.appId)!.kind === 'application') next = closeApplication(next, now);
       else next = completeApplet(next, owner, null, true, now, depth + 1);
     } else if (effect.type === 'launch') next = { ...next, pendingLaunch: effect.appId };
     else if (effect.type === 'link') next = { ...emit(next, owner, effect), link: effect.url };

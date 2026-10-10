@@ -1,6 +1,6 @@
 import type { MenuState } from './state';
 import type { NativeScreenStatus } from './stock-screen-presentation';
-import { releaseSystemInputs, reduceSystem } from './system.ts';
+import { releaseSystemInputs, reduceSystem, cancelManualForRecovery } from './system.ts';
 import { reduceMenu } from './state.ts';
 import { selectedSuspendedApplication } from './home-suspended-window.ts';
 import {homeSoftwareDialogKey,homeSoftwareClosingDialogKey} from './home-software-dialog.ts';
@@ -38,7 +38,7 @@ export function escapeUnreadyNativeScreen(state:MenuState,now:number):MenuState{
   // Unready Manual recovery closes the cover applet before returning HOME.
   // Suspending Manual would replace the application's retained return owner.
   if(s.phase==='app'&&active?.appId==='manual'){
-   const closed=reduceSystem(released,'x',now);
+   const closed=cancelManualForRecovery(released,now);
    return closed.system?.phase==='app'?reduceSystem(closed,'home',now):closed;
   }
   return reduceSystem({...released,system:{...released.system!,phase:'app'}},'home',now);

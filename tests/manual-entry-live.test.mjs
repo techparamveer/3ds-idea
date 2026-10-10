@@ -231,7 +231,9 @@ test('fresh Manual observations progress reduced first and repeat cycles when rA
    assert.deepEqual(screens.paint(state,new Date(0),ms(step+3),{manualEntryObservedElapsedMs:ms(step+5)}).manualEntry,incoming.manualEntry);
    assert.equal(screens.stockStatus(state),'loading');assert.equal(screens.presentManualEntry(state,ms(step+6)),true);
    assert.equal(screens.stockStatus(state),'ready');assert.equal(screens.stockFailure(),null);
-   home=reduceSystem(state,'x',6500+cycle*100);assert.equal(home.system.phase,'home');
+   // This opening-only fixture explicitly tears down before the next cycle;
+   // normal ready Close now has its own paired presentation tests.
+   home=escapeUnreadyNativeScreen(state,6500+cycle*100);assert.equal(home.system.phase,'home');
   }
  });
 });

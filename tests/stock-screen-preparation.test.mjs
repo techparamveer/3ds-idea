@@ -4,7 +4,8 @@ import {readFileSync} from 'node:fs';
 import {isAbsolute,join} from 'node:path';
 import ts from 'typescript';
 import {createNativeScreenInputGate} from '../src/os/native-screen-input.ts';
-import {createPortfolioState,tickSystem,launch,dispatchSystemEvent,getActiveAppView,invokeSystemApplet,reduceSystem} from '../src/os/system.ts';
+import {createPortfolioState,tickSystem,launch,dispatchSystemEvent,getActiveAppView,invokeSystemApplet,reduceSystem,completeManualFooterClose} from '../src/os/system.ts';
+import {manualFooterCloseIdentity} from '../src/os/manual-footer-close.ts';
 const url=source=>'data:text/javascript;base64,'+Buffer.from(source).toString('base64');
 const compile=name=>ts.transpileModule(readFileSync(new URL('../src/os/'+name+'.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
 const calls=[];
@@ -26,6 +27,7 @@ source=source.replace("'./notes-boot-cover'",JSON.stringify(new URL('../src/os/n
 source=source.replace("'./applet-title-entry-assets'",JSON.stringify(new URL('../src/os/applet-title-entry-assets.ts',import.meta.url).href));
 source=source.replace("'./notes-footer-close-assets'",JSON.stringify(new URL('../src/os/notes-footer-close-assets.ts',import.meta.url).href));
 source=source.replace("'./notifications-footer-close-assets'",JSON.stringify(new URL('../src/os/notifications-footer-close-assets.ts',import.meta.url).href));
+source=source.replace("'./manual-footer-close-assets'",JSON.stringify(new URL('../src/os/manual-footer-close-assets.ts',import.meta.url).href));
 const {createStockScreenPresentation,drawStockMediaImage}=await import(url(source));
 let graphicsSource=compile('portfolio-screens');
 const graphicsDependencies={
@@ -225,7 +227,8 @@ test('actual graphics defer only Manual composition, keep acquisition live, publ
   assert.equal(draws,0);assert.equal(graphics.preparedStockPair(state),undefined,'loaded resources do not manufacture a published pair');
   draw(false);assert.equal(draws,1);assert.equal(graphics.stockStatus(state,f.top),'ready');assert.ok(graphics.preparedStockPair(state));
   assert.deepEqual(f.top.marks,[['text','native upper']]);assert.deepEqual(f.bottom.marks,[['text','native lower']]);
-  const returned=reduceSystem(state,'back',6300);graphics.syncStockView(returned,f.top);assert.equal(assets.disposals,1);
+  const pending=reduceSystem(state,'back',6300),returned=completeManualFooterClose(pending,manualFooterCloseIdentity(pending,0),6400);
+  graphics.syncStockView(returned,f.top);assert.equal(assets.disposals,1);
   const fresh=invokeSystemApplet(returned,'manual',6400,{manualTitleId:'0004001000022400'});draw(true,fresh);await flush();
   assert.notEqual(fresh.system.runtime.active,owner);calls[1].reject(Error('Manual load failed'));await flush();
   assert.equal(graphics.stockStatus(fresh,f.top),'loading');draw(true,fresh);

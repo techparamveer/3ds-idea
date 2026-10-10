@@ -337,6 +337,12 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
         ...(id === 'system-settings' ? { settingsHudElapsedMs: 0 } : {}), ...(id === 'eshop' ? { welcomeElapsed: 0 } : {}), ...(id === 'health-safety' ? { healthElapsedMs: 0 } : {}) };
     },
     reduce(state, event, context) {
+      if(id==='manual'&&state.manualFooterClose===true){
+        if(event.type==='lifecycle'&&event.phase==='suspend'){
+          const {manualFooterClose:_close,...rest}=state;return {state:rest};
+        }
+        if(event.type!=='tick'&&event.type!=='lifecycle')return {state};
+      }
       // Retain the captured outgoing list. Recovery B/HOME/power still use
       // their existing routes; only a footer request owns this presentation.
       if(id==='game-notes'&&state.notesFooterClose===true&&event.type!=='tick'&&event.type!=='lifecycle'

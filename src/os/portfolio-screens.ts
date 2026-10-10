@@ -128,6 +128,10 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
   return !!s&&s.phase==='app'&&!!s.runtime.active&&!!view
    &&stockScreens.drawIncoming(s.runtime.active,view.appId,top,bottom,frame,resources);
  }
+ function manualFooterCloseResources(state:MenuState):object|undefined{
+  const s=state.system;
+  return s?.phase==='app'&&s.runtime.active?stockScreens.manualFooterCloseResources(s.runtime.active):undefined;
+ }
  const nvidiaBanner=createNvidiaBanner();
  const hackLdnBanner=createHackLdnBanner(c=>label(c,'2025',200,165,17,'#454952','center'));
  const menuIcons=new Map<string,HTMLCanvasElement>();
@@ -207,15 +211,15 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
   if(s.detail&&entry.images&&entry.images.length>1)label(b,`◀ ${s.photo+1}/${entry.images.length} ▶`,157,226,12,'#6b7380','center');
   button(b,222,214,95,24,s.detail?(entry.app?'Ⓐ Open':entry.url?'Ⓐ Visit':'Ⓐ Done'):'Ⓐ Open');
  }
- function semanticApplication(t:C,b:C,view:AppView,state:MenuState,owner:string,date:Date,time:number,verification?:{sampleCalendar?:boolean},notesFooterClose?:NotesFooterClosePaint,notificationsFooterClose?:{frame:number}){
+ function semanticApplication(t:C,b:C,view:AppView,state:MenuState,owner:string,date:Date,time:number,verification?:{sampleCalendar?:boolean},notesFooterClose?:NotesFooterClosePaint,notificationsFooterClose?:{frame:number},manualFooterClose?:{frame:number}){
   const runtime=state.system!.runtime;
   const capture=view.appId==='game-notes'?suspendedCapture.read(runtime):undefined;
   notesMetadata.sync(runtime,capture??{status:'none'});
   const native=stockScreens.prepare(view,owner,nativeFonts.get(t));
   const notesPaint=syncNotesIntro(state,view,native.status==='ready'?native.assets.renderer.packs:undefined);
-  return stockScreens.draw(t,b,view,owner,nativeFonts.get(t),capture,date,time,notesPaint,verification,notesFooterClose,notificationsFooterClose);
+  return stockScreens.draw(t,b,view,owner,nativeFonts.get(t),capture,date,time,notesPaint,verification,notesFooterClose,notificationsFooterClose,manualFooterClose);
  }
- function overlay(t:C,b:C,state:MenuState,time:number,reduced:boolean,nativeSystem=false,date=new Date(),verification?:{sampleCalendar?:boolean},deferManualDestination=false,notesFooterClose?:NotesFooterClosePaint,notificationsFooterClose?:{frame:number}){
+ function overlay(t:C,b:C,state:MenuState,time:number,reduced:boolean,nativeSystem=false,date=new Date(),verification?:{sampleCalendar?:boolean},deferManualDestination=false,notesFooterClose?:NotesFooterClosePaint,notificationsFooterClose?:{frame:number},manualFooterClose?:{frame:number}){
   const s=state.system;if(!s)return;
   if(s.phase==='app'){
    const view=getActiveAppView(state,time);let complete=false;
@@ -224,7 +228,7 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
     // Keep acquisition live while the caller pair is covered. Resource errors
     // still draw the existing paired recovery rather than waiting for a cover.
     if(view.appId==='manual'&&deferManualDestination)syncStockView(state,t);
-    if(view.appId!=='manual'||!deferManualDestination||stockScreens.getFailure()!==null)complete=semanticApplication(t,b,view,state,s.runtime.active,date,time,verification,notesFooterClose,notificationsFooterClose);
+    if(view.appId!=='manual'||!deferManualDestination||stockScreens.getFailure()!==null)complete=semanticApplication(t,b,view,state,s.runtime.active,date,time,verification,notesFooterClose,notificationsFooterClose,manualFooterClose);
    }
    // Retain the application slot's last complete pair, before host overlays.
    if(complete&&s.runtime.active&&s.runtime.active!==resumeCoveredOwner&&!s.sleeping&&!s.preferences&&!s.dialog)suspendedCapture.record(s.runtime,s.runtime.active,t.canvas,b.canvas);
@@ -251,5 +255,5 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    t.fillStyle=b.fillStyle=`rgba(0,0,0,${alpha})`;t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
   }
  }
- return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,setAppletEntryCovered,preparedStockPair,notesFooterCloseResources,notificationsFooterCloseResources,appletIncomingResources,drawAppletIncoming,presentNotesBootCover,notesBootCoverActive,revokeNotesBootCoverCandidate,readSuspendedCapture:suspendedCapture.read,readRetainedApplicationCapture:suspendedCapture.readRetained,setResumeCoveredOwner(owner:string|null){resumeCoveredOwner=owner;},retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){document.removeEventListener('visibilitychange',pauseNotesBootCover);nvidiaBanner.dispose();hackLdnBanner.dispose();stockScreens.dispose();notesIntro.dispose();notesBootCover.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
+ return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,setAppletEntryCovered,preparedStockPair,notesFooterCloseResources,notificationsFooterCloseResources,manualFooterCloseResources,appletIncomingResources,drawAppletIncoming,presentNotesBootCover,notesBootCoverActive,revokeNotesBootCoverCandidate,readSuspendedCapture:suspendedCapture.read,readRetainedApplicationCapture:suspendedCapture.readRetained,setResumeCoveredOwner(owner:string|null){resumeCoveredOwner=owner;},retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){document.removeEventListener('visibilitychange',pauseNotesBootCover);nvidiaBanner.dispose();hackLdnBanner.dispose();stockScreens.dispose();notesIntro.dispose();notesBootCover.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
 }

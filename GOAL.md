@@ -3,6 +3,18 @@
 Updated 10 October 2026. Fetched GitHub version `c767757` is integrated through
 reviewed merge `b84e1b2`. Primary local main remains untouched at `5ee6fd7`.
 
+10 October return-banner update: reviewed worker a4802b8 integrates31fe8c0.
+Notes/Notifications footer closes now retire the retained primary and gate its
+replacement until accepted uncovered HOME handoff, preserving wallpaper and
+global clock. This is a capture-fitted boundary, not recovered native dispatch.
+Clean equivalent c85b9b6 passes build/typechecks with2,627 full-test passes and
+the unchanged missing historical Camera PNG failure. First/repeat footer closes
+and separate B/HOME recover visibly. Four chronological overview sheets show
+HOME without its selected graphic/label before the later return; exact growth
+cadence is not established. Latest muted Helium preview is3028 on MacBook.
+See [return-banner evidence](docs/applet-return-banner-delivery-2026-10-10.md).
+All four whole flows remain fail/unproven. Earlier preview/gap entries are history.
+
 Latest human report also requires top-row exit animations and consistent
 tap/pre-open responses for Notes, Friends, Notifications, Browser and Miiverse.
 Opening coverage alone does not close this work. Capture each complete

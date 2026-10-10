@@ -10,6 +10,24 @@ muted. On10 October the human authorized the MacBook screen instead of
 disconnected Sidecar. Verify actual owned-window placement before inputs;
 the prior Sidecar/Dell instruction remains history for earlier captures.
 
+## Footer return banner, 10 October
+
+Reviewed integration31fe8c0 retires only the Notes/Notifications primary after
+accepted footer outgoing completion. Existing close-controller handoff gates
+fresh activation; wallpaper and global HOME clock continue without reset. The
+exact native footer-return caller is untraced, so this remains capture-fitted.
+No guessed duration or new counter is introduced. Independent review19fb8d7b
+passes442 tests with12 existing skips. Clean c85b9b6 passes production build
+and pre/post typechecks; full2,627pass with one unchanged Camera PNG failure.
+First/repeat muted MacBook footer closes and separate B/HOME recover. All four
+overview sheets show HOME without selected graphic/label before later return;
+this does not establish continuous growth or native timing. Completed audit
+7b0d4b19 preserves eight unchanged originals and four zero-audio movies. All
+four final closer sheets are inspected; only Notes repeat resolves some initial
+enlargement. Muted Helium now previews3028.
+[Evidence and remaining defects](applet-return-banner-delivery-2026-10-10.md).
+All four whole scenarios remain fail/unproven; moving remains excluded.
+
 ## Notifications footer close, 10 October
 
 Reviewed `0196913` retains the outgoing Notifications owner and paired LCDs

@@ -2,6 +2,28 @@
 
 ## Animation completion, 9 October 2026
 
+10 October current assignment: return-banner worker a4802b8 is frozen and
+integrated31fe8c0 after independent GPT-6.1 Sol high APPROVE19fb8d7b and visible
+first/repeat footer closing plus B/HOME regressions. Its five owned files match
+clean c85b9b6 production verification. Coordinator alone owns integration,
+muted MacBook GUI and frozen3028 serving/Helium preview. No implementation
+worker is active. notifications_movie_audit, GPT-6.1 Sol high, completed private
+report7b0d4b19 for four new close movies/four HOME PNGs without GUI/source/build/
+server access. Coordinator inspected all four final chronological sheets.
+The fitted return boundary does not prove native caller/timing or whole1:1.
+[Evidence](../applet-return-banner-delivery-2026-10-10.md). Assignments below
+are historical where superseded.
+
+Next bounded assignment,10 October: `applet-return-banner-20261010/3ds-idea`,
+branch `codex/applet-return-banner-20261010`, base5df8132. GPT-6.1 Sol high worker
+traces the captured normal-footer HOME banner return-order gap and may correct
+only source-supported Notes/Notifications host lifecycle boundaries. It reserves
+`src/os/home-banner-host.ts`, relevant banner lifecycle helpers, `src/os/screens.ts`,
+`src/scene/console-scene.ts`, focused tests and one new handoff. No other active
+worker shares these paths. No invented delay, wallpaper/global-clock reset or
+opening/B/HOME/caller/folder/other-applet change. Coordinator alone integrates,
+operates GUI and recaptures; frozen18137f4/3027 remains unchanged.
+
 10 October: Notifications4e767fc is reviewed and integrated0196913; worker
 is frozen. Fresh independent GPT-6.1 Sol high reviewer approves exact SHA,
 353tests341pass0fail12skip. Coordinator's clean18137f4 production checks finish

@@ -55,13 +55,29 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `0196913e9f59ccafa9e3d67e0ada695832a35bba`. Reviewed Notifications4e767fc is integrated0196913. Committed src/public/tests match frozen clean18137f4. The unrelated user system.ts edit remains unstaged. All four whole scenarios remain unaccepted. |
+| HEAD | `31fe8c09c2f28521138ae5e827b32bf9dbd861b9`. Reviewed return-banner worker a4802b8 integrates as31fe8c0. Committed src/public/tests match frozen clean c85b9b6. The unrelated user system.ts edit remains unstaged. All four whole scenarios remain unaccepted. |
 
 Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9ddf309`. Date-group bind `5c0199f4` recaptured (fill `(255,161,0)`). Slider source-gap `e6bcca9f` (Grok 4.6 **APPROVE** `90be3135`). Photo-crop source-gap `b75f275d` (Grok 4.6 **APPROVE** `9d3237b6`). Date-text source-gap `82a16d1c` (Grok 4.6 **APPROVE** `62457c68`). Selection source-gap `9c431d1d` (Grok 4.6 **APPROVE** `43173720`). Settings-footer X-scale `99a4362e` (Grok 4.6 **APPROVE**; recapture `d6ce9913` Settings **954→630**). Remaining Settings third then `TxtSet` source-size `9580641b` (Grok 4.6 **APPROVE** `3e9c5170`; recapture `3bdc3192` Settings **630→0**). Welcome p5 live-feed source-gap `679db045` (Grok 4.6 **APPROVE** `f14c2241`). Sound Next `Guid1TxtW` source-size `269e8757` (Grok 4.6 **APPROVE**; recapture `a5b8aa9e` interior **195→0**). Sound volume live-slider source-gap `11f3cb3c` (Grok 4.6 **APPROVE** `c4f0fb90`). Sound Span live-spectrum source-gap `57b04572` (Grok 4.6 **APPROVE** `7614c291`). Sound birds held-offset source-gap `9e335f3a` (Grok 4.6 **APPROVE** `f67628f3`). Sound battery underbar-partition source-gap `76a3635a` (Grok 4.6 **APPROVE** `684a3418`). Sound UnderBar Line01 partition source-gap `6db7e7ef` (Grok 4.6 **APPROVE** `d0d96201`). Sound empty-entry row 1916 source-gap (Grok 4.6 **APPROVE** `2807aeb5`). Sound first-run guide perimeter compositor source-gap `02a60c52` (Grok 4.6 **APPROVE** `6cc31903`). Sound empty-entry mid `S_BG` constant source-gap `636976ad` **REJECTED** by Grok 4.6 (native is dump `S_BG_Grid` ETC1 checker `(223,215,206)`/`(231,223,215)`, bound on library path only); grid bind `603c5388` (Opus 5.5) recaptured: empty-entry lower **16021→7216**, mid **2255→0** / **1024→0**; Grok 4.6 **APPROVE-WITH-NITS** `de5c6445`. Leftover queue `cccf162e`. Camera Welcome p3 `TxtDlg` **1079** source-gap `57af95dd` (Grok 4.6 **APPROVE-WITH-NITS** `7e8e13a1`; host-gate probe `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`). Sound upper 316 labelled `14533857` (volume overhang **42** + `S_Back_U` **274**; Grok 4.6 **APPROVE** `daa93bca`). Camera large thumbs `PicL_SD` bind `89efb7a3` (recapture `6499f0af` lower **10158→8958**). Camera Slideshow header source-size `04f3d6bf` (recapture `5d25e2a5` header **837→0**). Camera thumb interiors 56×42 sample source-gap `84d636e3` (Grok 4.6 **APPROVE** `2258268a`). Product `acabb7af` kept. y=177 `22e8b0a4` (Grok 4.6 **APPROVE** `9fe268f8`). Slider 57 (Grok 4.7 **APPROVE-WITH-NITS** `444ba8e0`). GitHub `/Volumes/DeveloperStorage/GitHub/3ds-idea` on `dev-size-opt` is not this site.
 
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
 
 ## Serving
+
+Reviewed a4802b8 integrates as31fe8c0 after exact independent APPROVE19fb8d7b
+and visible first/repeat Notes/Notifications closing plus separate B/HOME
+regressions. Clean equivalent c85b9b6 finishes full2627pass/1unchanged
+historicalCameraPNGfail/101skip/1TODO; pre/post nonincremental typechecks and
+build pass. Frozen build aEg9jXOavjjbFPFVedKpR serves3028, PID35167. Dedicated
+muted Chrome20594/window136 on MacBook visibly recovers selected HOME. Four
+close movies and four HOME PNGs are complete. Coordinator inspected all four
+overview and final closer sheets: HOME upper has no selected graphic/label
+before later return in all four; only Notes repeat resolves some enlargement.
+Completed audit7b0d4b19 confirms eight unchanged originals, four zero-audio
+movies and198 extracted samples/214 generated PNGs decoding. PTS/selector
+qualifications remain explicit. Boundary is
+explicitly capture-fitted, not recovered native dispatch or timing. Muted
+Helium29728/window173 now visibly renders3028 on MacBook650,150,1102x700;
+preview PNG SHA1fcbb7f0. Old18137f4/3027 source/assets/build remain frozen fallback.
 
 Notifications0196913 is committed after exact review534afb45 and visible
 first/repeat open/footer-close in mutedChrome20594 on authorized MacBook.
@@ -1391,6 +1407,15 @@ NAND writes between isolated copies. Nintendo Zone remains skipped.
 
 ## Seats
 
+Return-banner worker a4802b8 is frozen and integrated31fe8c0. Independent
+GPT-6.1 Sol high review19fb8d7b approves the exact worker with442pass/12skip.
+Coordinator alone owns integration, GUI and frozen c85b9b6/3028 checks/serving;
+muted Helium now uses3028 and old18137f4/3027 remains frozen fallback. notifications_movie_audit,
+GPT-6.1 Sol high, completed report7b0d4b19 for the four new close recordings/
+four HOME PNGs without GUI/source/build/server ownership. Independent doc
+review approved the draft93028f7b and final audit delta4710245c. No
+implementation worker is active. Earlier seat assignments below are history.
+
 10 October current seats: coordinator owns integration, evidence, frozen clean
 18137f4 production3027 and all GUI. notifications_exact_review, GPT-6.1 Sol high,
 completed exact4e767fc APPROVE with independent341pass/12skip. Worker4e767fc is
@@ -1625,19 +1650,21 @@ Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camer
 
 ## Next
 
-Notifications0196913 and Notes85b0ab9 are integrated and browser-inspected;
-latest frozen equivalent18137f4 is available in muted Helium3027 on MacBook.
-Finish a bounded source-backed correction for the observed HOME banner return
-order before treating either footer exit as complete. Native Notifications
-recording shows HOME exposure before the selected banner; browser samples show
-the banner already present under the departing cover. Do not invent a native
-delay from movie timestamps or generalize gated applet returns. Preserve the
-unrelated user system.ts edit and the frozen served source/assets/build.
-Raw browser LCD/receipt export remains unavailable through the current approved
-route; do not change grants or security settings. Exact native input/motion,
-Friends/Browser/Miiverse normal-footer exits and matched Manual/folder/HOME
-regressions remain open. All four whole flows remain fail/unproven. Moving stays
-excluded. Earlier Next paragraphs below are history.
+Reviewed return-banner boundary integrates31fe8c0. Clean equivalent c85b9b6
+passes production checks apart from the unchanged historical Camera PNG.
+First/repeat Notes/Notifications footer closes and separate B/HOME regressions
+are visibly inspected on muted MacBook Chrome3028. All four overview sheets
+show HOME without the selected graphic/label before its return. Final closer
+sheets and immutable-media audit7b0d4b19 are complete and inspected. Final
+eight-doc review4710245c approves the evidence; commit only those owned paths.
+Muted Helium3028 visibly renders HOME on MacBook. No guessed delay was added;
+the exact footer-return caller remains untraced and this boundary is capture-fitted.
+Preserve the unrelated user system.ts edit and frozen served source/assets/build.
+Existing first-party fixed-pose LCD downloads are not a current same-paint
+motion/receipt stream; no grants/security changes after refusal. Exact native
+input/motion, Friends/Browser/Miiverse normal-footer exits and matched
+Manual/folder/HOME regressions remain open. All four whole flows remain
+fail/unproven. Moving stays excluded. Earlier Next paragraphs are history.
 
 [Notes delivery evidence](docs/notes-footer-close-delivery-2026-10-09.md) is committed9872f4c.
 Notes85b0ab9 is committed and live in muted Helium3026; corrected full checks

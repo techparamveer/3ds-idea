@@ -1,5 +1,19 @@
 # Feature map — 1:1 queue
 
+10 October return-banner delivery: exact reviewed a4802b8 integrates31fe8c0.
+Notes/Notifications footer returns retire the old primary and hold replacement
+activation through existing accepted HOME handoff, without wallpaper/global
+clock reset or invented delay. This caller boundary remains capture-fitted.
+Clean c85b9b6 build/typechecks pass; full2,627pass with one unchanged historical
+Camera PNG failure. First/repeat closes and separate B/HOME recover on muted
+MacBook. All four final sheets show HOME without selected graphic/label before
+later return; precise growth cadence is unproven. Audit7b0d4b19 confirms eight
+unchanged originals and four zero-audio movies. Latest muted Helium is3028.
+All AN-01..AN-04 whole flows still fail; other three normal-footer exits and
+matched Manual/folder/HOME regressions remain open. See
+[return-banner evidence](applet-return-banner-delivery-2026-10-10.md).
+Earlier open banner-order and preview entries below describe their own builds.
+
 10 October Notifications close delivery: reviewed4e767fc integrates0196913,
 retaining the main-list owner and paired LCDs until accepted opaque cover.
 Native assets stay unchanged; its own Decide5 and HOME-common fitted sequencing

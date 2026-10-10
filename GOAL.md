@@ -3,6 +3,15 @@
 Updated 10 October 2026. Fetched GitHub version `c767757` is integrated through
 reviewed merge `b84e1b2`. Primary local main remains untouched at `5ee6fd7`.
 
+Latest delivery through `8700945` adds reviewed same-paint Resume capture
+diagnostics, not animation timing changes. Full checks have 2,696 passes and
+one unchanged missing Camera fixture failure; typecheck and build pass. Two
+new real HOME/touch-Resume recordings save 600 pairs each, with source-pose
+audit pending. The separate old-build touch audit closes 584 first and 497
+partial-repeat pairs. All three fixed endpoint diagnostics still fail whole
+pairs; no repeat-ready evidence exists. See [current identities and limits](docs/animation-verification-checkpoint-2026-10-10.md#same-paint-resume-diagnostics-and-touch-capture).
+Do not claim native cadence or a whole-flow pass from these diagnostics.
+
 The latest [native motion recapture](docs/animation-verification-checkpoint-2026-10-10.md#native-motion-recapture)
 visibly completes Health suspension and touchscreen Resume twice on the muted
 MacBook. Both videos decode and show Azahar; five own PNGs decode at 400x480.

@@ -1,5 +1,25 @@
 # Animation fidelity workflow
 
+## Same-paint touch verification
+
+Keep reviewed worker3fd9ed9/buildYVjVi3jRi1zYUhIFY5NkX frozen while3031 serves
+the integrated diagnostic source. Two real HOME/touch-Resume cycles are closed
+and saved at 600 pairs each. Freeze and audit every original before selecting
+chronological stages. Require actual same-paint Resume metadata, valid paired
+receipts and trusted input inclusion; do not infer terminal readiness from a
+later browser screenshot. Preserve duplicates and unsupported stages as null.
+Inspect raw boundary sheets before sealing endpoints and fixed native v5
+comparisons. No old capture gains the new source field retroactively.
+
+The old-build 584/497 touch audit is closed separately. Its repeat lacks Resume
+and ready evidence. Three presealed comparisons fail whole pairs; ready lower
+alone is static threshold evidence. Native held-Shift/touch and browser
+stationary physical-HOME/touch dispatch are different host paths. Source
+cadence, shared epoch and frozen HOME remain adaptations. Do not add timing
+or runtime changes without a demonstrated visible defect. All helpers use
+GPT-6.1 Sol high; only coordinator drives the muted MacBook GUI. See [current
+capture identities and checks](animation-verification-checkpoint-2026-10-10.md#same-paint-resume-diagnostics-and-touch-capture).
+
 ## Native held-input recapture
 
 The exact private bundle and screenshot-grounded held-touch Open route now

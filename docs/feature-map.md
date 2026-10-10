@@ -1,5 +1,12 @@
 # Feature map — 1:1 queue
 
+AN-04 latest delivery through `8700945` preserves same-paint Resume diagnostics.
+Two new HOME/touch-Resume cycles save 600 pairs each; raw source-pose audit is
+pending. Separate old-build touch evidence closes 584 first and 497 partial
+repeat pairs. Three fixed whole-pair comparisons fail; repeat-ready remains
+null. This adds captured pressed input and diagnostics, not native timing or
+fidelity acceptance. AN-01 through AN-04 remain fail. See [current checkpoint](animation-verification-checkpoint-2026-10-10.md#same-paint-resume-diagnostics-and-touch-capture).
+
 AN-04 now has [first/repeat native Health suspension and touchscreen Resume](animation-verification-checkpoint-2026-10-10.md#native-motion-recapture)
 with five own 400x480 endpoint PNGs and correctly scoped silent videos. This
 recovers native input and adds observed motion, not a whole-flow pass. Native

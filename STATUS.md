@@ -63,7 +63,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `eb43a435c5877851dc512874937f50a776627070`. Reviewed test-only6ccba35 and additive correctioneb43a43 are pushed to draft PR7. Independent reviews14250141/dcb0970f approve the test and exact seven-doc delta82177e48 separately. Baseline dialog7 precedes lower8; controlled mutation is rejected. No runtime defect established. Full checks2,692pass/1known Camera fixture failure/102skip/1TODO; typecheck/build pass. New build is unserved. Frozen worker6614478/build5pTgJwKjDtqJGe-Um3UEF serves3029, listener31363/session59716. All whole flows fail; human system.ts stays excluded. |
+| HEAD | `8700945981b7ba9fd818149f5790f2a46462d688`. Capture-only source/handoff2ea00db/708036e and test/fullgate ac80a3a/8700945 are independently approved. Reviews8e5fb43d/aefcfa2d/4fff5c0b;51focused and18capture tests pass, fullsuite2696pass/1knownCameraPNGfail/102skip/1TODO; sequential typecheck/build pass. Committed src/public/tests match frozen worker3fd9ed9/buildYVjVi3jRi1zYUhIFY5NkX exactly. All77 assets already hydrated, exact-OID/size/magic verified; no asset copy. All four whole flows fail. Human system.ts untouched/excluded. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -77,6 +77,59 @@ Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9dd
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
 
 ## Serving
+
+New diagnostic candidate at8700945: policy30ad200a precedes planned3031 launch,
+navigation and input. Worker3fd9ed9/buildYVjVi3jRi1zYUhIFY5NkX/freeze943ab56d
+is released and independently approved by4fff5c0b. Coordinator verifies243
+buildfiles/71,933,361bytes/treec855b62a and16log hashes; reviewer additionally
+verifies all77 actualGLBs. Runtime/public match approved source; finaltests
+54d76e7b includes only reviewed restoration-signature correction. Output root
+is browser-touch-resume-20261010/browser-diagnostics-v2. Port3031 was free.
+Candidate server is live: listener63894/session43844, same frozen build ID,
+HTTP200 and process cwd verified. Initial unquoted curl URL failed shell glob
+expansion without request; quoted retry succeeds. Both candidate recordings
+are now closed and fully saved:600/600 pairs each, frame-limited. Each actual
+physical HOME and stationary500ms touch Resume occurs while fresh UI reports
+recording. Ready Health is observed after automatic stop; its inclusion in
+the raw window remains for audit, not assumed. The repeat is saved after the
+context transition, with final browser path live-lcd-3dedc945-154a-449e-bfa9-66da8b4b0f04-0600.
+No recorder is active. Originals are frozen for the separate read-only
+audit-diagnostics-sol-high-v2 reservation; old exports stay unchanged.
+Only coordinator drives
+muted dedicated Chrome on the MacBook, currentwindow136 at650,150,1102x700.
+Current display inventory confirms only built-in1800x1169. Earlier servers
+and all source/build/original exports remain unchanged.
+
+Historical touch verification at a724248, superseded by8700945 above, started
+the unchanged frozen footer build
+5pTgJwKjDtqJGe-Um3UEF on loopback3030, listener57384/session29608, with new
+browser-touch-resume-20261010/browser-v1 exports. Existing
+3029 serving/build/exports and native v5 originals remain immutable. The new
+policy precedes launch/navigation/input; HTTP200/build ID/cwd/listener verify.
+Both new recordings are closed and fully saved: first584/584 pairs and
+repeat497/497 pairs, each byte-limited. The first trusted ledger includes
+physical HOME and touchscreen Resume. In the repeat, the recorder reaches its
+limit before the actual Resume touch after a context transition; preserve it
+as partial evidence, not a complete recorded Resume. Actual subsequent browser
+observation reached ready Health. Inputs were stationary500ms requested Cua
+clicks, not20-step gestures. The then-new read-only audit was reserved under
+browser-touch-resume-20261010/audit-sol-high-v1. No recorder is active.
+Only coordinator drives the dedicated muted Chrome on the MacBook. Source
+diagnostics work is reserved separately on codex/health-resume-diagnostics-20261010
+under /Users/paramveer/.codex/worktrees/health-resume-diagnostics-20261010/3ds-idea,
+base a724248. Worker owns capture-only console-scene.ts Resume serialization,
+focused tests and its named handoff. Capture-only commit d9b4a18 has51 focused
+passes, nonincremental typecheck and a production build pass after replacing
+the worker's own dependency symlink with an APFS clone of the same donor.
+Build yxuVETpiy4-0vizBemf9Z remains unserved. Independent Sol-high source/test
+review8e5fb43d approves d9b4a18 and handoff42f38bd; integrated2ea00db/708036e
+have identical committed src/public/tests trees. The worker then held a proposed
+exact-OID local LFS hydration/full-check/freeze reservation in its own checkout,
+not source changes. Final verification found all77 GLBs already hydrated;
+no hydration occurred, and8700945 releases that completed reservation.
+No UI/state/timing, asset, shared docs or
+frozen checkout edits. Reviewer remains read-only. This reservation supersedes
+the earlier no-reservation statements below.
 
 Latest held-HOME capture is closed. Policy952e0cd8 changes only private HOME
 binding toShift and screenshot path before exact-bundle launch. PID44218 uses
@@ -1823,6 +1876,23 @@ NAND writes between isolated copies. Nintendo Zone remains skipped.
 
 ## Seats
 
+At8700945 source/test/fullgate work is complete and frozen, all finite source
+worker handles closed. Sol-high reviews8e5fb43d/aefcfa2d/4fff5c0b approve exact
+scopes. Sol-high offline worker resume_capture_audit_high owns only new private
+audit-diagnostics-sol-high-v2 for both closed600-pair candidate recordings.
+Reviewer resume_review_sol_high owns independent old touch evidence review
+only, under review-sol-high-v1. No shared GUI/server/source/original writes.
+Coordinator owns3031serving, integration and PR7. No source reservation is open.
+
+Historical at708036e, superseded by8700945: GPT-6.1 Sol high implementation
+worker prepared full checks and build freeze in health-resume-diagnostics-20261010.
+Its proposed hydration was unnecessary; final verification found all77 GLBs
+already hydrated. The reservation is released with source/build frozen.
+Source/test review8e5fb43d is closed with approval,51tests and typecheck pass.
+GPT-6.1 Sol high offline audit worker owns only frozen new browser touch
+exports; freeze93ac272c covers1081triples/3243files. Coordinator alone owns
+integration, GUI, serving and PR7. Old source/build/exports stay immutable.
+
 Final closure at c3f74d5: all three GPT-6.1 Sol high helpers are complete.
 Independent capture review dd508474 and immutable eight-document commit review
 60b3a2c7 approve integrity/coverage/diagnostics and exact58d264b..c3f74d5 diff
@@ -2192,6 +2262,21 @@ Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camer
 
 ## Next
 
+Capture-only Resume diagnostics and full checks are independently reviewed,
+integrated and pushed through8700945. Frozen worker3fd9ed9/buildYVjVi3jRi1zYUhIFY5NkX
+serves3031; all77 GLBs were already hydrated and verified without asset copies.
+Both actual physical-HOME/touch-Resume cycles are closed600/600 saved. Audit
+new source poses, trusted inputs and ready-window inclusion before approving
+chronological selectors or comparisons. Preserve duplicates and missing stages.
+Separate old touch audit114ecb70 closes1081pairs/3243unchanged originals, with
+partial497 repeat lacking Resume/ready. Root checks129 hashes and opens ten
+raw sheets, exact boundaries and three comparisons. Independent evidence
+reviewf13d0356 approves bounded reporting; coherent documentation closure
+remains. Do not borrow new source fields for
+old exports or infer a draw-order fault from weak visual thresholds. All four
+whole flows remain fail. Earlier Next below is history; native evidence and
+no-repeated-closed-fix constraints remain. See current same-paint checkpoint.
+
 Held-Shift HOME and touch Resume visibly complete twice in isolated native
 Health. Phase audit5e76c3e9 and fixed endpoint report5fd6c0f1 are closed.
 Root verifies729 audit and36 comparison checksums,53 original files and their
@@ -2201,8 +2286,8 @@ withdrawal, footer absence, HOME departure, retained dim Health and full-bright
 Health are observed. No runtime ordering correction is justified. Native raw
 intermediate phases and matched browser touch/cadence remain missing.
 Independent evidence review161dab1e and six-doc review02af21f1 approve the
-bounded checkpoint. Next commit/push it to PR7,
-then capture the same browser touch route with chronological raw LCDs and
+bounded checkpoint a724248, now committed/pushed with draft PR7 updated.
+Next capture the same browser touch route with chronological raw LCDs and
 source diagnostics. Manual triage9d5a29a7 reproduces Camera60/9 and historical
 Browser60/16 but finds no source-backed correction. Do not repeat its closed
 B02/pitch/cutoff work or create a fix worktree from those counts. No runtime

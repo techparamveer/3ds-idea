@@ -1,5 +1,82 @@
 # Animation verification checkpoint, 10 October 2026
 
+## Same-paint Resume diagnostics and touch capture
+
+Reviewed capture-only source `2ea00db`, test correction `ac80a3a` and full-check
+handoff `8700945` are pushed to draft PR7. Independent Sol-high reviews
+`8e5fb43d`, `aefcfa2d` and `4fff5c0b` approve source, tests and freeze separately.
+The scene preserves the Resume pose from its own compositor paint through
+screenPaint, paired receipt and recorder serialization, including restoration
+paints. No new sample, UI, state, asset or animation timing change is introduced.
+Source details and exact checks are in the [diagnostic handoff](workstream-handoffs/health-resume-diagnostics-20261010.md).
+
+Supporting checks include 51 focused passes and 18 independent capture-test
+passes. Sequential full checks have 2,696 passes, one unchanged missing private
+Camera PNG failure, 102 skips and one TODO. Nonincremental typecheck and
+production build pass. The missing fixture is not weakened or substituted.
+Worker `3fd9ed9`, build `YVjVi3jRi1zYUhIFY5NkX`, has frozen build manifest
+`943ab56d`. The coordinator verifies all 243 build files, 71,933,361 bytes,
+tree `c855b62a`, BUILD_ID and 16 log hashes. The independent reviewer also
+verifies all 77 already-hydrated GLBs against tracked OIDs, sizes and glTF
+magic. Earlier proposed hydration was unnecessary; no asset copy or download
+occurred. Committed src/public/tests trees match the frozen worker exactly.
+The unrelated human `system.ts` edit is neither included nor built.
+
+Policy `30ad200a` and the candidate identity declaration precede loopback3031
+serving, navigation and input. Listener63894/session43844 serves the frozen
+candidate, with a separate browser-diagnostics-v2 output root. Dedicated Chrome
+PID20594/window136 has --mute-audio and verified MacBook bounds. Normal HOME
+selection and actual lower Open reach ready Health. Two real physical-HOME and
+touchscreen-Resume cycles each save all 600 frame-limited pairs. Both actions
+occur while fresh UI reports recording. Ready Health is observed after the
+automatic stops, so inclusion of terminal readiness is an audit question.
+The repeat is saved after a context transition. No recorder remains active.
+Fresh source-pose and chronological audit is pending; no new comparison follows
+from the UI observations. Old builds and original exports remain immutable.
+
+Separately, the old-build touch audit `114ecb70`, manifest `20a5149f`, closes
+1,081 pairs, 3,243 unchanged originals and 2,167 directory inventories.
+All 2,162 PNGs pass CRC and two independent full-RGBA decoders. The coordinator
+rehashes the originals and all 129 derived checksums, with no issues. First
+session `1fd119d1` saves 584 pairs and includes physical HOME down/up and touch
+Resume down/up. Repeat `b8a7bed7` saves 497 pairs but contains only HOME.
+Its later actual Resume is outside the recording. Repeat Resume and ready
+selectors remain null; no repeat-ready comparison or count is invented.
+
+The coordinator opens seven chronological raw sheets, three unscaled boundary
+sheets and exact first lower25/26 before approving proposal `c9f3186b`.
+Seal `509bceca` fixes the three diagnostics before comparison, with native v5
+own PNG crops, unscaled browser LCDs, empty masks and maximum RGB delta2.
+
+| Fixed native/browser pair | Upper pixels over2 | Lower pixels over2 | Upper/lower maximum |
+| --- | ---: | ---: | --- |
+| First paused2e4bd858 / first26 | 11,671 | 37,324 | 255/255 |
+| Repeat paused185488ff / repeat25 | 17,014 | 37,334 | 255/255 |
+| First ready7fc2cb50 / first401 | 18,177 | 0 | 49/2 |
+
+All three annotated comparison sheets are coordinator-inspected after report
+closure. Paused HUD/window/artwork and lower population/placement differences
+remain. Ready upper artwork epochs differ; ready lower alone meets a static
+threshold. First footer withdrawal346, absence355 and HOME departure360 precede
+ready401. Held Resume samples335..344 are present. No nearest-pose selection,
+shift, alignment, fit, clock/population exclusion or result-based reselection
+occurs. Visible dialog thresholds do not establish a draw-order fault. The
+existing real-pixel baseline and mutation control remain authoritative.
+Independent old-evidence review `f13d0356` approves these bounds, separately
+rehashing all 3,243 originals and 129 outputs, decoding all 2,162 PNGs and
+recomputing all six screen counts. This is not native fidelity acceptance.
+
+Private artifacts are under
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261009/opus-completion/browser-touch-resume-20261010/`.
+Old browser-v1/audit-sol-high-v1 and new browser-diagnostics-v2/
+audit-diagnostics-sol-high-v2 have separate identities. Requested stationary
+500ms Cua holds are not measured native holds. Native video is compressed, not
+raw intermediate LCD phases. Receipt-driven cadence, shared source epoch,
+frozen HOME and portfolio differences remain adaptations. All four whole flows
+remain fail/unproven; exact input/cadence, other-app/compact Resume, top-row,
+populated-folder and Manual acceptance remain incomplete. Audio is unverified
+while muted. All helpers use GPT-6.1 Sol high; root model/tier is not tool-set.
+
 ## Native motion recapture
 
 At coordinator eb43a43, the exact private native-folder-slow bundle recovers

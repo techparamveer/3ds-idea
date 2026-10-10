@@ -1,5 +1,22 @@
 # Workstream Registry
 
+## Same-paint Resume diagnostics, 10 October 2026
+
+All current helpers use GPT-6.1 Sol high under the latest human instruction.
+Implementation worker `resume_sol_high` completes source d9b4a18, test3489c33
+and fullgate3fd9ed9 in its own health-resume-diagnostics-20261010 worktree.
+Reviewed integration2ea00db/ac80a3a/8700945 is pushed to PR7. Source/public/
+tests/.next stay frozen; no source reservation is open. Coordinator alone
+serves3031 and operates the dedicated muted MacBook browser.
+
+Offline worker `resume_capture_audit_high` owns only private
+browser-touch-resume-20261010/audit-diagnostics-sol-high-v2 for the two new
+600-pair source-pose recordings. It cannot write originals or operate GUI.
+Reviewer `resume_review_sol_high` independently reviews the separate closed
+old-build audit-sol-high-v1 evidence, preserving its incomplete497-pair repeat.
+Both write only their named private outputs. Old sources/builds/captures stay
+immutable. See [source, checks and current evidence](../animation-verification-checkpoint-2026-10-10.md#same-paint-resume-diagnostics-and-touch-capture).
+
 ## HOME dialog ordering, 10 October 2026
 
 Worker resume_sol_high, GPT-6.1 Sol high, owns

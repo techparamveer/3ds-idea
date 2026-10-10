@@ -257,3 +257,59 @@ Health HOME/Resume recordings then determine visible progress. Native
 footer-only departure, exact retained bounds/softness, RGB/pixels, live epochs,
 cadence, input equivalence, shortcuts, all other apps and audio remain open.
 Passing source checks does not accept any whole scenario.
+
+## Transient-source correction, 10 October
+
+Replacement worker GPT-6.1 Sol high commits source/tests as `cf52bd5`,
+following immutable origin correction `a03504e` and handoff `31b1687`.
+Only `src/os/screens.ts` and `tests/health-resume-retained-live.test.mjs`
+change in this correction. No native resource, reducer, scene, asset or audio
+change is introduced. Local STATUS reconciliation remains unstaged.
+
+The compositor now samples and promotes a Resume source only when existing
+HOME gesture, navigation motion, input contact and tile control activity have
+settled. The receipt rechecks that eligibility. Transient input cannot replace
+the preceding accepted source. Its stable origin and existing owner/capture/
+resource generation checks remain unchanged, so an ordinary footer down paint
+keeps the accepted source until release instead of retiring it on pointer down.
+Existing tile widgets must be idle with retired controllers and no pressed
+pose before a new source can be accepted. Moving/pickup/drop behavior is not
+implemented or accepted by this slice.
+
+`R/red-07-transient.log` preserves three actual compositor failures on the
+preceding source: a pressed/canceled lower texture marker 201, a pending
+source promoted under footer contact marker 202, and an actual footer
+down/up texture marker 203 each replaced the previously accepted marker 127.
+These tests use real system touch/physical HOME dispatch and inspect the
+texture passed to the lower departure compositor. No HOME repaint intervenes
+between cancel or footer release and physical HOME/Resume.
+
+`green-05-transient.log` passes 14/15 with one fixture limitation in a legacy
+grid up-out route. That route exposed a missing ordinary title icon when it
+continued through legacy tap behavior. The final up-out case uses actual
+footer down/up-out; grid press/cancel remains covered. `green-06-transient.log`
+passes 15/15. `green-07-controls.log` also passes 15/15 after adding the enabled
+controls path from ordinary queued tile launch through real native update
+polls, HOME, footer down paint and up. The fixture supplies complete registered
+title-icon metadata, retaining the existing stand-in raster and renderer.
+
+`focused-05-transient.log` preserves a motion-fixture setup failure: its
+density change moved the viewport origin, which correctly retired the source.
+`focused-06-transient.log` preserves the next fixture setup failure, an
+uppercase title ID key where the real ordinary-icon reader expects lowercase.
+The final fixture uses the native reader's lowercase keys and existing
+`setHomeDensity`/`settleHomeNavigation` operations at density 3 to 4 and back,
+with the same stable viewport. It verifies that neither a motion paint nor a
+pending stable source receipt under motion can replace the accepted texture.
+No motion state is fabricated and no native cadence is inferred.
+
+Final `R/focused-07-transient.log` passes 178/178, no skips, across the same
+16 files listed above. `R/typecheck-06-transient.log` passes nonincremental
+typecheck. Whitespace and explicit staged path checks pass. All finite
+command handles are reaped. Independent review of exact source range
+`c058ec9..cf52bd5` is pending. Full tests, shader supporting check, production
+build, GLB preflight and freeze are authorized only after that source approval.
+The worker has not operated a server, browser or Azahar. The old production
+build remains frozen. Separate native footer departure, retained bounds and
+pixels, native clock/cadence, input equivalence and muted audio remain open;
+this source correction establishes no native scenario pass.

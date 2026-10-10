@@ -106,13 +106,23 @@ export function homePauseEntryPresentation(motion: HomeEntryMotion | null, reduc
   });
 }
 
-/** Source SceneIn holds alpha zero through normalized frame 20, then enters
- * through 40. Mapping it to pause 0..20 is a host alignment adaptation, not a
- * recovered native caller epoch or a fit to the movies' whole duration. */
+/** Capture-supported ordering adaptation: publish the first authored upper
+ * entrance pose when retained dimming finishes, before lower HOME enters.
+ * Other poses share the existing lower source phase. Native epochs are unknown. */
 export function homePauseHudSceneInFrame(motion: HomeEntryMotion | null, reduced = false): number | null {
   if (motion?.identity.kind !== 'pause') return null;
-  return reduced ? HOME_ENTRY_HUD_LAST_FRAME
-    : Math.min(HOME_PAUSE_ENTRY_LAST_FRAME, motion.elapsedUpdates) * HOME_ENTRY_HUD_LAST_FRAME / HOME_PAUSE_ENTRY_LAST_FRAME;
+  const frame = homePauseLowerPresentation(motion, reduced)?.fadeFrame ?? HOME_ENTRY_HUD_LAST_FRAME;
+  // Both upper SceneIn roots hold through source 20; 21 is their first
+  // visible integer pose. Lower HOME still has authored alpha zero at 20.
+  return frame === HOME_PAUSE_ENTRY_LAST_FRAME ? frame + 1 : frame;
+}
+
+/** Native entry requests Appear before AppPause. Sharing the existing source
+ * dim phase removes the fitted late start without inventing a caller clock. */
+export function homePauseWindowAppearFrame(motion: HomeEntryMotion | null): number | null {
+  if (motion?.identity.kind !== 'pause') return null;
+  const frame = homePauseEntryPresentation(motion)?.material[0].frame ?? HOME_PAUSE_ENTRY_LAST_FRAME;
+  return Math.min(10, frame);
 }
 
 /** The native lower controller applies frame 40 before stopped and idle, then

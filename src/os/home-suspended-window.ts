@@ -3,7 +3,7 @@ import type { MenuState } from './state';
 import { nativeMessageOverride, nativePaneParentPath, type AnimationBinding, type NativePixels } from './native-layout.ts';
 import type { NativeLayoutRenderer } from './native-renderer';
 import { sampleSystemHomeApplicationTransition } from './system-home-application-transition.ts';
-import type { HomeEntryMotion } from './home-entry-motion.ts';
+import { homePauseWindowAppearFrame, type HomeEntryMotion } from './home-entry-motion.ts';
 import type { SuspendedCapture } from './notes-suspended-capture.ts';
 
 export function homeSuspendedApplication(state: MenuState) {
@@ -22,8 +22,8 @@ export function selectedSuspendedApplication(state: MenuState) {
 }
 
 /** The original G_Wndw Appear request is independent of ScaleUpDown's target.
- * Its late host phase is capture-aligned on the existing receipt-backed clock;
- * the native caller epoch remains untraced. */
+ * Its source phase follows the guarded pause candidate; native epochs remain
+ * untraced and the source-phase alignment is an adaptation. */
 export function homeSuspendedWindowEntryFrame(state:MenuState,capture:SuspendedCapture,motion:HomeEntryMotion|null):number|undefined {
  const application=retainedSuspendedApplication(state);
  if(!application||state.system?.dialog||sampleSystemHomeApplicationTransition(state)
@@ -32,7 +32,7 @@ export function homeSuspendedWindowEntryFrame(state:MenuState,capture:SuspendedC
   ||motion.identity.captureGeneration!==capture.generation)return undefined;
  if(!Number.isSafeInteger(capture.generation)||capture.generation<0
   ||!Number.isSafeInteger(motion.elapsedUpdates)||motion.elapsedUpdates<0)throw new RangeError('Invalid suspended window entry pose');
- return Math.min(10,Math.max(0,motion.elapsedUpdates-10));
+ return homePauseWindowAppearFrame(motion)??undefined;
 }
 
 /** Capture-fitted exit policy; the native disappearance start epoch is untraced. */

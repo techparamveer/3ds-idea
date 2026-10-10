@@ -7,6 +7,19 @@ import { validateHomeResumeLowerAssets } from '../src/os/home-pause-lower.ts';
 
 const identity = { owner: 'health-safety:1', captureGeneration: 2, resourceGeneration: 3 };
 
+test('only the current visible footer terminal can begin departure, including reduced motion',()=>{
+ for(const reduced of [false,true]){
+  const p=createHomeResumePresentation(),destination={};
+  for(let frame=0;frame<14&&!reduced;frame++){const pose=p.sample(identity,frame,true,null);assert.equal(pose.kind,'footer');assert.equal(pose.frame,frame);assert.equal(p.present(pose,identity,true,null),true);}
+  const terminal=p.sample(identity,14,true,null,reduced);assert.equal(terminal.kind,'footer');assert.equal(terminal.frame,14);
+  assert.equal(p.present(terminal,identity,false,null),false);
+  const retry=p.sample(identity,15,true,destination,reduced);assert.equal(retry.kind,'footer');assert.equal(p.present(terminal,identity,true,null),false);
+  assert.equal(p.present(retry,identity,true,null),false,'changed pair rejects terminal');
+  const current=p.sample(identity,16,true,destination,reduced);assert.equal(p.present(current,identity,true,destination),true);
+  const departure=p.sample(identity,17,true,destination,reduced);assert.equal(departure.kind,'departure');assert.equal(departure.frame,reduced?40:0);
+ }
+});
+
 test('a destination change between sample and receipt rebases the unpresented source frame', () => {
   const presentation = createHomeResumePresentation(), destination = {};
   const first = presentation.sample(identity, 100, true, null);
@@ -24,7 +37,12 @@ test('a destination change between sample and receipt rebases the unpresented so
 
 test('a late native pair releases reduced terminal only through its own sampled receipt', () => {
   const presentation = createHomeResumePresentation(), destination = {}, replacement = {};
+  const footer=presentation.sample(identity,99,true,null,true);
+  assert.equal(footer.kind,'footer');assert.equal(footer.frame,14);
+  assert.equal(presentation.present(footer,identity,true,null),true);
+  assert.equal(presentation.ready(identity),false,'footer terminal cannot release native input');
   const pending = presentation.sample(identity, 100, true, null, true);
+  assert.equal(pending.kind,'departure');
   assert.equal(pending.frame, 40);
   assert.equal(presentation.present(pending, identity, true, destination), false);
   assert.equal(presentation.ready(identity), false);

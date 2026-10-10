@@ -59,6 +59,8 @@ async function fixture(run) {
       drawImage(source) { if (source.marks) surface.marks = source.marks.map(mark => mark.slice()); },
       createLinearGradient: () => ({ addColorStop() {} }),
       getImageData(_x, _y, width, height) { const bytes = new Uint8ClampedArray(width * height * 4); bytes.fill(readback); return { width, height, data: bytes }; },
+      createImageData(width,height){return {width,height,data:new Uint8ClampedArray(width*height*4)};},
+      putImageData(image){surface.marks=[['pixels',image.width,image.height,image.data[0]]];},
     }, { get: (target, key) => key in target ? target[key] : () => {} });
     surface.getContext = () => ctx; return surface;
   }
@@ -90,7 +92,13 @@ async function fixture(run) {
     } });
   let now=10000;
   const paint = (state, receipt = true, {allowFailure=false,verification}={}) => {
-    events.length = 0; const result = screens.paint(state, new Date(0), now++,verification);
+    events.length = 0; let result = screens.paint(state, new Date(0), now++,verification);
+    // These regressions target departure; the footer suite owns its independent
+    // visible-pair barrier. Complete that setup before sampling departure.
+    while(result?.resume?.kind==='footer'){
+      assert.equal(screens.presentHomeEntryMotion(state),true);
+      events.length=0;result=screens.paint(state,new Date(0),now++,verification);
+    }
     if(!allowFailure)assert.equal(screens.stockFailure(), null, String(screens.stockFailure()));
     const presented=receipt&&screens.presentHomeEntryMotion(state);
     return { result, presented, events: events.slice(), upper: screens.nativeTop.marks.slice(), lower: screens.bottom.marks.slice() };

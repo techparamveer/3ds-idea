@@ -337,7 +337,17 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   }
   return true;
  }
- function footer(ctx:Context,state:MenuState,reduced=false,entrySceneInFrame?:number,launchSceneOutFrame?:number,launchDecideFrame?:number,pauseSceneInFrame?:number){
+ function footer(ctx:Context,state:MenuState,reduced=false,entrySceneInFrame?:number,launchSceneOutFrame?:number,launchDecideFrame?:number,pauseSceneInFrame?:number,resumeSceneOutFrame?:number){
+  if(resumeSceneOutFrame!==undefined&&(!Number.isInteger(resumeSceneOutFrame)||resumeSceneOutFrame<0||resumeSceneOutFrame>14||getHomeFooter(state)?.right!=='resume'))throw new RangeError('Invalid HOME Resume footer owner/frame');
+  if(resumeSceneOutFrame!==undefined){
+   const clip=renderer.packs.launcher.animations.LncBtmBtn_02_SceneOut,source=renderer.packs.launcher.resourceSources?.animations?.LncBtmBtn_02_SceneOut;
+   const tracks=clip?.tracks.filter(track=>track.target==='N_Scene_00');
+   if(source?.titleId!=='0004003000009802'||source.path!=='launcher_LZ.bin/anim/LncBtmBtn_02_SceneOut.bclan'||source.sha256!=='df95bfcc74135a116fe14b39604cdd1300197e48b2c864989d3b40d35f13cf1d'
+    ||clip?.frames!==15||clip.loop||!clip.childBinding||JSON.stringify(clip.groups)!=='["G_Scene_00"]'||clip.tracks.length!==26
+    ||JSON.stringify(tracks?.map(track=>[track.binding,track.interpolation,track.property,track.keys.map(key=>[key.frame,key.value,key.slope])]))!==JSON.stringify([
+     ['pane','hermite','translation.y',[[0,0,-2.2857143878936768],[14,-32,0]]],['pane','hermite','alpha',[[0,255,-18.214284896850586],[14,0,0]]],
+    ]))throw Error('Native HOME Resume footer source unavailable');
+  }
   if(entrySceneInFrame!==undefined&&(!Number.isInteger(entrySceneInFrame)||entrySceneInFrame<0||entrySceneInFrame>HOME_ENTRY_FOOTER_LAST_FRAME))throw new RangeError('Invalid HOME footer SceneIn frame');
   if(launchSceneOutFrame!==undefined&&(!Number.isInteger(launchSceneOutFrame)||launchSceneOutFrame<0||launchSceneOutFrame>14))throw new RangeError('Invalid HOME launch footer SceneOut frame');
   if(launchDecideFrame!==undefined&&(launchSceneOutFrame===undefined||!Number.isInteger(launchDecideFrame)||launchDecideFrame<0||launchDecideFrame>5))throw new RangeError('Invalid HOME launch footer Decide frame');
@@ -382,9 +392,12 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   if(launchSceneOutFrame!==undefined&&!renderer.packs.launcher.animations.LncBtmBtn_02_SceneOut)throw Error('Native HOME launch footer exit unavailable');
   if(launchDecideFrame!==undefined&&!renderer.packs.launcher.animations.LncBtmBtn_02_Decide)throw Error('Native HOME launch footer Decide unavailable');
   if(retainedCloseDecide&&!renderer.packs.launcher.animations.LncBtmBtn_02_Decide)throw Error('Native software-close footer Decide unavailable');
-  // Capture-fit direct binding keeps the compact ChangeDw departure on its
-  // authored scene member, preserving the separately settled button channels.
-  const bindings=applicationFooterExit
+  // Resume's settled Decide5 and direct scene binding are host adaptations;
+  // the original button feedback epoch has not been recovered.
+  // The compact close branch separately uses its capture-fitted ChangeDw.
+  const bindings=resumeSceneOutFrame!==undefined
+   ?[binding('LncBtmBtn_02_SceneIn',15),binding('LncBtmBtn_02_Decide',5,['G_BtnW_R_02']),{...binding('LncBtmBtn_02_SceneOut',resumeSceneOutFrame),childBinding:false}]
+   :applicationFooterExit
    ?[binding('LncBtmBtn_02_SceneIn',15),binding('LncBtmBtn_02_Decide',5,['G_BtnB_L_03']),{...binding(footerPose.clip,footerPose.frame),childBinding:false}]
    :applicationFooterReturn
     ?[binding('LncBtmBtn_02_SceneIn',15),{...binding(footerPose.clip,footerPose.frame),childBinding:false}]

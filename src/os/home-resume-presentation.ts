@@ -1,6 +1,7 @@
 export const HOME_RESUME_LAST_FRAME = 40;
+export const HOME_RESUME_FOOTER_LAST_FRAME = 14;
 export type HomeResumeIdentity = Readonly<{ owner: string; captureGeneration: number; resourceGeneration: number }>;
-export type HomeResumePose = Readonly<{ identity: HomeResumeIdentity; frame: number; observedMs: number; destination: object | null }>;
+export type HomeResumePose = Readonly<{ identity: HomeResumeIdentity; kind: 'footer' | 'departure'; frame: number; observedMs: number; destination: object | null }>;
 export type HomeResumeBackgroundPresentation = Readonly<{
  skeletal: readonly [Readonly<{ clip: 'BannerBG_SceneOut'; frame: number }>];
  material: readonly [Readonly<{ clip: 'BannerBG_AppPause'; frame: 20 }>, Readonly<{ clip: 'BannerBG_AppRestart'; frame: number }>];
@@ -19,25 +20,27 @@ export function homeResumeBackground(frame:number):HomeResumeBackgroundPresentat
 /** Source frames advance once per successful visible pair, not by wall-clock
  * duration. This host cadence and the shared source epoch are adaptations. */
 export function createHomeResumePresentation(){
- let identity:HomeResumeIdentity|null=null,frame=-1,observedMs=-Infinity,complete=false,pending:HomeResumePose|undefined;
+ let identity:HomeResumeIdentity|null=null,kind:'footer'|'departure'='footer',frame=-1,observedMs=-Infinity,complete=false,pending:HomeResumePose|undefined;
  return {
   sample(next:HomeResumeIdentity,now:number,eligible:boolean,destination:object|null,reduced=false):HomeResumePose|undefined {
    if(!next.owner||!Number.isSafeInteger(next.captureGeneration)||next.captureGeneration<0
     ||!Number.isSafeInteger(next.resourceGeneration)||next.resourceGeneration<0||!Number.isFinite(now))throw new RangeError('Invalid HOME resume identity');
-   if(!sameHomeResumeIdentity(identity,next)){identity=Object.freeze({...next});frame=-1;observedMs=-Infinity;complete=false;pending=undefined;}
+   if(!sameHomeResumeIdentity(identity,next)){identity=Object.freeze({...next});kind='footer';frame=-1;observedMs=-Infinity;complete=false;pending=undefined;}
    if(!identity||!eligible||complete)return undefined;
-   return pending??=Object.freeze({identity,frame:reduced?HOME_RESUME_LAST_FRAME:Math.min(HOME_RESUME_LAST_FRAME,Math.max(0,frame+(now>observedMs?1:0))),observedMs:now,destination});
+   const last=kind==='footer'?HOME_RESUME_FOOTER_LAST_FRAME:HOME_RESUME_LAST_FRAME;
+   return pending??=Object.freeze({identity,kind,frame:reduced?last:Math.min(last,Math.max(0,frame+(now>observedMs?1:0))),observedMs:now,destination});
   },
   present(pose:HomeResumePose,next:HomeResumeIdentity|null,eligible:boolean,destination:object|null):boolean {
    if(pose!==pending)return false;
    if(!eligible||!sameHomeResumeIdentity(identity,next)||pose.destination!==destination){pending=undefined;return false;}
    frame=pose.frame;observedMs=pose.observedMs;pending=undefined;
-   if(frame===HOME_RESUME_LAST_FRAME&&destination!==null)complete=true;
+   if(kind==='footer'&&frame===HOME_RESUME_FOOTER_LAST_FRAME){kind='departure';frame=-1;observedMs=-Infinity;}
+   else if(kind==='departure'&&frame===HOME_RESUME_LAST_FRAME&&destination!==null)complete=true;
    return true;
   },
   active(next:HomeResumeIdentity|null){return sameHomeResumeIdentity(identity,next)&&!complete;},
   ready(next:HomeResumeIdentity|null){return sameHomeResumeIdentity(identity,next)&&complete;},
   revoke(){pending=undefined;},
-  reset(){identity=null;frame=-1;observedMs=-Infinity;complete=false;pending=undefined;},
+  reset(){identity=null;kind='footer';frame=-1;observedMs=-Infinity;complete=false;pending=undefined;},
  };
 }

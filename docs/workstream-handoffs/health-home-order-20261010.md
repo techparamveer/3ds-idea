@@ -140,10 +140,10 @@ Logs are under
 Focused command:
 `node --test tests/home-entry-motion.test.mjs tests/home-pause-lower.test.mjs tests/home-pause-window-entry-live.test.mjs tests/home-suspended-window-entry-policy.test.mjs tests/home-pause-window-entry.test.mjs tests/home-suspended-background.test.mjs tests/home-application-transition.test.mjs tests/native-home-controls-paint.test.mjs tests/animation-flow-pause-compact.test.mjs`.
 
-Source-identified, delivered, implemented and focused-tested evidence is
-reported here. Independent review, full tests/build and a separately frozen
-candidate belong to the coordinator, followed by first/repeat ordinary Health
-HOME suspension recapture and affected regressions on the muted MacBook.
+Source-identified, delivered, implemented and tested evidence is reported here.
+The post-review production gate below supersedes the initial focused-only
+handoff. First/repeat ordinary Health HOME suspension recapture and affected
+regressions on the muted MacBook remain coordinator work.
 The served dimming source/assets/tests/build and earlier exports remain frozen.
 No worker server, browser, Azahar, audio comparison or native capture ran.
 
@@ -154,3 +154,44 @@ These remain necessary host or portfolio choices, not native fidelity proof.
 No new non-native artwork is introduced. Exact native epochs, cadence, input
 equivalence, retained-image bounds, endpoint pixels, audio and shortcut Resume
 remain open. This slice does not accept a scenario or resolve Resume.
+
+## Reviewed production candidate
+
+The coordinator reports exact independent approval
+`5ef3143c99627a8d601162f21b6b357c6d9dcd4be0ff48b231dc9474094da300`
+for source/tests `8b36555..8112d47` and initial handoff `f7c6d9d`.
+The reviewer ran 190 focused and 15 supplemental tests plus typecheck.
+Runtime integrates/pushes as `2ea5068`; the initial handoff integrates/pushes
+as `cf91eb97550ffc4532a93180a958b3a31a924812`. The coordinator then authorized
+full worker checks and a production build without further source changes.
+
+- `glb-preflight.log` verifies all 77 tracked GLBs have valid glTF magic and
+  SHA-256 hashes equal to HEAD's LFS oids. All were already hydrated; no
+  hydration or asset edit was needed. The three production GLB hashes match
+  the preceding frozen dimming candidate.
+- `npm-test.log`: 2,667 pass / 1 fail / 101 skip / 1 TODO, 2,770 tests,
+  29.40 seconds. The sole failure is the unchanged absent private Camera PNG
+  at `/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/camera-3d-badge-sdmc-recapture-20261005/browser/lower.png`,
+  required by `tests/camera-date-group.test.mjs:44`. This is a failed full
+  suite, not an all-green gate. No test was weakened, skipped or changed.
+- `typecheck-full-gate.log`: `npm run typecheck -- --incremental false`
+  passed after review.
+- `check-shader.log`: `npm run check:shader` passed with required validation
+  attempted and OK, no diagnostics. Shaders and materials were not changed.
+- `build.log`: `npm run build` passed with Next.js 16.3.4/Turbopack. Build ID
+  is `MHwPOu1oLhQcWrZ9Ke1TE`. This used this worker's locally copied
+  dependencies, with no dependency symlink or temporary root override.
+- Source/assets/tests remain byte-identical to reviewed `8112d47`; git diff,
+  whitespace and relative-link checks pass. The committed source/public/tests
+  trees are `6e1d38772865730397e48a4ce607a15ea3776552`,
+  `7c838c9ca5e672dacea4c2484f69ca8c3426d5f4` and
+  `589b05f3353a5b986263416996657ea321e2c4a6`, respectively.
+
+The serving lease is released for this worker's build
+`MHwPOu1oLhQcWrZ9Ke1TE`. Source, public, tests and `.next` are frozen for
+coordinator-only recapture. No worker server was started. Private `freeze.json`
+records the final handoff HEAD, tree identities, build-manifest and full `.next`
+hashes, production GLB hashes and failed-suite details. All finite worker
+command handles are reaped. The old dimming tree/build and all original
+exports remain untouched. Browser/native inspection and strict whole-scenario
+acceptance remain open; passing source checks do not establish native fidelity.

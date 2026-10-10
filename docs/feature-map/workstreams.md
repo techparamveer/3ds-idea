@@ -2,6 +2,15 @@
 
 ## Animation completion, 9 October 2026
 
+10 October receipt capture assignment: `applet_return_banner`, GPT-6.1 Sol high,
+works only in `live-lcd-recorder-20261010/3ds-idea` on
+`codex/live-lcd-recorder-20261010`, base159142d. Reserved paths are a new bounded
+local-only receipt capture module, `src/scene/console-scene.ts`, focused tests
+and one handoff. Existing export endpoint/security guards remain unchanged.
+No OS behavior/native assets/GUI/server/build ownership. This addresses the
+demonstrated static-repaint-only UI export gap, not native timing acceptance.
+Coordinator alone operates the muted MacBook browser and Azahar.
+
 10 October current assignment: return-banner worker a4802b8 is frozen and
 integrated31fe8c0 after independent GPT-6.1 Sol high APPROVE19fb8d7b and visible
 first/repeat footer closing plus B/HOME regressions. Its five owned files match

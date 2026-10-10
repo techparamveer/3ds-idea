@@ -1,5 +1,11 @@
 # Feature map — 1:1 queue
 
+AN-01 latest [capture checkpoint](toprow-capture-2026-10-10.md) closes browser
+integrity for3047 first/repeat Notes and Notifications opening/Close pairs.
+Fresh native13 own PNGs decode; all12 attempted videos are wrong-scope
+and excluded by closed native audit994de9f4. Matched motion comparison stays open.
+This is evidence progress only; all whole flows remain fail.
+
 AN-04 latest delivery through `8700945` preserves same-paint Resume diagnostics.
 Two new HOME/touch-Resume cycles save 600 pairs each. Closed auditfb075b04
 verifies both input ledgers, same-paint source poses and actual raw ready

@@ -1,5 +1,12 @@
 # Goal: finish the four remaining native animation flows
 
+Latest [top-row checkpoint](docs/toprow-capture-2026-10-10.md) adds first/repeat
+Notes and Notifications captures, not an animation fix. Browser integrity is
+closed and independently reviewed; all12 fresh native movies are wrong-scope
+and excluded by closed native audit994de9f4. Native motion and matched
+comparisons remain open. All four flows
+remain fail. Use GPT-6.1 Sol high helpers and muted MacBook testing.
+
 Updated 10 October 2026. Fetched GitHub version `c767757` is integrated through
 reviewed merge `b84e1b2`. Primary local main remains untouched at `5ee6fd7`.
 

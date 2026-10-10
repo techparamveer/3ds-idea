@@ -63,7 +63,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `965f2055f8296182de73ee82256a2a699eedcffd`. Reviewed seven-doc checkpoint965f205, exact patchb780d713/reviewc470aa3d, records source/test/fullgate through8700945 and old touch evidence reviewf13d0356. New600-pair first/repeat source-pose auditfb075b04 is closed; independent new-evidence review remains pending. Reviews8e5fb43d/aefcfa2d/4fff5c0b approve capture-only source/test/freeze; fullsuite2696pass/1knownCameraPNGfail, sequential typecheck/build pass. Source/public/tests still match frozen worker3fd9ed9/buildYVjVi3jRi1zYUhIFY5NkX. Human system.ts untouched/excluded. All whole flows fail. This HEAD-row replacement is mandatory post-commit metadata, separate from the reviewed patch. |
+| HEAD | `204b5a55f894d816a03032b3b5ce9fee03537b85`. New diagnostic audit closure204b5a5 records reportfb075b04, evidence review6821fc77 and seven-doc review2ad6a84a/patch569e8c7b. Both600-pair windows include actual inputs, source poses and ready Health; all four fixed whole-pair comparisons fail. Prior source/test/freeze8e5fb43d/aefcfa2d/4fff5c0b and old-touch evidencef13d0356 remain separate. Source/public/tests still match frozen3fd9ed9/buildYVjVi3jRi1zYUhIFY5NkX; full2696pass/1knownCameraPNGfail, typecheck/build pass. Human system.ts untouched/excluded. This HEAD-row reconciliation is mandatory post-commit metadata outside the reviewed patch. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -77,6 +77,40 @@ Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9dd
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
 
 ## Serving
+
+Current AN-01 capture serving at204b5a5: policy50bcf350 precedes owned3031
+stop and fresh3032 start. Only session43844/listener63894 stops, exit130;
+3031 has no listener. Frozen worker3fd9ed9/buildYVjVi3jRi1zYUhIFY5NkX now
+serves3032, listener67749/session6591, with separate toprow-current-20261010/
+browser-v1 output. HTTP200, BUILD_ID and identical committed source/public/
+tests trees verify. Dedicated Chrome20594 retains --mute-audio; actual
+window136 is650,150,1102x700 on the sole built-in1800x1169 MacBook display.
+All eight new opening/Close windows are now stopped and fully saved,3047 pairs
+total: Notes322/256 first and422/286 repeat, Notifications403/331 first and
+427/600 repeat. Last600 is frame-limited; terminal inclusion is for raw audit,
+not inferred from subsequent visible HOME. Coordinator ledger is private
+toprow-current-20261010/coordinator-browser-run-v1.md. No recorder is active.
+Old source/build/original exports stay immutable. Only coordinator drives GUI.
+Reference index6e5761b6/d54b4fda closes75 unchanged prior originals. Its missing
+native-repeat finding describes old evidence only. Fresh native policy79b9444f
+precedes exact private-bundle launch69260. Notes and Notifications each have
+first/repeat selection, focused opening and ready-app footer Close observations,
+12 attempted silent display videos plus13 own PNGs under native-v1.
+All12 movies decode9027 frames; all60 fixed scope samples, including exact
+last frames, show Codex, not Azahar. Root opens all four scope sheets and
+excludes all12 from native motion evidence. Closed native audit994de9f4,
+manifest3c2f04fa/checksums545a88fc preserves all50 native originals unchanged.
+All13 own PNGs decode at400x480 with matching CRC/
+independent RGBA checks. GUI observations alone do not establish motion.
+Coordinator observed each terminal on the MacBook. GUI Quit/Yes completed;
+PID69260 is absent. Only temporary screenshotPath is restored after quit;
+Volume0/Null1/Static2 remain. No native timing or pixel acceptance is inferred.
+Browser auditac2f5bd2/manifest45537a2c/checksumsa4b03d0c closes3047 pairs,
+9141 unchanged originals and6094 independent CRC/dual PNG decodes. All24
+pointer events and eight terminals occur inside their windows, including
+frame-limited final600 Close. Proposal3cd3d531 is not sealed or compared.
+Native audit helper resume_sol_high has closed native-audit-sol-high-v1 with
+all finite handles closed. No GUI/source/build/original writes occurred.
 
 Post-checkpoint diagnostic audit update at965f205: all1,200 pairs/3,600
 originals/1,625,021,600bytes and2,400 CRC/independent PNG decodes verify.
@@ -1893,6 +1927,18 @@ NAND writes between isolated copies. Nintendo Zone remains skipped.
 
 ## Seats
 
+AN-01 reference helper resume_sol_high has completed report6e5761b6 and
+indexd54b4fda, with75 old originals unchanged and finite handles closed.
+Browser audit helper resume_capture_audit_high has completedac2f5bd2 and
+released its lease. GPT-6.1 Sol high native audit helper resume_sol_high owns
+only private toprow-current-20261010/native-audit-sol-high-v1, now closed994de9f4.
+Browser evidence review41e040db approves bounded audit integrity only. Reviewer
+resume_review_sol_high owns only private review-sol-high-v1, checking browser
+evidence and the owned checkpoint patch. No comparisons before root chronology
+inspection/approval. Neither helper may write runtime, repository, profile,
+GUI, build or original files. Preserve failed video scope evidence.
+Coordinator owns MacBook GUI and integration; all old freezes remain immutable.
+
 At8700945 source/test/fullgate work is complete and frozen, all finite source
 worker handles closed. Sol-high reviews8e5fb43d/aefcfa2d/4fff5c0b approve exact
 scopes. Sol-high offline worker resume_capture_audit_high completes new private
@@ -2281,6 +2327,26 @@ The integration checkout remains here.
 Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camera Slideshow header 0. Camera Settings third 0. Welcome p5 **7615** live-feed source-gap **APPROVE**. Volume **130** live-slider source-gap **APPROVE**. Span **2314**/**2442** live-spectrum source-gap **APPROVE**. Birds **1558** held-offset source-gap **APPROVE**. Battery `[45,216,85,240]` **1** underbar-partition source-gap **APPROVE**. Line01 `(92,220)` partition source-gap **APPROVE**. Empty-entry row **1916** **APPROVE**. Thumb interiors **846/918** **APPROVE**. Guide perimeter **6072** = **860** dimmed grid + **4416** half + **728** (**144** row + **53** footer + **531** within 2) + **68** fringe; veil **REJECT** `be862ce6`; subsets **APPROVE-WITH-NITS** `d72ab4b1`. Empty-mid **2255**/**1024** → **0**/**0** by grid bind `603c5388` **APPROVE-WITH-NITS** `de5c6445`. p3 `TxtDlg` **1079→1078** after host-gate `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`. Sound upper 316 labelled `14533857` **APPROVE** `daa93bca`. y=177 **320** labelled `22e8b0a4` **APPROVE** `9fe268f8`. Slider **57** **APPROVE-WITH-NITS** `444ba8e0`. Plus-tint strip **1992** kept `ed55865e` **APPROVE** `b6620fa4`. HOME 1-row tail **291** **APPROVE** `f72296ff`. HOME idle Health 1-row left-anchor **23182 / 14754** empty mask (title/wallpaper **12255**, vacant-vs-Settings **7045**, HUD **2328**). **Static still only.** Whole scenarios still fail.
 
 ## Next
+
+Current AN-01 browser integrity is closedac2f5bd2 and independently reviewed
+41e040db. Native audit994de9f4 is closed; owned documentation review is pending.
+All12 fresh movies captured Codex scope
+and are excluded. Do not repeat the recorder route without a decoded live
+Azahar scope check. Own13 native PNGs decode, but endpoints and GUI observations
+are not motion acceptance. Finish native motion scope recovery and chronological inspection,
+then approve named semantic pairs before comparison. No new runtime defect
+is established. See [capture checkpoint](docs/toprow-capture-2026-10-10.md).
+
+At204b5a5 the diagnostic capture audit, independent reviews and documentation
+closure are complete. Preserve source/build/original freezes and do not repeat
+closed Health dialog-order, footer-withdrawal or Manual B02/pitch/cutoff slices.
+Next return to AN-01: matched current-build raw opening/pre-open feedback and
+footer-close coverage for Notes/Notifications, then the explicit native gates
+for Friends/Browser/Miiverse. Their gates are not normal-footer exit evidence.
+Declare fresh capture/output identities before inputs; coordinator alone drives
+muted MacBook GUI. Do not invent a native close path or move-animation scope.
+Native raw intermediate phases/cadence and populated-folder/Manual residuals
+remain open. No worker source reservation is active; all whole flows still fail.
 
 Capture-only Resume diagnostics and full checks are independently reviewed,
 integrated and pushed through8700945. Frozen worker3fd9ed9/buildYVjVi3jRi1zYUhIFY5NkX

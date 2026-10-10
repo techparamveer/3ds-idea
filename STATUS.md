@@ -63,7 +63,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `58d264ba69c52b46c494880da5090ca7479e7d96`. Reviewed retained Resume runtime/provenance/tests/freeze through b64e797 and delivery58d264b are pushed to draft PR7. Frozen worker ed40f3b/build itZdGEQJDzlDwPZnssuUe serves3029. Full suite2687pass/1known Camera fixture fail/101skip/1TODO. Audit181440a5 closes first600/incomplete513/complete repeat519 pairs;12 raw sheets and four fixed comparisons are inspected. No fully black saved LCD occurs. Native footer withdrawal/dialog-before-lower and whole scenarios remain fail. Human system.ts stays excluded. |
+| HEAD | `ddfe288e776a25a12109335777dcb83b26df944b`. Reviewed footer runtime aacd774, provenance22c1581 and frozen-check handoff ddfe288 are integrated. New worker6614478/build5pTgJwKjDtqJGe-Um3UEF has2,692 passes and one known missing Camera PNG failure; typecheck/shader/build pass. Independent review and coordinator verify freeze55898feb and all223 build files. Visual recapture remains pending. Old frozen ed40f3b/build itZdGEQJDzlDwPZnssuUe still serves3029. All whole scenarios fail; human system.ts stays excluded. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -77,6 +77,16 @@ Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9dd
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
 
 ## Serving
+
+Footer build5pTgJwKjDtqJGe-Um3UEF is approved for controlled serving by
+independent fullgate review df4d3f36. Coordinator independently verifies all
+223 files/71,179,757 bytes, tree dac94116, eight logs, four manifests, three
+production GLBs and source approval e99cdb14. Freeze55898feb was generated at
+ed71fd9; worker6614478 adds only the reviewed handoff. Runtime/public/tests
+trees equal integrated ddfe288. No new candidate GUI evidence exists yet.
+Only the coordinator may switch the owned3029 server and open a fresh muted
+browser tab. The old tree/build/exports remain unchanged. Earlier serving
+entries below describe the retained candidate and are history after that switch.
 
 Final retained Resume audit181440a5 closes1,632 triples/4,896 unchanged originals/
 3,264 independent full PNG decodes with zero structural issues. Root independently
@@ -1714,6 +1724,13 @@ NAND writes between isolated copies. Nintendo Zone remains skipped.
 
 ## Seats
 
+Final closure at c3f74d5: all three GPT-6.1 Sol high helpers are complete.
+Independent capture review dd508474 and immutable eight-document commit review
+60b3a2c7 approve integrity/coverage/diagnostics and exact58d264b..c3f74d5 diff
+74f17d4d, not native fidelity. All finite handles are reaped. Only coordinator
+owns frozen serving, GUI and the next footer-withdrawal slice. The local STATUS
+HEAD-row reconciliation is metadata outside that exact commit review.
+
 Current continuation at58d264b: GPT-6.1 Sol high worker resume_sol_high has
 completed full checks/build/freeze at ed40f3b. Reviewer resume_review_sol_high
 approves source b5302b99, test-only policy11bf7038 and full gate c62035d9.
@@ -2075,6 +2092,41 @@ The integration checkout remains here.
 Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camera Slideshow header 0. Camera Settings third 0. Welcome p5 **7615** live-feed source-gap **APPROVE**. Volume **130** live-slider source-gap **APPROVE**. Span **2314**/**2442** live-spectrum source-gap **APPROVE**. Birds **1558** held-offset source-gap **APPROVE**. Battery `[45,216,85,240]` **1** underbar-partition source-gap **APPROVE**. Line01 `(92,220)` partition source-gap **APPROVE**. Empty-entry row **1916** **APPROVE**. Thumb interiors **846/918** **APPROVE**. Guide perimeter **6072** = **860** dimmed grid + **4416** half + **728** (**144** row + **53** footer + **531** within 2) + **68** fringe; veil **REJECT** `be862ce6`; subsets **APPROVE-WITH-NITS** `d72ab4b1`. Empty-mid **2255**/**1024** → **0**/**0** by grid bind `603c5388` **APPROVE-WITH-NITS** `de5c6445`. p3 `TxtDlg` **1079→1078** after host-gate `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`. Sound upper 316 labelled `14533857` **APPROVE** `daa93bca`. y=177 **320** labelled `22e8b0a4` **APPROVE** `9fe268f8`. Slider **57** **APPROVE-WITH-NITS** `444ba8e0`. Plus-tint strip **1992** kept `ed55865e` **APPROVE** `b6620fa4`. HOME 1-row tail **291** **APPROVE** `f72296ff`. HOME idle Health 1-row left-anchor **23182 / 14754** empty mask (title/wallpaper **12255**, vacant-vs-Settings **7045**, HUD **2328**). **Static still only.** Whole scenarios still fail.
 
 ## Next
+
+Footer runtime ba19fd1 and handoffed71fd9 are independently approved and
+integrated as aacd774/22c1581. Committed src/public/tests equal the checked
+worker exactly. Separate build freeze55898feb is independently approved by
+review df4d3f36 and verified by the coordinator. Next, coordinator switches to
+the frozen candidate and captures first/repeat actual HOME/Resume on the muted MacBook. The old
+browser now shows blank content despite its Health accessibility tree; Raise
+does not recover it. Treat this as setup failure, not visible Health or new
+candidate evidence. Use a fresh candidate tab after freeze. New native raw
+attempt stops before Resume with coordinate noWindowsAvailable; two ready/
+paused endpoints are preserved and config restores byte-exactly. Original
+native footer evidence remains unchanged. No new native motion is claimed.
+
+Completed footer source reservation: worker `resume_sol_high` was assigned
+`/Users/paramveer/.codex/worktrees/health-resume-footer-20261010/3ds-idea`, branch
+`codex/health-resume-footer-20261010`, based on c3f74d5. GPT-6.1 Sol high owns
+an actual-input failing regression and bounded pinned footer caller/resource
+trace. The reproduced red test now reserves `src/os/screens.ts`,
+`src/os/home-resume-presentation.ts`, `src/os/firmware-presentation.ts`,
+`tests/home-resume-presentation.test.mjs`,
+`tests/health-resume-retained-live.test.mjs` and the new footer test/handoff.
+No reducer, scene, public asset or `system.ts` edits are reserved. Frozen
+retained worker/build/exports and coordinator source remain untouched.
+Coordinator alone operates muted MacBook GUI and integration; independent
+GPT-6.1 Sol high review follows the candidate.
+
+Current next at c3f74d5: independent audit/doc reviews are closed and both
+delivery58d264b and closurec3f74d5 are pushed to draft PR7. Preserve current
+frozen worker, build and all original exports. Begin the next bounded native
+Resume footer-withdrawal correction from the captured mismatch, with a separate
+worker worktree, actual-input regression and pinned caller/resource trace.
+Use GPT-6.1 Sol high helpers; coordinator alone drives muted MacBook tests.
+Do not guess native delay, reverse opening, invent graphics or accept other
+Resume routes from the Health-only fix. All four whole scenarios remain fail.
+The pending review paragraph below is historical.
 
 Current continuation: final audit181440a5 and coordinator inspection close
 all1,632 exports and fixed comparisons. Preserve sealed selection3959b5fc and

@@ -1,5 +1,14 @@
 # Feature map — 1:1 queue
 
+Latest footer slice integrates reviewed aacd774/22c1581. Source-backed footer
+SceneOut and an accepted absent-terminal pair now precede HOME departure;
+footer-free retained lower pixels prevent reappearance. Focused54 pass and
+full suite2,692pass/1known Camera fixture failure; typecheck/shader/build pass.
+Frozen-check handoff ddfe288 is integrated. Independent review df4d3f36 and
+coordinator verification approve freeze55898feb/build5pTgJwKjDtqJGe-Um3UEF,
+including all223 build files. Candidate serving/recapture remain pending.
+AN-04 and all other whole flows remain fail. See [footer source and adaptations](workstream-handoffs/health-resume-footer-20261010.md).
+
 Current delivery through `b64e797` includes reviewed retained Health Resume
 `dbfcb45`, provenance `ad143a9`, policy repair `cd23059` and freeze/check
 handoff `b64e797`. Actual-compositor black Resume, stale origin and transient

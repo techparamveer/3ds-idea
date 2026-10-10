@@ -1,5 +1,20 @@
 # Animation fidelity workflow
 
+## Resume footer withdrawal
+
+Reviewed aacd774/22c1581 separates original footer SceneOut0..14 from retained
+HOME departure0..40. A current visible paired footer-absent receipt gates the
+second stage; reduced motion also retains two barriers. Pre-footer lower pixels
+avoid replaying the departed footer. The pinned absent-state caller rules out
+ChangeDw. Held HOME epochs, settled Decide5, direct binding and receipt timing
+are adaptations, not recovered native behavior. Supporting marker-canvas tests
+do not prove raster fidelity. Independent review df4d3f36 and coordinator
+verification approve freeze55898feb/build5pTgJwKjDtqJGe-Um3UEF. All223 build
+files, eight logs, four manifests and three production GLBs verify. Full-check
+handoff ddfe288 is integrated. Capture first/repeat actual inputs in this frozen
+build before comparison. Old source/build/exports stay unchanged.
+See [trace, provenance and exact checks](workstream-handoffs/health-resume-footer-20261010.md).
+
 ## Current retained Resume verification
 
 Use GPT-6.1 Sol high for implementation, review and audit helpers under the

@@ -1,5 +1,31 @@
 # Workstream Registry
 
+## Resume footer withdrawal, 10 October 2026
+
+Worker `resume_sol_high` uses GPT-6.1 Sol high in
+`/Users/paramveer/.codex/worktrees/health-resume-footer-20261010/3ds-idea`, branch
+`codex/health-resume-footer-20261010`, base c3f74d5. Initial ownership is the
+actual-input red regression, pinned caller/resource trace and a new footer
+handoff. Actual-input red reproduces premature lower HOME departure. Runtime
+reservation now includes `src/os/screens.ts`, `home-resume-presentation.ts`,
+`firmware-presentation.ts`, existing `tests/home-resume-presentation.test.mjs`
+and `tests/health-resume-retained-live.test.mjs`, plus the new footer test and
+handoff. The two unqualified runtime paths are under `src/os/`.
+No reducer, scene, public asset or `system.ts` edits are reserved.
+Target only the captured native footer withdrawal before HOME departure.
+Do not guess curves/delays or broaden unchanged-origin Health Resume acceptance.
+The served retained worker/build and original captures remain frozen.
+Coordinator alone drives muted MacBook GUI, serving and integration.
+Independent review uses GPT-6.1 Sol high per the latest human instruction.
+
+The reservation is now released. Runtime ba19fd1, provenance ed71fd9 and
+fullgate handoff6614478 integrate as aacd774,22c1581 and ddfe288. Source review
+e99cdb14 and freeze review df4d3f36 approve separately. Coordinator also verifies
+all223 build files and supporting identities in freeze55898feb. Worker source,
+public, tests and .next stay frozen at build5pTgJwKjDtqJGe-Um3UEF. No worker
+operates GUI or serving. Coordinator owns the fresh candidate tab and first/
+repeat actual-input capture; no candidate visual acceptance exists yet.
+
 ## Retained application Resume, 10 October 2026
 
 Current integration `b64e797` includes reviewed runtime `dbfcb45`, provenance

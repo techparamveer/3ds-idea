@@ -1,5 +1,27 @@
 # Animation verification checkpoint, 10 October 2026
 
+## Footer source delivery
+
+Worker ba19fd1/ed71fd9 integrates as aacd774/22c1581 after independent review
+e99cdb14, exact source diff5bfcbcb5. Independent54 tests, typecheck and diff-check
+pass. Worker full suite has2,692pass/1known missing Camera PNG failure/101skip/
+1TODO; typecheck/shader/build pass. Worker fullgate handoff6614478 integrates
+as ddfe288. Independent review df4d3f36 and coordinator verification approve
+freeze55898feb/build5pTgJwKjDtqJGe-Um3UEF. All223 files/71,179,757 bytes, tree
+dac94116, eight logs, four manifests, three production GLBs and source review
+e99cdb14 verify. Freeze records builtFromHead ed71fd9; the later6614478 commit
+changes only the handoff. Production recapture remains pending. No new
+candidate pixel/motion acceptance follows this build approval.
+
+Private footer root is `health-resume-footer-20261010` beside the retained root
+below. Its native-v1/report.md SHA0850d64a preserves a failed new native setup:
+two CRC-decoded400x480 ready/paused PNGs, no Resume coordinate delivery or burst.
+Quit exits0, PID25629 is absent, config restores031bc535 exactly; mute remains
+0/Null1/Static2. The previous12 native footer PNGs remain unchanged. Old browser
+actual content is now blank despite its AX tree and Raise; no ready state is
+accepted from AX alone. The next candidate needs a fresh visibly verified tab.
+All whole scenarios remain fail; audio stays unverified while muted.
+
 ## Retained Resume audit closure
 
 Final report SHA-256:

@@ -9,6 +9,16 @@ or verify the running coordinator model or service tier. Keep independent
 review, separate worktrees and reviewed commits pushed to draft PR7. Every
 GUI test uses the MacBook screen and every 3DS session stays muted.
 
+Footer runtime aacd774 and source handoff22c1581 are independently reviewed
+and integrated. Original footer SceneOut now precedes retained HOME departure
+through a separate accepted absent-terminal pair. ChangeDw is ruled out by
+the pinned caller trace. Focused54 pass; full suite2,692pass/1known missing
+Camera PNG failure/101skip/1TODO; typecheck/shader/build pass. Frozen-check
+handoff ddfe288 is integrated. Independent review df4d3f36 and the coordinator
+verify freeze55898feb, all223 build files, logs, manifests and production GLBs.
+Browser recapture is next. Held HOME pixels, settled Decide5, direct
+binding and receipt cadence are adaptations. No new whole-flow pass is claimed.
+
 Final browser audit `181440a5` closes all1,632 pairs,4,896 unchanged originals
 and3,264 independently decoded PNGs. Coordinator inspects12 raw boundary/
 endpoint sheets and four fixed native comparison sheets. First/repeat Resume

@@ -25,6 +25,7 @@ source=source.replace("'./native-screen-input'",JSON.stringify(url(compile('nati
 source=source.replace("'./notes-boot-cover'",JSON.stringify(new URL('../src/os/notes-boot-cover.ts',import.meta.url).href));
 source=source.replace("'./applet-title-entry-assets'",JSON.stringify(new URL('../src/os/applet-title-entry-assets.ts',import.meta.url).href));
 source=source.replace("'./notes-footer-close-assets'",JSON.stringify(new URL('../src/os/notes-footer-close-assets.ts',import.meta.url).href));
+source=source.replace("'./notifications-footer-close-assets'",JSON.stringify(new URL('../src/os/notifications-footer-close-assets.ts',import.meta.url).href));
 const {createStockScreenPresentation,drawStockMediaImage}=await import(url(source));
 let graphicsSource=compile('portfolio-screens');
 const graphicsDependencies={

@@ -44,7 +44,7 @@ test('0x101 is the shared flag constructor; ungated 3/2 misses direct, titles bi
   assert.equal(ungatedDirect, false, 'ungated 3/2 still misses the old lineAlignment===0 term');
   assert.match(painter, /T_NewsTitleB_00:\{text:row\.label\},T_NewsTitleF_00:\{text:row\.label\}/);
   const section=painter.slice(painter.indexOf("renderer.packs['notification-messages']"), painter.indexOf("options.font?.draw(bottom,view.text"));
-  assert.deepEqual(section.match(/textSampling[^,]*/g), ["textSampling:'lcd'", "textSamplingPanes:['T_NewsTitleB_00'", "textSampling:'lcd'", "textSamplingPanes:['T_EndB_00']"]);
+  assert.deepEqual(section.match(/textSampling[^,]*/g), ["textSampling:'lcd'", "textSamplingPanes:['T_NewsTitleB_00'", "textSampling:'lcd'", "textSamplingPanes:['T_EndB_00']", "textSampling:'lcd'", "textSamplingPanes:['T_EndB_00']"]);
   assert.match(painter, /textSamplingPanes:\['T_NewsTitleB_00','T_NewsTitleF_00'\]/);
   assert.equal(/azahar-12p4-fit|textCoverageAdaptation/.test(section), false);
 });

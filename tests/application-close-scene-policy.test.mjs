@@ -9,7 +9,7 @@ test('scene freezes unavailable close clocks and routes B or HOME through native
   assert.match(source, /applicationCloseNeedsReadyScreen\(state\.system!\.homeApplicationTransition,screens\.stockStatus\(state\)\)/);
   assert.match(source, /if\(homeClockSuspended\|\|closeNeedsReadyScreen\)/);
   assert.match(source, /applicationCloseAllowsInput\(previous\.system!\.homeApplicationTransition,input,screens\.stockStatus\(previous\)\)/);
-  assert.match(source, /if\(decision==='home'\)\{\s*const cancelled=screens\.cancelNotesFooterClose\(current\),escaped=escapeUnreadyNativeScreen\(current,now\);\s*return cancelled\?releaseSystemInputs\(escaped,now\):escaped;\s*\}/);
+  assert.match(source, /if\(decision==='home'\)\{\s*const cancelled=screens\.cancelNotesFooterClose\(current\)\|\|screens\.cancelNotificationsFooterClose\(current\),escaped=escapeUnreadyNativeScreen\(current,now\);\s*return cancelled\?releaseSystemInputs\(escaped,now\):escaped;\s*\}/);
 });
 
 test('actual scene recovery keeps the ordinary HOME escape and releases input after cancelling a Notes cover', () => {
@@ -31,7 +31,7 @@ test('actual scene recovery keeps the ordinary HOME escape and releases input af
     const run = load({
       commit(mutate) { next = mutate({ phase: 'unavailable' }, 42); },
       nativeScreenInput: () => 'home',
-      screens: { stockStatus: () => 'error', cancelNotesFooterClose: () => cancelled },
+      screens: { stockStatus: () => 'error', cancelNotesFooterClose: () => cancelled, cancelNotificationsFooterClose: () => false },
       escapeUnreadyNativeScreen: (_state, now) => ({ phase: 'home', escapedAt: now }),
       releaseSystemInputs: (state, now) => ({ ...state, releasedAt: now }),
     });

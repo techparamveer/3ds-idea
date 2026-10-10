@@ -42,7 +42,8 @@ test('already-bound Close SceneIn 20 + new_back and row SceneIn 10 / Select 0; u
   assert.match(requestedAnims, /'NewsTopBtn_D_00_SceneIn'/);
   assert.match(requestedAnims, /'NewsWndwNews_D_00_SceneIn'/);
   assert.match(requestedAnims, /'NewsWndwNews_D_00_Select'/);
-  for(const unused of ['NewsTopBtn_D_00_Select', 'NewsTopBtn_D_00_Decide', 'NewsTopBtn_D_00_SceneOut',
+  assert.match(requestedAnims, /'NewsTopBtn_D_00_Decide'/);
+  for(const unused of ['NewsTopBtn_D_00_Select', 'NewsTopBtn_D_00_SceneOut',
     'NewsWndwNews_D_00_Decide', 'NewsWndwNews_D_00_SceneOut']){
     assert.equal(requestedAnims.includes(unused), false, unused);
     assert.ok(news.animations[unused], unused);
@@ -93,12 +94,12 @@ test('already-bound Close SceneIn 20 + new_back and row SceneIn 10 / Select 0; u
   assert.equal(selection.titles['000400300000a002'].packs['packs/notifications/news.json'].layouts.includes('NewsWndwNews_01'), false);
 });
 
-test('painter keeps Close SceneIn 20 + new_back and row SceneIn 10 / Select 0; no Default, Disable, close or fit; lcd on T_EndB_00 and the row titles only', ()=>{
+test('painter retains list bindings and native footer sampling, with Decide 5 only for requested footer close', ()=>{
   assert.match(painter, /renderer\.draw\(bottom,'notifications','NewsTopBtn_D_00',\{bindings:\[\{name:'NewsTopBtn_D_00_SceneIn',frame:20\}\],textSampling:'lcd',textSamplingPanes:\['T_EndB_00'\],overrides:\{T_EndB_00:message\('new_back'\),T_EndF_00:\{\.\.\.message\('new_back'\),singleLineBlockOrigin:'writer-0x110'\}\}\}/);
   assert.match(painter, /renderer\.draw\(bottom,'notifications','NewsWndwNews_D_00',\{textSampling:'lcd',textSamplingPanes:\['T_NewsTitleB_00','T_NewsTitleF_00'\],bindings:\[\s*\{name:'NewsWndwNews_D_00_SceneIn',frame:10\}/);
   assert.match(painter, /\{name:'NewsWndwNews_D_00_Select',frame:view\.data\?\.selectionActive===true&&index===view\.selection\?1:0\}/);
   assert.equal(painter.includes('NewsTopBtn_D_00_Select'), false);
-  assert.equal(painter.includes('NewsTopBtn_D_00_Decide'), false);
+  assert.match(painter, /if\(options\.notificationsFooterClose\)okay=renderer\.draw\(bottom,'notifications','NewsTopBtn_D_00',\{\s*bindings:\[\{name:'NewsTopBtn_D_00_SceneIn',frame:20\},\{name:'NewsTopBtn_D_00_Decide',frame:5,groups:\['G_BtnEnd_00'\]\}\]/);
   assert.equal(painter.includes('NewsTopBtn_D_00_SceneOut'), false);
   assert.equal(painter.includes('NewsWndwNews_D_00_Decide'), false);
   assert.equal(painter.includes('NewsWndwNews_D_00_SceneOut'), false);
@@ -109,7 +110,7 @@ test('painter keeps Close SceneIn 20 + new_back and row SceneIn 10 / Select 0; n
   assert.equal(painter.includes('azahar-12p4-fit'), false);
   assert.equal(painter.includes('nativeMipmaps'), false);
   assert.equal(painter.includes('colorFit'), false);
-  assert.equal(painter.match(/textSampling:'lcd/g).length, 2, 'the row-title and T_EndB_00 allowlists');
+  assert.equal(painter.match(/textSampling:'lcd/g).length, 3, 'the row-title and both normal/closing T_EndB_00 allowlists');
   assert.match(painter, /'NewsWndwNews_D_00',\{textSampling:'lcd',textSamplingPanes:\['T_NewsTitleB_00','T_NewsTitleF_00'\],bindings:/);
 });
 

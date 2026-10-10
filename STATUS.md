@@ -63,7 +63,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `8700945981b7ba9fd818149f5790f2a46462d688`. Capture-only source/handoff2ea00db/708036e and test/fullgate ac80a3a/8700945 are independently approved. Reviews8e5fb43d/aefcfa2d/4fff5c0b;51focused and18capture tests pass, fullsuite2696pass/1knownCameraPNGfail/102skip/1TODO; sequential typecheck/build pass. Committed src/public/tests match frozen worker3fd9ed9/buildYVjVi3jRi1zYUhIFY5NkX exactly. All77 assets already hydrated, exact-OID/size/magic verified; no asset copy. All four whole flows fail. Human system.ts untouched/excluded. |
+| HEAD | `965f2055f8296182de73ee82256a2a699eedcffd`. Reviewed seven-doc checkpoint965f205, exact patchb780d713/reviewc470aa3d, records source/test/fullgate through8700945 and old touch evidence reviewf13d0356. New600-pair first/repeat source-pose auditfb075b04 is closed; independent new-evidence review remains pending. Reviews8e5fb43d/aefcfa2d/4fff5c0b approve capture-only source/test/freeze; fullsuite2696pass/1knownCameraPNGfail, sequential typecheck/build pass. Source/public/tests still match frozen worker3fd9ed9/buildYVjVi3jRi1zYUhIFY5NkX. Human system.ts untouched/excluded. All whole flows fail. This HEAD-row replacement is mandatory post-commit metadata, separate from the reviewed patch. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -77,6 +77,23 @@ Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9dd
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
 
 ## Serving
+
+Post-checkpoint diagnostic audit update at965f205: all1,200 pairs/3,600
+originals/1,625,021,600bytes and2,400 CRC/independent PNG decodes verify.
+Freeze dce4fc30 remains unchanged; coordinator also rehashes all originals.
+Both trusted ledgers contain HOME and Resume down/up. Same-paint footer0..14
+and departure0..40 occur once each, ownerhealth-safety:1/adaptationtrue.
+Both actual ready endpoints are inside the raw windows. Root opens eight
+chronological sheets and six small unscaled boundary sheets before approving
+proposal26fcd721 for only four fixed native v5 diagnostics:paused161/156,
+ready508/502. No transform, fit, exclusions or reselection. Final reportfb075b04/
+manifest7196163a/checksums965b588d closes all148 outputs; root verifies those
+hashes and opens all4 unscaled comparison sheets. Paused161/156 residuals are
+14,004/37,337 and15,582/37,334 upper/lower; ready508/502 are20,694/0 and18,509/0,
+with empty masks/delta2. Ready lower alone is static-only. Independent final
+new-evidence review6821fc77 and seven-doc review2ad6a84a approve bounded
+reporting. Reviewed patch569e8c7b excludes later review-identity substitutions
+and mandatory post-commit metadata. All whole flows fail/audio muted.
 
 New diagnostic candidate at8700945: policy30ad200a precedes planned3031 launch,
 navigation and input. Worker3fd9ed9/buildYVjVi3jRi1zYUhIFY5NkX/freeze943ab56d
@@ -1878,10 +1895,13 @@ NAND writes between isolated copies. Nintendo Zone remains skipped.
 
 At8700945 source/test/fullgate work is complete and frozen, all finite source
 worker handles closed. Sol-high reviews8e5fb43d/aefcfa2d/4fff5c0b approve exact
-scopes. Sol-high offline worker resume_capture_audit_high owns only new private
-audit-diagnostics-sol-high-v2 for both closed600-pair candidate recordings.
-Reviewer resume_review_sol_high owns independent old touch evidence review
-only, under review-sol-high-v1. No shared GUI/server/source/original writes.
+scopes. Sol-high offline worker resume_capture_audit_high completes new private
+audit-diagnostics-sol-high-v2/reportfb075b04 for both600-pair recordings and
+releases its reservation, with all finite audit handles closed.
+Reviewer resume_review_sol_high completes old touch evidence reviewf13d0356
+and exact seven-doc reviewc470aa3d, then new evidence6821fc77 and closure-doc
+review2ad6a84a. All three helpers are complete and release reservations, with
+finite handles closed. No shared GUI/server/source/original writes.
 Coordinator owns3031serving, integration and PR7. No source reservation is open.
 
 Historical at708036e, superseded by8700945: GPT-6.1 Sol high implementation
@@ -2265,9 +2285,14 @@ Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camer
 Capture-only Resume diagnostics and full checks are independently reviewed,
 integrated and pushed through8700945. Frozen worker3fd9ed9/buildYVjVi3jRi1zYUhIFY5NkX
 serves3031; all77 GLBs were already hydrated and verified without asset copies.
-Both actual physical-HOME/touch-Resume cycles are closed600/600 saved. Audit
-new source poses, trusted inputs and ready-window inclusion before approving
-chronological selectors or comparisons. Preserve duplicates and missing stages.
+Both actual physical-HOME/touch-Resume cycles are closed600/600 saved. All
+originals/PNG decodes verify; both inputs and actual ready terminals are in raw
+windows. Same-paint source poses are inspected. Root approves26fcd721 only
+after eight chronological and six unscaled boundary sheets. Four fixed native
+v5 comparisons, root inspection and independent review6821fc77 are closed.
+Exact seven-doc patch569e8c7b is approved by2ad6a84a; publish the coherent
+checkpoint commit/push. No source reservation is open.
+Preserve duplicates and missing stages; no new native cadence claim.
 Separate old touch audit114ecb70 closes1081pairs/3243unchanged originals, with
 partial497 repeat lacking Resume/ready. Root checks129 hashes and opens ten
 raw sheets, exact boundaries and three comparisons. Independent evidence

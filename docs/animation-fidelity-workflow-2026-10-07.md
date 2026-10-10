@@ -2,6 +2,14 @@
 
 ## Same-paint touch verification
 
+Closed auditfb075b04 completes the new-candidate sequence below, preserving all
+1,200 pairs and verifying actual input/ready inclusion and same-paint source
+poses. Root inspects8 chronological/6 boundary/4 fixed comparison sheets and
+checks148 hashes. All four fixed whole-pair diagnostics fail; both ready lower
+LCDs only meet a static threshold. Independent evidence review6821fc77 approves.
+Preserve proposal26fcd721/sealb52d5962 and immutable original exports. Further
+timing or native phase acceptance needs new native evidence, not reselection.
+
 Keep reviewed worker3fd9ed9/buildYVjVi3jRi1zYUhIFY5NkX frozen while3031 serves
 the integrated diagnostic source. Two real HOME/touch-Resume cycles are closed
 and saved at 600 pairs each. Freeze and audit every original before selecting

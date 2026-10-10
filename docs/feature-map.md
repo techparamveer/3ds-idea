@@ -1,8 +1,11 @@
 # Feature map — 1:1 queue
 
 AN-04 latest delivery through `8700945` preserves same-paint Resume diagnostics.
-Two new HOME/touch-Resume cycles save 600 pairs each; raw source-pose audit is
-pending. Separate old-build touch evidence closes 584 first and 497 partial
+Two new HOME/touch-Resume cycles save 600 pairs each. Closed auditfb075b04
+verifies both input ledgers, same-paint source poses and actual raw ready
+endpoints. Four fixed whole-pair comparisons fail; both ready lower screens
+alone meet static delta2. Independent evidence review6821fc77 approves the bounds.
+Separate old-build touch evidence closes 584 first and 497 partial
 repeat pairs. Three fixed whole-pair comparisons fail; repeat-ready remains
 null. This adds captured pressed input and diagnostics, not native timing or
 fidelity acceptance. AN-01 through AN-04 remain fail. See [current checkpoint](animation-verification-checkpoint-2026-10-10.md#same-paint-resume-diagnostics-and-touch-capture).

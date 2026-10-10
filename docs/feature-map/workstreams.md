@@ -17,6 +17,14 @@ old-build audit-sol-high-v1 evidence, preserving its incomplete497-pair repeat.
 Both write only their named private outputs. Old sources/builds/captures stay
 immutable. See [source, checks and current evidence](../animation-verification-checkpoint-2026-10-10.md#same-paint-resume-diagnostics-and-touch-capture).
 
+That diagnostic audit reservation is now released. Final reportfb075b04/
+manifest7196163a closes1,200 pairs and all148 derived checksums; all finite
+audit handles exit. Root inspects8 chronological/6 boundary/4 comparison
+sheets. No source/build/original lease is reopened. Reviewer completes
+independent evidence6821fc77 and exact-doc2ad6a84a approvals, then releases
+its private review reservation with all finite handles closed. Both
+actual inputs/ready and browser source poses are evidenced; whole flows fail.
+
 ## HOME dialog ordering, 10 October 2026
 
 Worker resume_sol_high, GPT-6.1 Sol high, owns

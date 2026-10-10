@@ -2,6 +2,33 @@
 
 ## Same-paint Resume diagnostics and touch capture
 
+Final diagnostic audit `fb075b04`, manifest `7196163a` and checksums `965b588d`
+close the pending new-candidate audit below. All 1,200 pairs, 3,600 originals,
+1,625,021,600 bytes and 2,405 inventories remain unchanged after comparison.
+All 2,400 PNGs pass CRC and two independent full-RGBA decoders. Both 600-pair
+windows contain actual HOME and Resume down/up and visibly ready Health.
+Same-paint owner `health-safety:1`, adaptation:true, has footer0..14 then
+departure0..40 once each. First sequences452..466 and467..507 precede ready508;
+repeat446..460 and461..501 precede ready502. Browser source-pose association is
+now evidenced; native epochs, cadence and identical dispatch remain unsupported.
+
+The coordinator opens eight chronological and six small unscaled boundary
+sheets before approving proposal `26fcd721`. Seal `b52d5962` precedes four
+fixed native v5 comparisons, empty masks/delta2, with no fit or reselection.
+Complete first161/repeat156 have upper/lower residuals14,004/37,337 and
+15,582/37,334, maxima255/255. Ready508/502 have20,694/0 and18,509/0,
+maxima45/2 and46/2. All four annotated comparison sheets are coordinator-
+inspected, and all148 derived checksums verify independently at root. Both
+ready lower screens meet only the static threshold. Paused HUD/window/artwork,
+population/placement and ready upper artwork-epoch differences remain unmasked.
+No new runtime-order or timing fault is inferred. Independent evidence review
+`6821fc77` and exact seven-doc review `2ad6a84a` approve these bounds, not
+fidelity. Their reviewed patch is `569e8c7b`; these pending-review identity
+substitutions and mandatory post-commit HEAD metadata are separate publication
+metadata. All four whole flows fail/audio unverified-muted.
+Full identities and coordinator observations are in the separate private
+audit-diagnostics-sol-high-v2 and diagnostic-coordinator-inspection-v2.md.
+
 Reviewed capture-only source `2ea00db`, test correction `ac80a3a` and full-check
 handoff `8700945` are pushed to draft PR7. Independent Sol-high reviews
 `8e5fb43d`, `aefcfa2d` and `4fff5c0b` approve source, tests and freeze separately.

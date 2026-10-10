@@ -9,9 +9,12 @@ Notes and Notifications cycles. Movie auditda1aca45 and review7f01ad83 close
 bounded ordering evidence, not native epochs or pixel equivalence. A separate
 slowed Notifications opening/Close saves81 own PNGs, audited8ce19f0d. Root
 inspects all nine1x sheets. Two predeclared opaque-cover pairs each match both
-LCDs at delta2 with empty masks, independently reviewedf3e5ef2d. Moving phases,
-matched inputs/cadence and the raw selected-HOME terminal remain open. All
-whole flows remain fail/unproven. Latest helpers/reviews use GPT-6.1 Sol high.
+LCDs at delta2 with empty masks, independently reviewedf3e5ef2d. A longer v2
+run saves 141 own PNGs, audited93f2ea99 and inspected in 15 chronological 1x
+sheets. Selected HOME is saved at Close41 through Close80. The preceding gap
+leaves banner onset/growth and icon-loading order unknown. Moving phases and
+matched inputs/cadence remain open. All whole flows remain fail/unproven.
+The latest model preference is GPT-6.1 Sol high for all work.
 
 AN-04 latest delivery through `8700945` preserves same-paint Resume diagnostics.
 Two new HOME/touch-Resume cycles save 600 pairs each. Closed auditfb075b04

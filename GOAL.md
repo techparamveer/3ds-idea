@@ -7,10 +7,14 @@ first/repeat Notes and Notifications open/ready/footer Close/return observations
 Movie auditda1aca45/review7f01ad83 are closed. A separate slowed Notifications
 trial saves81 own PNGs, audited8ce19f0d and inspected in nine1x sheets. Two
 predeclared opaque-cover pairs match both LCDs at delta2 with empty masks,
-independently reviewedf3e5ef2d. Moving phases, matched input/cadence and a raw
-selected-HOME terminal remain open. All four whole flows remain fail/unproven.
-Use GPT-6.1 Sol high helpers, muted MacBook testing and reviewed commits pushed
-to draft PR7. The12 earlier wrong-scope movies remain excluded.
+independently reviewedf3e5ef2d. The longer v2 run now saves 141 own PNGs and
+includes selected HOME at Close41 through Close80. Audit93f2ea99 verifies every
+original; the coordinator inspects all 15 chronological 1x sheets. The gap
+before Close41 leaves exact banner onset, growth and icon-loading order unknown.
+Moving phases and matched input/cadence remain open. All four whole flows
+remain fail/unproven. Independent review09ae47b6 approves bounded v2 reporting.
+Use GPT-6.1 Sol high, muted MacBook testing and reviewed commits pushed to
+draft PR7. The12 earlier wrong-scope movies remain excluded.
 
 Updated 10 October 2026. Fetched GitHub version `c767757` is integrated through
 reviewed merge `b84e1b2`. Primary local main remains untouched at `5ee6fd7`.
@@ -41,9 +45,9 @@ a deliberate window-only mutation is rejected. No runtime change is justified.
 Preserve sealed evidence and failed fixed comparisons. Whole-flow1:1 remains
 unproven; proceed only from a demonstrated remaining defect.
 
-Latest human model instruction selects GPT-6.1 Sol high for workers, reviews
-and audits, superseding all older model preferences below. Tools cannot change
-or verify the running coordinator model or service tier. Keep independent
+Latest human model instruction selects GPT-6.1 Sol high for this chat, workers,
+reviews and audits, superseding all older model preferences below. Tools cannot
+change or verify the running coordinator model or service tier. Keep independent
 review, separate worktrees and reviewed commits pushed to draft PR7. Every
 GUI test uses the MacBook screen and every 3DS session stays muted.
 

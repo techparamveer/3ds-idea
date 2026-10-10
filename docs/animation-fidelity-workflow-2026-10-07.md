@@ -11,11 +11,15 @@ normal-speed cadence. Restore only owned temporary fields after verified quit.
 
 The81-PNG Notifications trial and two fixed opaque-cover diagnostics are
 closed. Both static pairs meet delta2 with empty masks, reviewedf3e5ef2d.
-No moving-phase or whole-flow acceptance follows. Close40 has no selected-HOME
-banner; later live observations cannot fill a saved capture gap. Continue with
-the missing raw phases/terminal, not the closed frame-advance/backend/video-dump
-probes. Preserve frozen browser build/originals and declare new pairs before
-metrics. See [capture identities and limits](toprow-capture-2026-10-10.md#slowed-raw-png-diagnostics).
+No moving-phase or whole-flow acceptance follows. The longer v2 run saves 141
+own PNGs and includes selected HOME at Close41 through Close80. Its gap between
+Close40 and Close41 leaves banner growth and icon-loading order unsupported.
+For a targeted return-onset run, keep the capture burst uninterrupted across
+that boundary instead of inserting a tool/model round trip every ten samples.
+Declare the bounded burst and inputs first; do not infer a native frame rate
+from file mtimes or filename fields. Do not repeat the closed frame-advance,
+backend or video-dump probes. Preserve frozen browser build/originals and
+declare new pairs before metrics. See [capture identities and limits](toprow-capture-2026-10-10.md#saved-selected-home-return).
 
 ## Same-paint touch verification
 

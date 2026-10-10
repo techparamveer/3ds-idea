@@ -63,7 +63,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `43dbcbab9ff02861e8d0fcb3cff1e5fa38b4f08a`. Capture checkpoint43dbcba equals exact six-doc patch5ecbd52a, approved by review76380d38. Recorder86ce542 integrates as87a5168, reviewed44dba9e5; gate handoff98898bc integrates asdbd0836, reviewed37467dc3. Thirty offline tests pass; full2726pass/1known Camera PNG failure/102skip/1TODO, typecheck/build pass. Native-v2 auditda1aca45/review7f01ad83 and raw81-PNG audit8ce19f0d are closed. Two fixed opaque-cover pairs meet static delta2, reviewedf3e5ef2d; motion and whole-flow fidelity remain unaccepted. Committed src/public still match frozen3fd9ed9/buildYVjVi3jRi1zYUhIFY5NkX. Human system.ts untouched/excluded. This HEAD-row reconciliation supersedes the prior pending-audit metadata. |
+| HEAD | `399fd77ca1044a744550c4a002ca497e632e160a`. Raw-cover checkpoint399fd77 equals exact six-doc patch7e4e6106, approved by reviewf61d93c3. Earlier capture checkpoint43dbcba equals patch5ecbd52a, reviewed76380d38. Recorder86ce542 integrates as87a5168, reviewed44dba9e5; gate handoff98898bc integrates asdbd0836, reviewed37467dc3. Thirty offline tests pass; full2726pass/1known Camera PNG failure/102skip/1TODO, typecheck/build pass. Native-v2 auditda1aca45/review7f01ad83 and raw81-PNG audit8ce19f0d are closed. Two fixed opaque-cover pairs meet static delta2, reviewedf3e5ef2d; motion and whole-flow fidelity remain unaccepted. Committed src/public still match frozen3fd9ed9/buildYVjVi3jRi1zYUhIFY5NkX. Human system.ts untouched/excluded. This mandatory post-commit HEAD reconciliation is outside the reviewed patch. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -2329,6 +2329,20 @@ The integration checkout remains here.
 Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camera Slideshow header 0. Camera Settings third 0. Welcome p5 **7615** live-feed source-gap **APPROVE**. Volume **130** live-slider source-gap **APPROVE**. Span **2314**/**2442** live-spectrum source-gap **APPROVE**. Birds **1558** held-offset source-gap **APPROVE**. Battery `[45,216,85,240]` **1** underbar-partition source-gap **APPROVE**. Line01 `(92,220)` partition source-gap **APPROVE**. Empty-entry row **1916** **APPROVE**. Thumb interiors **846/918** **APPROVE**. Guide perimeter **6072** = **860** dimmed grid + **4416** half + **728** (**144** row + **53** footer + **531** within 2) + **68** fringe; veil **REJECT** `be862ce6`; subsets **APPROVE-WITH-NITS** `d72ab4b1`. Empty-mid **2255**/**1024** → **0**/**0** by grid bind `603c5388` **APPROVE-WITH-NITS** `de5c6445`. p3 `TxtDlg` **1079→1078** after host-gate `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`. Sound upper 316 labelled `14533857` **APPROVE** `daa93bca`. y=177 **320** labelled `22e8b0a4` **APPROVE** `9fe268f8`. Slider **57** **APPROVE-WITH-NITS** `444ba8e0`. Plus-tint strip **1992** kept `ed55865e` **APPROVE** `b6620fa4`. HOME 1-row tail **291** **APPROVE** `f72296ff`. HOME idle Health 1-row left-anchor **23182 / 14754** empty mask (title/wallpaper **12255**, vacant-vs-Settings **7045**, HUD **2328**). **Static still only.** Whole scenarios still fail.
 
 ## Next
+
+Current continuation at399fd77: native-raw-slow-v2 saves 141 own PNGs,
+7,149,751 bytes: baseline1/opening60/Close80. Audit93f2ea99 verifies every
+original and independent CRC/RGBA decoding. Root opens all 15 chronological
+1x sheets. Close41 through Close80 include selected HOME; the preceding
+8.370-second mtime gap leaves exact banner onset/growth and icon-loading order
+unknown. No new comparison or runtime fix. Independent v2 review09ae47b6
+approves bounded evidence reporting, not fidelity or native timing.
+GUI Quit/Yes exits84006 and the private profile restores exactly031bc535.
+Browser3032/build/originals stay frozen. Bounded v1 moving-phase reportea68d07b
+establishes no new ordering defect. Next target the missing return interval
+with a predeclared uninterrupted burst instead of ten-sample batches. All
+helpers use GPT-6.1 Sol high; only coordinator drives muted MacBook GUI.
+All whole flows remain fail/unproven. Audio stays unverified-muted.
 
 Latest closure at43dbcba: native raw audit8ce19f0d/manifest335f6b28/checksums
 f149b4b8 verifies81 originals and all31 final derived checksums. Root opens all

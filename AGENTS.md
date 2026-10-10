@@ -29,10 +29,10 @@ STATUS **Product**. Reconcile git, then continue from STATUS **Next**.
 - **Subsystem** contract when Next names one: the matching doc from [architecture](docs/architecture/README.md).
 - **Archive** of older evidence: [progress](docs/progress-2026-09-24.md). STATUS Evidence is the live subset.
 
-## Agent model preference - 9 October 2026
+## Agent model preference - 10 October 2026
 
-The latest direct human request selects GPT-6.1 Sol extra-high for this chat
-and GPT-6.1 Sol high for all subagents. Use `model=gpt-6.1-sol` with
+The latest direct human request selects GPT-6.1 Sol high for all work,
+including this chat and every subagent. Use `model=gpt-6.1-sol` with
 `reasoning_effort=high` on bounded or empty context forks for new or restarted
 workers and reviewers. The tools cannot change or verify the coordinator model.
 This supersedes

@@ -145,11 +145,49 @@ whole-flow acceptance. No runtime correction or native asset is added.
 
 Browser evidence review41e040db approves bounded integrity only. Movie and raw
 PNG audits are closed, and two opaque poses meet the static pixel threshold.
-Next capture missing raw moving phases and a selected-HOME terminal through
-the demonstrated own-PNG route, with inputs and sampling declared beforehand.
+The longer v2 run below now includes a saved selected-HOME terminal. Exact
+banner onset/growth remains missing across its Close40-to-41 sampling gap.
+Next target that interval with a bounded uninterrupted capture burst, with
+inputs and sampling declared beforehand. Do not infer a code defect from the gap.
 Do not repeat closed frame-advance/backend/video-dump probes. Fix only a
 demonstrated defect in a separate owned worktree, then review, integrate and
 recapture. Push coherent commits to draft PR7. All AN-01 through AN-04 whole flows remain fail.
 Audio remains unverified-muted. Manual, populated-folder, other-app/compact
 Resume and remaining top-row coverage stay open. Existing runtime adaptations
 and unsupported native fields are unchanged; no new native assets were added.
+
+## Saved selected-HOME return
+
+Private `native-raw-slow-v2/` holds 141 own 400x480 PNGs, totaling 7,149,751
+bytes. There is one baseline, 60 opening samples and 80 Close samples.
+Policyabe5fb38 precedes the GUI5% speed and requested 2-second stationary
+touches. Ledgerdbabb7fc closes the run. These remain diagnostic adaptations,
+not matched normal-speed browser inputs or recovered native timing.
+
+Audit93f2ea99, manifestf860f580 and checksums74d9bf7d verify every original
+and independent CRC/full RGBA decoding. The coordinator opens all 15 native
+1x chronological sheets. There are 105 distinct images, with duplicates kept.
+Opening28 first saves incoming title content; Close32 first saves returning
+HOME content. Close38 retains a faint HOME Menu label. Close39/40 have no
+obvious belt label, but no selected banner and several unpopulated icon slots.
+
+Close41 is the first saved selected Notifications banner and populated grid.
+Both remain in the saved terminal Close80. The preceding mtime gap is 8.370
+seconds; literal filename-field subtraction gives 8.094 seconds. Neither is
+native elapsed time. The first saved banner is not the first native banner
+pose. Exact onset, growth and icon-loading order remain unknown. Proposal
+d5404b8b is descriptive and unsealed; no pairing or comparison was performed.
+Independent review09ae47b6 verifies all originals, 40 derived checksums and
+the 141 unchanged raw cells in all 15 sheets. It approves these reporting
+bounds, not native fidelity or timing.
+
+The bounded v1 moving-phase reviewea68d07b found no established ordering bug.
+Native and browser both show title contribution under the closing cover and
+HOME without its selected banner during return. Those observations do not
+establish matching epochs or cadence. Native unread9/browser8 stays unmasked.
+
+GUI Quit/Yes exits isolated PID84006. Only temporary speed/default/path fields
+are restored, returning the profile byte-exactly to031bc535. Browser3032,
+application source/public and earlier evidence remain unchanged. No source or
+asset change belongs to this checkpoint. All four whole flows still fail;
+audio acceptance stays unverified-muted.

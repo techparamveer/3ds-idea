@@ -2,9 +2,13 @@
 
 AN-01 latest [capture checkpoint](toprow-capture-2026-10-10.md) closes browser
 integrity for3047 first/repeat Notes and Notifications opening/Close pairs.
-Fresh native13 own PNGs decode; all12 attempted videos are wrong-scope
-and excluded by closed native audit994de9f4. Matched motion comparison stays open.
-This is evidence progress only; all whole flows remain fail.
+Earlier native13 own PNGs decode; all12 earlier videos remain excluded by
+wrong-scope audit994de9f4. Reviewed exact-window recorder87a5168 and handoff
+dbd0836 recover scope: root inspects both decoded pilots before new first/repeat
+Notes and Notifications cycles. Two60-second silent window movies finalize;
+full chronological audit is pending. Lossy ordering observations do not provide
+raw native phase pixels or cadence. Matched comparison stays open and all
+whole flows remain fail/unproven. Latest helpers/reviews use GPT-6.1 Sol high.
 
 AN-04 latest delivery through `8700945` preserves same-paint Resume diagnostics.
 Two new HOME/touch-Resume cycles save 600 pairs each. Closed auditfb075b04

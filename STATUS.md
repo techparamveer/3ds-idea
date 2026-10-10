@@ -63,7 +63,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `204b5a55f894d816a03032b3b5ce9fee03537b85`. New diagnostic audit closure204b5a5 records reportfb075b04, evidence review6821fc77 and seven-doc review2ad6a84a/patch569e8c7b. Both600-pair windows include actual inputs, source poses and ready Health; all four fixed whole-pair comparisons fail. Prior source/test/freeze8e5fb43d/aefcfa2d/4fff5c0b and old-touch evidencef13d0356 remain separate. Source/public/tests still match frozen3fd9ed9/buildYVjVi3jRi1zYUhIFY5NkX; full2696pass/1knownCameraPNGfail, typecheck/build pass. Human system.ts untouched/excluded. This HEAD-row reconciliation is mandatory post-commit metadata outside the reviewed patch. |
+| HEAD | `dbd0836e5887e189e0e0bc18118b017b5a69e16b`. Recorder86ce542 integrates as87a5168, reviewed44dba9e5; gate handoff98898bc integrates asdbd0836, reviewed37467dc3. Thirty offline tests pass; full2726pass/1known Camera PNG failure/102skip/1TODO, typecheck/build pass. Both scope pilots passed inspection. New first/repeat Notes and Notifications windows finalize; audit pending, not fidelity acceptance. Committed src/public still match frozen3fd9ed9/buildYVjVi3jRi1zYUhIFY5NkX. Human system.ts untouched/excluded. This HEAD-row reconciliation is mandatory post-commit metadata. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -82,8 +82,10 @@ Current AN-01 capture serving at204b5a5: policy50bcf350 precedes owned3031
 stop and fresh3032 start. Only session43844/listener63894 stops, exit130;
 3031 has no listener. Frozen worker3fd9ed9/buildYVjVi3jRi1zYUhIFY5NkX now
 serves3032, listener67749/session6591, with separate toprow-current-20261010/
-browser-v1 output. HTTP200, BUILD_ID and identical committed source/public/
-tests trees verify. Dedicated Chrome20594 retains --mute-audio; actual
+browser-v1 output. HTTP200, BUILD_ID and identical committed source/public
+trees verify. Current coordinator tests additionally include the standalone
+offline recorder test; they no longer equal the frozen served test tree.
+Dedicated Chrome20594 retains --mute-audio; actual
 window136 is650,150,1102x700 on the sole built-in1800x1169 MacBook display.
 All eight new opening/Close windows are now stopped and fully saved,3047 pairs
 total: Notes322/256 first and422/286 repeat, Notifications403/331 first and
@@ -2328,8 +2330,25 @@ Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camer
 
 ## Next
 
+Current native motion audit reservation atdbd0836: recorder source and gates
+are integrated/reviewed, and both exact-window pilots decode with all five
+fixed samples showing Azahar. Root inspected them before animation input.
+Azahar72164/render2496 at40,81,511,645 on the built-in MacBook is loaded and
+muted. New60-second first/repeat Notes and Notifications opening/footer Close
+windows are finalized, sessions71521/22511 exit0. Movies56c0d81d/b943ac8a and
+coordinator-native-run-v2.md are separate from excluded native-v1 originals.
+Both repeats retain selection and use one focused-open touch; no repeated
+selection evidence is claimed. Sol-high audit worker resume_capture_audit_high
+owns only new private native-v2/audit-sol-high-v1 output: complete decode,
+immutable inventory, input/terminal chronology and boundary sheets. No
+selection seal, native epochs or pixel acceptance is authorized. Coordinator
+alone drives GUI. No recorder or runtime reservation is active. Existing
+browser originals and frozen3032 build stay unchanged. Manual triage already
+rules out another source-only correction.
+
 Current AN-01 browser integrity is closedac2f5bd2 and independently reviewed
-41e040db. Native audit994de9f4 is closed; owned documentation review is pending.
+41e040db. Native audit994de9f4 is closed; documentation reviewe45a1922 approves
+exact patch90bfb0a3, committed11c10b4. Post-commit metadata is outside that patch.
 All12 fresh movies captured Codex scope
 and are excluded. Do not repeat the recorder route without a decoded live
 Azahar scope check. Own13 native PNGs decode, but endpoints and GUI observations

@@ -1,11 +1,14 @@
 # Goal: finish the four remaining native animation flows
 
-Latest [top-row checkpoint](docs/toprow-capture-2026-10-10.md) adds first/repeat
-Notes and Notifications captures, not an animation fix. Browser integrity is
-closed and independently reviewed; all12 fresh native movies are wrong-scope
-and excluded by closed native audit994de9f4. Native motion and matched
-comparisons remain open. All four flows
-remain fail. Use GPT-6.1 Sol high helpers and muted MacBook testing.
+Latest [top-row checkpoint](docs/toprow-capture-2026-10-10.md) recovers native
+window recording through reviewed recorder87a5168 and gate handoffdbd0836.
+Both decoded scope pilots show Azahar. Two new60-second silent movies capture
+first/repeat Notes and Notifications open/ready/footer Close/return observations;
+full chronological audit is pending. These are lossy window videos, not raw
+native phase pixels or timing acceptance. Browser integrity is independently
+reviewed; the12 earlier wrong-scope movies remain excluded. Matched comparison
+and all four whole flows remain fail/unproven. Use GPT-6.1 Sol high helpers,
+muted MacBook testing and reviewed commits pushed to draft PR7.
 
 Updated 10 October 2026. Fetched GitHub version `c767757` is integrated through
 reviewed merge `b84e1b2`. Primary local main remains untouched at `5ee6fd7`.

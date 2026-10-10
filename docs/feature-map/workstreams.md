@@ -1,5 +1,38 @@
 # Workstream Registry
 
+## Exact-window native capture recovery, 10 October 2026
+
+Coordinator now integrates recorder86ce542 as87a5168 and gate handoff98898bc
+asdbd0836 after independent reviews44dba9e5/37467dc3. All12 native-v1
+display movies remain excluded because their scope samples show Codex.
+Both new exact-window pilots passed full decode and root's five fixed sample
+inspections. Loaded HOME uses muted Azahar72164/render2496 on the MacBook.
+Two new60-second native-v2 movies now finalize first/repeat Notes and
+Notifications open/ready/footer Close/return. Movie inclusion awaits audit;
+repeat selection was retained, not retouched. Do not repeat display recording
+or the closed Manual edge-pixel investigation.
+
+Worker `resume_sol_high`, GPT-6.1 Sol high, owns only new
+`scripts/reference/azahar-window-record.swift`, `tests/azahar-window-record.test.mjs`
+and `docs/workstream-handoffs/azahar-window-capture-20261010.md` in
+`/Users/paramveer/.codex/worktrees/azahar-window-capture-20261010/3ds-idea`,
+branch `codex/azahar-window-capture-20261010`, base11c10b4.
+Implement read-only, silent, exact-PID/window ScreenCaptureKit recording with
+explicit identity, unused absolute output, bounded duration and finalized
+status. No activation, input, permission changes, profile edits, GUI or live
+capture by the worker. Coordinator alone performs a short decoded scope pilot
+before animation inputs. Reviewer `resume_review_sol_high` independently
+reviews the tool and checks. Existing source/build/captures remain frozen.
+All whole flows still fail; this reservation is capture tooling, not UI acceptance.
+
+That source reservation is released. New worker `resume_capture_audit_high`,
+GPT-6.1 Sol high, owns only private `toprow-current-20261010/native-v2/audit-sol-high-v1`
+for full movie decode, checksums, ledger-linked chronological input/terminal
+and boundary inspection. All six capture files and new coordinator ledger are
+immutable after root closes it. No GUI, profile, source/build/original edits,
+semantic selection seal, native epoch or pixel comparison. Reviewer remains
+independent. All current helpers use the latest GPT-6.1 Sol high preference.
+
 ## Same-paint Resume diagnostics, 10 October 2026
 
 All current helpers use GPT-6.1 Sol high under the latest human instruction.

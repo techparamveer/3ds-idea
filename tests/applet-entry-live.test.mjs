@@ -108,8 +108,9 @@ test('actual Notifications first/repeat footer retains both list LCDs under the 
    screens.revokeNotesFooterCloseCandidate();assert.equal(screens.presentNotificationsFooterClose(state,ms(step++)),null);
    receipt('out',19);assert.equal(receipt('out',20),owner);
    state=completeNotificationsFooterClose(state,owner,ms(step));assert.equal(state.system.runtime.instances[owner],undefined);
-   for(let frame=0;frame<=20;frame++)assert.equal(receipt('in',frame),null);
+   for(let frame=0;frame<=20;frame++){assert.equal(receipt('in',frame),null);assert.equal(screens.homeAppletFooterBannerReady(state),false);}
    assert.equal(screens.stockStatus(state),'loading');receipt('handoff',null);
+   assert.equal(screens.homeAppletFooterBannerReady(state),true);
    assert.equal(screens.notificationsFooterCloseActive(state),false);
    assert.equal(paint(state,step++)?.notificationsClose,undefined);assert.equal(screens.stockStatus(state),'ready');
    homeState=state;previousOwner=owner;
@@ -128,6 +129,7 @@ test('Notifications outgoing/incoming cover failure retains a recoverable owner 
   }
   failCover(true);paint(state,3,false);
   assert.match(screens.stockFailure().message,/Notifications HOME cover/);assert.equal(screens.stockStatus(state),'error');
+  assert.equal(screens.homeAppletFooterBannerReady(state),false);
   assert.equal(screens.presentNotificationsFooterClose(state,ms(3)),null);
   if(failing==='out')assert.equal(state.system.runtime.instances[state.system.runtime.active].appId,'notifications');
   else assert.equal(state.system.phase,'home');
@@ -137,6 +139,7 @@ test('Notifications outgoing/incoming cover failure retains a recoverable owner 
   const binding=bindDispatch(state,screens,next=>paint(next,6),createNativeScreenInputGate,dispatchSystemEvent,escapeUnreadyNativeScreen,releaseSystemInputs,tickSystem);
   binding.dispatch({type:'command',command:'home'});
   assert.equal(binding.state().system.phase,'home');assert.equal(screens.stockStatus(binding.state()),'ready');
+  assert.equal(screens.homeAppletFooterBannerReady(binding.state()),true);
  });
 });
 
@@ -207,9 +210,10 @@ test('actual Notes footer compositor retains the owner through out20 and accepts
   assert.equal(receipt('out',20),owner);
   state=completeNotesFooterClose(state,owner,ms(step));
   assert.equal(state.system.runtime.instances[owner],undefined);
-  for(let frame=0;frame<=20;frame++)assert.equal(receipt('in',frame),null);
+  for(let frame=0;frame<=20;frame++){assert.equal(receipt('in',frame),null);assert.equal(screens.homeAppletFooterBannerReady(state),false);}
   assert.equal(screens.stockStatus(state),'loading','covered HOME cannot accept ordinary input');
   receipt('handoff',null);
+  assert.equal(screens.homeAppletFooterBannerReady(state),true);
   assert.equal(screens.notesFooterCloseActive(state),false);
   assert.equal(paint(state,step)?.notesClose,undefined);
   assert.equal(screens.stockStatus(state),'ready');
@@ -225,15 +229,18 @@ test('failed Notes HOME return remains explicit and B/HOME recovery can abandon 
   paint(state,31,false);const owner=screens.presentNotesFooterClose(state,ms(31));assert.ok(owner);
   state=completeNotesFooterClose(state,owner,ms(31));
   failCover(true);paint(state,32,false);assert.match(screens.stockFailure().message,/Notes HOME return/);
+  assert.equal(screens.homeAppletFooterBannerReady(state),false);
   assert.equal(screens.stockStatus(state),'error');assert.equal(screens.presentNotesFooterClose(state,ms(32)),null);
   assert.equal(screens.cancelNotesFooterClose(state),true);failCover(false);
   paint(state,33);assert.equal(screens.notesFooterCloseActive(state),false);assert.equal(screens.stockStatus(state),'ready');
+  assert.equal(screens.homeAppletFooterBannerReady(state),true);
  });
 });
 
 for(const appId of ids)test(`${appId} outgoing cover requires a matching presented HOME pair then all source poses and a destination receipt`,async()=>{
  await fixture(({screens,paint,events,setStatus})=>{
   const caller=home(appId),state=open(caller,appId);paint(caller,0);setStatus('loading');
+  assert.equal(screens.homeAppletFooterBannerReady(state),true);
   for(let frame=0;frame<=20;frame++){
    const result=paint(state,frame+1);assert.ok(result,String(screens.stockFailure()));
    assert.deepEqual(result.appletEntry,{kind:'cover',frame,owner:state.system.runtime.active});

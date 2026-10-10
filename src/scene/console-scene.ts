@@ -310,7 +310,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     // Its existing worker-release boundary blocks both gate release and later
     // activation without adding another counter or changing lifecycle lengths.
     const folderRequestReady=screens.homeFolderBannerRequestReady(state);
-    const inputs={managerInhibited:inhibited,sceneInhibited:inhibited,loadInhibited:false,nativeWorkerReady:bannerEntryFooterBootSince===null,activationReady:screens.homeEntryActivationReady(state)&&screens.homeFolderBannerActivationReady(state),resourceReady:bannerHost.inputs.resourceReady};
+    const inputs={managerInhibited:inhibited,sceneInhibited:inhibited,loadInhibited:false,nativeWorkerReady:bannerEntryFooterBootSince===null,activationReady:screens.homeEntryActivationReady(state)&&screens.homeFolderBannerActivationReady(state)&&screens.homeAppletFooterBannerReady(state),resourceReady:bannerHost.inputs.resourceReady};
     // Child refresh follows lower completion. Actual child activation also
     // waits for the retained root's hidden receipt, without restarting its host.
     bannerHost=crossHomeBannerBoundary(bannerHost,clock,{selection:folderRequestReady?(selection??(switchPresentation?{kind:'app',id:system.pending!}:system.homeControls&&!state.opened?undefined:resolveHomeBannerHostSelection(state))):undefined,inputs});
@@ -355,7 +355,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
         bannerHost=pass.completed?stepHomeBannerHost(bannerHost,bannerClock(),{
           beforeManager:{
             ...(beforeManager&&folderRequestReady?{selection:beforeManager}:{}),
-            inputs:{...bannerHost.inputs,activationReady:screens.homeEntryActivationReady(pass.state)&&screens.homeFolderBannerActivationReady(pass.state)},
+            inputs:{...bannerHost.inputs,activationReady:screens.homeEntryActivationReady(pass.state)&&screens.homeFolderBannerActivationReady(pass.state)&&screens.homeAppletFooterBannerReady(pass.state)},
           },
           afterManager:afterManager&&folderRequestReady?{selection:afterManager}:undefined,
         }):skipHomeBannerHostPass(bannerHost,bannerClock());
@@ -591,13 +591,15 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
       const owner=screens.presentNotesFooterClose(state,performance.now()-start);
       if(owner){
         const next=completeNotesFooterClose(state,owner,performance.now()-start);
-        if(next!==state){state=next;observeFolderBanner();effects.drain(false);paint();}
+        // Capture-fitted return boundary: retire only this primary after the
+        // accepted outgoing pair. Its receipt-backed HOME handoff gates reuse.
+        if(next!==state){state=next;bannerHost=resetHomeBannerPrimary(bannerHost);observeFolderBanner();effects.drain(false);paint();}
         else screens.revokeNotesFooterCloseCandidate();
       }
       const notificationsOwner=screens.presentNotificationsFooterClose(state,performance.now()-start);
       if(notificationsOwner){
         const next=completeNotificationsFooterClose(state,notificationsOwner,performance.now()-start);
-        if(next!==state){state=next;observeFolderBanner();effects.drain(false);paint();}
+        if(next!==state){state=next;bannerHost=resetHomeBannerPrimary(bannerHost);observeFolderBanner();effects.drain(false);paint();}
         else screens.revokeNotesFooterCloseCandidate();
       }
     }

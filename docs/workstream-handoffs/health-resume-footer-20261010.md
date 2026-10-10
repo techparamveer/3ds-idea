@@ -1,10 +1,11 @@
 # Health Resume Footer Withdrawal - 10 October 2026
 
-Source candidate: `ba19fd19643bb76182c9f6b10dbb8351ce65e3f8`, based on
+Approved source: `ba19fd19643bb76182c9f6b10dbb8351ce65e3f8`, based on
 `c3f74d52711c974a3d17bf33ced41d0cac66df74`. Independent GPT-6.1 Sol high
-review is pending. No browser inspection or native comparison of this candidate
-has occurred. Full checks and a fresh production build remain pending review.
-The older retained build and its source/public/tests/server are frozen unchanged.
+review approved source and initial provenance handoff `ed71fd9`. Full checks
+and a fresh production build are complete as recorded below. No browser
+inspection or native comparison of this candidate has occurred. The older
+retained build and its source/public/tests/server are frozen unchanged.
 
 Worker checkout: `/Users/paramveer/.codex/worktrees/health-resume-footer-20261010/3ds-idea`,
 branch `codex/health-resume-footer-20261010`. Private artifact root, abbreviated R:
@@ -128,6 +129,9 @@ sleeping/stale receipts, cancel/up-out physical HOME recovery and unsupported
 selected motion channels. Existing retained-departure tests explicitly complete
 footer setup before executing their unchanged departure/readiness assertions.
 Presenter and retained live tests separately cover changed destination and owner receipts.
+The byte arrays are synthetic marker/readback evidence from the canvas stand-in,
+not actual native or browser raster pixels. Their exact equality verifies source
+reuse and composition ordering, not GPU sampling or visual fidelity.
 
 Historical setup/check logs remain: focused-01 fixed the old HUD test's missing
 new-stage setup; focused-02/03 corrected fixture tray identity/readiness-paint
@@ -138,8 +142,9 @@ passed all 25 directly affected tests before the final 54-test expansion.
 ## Adaptations And Remaining Work
 
 The direct SceneOut binding (`childBinding:false`), settled right-button Decide5,
-one-source-frame-per-successful-visible-pair cadence, stage boundary and held
-upper/sleep/HUD bytes are host adaptations. They do not prove a native feedback
+one-source-frame-per-successful-visible-pair cadence, stage boundary and frozen
+full accepted upper/lower HOME bytes through 15 footer receipts (including held
+sleep/HUD) are host adaptations. They do not prove a native feedback
 0..5 sequence, native delay, native curve timing or input-category epoch. Source
 SceneOut keys are used unchanged; no guessed easing, reverse entry or substitute
 ChangeDw motion was introduced. Prior renderer/raster, host publication and
@@ -148,6 +153,54 @@ portfolio adaptations remain as documented in the retained handoff.
 Delivered/source-identified: existing native resources and bounded caller trace.
 Implemented/tested: candidate source and supporting checks above.
 Browser-inspected/native-compared: not yet, so strict 1:1 remains unproven.
-Independent review, full suite/typecheck/shader/build/freeze and coordinator
-matched first/repeat Resume recapture remain next. The known missing private
-Camera PNG fixture must remain an explicit full-suite failure, not a skip.
+The source review and supporting full gate below are complete. Independent
+review of this final freeze handoff and coordinator matched first/repeat Resume
+recapture remain next. The known missing private Camera PNG fixture remains an
+explicit full-suite failure, not a skip.
+
+## Full Gate And Frozen Build
+
+Independent source review `R/review-sol-high-v1/report.md` approved exact source
+`ba19fd1` and initial handoff `ed71fd9`, with independent 54/54 focused tests,
+nonincremental typecheck and diff check. Review SHA-256:
+`e99cdb1477879616adb020cd9d2a1f6d678e0cfd790f6357236759124cab8769`.
+
+All finite worker handles were reaped before freezing:
+
+| Check | Exit / Result | Artifact |
+| --- | --- | --- |
+| `npm test` | 1; 2,692 pass, 1 fail, 101 skip, 1 TODO; 2,795 total | `R/full-test-01.log` |
+| `npx tsc --noEmit --incremental false` | 0 | `R/full-typecheck.log` |
+| `npm run check:shader` | 0; required validation attempted and passed | `R/shader.log` |
+| `npm run build` | 0 | `R/build.log` |
+| All 77 GLBs | Exact committed LFS SHA-256, size and GLB magic pass | `R/glb-preflight.log` |
+| Freeze generation | 0 | `R/freeze-build.log` |
+
+The only full-suite failure is unchanged `tests/camera-date-group.test.mjs:44`,
+ENOENT for private `camera-3d-badge-sdmc-recapture-20261005/browser/lower.png`.
+No fixture was invented, searched again, substituted or skipped.
+
+Build ID: `5pTgJwKjDtqJGe-Um3UEF`, built at initial handoff `ed71fd9` against
+the approved runtime. `.next` inventory: 223 files, 71,179,757 bytes, tree SHA-256
+`dac94116b208029f5c3b3344482e06768dd938a0193a4c10a09189bcd2e8f04e`.
+The inventory hash is over English-locale sorted relative path, NUL, byte length,
+NUL, file SHA-256, LF for each file.
+
+- `R/freeze.json` SHA-256:
+  `55898feb06b46087bb1ad72a38ef9fd69858c6018aadea4bedeb2e784e1576ed`.
+- `R/build-files.json` SHA-256:
+  `d2d5bf42d1ecc5c08a35799093b86b4b75fc1470d64fb9c3db4c2cf3019fc064`.
+- Approved source tree: `db2812f08939706b659efbba101674469cc1700b`.
+- Unchanged public tree: `7c838c9ca5e672dacea4c2484f69ca8c3426d5f4`.
+- Approved tests tree: `3fce5fc7a6851d0b9f079bb059a0cea7e8a18ba7`.
+
+The freeze also records all eight check-log hashes, four build-manifest hashes,
+three production GLB hashes and the independent source-review hash. Source,
+public and tests match the immutable approved source. Hydrated GLB working-file
+status is a stat/filter artifact; their filter-backed diff is empty and none was
+staged. Local STATUS is intentionally excluded from commits.
+
+Worker build lease is released to the coordinator. This new checkout's
+source/public/tests/`.next` are frozen; no worker server or GUI was started.
+The previous retained checkout/build remains separately frozen. This is a
+supporting-check handoff, not whole-scenario or strict 1:1 acceptance.

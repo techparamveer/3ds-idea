@@ -1,5 +1,20 @@
 # Animation fidelity workflow
 
+## Manual Close correction
+
+The [11 October captures](animation-capture-2026-10-11.md) establish a concrete
+Manual Close defect: adjacent browser receipts jump from Contents to uncovered
+HOME, while native raw frames include outgoing, opaque and incoming HOME Menu
+cover stages. Correct the shared top-level close path, preserve caller-owned
+helpers, and gate lifecycle changes on accepted paired LCDs. Review and test
+the implementation before new integrated browser capture. Do not infer native
+timing from the slowed screenshot run or reuse old-build captures as proof of
+the new implementation.
+
+The uninterrupted Notifications v3 burst saves relative banner growth and
+icon-loading order. Both browser returns already show growth. Its exact native
+onset and cadence remain unknown; do not repeat that source-fix investigation.
+
 ## Slowed native raw capture
 
 The own-PNG Tools menu route now delivers intermediate native400x480 frames

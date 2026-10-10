@@ -1,5 +1,12 @@
 # Goal: finish the four remaining native animation flows
 
+11 October: the [current capture checkpoint](docs/animation-capture-2026-10-11.md)
+confirms Manual Close skips the native HOME Menu transition. A separate Sol-high
+worker owns the fix; independent review and integrated recapture must follow.
+Continuous native return capture also confirms banner growth, already present
+in the browser. No new growth fix is justified. All four whole flows remain
+fail/unproven. Earlier capture checkpoints below retain their original limits.
+
 Latest [top-row checkpoint](docs/toprow-capture-2026-10-10.md) recovers native
 window recording through reviewed recorder87a5168 and gate handoffdbd0836.
 Both decoded scope pilots show Azahar. Two new60-second silent movies capture

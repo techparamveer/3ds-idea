@@ -1,5 +1,17 @@
 # Workstream Registry
 
+## Manual Close transition, 11 October 2026
+
+Coordinator57a92d3 reserves `codex/manual-close-transition-20261011` at
+`/Users/paramveer/.codex/worktrees/manual-close-transition-20261011/3ds-idea`
+for the captured [Manual Close defect](../animation-capture-2026-10-11.md).
+Worker owns required runtime/presentation wiring in src/os, minimal scene
+publication/diagnostics, focused tests and its Manual-close handoff note.
+No public assets or unrelated refactor. Coordinator owns shared docs and GUI;
+the independent Sol-high reviewer checks the patch before integration.
+All helpers use GPT-6.1 Sol high. Browser audit writes only its new private
+manual-browser-current-v1/audit-sol-high-v1 directory.
+
 ## Exact-window native capture recovery, 10 October 2026
 
 Coordinator now integrates recorder86ce542 as87a5168 and gate handoff98898bc

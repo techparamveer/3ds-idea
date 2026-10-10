@@ -1,5 +1,12 @@
 # Feature map — 1:1 queue
 
+11 October AN-02: [Manual Close is confirmed to skip the native HOME Menu
+cover](animation-capture-2026-10-11.md). The fix is assigned to the separate
+Manual-close worktree, not yet delivered. AN-01 continuous native capture
+recovers relative Notifications banner growth; the browser already has it.
+Exact onset/cadence and all whole-flow acceptance remain open. The current
+model preference is GPT-6.1 Sol high for workers and independent review.
+
 AN-01 latest [capture checkpoint](toprow-capture-2026-10-10.md) closes browser
 integrity for3047 first/repeat Notes and Notifications opening/Close pairs.
 Earlier native13 own PNGs decode; all12 earlier videos remain excluded by

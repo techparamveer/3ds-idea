@@ -63,7 +63,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `399fd77ca1044a744550c4a002ca497e632e160a`. Raw-cover checkpoint399fd77 equals exact six-doc patch7e4e6106, approved by reviewf61d93c3. Earlier capture checkpoint43dbcba equals patch5ecbd52a, reviewed76380d38. Recorder86ce542 integrates as87a5168, reviewed44dba9e5; gate handoff98898bc integrates asdbd0836, reviewed37467dc3. Thirty offline tests pass; full2726pass/1known Camera PNG failure/102skip/1TODO, typecheck/build pass. Native-v2 auditda1aca45/review7f01ad83 and raw81-PNG audit8ce19f0d are closed. Two fixed opaque-cover pairs meet static delta2, reviewedf3e5ef2d; motion and whole-flow fidelity remain unaccepted. Committed src/public still match frozen3fd9ed9/buildYVjVi3jRi1zYUhIFY5NkX. Human system.ts untouched/excluded. This mandatory post-commit HEAD reconciliation is outside the reviewed patch. |
+| HEAD | `57a92d392fdbc181b462cf14c0cf93351a54c08b`. Seven-doc checkpoint57a92d3 equals patch7665bebc, approved by independent review15612718. Raw v2 audit93f2ea99/review09ae47b6 closes 141 own PNGs including saved selected HOME, not exact banner onset or timing. Earlier static cover matches remain unchanged. No runtime/public changes; committed src/public still match frozen3fd9ed9/buildYVjVi3jRi1zYUhIFY5NkX. Human system.ts untouched/excluded. This mandatory post-commit HEAD reconciliation is outside the reviewed patch. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -2329,6 +2329,47 @@ The integration checkout remains here.
 Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camera Slideshow header 0. Camera Settings third 0. Welcome p5 **7615** live-feed source-gap **APPROVE**. Volume **130** live-slider source-gap **APPROVE**. Span **2314**/**2442** live-spectrum source-gap **APPROVE**. Birds **1558** held-offset source-gap **APPROVE**. Battery `[45,216,85,240]` **1** underbar-partition source-gap **APPROVE**. Line01 `(92,220)` partition source-gap **APPROVE**. Empty-entry row **1916** **APPROVE**. Thumb interiors **846/918** **APPROVE**. Guide perimeter **6072** = **860** dimmed grid + **4416** half + **728** (**144** row + **53** footer + **531** within 2) + **68** fringe; veil **REJECT** `be862ce6`; subsets **APPROVE-WITH-NITS** `d72ab4b1`. Empty-mid **2255**/**1024** → **0**/**0** by grid bind `603c5388` **APPROVE-WITH-NITS** `de5c6445`. p3 `TxtDlg` **1079→1078** after host-gate `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`. Sound upper 316 labelled `14533857` **APPROVE** `daa93bca`. y=177 **320** labelled `22e8b0a4` **APPROVE** `9fe268f8`. Slider **57** **APPROVE-WITH-NITS** `444ba8e0`. Plus-tint strip **1992** kept `ed55865e` **APPROVE** `b6620fa4`. HOME 1-row tail **291** **APPROVE** `f72296ff`. HOME idle Health 1-row left-anchor **23182 / 14754** empty mask (title/wallpaper **12255**, vacant-vs-Settings **7045**, HUD **2328**). **Static still only.** Whole scenarios still fail.
 
 ## Next
+
+Manual Close defect is captured in current browser sessionf0932de1: adjacent
+receipts1669/1670, sequences140/141, jump from Contents to uncovered Camera
+HOME on release without a cover. Root inspected the unscaled137..144 sheet
+and native Close1..10/61..70. Native includes HOME Menu outgoing/opaque/incoming
+stages. Implementation is reserved to worker resume_capture_audit_high in
+`/Users/paramveer/.codex/worktrees/manual-close-transition-20261011/3ds-idea`,
+branch `codex/manual-close-transition-20261011`, base57a92d3. Owned paths are
+Manual close runtime/presentation wiring in src/os, required console-scene
+publication/diagnostics, focused tests and a new Manual-close handoff note.
+No public assets or unrelated refactor; only the coordinator edits shared docs
+and operates GUI. Separate Sol-high reviewer checks lifecycle/publication.
+
+Native return-v3 is closed with audit85ce6cef and independent review73d8f673.
+All 13 chronological sheets were inspected. Close65/66 saves icon loading,
+67 a smaller banner and68 a larger one. Browser growth is also present;
+there is no demonstrated missing-growth code defect. Exact onset and cadence
+remain unproven.
+
+Completed capture setup for the current reservation: Manual native entry/Close
+closed with241 PNGs/9,511,212bytes. Both live
+terminals were observed. PID88328 exited and only owned temporary fields were
+restored, reproducing profile031bc535. Audit67bbc398 closed its new
+manual-continuous-v1/audit-sol-high-v1 directory. Coordinator captured
+current Manual entry/Close/reopen using unchanged frozen3fd9ed9/build
+YVjVi3jRi1zYUhIFY5NkX. Those recordings are now stopped and fully saved:
+432/319/487 pairs under manual-browser-current-v1. Temporary3033 listener89590/
+session8798 has stopped; old3032 and its exports remain untouched. All testing
+was muted on the MacBook. Closed browser audit4a5b6f77 and root inspection
+confirm the defect; the current implementation reservation above supersedes
+the earlier capture and audit tasks.
+
+Historical v3 setup at57a92d3, superseded by the closed audit above:
+native-return-continuous-v3 policy040c5fd5
+captures one ready baseline and 120 Close samples in a single uninterrupted
+GUI burst. Saved inventory121 PNGs/5,666,497bytes. Live selected-HOME return
+was observed; saved boundaries and banner-growth inclusion then awaited audit.
+Private PID87320 quits and profile restores exactly031bc535. Only coordinator
+used muted MacBook GUI. Frozen browser3032/build/originals remain untouched.
+The planned audit and inspection have now completed, as recorded above.
+All whole flows remain fail/unproven; helpers use GPT-6.1 Sol high.
 
 Current continuation at399fd77: native-raw-slow-v2 saves 141 own PNGs,
 7,149,751 bytes: baseline1/opening60/Close80. Audit93f2ea99 verifies every

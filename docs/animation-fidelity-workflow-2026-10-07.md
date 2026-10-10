@@ -11,9 +11,22 @@ are adaptations, not recovered native behavior. Supporting marker-canvas tests
 do not prove raster fidelity. Independent review df4d3f36 and coordinator
 verification approve freeze55898feb/build5pTgJwKjDtqJGe-Um3UEF. All223 build
 files, eight logs, four manifests and three production GLBs verify. Full-check
-handoff ddfe288 is integrated. Capture first/repeat actual inputs in this frozen
-build before comparison. Old source/build/exports stay unchanged.
+handoff ddfe288 is integrated. First/repeat keyboard HOME/Resume now close600
+saved pairs each in this frozen build. Coordinate transport fails before touch;
+the ordinary keyboard alternate is declared before inputs. Old source/build/
+exports stay unchanged.
 See [trace, provenance and exact checks](workstream-handoffs/health-resume-footer-20261010.md).
+
+Audit all1,200 pairs and preserve all3,600 originals. CRC and independent full
+RGBA decode agree for2,400 PNGs. Inspect raw chronological sheets and exact
+boundary PNGs before sealing selections. Approved proposal3d442216 seals as
+0977210c before the four fixed complete-footer/ready native comparisons. No
+registration, pose search or new masks are allowed. Footer withdrawal334/365
+and absent343/374 before HOME departure348/379 are browser ordering evidence
+only. Complete130/158 and ready389/420 whole-pair comparisons still fail;
+ready lower alone meets static delta2. Dialog/lower coincidence, missing pressed
+samples, touch and native post-HOME raw motion remain open. Source/public/tests/
+.next and original captures stay frozen. See [current results](animation-verification-checkpoint-2026-10-10.md).
 
 ## Current retained Resume verification
 

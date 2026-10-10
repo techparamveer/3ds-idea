@@ -1,5 +1,61 @@
 # Animation verification checkpoint, 10 October 2026
 
+## Footer production capture
+
+Final report SHA-256:
+`a8f701e77ae446790a69a790f992b81bc2d4892306a807abafcd9cfd9c6ba8f0`.
+Manifest `b2d5e9df533c4a86b901b004b75d50a6f6c2a0f9102b18016d2d9bc3f835fffa`.
+Original freeze `00e0cb433f05523a0ffb14d912580f7e9ff3af5c0ccc4fb85d4b61846857a811`.
+Sealed selection `0977210c8c7ced4438ee813e5574395307a67e62a70d48fb79e5b210ba8693b0`.
+All120 audit and72 structural checksums verify independently at the coordinator.
+Post-comparison original recheckb1e18705 verifies all3,600 files unchanged.
+The audit worker exits all finite handles and releases its private output lease.
+
+Frozen worker6614478/build5pTgJwKjDtqJGe-Um3UEF now serves3029, listener31363,
+persistent session59716. The old20956/session72167 exits130; its source/build/
+exports stay unchanged. A fresh dedicated muted Chrome tab visibly renders
+HOME on the MacBook. Coordinate selection fails with noWindowsAvailable.
+Declared addendum37dc9266 precedes ordinary keyboard navigation, Health opening,
+H suspension and A Resume. This is actual keyboard evidence, not touch delivery.
+
+First sessione417de2e and repeat37c5ed36 each save600 frame-limited pairs, with
+trusted KeyH and KeyA down/up inside both captures. All1,200 triples,3,600
+unchanged originals and2,400 PNGs verify. CRC, pngjs and Sharp full RGBA agree.
+No fully black saved image occurs; this does not cover time between samples.
+Original freeze00e0cb43 is independently rehashed by coordinator and reviewer.
+Policy3f400806, input addendum37dc9266 and run attestation3b1b78b3 are private.
+
+Coordinator inspects eight chronological raw sheets, exact footer boundaries,
+both sequence1 baselines and ready389/420 raw LCDs. First/repeat upper status
+115/143 precedes dialog and lower HOME116/144; their coincidence remains wrong.
+Complete footer130/158 precedes post-A333/364, footer-only withdrawal334/365,
+fully absent footer343/374 and HOME departure348/379. Predecessor342/373 still
+has a bottom-row tail. Retained dim Health settles368/399; border-free bright
+ready is389/420. Lower alone already matches baseline one pair earlier and is
+not whole-pair readiness. Both pressed Resume pairs are missing. No serialized
+Resume source-frame diagnostics or native cadence are inferred.
+
+Root approves proposal3d442216 before selection0977210c is sealed and before
+the four predeclared comparisons. Fixed native identities remain the complete
+9cc8b1b3 and first-surviving-ready c353cbd7 below. Canonical native split,
+whole-LCD empty mask, RGB delta2, no shift/registration/closest pose:
+
+| Browser pair | Upper pixels over2 | Lower pixels over2 |
+| --- | ---: | ---: |
+| First complete footer130 | 13,810 | 33,300 |
+| Repeat complete footer158 | 17,095 | 33,300 |
+| First ready389 | 24,170 | 0 |
+| Repeat ready420 | 18,433 | 0 |
+
+Coordinator opens all four comparison sheets. Ready lower maximumdelta2 is
+static threshold evidence only. Upper artwork epochs, clocks, population and
+input remain unmasked failures. Footer withdrawal/absent stages have raw browser
+ordering evidence, not native pixel comparisons. Native post-HOME dim/expansion
+raw phases remain missing. All four whole flows fail; audio stays unverified
+while muted. Exact checks and adaptations remain separate in the footer handoff.
+Private capture/audit root is
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261009/opus-completion/health-resume-footer-20261010/browser-v1/`.
+
 ## Footer source delivery
 
 Worker ba19fd1/ed71fd9 integrates as aacd774/22c1581 after independent review
@@ -10,7 +66,8 @@ as ddfe288. Independent review df4d3f36 and coordinator verification approve
 freeze55898feb/build5pTgJwKjDtqJGe-Um3UEF. All223 files/71,179,757 bytes, tree
 dac94116, eight logs, four manifests, three production GLBs and source review
 e99cdb14 verify. Freeze records builtFromHead ed71fd9; the later6614478 commit
-changes only the handoff. Production recapture remains pending. No new
+changes only the handoff. The production recapture above supersedes this earlier
+pending state. No new
 candidate pixel/motion acceptance follows this build approval.
 
 Private footer root is `health-resume-footer-20261010` beside the retained root

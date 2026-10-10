@@ -63,7 +63,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `ddfe288e776a25a12109335777dcb83b26df944b`. Reviewed footer runtime aacd774, provenance22c1581 and frozen-check handoff ddfe288 are integrated. New worker6614478/build5pTgJwKjDtqJGe-Um3UEF has2,692 passes and one known missing Camera PNG failure; typecheck/shader/build pass. Independent review and coordinator verify freeze55898feb and all223 build files. Visual recapture remains pending. Old frozen ed40f3b/build itZdGEQJDzlDwPZnssuUe still serves3029. All whole scenarios fail; human system.ts stays excluded. |
+| HEAD | `23ba659fa53c98ddeb0a6e840c1f5c9862daef03`. Reviewed footer runtime aacd774, provenance22c1581, frozen-check handoff ddfe288 and delivery23ba659 are integrated. Frozen worker6614478/build5pTgJwKjDtqJGe-Um3UEF serves3029, listener31363/session59716. First/repeat keyboard HOME/Resume each save600 pairs; all1,200 pairs/2,400 PNGs verify. Inspected footer withdrawal334/365 and absent343/374 precede HOME departure348/379. Fixed complete/ready comparisons fail; lower ready alone meets static delta2. Final capture closure review is in progress. Full suite2,692 passes/1known missing Camera PNG failure; typecheck/shader/build pass. All whole scenarios fail; human system.ts stays excluded. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -77,6 +77,48 @@ Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9dd
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
 
 ## Serving
+
+Current footer production: frozen worker6614478/build5pTgJwKjDtqJGe-Um3UEF
+serves127.0.0.1:3029, listener31363, persistent session59716. HTTP200 and
+BUILD_ID verify. Output root is private health-resume-footer-20261010/browser-v1.
+Old listener20956/session72167 exits130; old source/build/exports stay unchanged.
+Both candidate recordings are closed and saved. Earlier3029 retained-serving
+paragraphs below are history.
+
+Fresh candidate tab visibly renders settled HOME. Coordinate Health selection
+fails with noWindowsAvailable, so declared input addendum37dc9266 uses ordinary
+keyboard navigation/A/H/Resume instead of touch. Right visibly selects Camera;
+Left returns Health; ordinary A starts loading Health. This is keyboard evidence,
+not successful touch input. Browser20594 retains --mute-audio and window136
+at650,150,1102x700 within sole built-in display1. No recorder is active.
+
+Candidate first/repeat recordings are now closed: sessions e417de2e and37c5ed36
+each save all600 frame-limited pairs. Both trusted ledgers contain KeyH down/up
+and KeyA down/up inside capture. Both actual sequences visibly reach complete
+paused HOME and return to ready Health. A first-cycle screenshot shows the
+footer absent while HOME remains. Audit verifies all1,200 triples/3,600 originals/
+2,400 CRC and full independent PNG decodes. Coordinator inspects eight raw
+chronological sheets and exact boundary PNGs before approving proposal3d442216.
+Seal0977210c precedes the four fixed comparisons; root opens all four sheets.
+Footer-only334/365 and absent343/374 precede HOME departure348/379, with no native
+pixel-tier claim for those stages. Complete130/158 differ13,810/33,300 and
+17,095/33,300 upper/lower; ready389/420 differ24,170/0 and18,433/0, empty-mask
+delta2. Lower ready maximum2 is static only. GPT-6.1 Sol high audit/reviewer
+helpers close final audita8f701e7, manifestb2d5e9df and all120+72 checksums.
+Coordinator independently verifies those checksums; all3,600 originals remain
+unchanged after comparison. Final independent delivery review remains next.
+No source, build, GUI, profile
+or original-capture edits are reserved. Coordinator alone serves31363/session
+59716. No recorder runs. Whole scenarios fail; touch, missing pressed samples,
+dialog/lower coincidence and native post-HOME raw phases remain open.
+
+Historical switch preparation, completed by the current serving block above:
+coordinator stopped only old listener20956 through
+owned session72167, exit130, and verified3029 had no listener. Its retained
+source/build/exports remain frozen. The approved next start was footer worker6614478,
+build5pTgJwKjDtqJGe-Um3UEF, with the separate private footer/browser-v1 output
+root. Browser policy3f400806 is declared before serving and candidate inputs.
+No recorder was active during the switch. This is not the current serving state.
 
 Footer build5pTgJwKjDtqJGe-Um3UEF is approved for controlled serving by
 independent fullgate review df4d3f36. Coordinator independently verifies all
@@ -2092,6 +2134,16 @@ The integration checkout remains here.
 Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camera Slideshow header 0. Camera Settings third 0. Welcome p5 **7615** live-feed source-gap **APPROVE**. Volume **130** live-slider source-gap **APPROVE**. Span **2314**/**2442** live-spectrum source-gap **APPROVE**. Birds **1558** held-offset source-gap **APPROVE**. Battery `[45,216,85,240]` **1** underbar-partition source-gap **APPROVE**. Line01 `(92,220)` partition source-gap **APPROVE**. Empty-entry row **1916** **APPROVE**. Thumb interiors **846/918** **APPROVE**. Guide perimeter **6072** = **860** dimmed grid + **4416** half + **728** (**144** row + **53** footer + **531** within 2) + **68** fringe; veil **REJECT** `be862ce6`; subsets **APPROVE-WITH-NITS** `d72ab4b1`. Empty-mid **2255**/**1024** → **0**/**0** by grid bind `603c5388` **APPROVE-WITH-NITS** `de5c6445`. p3 `TxtDlg` **1079→1078** after host-gate `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`. Sound upper 316 labelled `14533857` **APPROVE** `daa93bca`. y=177 **320** labelled `22e8b0a4` **APPROVE** `9fe268f8`. Slider **57** **APPROVE-WITH-NITS** `444ba8e0`. Plus-tint strip **1992** kept `ed55865e` **APPROVE** `b6620fa4`. HOME 1-row tail **291** **APPROVE** `f72296ff`. HOME idle Health 1-row left-anchor **23182 / 14754** empty mask (title/wallpaper **12255**, vacant-vs-Settings **7045**, HUD **2328**). **Static still only.** Whole scenarios still fail.
 
 ## Next
+
+Current next at23ba659: finish independent eight-document delivery review,
+then commit explicit owned paths, push and
+update draft PR7. First/repeat600-pair capture and fixed comparison inspection
+are closed. Footer withdrawal before HOME departure is browser-observed only;
+all whole comparisons fail. Next unresolved visible ordering is dialog/lower
+HOME coincidence, but a new source slice needs a named native/raw defect and
+bounded ownership. Touch, pressed Resume, native post-HOME raw phases and exact
+input/cadence remain open. Source/public/tests/.next and all originals stay
+frozen; no source reservation is open. Earlier capture-next paragraphs are history.
 
 Footer runtime ba19fd1 and handoffed71fd9 are independently approved and
 integrated as aacd774/22c1581. Committed src/public/tests equal the checked

@@ -5,8 +5,12 @@ integrated. Original SceneOut reaches an accepted footer-absent pair before
 HOME departure; pre-footer retained pixels prevent footer replay. Supporting
 checks pass apart from the known missing Camera fixture. Frozen-check handoff
 ddfe288 is integrated; independent review and coordinator verify all223 build
-files in freeze55898feb. New production recapture remains pending; AN-04
-remains fail. Held live HOME epochs, Decide5,
+files in freeze55898feb. First/repeat production keyboard HOME/Resume each save
+600 pairs. All1,200 pairs/2,400 PNGs verify. Inspected footer withdrawal334/365
+and absent343/374 precede HOME departure348/379. Fixed native complete/ready
+comparisons still fail; lower ready alone meets static delta2. Dialog/lower
+coincidence, touch, pressed samples and native post-HOME raw phases stay open.
+AN-04 remains fail. Held live HOME epochs, Decide5,
 direct binding and receipt cadence remain adaptations. See [footer handoff](../workstream-handoffs/health-resume-footer-20261010.md).
 
 Checkpoint: `be54ea30` (2 October 2026), with older per-feature evidence retained. This is an implementation and

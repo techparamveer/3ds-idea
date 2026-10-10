@@ -23,8 +23,15 @@ fullgate handoff6614478 integrate as aacd774,22c1581 and ddfe288. Source review
 e99cdb14 and freeze review df4d3f36 approve separately. Coordinator also verifies
 all223 build files and supporting identities in freeze55898feb. Worker source,
 public, tests and .next stay frozen at build5pTgJwKjDtqJGe-Um3UEF. No worker
-operates GUI or serving. Coordinator owns the fresh candidate tab and first/
-repeat actual-input capture; no candidate visual acceptance exists yet.
+operates GUI or serving. Coordinator closes first/repeat actual keyboard input
+captures at600 pairs each in the muted MacBook browser. Audit worker
+resume_capture_audit_high owns only private footer/browser-v1/offline-audit;
+reviewer resume_review_sol_high owns only its private capture-review output.
+Both use GPT-6.1 Sol high. All1,200 pairs/2,400 PNGs verify; selection0977210c
+seals before four fixed comparisons. Root inspects eight raw sheets, exact
+boundary PNGs and all four comparison sheets. Footer withdrawal before HOME
+departure is delivered browser ordering; exact native motion/input stays open.
+Whole-flow comparisons fail. No source/build/original-capture lease is reopened.
 
 ## Retained application Resume, 10 October 2026
 

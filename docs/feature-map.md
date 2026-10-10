@@ -6,7 +6,13 @@ footer-free retained lower pixels prevent reappearance. Focused54 pass and
 full suite2,692pass/1known Camera fixture failure; typecheck/shader/build pass.
 Frozen-check handoff ddfe288 is integrated. Independent review df4d3f36 and
 coordinator verification approve freeze55898feb/build5pTgJwKjDtqJGe-Um3UEF,
-including all223 build files. Candidate serving/recapture remain pending.
+including all223 build files. The frozen candidate now serves3029. First/repeat
+keyboard HOME/Resume each save600 pairs; all1,200 pairs and2,400 PNGs verify.
+Inspected footer-only withdrawal334/365 and absent343/374 precede HOME departure
+348/379. This closes the missing browser ordering stage, not native timing or
+pixels. Four fixed comparisons still fail; ready lower alone meets static delta2.
+Dialog/lower coincidence, missing pressed samples, touch and native post-HOME
+raw phases remain open. See [capture results](animation-verification-checkpoint-2026-10-10.md).
 AN-04 and all other whole flows remain fail. See [footer source and adaptations](workstream-handoffs/health-resume-footer-20261010.md).
 
 Current delivery through `b64e797` includes reviewed retained Health Resume

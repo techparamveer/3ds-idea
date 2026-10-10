@@ -16,8 +16,21 @@ the pinned caller trace. Focused54 pass; full suite2,692pass/1known missing
 Camera PNG failure/101skip/1TODO; typecheck/shader/build pass. Frozen-check
 handoff ddfe288 is integrated. Independent review df4d3f36 and the coordinator
 verify freeze55898feb, all223 build files, logs, manifests and production GLBs.
-Browser recapture is next. Held HOME pixels, settled Decide5, direct
+Browser recapture is closed below. Held HOME pixels, settled Decide5, direct
 binding and receipt cadence are adaptations. No new whole-flow pass is claimed.
+
+The frozen footer candidate now serves port3029 on the muted MacBook. First
+and repeat keyboard HOME/Resume each save600 pairs. All1,200 pairs,3,600
+originals and2,400 CRC/independent full PNG decodes verify. Chronological raw
+inspection shows footer-only withdrawal334/365, fully absent footer343/374,
+then HOME departure348/379. This delivers separate browser ordering, not
+native cadence or a pixel-tier match for those stages. Sealed selection0977210c
+precedes four fixed native comparisons. Complete-footer130/158 differ by
+13,810/33,300 and17,095/33,300 upper/lower pixels; ready389/420 differ by
+24,170/0 and18,433/0 at empty-mask delta2. Ready lower is static-only.
+Dialog/lower HOME still coincide. Touch delivery, pressed Resume samples,
+native post-HOME raw phases and exact input/motion remain open. All four whole
+flows remain fail. See [current capture evidence](docs/animation-verification-checkpoint-2026-10-10.md).
 
 Final browser audit `181440a5` closes all1,632 pairs,4,896 unchanged originals
 and3,264 independently decoded PNGs. Coordinator inspects12 raw boundary/

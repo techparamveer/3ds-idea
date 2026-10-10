@@ -5,7 +5,9 @@
 Worker base `c058ec9d1bbab91b9dfb44c5edbec016eaf07c71`, assigned branch
 `codex/health-resume-retained-20261010`, worktree
 `/Users/paramveer/.codex/worktrees/health-resume-retained-20261010/3ds-idea`.
-Source and tests are frozen at `969b3676691c82c1b197882b212c8e074a7b2eb4`.
+Initial source/tests `969b3676691c82c1b197882b212c8e074a7b2eb4` remain
+immutable. The corrected source range ends at follow-up
+`a03504e50b2dae1ac0fb4bef6d95f494f929124b`, frozen for exact review.
 This is one Health-scoped retained-owner correction, not general Resume or
 whole-flow completion. Every other application Resume route is unchanged
 and unaccepted. Reducers, `system.ts`, `app-host.ts`, the scene input adapter,
@@ -131,9 +133,22 @@ keep their mappings in the [dimming](health-suspend-dimming-20261010.md),
 The existing application capture store now exposes an owner-checked retained
 read after the same application has resumed. Its suspended-only reader keeps
 its original eligibility. `screens.ts` retains one accepted expanded Health
-HOME source, keyed by application owner, capture generation and firmware
-resource generation. It is promoted only by the existing visible paired-LCD
+HOME source, keyed by application owner, capture generation, firmware
+resource generation and its existing HOME origin. It is promoted only by the existing visible paired-LCD
 receipt, never a diagnostic, hidden, failed or stale paint.
+
+The origin includes existing navigation selection revision, container and
+selected viewport, toolbar focus, runtime applet sequence and applet slots.
+Source promotion and Resume receipts both revalidate it. Moving selection
+away and back cannot revive an old source, even without an intervening paint;
+the matching expanded Health source must receive a fresh pair receipt.
+Toolbar and applet open/back context changes also invalidate it. A changed
+origin retires the source on the next ordinary paint. HOME lid sleep preserves
+an otherwise unchanged accepted origin. This correction covers only departure
+from a completed, selected, expanded Health HOME composition. Physical HOME
+can still resume Health from other HOME selections/toolbar/applet contexts,
+but those routes retain their previous behavior and remain unaccepted; they
+cannot replay a stale expanded-Health snapshot. No compact animation is added.
 
 Resume keeps native acquisition and real Health composition active underneath
 the departure. While covered, it suppresses application capture recording so
@@ -203,19 +218,35 @@ receipts, native-pair revocation/reacquisition, all HUD channels, all lower
 departure channels, and BannerBG geometry/tint/both UV validation. Existing
 pause, lower release, window, close, input and native preparation checks pass.
 
+Exact independent review then found a blocking stale-source lifecycle gap:
+the initial implementation retained its old expanded Health source when
+HOME selection or applet context changed. `red-06-origin.log` reproduces
+actual touch selection-away followed by physical HOME with no intervening
+paint, incorrectly replaying Resume frame 0. The source follow-up changes
+only `screens.ts` and the live regression, retaining all earlier commits.
+`green-04-origin.log` passes 13/13; `focused-03-origin.log` passes 173/173.
+Final `focused-04-origin.log` passes 174/174 with no skips across the same
+16 files. Added actual routes cover selection-away with and without a paint,
+selection-away/back with and without a fresh accepted source, toolbar focus,
+Friends open/back followed by physical HOME, and unchanged HOME lid sleep
+then wake/Resume. Changed-origin routes explicitly assert no stale source
+draw or acknowledgment. The original receipt/readiness/failure tests remain.
+
 Focused command:
 `node --test tests/home-resume-presentation.test.mjs tests/health-resume-retained-live.test.mjs tests/home-pause-window-entry-live.test.mjs tests/home-pause-window-entry.test.mjs tests/home-entry-motion.test.mjs tests/home-entry-motion-scene-policy.test.mjs tests/home-suspended-background.test.mjs tests/home-suspended-window.test.mjs tests/home-suspended-window-entry-policy.test.mjs tests/home-suspended-presentation.test.mjs tests/notes-suspended-capture.test.mjs tests/stock-screen-preparation.test.mjs tests/home-application-transition.test.mjs tests/system-home-application-transition.test.mjs tests/native-screen-input.test.mjs tests/home-hud-sample.test.mjs`.
 
 `typecheck-01.log` preserves two initial local narrowing errors.
 `npm run typecheck -- --incremental false` then passes in `typecheck-02.log`
-and final `typecheck-03.log`. `git diff --check` and explicit staged-path
+and initial `typecheck-03.log`. Nonincremental typecheck also passes in
+`typecheck-04-origin.log` and final `typecheck-05-origin.log` for the follow-up.
+`git diff --check` and explicit staged-path
 checks pass. Dependencies are a local APFS clone from the frozen prior
 worker's node_modules, not a symlink. Only own source/tests were committed;
 local STATUS reconciliation is unstaged. Every finite command is reaped.
 
 Source-identified, delivered, implemented and focused-tested evidence is
 reported separately from browser/native comparison. Exact independent review
-is pending. Full tests, production build and any new shader supporting check
+of the corrected `c058ec9..a03504e` range is pending. Full tests, production build and any new shader supporting check
 have not run for this candidate. No browser, server, Azahar, system volume or
 other worktree was operated or modified. The previous source/public/tests and
 served `.next` stay frozen. Normal service speed cannot be verified by tools.

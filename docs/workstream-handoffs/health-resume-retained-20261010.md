@@ -317,3 +317,62 @@ The worker has not operated a server, browser or Azahar. The old production
 build remains frozen. Separate native footer departure, retained bounds and
 pixels, native clock/cadence, input equivalence and muted audio remain open;
 this source correction establishes no native scenario pass.
+
+## Full checks and production build
+
+The coordinator authorizes full checks after exact independent source approval
+of `cf52bd5`. Runtime integration is `dbfcb45`, with matching source/public/test
+trees at that checkpoint. Source and public remain unchanged throughout the
+worker checks and production build. All logs below are under `R`.
+
+Initial `npm-test.log` preserves 2,686 pass / 2 fail / 101 skip / 1 TODO,
+2,790 tests. One failure is the unchanged absent private Camera PNG required
+by `tests/camera-date-group.test.mjs:44`. The second is a stale source-text
+assertion in `tests/application-close-scene-policy.test.mjs:94` that requires
+the return expression to begin with `nativeSystem`; retained Resume now has
+its own preceding return branch. After the completed build handle exits 0,
+the coordinator explicitly reserves that test file for a narrow correction.
+Separate test-only `8180ad6` removes the return-prefix assumption while
+preserving all overlay-selection, failure and result checks. No runtime code
+changes. `application-close-policy.log` passes 8/8.
+
+Final `npm-test-final.log` records 2,687 pass / 1 fail / 101 skip / 1 TODO,
+2,790 tests. The sole failure remains the missing
+`/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/camera-3d-badge-sdmc-recapture-20261005/browser/lower.png`.
+This full suite remains failed. No Camera test is skipped, weakened or changed.
+The coordinator's existing bounded search found no matching private directory;
+the worker does not repeat that search.
+
+`typecheck-full-gate.log` and `typecheck-final.log` pass
+`npm run typecheck -- --incremental false`. `check-shader.log` passes required
+shader validation with no diagnostics. `glb-preflight.log` checks all 77
+tracked GLBs for valid glTF magic and SHA-256 equal to HEAD's LFS oids; every
+file was already hydrated, with no asset edit. The three production model
+hashes match the preceding frozen HOME-order candidate.
+
+`build.log` passes Next.js 16.3.4/Turbopack production build at documentation
+HEAD `862f60b`, whose source/public/tests exactly match reviewed runtime
+`cf52bd5`. Build ID is `itZdGEQJDzlDwPZnssuUe`. The later correction changes
+one test assertion only; source/public remain byte-identical, so the
+coordinator explicitly permits retaining this build without rebuilding.
+Committed source/public/final-test trees are respectively
+`f234798f52bce5614ebc15026b09abafc2337ff2`,
+`7c838c9ca5e672dacea4c2484f69ca8c3426d5f4`, and
+`dd4b2c32d1e542748ea3a2ba105c089597c8f648`.
+
+The separate GPT-6.1 Sol high reviewer approves exact test-only `8180ad6`,
+independently passing its 8 policy checks and whitespace check with source/public
+equal to `cf52bd5`. Source approval is recorded in
+`R/review-sol-high-v1/report.md`; test-only approval is recorded separately in
+`R/review-sol-high-v1/policy-review.md`.
+Private `R/freeze.json` records this final handoff HEAD, runtime/test commits,
+source/public/test trees, build ID, build-file and manifest hashes, unchanged
+production GLB hashes, review/check log hashes and the known failed-suite
+detail. `R/build-files.json` records every frozen `.next` file. The serving
+lease is released to the coordinator; source/public/tests/.next are frozen.
+No worker server or GUI has run. All finite handles are reaped. The previous
+served HOME-order source/public/tests/build and exports are untouched. The
+worker's source/public/tests/.next remain frozen for
+coordinator-only muted MacBook first/repeat ordinary Health
+HOME/Resume capture. Whole-scenario fidelity, separate footer departure,
+exact native timing and audio remain unproven.

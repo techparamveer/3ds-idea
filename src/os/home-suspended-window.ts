@@ -61,12 +61,13 @@ export function drawHomeSuspendedIcon(renderer:NativeLayoutRenderer,ctx:CanvasRe
 }
 
 /** Source geometry and Sleep loop. Close opacity is an explicit capture-fit input. */
-export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,metadata:SuspendedWindowMetadata,mode:'expanded'|'compact'='expanded',sleepFrame=0,closeOpacity?:number,windowAppearFrame?:number,sceneInFrame?:number){
+export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,metadata:SuspendedWindowMetadata,mode:'expanded'|'compact'='expanded',sleepFrame=0,closeOpacity?:number,windowAppearFrame?:number,sceneInFrame?:number,sceneOutFrame?:number){
  const pack=renderer.packs.launcher,bank=renderer.packs.messages?.messages.menu_msbt_LZ;
  validateSleepFrame(sleepFrame);
  if(closeOpacity!==undefined&&(!Number.isFinite(closeOpacity)||closeOpacity<0||closeOpacity>1))throw new RangeError('Invalid suspended close opacity');
  if(windowAppearFrame!==undefined&&(!Number.isSafeInteger(windowAppearFrame)||windowAppearFrame<0||windowAppearFrame>10))throw new RangeError('Invalid suspended window appearance frame');
  if(sceneInFrame!==undefined&&(!Number.isSafeInteger(sceneInFrame)||sceneInFrame<0||sceneInFrame>40))throw new RangeError('Invalid suspended window scene-in frame');
+ if(sceneOutFrame!==undefined&&(!Number.isSafeInteger(sceneOutFrame)||sceneOutFrame<0||sceneOutFrame>40))throw new RangeError('Invalid suspended window scene-out frame');
  const bindings:AnimationBinding[]=[
   {name:'LncBase_U_00_SceneIn',frame:sceneInFrame??40},
   {name:'LncBase_U_00_Appear',frame:10},
@@ -75,9 +76,17 @@ export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:Canvas
   {name:'LncBase_U_00_ScaleUpDown',frame:mode==='expanded'?15:0},
   {name:'LncBase_U_00_Sleep',frame:sleepFrame},
   {name:'LncBase_U_00_WhiteBlack',frame:closeOpacity===undefined?1:0},
+  ...(sceneOutFrame===undefined?[]:[{name:'LncBase_U_00_SceneOut',frame:sceneOutFrame}]),
  ];
  if(!pack?.layouts.LncBase_U_00)throw Error('Native suspended window layout unavailable');
  for(const binding of bindings)if(!pack.animations[binding.name])throw Error(`Native suspended window animation unavailable: ${binding.name}`);
+ if(sceneOutFrame!==undefined){
+  const clip=pack.animations.LncBase_U_00_SceneOut,source=pack.resourceSources?.animations?.LncBase_U_00_SceneOut;
+  const track=(property:string,from:number,to:number)=>{const tracks=clip.tracks.filter(track=>track.target==='N_Root_00'&&track.property===property);return tracks.length===1&&tracks[0].interpolation==='hermite'&&tracks[0].keys.length===2&&tracks[0].keys.every((key,index)=>key.frame===index*20&&key.value===(index?to:from)&&key.slope===0);};
+  if(source?.titleId!=='0004003000009802'||source.path!=='launcher_LZ.bin/anim/LncBase_U_00_SceneOut.bclan'||source.sha256!=='ba54b2de5825ab966a6bfd1e480d84c4479510688b1e36a20336493afdb174e9'
+   ||clip.frames!==41||clip.loop||!clip.childBinding||JSON.stringify(clip.groups)!=='["G_Scene_00"]'
+   ||!track('alpha',255,0)||!track('scale.x',1,1.100000023841858)||!track('scale.y',1,1.100000023841858))throw Error('Native suspended window scene-out source unavailable');
+ }
  if(sceneInFrame!==undefined){
   const sceneIn=pack.animations.LncBase_U_00_SceneIn;
   const group=pack.layouts.LncBase_U_00.groups.flatMap(root=>root.children).find(group=>group.name==='G_Scene_00');

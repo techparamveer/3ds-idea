@@ -42,7 +42,7 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    signal.throwIfAborted();return metadata;
   },
  }),notesIntro=createNotesIntroSession(),notesBootCover=createNotesBootCoverSession();
- let appletCoveredOwner:string|null=null;
+ let appletCoveredOwner:string|null=null,resumeCoveredOwner:string|null=null;
  const pauseNotesBootCover=()=>notesBootCover.pause();
  document.addEventListener('visibilitychange',pauseNotesBootCover);
  function syncNotesIntro(state:MenuState,view:AppView|null|undefined,packs:Record<string,NativePack|undefined>|undefined):NotesIntroPaint|undefined{
@@ -227,7 +227,7 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
     if(view.appId!=='manual'||!deferManualDestination||stockScreens.getFailure()!==null)complete=semanticApplication(t,b,view,state,s.runtime.active,date,time,verification,notesFooterClose,notificationsFooterClose);
    }
    // Retain the application slot's last complete pair, before host overlays.
-   if(complete&&s.runtime.active&&!s.sleeping&&!s.preferences&&!s.dialog)suspendedCapture.record(s.runtime,s.runtime.active,t.canvas,b.canvas);
+   if(complete&&s.runtime.active&&s.runtime.active!==resumeCoveredOwner&&!s.sleeping&&!s.preferences&&!s.dialog)suspendedCapture.record(s.runtime,s.runtime.active,t.canvas,b.canvas);
   }
   if(s.phase==='launch'&&!nativeSystem){
    t.fillStyle=b.fillStyle='#fff';t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
@@ -251,5 +251,5 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    t.fillStyle=b.fillStyle=`rgba(0,0,0,${alpha})`;t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
   }
  }
- return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,setAppletEntryCovered,preparedStockPair,notesFooterCloseResources,notificationsFooterCloseResources,appletIncomingResources,drawAppletIncoming,presentNotesBootCover,notesBootCoverActive,revokeNotesBootCoverCandidate,readSuspendedCapture:suspendedCapture.read,retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){document.removeEventListener('visibilitychange',pauseNotesBootCover);nvidiaBanner.dispose();hackLdnBanner.dispose();stockScreens.dispose();notesIntro.dispose();notesBootCover.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
+ return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,setAppletEntryCovered,preparedStockPair,notesFooterCloseResources,notificationsFooterCloseResources,appletIncomingResources,drawAppletIncoming,presentNotesBootCover,notesBootCoverActive,revokeNotesBootCoverCandidate,readSuspendedCapture:suspendedCapture.read,readRetainedApplicationCapture:suspendedCapture.readRetained,setResumeCoveredOwner(owner:string|null){resumeCoveredOwner=owner;},retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){document.removeEventListener('visibilitychange',pauseNotesBootCover);nvidiaBanner.dispose();hackLdnBanner.dispose();stockScreens.dispose();notesIntro.dispose();notesBootCover.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
 }

@@ -46,8 +46,20 @@ export function createSuspendedApplicationCapture(options: { createSurface?: (wi
   function pixels(surface: Surface, [width, height]: readonly [number, number]) {
     return rotateCaptureForNativeUV(width, height, surface.getContext('2d')!.getImageData(0, 0, width, height).data);
   }
+  function readRetained(runtime:AppRuntime):SuspendedCapture {
+    if(disposed)return {status:'none'};
+    sync(runtime);
+    const application=runtime.application,instance=application?runtime.instances[application]:undefined;
+    if(!application||!instance||instance.closing)return {status:'none'};
+    if(owner!==application||!surfaces)return {status:'missing',owner:application};
+    const pair=converted?.generation===generation?converted:(converted={generation,upper:pixels(surfaces.upper,LCD.upper),lower:pixels(surfaces.lower,LCD.lower)});
+    return {status:'ready',owner:application,generation,upper:pair.upper,lower:pair.lower};
+  }
   return {
     sync,
+    /** Resume borrows the application-owned pair after runtime restoration,
+     * until the outgoing presentation releases it. */
+    readRetained,
     /** HOME borrows the same owned frozen frame without another readback or copy.
      * Flat presentation is an adaptation until the native capture warp is decoded. */
     drawUpper(runtime: AppRuntime, target: CanvasRenderingContext2D): boolean {
@@ -79,10 +91,7 @@ export function createSuspendedApplicationCapture(options: { createSurface?: (wi
       sync(runtime);
       const application = runtime.application, instance = application ? runtime.instances[application] : undefined;
       if (!application || !instance || !instance.suspended || instance.closing || runtime.active === application) return { status: 'none' };
-      if (owner !== application || !surfaces) return { status: 'missing', owner: application };
-      // Read back once per frozen frame; the resumed owner invalidates it.
-      const pair = converted?.generation === generation ? converted : (converted = { generation, upper: pixels(surfaces.upper, LCD.upper), lower: pixels(surfaces.lower, LCD.lower) });
-      return { status: 'ready', owner: application, generation, upper: pair.upper, lower: pair.lower };
+      return readRetained(runtime);
     },
     dispose() { if (disposed) return; disposed = true; release(); },
   };

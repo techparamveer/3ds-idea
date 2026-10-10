@@ -1,5 +1,36 @@
 # Workstream Registry
 
+## Retained application Resume, 10 October 2026
+
+Worker health-resume-retained-20261010 starts at c058ec9 in its own worktree
+and branch. GPT-6.1 Sol extra-high targets actual both-black Resume311-312
+before ready313 from closed audit2a7c4044. Start with a real-compositor red
+regression, then identify the original resume resources/caller and preserve
+retained owner, generation, readiness and paired publication. Reserve exact
+paths before runtime edits; coordinator owns GUI, serving and integration.
+Use authored decrypted resources, not reversed opening or guessed delay/curve.
+Native movie samples show retained Health through HOME departure but do not
+recover timing. Existing health-home-order source/build/exports stay frozen.
+Independent different-model review and visible recapture are required.
+
+The actual-compositor red regression is recorded in private
+`health-resume-retained-20261010/red-04.log`. Actual Health touch launch, HOME
+and footer Resume keep owner `health-safety:1`, start a second native load and
+paint both LCDs black. Earlier red-01 through red-03 are setup failures, not
+bug evidence. The bounded pinned caller investigation identifies lower
+`LncPauseFade_D_00_SceneOut`, upper `SceneOut`, `BannerBG_SceneOut`,
+`BannerBG_AppRestart` and HUD departure. Caller predicates and unresolved host
+cadence must stay explicit in the source handoff.
+
+The worker owns `screens.ts`, `portfolio-screens.ts`,
+`notes-suspended-capture.ts`, new `home-resume-presentation.ts`,
+`home-entry-motion.ts`, `home-pause-lower.ts`, `home-suspended-window.ts`,
+`firmware-presentation.ts`, `src/scene/home-suspended-background.ts` and focused
+Resume tests. These filenames are under `src/os/` unless stated otherwise.
+No reducer or `system.ts` change is reserved. The existing runtime remains the
+state owner; screen composition gates visible and input handoff on a prepared
+same-owner LCD pair and its terminal publication receipt.
+
 ## HOME suspension reveal order, 10 October 2026
 
 Final browser audit `2a7c4044` is complete and its private reservation released.

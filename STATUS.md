@@ -56,7 +56,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `85d01fb2f940c29b7b761bb44bdfd57571e97f2d`. Reviewed source/tests `2ea5068`, handoff `cf91eb9`, production checks `407055f` and seven-document delivery `85d01fb` are pushed. Source approval `5ef3143c`, checks approval `e1e8f521` and documentation approval `10e2f052` remain separate. Frozen production `MHwPOu1oLhQcWrZ9Ke1TE` serves3029. All600 candidate pairs save; final audit `2a7c4044` is closed without structural issues. Earlier source/build/exports stay unchanged. Upper status precedes lower tray, but dialog still coincides with it; source alignment remains adapted, not native cadence. All four whole scenarios remain unaccepted. Human system.ts stays excluded. |
+| HEAD | `c058ec9d1bbab91b9dfb44c5edbec016eaf07c71`. Reviewed source/tests `2ea5068`, handoff `cf91eb9`, production checks `407055f`, delivery `85d01fb` and audit closure `c058ec9` are committed. Source approval `5ef3143c`, checks approval `e1e8f521`, delivery approval `10e2f052` and final closure approval `3c4434af` remain separate. Frozen production `MHwPOu1oLhQcWrZ9Ke1TE` serves3029. All600 candidate pairs save; final audit `2a7c4044` is closed without structural issues. Earlier source/build/exports stay unchanged. Upper status precedes lower tray, but dialog still coincides with it; source alignment remains adapted, not native cadence. All four whole scenarios remain unaccepted. Human system.ts stays excluded. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -70,6 +70,25 @@ Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9dd
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
 
 ## Serving
+
+Retained Resume continuation: the targeted native raw-departure run is closed.
+Policy907e1a44 precedes isolated PID8483/session49874. Sole MacBook display1
+and render1242 at40,81,511x645 are verified. Actual Health Open, requested
+Shift500ms HOME and actual footer Resume yield12 own PNGs plus the log under
+private `health-resume-retained-20261010/native-raw-v1`. Log13saves/12paths/
+2ignored closes15 requests; one overwritten version is lost. Cua observes dim
+retained Health on both LCDs after HOME departure, then ready Health. Closed
+audit57ae4729 verifies all12 PNGs with independent full decode and all13 original/
+14 derived checksums. Coordinator inspects both raw sheets. Resume press and
+early footer withdrawal are captured, but post-HOME dim/expansion raw phases
+remain missing. The current fix still lacks that separate footer departure.
+Quit/Yes exits0, process absence is verified and only temporary HOME/screenshot
+fields restore byte-exact config031bc535. Volume0/Null1/Static2 stay unchanged.
+The current production browser/server below is unchanged. The source worker's
+actual-compositor red-04 reproduces both-black Resume. Corrected candidate
+a03504e passes174 focused tests and nonincremental typecheck. Independent
+re-review holds on transient gesture/motion source eligibility. Integration, full
+checks, new frozen build and visible recapture are still pending.
 
 Final candidate audit2a7c4044 closes600 triples,1800 unchanged originals and
 1200 independently decoded PNGs with no structural issues. Selectione623453b
@@ -93,8 +112,8 @@ Dedicated MacBook browser PID20594 retains --mute-audio. Ordinary Reload and
 actual selected Health tile reach ready Health. Recorder Start, physical HOME,
 complete paused HOME and actual lower Resume visibly recover ready Health;
 repeat HOME/Resume also visibly recover. Frame-limit stops at600 pairs and
-Save exports all600. Receipt audit must establish whether repeat Resume is
-inside the bounded capture. Offline candidate audit is pending. No recorder runs.
+Save exports all600. Closed audit2a7c4044 establishes repeat Resume is outside
+the bounded capture. No recorder runs.
 Native audit112531b9 is closed:10originals unchanged,7 own PNGs decoded,
 two zero-audio movies decoded,226 derived checksums verified. Raw upper-first
 ordering is confirmed. Sampled Resume blends retained Health through HOME;
@@ -1621,7 +1640,26 @@ NAND writes between isolated copies. Nintendo Zone remains skipped.
 
 ## Seats
 
-Final browser audit2a7c4044 is closed; offline worker releases its private
+Current continuation at c058ec9: GPT-6.1 Sol extra-high worker owns
+health-resume-retained-20261010. Its immutable source/tests candidate969b367
+has170 focused tests and nonincremental typecheck passing, but independent
+review identifies stale expanded Health source reuse after HOME selection or
+toolbar changes. Corrected immutable follow-up a03504e adds the origin guard
+and actual-input regression;174 focused tests and nonincremental typecheck pass.
+Integration/full build remain held for re-review. The reviewer also identifies
+a possible transient gesture/motion origin hole; the worker is reproducing
+press/cancel followed by physical HOME and checking source/receipt eligibility.
+No corrected verdict or additional source commit is claimed. 969b367 stays immutable.
+Different-model GPT-5.6 Sol high reviewer records REQUEST CHANGES41d01a7a in
+private review-v1 and owns corrected-range re-review in review-v2. Private
+native audit57ae4729 is closed and releases
+its seat. All finite native/auditor handles are reaped. System.ts is unchanged
+by the candidate; the unrelated human edit remains unstaged. No worker GUI or
+server. Frozen6abb45cf/3029 and its exports remain unchanged. Coordinator alone
+integrates, serves, compares and recaptures after review/full checks. No guessed
+reverse opening, curve or delay. Separate early footer departure stays open.
+
+Previous closure seats: final browser audit2a7c4044 is closed; offline worker releases its private
 reservation and reaps all finite handles. No implementation/audit worker
 remains active. Coordinator owns the next captured defect; reviewer owns only
 the final documentation delta. Frozen serving and MacBook-only muted GUI stay
@@ -1968,6 +2006,21 @@ The integration checkout remains here.
 Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camera Slideshow header 0. Camera Settings third 0. Welcome p5 **7615** live-feed source-gap **APPROVE**. Volume **130** live-slider source-gap **APPROVE**. Span **2314**/**2442** live-spectrum source-gap **APPROVE**. Birds **1558** held-offset source-gap **APPROVE**. Battery `[45,216,85,240]` **1** underbar-partition source-gap **APPROVE**. Line01 `(92,220)` partition source-gap **APPROVE**. Empty-entry row **1916** **APPROVE**. Thumb interiors **846/918** **APPROVE**. Guide perimeter **6072** = **860** dimmed grid + **4416** half + **728** (**144** row + **53** footer + **531** within 2) + **68** fringe; veil **REJECT** `be862ce6`; subsets **APPROVE-WITH-NITS** `d72ab4b1`. Empty-mid **2255**/**1024** → **0**/**0** by grid bind `603c5388` **APPROVE-WITH-NITS** `de5c6445`. p3 `TxtDlg` **1079→1078** after host-gate `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`. Sound upper 316 labelled `14533857` **APPROVE** `daa93bca`. y=177 **320** labelled `22e8b0a4` **APPROVE** `9fe268f8`. Slider **57** **APPROVE-WITH-NITS** `444ba8e0`. Plus-tint strip **1992** kept `ed55865e` **APPROVE** `b6620fa4`. HOME 1-row tail **291** **APPROVE** `f72296ff`. HOME idle Health 1-row left-anchor **23182 / 14754** empty mask (title/wallpaper **12255**, vacant-vs-Settings **7045**, HUD **2328**). **Static still only.** Whole scenarios still fail.
 
 ## Next
+
+Current continuation: finish the reviewer's bounded transient gesture/motion
+origin check, then re-review the corrected Health Resume range before
+integration/push. Follow-up a03504e passes174 focused tests and typecheck;
+red-06 preserves the actual stale-source failure. Preserve immutable rejected
+candidate969b367 and review41d01a7a. Its
+actual-compositor regression and late-destination checks run red before the
+fix;170 focused tests and nonincremental typecheck pass. Full tests/build and
+visible recapture remain pending. Coordinator-only verification policy
+abbb0a00 declares separate first/repeat one-cycle raw recordings after review
+and full checks. Preserve served6abb45cf/build and all exports. Do not hide
+black frames without preserving retained owner/generation/publication. Exact
+native timing remains open; every unrecovered host mapping is an adaptation.
+Review, commit/push and recapture before another source slice on this feature.
+All four whole flows remain fail. Earlier Next options below are historical.
 
 Current next: candidate600-pair audit2a7c4044 and coordinator inspection are
 closed. Preserve sealed selectione623453b. Status-before-lower is visibly

@@ -1,5 +1,27 @@
 # Feature map — 1:1 queue
 
+Latest HOME reveal-order delivery is pushed as runtime/tests `2ea5068`, handoff
+`cf91eb9` and production-check checkpoint `407055f`. Independent reviews
+`5ef3143c` and `e1e8f521` approve source and frozen checks. The new source selects
+the authored visible upper pose before lower HOME exposure, without adding an
+animation clock. This is a source-phase adaptation, not native cadence.
+Full tests have2,667 passes and one unchanged missing private Camera PNG
+failure; typecheck, shader validation and build pass. Frozen production
+`MHwPOu1oLhQcWrZ9Ke1TE` serves3029 on the muted MacBook. Ordinary first/repeat
+HOME/Resume recover visibly. All600 frame-limited raw pairs save, covering
+first HOME/Resume and repeat HOME; repeat Resume is outside the export.
+Candidate structural/chronological audit is pending.
+
+Native audit `112531b9` closes10 unchanged originals and seven decoded own
+PNGs plus two zero-audio movies. Raw PNGs confirm upper-first suspension.
+Coordinator-inspected Resume samples show retained Health through departing
+HOME and subsequent expansion/brightening. Raw Resume departure remains
+missing. Exact motion/input, retained bounds, failed shortcut Resume, Manual
+60/9 endpoint and populated/held folder verification remain open. All AN-01
+through AN-04 whole flows fail. See [current handoff](workstream-handoffs/health-home-order-20261010.md)
+and [evidence checkpoint](animation-verification-checkpoint-2026-10-10.md).
+The preceding dimming checkpoint follows as history.
+
 Latest runtime `e7ac460` aligns the authored retained upper dim phase with the
 existing lower source phase. Test correction `115696e` and handoff `b14d3de`
 are pushed. Independent reviews approve both exact source/test ranges. Final

@@ -56,7 +56,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `b14d3de371f5d5c0789be33bd8ee5d75d3c1706a`. Reviewed dimming source/tests are pushed as `e7ac460`/`115696e`, approvals `15f821dc`/`11581308`; handoff `9c67472` integrates as `b14d3de`. Final full checks have2665pass/1unchanged missing Camera PNG failure/101skip/1TODO; typecheck, shader validation and build pass. Frozen build `na-t0YK-P1Kxs8zcVSbX_` serves3029; bounded456-pair HOME/Resume recapture is saved, inspected and structurally closed at8241e7ba. Both retained LCDs now dim before lower HOME. Previous source/build/exports stay unchanged. Source-phase alignment is an explicit adaptation; HOME order, retained-image bounds and failed shortcut Resume remain open. Human system.ts stays excluded. All four whole scenarios remain unaccepted. |
+| HEAD | `407055f37d5f92c85c8d4cffb3cbaad81b5630ef`. Reviewed upper-first HOME source/tests integrate and push as `2ea5068`; handoff as `cf91eb9`; reviewed production checks/freeze as `407055f`. Independent source approval `5ef3143c` verifies 190 focused and 15 supplemental tests. Checks approval `e1e8f521` independently verifies the frozen build. Production `MHwPOu1oLhQcWrZ9Ke1TE` serves3029. All600 frame-limited candidate pairs save; offline audit is pending. Earlier dimming source/build/456-pair exports stay unchanged. Reveal alignment remains an explicit adaptation, not native cadence. All four whole scenarios remain unaccepted. Human system.ts stays excluded. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -71,7 +71,39 @@ Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` /
 
 ## Serving
 
-Current server: frozen dimming buildna-t0YK-P1Kxs8zcVSbX_ serves3029,
+Current upper-first candidate: worker HEAD 6abb45cf, reviewed runtime 8112d47
+equal integrated 2ea5068, production build MHwPOu1oLhQcWrZ9Ke1TE. Coordinator
+stops only owned dimming server through session50559 (exit130), verifies3029
+free, then starts frozen health-home-order tree on loopback3029, listener4281,
+persistent session85139. Capture root is private health-home-order-20261010.
+Full suite2667pass/1known missing private Camera PNG fail/101skip/1TODO;
+nonincremental typecheck, shader check and build pass. No assets changed.
+Dedicated MacBook browser PID20594 retains --mute-audio. Ordinary Reload and
+actual selected Health tile reach ready Health. Recorder Start, physical HOME,
+complete paused HOME and actual lower Resume visibly recover ready Health;
+repeat HOME/Resume also visibly recover. Frame-limit stops at600 pairs and
+Save exports all600. Receipt audit must establish whether repeat Resume is
+inside the bounded capture. Offline candidate audit is pending. No recorder runs.
+Native audit112531b9 is closed:10originals unchanged,7 own PNGs decoded,
+two zero-audio movies decoded,226 derived checksums verified. Raw upper-first
+ordering is confirmed. Sampled Resume blends retained Health through HOME;
+raw departure remains missing, two overwritten PNG versions remain lost.
+No native timing or whole-scenario pass is established.
+
+Historical pre-audit observation: new native reference for the reveal-order
+slice is closed: exact isolated
+native-folder-slow PID 98879 exits 0, both bounded silent recorder handles exit
+0 and no native window remains. Seven own PNGs, two movies and the native log
+are preserved under private `health-home-order-20261010/native-v1`. The new
+own .16.58.12.539 partial again reveals upper HOME while lower retains Health.
+Two same-path overwrites lose earlier versions. Actual footer Resume visibly
+blends Health through departing HOME and reaches ready Health; raw departure
+PNGs are missing and the offline movie audit is pending. Only owned HOME and
+screenshot fields are restored. Config `031bc535` differs from prior `a0a3b837`
+only in the recorded render-window geometry. Volume 0/Null 1/Static 2 remain
+unchanged. All GUI is on the MacBook. This does not establish native timing.
+
+Previous server: frozen dimming buildna-t0YK-P1Kxs8zcVSbX_ served3029,
 listener87828, persistent session50559, from health-suspend-dimming tree at9c67472.
 Coordinator stops only owned80193 through66736, exit130, and verifies listener
 absence before starting the new loopback server. Old shortcut source/build/
@@ -1578,6 +1610,33 @@ NAND writes between isolated copies. Nintendo Zone remains skipped.
 
 ## Seats
 
+Current seats at407055f: reveal-order implementation worker completes and
+releases all source reservations. Its frozen6abb45cf tree/build serves3029
+under coordinator-only control. Offline GPT-6.1 Sol extra-high worker owns only
+the new600-pair private browser-v1 audit; its native-v1 audit is closed112531b9.
+Independent GPT-5.6 Sol high reviewer owns the seven-document checkpoint
+review, not runtime or GUI. Coordinator alone owns integration, source leases,
+serving, muted MacBook GUI and PR7 delivery. The active objective's worker
+setting applies to this slice; coordinator model/Fast mode is not verified.
+The original implementation reservation below is historical and released.
+
+Active slice at `8b36555`: worker tree
+`/Users/paramveer/.codex/worktrees/health-home-order-20261010/3ds-idea`, branch
+`codex/health-home-order-20261010`, owns the captured lower-first HOME reveal
+defect. GPT-6.1 Sol extra-high owns `src/os/home-entry-motion.ts`, necessary
+HOME suspension composition/presenter interfaces, focused tests and one
+handoff. Coordinate extra paths before editing. Require a real-compositor red
+regression and bounded pinned-controller inspection. Any unrecovered host
+alignment stays an explicit adaptation, not native cadence. No guessed curves,
+graphics or delays. Coordinator alone integrates, operates muted MacBook GUI
+and serves the unchanged dimming candidate. Independent different-model review
+must precede integration. No other worker shares these source reservations.
+Worker also reserves `src/os/home-suspended-window.ts` and its focused policy
+tests for the same ordered upper/lower source-phase correction. Its actual
+compositor regression fails with first lower HOME at receipt 8 while both
+upper status/dialog remain invisible. Native controller starts support upper
+before lower, but their live epochs and numeric cadence remain unrecovered.
+
 Current handoff: dimming sourcef6e83c4/testb955d8c are independently approved,
 integrated/pushed e7ac460/115696e. Handoff9c67472 integrates/pushes b14d3de.
 Worker releases the frozen verification tree; no implementation worker is active.
@@ -1892,6 +1951,19 @@ The integration checkout remains here.
 Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camera Slideshow header 0. Camera Settings third 0. Welcome p5 **7615** live-feed source-gap **APPROVE**. Volume **130** live-slider source-gap **APPROVE**. Span **2314**/**2442** live-spectrum source-gap **APPROVE**. Birds **1558** held-offset source-gap **APPROVE**. Battery `[45,216,85,240]` **1** underbar-partition source-gap **APPROVE**. Line01 `(92,220)` partition source-gap **APPROVE**. Empty-entry row **1916** **APPROVE**. Thumb interiors **846/918** **APPROVE**. Guide perimeter **6072** = **860** dimmed grid + **4416** half + **728** (**144** row + **53** footer + **531** within 2) + **68** fringe; veil **REJECT** `be862ce6`; subsets **APPROVE-WITH-NITS** `d72ab4b1`. Empty-mid **2255**/**1024** → **0**/**0** by grid bind `603c5388` **APPROVE-WITH-NITS** `de5c6445`. p3 `TxtDlg` **1079→1078** after host-gate `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`. Sound upper 316 labelled `14533857` **APPROVE** `daa93bca`. y=177 **320** labelled `22e8b0a4` **APPROVE** `9fe268f8`. Slider **57** **APPROVE-WITH-NITS** `444ba8e0`. Plus-tint strip **1992** kept `ed55865e` **APPROVE** `b6620fa4`. HOME 1-row tail **291** **APPROVE** `f72296ff`. HOME idle Health 1-row left-anchor **23182 / 14754** empty mask (title/wallpaper **12255**, vacant-vs-Settings **7045**, HUD **2328**). **Static still only.** Whole scenarios still fail.
 
 ## Next
+
+Current next after407055f: close the new600-pair candidate audit and inspect
+its raw boundary/comparison sheets before another source slice. Native audit
+112531b9 confirms upper-first suspension and sampled retained Health layers
+during Resume. Source correction2ea5068 aligns the existing decoded upper
+reveal/window phases and is explicitly adapted, not native timing. Review,
+full checks and production build are delivered. Preserve missing raw native
+Resume departure, input differences and the failed shortcut Resume. Likely
+next captured defect is ordinary Resume's black-pair boundary versus native
+retained-image departure, subject to the new sealed candidate selection.
+Manual60/9 endpoint, top-row exact motion/input and populated/held folder
+verification remain open. Commit/push reviewed chunks and update draft PR7.
+All four whole flows remain fail; older Next paragraphs are history.
 
 Current next after b14d3de: candidate456-pair audit8241e7ba is closed; preserve
 sealed selection1df6558d. Retained upper dimming is corrected and browser-inspected;

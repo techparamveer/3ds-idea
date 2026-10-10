@@ -1,5 +1,61 @@
 # Animation verification checkpoint, 10 October 2026
 
+## Upper-first HOME candidate
+
+Reviewed source/tests `8112d47` integrate as pushed `2ea5068`; initial handoff
+`f7c6d9d` as `cf91eb9`; production-check follow-up `6abb45cf` as `407055f`.
+Source approval SHA-256:
+`5ef3143c99627a8d601162f21b6b357c6d9dcd4be0ff48b231dc9474094da300`.
+Checks approval SHA-256:
+`e1e8f521f2f7ba86f6b377ffd21d259912745233fb2d5e7f9f988d71c7e53027`.
+The real compositor ordering test is red before and green after; source review
+passes190 focused and15 supplemental tests. Full tests have2,667 passes,
+one unchanged missing private Camera PNG failure,101 skips and one TODO.
+Nonincremental typecheck, required shader validation and build pass. No asset
+changes. Existing decoded upper SceneIn/HUD/window phases follow the lower
+reveal boundary, including the first authored visible upper pose before lower
+HOME. This is captured-order/source-phase adaptation, not native cadence.
+Lower phases, dim holds/release/footer and paired receipt guards remain intact.
+See [the source/check handoff](workstream-handoffs/health-home-order-20261010.md).
+
+Private root is
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261009/opus-completion/health-home-order-20261010/`.
+Native policy SHA-256:
+`1d674550e0cb026724423237f8904752ae2fba680c64ceb6d37a950a23d9993e`.
+Native audit report SHA-256:
+`112531b92b8212121eafdad55053e85f0e1b20731d4f5d4a595ad2a422354701`.
+Native manifest SHA-256:
+`493a711742f9baf5f41afdbe4c213942f8fd1dc7b38aaa66fee69299d81d1c74`.
+Chronological selection SHA-256:
+`c524e20744055306351be0ef8fa8ef03726bc2991e7379aa454884f14e1946cf`.
+All10 originals remain unchanged: seven own400x480 PNGs, two zero-audio movies
+and log. PNG CRC and independent full decoders agree; both movies fully decode.
+All226 derived checksums verify. Two lost overwritten PNG versions and each
+movie's four-sample compressed/decode count difference stay explicit.
+
+Coordinator inspects own partial `.16.58.12.539`, retained dim `.12.433`, both
+early Resume PNGs, chronological own-PNG sheet, suspension and Resume closers,
+suspension boundary and prior-native comparison. Raw PNGs repeat upper-first
+ordering; Resume movie samples show lower Health through departing HOME,
+retained dim Health, then expansion/brightening. Missing raw departure remains
+missing. No inspected sample shows a black pair, which does not prove absence
+between samples. Held-Shift input, screenshot perturbation, lossy movie crop,
+unknown epochs and unsupported native timing remain explicit.
+
+Coordinator stops owned session50559, exit130, verifies3029 free, then serves
+frozen worker6abb45cf build `MHwPOu1oLhQcWrZ9Ke1TE`, listener4281/session85139.
+Source/public/tests equal integrated2ea5068. Freeze SHA-256:
+`e5e38d684e103e97c4d06ef7a852d4f49503d2ed46db55fe5aa75d6099228069`.
+Browser policy SHA-256:
+`cf880af939dd439c9204de7cdd76627ea40d3b946f1071d2434cb0c628e57229`.
+Ordinary Reload and actual selected Health tile open ready Health. Start,
+physical HOME, complete paused HOME and actual lower Resume return visibly to
+ready Health. Repeat HOME/Resume also visibly return. Frame-limit stops600 pairs;
+Save exports all600. Receipt ledger includes first HOME/Resume and repeat HOME,
+not repeat Resume. Its structural/chronological audit is pending. No recorder
+runs; every GUI test uses the muted dedicated MacBook browser. Earlier served
+source/build/exports remain unchanged. All four whole flows remain fail.
+
 This checkpoint follows the reviewed folder Back correction `52faeda` and
 touch-dispatch tests `07052d0`, already pushed to draft PR7. It changes no
 runtime, native assets or sounds. All four whole animation flows remain fail.

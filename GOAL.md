@@ -3,6 +3,50 @@
 Updated 10 October 2026. Fetched GitHub version `c767757` is integrated through
 reviewed merge `b84e1b2`. Primary local main remains untouched at `5ee6fd7`.
 
+Latest 10 October delivery: reviewed HOME reveal-order source/tests `2ea5068`,
+handoff `cf91eb9` and production-check checkpoint `407055f` are pushed to
+draft PR7. Independent reviews `5ef3143c` and `e1e8f521` approve source and
+checks separately. Full suite has2,667 passes and the unchanged missing private
+Camera PNG failure; typecheck, shader validation and build pass. Frozen build
+`MHwPOu1oLhQcWrZ9Ke1TE` serves3029 on the muted MacBook. Ordinary first/repeat
+HOME/Resume visibly return to ready Health. All600 frame-limited pairs save;
+offline audit must establish exact repeat coverage and reveal ordering.
+Existing decoded upper SceneIn/HUD/window phases now follow the lower reveal
+boundary. This is a captured-order/source-phase adaptation, not native cadence.
+
+Native audit `112531b9` closes10 unchanged originals: seven own PNGs and two
+fully decoded zero-audio movies plus log. Raw PNGs confirm upper-first
+suspension. Coordinator-inspected Resume samples show retained Health through
+departing HOME, then expansion/brightening. Missing raw departure, two lost
+overwritten PNG versions and movie sample-count anomalies stay explicit.
+No exact native input, motion, pixel or audio acceptance follows.
+
+Earlier 10 October checkpoint: reviewed dimming source/tests `e7ac460` and
+`115696e`, handoff `b14d3de` and verification `8b36555` are pushed to draft PR7.
+Frozen production `na-t0YK-P1Kxs8zcVSbX_` serves loopback 3029 on the muted
+MacBook. The saved 456-pair ordinary Health/HOME/Resume capture shows both
+retained LCDs dim before HOME. Audit `8241e7ba` closes unchanged originals and
+the coordinator has inspected its sheets. Lower HOME still appears before
+upper status/dialog, unlike the raw native partial. A separate bounded worker
+tree now owns this reveal-order defect; any unrecovered source-phase mapping
+is an explicit adaptation, not recovered native cadence.
+
+A new isolated muted native run records suspension and actual footer Resume.
+Seven surviving own PNGs include another upper-first partial. Two same-path
+overwrites are explicit. The two bounded movies have no requested audio; their
+offline integrity and motion audit is underway. Native exits 0 and only the
+temporary HOME/screenshot fields are restored. All testing uses the MacBook.
+The active objective requests GPT-6.1 Sol extra-high workers with independent
+review. This slice uses that worker setting and a different-model reviewer;
+neither coordinator model nor Fast mode is changed or verified by these tools.
+
+The full scope stays top-row tap/open/close, Manual opening, ordinary folder
+entry/Back and HOME suspension/Resume. Manual's 60/9 endpoint residuals,
+populated/held folder cases, native applet motion/input matching and the failed
+shortcut Resume remain open. Moving/pickup/hover/drop stays excluded. Audio
+acceptance remains unverified while muted. All four whole flows remain fail;
+the older checkpoint paragraphs below are history.
+
 10 October return-banner update: reviewed worker a4802b8 integrates31fe8c0.
 Notes/Notifications footer closes now retire the retained primary and gate its
 replacement until accepted uncovered HOME handoff, preserving wallpaper and

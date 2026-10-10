@@ -1,5 +1,58 @@
 # Animation fidelity workflow
 
+## Current HOME suspension comparison
+
+The bounded reveal-order slice is reviewed and pushed as `2ea5068`, handoff
+`cf91eb9` and full-check/freeze checkpoint `407055f`. Exact source review
+`5ef3143c` and checks review `e1e8f521` are separate. Full suite has2,667 passes
+and the unchanged missing private Camera PNG failure; nonincremental typecheck,
+shader validation and build pass. Coordinator serves frozen worker6abb45cf,
+build `MHwPOu1oLhQcWrZ9Ke1TE`, without rebuilding the preceding dimming tree.
+Actual ordinary Health/HOME/Resume and repeat recover visibly on the muted
+MacBook. Save exports all600 frame-limited pairs. Close their offline audit and
+inspect the sealed chronological selection before another source correction.
+The reveal/window alignment is explicitly adapted, not native cadence.
+
+Native audit `112531b9` closes all10 originals unchanged and verifies226
+derived checksums. Raw PNGs repeat upper-first suspension. Sampled Resume
+shows retained Health layers through departing HOME, then expansion/brightening.
+The coordinator has inspected raw PNGs, chronology, closer and prior-native
+comparison sheets. Missing raw Resume departure and two overwritten versions
+remain open. No sampled black pair proves absence between samples. Do not fit
+an animation clock from these movies or mark a whole flow accepted.
+
+The preceding dimming checkpoint and original slice procedure follow.
+
+Reviewed dimming correction `e7ac460`, adjacent tests `115696e`, handoff
+`b14d3de` and verification checkpoint `8b36555` are pushed to draft PR7.
+The frozen production tree stays unchanged while a separate worktree targets
+the next captured defect. New 456-pair audit `8241e7ba` and coordinator sheet
+inspection establish paired retained dimming before HOME, not native timing.
+The remaining lower-first HOME exposure contradicts the native upper-first
+partial. Begin with an actual-compositor failing ordering regression, inspect
+the pinned controller starts, then make one bounded source-phase correction.
+Unknown native epochs remain unknown; any host alignment is an adaptation.
+
+The new native policy `1d674550` declares suspension and actual footer Resume
+before inputs. Preserve own PNG chronology, the seven surviving paths and the
+two lost same-path versions, both bounded silent movies and the original log.
+Native input is the supported held-Shift upper click, not identical browser
+physical HOME. Isolated native exit 0 precedes restoration of only temporary
+HOME/screenshot fields; render geometry remains a recorded GUI change.
+Offline movie diagrams never replace own native PNGs or establish cadence.
+Seal chronological selection before any pixel diagnostic and report missing
+raw Resume motion separately. Do not substitute the earlier successful
+ordinary Resume for the failed shortcut case.
+
+The coordinator alone runs all muted GUI tests on the MacBook, integrates
+reviewed commits, runs focused/full tests and typecheck/build, then freezes and
+serves a distinct production candidate for actual Health/Open/HOME/Resume
+recapture. Never edit or rebuild the currently served tree. Compare affected
+native and browser stages, inspect the sheets and leave unexplained differences
+failing. Current workers use the active objective's GPT-6.1 Sol extra-high
+setting; the reviewer is independent and on a different model. No Fast or
+coordinator-model change is verified. All four whole flows remain unaccepted.
+
 ## Incremental delivery
 
 Commit each coherent code or evidence change after review, then push it to

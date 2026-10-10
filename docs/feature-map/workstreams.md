@@ -1,5 +1,29 @@
 # Workstream Registry
 
+## HOME suspension reveal order, 10 October 2026
+
+Runtime worker completes8112d47 and handofff7c6d9d; coordinator integrates and
+pushes2ea5068/cf91eb9 after independent approval5ef3143c. Checks-only6abb45cf
+integrates/pushes407055f after independent approvale1e8f521. Worker releases
+all source reservations and freezes source/public/tests/.next at build
+MHwPOu1oLhQcWrZ9Ke1TE. No implementation worker remains active. Coordinator
+alone serves3029 and operates muted MacBook GUI. Native offline audit112531b9
+is complete. Its worker now owns only the new600-pair candidate browser audit
+under private health-home-order-20261010/browser-v1/offline-audit, not source,
+GUI or server. Exact native cadence remains open; alignment is adapted.
+The initial assignment below is historical.
+
+Worker tree `health-home-order-20261010/3ds-idea`, branch
+`codex/health-home-order-20261010`, starts at `8b36555`. GPT-6.1 Sol extra-high
+owns the captured lower-first HOME reveal defect, `src/os/home-entry-motion.ts`,
+necessary suspension composition/presenter interfaces, focused regressions and
+one handoff. Coordinate additional paths before editing. New source work must
+begin with a real-compositor failing regression and bounded pinned-controller
+inspection. Unknown host alignment remains an adaptation, never recovered
+native cadence. No guessed graphics, curves or delays. Frozen dimming tree,
+build and captures remain untouched. Coordinator alone owns integration,
+serving and muted MacBook GUI. Different-model review precedes integration.
+
 ## Health retained-LCD dimming and HOME order, 10 October 2026
 
 Completed runtimef6e83c4/testb955d8c integrate/push e7ac460/115696e after exact

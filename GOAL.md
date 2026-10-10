@@ -1,6 +1,6 @@
 # Goal: finish the four remaining native animation flows
 
-Updated 9 October 2026. Fetched GitHub version `c767757` is integrated through
+Updated 10 October 2026. Fetched GitHub version `c767757` is integrated through
 reviewed merge `b84e1b2`. Primary local main remains untouched at `5ee6fd7`.
 
 Latest human report also requires top-row exit animations and consistent
@@ -8,6 +8,18 @@ tap/pre-open responses for Notes, Friends, Notifications, Browser and Miiverse.
 Opening coverage alone does not close this work. Capture each complete
 tap/open/close/HOME sequence on muted Sidecar and compare the corresponding
 native sequence. Do not infer an exit by reversing the opening clip.
+
+10 October display reply authorizes the MacBook screen instead of disconnected
+Sidecar. Current native/production tests stay muted; do not change system audio.
+Reviewed Notifications footer Close is integrated `0196913`; Notes `85b0ab9`
+remains unchanged. Clean equivalent `18137f4` passes build/typechecks and2622
+full tests, with one unchanged missing historical Camera PNG failure. Ordinary
+first/repeat opening/closing and B/HOME/Notes recovery are visibly inspected.
+No raw matched motion receipts or exact native timing acceptance follows.
+Completed recording audit and coordinator sheet inspection retain the observed
+HOME banner return-order difference. Latest reviewed build is visible in muted
+Helium on MacBook at3027. [Delivery evidence](docs/notifications-footer-close-delivery-2026-10-10.md).
+All four whole flows remain fail/unproven. Continue the full scope.
 
 Latest human model reply selects GPT-6.1 Sol extra-high for this chat and
 GPT-6.1 Sol high for all new subagents, including reviewers. This supersedes
@@ -38,7 +50,7 @@ and HOME suspension. The unmerged held-hover fix is preserved in its worktree.
 The latest Sol6.1 reply above supersedes the earlier Opus worker preference.
 Keep review independent; the latest human model assignments above apply.
 
-Latest runtime checkpoint: reviewed `e96e76a`, `cc8cc0b` and `a5e4e44` deliver
+Earlier runtime checkpoint: reviewed `e96e76a`, `cc8cc0b` and `a5e4e44` deliver
 Manual destination scheduling and revision-current paired readiness. Final
 source review closes both findings. Clean equivalent `76813d8` passes build
 and typechecks; full tests have2598 passes and the unchanged missing historical

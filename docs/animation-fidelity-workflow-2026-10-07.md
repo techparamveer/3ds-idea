@@ -6,8 +6,29 @@ are historical. The latest direct user model reply selects GPT-6.1 Sol extra-hig
 for this chat and GPT-6.1 Sol high for all new subagents. Older assignments retain
 their actual recorded models. Worker overrides cannot change or verify the
 running coordinator model, and tools expose no Fast selector. All sessions stay
-muted. Visual testing must use the iPad Sidecar, leaving Codex on the Dell;
-verify actual owned-window placement before scenario inputs.
+muted. On10 October the human authorized the MacBook screen instead of
+disconnected Sidecar. Verify actual owned-window placement before inputs;
+the prior Sidecar/Dell instruction remains history for earlier captures.
+
+## Notifications footer close, 10 October
+
+Reviewed `0196913` retains the outgoing Notifications owner and paired LCDs
+through its footer feedback and accepted opaque HOME cover. The selected
+Decide5, HOME-common SceneOut/SceneIn, selector6 and fitted60Hz sequencing are
+adaptations, not native dispatch or duration. Source mappings and recovery
+contract are in [the handoff](workstream-handoffs/notifications-footer-close-20261009.md).
+Clean equivalent18137f4 passes build/typechecks; full2622pass with the unchanged
+missing historical Camera PNG failure. Ordinary first/repeat cycles, physical
+B/HOME and Notes regression are visibly inspected in muted production Chrome.
+Preserve all four silent movies and their offline chronology/PTS qualifications.
+Completed reportdfe67a2d and coordinator inspection show native HOME exposure
+before its banner, unlike the sampled browser return. Keep this return-order
+gap open and diagnose its source path without inventing a movie-derived delay.
+Exact evidence identities and the muted MacBook Helium preview are in
+[the delivery record](notifications-footer-close-delivery-2026-10-10.md).
+Window media is not raw LCD/paint-receipt evidence. Exact native/browser motion,
+input/cue timing and whole-scenario1:1 remain open. Do not generalize native
+Friends/Browser/Miiverse gate returns into normal-footer close evidence.
 
 ## Manual source/runtime and fitted recapture, 9 October
 

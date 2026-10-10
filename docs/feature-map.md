@@ -1,5 +1,23 @@
 # Feature map — 1:1 queue
 
+10 October Notifications close delivery: reviewed4e767fc integrates0196913,
+retaining the main-list owner and paired LCDs until accepted opaque cover.
+Native assets stay unchanged; its own Decide5 and HOME-common fitted sequencing
+are explicit adaptations. Clean18137f4 build/typechecks pass; full2622pass,
+1unchanged historicalCameraPNGfail,101skip,1TODO. Ordinary first/repeat muted
+MacBook opening/footer-close reach the real list and recover selected HOME.
+Physical B/HOME and Notes regression also recover. Offline reportdfe67a2d
+confirms seven unchanged original media files and four zero-audio movies;
+coordinator inspected all four final sheets. Native close exposes HOME before
+its selected banner, while browser samples already show the banner. This
+return-order difference remains open, not an established native delay.
+Raw matched LCD motion, native timing/input and audio remain unproven.
+Friends/Browser/Miiverse normal-footer gaps and Manual/folder/HOME matched
+regressions remain open. AN-01..AN-04 fail. Earlier preview claims are historical.
+See [Notifications source and recovery contract](workstream-handoffs/notifications-footer-close-20261009.md).
+See [delivery evidence](notifications-footer-close-delivery-2026-10-10.md) for
+the exact review/check/media identities and current muted Helium3027 preview.
+
 9 October Notes close delivery: independently reviewed85b0ab9 retains the
 native Notes owner through footer feedback, outgoing cover and HOME recovery.
 Only caller-null main-list footer Close changes; source assets remain unchanged.

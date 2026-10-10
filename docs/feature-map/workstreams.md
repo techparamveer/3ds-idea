@@ -2,6 +2,20 @@
 
 ## Animation completion, 9 October 2026
 
+10 October: Notifications4e767fc is reviewed and integrated0196913; worker
+is frozen. Fresh independent GPT-6.1 Sol high reviewer approves exact SHA,
+353tests341pass0fail12skip. Coordinator's clean18137f4 production checks finish
+2622pass/1historicalCameraPNGfail/101skip/1TODO, build/typechecks pass. Muted
+MacBook first/repeat footer closing, B/HOME and Notes recovery are inspected.
+notifications_movie_audit, GPT-6.1 Sol high, completed private reportdfe67a2d;
+it has no runtime/GUI/serving ownership. Coordinator inspected four final sheets
+and the native close sheet. HOME banner return order remains different in the
+recorded samples and needs a bounded source-backed correction, not a guessed
+delay. No implementation worker is active. Coordinator alone serves frozen
+18137f4/3027 and owns integration, muted MacBook Helium preview and evidence.
+No whole1:1 pass. [Delivery](../notifications-footer-close-delivery-2026-10-10.md).
+Earlier active worker/preview paragraphs below are history.
+
 Notes worker62fa7c is reviewed and integrated85b0ab9. Cleanede70eb finishes
 full2610pass/1historicalCameraPNGfail/101skip/1TODO, typecheck and unchanged-runtime
 build pass. Coordinator inspected all four browser sequence sheets, offline

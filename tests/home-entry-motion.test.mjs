@@ -71,7 +71,7 @@ test('pause entry advances the original SceneIn geometry with AppPause scale and
     const presentation = homePauseEntryPresentation(sampled);
     assert.deepEqual(suspendedBackgroundPlayback(presentation), {
       skeletal: [{ name: 'BannerBG_SceneIn', frame: Math.min(20, update) }],
-      material: [{ name: 'BannerBG_AppPause', frame: Math.min(20, update) }],
+      material: [{ name: 'BannerBG_AppPause', frame: [0, 3, 6, 9, 11, 14, 17][update] ?? 20 }],
     });
   }
 });

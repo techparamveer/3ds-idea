@@ -1003,7 +1003,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const visibleFolderEntry=isSystemHomeFolderClosing(state)?null:folderEntry;
   const visiblePauseEntry=suspended&&!applicationTransitionPresentation?pauseEntry:null;
   const entryMotion=visibleFolderEntry||visiblePauseEntry
-   ?{folder:visibleFolderEntry,pauseFrame:visiblePauseEntry?.material[0].frame??null,
+   ?{folder:visibleFolderEntry,pauseFrame:visiblePauseEntry?.skeletal[0].frame??null,
      pauseLower:visiblePauseEntry?pauseLower:null}:undefined;
   const notificationsClose:FooterCloseDiagnostic|undefined=notificationsCloseCandidate?{kind:notificationsCloseCandidate.pose.kind,frame:notificationsCloseCandidate.pose.kind==='handoff'?null:notificationsCloseCandidate.pose.frame,owner:notificationsCloseCandidate.pose.identity.owner,adaptation:true}:undefined;
   return nativeSystem||verificationPaint||entryMotion||manualPose||appletPose||notesCloseCandidate||notificationsClose

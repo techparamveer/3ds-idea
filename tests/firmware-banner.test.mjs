@@ -229,6 +229,23 @@ test('suspended AppPause entry changes source scale and tint while retaining the
  assert.equal(h.banner.drawSuspendedBackground(h.ctx,capture,null),true);
  assert.deepEqual(snapshot(group),terminal,'entry endpoint equals the existing settled suspension');
 });
+test('suspended presenter samples and caches independent geometry and retained dim phases',async t=>{
+ const h=setup(t);await h.banner.ready;const capture=suspendedCapture();
+ const presentation=materialFrame=>({skeletal:[{clip:'BannerBG_SceneIn',frame:8}],material:[{clip:'BannerBG_AppPause',frame:materialFrame}]});
+ assert.equal(h.banner.drawSuspendedBackground(h.ctx,capture,presentation(8)),true);
+ const group=h.draws.at(-1).scene.children[0],mesh=group.children[0].children[0],geometry=[...mesh.geometry.attributes.position.array];
+ const uv=mesh.material.uniforms.uvMatrix0.value.toArray(),texture=suspendedCaptureTexture(group),draws=h.draws.length;
+ assert.equal(h.banner.drawSuspendedBackground(h.ctx,capture,presentation(20)),true);
+ assert.equal(h.draws.length,draws+1,'a changed material source phase invalidates cached raster bytes');
+ assert.deepEqual([...mesh.geometry.attributes.position.array],geometry,'SceneIn geometry remains at its independent source sample');
+ assert.deepEqual(mesh.material.uniforms.constant0.value.toArray().slice(0,3),[.4,.45,.5]);
+ assert.notDeepEqual(mesh.material.uniforms.uvMatrix0.value.toArray(),uv,'the complete authored AppPause material sample includes UV scale');
+ assert.equal(suspendedCaptureTexture(group),texture,'phase alignment retains the owned capture');
+ assert.equal(h.banner.drawSuspendedBackground(h.ctx,capture,presentation(20)),true);
+ assert.equal(h.draws.length,draws+1,'the same independent source pair remains immutable');
+ assert.equal(h.banner.drawSuspendedBackground(h.ctx,suspendedCapture(2),presentation(20)),true);
+ assert.equal(h.draws.length,draws+2,'a new capture generation cannot reuse old raster bytes');
+});
 test('suspended background cache keys source motion without reallocating its capture texture',async t=>{
  const h=setup(t);await h.banner.ready;const capture=suspendedCapture();
  assert.equal(h.banner.status().suspendedBackgroundReady,true);

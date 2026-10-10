@@ -1,14 +1,25 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import ts from 'typescript';
 import { createPortfolioState, launchHomeShortcut, reduceSystem, tickSystem, touchSystem } from '../src/os/system.ts';
-import { selectHomeSlot, settleHomeNavigation } from '../src/os/home-navigation.ts';
+import { sampleHomeGrid, selectHomeSlot, settleHomeNavigation } from '../src/os/home-navigation.ts';
 import { nativePaneParentPath, poseNativeLayout } from '../src/os/native-layout.ts';
+import { drawHomePauseLower } from '../src/os/home-pause-lower.ts';
+import { suspendedBackgroundAsset, suspendedBackgroundPlayback } from '../src/scene/home-suspended-background.ts';
 
 const data = source => 'data:text/javascript;base64,' + Buffer.from(source).toString('base64');
+const modules = new Map();
+function moduleUrl(path) {
+  if (modules.has(path)) return modules.get(path);
+  const code = ts.transpileModule(readFileSync(path, 'utf8'), { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText
+    .replace(/from (['"])([^'"]+)\1/g, (_all, _quote, specifier) => `from ${JSON.stringify(specifier.startsWith('.') ? moduleUrl(resolve(dirname(path), specifier + '.ts')) : import.meta.resolve(specifier))}`);
+  const url = data(code); modules.set(path, url); return url;
+}
+const { createFirmwareModel } = await import(moduleUrl(fileURLToPath(new URL('../src/scene/firmware-model.ts', import.meta.url))));
+const background = JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/models/home-background/model.json', import.meta.url)));
 const sourceUrl = new URL('../src/os/screens.ts', import.meta.url);
 const overrides = {
   './native-system-presentation': data('export const drawNativeSystemOverlay=()=>false;'),
@@ -31,6 +42,15 @@ const resourceRoot = process.env.THREE_DS_RESOURCE_ROOT
 const root = resourceRoot;
 const packs = Object.fromEntries([['launcher', 'launcher.json'], ['messages', 'messages-and-loose.json'], ['hud', 'hud.json']].map(([key, path]) => [key, JSON.parse(readFileSync(new URL(path, root)))]));
 const suspended = () => reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(), 3001), 'health-safety', 3010), 6500), 'home', 6600);
+function ordinarySuspendedHealth() {
+  let state = tickSystem(createPortfolioState(), 3001);
+  const slot = Number(Object.entries(state.system.layout).find(([, id]) => id === 'health-safety')[0]);
+  state = settleHomeNavigation(selectHomeSlot(state, slot));
+  const grid = sampleHomeGrid(state.system.homeNavigation), point = grid.slots[slot];
+  state = touchSystem(state, point.x - grid.scrollPixels, point.y, 3010);
+  assert.equal(state.system.phase, 'launch', 'ordinary Health tile launches through touch input');
+  return reduceSystem(tickSystem(state, 6500), 'home', 6600);
+}
 const at = (state, updateCount) => ({ ...state, system: { ...state.system, homeClock: { ...state.system.homeClock, updateCount } } });
 const window = events => events.find(event => event.name === 'window');
 const appear = events => window(events)?.options.bindings.find(binding => binding.groups?.includes('G_Wndw_00'))?.frame;
@@ -43,6 +63,9 @@ async function fixture(run) {
   const keys = ['document', 'Image', 'FontFace', '__homePauseWindowCapture'];
   const saved = new Map(keys.map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
   const events = []; let fail = false, failHud = false, source = structuredClone(packs), imageReads = 0;
+  const backgroundAsset = suspendedBackgroundAsset({ data: background, images: new Map(background.textures.map(texture => [texture.name,
+    { width: texture.width, height: texture.height, data: new Uint8ClampedArray(texture.width * texture.height * 4) }])) });
+  const backgroundModel = createFirmwareModel(backgroundAsset, suspendedBackgroundPlayback());
   function canvas() {
     const surface = { width: 0, height: 0 };
     const ctx = new Proxy({ canvas: surface, globalAlpha: 1, createLinearGradient: () => ({ addColorStop() {} }),
@@ -53,11 +76,13 @@ async function fixture(run) {
   Object.assign(globalThis, { document: { createElement: canvas, fonts: { add() {} } }, Image: class { decode() { return Promise.resolve(); } }, FontFace: class { load() { return Promise.resolve(this); } } });
   const presenter = new Proxy({ pressOffset: 0, tilePressOffset: () => 0,
     hud(...args) { return firmwareHome.hud(...args); },
-    pauseLower(_ctx, application, home, frame) { events.push({ name: 'pause-lower', application, home, frame }); return !fail; },
+    pauseLower(ctx, application, home, frame) { events.push({ name: 'pause-lower', application, home, frame }); return drawHomePauseLower(renderer, ctx, application, home, frame); },
     footer(_ctx, _state, _reduced, _entry, _launch, _decide, pauseFrame) { events.push({ name: 'footer', pauseFrame }); return !fail; } },
   { get: (target, key) => key in target ? target[key] : () => true });
   const renderer = { get packs() { return source; }, measureSingleLineText: () => 222,
     draw(_ctx, _pack, name, options) {
+      if (name === 'LncPauseFade_D_00') events.push({ name: 'pause-lower-source', options,
+        pose: poseNativeLayout(source.launcher.layouts[name], source.launcher.animations, options.bindings, options.overrides) });
       if (name === 'LncBase_U_00') events.push({ name: 'window', options,
         pose: poseNativeLayout(source.launcher.layouts[name], source.launcher.animations, options.bindings, options.overrides) });
       if (name === 'HudMenu_00') {
@@ -70,7 +95,12 @@ async function fixture(run) {
   const assets = () => ({ presenter, renderer, sharedFont: { draw() {} }, dispose() {}, diagnostics: [],
     titleIcons: new Map([['0004001000022300', {}]]), titleDescriptions: new Map([['0004001000022300', 'Health and Safety Information']]) });
   const screens = createScreens({ firmwareAssets: assets(), drawHomeBackground: () => true,
-    drawSuspendedBackground(_ctx, capture, presentation) { events.push({ name: 'backdrop', capture, presentation }); return capture.status === 'none' || capture.status === 'ready' && capture.owner === currentOwner; } });
+    drawSuspendedBackground(_ctx, capture, presentation) {
+      backgroundModel.setPlayback(suspendedBackgroundPlayback(presentation)); backgroundModel.update(0);
+      const uniforms = backgroundModel.group.children[0].children[0].material.uniforms;
+      events.push({ name: 'backdrop', capture, presentation, tint: uniforms.constant0.value.toArray().slice(0, 3) });
+      return capture.status === 'none' || capture.status === 'ready' && capture.owner === currentOwner;
+    } });
   let currentOwner = suspended().system.runtime.application;
   const capture = (owner = currentOwner, generation = 1, status = 'ready') => { globalThis.__homePauseWindowCapture = {
     status, owner, generation, upper: { width: 400, height: 240, data: new Uint8ClampedArray(400 * 240 * 4) },
@@ -86,10 +116,65 @@ async function fixture(run) {
     await run({ screens, paint, events, assets, capture, fail: value => fail = value, failHud: value => failHud = value, mutate: fn => fn(source), setOwner: value => currentOwner = value,
       imageReads: () => imageReads });
   } finally {
-    screens.dispose();
+    screens.dispose(); backgroundModel.dispose();
     for (const [key, descriptor] of saved) { if (descriptor) Object.defineProperty(globalThis, key, descriptor); else delete globalThis[key]; }
   }
 }
+
+test('real HOME compositor finishes both retained LCD source dimming phases before revealing HOME', async t => {
+  await fixture(({ screens, paint, capture }) => {
+    let state = ordinarySuspendedHealth(); const owner = state.system.runtime.application;
+    for (let cycle = 0; cycle < 2; cycle++) {
+      let firstHome;
+      const start = 100 + cycle * 100;
+      for (let update = start; update < start + 23; update++) {
+        const pair = paint(state, update);
+        if (update === start) assert.deepEqual(pair.events.find(event => event.name === 'backdrop').tint, [1, 1, 1],
+          'each capture generation starts from the undimmed retained source pose');
+        const lower = pair.events.find(event => event.name === 'pause-lower-source');
+        if (pane(hud(pair.events), 'N_Scene_00').alpha > 0 || lower && pane(lower, 'P_Lnc_00').alpha > 0) {
+          assert.deepEqual(pair.events.find(event => event.name === 'backdrop').tint, [.4, .45, .5],
+            'retained upper dimming finishes before either LCD reveals HOME');
+        }
+        if (lower && pane(lower, 'P_Lnc_00').alpha > 0 && !firstHome) {
+          firstHome = { upper: pair.events.find(event => event.name === 'backdrop'), lower,
+            receipt: pair.result.entryMotion.pauseFrame, lowerFrame: pair.result.entryMotion.pauseLower.fadeFrame };
+        }
+      }
+      assert.ok(firstHome, 'the actual lower source presenter reveals HOME');
+      const { upper, lower, receipt, lowerFrame } = firstHome, app = pane(lower, 'P_App_00');
+      assert.deepEqual(lower.pose.materials[app.picture.material].constantColors[0].slice(0, 3), [102, 115, 128]);
+      t.diagnostic(JSON.stringify({ cycle, owner, receipt, upper: upper.presentation, lowerFrame,
+        lowerHomeAlpha: pane(lower, 'P_Lnc_00').alpha }));
+      assert.deepEqual(upper.tint, [.4, .45, .5],
+        'upper retained LCD must reach its pinned AppPause dim pose before lower HOME becomes visible');
+      assert.equal(screens.homeEntryMotionActive(at(state, start + 22)), false);
+      if (cycle === 0) {
+        const resumed = touchSystem(state, 160, 226, 7000);
+        assert.equal(resumed.system.phase, 'app'); assert.equal(resumed.system.runtime.application, owner);
+        state = reduceSystem(resumed, 'home', 7100); capture(owner, 2);
+      }
+    }
+  });
+});
+
+test('pinned upper and lower retained dim tracks agree when the real players receive the same source phase', () => {
+  const asset = suspendedBackgroundAsset({ data: background, images: new Map(background.textures.map(texture => [texture.name,
+    { width: texture.width, height: texture.height, data: new Uint8ClampedArray(texture.width * texture.height * 4) }])) });
+  const model = createFirmwareModel(asset, suspendedBackgroundPlayback());
+  try {
+    for (const frame of [0, 3, 8, 14, 20]) {
+      model.setPlayback(suspendedBackgroundPlayback({ skeletal: [{ clip: 'BannerBG_SceneIn', frame }], material: [{ clip: 'BannerBG_AppPause', frame }] }));
+      model.update(0);
+      const upper = model.group.children[0].children[0].material.uniforms.constant0.value.toArray();
+      const lower = poseNativeLayout(packs.launcher.layouts.LncPauseFade_D_00, packs.launcher.animations,
+        [{ name: 'LncPauseFade_D_00_SceneIn', frame }]);
+      const app = nativePaneParentPath(lower, 'P_App_00').at(-1), tint = lower.materials[app.picture.material].constantColors[0];
+      for (let channel = 0; channel < 3; channel++) assert.ok(Math.abs(upper[channel] - tint[channel] / 255) < 1 / 255,
+        `source frame ${frame}, channel ${channel} differs only by the native layout's byte quantization`);
+    }
+  } finally { model.dispose(); }
+});
 
 test('actual Health HOME painter holds the source HUD, then enters it while the lower transitions on the exact pair receipt', async () => {
   await fixture(({ screens, paint }) => {

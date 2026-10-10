@@ -77,7 +77,6 @@ export function suspendedBackgroundPlayback(presentation: HomeSuspendedBackgroun
     throw new Error('Unsupported native suspended presentation');
   }
   if (presentation.material.length === 1) {
-    if (sceneIn.frame !== appPause.frame) throw new Error('Unsupported native suspended presentation');
     return {
       skeletal: [{ name: sceneIn.clip, frame: sceneIn.frame }],
       material: [{ name: appPause.clip, frame: appPause.frame }],

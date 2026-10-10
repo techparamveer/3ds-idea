@@ -62,9 +62,16 @@ test('suspended close playback preserves the source override order and bounded f
   assert.throws(() => suspendedBackgroundPlayback({
     ...presentation, skeletal: [{ ...presentation.skeletal[0], frame: 10 }],
   }), /Unsupported native suspended presentation/);
-  assert.throws(() => suspendedBackgroundPlayback({
+  assert.deepEqual(suspendedBackgroundPlayback({
     skeletal: [{ clip: 'BannerBG_SceneIn', frame: 10 }],
-    material: [{ clip: 'BannerBG_AppPause', frame: 11 }],
+    material: [{ clip: 'BannerBG_AppPause', frame: 20 }],
+  }), {
+    skeletal: [{ name: 'BannerBG_SceneIn', frame: 10 }],
+    material: [{ name: 'BannerBG_AppPause', frame: 20 }],
+  });
+  for (const frame of [-1, 21, 1.5]) assert.throws(() => suspendedBackgroundPlayback({
+    skeletal: [{ clip: 'BannerBG_SceneIn', frame: 10 }],
+    material: [{ clip: 'BannerBG_AppPause', frame }],
   }), /Unsupported native suspended presentation/);
 });
 

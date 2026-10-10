@@ -96,9 +96,13 @@ export function homeFolderEntryPose(motion: HomeEntryMotion | null, reduced = fa
 export function homePauseEntryPresentation(motion: HomeEntryMotion | null, reduced = false): HomePauseEntryPresentation | null {
   if (motion?.identity.kind !== 'pause') return null;
   const frame = reduced ? HOME_PAUSE_ENTRY_LAST_FRAME : Math.min(HOME_PAUSE_ENTRY_LAST_FRAME, motion.elapsedUpdates);
+  // Align the authored retained-LCD dim phases, not their independent geometry
+  // or HOME entrances. The existing lower source-to-receipt map is still fitted.
+  const appPauseFrame = Math.min(HOME_PAUSE_ENTRY_LAST_FRAME,
+    homePauseLowerPresentation(motion, reduced)?.fadeFrame ?? HOME_PAUSE_ENTRY_LAST_FRAME);
   return Object.freeze({
     skeletal: Object.freeze([Object.freeze({ clip: 'BannerBG_SceneIn', frame })] as const),
-    material: Object.freeze([Object.freeze({ clip: 'BannerBG_AppPause', frame })] as const),
+    material: Object.freeze([Object.freeze({ clip: 'BannerBG_AppPause', frame: appPauseFrame })] as const),
   });
 }
 

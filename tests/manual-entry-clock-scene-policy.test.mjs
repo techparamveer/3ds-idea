@@ -29,7 +29,7 @@ test('actual scene cadence, state-driven and restore paints use a fresh Manual c
   assert.equal(paintState,state);assert.ok(date instanceof Date);assert.equal(elapsed,raf-1000);
   assert.equal(options.manualEntryObservedElapsedMs,fresh-1000);
   assert.equal(options.reuseHomeBackgroundMs,stateDriven?50:undefined);
-  assert.deepEqual(records.at(-1),[raf-1000,true,undefined,result.manualEntry,undefined,result.notesClose,result.notificationsClose]);
+  assert.deepEqual(records.at(-1),[raf-1000,true,undefined,result.manualEntry,undefined,result.notesClose,result.notificationsClose,undefined]);
   assert.equal(scene.clock(),stateDriven?1120:raf);
  }
  assert.equal(topTexture.needsUpdate,true);assert.equal(bottomTexture.needsUpdate,true);assert.equal(invalidations,3);

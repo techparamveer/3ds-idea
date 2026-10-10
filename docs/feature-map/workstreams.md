@@ -16,6 +16,13 @@ original capture edits. All exports are closed. Coordinator inspects all five
 raw boundary sheets; final audit, sealed selection and comparisons are pending.
 Separate footer departure and whole-flow acceptance stay open.
 
+Final audit `181440a5` closes all1,632 pairs including incomplete513. Offline
+worker releases its reservation and all finite handles; no source/audit worker
+remains active. Coordinator inspects12 raw sheets and four fixed comparisons.
+No fully black saved LCD occurs; native footer departure remains the next
+bounded captured defect. Reviewer owns independent audit/document closure only.
+Frozen worker/build/exports remain unchanged. All whole scenarios fail.
+
 The original worker health-resume-retained-20261010 starts at c058ec9 in its own worktree
 and branch. GPT-6.1 Sol extra-high targets actual both-black Resume311-312
 before ready313 from closed audit2a7c4044. Start with a real-compositor red

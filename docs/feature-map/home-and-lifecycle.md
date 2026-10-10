@@ -176,7 +176,9 @@ reject stale/transient snapshots. Existing runtime remains the owner; no
 parallel app state is added. Accepted-receipt cadence is an adaptation, and
 early footer withdrawal, other apps/compact/changed-origin Resume and whole
 native fidelity remain unaccepted. Frozen `ed40f3b` production first/repeat
-returns and five raw boundary sheets are inspected; final audit remains pending. See
+returns and raw sheets are inspected. Closed audit `181440a5` verifies first/
+repeat retained Health without fully black saved LCDs, not native cadence.
+Early footer withdrawal remains the next captured defect; whole scenarios fail. See
 [source/check contract](../workstream-handoffs/health-resume-retained-20261010.md).
 
 **Code/tests/evidence:** [app-host.ts](../../src/os/app-host.ts), [system.ts](../../src/os/system.ts), [runtime tests](../../tests/app-runtime.test.mjs), [Notes owner note](../notes-home-owner-exit.md), [eShop close route](../eshop-close-investigation.md).

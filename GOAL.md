@@ -9,6 +9,16 @@ or verify the running coordinator model or service tier. Keep independent
 review, separate worktrees and reviewed commits pushed to draft PR7. Every
 GUI test uses the MacBook screen and every 3DS session stays muted.
 
+Final browser audit `181440a5` closes all1,632 pairs,4,896 unchanged originals
+and3,264 independently decoded PNGs. Coordinator inspects12 raw boundary/
+endpoint sheets and four fixed native comparison sheets. First/repeat Resume
+retains Health through HOME, then expands/brightens; no fully black saved LCD
+occurs. This does not prove absence between captures. Native footer withdrawal
+remains missing, dialog still coincides with lower HOME, and fixed whole-screen
+comparisons fail. Ready lower LCDs only meet static delta2. Exact native input,
+cadence and audio remain unaccepted. This closes the pending audit below, not
+the four-flow goal. Next bounded defect is the native Resume footer departure.
+
 Current delivery through `b64e797` includes reviewed retained Health Resume
 runtime `dbfcb45`, provenance `ad143a9`, test-only policy repair `cd23059` and
 frozen verification handoff `b64e797`. The actual-compositor black Resume,

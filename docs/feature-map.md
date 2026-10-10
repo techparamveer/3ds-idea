@@ -15,6 +15,14 @@ audit, sealed selection and fixed comparisons remain pending. Native12-PNG audit
 All AN-01 through AN-04 whole flows remain fail. Use GPT-6.1 Sol high helpers
 and muted MacBook testing. See [source/check handoff](workstream-handoffs/health-resume-retained-20261010.md).
 
+Final audit `181440a5` supersedes the pending audit above. All1,632 pairs,
+4,896 originals and3,264 PNGs verify; coordinator inspects12 raw sheets and
+four fixed comparisons. No fully black saved LCD occurs. First/repeat retain
+Health through Resume, but native early footer departure and dialog-before-
+lower remain unmatched. Fixed whole-screen comparisons fail; ready lower
+meets static delta2 only. AN-04 remains fail, as do the other three whole flows.
+Next captured source slice is Resume footer withdrawal. See [closed evidence](animation-verification-checkpoint-2026-10-10.md).
+
 Earlier candidate audit `2a7c4044` closes600 pairs without structural issues.
 Coordinator inspects all boundary and comparison sheets. Status-before-lower
 improves, but dialog-before-lower remains unmatched. Resume311-312 is black

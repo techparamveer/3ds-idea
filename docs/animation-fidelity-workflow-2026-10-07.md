@@ -25,6 +25,17 @@ Five raw boundary sheets are already coordinator-inspected; final audit,
 sealed selection and fixed comparison inspection remain pending.
 All four whole flows remain fail.
 
+Final audit `181440a5` now closes those pending steps. Coordinator inspects
+all12 raw boundary/endpoint sheets and four fixed native comparison sheets.
+Selection `3959b5fc` seals before comparisons; all1,632 pairs and4,896 originals
+verify unchanged,3,264 PNG CRC/full decodes agree and247 checksum entries pass.
+The incomplete513-pair session remains explicit. First/repeat Resume no longer
+shows fully black saved LCDs, but early footer departure is still absent.
+Next source work targets that captured native mismatch, not a guessed reverse
+opening or delay. Preserve first pressed-pair loss, repeat-baseline inspection
+after seal, missing Resume diagnostics and sparse native motion as limitations.
+No whole-flow pass follows the ready-lower-only static delta2 match.
+
 ## Current HOME suspension comparison
 
 Earlier600-pair audit `2a7c4044` and coordinator inspection close the pending

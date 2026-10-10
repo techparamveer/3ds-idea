@@ -63,7 +63,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `b64e7972c81c91586a79665809b85e93a4ad9a32`. Reviewed Resume runtime dbfcb45, provenance ad143a9, test-only cd23059 and full-check/freeze handoff b64e797 are pushed to draft PR7. Runtime src/public equal approved cf52bd5; tests equal8180ad6. Frozen build itZdGEQJDzlDwPZnssuUe serves3029 under review c62035d9. Final suite2687pass/1known Camera fixture fail/101skip/1TODO. Fresh muted MacBook browser visibly returns to Health after actual HOME and Resume. First600, incomplete byte-limited repeat513 and complete repeat519 pairs are fully saved. Raw audit and all four whole-scenario acceptances remain open. Human system.ts stays excluded. |
+| HEAD | `58d264ba69c52b46c494880da5090ca7479e7d96`. Reviewed retained Resume runtime/provenance/tests/freeze through b64e797 and delivery58d264b are pushed to draft PR7. Frozen worker ed40f3b/build itZdGEQJDzlDwPZnssuUe serves3029. Full suite2687pass/1known Camera fixture fail/101skip/1TODO. Audit181440a5 closes first600/incomplete513/complete repeat519 pairs;12 raw sheets and four fixed comparisons are inspected. No fully black saved LCD occurs. Native footer withdrawal/dialog-before-lower and whole scenarios remain fail. Human system.ts stays excluded. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -77,6 +77,22 @@ Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9dd
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
 
 ## Serving
+
+Final retained Resume audit181440a5 closes1,632 triples/4,896 unchanged originals/
+3,264 independent full PNG decodes with zero structural issues. Root independently
+rehashes every original and all247 derived checksums; report and sealed selection
+3959b5fc verify. Coordinator inspects12 raw boundary/footer/ready/endpoint sheets
+and allfour fixed native comparison sheets. First/repeat Resume retains Health
+through HOME, HOME-free dim360/328, then bright fullsize382/350. No fully black
+saved LCD occurs, without proving absence between observations. Incomplete513
+stays paused with HOME only. Status11/113 precedes dialog+lower12/114; dialog-
+before-lower and separate native footer withdrawal remain unmatched. Fixed
+whole-LCD empty-mask delta2 fails paused10,335/40,365 and14,767/40,326; ready
+20,313/0 and7,856/0 upper/lower. Ready lower maximumdelta2 is static tier only.
+Missing first pressed pair, repeat-baseline inspection after seal and absent
+Resume source-frame diagnostics remain explicit. Frozen serving20956/session
+72167 and all old builds/exports stay unchanged. No recorder/native process runs.
+All four whole flows fail; audio stays unverified while muted.
 
 Serving switch: root integrates/pushes reviewed full-check handoff ed40f3b as
 b64e797. Independent freeze review c62035d9 and coordinator rehash verify all
@@ -1698,14 +1714,14 @@ NAND writes between isolated copies. Nintendo Zone remains skipped.
 
 ## Seats
 
-Current continuation at b64e797: GPT-6.1 Sol high worker resume_sol_high has
+Current continuation at58d264b: GPT-6.1 Sol high worker resume_sol_high has
 completed full checks/build/freeze at ed40f3b. Reviewer resume_review_sol_high
 approves source b5302b99, test-only policy11bf7038 and full gate c62035d9.
 Original969b367, origin fix a03504e and transient fix cf52bd5 stay immutable.
-GPT-6.1 Sol high offline worker resume_capture_audit_high owns only its private
-browser-v1/offline-audit helper and the closed-export audit after coordinator
-session identification. It must preserve the incomplete513-pair session as
-well as first600 and complete repeat519. Native audit57ae4729 is closed. Human
+GPT-6.1 Sol high offline worker resume_capture_audit_high completes sealed
+audit181440a5 of first600, complete repeat519 and preserved incomplete513.
+Its private reservation is released and all finite handles exit. Independent
+reviewer owns audit/document closure only. Native audit57ae4729 is closed. Human
 system.ts remains unstaged. No worker GUI or server. Coordinator alone serves
 frozen ed40f3b and drives the muted MacBook browser. Old builds/exports stay
 unchanged. No guessed reverse opening, curve or delay. Early footer departure
@@ -2060,17 +2076,18 @@ Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camer
 
 ## Next
 
-Current continuation: close and independently audit exports from reviewed
-frozen build itZdGEQJDzlDwPZnssuUe at ed40f3b, integrated through b64e797.
-Coordinator-only policy abbb0a00 declares first/repeat one-cycle HOME/Resume
-recordings. Latest human model instruction supersedes its model clause only.
-Preserve incomplete byte-limited repeatcbc9851a and declare its missing Resume,
-then audit first76a9f29e and complete repeated7c22d0 separately. Inspect all raw
-boundary sheets and fixed endpoint comparisons before another source slice.
-Update the maps, contract, log and draft PR7 with actual evidence, review and
-commit the documentation chunk. Keep missing native stages, separate footer
-departure, native timing and unrecovered host mappings explicit. All four
-whole flows remain fail. Earlier Next options below are historical.
+Current continuation: final audit181440a5 and coordinator inspection close
+all1,632 exports and fixed comparisons. Preserve sealed selection3959b5fc and
+the incomplete513-pair session. Finish independent audit/document review,
+commit/push the coherent closure and update draft PR7. Next source slice must
+target native Resume footer withdrawal, absent from first/repeat browser but
+visible in native raw17.48.52.511 while HOME remains. Start with actual-input
+regression and pinned source/caller investigation; no guessed reverse clip,
+delay or curve. Keep current frozen serving and all exports unchanged. Missing
+native raw post-HOME motion, dialog/lower coincidence, other app/compact Resume,
+Manual60/9, top-row native motion and folder cases stay open. All four whole
+flows fail. Latest model remains GPT-6.1 Sol high for helpers; only coordinator
+drives muted MacBook GUI. Earlier Next options below are historical.
 
 Current next: candidate600-pair audit2a7c4044 and coordinator inspection are
 closed. Preserve sealed selectione623453b. Status-before-lower is visibly

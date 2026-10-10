@@ -1,5 +1,48 @@
 # Animation verification checkpoint, 10 October 2026
 
+## Retained Resume audit closure
+
+Final report SHA-256:
+`181440a5559df1a7f6c4ba2606125f22153d52bbf5da8331717fa773fd3f47fd`.
+Manifest `a4bbbe849a3354a87de8d83d42bb06e19c8599d7ee465f5860c481e9499f8a56`.
+Original freeze `ef206fb16dfcc016bde18901e9643a12f162138f0bc84ae554f98b00f1954401`.
+Sealed selection `3959b5fc981c8c77d3046dce64e1c524161420eb8041fccd6210cc21d46d4c97`.
+Private output is `browser-v1/offline-audit` under the retained Resume root below.
+All1,632 paired triples and4,896 originals are complete and unchanged, with
+zero structural errors/warnings. All3,264 PNGs pass CRC and independent full
+RGBA decode agreement. All150 audit and97 structural checksums pass.
+Coordinator inspects12 raw boundary/footer/ready/endpoint sheets and four fixed
+comparison sheets. This closes pending audit statements below, not native1:1.
+
+First/complete-repeat chronological pairs are upper status11/113, dialog and
+lower HOME12/114, complete footer25/127 and lower-motion retirement26/128.
+Resume341/309 retains Health through HOME; retained lower344/312, HOME-free
+dim360/328 and full-size bright382/350 follow. No fully black saved LCD occurs
+among3,264 images; minimum per-image maximumRGB128. This covers saved images
+only. No separate footer-only withdrawal is observed, unlike native. First
+pressed Resume pair is missing; repeat308 preserves it. Incomplete513 ends
+paused with no Resume input and remains explicitly incomplete. Receipt phaseapp
+at341/309 is not ready; serialized Resume diagnostics/source-frame association
+are absent. Repeat baseline1 was inspected after selection seal and before
+comparison; the audit records this procedure error without reselection.
+
+Fixed first native complete `_10.10.26_17.48.51.281.png` SHA-256
+`9cc8b1b3385122635a2ba828de7feeb02cdded7227bc5b82d5ce455eddd891c6`, and
+first-surviving-ready `_10.10.26_17.48.59.344.png` SHA-256
+`c353cbd7e2a150965f6fb14e14c8efbc7da58660ed09809b07a3b52391bbbd2e`
+are sparse diagnostics, not cadence evidence. Whole-LCD empty-mask delta2,
+canonical native split, no shift/registration/closest pose: complete25 fails
+10,335upper/40,365lower; repeat127 fails14,767/40,326. Ready382 fails20,313upper
+with0lower; repeat350 fails7,856upper with0lower. Ready lower maximumdelta2 is
+static threshold match only. All four whole flows remain fail. Clock, population,
+upper artwork epoch, input and timing stay unmasked; muted audio is unverified.
+
+Inherited2GiB aggregate freeze stopped before manifest writes; a narrow8GiB
+bound admits all2,283,771,475 original bytes while preserving per-file/entry
+limits and the original helper. Failed setup attempts and the baseline inspection
+error are recorded. No original, source, profile or private matrix is modified.
+All finite audit handles exit; frozen serving remains unchanged.
+
 ## Retained Health Resume candidate
 
 Reviewed source `dbfcb45` and checks through `b64e797` are pushed. Source/test/

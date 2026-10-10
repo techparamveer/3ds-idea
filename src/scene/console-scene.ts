@@ -10,7 +10,7 @@ import { getHomeCursorLoopFrame } from '../os/home-cursor-loop';
 import { getHomeCursorSlot } from '../os/home-cursor-visibility';
 import { apps, getApp } from '@/os/apps';
 import { homeTitles, getTitle } from '@/os/app-registry';
-import { completeNotificationsFooterClose, completeNotesFooterClose, currentEntry, getActiveAppView, invokeSystemApplet, launchHomeShortcut, selectedTitle } from '@/os/system';
+import { completeNotificationsFooterClose, completeNotesFooterClose, currentEntry, getActiveAppView, launchHomeShortcut, selectedTitle } from '@/os/system';
 import { createMenuAudio, type Sound } from '@/os/audio';
 import { createPortfolioState, reduceSystem, tickSystem, tickHomeNavigationClockObserved, restoreSettings, restoreRuntimeData, dispatchSystemEvent, releaseSystemInputs, setSystemSleeping, STORAGE_KEY } from '@/os/system';
 import { enableHomeControls, reconcileHomeControls, isHomeSwitchPresentationActive } from '@/os/home-controls';
@@ -130,7 +130,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   for(const app of homeTitles)addControl(`Open ${app.title}`,()=>{if(state.system?.phase==='home')commit((current,now)=>launchHomeShortcut(current,app.id,now),'open',true);});
   // Existing nonvisual direct shortcuts cannot supply a selected HOME render.
   // Accessibility adaptation only; physical/touch/keyboard keep source covers.
-  for(const id of ['game-notes','friends','notifications','browser','miiverse'])addControl(`Open ${getTitle(id)!.title}`,()=>{if(state.system?.phase==='home')commit((current,now)=>{const next=invokeSystemApplet(current,id,now);screens.skipAppletEntryForAccessibilityShortcut(next);return next;},'open',true);});
+  for(const id of ['game-notes','friends','notifications','browser','miiverse'])addControl(`Open ${getTitle(id)!.title}`,()=>{if(state.system?.phase==='home')commit((current,now)=>{const next=launchHomeShortcut(current,id,now);screens.skipAppletEntryForAccessibilityShortcut(next);return next;},'open',true);});
   let announced='';
   const topTexture=new THREE.CanvasTexture(screens.top),bottomTexture=new THREE.CanvasTexture(screens.bottom);
   for(const tx of [topTexture,bottomTexture]){tx.colorSpace=THREE.SRGBColorSpace;tx.minFilter=THREE.LinearFilter;tx.magFilter=THREE.NearestFilter;tx.generateMipmaps=false;tx.anisotropy=renderer.capabilities.getMaxAnisotropy();}

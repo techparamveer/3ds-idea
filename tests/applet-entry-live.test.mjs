@@ -28,7 +28,7 @@ const sceneAst=ts.createSourceFile('console-scene.ts',sceneSource,ts.ScriptTarge
 function findShortcut(node){if(ts.isForOfStatement(node)&&node.getText(sceneAst).includes('skipAppletEntryForAccessibilityShortcut'))shortcut=node;ts.forEachChild(node,findShortcut);}
 findShortcut(sceneAst);assert.ok(shortcut);
 const shortcutCode=ts.transpileModule(shortcut.getText(sceneAst),{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
-const bindShortcuts=new Function('state','screens','invokeSystemApplet','onCommit',`
+const bindShortcuts=new Function('state','screens','launchHomeShortcut','onCommit',`
  const buttons=[],getTitle=id=>({title:id}),addControl=(title,click)=>buttons.push({title,click});
  const commit=transform=>{state=transform(state,6400);onCommit(state);};
  ${shortcutCode}
@@ -381,11 +381,12 @@ test('fresh observations accept stale rAF timestamps for normal/reduced cycles; 
  });
 });
 
-test('actual sr-only callback preserves arbitrary-focus direct opens without inventing a HOME pair; visual reopen cannot inherit its skip',async()=>{
- for(const appId of ids)await fixture(({screens,paint,events,setStatus})=>{
-  const initial=tickSystem(createPortfolioState(),3001),buttons=bindShortcuts(initial,screens,invokeSystemApplet,state=>paint(state,1));
+test('actual sr-only callback selects its destination without inventing a HOME pair; visual reopen cannot inherit its skip',async()=>{
+ for(const appId of ids)for(const origin of ['grid','toolbar'])await fixture(({screens,paint,events,setStatus})=>{
+  const initial=origin==='grid'?tickSystem(createPortfolioState(),3001):home(appId==='notifications'?'game-notes':'notifications'),buttons=bindShortcuts(initial,screens,launchHomeShortcut,state=>paint(state,1));
   buttons.buttons.find(button=>button.title===`Open ${appId}`).click();const state=buttons.state();
   assert.equal(state.system.runtime.instances[state.system.runtime.active].appId,appId);assert.equal(screens.stockFailure(),null);
+  assert.equal(state.system.homeNavigation.focus.toolbarActive,true);assert.equal(state.system.homeNavigation.focus.currentFocus,ids.indexOf(appId)+1);
   assert.equal(events.some(e=>e.name.startsWith('cover-')),false);assert.equal(screens.appletEntryActive(state),false);
   assert.equal(screens.stockStatus(state),appId==='game-notes'?'loading':'ready','Notes retains its own boot input quarantine');
   setStatus('error');paint(state,2);assert.equal(screens.stockStatus(state),'error');screens.retryStockScreen();paint(state,3);

@@ -4,6 +4,61 @@ This checkpoint follows the reviewed folder Back correction `52faeda` and
 touch-dispatch tests `07052d0`, already pushed to draft PR7. It changes no
 runtime, native assets or sounds. All four whole animation flows remain fail.
 
+## Retained dimming correction
+
+Reviewed workerf6e83c4 and test-onlyb955d8c integrate/push ase7ac460/115696e;
+handoff9c67472 integrates/pushes b14d3de. Source-phase alignment samples the
+full authored AppPause material, including UV channels, at the existing lower
+fade phase capped at20. SceneIn geometry, HUD/window/footer maps and22-receipt
+lifecycle remain unchanged. Both independent clip bounds and the settled
+SceneIn/AppPause/AppQuit close override stack remain strict. No source curve,
+native graphic, sound or manifest changes. Cross-controller cadence is not
+recovered; this remains an explicit adaptation.
+
+Real compositor regression is red before and green after. Exact independent
+reviews have report hashes
+`15f821dcdcae63293d10e5bc999cee14ee35bee4341d0cc55cf84414031fde89` and
+`11581308649cba233dcf6ffb5e54ce1ebff92cd7f8c169d1927fba2e80ee03ab`,
+with178/219 related tests passing. Focused147/147 pass. Final full tests have
+2665pass/1unchanged missing private Camera PNG failure/101skip/1TODO. Typecheck,
+required shader validation and production build pass. Initial45fail full run
+is preserved;77 tracked GLBs are hydrated from existing LFS objects without
+asset diffs, and four stale linked-phase assertions are corrected without
+weakening receipt/owner/retry coverage. See the [source/check handoff](workstream-handoffs/health-suspend-dimming-20261010.md).
+
+Coordinator stops only old80193 through live66736, exit130, then verifies
+listener absence. Frozen buildna-t0YK-P1Kxs8zcVSbX_ now serves3029 at87828,
+persistent session50559. Its source/assets/tests equal integratedb14d3de.
+Freeze identity SHA-256 is
+`c825a859463ceb9afed42c24f6928b4e6231179dcf0809a6d2c6b8a184a3ec6f`.
+Previous source/build/exports stay unchanged. Predeclared verification policy
+SHA-256 is `b55138477144517de40f36cea20a59e34d5acf22cbe9af7d866daef25dddfb61`.
+Ordinary Reload, actual Health tile, recorder Start, physical HOME and actual
+lower Resume visibly recover ready Health. User Stop/Save exports all456 pairs,
+session753b5713-70a3-4f15-94a8-dea55349c743. The isolated intermediate-frame
+audit closes1368 unchanged originals and912 decoded PNGs without structural
+issues; all127 checksum entries verify. Report SHA-256 is
+`8241e7baef8fd913ef703cca2cd5eaaaef3e3a5f120d0e087ca3f6b89a68de2e`;
+manifest is `abc492a9fdc36ab2979e8c1cb38895c38b33a3a8608ef86e95844db72e97f747`.
+Selection seals before comparison at
+`1df6558df40cb52f16eb5c67be40780a306390353f3c20397ddb11272e49d929`.
+Coordinator inspects consecutive raw sheet
+`inspection/retained-dimming-0123-0131.png`, SHA-256
+`ccdf278cf0696607be381dfebc33d4b5864e45fc043ca48cb63ab9fed3f577cb`.
+Both retained LCDs visibly dim126-131 before lower HOME132. Upper status135
+and dialog137 still follow lower HOME. Upper retained bounds/soft edges remain
+comparison residuals. This closes browser inspection of the dimming improvement,
+not native animation identity. Lower-first HOME exposure remains unchanged by the source
+correction. All GUI uses the dedicated muted MacBook browser. No recorder runs.
+The coordinator also inspects the unshifted1x qualitative pre-fix/candidate/
+native sheet, SHA-256 `59e8779cbd4c89cb263fc53ac43717ed85afe48c0c1ad7283154e8c83587184a`,
+and Resume boundary355-356 black/357 ready, SHA-256
+`0c197b27d9700836bff4510d56bf2462dc20d442f05e08b734dfa1dbab8de403`.
+No new mask, pixel diff, clock fit or native capture is introduced. Semantic
+categories are not equal native phases; retained bounds/softness stay unaccepted.
+
+The following sections retain earlier capture/build identities.
+
 ## Shortcut correction and current candidate
 
 Reviewed source/test worker `7214ff7` plus fixture correction `5cd5ea7` integrate
@@ -64,7 +119,15 @@ Start, physical HOME, settled Close/Resume, actual lower Resume and ready Health
 All599 pairs save at duration-limit in separate session
 `3a224b94-f491-4299-900e-258173c3e851`. Metadata contains HOME and Resume down/up.
 Last raw pair is `live-lcd-80818391-de25-4d3a-9959-beb725524ff9-0599/browser/`.
-The isolated ordinary audit remains pending. Subsequent physical HOME,
+The isolated ordinary audit closes1797 unchanged originals and1198 decoded PNGs
+without structural issues. Report SHA-256 is
+`18d9173d5ea410e43505e518ccd93cfec07113572b30c3aa4f700b631cefa670`;
+manifest is `5c5e5df4450535526bcb1db39d16b4cb6352b88ddad12db6c2d2bc6a76ad1eec`.
+Selection seals at `8379879ff0ebe12a59b1818d8aeb00ef3d47fda22d34becaff1f9a0beb22be77`.
+Coordinator inspects `ordinary-home-resume-v1/inspection/resume-boundary.png`:
+last suspended460, black LCD pairs461-462, first ready Health463 and final599.
+Native Resume motion remains missing; black pairs are not a proven mismatch.
+Subsequent physical HOME,
 accessibility Open Notes and actual Notes footer Close reach ready Notes and
 selected Notes HOME. The shortcut skips its native entry cover. These browser
 controls do not prove native motion, input identity or timing.
@@ -75,7 +138,8 @@ HOME alpha, upper AppPause samples frame8 and lower fade samples frame23.
 Both pinned retained-color tracks finish at20. Host phase mappings remain
 adaptations; native caller inspection does not yet recover a shared cadence.
 Any narrow source-phase alignment must remain labelled adaptation and undergo
-independent review plus visible recapture. No runtime correction is integrated.
+independent review plus visible recapture. At this diagnosis checkpoint no
+correction was integrated; the later delivery section above records e7ac460.
 
 ## Ordinary Health motion defect
 

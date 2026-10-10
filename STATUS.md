@@ -56,7 +56,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `a5a6c11d46ebb1caab877a1f7340ffb62ab4f95f`. Reviewed Health shortcut worker `7214ff7` plus fixture correction `5cd5ea7` integrates as pushed `2a0629e`, independent APPROVE `730c1aff`. Worker handoff integrates as `87228a8`; reviewed verification checkpoint `a5a6c11` is pushed, documentation APPROVE `40cd05ae`. Frozen build `YUOmZy1gnxALpXL-fNhqB` now serves 3029. MacBook shortcut regression visibly reaches suspended Health with Close/Resume; all 315 user-stopped pairs save. Frozen pre-fix source/build/exports remain unchanged. The unrelated user system.ts edit remains unstaged. All four whole scenarios remain unaccepted. |
+| HEAD | `b14d3de371f5d5c0789be33bd8ee5d75d3c1706a`. Reviewed dimming source/tests are pushed as `e7ac460`/`115696e`, approvals `15f821dc`/`11581308`; handoff `9c67472` integrates as `b14d3de`. Final full checks have2665pass/1unchanged missing Camera PNG failure/101skip/1TODO; typecheck, shader validation and build pass. Frozen build `na-t0YK-P1Kxs8zcVSbX_` serves3029; bounded456-pair HOME/Resume recapture is saved, inspected and structurally closed at8241e7ba. Both retained LCDs now dim before lower HOME. Previous source/build/exports stay unchanged. Source-phase alignment is an explicit adaptation; HOME order, retained-image bounds and failed shortcut Resume remain open. Human system.ts stays excluded. All four whole scenarios remain unaccepted. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -71,7 +71,22 @@ Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` /
 
 ## Serving
 
-Current server: candidateYUOmZy1gnxALpXL-fNhqB serves3029, listener80193,
+Current server: frozen dimming buildna-t0YK-P1Kxs8zcVSbX_ serves3029,
+listener87828, persistent session50559, from health-suspend-dimming tree at9c67472.
+Coordinator stops only owned80193 through66736, exit130, and verifies listener
+absence before starting the new loopback server. Old shortcut source/build/
+exports remain frozen. Source/assets/tests equal integrated b14d3de. Policy
+health-suspend-dimming-20261010/verification-policy.md precedes candidate inputs.
+Ordinary Reload and actual tile Health reach ready Health. Physical HOME then
+actual lower Resume visibly return to ready Health. User Stop/Save export all456
+pairs in session753b5713, with HOME/Resume down/up. Inspected raw sheetccdf278c
+shows both retained LCDs dim126-131 before lower HOME132. Upper status135/
+dialog137 still follow it. Audit8241e7ba closes1368 unchanged originals/912
+decoded PNGs without issues. Coordinator inspects the qualitative native/order
+sheet and Resume boundary355-356 black/357 ready. No native pass follows.
+No recorder is running. All GUI remains in the dedicated muted MacBook browser.
+
+Previous server: candidateYUOmZy1gnxALpXL-fNhqB served3029, listener80193,
 persistent session66736, from the handed-over health-home-selection tree.
 Coordinator stopped only owned5dab027 listener73083
 through live session39598, exit130;3029 listener absence is verified. Its frozen
@@ -1563,6 +1578,16 @@ NAND writes between isolated copies. Nintendo Zone remains skipped.
 
 ## Seats
 
+Current handoff: dimming sourcef6e83c4/testb955d8c are independently approved,
+integrated/pushed e7ac460/115696e. Handoff9c67472 integrates/pushes b14d3de.
+Worker releases the frozen verification tree; no implementation worker is active.
+Coordinator alone serves buildna-t0YK-P1Kxs8zcVSbX_ on3029 and operates GUI.
+Offline worker closes new456-pair session753b5713 at audit8241e7ba, including
+bounded comparison against sealed prior captures. No active worker reservation
+remains; coordinator owns the next integration/verification slice.
+Native cadence/order/input/whole-flow acceptance remain open. Earlier seats below
+retain their historical in-progress states.
+
 Current slice at a5a6c11: health-suspend-dimming-20261010/3ds-idea is a new
 managed worker tree. GPT-6.1 Sol extra-high owns only the captured missing upper
 retained-Health dimming and cross-LCD HOME exposure order, necessary presenter/
@@ -1868,13 +1893,16 @@ Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camer
 
 ## Next
 
-Current next after2a0629e: shortcut focus is corrected, reviewed, pushed and
-browser-inspected at suspended Health. Finish successful post-fix Resume and
-ordinary/top-row regression without claiming the 315-pair capture contains it.
-Close its scoped raw audit. Ordinary Health's914-pair audit identifies missing
-upper retained-LCD dimming and lower-first HOME exposure. Coordinator inspects
-the semantic and repeat endpoint diff sheets; take that captured defect into
-one separate source-backed worker slice, then review/integrate/recapture.
+Current next after b14d3de: candidate456-pair audit8241e7ba is closed; preserve
+sealed selection1df6558d. Retained upper dimming is corrected and browser-inspected;
+lower HOME132 still precedes upper status135/dialog137. Compare that order with
+the unchanged native upper-first partial, then take it into one separate bounded
+worktree slice. Recover native controller gates where possible; any unresolved
+host alignment must be an explicit adaptation, never a guessed cadence ratio.
+Ordinary Resume is visibly verified in separate599 and456 captures; shortcut
+Resume loading/blank failure remains separate and unresolved. Manual60/9 endpoint
+residuals, top-row native motion/input timing and populated/held folder scenarios
+also remain open. Do not repeat closed315/599 audits or claim them native passes.
 Do not edit or rebuild the frozen served tree. Preserve all earlier exports.
 Commit/push reviewed coherent chunks and update PR7 as work proceeds.
 All four whole flows remain fail. The older Next paragraph below is history.

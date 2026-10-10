@@ -1,6 +1,24 @@
 # Feature map — 1:1 queue
 
-Latest runtime `2a0629e` fixes destination focus for accessibility shortcuts.
+Latest runtime `e7ac460` aligns the authored retained upper dim phase with the
+existing lower source phase. Test correction `115696e` and handoff `b14d3de`
+are pushed. Independent reviews approve both exact source/test ranges. Final
+full tests have2665pass/1unchanged missing Camera PNG failure/101skip/1TODO;
+typecheck, shader validation and build pass. Frozen production
+`na-t0YK-P1Kxs8zcVSbX_` serves3029 on the muted MacBook. Actual tile Health,
+physical HOME and actual lower Resume recover ready Health;456 user-stopped
+pairs save. Inspected raw chronology shows both retained LCDs dim126-131 before
+lower HOME132, unlike the pre-fix bright upper. Audit8241e7ba verifies1368
+unchanged originals/912 decoded PNGs without issues. Qualitative native ordering
+and Resume boundary are inspected, without native timing or pixel acceptance.
+Geometry/HUD/window/footer
+and total receipt lifecycle stay unchanged. Full AppPause material, including
+UV channels, uses the aligned phase. This remains an explicit adaptation, not
+recovered native cadence. Lower-first HOME exposure and shortcut Resume failure
+remain open; all AN-01..AN-04 whole flows fail. See
+[source/check handoff](workstream-handoffs/health-suspend-dimming-20261010.md).
+
+Earlier runtime `2a0629e` fixes destination focus for accessibility shortcuts.
 Reviewed source, red/green regression, full checks and frozen production build
 are delivered. MacBook verification now shows suspended Health and Close/Resume
 after actual Notifications selection followed by Open Health and physical HOME.
@@ -8,7 +26,8 @@ All 315 user-stopped pairs save; audit2f7720a9 verifies945 unchanged originals
 and630 decoded PNGs without structural issues. Shortcut Resume remains a failed
 loading/blank observation. After ordinary Reload, actual tile Health/HOME/Resume
 visibly returns to ready Health and saves599 duration-limited pairs; separate
-audit is pending. Notes shortcut opening and actual footer Close recover Notes
+audit18d9173d verifies1797 unchanged originals/1198 decoded PNGs without issues.
+Notes shortcut opening and actual footer Close recover Notes
 HOME without native-entry acceptance. Ordinary Health's separate914-pair audit identifies upper dimming
 and cross-LCD exposure-order mismatches. Those are the next captured motion
 defects, not corrected by this shortcut fix. All AN-01..AN-04 whole flows remain

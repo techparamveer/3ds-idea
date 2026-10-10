@@ -8,7 +8,7 @@ import { createPortfolioState, tickSystem, touchSystem, reduceSystem, dispatchSy
 import { enableHomeControls, selectHomeToolbarControlTouch } from '../src/os/home-controls.ts';
 import { createNativeScreenInputGate } from '../src/os/native-screen-input.ts';
 import { escapeUnreadyNativeScreen } from '../src/os/native-screen-system.ts';
-import { sampleHomeGrid, selectHomeSlot, settleHomeNavigation } from '../src/os/home-navigation.ts';
+import { sampleHomeGrid, selectHomeSlot, settleHomeNavigation, setHomeDensity } from '../src/os/home-navigation.ts';
 import { homeTitles } from '../src/os/app-registry.ts';
 import { nativePaneParentPath, poseNativeLayout } from '../src/os/native-layout.ts';
 import { suspendedBackgroundAsset, suspendedBackgroundPlayback } from '../src/scene/home-suspended-background.ts';
@@ -49,7 +49,7 @@ const flush = () => new Promise(resolve => setImmediate(resolve));
 
 async function fixture(run) {
   const saved = new Map(['document', 'Image', 'FontFace', '__resumeLoad'].map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
-  const events = [], loads = []; let failHealth=false;
+  const events = [], loads = []; let failHealth=false,readback=127;
   const homePacks=structuredClone(packs);
   function canvas() {
     const surface = { width: 0, height: 0, marks: [] };
@@ -58,7 +58,7 @@ async function fixture(run) {
       fillText(value) { surface.marks.push(['text', value]); },
       drawImage(source) { if (source.marks) surface.marks = source.marks.map(mark => mark.slice()); },
       createLinearGradient: () => ({ addColorStop() {} }),
-      getImageData(_x, _y, width, height) { const bytes = new Uint8ClampedArray(width * height * 4); bytes.fill(127); return { width, height, data: bytes }; },
+      getImageData(_x, _y, width, height) { const bytes = new Uint8ClampedArray(width * height * 4); bytes.fill(readback); return { width, height, data: bytes }; },
     }, { get: (target, key) => key in target ? target[key] : () => {} });
     surface.getContext = () => ctx; return surface;
   }
@@ -79,8 +79,8 @@ async function fixture(run) {
     { width: texture.width, height: texture.height, data: new Uint8ClampedArray(texture.width * texture.height * 4) }])) });
   const model = createFirmwareModel(asset, suspendedBackgroundPlayback());
   const assets = { renderer: renderer(homePacks), sharedFont: { draw(ctx,value) { ctx.canvas.marks.push(['text',value]); } }, dispose() {}, diagnostics: [],
-    titleIconPixels: new Map(homeTitles.filter(title => title.titleId).map(title => [title.titleId, { width: 48, height: 48, data: new Uint8ClampedArray(48 * 48 * 4) }])),
-    titleIcons: new Map([['0004001000022300', {}]]), titleDescriptions: new Map([['0004001000022300', 'Health and Safety Information']]) };
+    titleIconPixels: new Map(homeTitles.filter(title => title.titleId).map(title => [title.titleId.toLowerCase(), { width: 48, height: 48, data: new Uint8ClampedArray(48 * 48 * 4) }])),
+    titleIcons: new Map(homeTitles.filter(title=>title.titleId).map(title=>[title.titleId.toLowerCase(),{}])), titleDescriptions: new Map([['0004001000022300', 'Health and Safety Information']]) };
   const screens = createScreens({ firmwareAssets: assets, drawHomeBackground: () => true,
     drawSuspendedBackground(ctx, capture, presentation) {
       events.push({ name: 'retained-upper', capture, presentation });
@@ -99,7 +99,7 @@ async function fixture(run) {
     const selected = loads[index], source = Object.fromEntries(selected.args[2].map(request => [request.alias, readPack(request.url)]));
     selected.resolve({ renderer: renderer(source), diagnostics: [], dispose() {} }); await flush();
   };
-  try { await screens.ready; await run({ screens, paint, loads, resolveLoad,assets,homePacks,failHealth:value=>failHealth=value }); }
+  try { await screens.ready; await run({ screens, paint, loads, resolveLoad,assets,homePacks,failHealth:value=>failHealth=value,readback:value=>readback=value }); }
   finally { screens.dispose(); model.dispose(); for (const [key, descriptor] of saved) { if (descriptor) Object.defineProperty(globalThis, key, descriptor); else delete globalThis[key]; } }
 }
 
@@ -135,12 +135,15 @@ test('ordinary Health footer Resume retains both LCDs while the same native owne
   });
 });
 
-async function ordinaryHealth(f){
+async function ordinaryHealth(f,controls=false){
   let state=tickSystem(createPortfolioState(),3001);
+  if(controls)state=enableHomeControls(state);
   const slot=Number(Object.entries(state.system.layout).find(([,id])=>id==='health-safety')[0]);
   state=settleHomeNavigation(selectHomeSlot(state,slot));
   const grid=sampleHomeGrid(state.system.homeNavigation),point=grid.slots[slot];
-  state=touchSystem(state,point.x-grid.scrollPixels,point.y,3010);f.paint(state);await flush();await f.resolveLoad();
+  state=touchSystem(state,point.x-grid.scrollPixels,point.y,3010);
+  if(controls)for(let now=3027;now<=3210&&state.system.phase==='home';now+=17)state=tickSystem(state,now);
+  assert.equal(state.system.phase,'launch');f.paint(state);await flush();await f.resolveLoad();
   state=tickSystem(state,6500);f.paint(state);state=tickSystem(state,7000);f.paint(state);
   return state;
 }
@@ -328,5 +331,67 @@ test('HOME lid sleep keeps an unchanged accepted expanded origin for Resume afte
     state=setSystemSleeping(state,false,7300);
     state=dispatchSystemEvent(state,{type:'button',command:'home',phase:'down',source:'physical:HOME'},7400);
     assert.equal(state.system.phase,'app');assert.equal(f.paint(state).result.resume.frame,0);
+  });
+});
+
+const sourceByte=pair=>exitLower(pair)?.options.textures['runtime:pause-lower-home'].data[0];
+const pointer=(state,phase,x,y,now)=>dispatchSystemEvent(state,{type:'touch',phase,x,y,pointerId:81},now);
+
+test('actual HOME press then cancel or up-out cannot replace the accepted Resume source',async()=>{
+  for(const end of ['cancel','up'])for(const receipt of [false,true])await fixture(async f=>{
+    let state=home(f,await ordinaryHealth(f));
+    const grid=sampleHomeGrid(state.system.homeNavigation),point=grid.slots[state.selected];
+    state=pointer(state,'down',end==='cancel'?point.x-grid.scrollPixels:160,end==='cancel'?point.y:226,7200);
+    assert.equal(state.system.homeNavigation.gesture.mode,'press');
+    f.readback(201);f.paint(state,receipt);
+    state=pointer(state,end,0,0,7210);
+    assert.equal(state.system.homeNavigation.gesture,null);
+    if(!receipt)f.screens.presentHomeEntryMotion(state);
+    state=dispatchSystemEvent(state,{type:'button',command:'home',phase:'down',source:'physical:HOME'},7300);
+    const pair=f.paint(state,false);
+    assert.equal(pair.result.resume.frame,0);
+    assert.equal(sourceByte(pair),127,'pressed paint must not replace the prior stable lower texture, even after cancel restores the origin');
+  });
+});
+
+test('a stable pending source receipt cannot promote after actual HOME pointer down',async()=>{
+  await fixture(async f=>{
+    let state=home(f,await ordinaryHealth(f));f.readback(202);f.paint(state,false);
+    state=pointer(state,'down',160,226,7200);
+    assert.equal(state.system.homeNavigation.gesture.area,'footer');
+    f.screens.presentHomeEntryMotion(state);
+    state=pointer(state,'cancel',160,226,7210);
+    state=dispatchSystemEvent(state,{type:'button',command:'home',phase:'down',source:'physical:HOME'},7300);
+    const pair=f.paint(state,false);assert.equal(pair.result.resume.frame,0);
+    assert.equal(sourceByte(pair),127,'a receipt in a different transient state cannot promote the unpresented stable paint');
+  });
+});
+
+test('actual Resume footer down paint and up retain the preceding stable HOME source',async()=>{
+  for(const controls of [false,true])await fixture(async f=>{
+    let state=home(f,await ordinaryHealth(f,controls));
+    state=pointer(state,'down',160,226,7200);assert.equal(state.system.phase,'home');
+    assert.equal(state.system.homeNavigation.gesture.area,'footer');
+    f.readback(203);f.paint(state);
+    state=pointer(state,'up',160,226,7210);assert.equal(state.system.phase,'app');
+    const pair=f.paint(state,false);assert.equal(pair.result.resume.frame,0);
+    assert.equal(sourceByte(pair),127,'the normal footer down paint must preserve the accepted source until release');
+  });
+});
+
+test('existing density motion cannot sample or promote a source before the stable origin returns',async()=>{
+  for(const pending of [false,true])await fixture(async f=>{
+    let state=home(f,await ordinaryHealth(f));
+    state=settleHomeNavigation(setHomeDensity(state,3));f.paint(state);
+    const original=state.system.homeNavigation.rootView;
+    f.readback(204);if(pending)f.paint(state,false);
+    state=setHomeDensity(state,4);
+    assert.ok(state.system.homeNavigation.motion);
+    if(pending)f.screens.presentHomeEntryMotion(state);else f.paint(state);
+    state=settleHomeNavigation(setHomeDensity(state,original.density));
+    assert.deepEqual(state.system.homeNavigation.rootView,original);
+    state=dispatchSystemEvent(state,{type:'button',command:'home',phase:'down',source:'physical:HOME'},7300);
+    const pair=f.paint(state,false);assert.equal(pair.result.resume.frame,0);
+    assert.equal(sourceByte(pair),127,'in-flight geometry and a receipt under motion cannot replace the prior stable source');
   });
 });

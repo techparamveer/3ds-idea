@@ -447,6 +447,13 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    state.opened,state.selected,state.folderSelected,nav.focus.toolbarActive,nav.focus.currentFocus,
    view.selectedSlot,view.currentLeftSlot,view.targetLeftSlot,view.density]);
  }
+ function resumeHomeSourceSettled(state:MenuState):boolean {
+  const nav=getHomeNavigation(state),controls=state.system?.homeControls,touch=controls?.tileTouch;
+  return !nav.gesture&&!nav.motion&&!state.system?.input.touch&&!controls?.tileCandidate&&!controls?.tilePickup
+   &&(!touch||!touch.strokeOwned&&!touch.globalCapture&&!touch.pending.length&&Object.values(touch.widgets).every(widget=>
+    !widget.capture&&widget.state===0&&widget.select.status===0&&widget.decide.status===0
+    &&(!widget.pose||widget.pose.clip==='select'&&widget.pose.frame===0)));
+ }
  function resumeIdentity(state:MenuState):HomeResumeIdentity|null {
   const s=state.system,runtime=s?.runtime,owner=runtime?.application,instance=owner?runtime?.instances[owner]:undefined;
   if(!s||!runtime||!resumeSource||!state.powered||s.phase!=='app'||s.sleeping||s.preferences||s.dialog||state.panel
@@ -583,7 +590,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  function presentHomeEntryMotion(state:MenuState):boolean {
   const source=resumeSourceCandidate;resumeSourceCandidate=undefined;
   if(!disposed&&!panelFailure&&!document.hidden&&state.powered&&!state.system?.sleeping&&graphics.stockFailure()===null&&source&&source.identity.resourceGeneration===resumeGeneration
-   &&selectedSuspendedApplication(state)?.id===source.identity.owner&&source.origin===resumeHomeOrigin(state)){
+   &&selectedSuspendedApplication(state)?.id===source.identity.owner&&source.origin===resumeHomeOrigin(state)&&resumeHomeSourceSettled(state)){
    const capture=graphics.readSuspendedCapture(state.system!.runtime);
    if(capture.status==='ready'&&capture.owner===source.identity.owner&&capture.generation===source.identity.captureGeneration){resumeSource=source;resumePresentation.reset();}
   }
@@ -1034,7 +1041,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    }
   }
   output.imageSmoothingEnabled=false;output.clearRect(0,0,800,240);output.drawImage(native,0,0,800,240);
-  if(!diagnosticPaint&&expanded&&suspended?.appId==='health-safety'&&suspendedCapture.status==='ready'&&suspendedCapture.owner===suspended.id
+  if(!diagnosticPaint&&expanded&&resumeHomeSourceSettled(state)&&suspended?.appId==='health-safety'&&suspendedCapture.status==='ready'&&suspendedCapture.owner===suspended.id
    &&suspendedMetadata?.owner===suspended.id&&!state.system?.dialog&&!applicationTransition&&!homeEntryMotionActive(pauseMotion,reduced)){
    resumeSourceCandidate={identity:{owner:suspended.id,captureGeneration:suspendedCapture.generation,resourceGeneration:resumeGeneration},origin:resumeHomeOrigin(state)!,capture:suspendedCapture,
     metadata:suspendedMetadata.metadata,lower:{width:320,height:240,data:new Uint8ClampedArray(b.getImageData(0,0,320,240).data)},sleepFrame:suspendedSleepFrame};

@@ -1,12 +1,14 @@
 # Feature map — 1:1 queue
 
-11 October AN-04: [native Camera Resume](camera-resume-native-2026-10-11.md)
-now has five closed movies and four own endpoint PNGs, audit c7c3cf43.
-The inspected 125-frame Resume bracket retains Camera under fading HOME and
-has no fully black pair. Native shooting UI differs from browser Welcome1/5,
-so this is ordering evidence, not a matched fidelity pass. Next capture the
-equivalent browser shooting-state route before changing its Resume compositor.
-All native sessions are stopped and muted settings preserved.
+11 October AN-04: the [Camera gallery follow-up](camera-resume-native-2026-10-11.md)
+confirms a browser Resume defect. Audit3ced32e9/review34ac4567 verify1400 pairs;
+Resume198/199 are black before gallery200..318 exactly matches baseline.
+Native auditf8a0511b verifies7147 silent movie frames and four own endpoint PNGs.
+Root inspects every Resume605..719: gallery stays under departing HOME without
+a visible black pair. Native three-photo versus browser five-photo content,
+static rendering and lossy movie sampling prevent1:1 acceptance. A narrow
+Camera retained-Resume repair is assigned; review and production recapture
+are next. Shooting mode is not a browser requirement. Sessions are stopped.
 
 11 October AN-02: the [Manual Close correction](manual-close-transition-2026-10-11.md)
 at dbe6355 closes the captured missing-cover and renderer-error regressions on

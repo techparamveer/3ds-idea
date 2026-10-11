@@ -63,7 +63,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `adb7572a7cef1e3660bc566cfa709bb95ef11ebe`. Reviewed six-doc checkpoint7e369723, approval0e80ad86, records corrected Manual and shared regressions. Runtime dbe6355 integrates renderer correction bdfbccd after review80f6fd12. Source/public/tests match frozen worker build eGGUJaaaGjH_h_YXiHEwH, manifest53ffed6c. Focused206 and independent12 pass; typecheck/build pass; full suite2739 pass, one unchanged missing Camera fixture,102 skip,1 TODO. Human system.ts remains untouched/unstaged. Manual regression passes within review79295bd3 bounds; whole native fidelity remains unproven. |
+| HEAD | `daf0eb7ed994bafc024271a5f4ceb967ff85e083`. Four-doc native Camera checkpoint4d726f3f, evidence review47cbf4b8 and docs review3a857988. Runtime remains dbe6355, whose source/public/tests match frozen worker build eGGUJaaaGjH_h_YXiHEwH, manifest53ffed6c. Earlier focused206 and independent12 pass; typecheck/build pass; full suite2739 pass, one unchanged missing Camera fixture,102 skip,1 TODO. No new code checks for this documentation-only checkpoint. Human system.ts remains untouched/unstaged. Whole native fidelity remains unproven. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -77,6 +77,41 @@ Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9dd
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
 
 ## Serving
+
+Native gallery comparison is reserved under private native-camera-gallery-v1/
+policy.md before launch/input. Root alone uses isolated executable3dfdfbed,
+HOMEc622d1c5 and stopped configba1057b0. Only temporary HOME/path fields change;
+volume0/Null output1/Static input2 and normal100% remain. MacBook only. Fresh
+exact-window pilots precede Camera/gallery input. Existing captures stay closed.
+The run is now closed under policycbf43e24 and coordinator-ledger.md. PID8819
+and render3431 produced two successful pilots, then HOME30s, Manual/Close60s
+and Resume30s movies, all finalized exit0 with zero audio. Four own400x480 PNGs
+saved. Date group3 versus browser group5 is an explicit fixture difference.
+GUI Quit/Yes succeeded; PID absent before restoring only HOME/path, preserving
+two normalized geometry fields. Decoder camera_native_decode_sol_high closes
+auditf8a0511b:7147 decoded movie frames, zero audio,25 unchanged originals and
+four own400x480 PNGs. Root opens all115 Resume frames605..719 on seven sheets
+and all four own PNGs. Gallery remains beneath HOME with no visibly black pair
+in that bracket. Independent native review is pending. Originals are closed.
+
+Gallery comparison at daf0eb7 is captured under private
+toprow-current-20261010/camera-gallery-resume-browser-v1/policy.md. Source
+stock-apps.ts intentionally sends the completed Camera guide to read-only
+main/gallery, not shooting mode. Use that in-scope route for matching; do not
+add a shooting mode to satisfy the previous Next wording. Coordinator alone
+served unchanged frozen bdfbccd on fresh3033 and drove muted Chrome on the
+MacBook. Session41917/listener8351 had verified cwd, HTTP200 and build
+eGGUJaaaGjH_h_YXiHEwH. The five-page guide reached read-only gallery. The
+standalone Download control required forced query clocks and saved nothing;
+pre-recording policy correction f24de265 uses initial live pairs as baseline.
+Four windows saved HOME302, Manual413, Close367 and Resume318 pairs. All four
+ready destinations were observed before Stop, all exports completed. Candidate
+tab/server are stopped, exit130, no3033 listener. All prior captures/builds
+and old3032 remain immutable. Audit3ced32e9 and independent review34ac4567
+verify all1400 pairs/2800 PNGs. Root opens all ten compact sheets. Resume198/199
+are fully black;200..318 exactly match baseline PNGs and decoded pixels.
+Native gallery comparison supports a retained-Resume repair; content/static
+differences and lossy native movies prevent a whole-fidelity claim.
 
 Native Camera continuation at adb7572 is closed under private
 toprow-current-20261010/native-camera-resume-v1/policy.md, hash1d5ca245.
@@ -2003,8 +2038,18 @@ NAND writes between isolated copies. Nintendo Zone remains skipped.
 
 ## Seats
 
+Current: worker resume_capture_audit_high owns only the Camera Resume source,
+tests and handoff in camera-resume-gallery-20261011, as reserved in Next.
+Its prior browser audit3ced32e9 is closed and independently reviewed34ac4567.
+Native decoder camera_native_decode_sol_high has closed auditf8a0511b and
+released its lease. Reviewer resume_review_sol_high owns only the new native
+gallery review-sol-high-v1 and read-only checkpoint review. All use GPT-6.1
+Sol high. Native capture is closed; only root drives GUI or integrates code.
+
+Earlier seats below are history, not active reservations.
 Camera decoder helper camera_native_decode_sol_high has closed auditc7c3cf43.
-Reviewer resume_review_sol_high checks its closed evidence and this checkpoint.
+Reviewer resume_review_sol_high approves bounded evidence47cbf4b8 and exact
+four-doc checkpoint3a857988. Both helpers have released their reservations.
 Both use GPT-6.1 Sol high. No implementation or GUI worker reservation exists.
 
 Current at adb7572: all three helpers use GPT-6.1 Sol high. Shared Notes and
@@ -2419,15 +2464,30 @@ Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camer
 
 ## Next
 
-Checkpoint adb7572 is committed and pushed; PR7 records the corrected result.
+Checkpoint daf0eb7 records the native Camera observation and its limits.
+Evidence47cbf4b8 and exact-document3a857988 reviews are complete.
+Earlier adb7572 is committed and pushed; PR7 records the corrected Manual result.
 Shared5a590f7b, Camera0da73a33 and documentation0e80ad86 reviews are complete.
 Manual v2 is closed under audit4e143a50/review79295bd3; both fixed opaque covers meet delta2.
 Do not repeat the repaired missing-cover or texture-owner implementation.
 Native Camera Resume now shows retained Camera beneath fading HOME in the
 inspected bracket. Its shooting UI differs from the browser Welcome fixture.
-Next capture the equivalent browser shooting-state route, then assess the
-Resume compositor against that native sequence before changing code. Preserve
-the old Welcome capture separately. Continue remaining AN-01 through AN-04
+The source deliberately sends Camera guide completion to read-only main/gallery.
+The browser gallery route now saves 1400 pairs across HOME, Manual, Close and
+Resume. Audit3ced32e9 and independent review34ac4567 verify two fully black
+Resume pairs198/199 before gallery200..318 exactly matches the baseline.
+The native gallery counterpart is closed; root inspects all115 consecutive
+movie frames605..719 on seven sheets. Gallery remains beneath departing HOME;
+no fully black pair is visible in that interval. Content/count differences and
+lossy movie sampling still prevent pixel or cadence acceptance.
+Worker resume_capture_audit_high now owns the narrow Camera retained-Resume
+repair in `/Users/paramveer/.codex/worktrees/camera-resume-gallery-20261011/3ds-idea`,
+branch `codex/camera-resume-gallery-20261011`, based on daf0eb7. Owned paths are
+Resume composition in src/os, focused tests and one new handoff note. Reuse
+the existing guarded compositor, preserve Health behavior and do not invent
+native timing. Independent review and production recapture remain required.
+Do not add a shooting mode. Preserve
+the old Welcome and native shooting captures separately. Continue remaining AN-01 through AN-04
 motion/input/pixel residuals. A static cover match is not whole-flow acceptance. The old Next
 entries below record superseded reservations and must not restart them.
 

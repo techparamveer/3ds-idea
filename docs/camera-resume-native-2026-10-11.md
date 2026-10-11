@@ -1,5 +1,41 @@
 # Camera Resume native observation
 
+## Gallery follow-up, 11 October 2026
+
+The in-scope browser Camera route is read-only gallery. Completing its guide
+selects `main`; it does not expose shooting mode. This corrects the earlier
+next-step wording below. Runtime remains dbe6355 at coordinator daf0eb7.
+
+Private sibling `camera-gallery-resume-browser-v1` records HOME302, Manual413,
+Close367 and Resume318 pairs on frozen build `eGGUJaaaGjH_h_YXiHEwH`.
+Audit `3ced32e9` and independent review `34ac4567` verify all1400 pairs and
+2800 PNGs. Resume198/199 are entirely black;200..318 exactly match the initial
+gallery pixels and PNG bytes. Root opens all ten compact1x sheets. The separate
+Download control rejected the missing fixed query clocks; no baseline download
+was saved. Policy `f24de265` selected initial live pairs before recording.
+Serialized pointer events plus the GUI ledger do not establish native epochs.
+
+Private sibling `native-camera-gallery-v1`, policy `cbf43e24`, records the
+same gallery/HOME/Manual/Close/Resume route after two exact-window pilots.
+Audit `f8a0511b` decodes7147 frames across five silent movies and verifies
+25 unchanged originals totaling65,358,002 bytes, including four own400x480
+PNGs. Root opens all seven every-frame Resume sheets605..719 and all own PNGs.
+Footer withdrawal precedes HOME departure; gallery remains visible underneath
+and brightens afterwards. No fully black pair is visible in that interval.
+The lossy window movies are ordering evidence, not native pixel/cadence proof.
+Native date group has three photos and browser group five. This content and
+static-render mismatch prevents matched whole-flow acceptance.
+
+The browser tab and fresh3033 server are stopped. Native GUI Quit/Yes succeeds;
+PID8819 is absent before only temporary HOME/path fields are restored.
+Config `031bc535` retains GUI-normalized geometry and mute/Null output/Static
+input settings. Older captures remain closed. A separate narrow worktree now
+extends the existing guarded retained-Resume path to Camera. No implementation
+or new code-test result is claimed here. Independent review and production
+recapture remain required. Whole flows remain fail/unproven; audio unverified.
+
+## Earlier shooting-state capture
+
 11 October 2026, coordinator adb7572. All helpers and reviewers use
 GPT-6.1 Sol high. The tools cannot change or verify the running coordinator
 model. This is new native evidence, not an application-code correction.
@@ -35,10 +71,9 @@ Native Camera starts in its existing shooting UI with green Static input;
 the closed browser run starts at Welcome 1/5. No native guide advance, save
 reset or photo capture was performed. This fixture mismatch prevents matched
 pixel/input acceptance. The browser's Resume43/44 black pairs remain a captured
-defect candidate, not a proven native welcome-guide mismatch. Capture the
-equivalent browser shooting-state route next, then determine whether its
-retained-frame Resume animation needs the existing Health compositor path.
-Preserve the Welcome capture as a separate regression case.
+defect candidate, not a proven native welcome-guide mismatch. The gallery
+follow-up above supersedes the mistaken shooting-route next step. Preserve
+the Welcome capture as a separate regression case; shooting remains out of scope.
 
 The failed Manual second-scan export is preserved. Its exact timestamp guard
 encountered a 6.94e-18s JSON Double roundtrip difference at one frame. A separate

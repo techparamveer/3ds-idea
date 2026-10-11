@@ -3,7 +3,7 @@
 Rewrite this file whenever `HEAD` moves or localhost starts or stops.
 If this SHA disagrees with `git rev-parse HEAD`, git wins; rewrite this file before any worker.
 
-Updated: 10 October 2026. Local main remains clean at
+Updated: 11 October 2026. Local main remains clean at
 `5ee6fd7a42b0239c5f55f375f85593289a0ff532`. The final repository check finds
 origin/main at c767757, 20 commits ahead of that base, including the merged
 NVIDIA and Hack LDN portfolio work. Reviewed merge b84e1b2 now includes all
@@ -63,7 +63,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `57a92d392fdbc181b462cf14c0cf93351a54c08b`. Seven-doc checkpoint57a92d3 equals patch7665bebc, approved by independent review15612718. Raw v2 audit93f2ea99/review09ae47b6 closes 141 own PNGs including saved selected HOME, not exact banner onset or timing. Earlier static cover matches remain unchanged. No runtime/public changes; committed src/public still match frozen3fd9ed9/buildYVjVi3jRi1zYUhIFY5NkX. Human system.ts untouched/excluded. This mandatory post-commit HEAD reconciliation is outside the reviewed patch. |
+| HEAD | `dbe63559a690dddd87a0b0fa55c82a48913aab20`. Integrates renderer correction bdfbccd after independent Sol 6.1 high review80f6fd12. Source/public/tests match frozen worker build eGGUJaaaGjH_h_YXiHEwH, manifest53ffed6c. Focused206 and independent12 pass; typecheck/build pass; full suite2739 pass, one unchanged missing Camera fixture,102 skip,1 TODO. Human system.ts remains untouched/unstaged. Production1551-pair Manual regression passes within review79295bd3 bounds; whole native fidelity remains unproven. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -77,6 +77,68 @@ Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9dd
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
 
 ## Serving
+
+Shared-controller regression is complete on the same frozen bdfbccd build under
+manual-shared-close-regression-v1/policy.md, Notes and Notifications only.
+Reviewer resume_review_sol_high owns read-only manual-close-shared-path-review-v1.
+Manual v2 audit and originals remain separate. Policy10027424 precedes fresh
+3033 session76180/listener915; HTTP200 and unchanged MacBook window136 verify.
+Before recorded input, review022f7ac0 expands the policy to96b7decc for both
+first/repeat cycles. All eight windows now save3588 pairs and reach visible
+ready app/HOME endpoints. The candidate tab/server are stopped, exit130,
+no3033 listener. Auditc3a34eaf/review5a590f7b close all3588 pairs and all20
+compact1x sheets are inspected by root and reviewer. The audit's "trusted"
+wording is limited by the review to serialized events plus coordinator GUI
+attestation; the raw schema does not expose isTrusted. Manual v2 is separately
+closed under audit4e143a50 and review79295bd3.
+Suspended Camera Manual return is closed under policy2a1f6f85,
+manual-suspended-camera-v1 output only. Fresh3033/session48779/listener1826
+used unchanged bdfbccd/build eGGUJaaaGjH_h_YXiHEwH. HTTP200, cwd, muted
+Chrome20594 and MacBook window136 placement verified before input. Five
+windows saved1578 pairs: launch600, HOME298, Manual235, Close262, Resume183.
+Launch reached the frame limit across compaction; preserve that limitation.
+The other four windows were user-stopped after visible ready endpoints.
+Close retained suspended Camera HOME and Resume returned to Welcome page1/5.
+The candidate tab/server are stopped, exit130, no3033 listener. Old3032 remains.
+Camera audit7fb98256 closes all1578 pairs. Root opens all six1x sheets.
+Launch107..600 includes ready Welcome; Resume43/44 are black,45..183 returns
+the same Welcome pixels. Camera owner/generation is not exported. Read-only
+triage172e7903 traces black pending LCDs to foreground renderer/session teardown
+on HOME and asynchronous resource reload on Resume. Existing native evidence
+does not adjudicate this motion, so matched native Camera capture is next.
+No implementation follows from the black-pair observation alone.
+
+The reviewed renderer correction is integrated and pushed at dbe6355. The
+fresh3033 run is closed; listener99929/session56966 stopped after four fully
+saved Manual windows: entry384, Close371, reopen404 and repeated Close392.
+Each destination was visible before Stop. Both Close runs show the HOME Menu
+cover then return to Camera without a visible error. The candidate tab closed;
+old3032 remains unchanged. Raw1551 pairs and the full audit are closed at
+manual-browser-fixed-v2/audit-sol-high-v1. Both first/repeat fixed opaque covers
+meet static delta2 on both LCDs, with empty masks. Whole motion remains open.
+The earlier1541 total was an arithmetic typo, not a missing or extra window.
+The run served frozen manual-close-renderer-20261011 build
+eGGUJaaaGjH_h_YXiHEwH for policy548ae739 under manual-browser-fixed-v2.
+HTTP200, BUILD_ID and process cwd verify before navigation. Chrome20594 has
+--mute-audio; window136 at650,150,1102x700 is on the sole built-in display.
+Its2830 files and154199430 bytes verify unchanged. Source934c6a84,
+public7c838c9c and tests3352bcfa match the integration. Reviewer80f6fd12
+approves integration/recapture, not native fidelity. The previous failed
+387-pair run is closed under audit a9078fbc; no originals were changed.
+
+Manual Close candidate at fbffd8e failed its first production Close test.
+Policy23b7a1c8 run saves entry261 pairs, then Close126 pairs ending in
+Website display unavailable. DevTools Elements reads the existing failure
+attribute: Native screen composition failed: manual/main. No retry/reopen
+was attempted. Listener96852/session10539 and its3033 tab are stopped;
+the387-pair inventory under manual-browser-fixed-v1 is closed for audit. Worker
+d47a99b/build idC9R790B37w8diM5iq3y is frozen under manifest22474d33; root and
+reviewer rehash all2829 files without mismatches. Committed src/public/tests
+equal the integration. Use that clean checkout because the coordinator's
+unrelated human system.ts line is preserved and does not compile. Existing3032
+and all prior originals stay untouched. Only coordinator drives muted Chrome
+on the MacBook. Diagnose and fix this captured rendering error before serving
+a new candidate. Prior code review and tests did not catch this production bug.
 
 Current AN-01 capture serving at204b5a5: policy50bcf350 precedes owned3031
 stop and fresh3032 start. Only session43844/listener63894 stops, exit130;
@@ -1929,6 +1991,17 @@ NAND writes between isolated copies. Nintendo Zone remains skipped.
 
 ## Seats
 
+Current at dbe6355: all three helpers use GPT-6.1 Sol high. Shared Notes and
+Notifications audit is closed as c3a34eaf. resume_capture_audit_high completed
+read-only camera-resume-black-triage-v1/report172e7903 and released its lease.
+resume_sol_high completed suspended-Camera audit7fb98256 and released its lease.
+No implementation reservation is open.
+Reviewer resume_review_sol_high owns manual-shared-regression-review-v1 and
+then manual-camera-regression-review-v1 for the separate closed Camera audit.
+All original inventories are closed; the frozen build and source are immutable.
+Only the coordinator edits shared docs, integrates commits or operates GUI.
+The older seat entries below are history, not active reservations.
+
 AN-01 reference helper resume_sol_high has completed report6e5761b6 and
 indexd54b4fda, with75 old originals unchanged and finite handles closed.
 Browser audit helper resume_capture_audit_high has completedac2f5bd2 and
@@ -2329,6 +2402,34 @@ The integration checkout remains here.
 Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camera Slideshow header 0. Camera Settings third 0. Welcome p5 **7615** live-feed source-gap **APPROVE**. Volume **130** live-slider source-gap **APPROVE**. Span **2314**/**2442** live-spectrum source-gap **APPROVE**. Birds **1558** held-offset source-gap **APPROVE**. Battery `[45,216,85,240]` **1** underbar-partition source-gap **APPROVE**. Line01 `(92,220)` partition source-gap **APPROVE**. Empty-entry row **1916** **APPROVE**. Thumb interiors **846/918** **APPROVE**. Guide perimeter **6072** = **860** dimmed grid + **4416** half + **728** (**144** row + **53** footer + **531** within 2) + **68** fringe; veil **REJECT** `be862ce6`; subsets **APPROVE-WITH-NITS** `d72ab4b1`. Empty-mid **2255**/**1024** → **0**/**0** by grid bind `603c5388` **APPROVE-WITH-NITS** `de5c6445`. p3 `TxtDlg` **1079→1078** after host-gate `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`. Sound upper 316 labelled `14533857` **APPROVE** `daa93bca`. y=177 **320** labelled `22e8b0a4` **APPROVE** `9fe268f8`. Slider **57** **APPROVE-WITH-NITS** `444ba8e0`. Plus-tint strip **1992** kept `ed55865e` **APPROVE** `b6620fa4`. HOME 1-row tail **291** **APPROVE** `f72296ff`. HOME idle Health 1-row left-anchor **23182 / 14754** empty mask (title/wallpaper **12255**, vacant-vs-Settings **7045**, HUD **2328**). **Static still only.** Whole scenarios still fail.
 
 ## Next
+
+Finish suspended-Camera evidence review, commit the corrected production
+checkpoint and update draft PR7. Shared review5a590f7b is complete. Manual v2 is already
+closed under audit4e143a50/review79295bd3; both fixed opaque covers meet delta2.
+Do not repeat the repaired missing-cover or texture-owner implementation.
+Next triage the saved Camera Resume black pairs against native evidence before
+changing code, then continue remaining AN-01 through AN-04 motion/input/pixel
+residuals. A static cover match is not whole-flow acceptance. The old Next
+entries below record superseded reservations and must not restart them.
+
+The fbffd8e production test reveals a new Manual Close composition failure,
+not a verified fix. The closed manual-browser-fixed-v1 run saves entry261 and
+failing Close126 pairs. Next diagnose the real decoded-resource draw path,
+add a regression that reproduces it, and correct it in a new worktree based
+on fbffd8e. Preserve frozen d47a99b/build idC9R790B37w8diM5iq3y and all original
+captures. Then independently review, integrate, rebuild and recapture.
+Worker resume_capture_audit_high owns the narrow source/test repair in
+manual-close-renderer-20261011 on codex/manual-close-renderer-20261011.
+Worker resume_sol_high owns only the private manual-browser-fixed-v1/audit-sol-high-v1
+audit of387 closed pairs. Reviewer resume_review_sol_high will review the
+correction. No helper drives GUI or changes shared coordinator documents.
+
+Manual Close is now implemented at fbffd8e, independently approved by
+3b5c2871 for integration and recapture. The reservation below is completed.
+Next run the predeclared four-window browser comparison on the frozen matching
+build, audit and inspect its raw paired LCDs against the immutable native
+Manual stages. Source binding, feedback selection and scheduling remain
+adaptations. All whole flows remain fail/unproven; audio stays muted/unverified.
 
 Manual Close defect is captured in current browser sessionf0932de1: adjacent
 receipts1669/1670, sequences140/141, jump from Contents to uncovered Camera

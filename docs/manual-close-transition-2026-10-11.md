@@ -85,7 +85,7 @@ painter exercise both feedback poses across first/repeat loads and disposal.
 Missing selected texture bytes and
 missing decoded textures still fail closed. The test Canvas is byte transport,
 not a native geometry or browser acceptance oracle. Prior build/captures stay
-frozen; the coordinator must recapture this corrected candidate. Corrected
+frozen; the corrected candidate was then recaptured as documented below. Corrected
 checks and red/green regression logs live privately under
 `manual-close-renderer-fix-v1`.
 
@@ -103,9 +103,89 @@ Full-suite results and preserved earlier harness failures are recorded
 separately under private `manual-close-implementation-v1`; a missing private
 Camera fixture is not changed or treated as a pass.
 
-Coordinator integration and muted entry/Close/reopen/repeated-Close recapture
-remain required under `manual-browser-fixed-v1/policy.md`. Native source-frame
-selection, normal-speed ordering, input duration, motion timing and whole-flow
-pixel fidelity remain unproven. Existing authored recovery and portfolio
-adaptations remain; this change does not certify them. All whole flows remain
-fail/unproven and audio remains muted/unverified. No worker GUI or server run.
+Correction `bdfbccd` is integrated and pushed as `dbe6355`, after independent
+source review `80f6fd12`. Focused206 and independent12 tests pass, as do
+typecheck/build. Full suite2739 pass, one unchanged missing private Camera PNG
+failure,102 skip and1 TODO. The actual loader/renderer regression fails before
+the correction and passes afterward. The coordinator's unrelated human
+`system.ts` edit remains untouched and unstaged, so production uses the clean
+worker checkout with identical committed source/public/tests trees.
+
+### Corrected production evidence
+
+Private root C is
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261009/opus-completion/toprow-current-20261010`.
+Frozen build `eGGUJaaaGjH_h_YXiHEwH`, manifest `53ffed6c`, contains2830 files
+and154199430 bytes. Coordinator and reviewer verify every file unchanged.
+Under `C/manual-browser-fixed-v2`, policy `548ae739` precedes first entry384,
+Close371, reopen404 and repeated Close392:1551 pairs, not1541. The earlier
+1541 total was an arithmetic typo; no window or original was lost or added.
+All four windows were stopped after visible ready destinations and fully saved.
+
+Audit report `4e143a50` and independent production review `79295bd3` close the
+captured missing-transition and renderer-error regressions for selected-Camera
+Manual. Both Close runs retain feedback, outgoing cover0..20, incoming HOME0..20
+and a separate handoff before returning banner growth. First/repeat outgoing20
+are sequences160/158; HOME in0 follows at161/159. Banner first appears in saved
+sequence185 and grows at186 in each run. These are browser observations, not
+native animation epochs. Entry/reopen reach Contents. Root and reviewer open
+all eight focused paired-LCD sheets and both comparison sheets.
+
+Predeclared opaque policy `db8e8367` pins native Close12 against the first saved
+out20 in each browser Close, without pose search. Native SHA256
+`688cfefcdd1271b15c9d5de0d0cfe9689277d11b93772b1381870e0ba7bd9b1a`;
+pin manifest `cc9daf1d`; metrics `335f0066`. Both comparisons have zero pixels
+above delta2 on either LCD, maxima1 upper/2 lower, with empty masks. There is
+no scaling, shifting or color fitting. This proves only the sampled static
+opaque cover's delta2 match. It does not prove the moving frames or durations.
+
+The full report/hash chain is retained in `C/manual-browser-fixed-v2/audit-sol-high-v1`:
+
+| Artifact | SHA256 |
+| --- | --- |
+| report.md | `4e143a50f63354ef53a0efe4fad3802ca12f2179de22bcea8ed8e10a1045e106` |
+| final-manifest.json | `b668bad7e8951409d48e1aa08d8f621f910efd8ddadc124a285bd6972f82b1ca` |
+| SHA256SUMS | `c6c604934c8eab6ce705e9ca444e56e2cc188d6cb4075fd3196cebada6e79cb8` |
+| Independent review at C/manual-close-production-review-v1/report.md | `79295bd378e6e6211d06e64a842086703d6ae9d60286acdf59b90a5ff9ef47be` |
+
+### Shared regression coverage
+
+`C/manual-shared-close-regression-v1` records first/repeat opening and Close for
+Notes and Notifications on the same frozen build. All eight user-stopped
+windows save3588 pairs. The audit verifies all10764 originals unchanged and
+7176 independent CRC/full-RGBA decodes. Each Close includes feedback0/1,
+out0..20, in0..20 and handoff. Both app-to-HOME switches stay covered; ready
+opening and selected HOME endpoints are present in all four cycles. Root and
+reviewer open all20 compact raw1x sheets. Audit report SHA256
+`c3a34eaff3dd14f65c981c7efd693115ad24ab78997451ffb8dc7a1a8a27f8bc`;
+independent review `5a590f7b0a5745f6d51a3884a00b05f76a44663ffa0c8ab83eeb4fa5640daed5`.
+The sealed audit's phrase "trusted pointer events" is clarified by the review:
+24 serialized events plus coordinator-attested CuaREPL dispatch, not an exported
+isTrusted field. Runtime instance retirement is also not exported. No new
+numeric native comparison or first-banner-onset claim follows from this run.
+
+`C/manual-suspended-camera-v1` records Camera launch600, physical HOME298,
+Manual entry235, Contents Close262 and touch Resume183:1578 pairs. Launch
+reached the frame limit across compaction, but its raw sequences107..600 contain
+Welcome page1/5. The other windows were stopped after visible ready endpoints.
+All4734 originals remain unchanged and3156 CRC/full-RGBA decodes pass. Manual
+owner manual:2 is consistent across entry and Close. Close returns to suspended
+Camera with Close/Manual/Resume controls; Resume sequences45..183 show the same
+Welcome pixels as launch. Root opens all six focused raw1x sheets.
+Audit report SHA256
+`7fb98256d4020be3663a87f2d3c49b46cfbe60ef697bca360510fe7f2a8f30a0`.
+
+Resume sequences43/44 are fully black on both LCDs. Camera instance identity,
+generation and runtime.application are not serialized; Resume diagnostics are
+null on this route. The matching terminal does not prove that no instance was
+recreated. These black pairs remain an open motion question requiring native
+reference comparison, not a passed animation or a demonstrated new regression
+from this Manual fix. No recovery error is visible in the inspected sheets.
+Every temporary3033 server/tab is closed; the old3032 preview is unchanged.
+
+Native source-frame selection, normal-speed ordering, input duration, motion
+timing and whole-flow pixel fidelity remain unproven. Native slowed sampling
+with requested2s touches is not equivalent to browser500ms touches. Existing
+authored recovery and portfolio adaptations remain, as do the fitted group,
+feedback selection and scheduling above. All whole flows remain fail/unproven;
+audio stays muted/unverified. Only the coordinator operated the MacBook GUI.

@@ -1,11 +1,14 @@
 # Goal: finish the four remaining native animation flows
 
-11 October: the [current capture checkpoint](docs/animation-capture-2026-10-11.md)
-confirms Manual Close skips the native HOME Menu transition. A separate Sol-high
-worker owns the fix; independent review and integrated recapture must follow.
-Continuous native return capture also confirms banner growth, already present
-in the browser. No new growth fix is justified. All four whole flows remain
-fail/unproven. Earlier capture checkpoints below retain their original limits.
+11 October: [Manual Close correction dbe6355](docs/manual-close-transition-2026-10-11.md)
+is reviewed, integrated and pushed to draft PR7. The selected-Camera Manual
+route now shows the missing Close cover and no longer hits the captured
+renderer error. First/repeat production capture saves1551 pairs, audited and
+independently reviewed. Two fixed opaque-cover pairs meet delta2 on both LCDs;
+this is static evidence only. Shared Notes/Notifications and suspended-Camera
+regressions have separate closed captures. Native moving poses, exact inputs
+and cadence remain open. All four whole flows remain fail/unproven. Earlier
+capture checkpoints below retain their original limits.
 
 Latest [top-row checkpoint](docs/toprow-capture-2026-10-10.md) recovers native
 window recording through reviewed recorder87a5168 and gate handoffdbd0836.

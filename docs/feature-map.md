@@ -1,11 +1,20 @@
 # Feature map — 1:1 queue
 
-11 October AN-02: [Manual Close is confirmed to skip the native HOME Menu
-cover](animation-capture-2026-10-11.md). The fix is assigned to the separate
-Manual-close worktree, not yet delivered. AN-01 continuous native capture
-recovers relative Notifications banner growth; the browser already has it.
-Exact onset/cadence and all whole-flow acceptance remain open. The current
-model preference is GPT-6.1 Sol high for workers and independent review.
+11 October AN-02: the [Manual Close correction](manual-close-transition-2026-10-11.md)
+at dbe6355 closes the captured missing-cover and renderer-error regressions on
+the selected-Camera Manual route. First/repeat production entry and Close save
+1551 pairs, audited4e143a50 and independently reviewed79295bd3. Both Close runs
+show feedback, cover, incoming HOME and banner growth. Two fixed opaque-cover
+pairs match both LCDs at delta2, with empty masks; this is static-only evidence.
+The failed fbffd8e run remains preserved. Focused206 and independent12 tests,
+typecheck/build pass; full2739 pass with one unchanged missing Camera fixture.
+Shared Notes/Notifications3588-pair audit c3a34eaf and review5a590f7b close bounded
+first/repeat regression coverage. Suspended-Camera audit7fb98256 verifies1578
+pairs and Manual Close/Resume endpoints, but Resume43/44 are fully black before
+Welcome returns. Camera identity is not exported; native comparison is still
+needed. Exact native motion/input/cadence and all whole-flow acceptance remain
+open. AN-01 through AN-04 remain fail/unproven. All helpers and reviews
+use GPT-6.1 Sol high; the running coordinator model cannot be changed by tools.
 
 AN-01 latest [capture checkpoint](toprow-capture-2026-10-10.md) closes browser
 integrity for3047 first/repeat Notes and Notifications opening/Close pairs.

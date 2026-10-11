@@ -1,4 +1,4 @@
-import { encodeNativeLcdPair, lcdCaptureEnabled, lcdDownloadPayload } from './lcd-capture';
+import { cameraTextProbeEnabled, encodeNativeLcdPair, lcdCaptureEnabled, lcdDownloadPayload } from './lcd-capture';
 
 type Pair = ReturnType<typeof encodeNativeLcdPair>;
 type Limits = { durationMs: number; frames: number; bytes: number; inputs: number };
@@ -20,6 +20,7 @@ export function createLiveLcdRecorder(options: {
   post: (body: string, signal: AbortSignal) => Promise<unknown>;
   changed?: () => void;
   limits?: Partial<Limits>;
+  cameraTextProbe?: boolean;
 }) {
   const limits = { ...DEFAULT_LIMITS, ...options.limits };
   for (const value of Object.values(limits)) if (!Number.isSafeInteger(value) || value <= 0) throw new Error('Invalid recorder limit');
@@ -114,8 +115,20 @@ export function createLiveLcdRecorder(options: {
     if (state !== 'stopped' || frames.length === 0) return;
     state = 'saving'; error = '';
     const controller = new AbortController(); abort = controller;
-    const recording = { ...summary(), state: 'stopped', inputs: inputs.map(value => JSON.parse(value)),
-      sequence: frames.map((value, index) => ({ sequence: index + 1, receipt: JSON.parse(value.receipt), capturedAt: value.capturedAt, overheadMs: value.overheadMs, inputCount: value.inputCount })) };
+    // Diagnostic-only lossless interning keeps repeated full traces below the API cap.
+    // The current pair's original paint/receipt are never rewritten.
+    const cameraTextTraces:unknown[]=[],traceIds=new Map<string,number>();
+    const sequence=frames.map((value,index)=>{
+      const receipt=JSON.parse(value.receipt);
+      if(options.cameraTextProbe&&object(receipt.paint)&&receipt.paint.cameraText!=null){
+        const key=JSON.stringify(receipt.paint.cameraText);let id=traceIds.get(key);
+        if(id===undefined){id=cameraTextTraces.length;traceIds.set(key,id);cameraTextTraces.push(receipt.paint.cameraText);}
+        receipt.paint.cameraText={traceRef:id};
+      }
+      return {sequence:index+1,receipt,capturedAt:value.capturedAt,overheadMs:value.overheadMs,inputCount:value.inputCount};
+    });
+    const recording = { ...summary(), state: 'stopped', inputs: inputs.map(value => JSON.parse(value)),sequence,
+      ...(options.cameraTextProbe?{cameraTextTraceEncoding:'camera-text-table-v1',cameraTextTraces,cameraTextTraceBytes:bytes(JSON.stringify(cameraTextTraces))}:{}) };
     changed();
     try {
       for (const [index, item] of frames.entries()) {
@@ -163,6 +176,7 @@ export function mountLiveLcdRecorder(host: HTMLElement, location: Pick<Location,
   const output = document.createElement('output'); output.setAttribute('aria-live', 'polite'); output.style.display = 'block';
   const buttons: HTMLButtonElement[] = [];
   const recorder = createLiveLcdRecorder({
+    cameraTextProbe:cameraTextProbeEnabled(location),
     readPair: () => encodeNativeLcdPair(surfaces.nativeTop, surfaces.bottom), now: () => performance.now(), uuid: () => crypto.randomUUID(),
     post: async (body, signal) => {
       const response = await fetch('/api/verification/lcd-capture?lcdCapture=1', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, signal, cache: 'no-store', credentials: 'same-origin' });

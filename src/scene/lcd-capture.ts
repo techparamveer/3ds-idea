@@ -7,6 +7,12 @@ export function lcdCaptureEnabled(location: Pick<Location, 'hostname' | 'search'
   return local && new URLSearchParams(location.search).get('lcdCapture') === '1';
 }
 
+/** Temporary text probe never inherits development-mode capture enablement. */
+export function cameraTextProbeEnabled(location:Pick<Location,'hostname'|'search'>):boolean{
+ const params=new URLSearchParams(location.search);
+ return lcdCaptureEnabled(location,false)&&params.get('cameraTextProbe')==='1';
+}
+
 /** Shape validation here; delivered firmware clip bounds are validated by the HUD
  * painter. Copy only the declared fields so metadata is the exact painted sample. */
 export function lcdHomeHudSample(value: unknown, hostname?: string): DiagnosticHomeHudSample {

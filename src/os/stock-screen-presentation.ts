@@ -24,6 +24,10 @@ import type { NotesFooterCloseDraw as NotesFooterClosePaint } from './notes-foot
 import { validateNotesFooterCloseAssets } from './notes-footer-close-assets';
 import { validateNotificationsFooterFeedbackAssets } from './notifications-footer-close-assets';
 import { validateManualFooterFeedbackAssets } from './manual-footer-close-assets';
+import { immutableTextDiagnostic, textDestinationDiagnostic, type NativeTextDiagnostic } from './native-text-diagnostics';
+
+type CameraTextPair=Readonly<{owner:string;generation:number;pairId:number;stockKey:string|null;source:NativeTextDiagnostic}>;
+export type CameraTextDiagnostic=Readonly<{pair:CameraTextPair;use:'rendered'|'cached-pair';destination:Readonly<{upper:ReturnType<typeof textDestinationDiagnostic>;lower:ReturnType<typeof textDestinationDiagnostic>}>}>;
 
 type Context=CanvasRenderingContext2D;
 type MediaRecord=Record<string,JsonValue>;
@@ -211,7 +215,8 @@ export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,opt
 }
 
 /** One foreground session; asynchronous resources never outlive its owner. */
-export function createStockScreenPresentation(options:{manifestUrl?:string;onChange?:()=>void;deadlineMs?:number;soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground;reducedMotion?:()=>boolean}={}){
+export function createStockScreenPresentation(options:{manifestUrl?:string;onChange?:()=>void;deadlineMs?:number;soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground;reducedMotion?:()=>boolean;cameraTextProbe?:boolean}={}){
+  let textGeneration=0,textPairId=0,cameraTextPair:CameraTextPair|null=null,cameraTextSample:CameraTextDiagnostic|null=null;
   let revision=0,painted='',paintedFont:BitmapFont|undefined,complete=false;
   let preparedPair:Readonly<{owner:string;appId:string;renderer:NativeLayoutRenderer;key:string}>|undefined;
   const changed=()=>{revision++;preparedPair=undefined;options.onChange?.();};
@@ -233,13 +238,14 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
   const upperContext=upper.getContext('2d')!,lowerContext=lower.getContext('2d')!;
   const clearDeadline=()=>{if(deadline!==undefined)clearTimeout(deadline);deadline=undefined;};
   function fail(error:unknown){
+    cameraTextPair=null;cameraTextSample=null;
     preparedPair=undefined;
     notesBootCandidate=undefined;notesBootGate.revoke();
     options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);roomReady=true;clearDeadline();failure=error??new Error('Native screen preparation failed');recoveryPublished=false;published=undefined;
     // Invalidates the generation as well as aborting a cooperative loader.
     session.update(null);changed();
   }
-  function reset(){preparedPair=undefined;notesBootCandidate=undefined;options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);roomReady=true;clearDeadline();identity='';failure=null;recoveryPublished=false;published=undefined;session.update(null);painted='';}
+  function reset(){if(options.cameraTextProbe)textGeneration++;cameraTextPair=null;cameraTextSample=null;preparedPair=undefined;notesBootCandidate=undefined;options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);roomReady=true;clearDeadline();identity='';failure=null;recoveryPublished=false;published=undefined;session.update(null);painted='';}
   function releaseImages(){for(const image of images.values()){image.onload=null;image.onerror=null;image.src='';}images.clear();nativeImages.clear();}
   function sourceImage(url:string){
     let im=images.get(url);
@@ -356,6 +362,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     retry(){if(!disposed&&failure){reset();changed();return true;}return false;},
     /** True only when the published pair is this owner's complete application frame. */
     draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont,suspendedCapture?:SuspendedCapture,date=new Date(),elapsedMs=0,notesIntro?:NotesIntroPaint,verification?:{sampleCalendar?:boolean},notesFooterClose?:NotesFooterClosePaint,notificationsFooterClose?:{frame:number},manualFooterClose?:{frame:number}):boolean{
+      cameraTextSample=null;
       if(disposed)return false;
       preparedPair=undefined;notesBootCandidate=undefined;
       // Pixels stay out of the key; one frozen capture has one generation.
@@ -403,36 +410,46 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         :undefined;
       const healthPaintKey=view.appId==='health-safety'?[healthTopLoopFrame(healthElapsed,reducedMotion),healthEntryFrame]:null;
       const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,notificationsHudKey,notesHudKey,browserHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey,notesFooterClose,notificationsFooterClose,manualFooterClose]);
+      let textRendered=false;
       if(painted!==key||paintedFont!==font){
+        cameraTextPair=null;
         complete=false;
         black();
         if(failure)recovery();
         else if(!identity||(state.status==='ready'&&roomReady)){
           upperContext.clearRect(0,0,400,240);lowerContext.clearRect(0,0,320,240);
+          const probe=options.cameraTextProbe&&view.appId==='camera'&&view.screen==='main'&&state.status==='ready'?state.assets.renderer:undefined;
+          probe?.beginTextDiagnostic();
           try{
             if(notesFooterClose&&state.status==='ready')validateNotesFooterCloseAssets(state.assets.renderer.packs);
             if(notificationsFooterClose&&state.status==='ready')validateNotificationsFooterFeedbackAssets(state.assets.renderer.packs.notifications);
             if(manualFooterClose&&state.status==='ready')validateManualFooterFeedbackAssets(state.assets.renderer.packs['manual-footer-close']);
             drawStockScreenFrame(upperContext,lowerContext,view,{font,image,nativeImage,soundRoom:options.soundRoom,cameraShoot:options.cameraShoot,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs,notesIntro,settingsHud:hud??undefined,healthEntryFrame,notesFooterClose,notificationsFooterClose,manualFooterClose});
+            const source=probe?.endTextDiagnostic();
+            if(source){cameraTextPair=immutableTextDiagnostic({owner:nextOwner,generation:textGeneration,pairId:++textPairId,stockKey:key.length<=65536?key:null,source});textRendered=true;}
             published=state.status==='ready'?state.assets.renderer:undefined;complete=true;
             if(healthEntryFrame!==undefined){
               if(reducedMotion||healthEntryFrame===20)healthEntry!.complete=true;
               else if(healthEntry!.origin===null)healthEntry!.origin=healthElapsed;
             }
-          }catch(error){fail(error);recovery();}
+          }catch(error){probe?.endTextDiagnostic();fail(error);recovery();}
         }
         // Only publish after both native surfaces succeed, or after both were
         // replaced with the pending/error pair. Never expose a partial draw.
         painted=key;paintedFont=font;
       }
+      const destination=cameraTextPair&&complete&&!failure?{upper:textDestinationDiagnostic(top),lower:textDestinationDiagnostic(bottom)}:null;
       top.drawImage(upper,0,0);bottom.drawImage(lower,0,0);
+      if(cameraTextPair&&destination&&complete&&!failure)cameraTextSample=immutableTextDiagnostic({pair:cameraTextPair,use:textRendered?'rendered':'cached-pair',destination});
       if(complete&&!failure&&state.status==='ready')preparedPair=Object.freeze({owner:nextOwner,appId:view.appId,renderer:state.assets.renderer,key:painted});
       if(failure)recoveryPublished=true;
       else if(complete&&state.status==='ready'&&view.appId==='game-notes'&&notesIntro?.status==='boot-cover')notesBootCandidate={owner:nextOwner,pair:notesIntro,renderer:state.assets.renderer};
       return complete&&!failure;
     },
     getState:session.getState,
+    clearTextDiagnostic(){cameraTextSample=null;},
+    textDiagnostic:()=>cameraTextSample,
     getFailure:()=>failure,
-    dispose(){if(disposed)return;disposed=true;preparedPair=undefined;clearDeadline();session.dispose();options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);releaseImages();owner=null;healthEntry=null;notesBootCandidate=undefined;notesBootGate.reset();published=undefined;upper.width=upper.height=lower.width=lower.height=0;},
+    dispose(){if(disposed)return;disposed=true;cameraTextPair=null;cameraTextSample=null;preparedPair=undefined;clearDeadline();session.dispose();options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);releaseImages();owner=null;healthEntry=null;notesBootCandidate=undefined;notesBootGate.reset();published=undefined;upper.width=upper.height=lower.width=lower.height=0;},
   };
 }

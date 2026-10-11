@@ -9,7 +9,7 @@ const module=source=>'data:text/javascript;base64,'+Buffer.from(ts.transpileModu
 const layoutUrl=module(readFileSync(new URL('../src/os/native-layout.ts',import.meta.url),'utf8'));
 const {blendNativePixel,evaluateNativeMaterial,rasterNativePicture,nativeTextureSamplePixels}=await import(layoutUrl);
 const fontUrl=new URL('../src/os/bitmap-font.ts',import.meta.url).href;
-const {NativeLayoutRenderer}=await import(module(readFileSync(new URL('../src/os/native-renderer.ts',import.meta.url),'utf8').replace("'./native-layout'",JSON.stringify(layoutUrl)).replace("'./bitmap-font'",JSON.stringify(fontUrl))));
+const {NativeLayoutRenderer}=await import(module(readFileSync(new URL('../src/os/native-renderer.ts',import.meta.url),'utf8').replace("'./native-text-diagnostics'",JSON.stringify(new URL("../src/os/native-text-diagnostics.ts",import.meta.url).href)).replace("'./native-layout'",JSON.stringify(layoutUrl)).replace("'./bitmap-font'",JSON.stringify(fontUrl))));
 const {decodeNativePng}=await import(module(readFileSync(new URL('../src/os/native-png.ts',import.meta.url),'utf8')));
 const blend={operation:1,sourceFactor:0,destinationFactor:5};
 const white=Array.from({length:4},()=>[255,255,255,255]);

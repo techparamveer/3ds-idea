@@ -5,7 +5,7 @@ import ts from 'typescript';
 const module=source=>'data:text/javascript;base64,'+Buffer.from(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText).toString('base64');
 const layoutUrl=module(readFileSync(new URL('../src/os/native-layout.ts',import.meta.url),'utf8'));
 const fontUrl=new URL('../src/os/bitmap-font.ts',import.meta.url).href;
-const {NativeLayoutRenderer,nativeTextRightOverhang,nativeTextVerticalOverhang}=await import(module(readFileSync(new URL('../src/os/native-renderer.ts',import.meta.url),'utf8').replace("'./native-layout'",JSON.stringify(layoutUrl)).replace("'./bitmap-font'",JSON.stringify(fontUrl))));
+const {NativeLayoutRenderer,nativeTextRightOverhang,nativeTextVerticalOverhang}=await import(module(readFileSync(new URL('../src/os/native-renderer.ts',import.meta.url),'utf8').replace("'./native-text-diagnostics'",JSON.stringify(new URL("../src/os/native-text-diagnostics.ts",import.meta.url).href)).replace("'./native-layout'",JSON.stringify(layoutUrl)).replace("'./bitmap-font'",JSON.stringify(fontUrl))));
 // The target records actual raster bytes from the renderer's Canvas transport.
 // Geometry/compositing fidelity is covered by source/native captures, not this stub.
 function canvas(){

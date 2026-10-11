@@ -17,7 +17,7 @@ const layout=url(compile('stock-screen-layout')
  .replace("'./camera-browse.ts'",JSON.stringify(browse))
  .replace("'./stock-manual-index.ts'",JSON.stringify(url('export const manualPageZeroAvailable=()=>false;'))));
 const camera=url(compile('stock-native-camera').replace("'./stock-screen-layout'",JSON.stringify(layout)).replace("'./camera-browse.ts'",JSON.stringify(browse)).replace("'./native-layout'",JSON.stringify(url(compile('native-layout')))));
-let source=compile('stock-screen-presentation').replace("'./stock-settings-hud'",JSON.stringify(url(compile('stock-settings-hud').replace("'./device-status-profile.ts'",JSON.stringify(url(compile('device-status-profile'))))))).replace("'./stock-health-scroll'",JSON.stringify(url(compile('stock-health-scroll')))).replace("'./native-title-session'",JSON.stringify(session)).replace("'./stock-native-camera'",JSON.stringify(camera)).replace("'./stock-screen-layout'",JSON.stringify(layout));
+let source=compile('stock-screen-presentation').replace("'./native-text-diagnostics'",JSON.stringify(new URL("../src/os/native-text-diagnostics.ts",import.meta.url).href)).replace("'./stock-settings-hud'",JSON.stringify(url(compile('stock-settings-hud').replace("'./device-status-profile.ts'",JSON.stringify(url(compile('device-status-profile'))))))).replace("'./stock-health-scroll'",JSON.stringify(url(compile('stock-health-scroll')))).replace("'./native-title-session'",JSON.stringify(session)).replace("'./stock-native-camera'",JSON.stringify(camera)).replace("'./stock-screen-layout'",JSON.stringify(layout));
 source=source.replace("'./applet-title-entry-assets'",JSON.stringify(new URL('../src/os/applet-title-entry-assets.ts',import.meta.url).href));
 source=source.replace("'./notes-footer-close-assets'",JSON.stringify(new URL('../src/os/notes-footer-close-assets.ts',import.meta.url).href));
 source=source.replace("'./notifications-footer-close-assets'",JSON.stringify(new URL('../src/os/notifications-footer-close-assets.ts',import.meta.url).href));
@@ -50,31 +50,32 @@ function surface(canvas){
   drawImage(image,...rect){if(image instanceof FakeImage)this.marks.push(['photo',image.src,...rect]);else this.marks=structuredClone(image.ctx.marks);}};
 }
 function nativeAssets(){
- return {diagnostics:[],disposals:0,dispose(){this.disposals++;},renderer:{packs:{'camera-messages':messages,'camera-gallery':gallery},draw(ctx,_pack,name,opts={}){ctx.marks.push(['layout',name,opts.overrides?.ThmbPic?.alpha===0]);return true;},drawLayout(ctx,_pack,name){ctx.marks.push(['layout',name,false]);return true;}}};
+ let active=false;
+ return {diagnostics:[],disposals:0,dispose(){this.disposals++;},renderer:{packs:{'camera-messages':messages,'camera-gallery':gallery},beginTextDiagnostic(){active=true;},endTextDiagnostic(){if(!active)return null;active=false;return Object.freeze({draws:Object.freeze([]),fixture:true});},draw(ctx,_pack,name,opts={}){ctx.marks.push(['layout',name,opts.overrides?.ThmbPic?.alpha===0]);return true;},drawLayout(ctx,_pack,name){ctx.marks.push(['layout',name,false]);return true;}}};
 }
 const cells=marks=>marks.filter(([kind,name])=>kind==='layout'&&name==='P_BrwsPic').map(([,,shown])=>shown?'photo':'placeholder');
 const photos=marks=>marks.filter(([kind])=>kind==='photo').map(([,src])=>src);
 const black=[['fill','#000']];
 
-function harness(){
+function harness(options={}){
  const old={document:globalThis.document,Image:globalThis.Image};
  globalThis.document={createElement:()=>{const canvas={width:0,height:0};canvas.ctx=surface(canvas);canvas.getContext=()=>canvas.ctx;return canvas;}};
  globalThis.Image=FakeImage;images.length=0;calls.length=0;
- const screen=createStockScreenPresentation(),top=surface({}),bottom=surface({}),font={draw(){}},loaded=[];
+ const screen=createStockScreenPresentation(options),top=surface({}),bottom=surface({}),font={draw(){}},loaded=[];
  let runtime=startApplication(createAppRuntime(),'camera',0),now=0;
  const finishGuide=()=>{for(let page=0;page<5;page++)runtime=dispatchRuntime(runtime,{type:'action',id:'guide-next'},++now);};
  finishGuide();
  const h={
-  get runtime(){return runtime;},loaded,
+  get runtime(){return runtime;},loaded,screen,
   act(id){runtime=dispatchRuntime(runtime,{type:'action',id},++now);},
   home(){runtime=showRuntimeHome(runtime,++now);},
   resume(){runtime=resumeRuntimeApplication(runtime,++now);},
   relaunch(){runtime=startApplication(closeApplication(runtime,++now),'camera',now);finishGuide();},
   /** One portfolio-screens frame: sync the foreground owner, then draw it. */
-  frame(){
+  frame(frameView=runtimeView(runtime)){
    screen.sync(runtime.active);
    if(!runtime.active)return null;
-   const complete=screen.draw(top,bottom,runtimeView(runtime),runtime.active,font);
+   const complete=screen.draw(top,bottom,frameView,runtime.active,font);
    return {complete,upper:top.marks,lower:bottom.marks};
   },
   async ready(){h.frame();await flush();const assets=nativeAssets();loaded.push(assets);calls.at(-1).resolve(assets);await flush();return h.frame();},
@@ -85,6 +86,29 @@ function harness(){
 
 const folder=id=>portfolioMedia.folders.find(item=>item.id===id);
 const sources=id=>folder(id).photos.map(photo=>photo.src);
+
+test('opt-in Camera main sample follows the successful cached pair and clears on HOME, reload, unrelated views and failure',async()=>{
+ const h=harness({cameraTextProbe:true});
+ try{
+  await h.ready();const first=h.screen.textDiagnostic();assert.equal(first.use,'rendered');assert.equal(first.pair.owner,h.runtime.active);
+  h.frame();const hit=h.screen.textDiagnostic();assert.equal(hit.use,'cached-pair');assert.equal(hit.pair,first.pair);
+  assert.throws(()=>{hit.pair.owner='stale';},TypeError);
+  h.screen.clearTextDiagnostic();assert.equal(h.screen.textDiagnostic(),null);h.frame();assert.equal(h.screen.textDiagnostic().pair,first.pair);
+  for(let cycle=0;cycle<2;cycle++){
+   h.home();h.frame();assert.equal(h.screen.textDiagnostic(),null);h.resume();h.frame();assert.equal(h.screen.textDiagnostic(),null);
+   await h.ready();assert.ok(h.screen.textDiagnostic().pair.generation>first.pair.generation);assert.notEqual(h.screen.textDiagnostic().pair.pairId,first.pair.pairId);
+  }
+  h.act('folder:buildings');h.frame();assert.equal(h.screen.textDiagnostic(),null,'gallery is outside the main-only probe');
+  h.relaunch();h.frame();assert.equal(h.screen.textDiagnostic(),null);await h.ready();
+  assert.equal(runtimeView(h.runtime).screen,'main');assert.ok(h.screen.textDiagnostic());
+  h.loaded.at(-1).renderer.draw=()=>false;const main=runtimeView(h.runtime);
+  assert.equal(h.frame({...main,data:{...main.data,diagnosticFixtureRevision:1}}).complete,false,'changed main key forces an actual redraw to fail');
+  assert.ok(h.screen.getFailure());assert.equal(h.screen.textDiagnostic(),null,'partial main trace is not a pair sample');
+  assert.equal(h.screen.retry(),true);assert.equal(h.screen.textDiagnostic(),null);h.frame();assert.equal(h.screen.textDiagnostic(),null);
+  await h.ready();assert.ok(h.screen.textDiagnostic(),'retry publishes only the newly loaded successful main pair');
+  h.screen.dispose();assert.equal(h.screen.textDiagnostic(),null);
+ }finally{h.dispose();}
+});
 
 test('fixture folders are distinct URLs, so a reused cell slot always names a different image',()=>{
  const all=portfolioMedia.folders.flatMap(item=>item.photos.map(photo=>photo.src));

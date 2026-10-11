@@ -25,7 +25,7 @@ export function rasterNativePicture(...args){const start=performance.now();const
 function measuredRaster(`));
 const { pictureRasters, setCompiledRasterEnabled } = await import(layoutUrl);
 const rendererUrl = moduleUrl(readFileSync(new URL('../src/os/native-renderer.ts', import.meta.url), 'utf8')
-  .replace("'./native-layout'", JSON.stringify(layoutUrl)).replace("'./bitmap-font'", JSON.stringify(new URL('../src/os/bitmap-font.ts', import.meta.url).href)));
+  .replace("'./native-text-diagnostics'",JSON.stringify(new URL("../src/os/native-text-diagnostics.ts",import.meta.url).href)).replace("'./native-layout'", JSON.stringify(layoutUrl)).replace("'./bitmap-font'", JSON.stringify(new URL('../src/os/bitmap-font.ts', import.meta.url).href)));
 const { NativeLayoutRenderer } = await import(rendererUrl);
 const presentationUrl = new URL('../src/os/firmware-presentation.ts', import.meta.url);
 const { createFirmwareHome } = await import(moduleUrl(readFileSync(presentationUrl, 'utf8').replace(/(from\s*['"])(\.[^'"]+)(['"])/g,

@@ -36,6 +36,8 @@ test('record current paired paint synchronously before footer state changes, wit
   assert.equal(f.bodies[0].bottom, 'data:image/png;base64,current-bottom');
   assert.equal(f.bodies[0].receipt.paint.phase, 'applet');
   assert.deepEqual(f.bodies[0].paint, f.bodies[0].receipt.paint);
+  assert.equal('cameraTextTraceEncoding' in f.bodies[0].recording,false);
+  assert.equal('cameraTextTraces' in f.bodies[0].recording,false);
   assert.equal(f.bodies[0].recording.maximumOverheadMs, 2);
   assert.match(f.bodies[0].recording.evidence, /no compositor acceptance/);
 });

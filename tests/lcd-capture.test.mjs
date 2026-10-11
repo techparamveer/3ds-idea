@@ -6,7 +6,12 @@ import sharp from 'sharp';
 
 const source = readFileSync(new URL('../src/scene/lcd-capture.ts', import.meta.url), 'utf8');
 const js = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText;
-const { HEALTH_CAPTURE_TIMEOUT_MS, lcdHomeHudSample, captureAtHealthFrame, lcdCaptureEnabled, lcdDownloadRequest, lcdDownloadPayload, encodeNativeLcdPair } = await import(`data:text/javascript,${encodeURIComponent(js)}`);
+const { cameraTextProbeEnabled, HEALTH_CAPTURE_TIMEOUT_MS, lcdHomeHudSample, captureAtHealthFrame, lcdCaptureEnabled, lcdDownloadRequest, lcdDownloadPayload, encodeNativeLcdPair } = await import(`data:text/javascript,${encodeURIComponent(js)}`);
+
+test('Camera text probe requires its own explicit query plus local production LCD capture',()=>{
+ for(const hostname of ['localhost','127.0.0.1'])assert.equal(cameraTextProbeEnabled({hostname,search:'?lcdCapture=1&cameraTextProbe=1'}),true);
+ for(const [hostname,search]of [['example.com','?lcdCapture=1&cameraTextProbe=1'],['localhost','?cameraTextProbe=1'],['localhost','?lcdCapture=1'],['localhost','?lcdCapture=1&cameraTextProbe=0']])assert.equal(cameraTextProbeEnabled({hostname,search}),false);
+});
 
 test('production LCD capture requires loopback and explicit opt in', () => {
   const location = (hostname, search) => ({ hostname, search });
@@ -263,7 +268,7 @@ test('HOME HUD wiring is capture-only, records its sample, and restores live pai
   assert.match(block, /phase!=='home'/);
   assert.match(block, /try\{lastBootPaintIdentity=null;lastLaunchPaintIdentity=null;lastShutdownPaintIdentity=null;const painted=screens.paint\(state,date,elapsedMs,\{sampleCalendar:isoDate!==undefined,homeHudSample/);
   assert.match(block, /homeHudSample:homeHudSample\?\?null/);
-  assert.match(block, /finally\{verificationBannerFrame=undefined;verificationBannerSkeletalFrame=undefined;verificationHealthBannerFrame=undefined;const restoredAt=performance.now\(\)-start;lastBootPaintIdentity=null;lastLaunchPaintIdentity=null;lastShutdownPaintIdentity=null;const restored=screens.paint\(state,new Date\(\),restoredAt\);recordScreenPaint\(restoredAt,restored\?\.nativeSystem===true,restored\?\.entryMotion,undefined,undefined,undefined,undefined,restored\?\.resume\)/);
+  assert.match(block, /finally\{verificationBannerFrame=undefined;verificationBannerSkeletalFrame=undefined;verificationHealthBannerFrame=undefined;const restoredAt=performance.now\(\)-start;lastBootPaintIdentity=null;lastLaunchPaintIdentity=null;lastShutdownPaintIdentity=null;const restored=screens.paint\(state,new Date\(\),restoredAt\);recordScreenPaint\(restoredAt,restored\?\.nativeSystem===true,restored\?\.entryMotion,undefined,undefined,undefined,undefined,restored\?\.resume,restored\?\.manualClose,restored\?\.cameraText\)/);
 });
 
 

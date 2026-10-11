@@ -20,7 +20,7 @@ const captureUrl = `data:text/javascript,${encodeURIComponent(compile(readFileSy
 const recorderSource = compile(readFileSync(new URL('../src/scene/live-lcd-recorder.ts', import.meta.url), 'utf8')).replace("'./lcd-capture'", JSON.stringify(captureUrl));
 const { createLiveLcdRecorder } = await import(`data:text/javascript,${encodeURIComponent(recorderSource)}`);
 const load = new Function('runtime', `
-  const {screens,state,host,performance,document,renderer,liveLcdRecorder,diagnostics}=runtime;
+  const {screens,state,host,performance,document,renderer,liveLcdRecorder,diagnostics,cameraTextProbe}=runtime;
   const start=1000,reduced=false,contextGeneration=0,quality={screenFps:20};
   const topTexture={},bottomTexture={},topScreen={visible:true},touchScreen={visible:true};
   const schedule={invalidate(){},plan(){return {};},presented(){}},scene={updateMatrixWorld(){}},camera={updateProjectionMatrix(){}};
@@ -36,7 +36,7 @@ const load = new Function('runtime', `
   return {paintScreens,renderFrame,restore:index=>restorations[index](),textures:()=>[topTexture.needsUpdate,bottomTexture.needsUpdate]};
 `);
 
-function fixture(result, { hidden = false, contextLost = false, diagnostics = true } = {}) {
+function fixture(result, { hidden = false, contextLost = false, diagnostics = true, cameraTextProbe = false } = {}) {
   let now = 1100, paintCalls = 0, pairReads = 0;
   const bodies = [], host = { dataset: {} }, document = { hidden };
   const state = { powered: true, system: { phase: 'home', since: 50, sleeping: false, homeClock: { updateCount: 10 }, homeApplicationTransition: null } };
@@ -50,10 +50,25 @@ function fixture(result, { hidden = false, contextLost = false, diagnostics = tr
     paint() { paintCalls++; return result; }, paintTiming: () => ({ elapsedMs: 2 }),
     presentNotesFooterClose: () => null, presentNotificationsFooterClose: () => null,
   }, { get: (target, key) => target[key] ?? (() => {}) });
-  const scene = load({ screens, state, host, performance: { now: () => now }, document, diagnostics, liveLcdRecorder: recorder,
+  const scene = load({ screens, state, host, performance: { now: () => now }, document, diagnostics, cameraTextProbe, liveLcdRecorder: recorder,
     renderer: { getContext: () => ({ isContextLost: () => contextLost }), shadowMap: {}, render() {} } });
   return { scene, state, host, recorder, bodies, setNow: value => { now = value; }, setResult: value => { result = value; }, paintCalls: () => paintCalls, pairReads: () => pairReads };
 }
+
+test('opt-in Camera trace is immutable in the actual same-paint scene receipt and clears on unrelated paint',async()=>{
+ for(const route of ['cadence','state-driven','restore0','restore1']){
+  const trace={stock:{pair:{owner:'camera:1',pairId:1}},coveredByResume:route!=='cadence'},f=fixture({cameraText:trace},{cameraTextProbe:true});
+  try{
+   f.recorder.start();if(route.startsWith('restore'))f.scene.restore(Number(route.at(-1)));else f.scene.paintScreens(1090,route==='state-driven');
+   const original=structuredClone(trace);assert.deepEqual(JSON.parse(f.host.dataset.screenPaint).cameraText,original);trace.stock.pair.owner='later';
+   f.scene.renderFrame();f.recorder.stop();await f.recorder.save();assert.deepEqual(f.bodies[0].paint.cameraText,original);assert.deepEqual(f.bodies[0].receipt.paint.cameraText,original);
+   f.setResult(undefined);f.scene.paintScreens(1120);assert.equal(JSON.parse(f.host.dataset.screenPaint).cameraText,null);
+  }finally{f.recorder.dispose();}
+ }
+ const screensSource=readFileSync(new URL('../src/os/screens.ts',import.meta.url),'utf8');
+ assert.match(screensSource,/cameraText:Object\.freeze\(\{stock,coveredByResume:!!result\?\.resume\}\)/);
+ const off=fixture({cameraText:{fixture:true}});try{off.scene.paintScreens(1090);assert.equal('cameraText' in JSON.parse(off.host.dataset.screenPaint),false);}finally{off.recorder.dispose();}
+});
 
 test('same-paint Resume footer and departure survive scene receipt and real recorder serialization', async () => {
   for (const [kind, frame, owner, stateDriven] of [['footer', 14, 'health:1', false], ['departure', 40, 'health:2', true]]) {

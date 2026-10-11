@@ -1,4 +1,5 @@
 import { BitmapFont, nativeTextWriterFlags, type FontManifest } from './bitmap-font';
+import { createNativeTextDiagnostic, type TextInkRun } from './native-text-diagnostics';
 import { blendNativePixel, evaluateNativeMaterial, interpolateNativeQuad, instantiateNativePart, nativeAnimationDiagnostics, nativeMultiplyBlend, nativeOpaquePictureAlphaByte, nativePaneParentPath, nativeTextMetrics, nativeWindowPatches, nativeVisibleRasterRect, poseNativeLayout, rasterNativePicture,
  type AnimationBinding, type NativeLayout, type NativeText, type NativeMaterial, type NativePack, type NativePane, type NativePicture, type NativePixels, type NativeRasterRegion, type PaneOverrides } from './native-layout';
 
@@ -53,6 +54,9 @@ const wholeDevicePixelRect=([x,y,w,h]:[number,number,number,number],m:DOMMatrix)
 /** Canvas owns only layout targets. The scene owns all 3D banner rendering. */
 export class NativeLayoutRenderer {
  private cache=new Map<string,HTMLCanvasElement>();
+ private textDiagnostic:ReturnType<typeof createNativeTextDiagnostic>|undefined;
+ beginTextDiagnostic(){if(this.disposed)return;this.textDiagnostic??=createNativeTextDiagnostic();this.textDiagnostic.begin();}
+ endTextDiagnostic(){return this.textDiagnostic?.end()??null;}
  private opaque=new WeakSet<HTMLCanvasElement>();
  private poses=new Map<string,NativeLayout>();
  private bytes=0;
@@ -175,7 +179,9 @@ export class NativeLayoutRenderer {
   const [above,below]=nativeTextVerticalOverhang(font.manifest,text.value,metrics.size,h,text.alignment,text.lineAlignment,metrics.characterSpacing);
   const extra=nativeTextRightOverhang(font.manifest,text.value,metrics.size,text.alignment,text.lineAlignment,metrics.characterSpacing),rasterWidth=w+extra+Math.ceil(phase[0]),rasterHeight=h+above+below+Math.ceil(phase[1]);
   const key=JSON.stringify(['text',layout.fonts[text.font],text,w,h,alpha,material,phase,direct,coverage,direct&&sourceSize?pane.size:undefined]);
+  const probe=this.textDiagnostic?.active?this.textDiagnostic:undefined;
   const canvas=this.cached(key,()=>{
+   const inkRuns:TextInkRun[]|undefined=probe?[]:undefined;
    const canvas=surface(rasterWidth,rasterHeight),ctx=canvas.getContext('2d')!;ctx.imageSmoothingEnabled=true;
    const implicitText=material.sourceFormat!=='FLYT'&&!material.unsupported.length&&!material.tevStages.length&&!material.alphaCompare;
    const base=implicitText?material.bufferColor.map(value=>value/255):undefined;
@@ -197,6 +203,7 @@ export class NativeLayoutRenderer {
     font.drawNative(ink,text.value,direct&&sourceSize?pane.size[0]:w,direct&&sourceSize?pane.size[1]:h,metrics.size,text.alignment,metrics.characterSpacing,metrics.lineSpacing,text.lineAlignment,phase,direct,coverage,text.colorSpans?.length?[run.start,run.end]:undefined,text.cursorAdvances,sourceSize,sourceTopLeftSampling,text.lineAdvanceScales,text.multilineBlockOrigin,text.glyphScaleSpans,text.fixedWidthSpans,text.singleLineBlockOrigin);
     ink.restore();
     const image=ink.getImageData(0,0,rasterWidth,rasterHeight);
+    const before=probe?.fingerprint(image.data)??null;
     const top=run.color??text.topColor,bottom=run.color??text.bottomColor,colors=[...top,...top,...bottom,...bottom];
     for(let y=0;y<rasterHeight;y++){
      // Implicit text has one texture and a row-constant primary colour. Keep
@@ -215,13 +222,15 @@ export class NativeLayoutRenderer {
      }
     }
     if(nativeDarkenBlend(material))for(let i=0;i<image.data.length;i+=4)image.data[i]=image.data[i+1]=image.data[i+2]=0;
+    if(probe)inkRuns!.push({before,colored:probe.fingerprint(image.data)});
     ink.putImageData(image,0,0);if(mask!==canvas)ctx.drawImage(mask,0,0);
    }
    if(mask!==canvas)mask.width=mask.height=0;
+   if(probe)probe.fill(canvas,key,layout.fonts[text.font],font.manifest,text.value,inkRuns!);
    return canvas;
   });
   // writer0101 is set only when this call took the direct 0x18fe2c path.
-  return {canvas,phase,extra,above,below,direct,writer0101:direct&&writer0101};
+  return {canvas,key,phase,extra,above,below,direct,writer0101:direct&&writer0101};
  }
  /** Host compositor adaptation of wrapT 0 for one Canvas blit.
   * drawImage of a ceil raster into a non-integer dest maps the last covered
@@ -250,23 +259,24 @@ export class NativeLayoutRenderer {
   const padded=surface(dw,dh),image=padded.getContext('2d')!.createImageData(dw,dh);image.data.set(data);padded.getContext('2d')!.putImageData(image,0,0);
   return {canvas:padded,w:destW*dw/sw,h:destH*dh/sh,clipW:padX?Math.ceil(destW):destW,clipH:padY?Math.ceil(destH):destH};
  }
- private composite(ctx:Context,canvas:HTMLCanvasElement,x:number,y:number,w:number,h:number,layout:NativeLayout,index:number,override?:NativeMaterial,allowOpaqueDarken=false,clampLinearEdge=false){
+ private composite(ctx:Context,canvas:HTMLCanvasElement,x:number,y:number,w:number,h:number,layout:NativeLayout,index:number,override?:NativeMaterial,allowOpaqueDarken=false,clampLinearEdge=false,diagnostic?:()=>void){
   const material=override??layout.materials[index],blend=material.colorBlend;
   ctx.save();
   try{
    // Coverage/resampling and nonunit Canvas alpha differ from readback. Opt in
    // only for whole device pixels with one raster texel per destination pixel.
    const darkenTransform=allowOpaqueDarken&&nativeDarkenBlend(material)?ctx.getTransform():undefined;
-   if(darkenTransform&&ctx.globalAlpha===1&&wholeDevicePixelRect([x,y,w,h],darkenTransform)&&Math.abs(darkenTransform.a*w)===canvas.width&&Math.abs(darkenTransform.d*h)===canvas.height){ctx.globalCompositeOperation='source-over';ctx.drawImage(canvas,x,y,w,h);return;}
+   if(darkenTransform&&ctx.globalAlpha===1&&wholeDevicePixelRect([x,y,w,h],darkenTransform)&&Math.abs(darkenTransform.a*w)===canvas.width&&Math.abs(darkenTransform.d*h)===canvas.height){ctx.globalCompositeOperation='source-over';diagnostic?.();ctx.drawImage(canvas,x,y,w,h);return;}
    if(!blend||(blend.operation===1&&blend.sourceFactor===4&&blend.destinationFactor===5)){
     ctx.globalCompositeOperation='source-over';
     const clamped=clampLinearEdge?this.linearEdgeClamp(ctx,canvas,x,y,w,h):undefined;
+    diagnostic?.();
     if(clamped){ctx.beginPath();ctx.rect(x,y,clamped.clipW,clamped.clipH);ctx.clip();ctx.drawImage(clamped.canvas,x,y,clamped.w,clamped.h);}
     else ctx.drawImage(canvas,x,y,w,h);
     return;
    }
-   if(blend.operation===0){ctx.globalCompositeOperation='source-over';ctx.drawImage(canvas,x,y,w,h);return;}
-   if(nativeMultiplyBlend(blend)&&this.opaque.has(canvas)){ctx.globalCompositeOperation='multiply';ctx.drawImage(canvas,x,y,w,h);return;}
+   if(blend.operation===0){ctx.globalCompositeOperation='source-over';diagnostic?.();ctx.drawImage(canvas,x,y,w,h);return;}
+   if(nativeMultiplyBlend(blend)&&this.opaque.has(canvas)){ctx.globalCompositeOperation='multiply';diagnostic?.();ctx.drawImage(canvas,x,y,w,h);return;}
    // Readback is limited to uncommon native blend modes; ordinary panes stay on Canvas's fast path.
    const target=this.blendTarget??=surface(ctx.canvas.width,ctx.canvas.height);
    if(target.width!==ctx.canvas.width||target.height!==ctx.canvas.height){target.width=ctx.canvas.width;target.height=ctx.canvas.height;}
@@ -283,7 +293,7 @@ export class NativeLayoutRenderer {
     // would attenuate edge RGB again when the screen CanvasTexture is sampled.
     dst.data[at+3]=255;
    }
-   tmp.putImageData(dst,0,0);ctx.resetTransform();ctx.globalCompositeOperation='copy';ctx.drawImage(target,0,0);
+   tmp.putImageData(dst,0,0);ctx.resetTransform();ctx.globalCompositeOperation='copy';diagnostic?.();ctx.drawImage(target,0,0);
   }finally{ctx.restore();}
  }
 
@@ -376,6 +386,7 @@ export class NativeLayoutRenderer {
        if(pane.picture&&!this.projectedPicture(ctx,layout,pane.picture,w,h,alpha,textures,options.pictureSampling==='lcd')){this.composite(ctx,this.picture(packName,layout,pane.picture,w,h,alpha,textures,undefined,undefined,opaquePictureAlphaPanes?.has(pane.name)),0,0,w,h,layout,pane.picture.material,undefined,allowOpaqueDarken);}
        if(pane.text){const textSampling=!textSamplingPanes||textSamplingPanes.has(pane.name)?options.textSampling:undefined;
         const raster=this.text(layout,pane,alpha,textSampling?ctx.getTransform?.():undefined,options.textCoverageAdaptation,textSampling==='lcd-source-size'||textSampling==='lcd-source-size-left',textSampling==='lcd-source-size-left',!!textSampling&&!!textSamplingPanes?.has(pane.name)),textCanvas=raster.canvas;
+        const diagnostic=this.textDiagnostic?.active?()=>this.textDiagnostic!.draw(textCanvas,raster.key,packName,layoutName,pane.name,ctx,{bindings:options.bindings??null,overrides:options.overrides??null,textSampling:textSampling??null,textCoverageAdaptation:options.textCoverageAdaptation??null,direct:raster.direct,phase:raster.phase,scale:options.scale??null,center:options.center??null}):undefined;
         // 0x18fe2c (only caller 0x190138, in 0x1900d4) does not reach scissor
         // 0x166544. That function's only BL is 0x173348; mov r1,#0x65 is at
         // 0x16668c and 0x1666b0. The pane clip is host Canvas AA on the dest
@@ -383,7 +394,7 @@ export class NativeLayoutRenderer {
         // adaptation, not a dump rectangle. Dest placement stays as built.
         if(!raster.writer0101){ctx.beginPath();ctx.rect(0,-raster.above,w*(Math.ceil(w)+raster.extra)/Math.ceil(w),h+raster.above+raster.below);ctx.clip();}
         const sourceSize=textSampling==='lcd-source-size'||textSampling==='lcd-source-size-left';
-        this.composite(ctx,textCanvas,0-raster.phase[0],0-raster.above-raster.phase[1],raster.direct&&sourceSize?textCanvas.width:w*textCanvas.width/Math.ceil(w),raster.direct&&sourceSize?textCanvas.height:h*textCanvas.height/Math.ceil(h),layout,pane.text.material);
+        this.composite(ctx,textCanvas,0-raster.phase[0],0-raster.above-raster.phase[1],raster.direct&&sourceSize?textCanvas.width:w*textCanvas.width/Math.ceil(w),raster.direct&&sourceSize?textCanvas.height:h*textCanvas.height/Math.ceil(h),layout,pane.text.material,undefined,false,false,diagnostic);
        }
        if(pane.window)for(const patch of nativeWindowPatches(pane,layout,textures)){
         if(patch.width<=0||patch.height<=0)continue;
@@ -448,5 +459,5 @@ export class NativeLayoutRenderer {
   finally{ctx.restore();}
  }
  get cacheBytes(){return this.bytes;}
- dispose(){if(this.disposed)return;this.disposed=true;for(const c of this.cache.values())c.width=c.height=0;this.cache.clear();this.poses.clear();this.bytes=0;if(this.blendTarget)this.blendTarget.width=this.blendTarget.height=0;if(this.projectedTarget)this.projectedTarget.width=this.projectedTarget.height=0;for(const images of Object.values(this.textures))images.clear();}
+ dispose(){if(this.disposed)return;this.disposed=true;this.textDiagnostic=undefined;for(const c of this.cache.values())c.width=c.height=0;this.cache.clear();this.poses.clear();this.bytes=0;if(this.blendTarget)this.blendTarget.width=this.blendTarget.height=0;if(this.projectedTarget)this.projectedTarget.width=this.projectedTarget.height=0;for(const images of Object.values(this.textures))images.clear();}
 }

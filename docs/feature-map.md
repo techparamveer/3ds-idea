@@ -1,5 +1,13 @@
 # Feature map — 1:1 queue
 
+11 October AN-04: [native Camera Resume](camera-resume-native-2026-10-11.md)
+now has five closed movies and four own endpoint PNGs, audit c7c3cf43.
+The inspected 125-frame Resume bracket retains Camera under fading HOME and
+has no fully black pair. Native shooting UI differs from browser Welcome1/5,
+so this is ordering evidence, not a matched fidelity pass. Next capture the
+equivalent browser shooting-state route before changing its Resume compositor.
+All native sessions are stopped and muted settings preserved.
+
 11 October AN-02: the [Manual Close correction](manual-close-transition-2026-10-11.md)
 at dbe6355 closes the captured missing-cover and renderer-error regressions on
 the selected-Camera Manual route. First/repeat production entry and Close save

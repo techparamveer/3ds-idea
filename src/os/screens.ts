@@ -27,6 +27,7 @@ import { NATIVE_RECOVERY_TARGETS } from './native-screen-input';
 import { getHomeFolderIdentity } from './home-folder-identity';
 import type { NativePixels } from './native-layout';
 import type { SuspendedCapture } from './notes-suspended-capture';
+import type { AppInstance } from './app-host';
 import { createHomeResumePresentation, homeResumeBackground, type HomeResumeIdentity, type HomeResumePose } from './home-resume-presentation';
 import { drawHomeResumeLower } from './home-pause-lower';
 import { createNotesFooterClosePresentation, notesFooterCloseEligible, type NotesFooterClosePose } from './notes-footer-close';
@@ -488,10 +489,13 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
     !widget.capture&&widget.state===0&&widget.select.status===0&&widget.decide.status===0
     &&(!widget.pose||widget.pose.clip==='select'&&widget.pose.frame===0)));
  }
+ function retainedResumeSupported(instance:AppInstance|null|undefined):boolean {
+  return instance?.appId==='health-safety'||instance?.appId==='camera'&&(instance.state.screen==='main'||instance.state.screen==='gallery');
+ }
  function resumeIdentity(state:MenuState):HomeResumeIdentity|null {
   const s=state.system,runtime=s?.runtime,owner=runtime?.application,instance=owner?runtime?.instances[owner]:undefined;
   if(!s||!runtime||!resumeSource||!state.powered||s.phase!=='app'||s.sleeping||s.preferences||s.dialog||state.panel||options.runtimeNotice?.()
-   ||instance?.appId!=='health-safety'||instance.suspended||instance.closing||runtime?.active!==owner||runtime.homeReturn!==null
+   ||!instance||!retainedResumeSupported(instance)||instance.suspended||instance.closing||runtime?.active!==owner||runtime.homeReturn!==null
    ||owner!==resumeSource.identity.owner||resumeSource.identity.resourceGeneration!==resumeGeneration||resumeSource.origin!==resumeHomeOrigin(state))return null;
   const capture=graphics.readRetainedApplicationCapture?.(runtime);
   return capture?.status==='ready'&&capture.owner===owner&&capture.generation===resumeSource.identity.captureGeneration?resumeSource.identity:null;
@@ -513,7 +517,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  let applicationTransitionCapture:{generation:string;transitionId:number;owner:string;captureGeneration:number}|undefined;
  let softwareDialogIcons:{key:string;icons:readonly NativePixels[]}|undefined;
  let panelFailure:Error|undefined,panelPublished:string|null=null;
- const panelKey=(state:MenuState)=>manualClosePresentation.active(state,manualCloseGeneration)?JSON.stringify(['manual-footer-close',state.system?.runtime.sequence,appletGeneration]):resumeIdentity(state)&&!resumePresentation.ready(resumeIdentity(state))?JSON.stringify(['health-resume',resumeIdentity(state)]):notificationsClosePresentation.active(state,appletGeneration)?JSON.stringify(['notifications-footer-close',state.system?.runtime.sequence,appletGeneration]):notesClosePresentation.active(state,appletGeneration)?JSON.stringify(['notes-footer-close',state.system?.runtime.sequence,appletGeneration]):homeSoftwareClosingDialogKey(state)??homeSoftwareDialogKey(state)??(state.system&&!state.system.sleeping&&['boot','launch','power','shutdown'].includes(state.system.phase)
+ const panelKey=(state:MenuState)=>manualClosePresentation.active(state,manualCloseGeneration)?JSON.stringify(['manual-footer-close',state.system?.runtime.sequence,appletGeneration]):resumeIdentity(state)&&!resumePresentation.ready(resumeIdentity(state))?JSON.stringify(['retained-resume',resumeIdentity(state)]):notificationsClosePresentation.active(state,appletGeneration)?JSON.stringify(['notifications-footer-close',state.system?.runtime.sequence,appletGeneration]):notesClosePresentation.active(state,appletGeneration)?JSON.stringify(['notes-footer-close',state.system?.runtime.sequence,appletGeneration]):homeSoftwareClosingDialogKey(state)??homeSoftwareDialogKey(state)??(state.system&&!state.system.sleeping&&['boot','launch','power','shutdown'].includes(state.system.phase)
   ?JSON.stringify(['system',state.system.phase,state.system.since,state.system.returnPhase,state.system.app,state.system.runtime.application,state.system.runtime.active])
   :manualEntryIdentity(state,manualGeneration)&&manualEntryEligible(state)?JSON.stringify(['manual-entry',manualEntryIdentity(state,manualGeneration)])
   :appletEntryIdentity(state,appletGeneration)&&appletEntryEligible(state)?JSON.stringify(['applet-entry',appletEntryIdentity(state,appletGeneration)])
@@ -947,7 +951,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    }
    if(!nativeHome?.pauseLower(b,suspendedCapture.lower,pauseLowerHomeCapture.pixels,pauseLower.fadeFrame))throw Error('Native HOME lower pause transition unavailable');
   }else if(pauseEntryMotion&&homeEntryMotionMatches(pauseEntryMotion,pauseIdentity)&&!homeEntryMotionActive(pauseEntryMotion))pauseLowerHomeCapture=undefined;
-  const resumeLowerWithoutFooter=expanded&&suspended?.appId==='health-safety'&&resumeHomeSourceSettled(state)
+  const resumeLowerWithoutFooter=expanded&&retainedResumeSupported(suspended)&&resumeHomeSourceSettled(state)
    ?{width:320,height:240,data:new Uint8ClampedArray(b.getImageData(0,0,320,240).data)}:undefined;
   if(!bootBaseOnly&&state.panel!=='folder-settings'&&state.panel!=='folder-not-empty'){
    const withholdPauseFooter=!!pauseLower&&pauseLower.footerFrame===null;
@@ -1008,16 +1012,16 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   if(resume&&resumeSource&&!diagnosticPaint&&!document.hidden&&nativeStatus!=='error'&&graphics.stockFailure()===null){
    resumePose=resumePresentation.sample(resume,elapsedMs,true,graphics.preparedStockPair(state)??null,reduced);
    if(resumePose){
-    if(!firmwareAssets||!nativeHome)throw Error('Native Health resume resources unavailable');
+    if(!firmwareAssets||!nativeHome)throw Error('Native retained resume resources unavailable');
     t.resetTransform();t.clearRect(0,0,400,240);b.resetTransform();b.clearRect(0,0,320,240);
     if(resumePose.kind==='footer'){
      drawResumePixels(t,resumeSource.upper,0);drawResumePixels(b,resumeSource.lower,1);
-     if(!nativeHome.footer(b,resumeSource.state,reduced,undefined,undefined,undefined,undefined,resumePose.frame))throw Error('Native Health Resume footer unavailable');
+     if(!nativeHome.footer(b,resumeSource.state,reduced,undefined,undefined,undefined,undefined,resumePose.frame))throw Error('Native retained Resume footer unavailable');
     }else{
-     if(!options.drawSuspendedBackground?.(t,resumeSource.capture,homeResumeBackground(resumePose.frame)))throw Error('Native Health resume upper unavailable');
+     if(!options.drawSuspendedBackground?.(t,resumeSource.capture,homeResumeBackground(resumePose.frame)))throw Error('Native retained resume upper unavailable');
      drawHomeSuspendedWindow(firmwareAssets.renderer,t,resumeSource.metadata,'expanded',resumeSource.sleepFrame,undefined,undefined,undefined,resumePose.frame);
-     if(!nativeHome.hud(t,date,time,undefined,undefined,Math.min(20,resumePose.frame)))throw Error('Native Health resume HUD unavailable');
-     if(!drawHomeResumeLower(firmwareAssets.renderer,b,resumeSource.capture.lower,resumeSource.lower,resumePose.frame))throw Error('Native Health resume lower unavailable');
+     if(!nativeHome.hud(t,date,time,undefined,undefined,Math.min(20,resumePose.frame)))throw Error('Native retained resume HUD unavailable');
+     if(!drawHomeResumeLower(firmwareAssets.renderer,b,resumeSource.capture.lower,resumeSource.lower,resumePose.frame))throw Error('Native retained resume lower unavailable');
     }
     resumeCandidate=resumePose;
    }
@@ -1101,9 +1105,9 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    }
   }
   output.imageSmoothingEnabled=false;output.clearRect(0,0,800,240);output.drawImage(native,0,0,800,240);
-  if(!diagnosticPaint&&!notice&&!state.panel&&expanded&&resumeHomeSourceSettled(state)&&suspended?.appId==='health-safety'&&suspendedCapture.status==='ready'&&suspendedCapture.owner===suspended.id
+  if(!diagnosticPaint&&!notice&&!state.panel&&expanded&&resumeHomeSourceSettled(state)&&suspended&&retainedResumeSupported(suspended)&&suspendedCapture.status==='ready'&&suspendedCapture.owner===suspended.id
    &&suspendedMetadata?.owner===suspended.id&&!state.system?.dialog&&!applicationTransition&&!homeEntryMotionActive(pauseMotion,reduced)){
-   if(!resumeLowerWithoutFooter)throw Error('Native Health Resume footer-free source unavailable');
+   if(!resumeLowerWithoutFooter)throw Error('Native retained Resume footer-free source unavailable');
    resumeSourceCandidate={identity:{owner:suspended.id,captureGeneration:suspendedCapture.generation,resourceGeneration:resumeGeneration},origin:resumeHomeOrigin(state)!,state,
     upper:{width:400,height:240,data:new Uint8ClampedArray(t.getImageData(0,0,400,240).data)},capture:suspendedCapture,
     metadata:suspendedMetadata.metadata,lower:resumeLowerWithoutFooter,sleepFrame:suspendedSleepFrame};

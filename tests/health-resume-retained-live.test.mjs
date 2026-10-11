@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import ts from 'typescript';
-import { createPortfolioState, tickSystem, touchSystem, reduceSystem, dispatchSystemEvent, setSystemSleeping, launchHomeShortcut, invokeSystemApplet } from '../src/os/system.ts';
+import { createPortfolioState, tickSystem, touchSystem, reduceSystem, dispatchSystemEvent, setSystemSleeping, launchHomeShortcut, invokeSystemApplet, getActiveAppView } from '../src/os/system.ts';
 import { enableHomeControls, selectHomeToolbarControlTouch } from '../src/os/home-controls.ts';
 import { createNativeScreenInputGate } from '../src/os/native-screen-input.ts';
 import { escapeUnreadyNativeScreen } from '../src/os/native-screen-system.ts';
@@ -49,7 +49,7 @@ const flush = () => new Promise(resolve => setImmediate(resolve));
 
 async function fixture(run) {
   const saved = new Map(['document', 'Image', 'FontFace', '__resumeLoad'].map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
-  const events = [], loads = []; let failHealth=false,readback=127;
+  const events = [], loads = []; let failHealth=false,failCamera=false,readback=127;
   const homePacks=structuredClone(packs);
   function canvas() {
     const surface = { width: 0, height: 0, marks: [] };
@@ -73,6 +73,7 @@ async function fixture(run) {
     return { packs: source, measureSingleLineText: () => 222,
       draw(ctx, alias, name, options = {}) {
         if(failHealth&&alias.startsWith('health-'))return false;
+        if(failCamera&&alias.startsWith('camera-'))return false;
         const pack = source[alias], pose = poseNativeLayout(pack.layouts[name], pack.animations, options.bindings, options.overrides);
         events.push({ name, alias, options, pose }); ctx.canvas.marks.push(['native', name]); return true;
       }, drawLayout() { return true; }, dispose() {} };
@@ -82,7 +83,7 @@ async function fixture(run) {
   const model = createFirmwareModel(asset, suspendedBackgroundPlayback());
   const assets = { renderer: renderer(homePacks), sharedFont: { draw(ctx,value) { ctx.canvas.marks.push(['text',value]); } }, dispose() {}, diagnostics: [],
     titleIconPixels: new Map(homeTitles.filter(title => title.titleId).map(title => [title.titleId.toLowerCase(), { width: 48, height: 48, data: new Uint8ClampedArray(48 * 48 * 4) }])),
-    titleIcons: new Map(homeTitles.filter(title=>title.titleId).map(title=>[title.titleId.toLowerCase(),{}])), titleDescriptions: new Map([['0004001000022300', 'Health and Safety Information']]) };
+    titleIcons: new Map(homeTitles.filter(title=>title.titleId).map(title=>[title.titleId.toLowerCase(),{}])), titleDescriptions: new Map([['0004001000022300', 'Health and Safety Information'], ['0004001000022400', 'Nintendo 3DS Camera']]) };
   const screens = createScreens({ firmwareAssets: assets, drawHomeBackground: () => true,
     drawSuspendedBackground(ctx, capture, presentation) {
       events.push({ name: 'retained-upper', capture, presentation });
@@ -91,11 +92,11 @@ async function fixture(run) {
       return capture.status === 'none' || capture.status === 'ready';
     } });
   let now=10000;
-  const paint = (state, receipt = true, {allowFailure=false,verification}={}) => {
+  const paint = (state, receipt = true, {allowFailure=false,verification,advanceFooter=true}={}) => {
     events.length = 0; let result = screens.paint(state, new Date(0), now++,verification);
     // These regressions target departure; the footer suite owns its independent
     // visible-pair barrier. Complete that setup before sampling departure.
-    while(result?.resume?.kind==='footer'){
+    while(advanceFooter&&result?.resume?.kind==='footer'){
       assert.equal(screens.presentHomeEntryMotion(state),true);
       events.length=0;result=screens.paint(state,new Date(0),now++,verification);
     }
@@ -107,7 +108,7 @@ async function fixture(run) {
     const selected = loads[index], source = Object.fromEntries(selected.args[2].map(request => [request.alias, readPack(request.url)]));
     selected.resolve({ renderer: renderer(source), diagnostics: [], dispose() {} }); await flush();
   };
-  try { await screens.ready; await run({ screens, paint, loads, resolveLoad,assets,homePacks,failHealth:value=>failHealth=value,readback:value=>readback=value }); }
+  try { await screens.ready; await run({ screens, paint, loads, resolveLoad,assets,homePacks,failHealth:value=>failHealth=value,failCamera:value=>failCamera=value,readback:value=>readback=value }); }
   finally { screens.dispose(); model.dispose(); for (const [key, descriptor] of saved) { if (descriptor) Object.defineProperty(globalThis, key, descriptor); else delete globalThis[key]; } }
 }
 
@@ -401,5 +402,97 @@ test('existing density motion cannot sample or promote a source before the stabl
     state=dispatchSystemEvent(state,{type:'button',command:'home',phase:'down',source:'physical:HOME'},7300);
     const pair=f.paint(state,false);assert.equal(pair.result.resume.frame,0);
     assert.equal(sourceByte(pair),127,'in-flight geometry and a receipt under motion cannot replace the prior stable source');
+  });
+});
+
+async function ordinaryCamera(f,screen='main'){
+  let state=launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',3010);
+  f.paint(state);await flush();await f.resolveLoad();
+  state=tickSystem(state,6500);f.paint(state);state=tickSystem(state,7000);f.paint(state);
+  for(let page=0;page<5;page++)state=dispatchSystemEvent(state,{type:'action',id:'guide-next'},7010+page);
+  if(screen==='gallery')state=dispatchSystemEvent(state,{type:'action',id:getActiveAppView(state).rows.find(row=>row.id.startsWith('folder:')).id},7020);
+  f.paint(state);await flush();
+  // A view change may reuse the title session but must prepare its own pair.
+  assert.equal(state.system.runtime.instances[state.system.runtime.application].state.screen,screen);
+  assert.equal(f.screens.stockStatus(state),'ready');
+  return state;
+}
+
+test('Camera read-only gallery Resume retains both LCDs through delayed reload and repeated accepted-pair handoff',async()=>{
+  for(const screen of ['main','gallery'])await fixture(async f=>{
+    let state=await ordinaryCamera(f,screen),previousGeneration=0;
+    const owner=state.system.runtime.application;
+    for(let cycle=0;cycle<2;cycle++){
+      state=home(f,state,8000+cycle*1000);
+      state=pointer(state,'down',260,226,8100+cycle*1000);f.paint(state);
+      state=pointer(state,'up',260,226,8110+cycle*1000);
+      const footer=f.paint(state,false,{advanceFooter:false});assert.equal(footer.result.resume.kind,'footer');assert.equal(footer.result.resume.frame,0);
+      assert.equal(f.paint(state,false,{advanceFooter:false}).result.resume.frame,0,'unaccepted footer publication cannot advance');
+      assert.equal(f.screens.presentHomeEntryMotion(state),true);
+      for(let frame=1;frame<=14;frame++){
+        const pair=f.paint(state,true,{advanceFooter:false});assert.equal(pair.result.resume.kind,'footer');assert.equal(pair.result.resume.frame,frame);
+        assert.equal(exitLower(pair),undefined,'lower HOME remains beneath the independent footer withdrawal');
+        assert.ok(pair.upper.some(mark=>mark[0]==='pixels'));assert.ok(pair.lower.some(mark=>mark[0]==='pixels'));
+      }
+      const first=f.paint(state,false),capture=first.events.find(event=>event.name==='retained-upper'&&event.capture.status==='ready')?.capture;
+      assert.ok(capture,'actual Camera session reload must not publish its black loading pair');
+      assert.equal(capture.owner,owner);assert.ok(capture.generation>previousGeneration);previousGeneration=capture.generation;
+      assert.ok(exitLower(first));assert.equal(first.result.resume.frame,0);
+      assert.equal(f.paint(state,false).result.resume.frame,0,'rejected publication cannot spend a pose');
+      assert.equal(f.screens.presentHomeEntryMotion(state),true);
+      for(let frame=1;frame<=40;frame++)assert.equal(f.paint(state).result.resume.frame,frame);
+      assert.equal(f.paint(state).result.resume.frame,40,'terminal stays retained while actual async title reload is pending');
+      assert.equal(f.screens.stockStatus(state),'loading');await flush();await f.resolveLoad();
+      const terminal=f.paint(state,false);assert.equal(terminal.result.resume.frame,40);
+      assert.equal(terminal.events.find(event=>event.name==='retained-upper'&&event.capture.status==='ready').capture.upper,capture.upper);
+      assert.equal(f.screens.stockStatus(state),'loading');
+      assert.equal(f.screens.presentHomeEntryMotion(state),true);assert.equal(f.screens.stockStatus(state),'ready');
+      const ready=f.paint(state);assert.equal(ready.result?.resume,undefined);
+      assert.ok(ready.upper.some(mark=>mark[0]==='native'&&mark[1]==='P_FinderVS_U'));
+      assert.equal(state.system.runtime.application,owner);
+      assert.equal(state.system.runtime.instances[owner].state.screen,screen);
+    }
+  });
+});
+
+test('Camera retained Resume fails closed on reload error and retries without replacing its capture',async()=>{
+  await fixture(async f=>{
+    const state=touchSystem(home(f,await ordinaryCamera(f)),260,226,8100),first=f.paint(state);
+    const capture=first.events.find(event=>event.name==='retained-upper'&&event.capture.status==='ready')?.capture;assert.ok(capture);
+    await flush();f.loads.at(-1).reject(Error('native Camera reload failed'));await flush();
+    const failed=f.paint(state,true,{allowFailure:true});assert.equal(f.screens.stockStatus(state),'error');
+    assert.equal(failed.result?.resume,undefined);assert.ok(failed.upper.some(mark=>mark[1]==='Website display unavailable'));
+    assert.equal(f.screens.presentHomeEntryMotion(state),false);assert.equal(f.screens.retryStockScreen(),true);
+    const retry=f.paint(state);assert.equal(retry.events.find(event=>event.name==='retained-upper'&&event.capture.status==='ready').capture.upper,capture.upper);
+    await flush();await f.resolveLoad();
+    f.failCamera(true);f.paint(state,true,{allowFailure:true});assert.equal(f.screens.stockStatus(state),'error');
+    assert.equal(f.screens.presentHomeEntryMotion(state),false,'failed native composition cannot release the retained pair');
+    f.failCamera(false);assert.equal(f.screens.retryStockScreen(),true);f.paint(state);await flush();await f.resolveLoad();
+    f.screens.setReducedMotion(true);
+    assert.equal(f.paint(state,false).result.resume.frame,40);
+    const replaced=launchHomeShortcut(reduceSystem(state,'power',9000),'camera',9010);
+    assert.equal(f.screens.presentHomeEntryMotion(replaced),false,'a new Camera instance cannot accept the old destination receipt');
+    f.paint(state);assert.equal(f.screens.stockStatus(state),'ready');
+  });
+});
+
+test('Camera source cannot survive a changed HOME origin or resource generation',async()=>{
+  for(const change of ['origin','resources'])await fixture(async f=>{
+    let state=home(f,await ordinaryCamera(f));
+    if(change==='origin')state=selectHomeToolbarControlTouch(enableHomeControls(state),2);
+    else f.screens.setFirmwareAssets({...f.assets});
+    state=dispatchSystemEvent(state,{type:'button',command:'home',phase:'down',source:'physical:HOME'},9000);
+    assert.equal(f.paint(state,false).result?.resume,undefined);
+    assert.equal(f.screens.presentHomeEntryMotion(state),false);
+  });
+});
+
+test('Camera Welcome remains outside the captured read-only gallery Resume extension',async()=>{
+  await fixture(async f=>{
+    let state=launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',3010);
+    f.paint(state);await flush();await f.resolveLoad();state=tickSystem(state,7000);f.paint(state);
+    assert.equal(state.system.runtime.instances[state.system.runtime.application].state.screen,'guide');
+    state=touchSystem(home(f,state),260,226,8100);
+    assert.equal(f.paint(state,false).result?.resume,undefined);
   });
 });

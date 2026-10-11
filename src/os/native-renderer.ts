@@ -182,7 +182,7 @@ export class NativeLayoutRenderer {
   const probe=this.textDiagnostic?.active?this.textDiagnostic:undefined;
   const canvas=this.cached(key,()=>{
    const inkRuns:TextInkRun[]|undefined=probe?[]:undefined;
-   const canvas=surface(rasterWidth,rasterHeight),ctx=canvas.getContext('2d')!;ctx.imageSmoothingEnabled=true;
+   const canvas=surface(rasterWidth,rasterHeight),ctx=canvas.getContext('2d',direct?undefined:{willReadFrequently:true})!;ctx.imageSmoothingEnabled=true;
    const implicitText=material.sourceFormat!=='FLYT'&&!material.unsupported.length&&!material.tevStages.length&&!material.alphaCompare;
    const base=implicitText?material.bufferColor.map(value=>value/255):undefined;
    const constants=implicitText?material.constantColors.map(color=>color.map(value=>value/255)):undefined;
@@ -196,7 +196,7 @@ export class NativeLayoutRenderer {
     runs.push(span);start=span.end;
    }
    if(start<text.value.length||!runs.length)runs.push({start,end:text.value.length});
-   const mask=runs.length>1?surface(rasterWidth,rasterHeight):canvas,ink=mask.getContext('2d')!;
+   const mask=runs.length>1?surface(rasterWidth,rasterHeight):canvas,ink=mask.getContext('2d',direct?undefined:{willReadFrequently:true})!;
    for(const run of runs){
     if(mask!==canvas)ink.clearRect(0,0,rasterWidth,rasterHeight);
     ink.save();ink.translate(0,above);

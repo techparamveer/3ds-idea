@@ -1,5 +1,13 @@
 # Camera Resume native observation
 
+## First Resume text residual
+
+The [bounded real-renderer diagnosis](workstream-handoffs/camera-first-resume-text-20261011.md)
+does not reproduce the fixed first-Resume difference on CPU Canvas. Runtime
+and assets remain unchanged. The next probe must examine the production
+browser's text-cache and destination history without adding Canvas readbacks.
+No cause, correction or native acceptance is claimed from the negative tests.
+
 ## Retained Resume implementation and recapture
 
 Reviewed worker23b7546 is integrated and pushed as2e76dfc. The shared guarded

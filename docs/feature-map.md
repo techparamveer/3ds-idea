@@ -1,5 +1,9 @@
 # Feature map — 1:1 queue
 
+AN-04 first Camera Resume text residual remains open after the
+[bounded CPU diagnosis](workstream-handoffs/camera-first-resume-text-20261011.md).
+No source correction is justified; the next step needs browser-specific evidence.
+
 11 October AN-04: the [Camera gallery follow-up](camera-resume-native-2026-10-11.md)
 confirms a browser Resume defect. Audit3ced32e9/review34ac4567 verify1400 pairs;
 Resume198/199 are black before gallery200..318 exactly matches baseline.

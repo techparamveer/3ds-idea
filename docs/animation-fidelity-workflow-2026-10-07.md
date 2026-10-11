@@ -1,5 +1,14 @@
 # Animation fidelity workflow
 
+## First Camera Resume text investigation
+
+The [bounded CPU diagnosis](workstream-handoffs/camera-first-resume-text-20261011.md)
+leaves the fixed first-run difference unresolved. No runtime patch or new build
+result follows. A next browser probe must correlate existing text-ink bytes,
+cache and Canvas state with the original first/Resume publications. Do not add
+readbacks that change the backing-store history being investigated. Keep the
+current baseline and separate diagnostic instrumentation from fidelity evidence.
+
 ## Camera retained Resume verification
 
 Current runtime2e76dfc extends the reviewed retained compositor to Camera

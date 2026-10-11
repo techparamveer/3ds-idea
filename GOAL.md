@@ -1,5 +1,10 @@
 # Goal: finish the four remaining native animation flows
 
+The bounded [first Camera Resume text diagnosis](docs/workstream-handoffs/camera-first-resume-text-20261011.md)
+does not justify another runtime change. CPU cold/reload and guide-warming
+probes do not reproduce the fixed production difference. Keep it open and use
+a browser-specific diagnostic next; do not repeat the retained-screen repair.
+
 11 October: [Camera retained Resume](docs/camera-resume-native-2026-10-11.md)
 is integrated and pushed as2e76dfc after independent review21fa3211. It extends
 the existing guarded compositor to Camera main/gallery. Focused50 and

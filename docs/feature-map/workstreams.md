@@ -1,5 +1,15 @@
 # Workstream Registry
 
+## First Camera Resume text residual, 11 October 2026
+
+The camera-first-resume-text-20261011 lease is closed at worker4e124c6,
+integrated as3888502 after independent reviewd4a12d9c. Both agents use
+GPT-6.1 Sol high. Only the [diagnostic handoff](../workstream-handoffs/camera-first-resume-text-20261011.md)
+changes; runtime and tests do not. Private reporta3e5cd88/manifest92347620 records
+the negative CPU results. The fixed252/623 first-Resume difference stays open.
+Root owns shared-doc closeout. No new source or GUI lease is active. A browser
+diagnostic needs its own bounded reservation; existing captures/builds stay frozen.
+
 ## Camera retained Resume, 11 October 2026
 
 Current coordinator2e76dfc has integrated/pushed worker23b7546 after review

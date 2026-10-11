@@ -63,7 +63,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `2e76dfc57a7d3e349d40a4c5181c644c06f232d7`. Reviewed Camera retained-Resume worker23b7546 integrated; exact diff9d62a4ba approved21fa3211. Focused50 and independent58 pass; typecheck/build pass; full2743 pass, one unchanged Camera fixture failure,102 skip,1 TODO. Source/public/tests match frozen worker build oZ6jeHWud2wG1_a8KguxJ, manifest5021a3cb, all2840 files/154650241bytes reverified. Expected77 hydrated model files are not source edits. Human system.ts remains untouched/unstaged. Production recapture saves3554 pairs; audit759fecd1 finds zero black pairs but first baseline252/623 mismatch remains. Independent evidence review follows; whole native fidelity remains unproven. |
+| HEAD | `3888502573a2bbd142786d376b183a2b3eaacfa1`. Reviewed documentation-only diagnosis4e124c6 integrates after reviewd4a12d9c. CPU probes do not reproduce or explain the fixed first-Resume252/623 pixel difference. Runtime remains2e76dfc, with no new build. Prior focused50 and independent58, typecheck/build pass; full2743 pass with one known missing Camera PNG failure,102 skip,1 TODO. New diagnosis focused80 pass,2 skip. Frozen build oZ6jeHWud2wG1_a8KguxJ remains unchanged. Audit759fecd1/reviewf4269e39 verifies3554 pairs with zero black pairs, not full fidelity. Human system.ts stays untouched/unstaged. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -2056,6 +2056,22 @@ NAND writes between isolated copies. Nintendo Zone remains skipped.
 
 ## Seats
 
+The first-Resume diagnosis lease is closed. Worker resume_capture_audit_high
+commits only handoff4e124c6 in camera-first-resume-text-20261011, based on
+a3a1392. Reporta3e5cd88 and manifest92347620 preserve the negative CPU probes.
+Reviewer resume_review_sol_high independently approvesd4a12d9c. Both use
+GPT-6.1 Sol high. No runtime files, frozen builds, originals, GUI or profiles
+changed. Root integrates the handoff as3888502 and owns shared-doc closeout.
+No implementation worker remains active; a browser diagnostic needs a fresh
+reservation and review before source changes. Earlier seats below are history.
+
+At a3a1392, all helper leases are closed. Audit759fecd1, independent evidence
+reviewf4269e39 and exact-document review51322c60 are complete. The seven-doc
+checkpoint is pushed. All helpers used GPT-6.1 Sol high. No active source,
+capture, audit or reviewer reservation remains. Only root edits this mandatory
+postcommit metadata and publishes the PR/log checkpoint. Earlier seats below
+record the completed run, not new assignments.
+
 Current: worker resume_capture_audit_high completed Camera commit23b7546;
 reviewer resume_review_sol_high approved21fa3211. Both leases are released.
 The coordinator integrated and pushed2e76dfc, then saved3554 production pairs.
@@ -2483,6 +2499,16 @@ The integration checkout remains here.
 Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camera Slideshow header 0. Camera Settings third 0. Welcome p5 **7615** live-feed source-gap **APPROVE**. Volume **130** live-slider source-gap **APPROVE**. Span **2314**/**2442** live-spectrum source-gap **APPROVE**. Birds **1558** held-offset source-gap **APPROVE**. Battery `[45,216,85,240]` **1** underbar-partition source-gap **APPROVE**. Line01 `(92,220)` partition source-gap **APPROVE**. Empty-entry row **1916** **APPROVE**. Thumb interiors **846/918** **APPROVE**. Guide perimeter **6072** = **860** dimmed grid + **4416** half + **728** (**144** row + **53** footer + **531** within 2) + **68** fringe; veil **REJECT** `be862ce6`; subsets **APPROVE-WITH-NITS** `d72ab4b1`. Empty-mid **2255**/**1024** → **0**/**0** by grid bind `603c5388` **APPROVE-WITH-NITS** `de5c6445`. p3 `TxtDlg` **1079→1078** after host-gate `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`. Sound upper 316 labelled `14533857` **APPROVE** `daa93bca`. y=177 **320** labelled `22e8b0a4` **APPROVE** `9fe268f8`. Slider **57** **APPROVE-WITH-NITS** `444ba8e0`. Plus-tint strip **1992** kept `ed55865e` **APPROVE** `b6620fa4`. HOME 1-row tail **291** **APPROVE** `f72296ff`. HOME idle Health 1-row left-anchor **23182 / 14754** empty mask (title/wallpaper **12255**, vacant-vs-Settings **7045**, HUD **2328**). **Static still only.** Whole scenarios still fail.
 
 ## Next
+
+The bounded CPU diagnosis is closed without a runtime patch. At3888502,
+the fixed first Camera main HOME1 versus Resume600 difference remains252 upper
+and623 lower pixels. Next use the handoff's browser-specific diagnostic to
+distinguish text-cache ink from destination compositing/history. Review its
+opt-in, receipt correlation and overhead before running it. Hash existing ink
+arrays only; no additional Canvas readbacks, replacement baseline or fitted mask.
+Do not repeat the CPU probes or the retained compositor repair. Preserve all
+captures and frozen23b7546. Native moving-pixel, input/cadence and all four
+whole-flow acceptances remain open; diagnostic captures cannot pass them.
 
 Current at2e76dfc: Camera main/gallery retained Resume is implemented, reviewed,
 integrated and pushed. Focused50 and independent58 pass; typecheck/build pass.

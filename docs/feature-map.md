@@ -1,8 +1,12 @@
 # Feature map — 1:1 queue
 
-AN-04 first Camera Resume text residual remains open after the
-[bounded CPU diagnosis](workstream-handoffs/camera-first-resume-text-20261011.md).
-No source correction is justified; the next step needs browser-specific evidence.
+AN-04 first Camera Resume text residual remains open. Reviewed diagnosticbf47af0
+now provides a closed six-window production capture,1573 pairs, with existing
+text-ink fingerprints and same-paint metadata. It changes no rendering behavior.
+Audit5e0a411c reproduces first252/623 pixels and exact repeated closure.
+Seven pre-color draw records differ; all take the generic atlas-rendering path.
+The temporary ink-context candidate needs a production red/green comparison.
+See the [probe contract](workstream-handoffs/camera-browser-text-probe-20261011.md).
 
 11 October AN-04: the [Camera gallery follow-up](camera-resume-native-2026-10-11.md)
 confirms a browser Resume defect. Audit3ced32e9/review34ac4567 verify1400 pairs;

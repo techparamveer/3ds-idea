@@ -25,7 +25,7 @@ Use the MacBook for this run and verify owned window bounds before inputs.
 All 3DS test audio stays muted. The earlier9 October instruction and display
 inventories below are historical, not current placement requirements.
 
-Latest model instruction, 10 October: use GPT-6.1 Sol high for all work.
+Latest model instruction, 11 October: use GPT-6.1 Sol high for all work.
 New implementation and review workers use `gpt-6.1-sol` with high reasoning,
 superseding the earlier extra-high and different-model seat selections below.
 The previous worker/reviewer seats are interrupted with edits preserved.
@@ -63,7 +63,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `3888502573a2bbd142786d376b183a2b3eaacfa1`. Reviewed documentation-only diagnosis4e124c6 integrates after reviewd4a12d9c. CPU probes do not reproduce or explain the fixed first-Resume252/623 pixel difference. Runtime remains2e76dfc, with no new build. Prior focused50 and independent58, typecheck/build pass; full2743 pass with one known missing Camera PNG failure,102 skip,1 TODO. New diagnosis focused80 pass,2 skip. Frozen build oZ6jeHWud2wG1_a8KguxJ remains unchanged. Audit759fecd1/reviewf4269e39 verifies3554 pairs with zero black pairs, not full fidelity. Human system.ts stays untouched/unstaged. |
+| HEAD | `bf47af01dff7f5218a64b647656d22b5d1d82374`. Integrates diagnostic worker3cf7045 after source reviewe4a86438/freeze reviewb9f7e27e. Source/public/tests match the frozen worker. Independent132 checks pass; full suite2750 pass, one known missing Camera PNG failure,102 skip,1 TODO. Typecheck/build pass. The1573-pair audit5e0a411c reproduces first252/623 pixels and exact repeated closure, with seven differing pre-color text draws. Root inspects six compact sheets. All helpers use GPT-6.1 Sol high. Human system.ts stays untouched/unstaged; no rendering fix or whole-flow acceptance is claimed. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -77,6 +77,23 @@ Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9dd
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
 
 ## Serving
+
+Camera text diagnostic capture is closed under camera-browser-text-run-v1.
+Source reviewe4a86438/freeze reviewb9f7e27e approve frozen3cf7045, integrated
+asbf47af0. Build eT_1xyXYZpGi6zxbNSNiR served fresh3033 with muted Chrome20594
+on the sole MacBook display. Six windows save1573 pairs: HOME190, Manual277,
+Close258, first Resume241, repeated HOME298 and Resume309. All are user-stopped
+after visible ready endpoints and all exports complete. Candidate tab closes,
+session20039 exits130, listener31717/port3033 absent. Root's post-run rehash
+finds zero changes across2844 files/154791317bytes. Old builds/captures remain
+unchanged. Closed audit5e0a411c/manifestff3f745f verifies all4719 originals,
+3146 PNGs and1573 dictionary-expanded receipts with no errors or black pairs.
+First fixed comparison remains252 upper/623 lower pixels; repeat is exact.
+Seven of nine text-draw fingerprints already differ before coloring.
+Root opens all six compact1x sheets, attestation1982ec12. Source triage1dcb8f57
+finds all differing draws use generic scaled-atlas rendering; the two agreeing
+controls use direct alpha sampling. Temporary ink context is unobserved.
+Independent final evidence/docs review follows. No causal/native pass.
 
 Camera retained-Resume recapture is closed under camera-resume-gallery-fixed-v1/
 policy.md and coordinator-ledger.md. Root served frozen23b7546/build
@@ -2056,6 +2073,18 @@ NAND writes between isolated copies. Nintendo Zone remains skipped.
 
 ## Seats
 
+Current atbf47af0: implementation, source triage and offline audit leases
+are closed. Frozen worker3cf7045/build eT_1xyXYZpGi6zxbNSNiR is unchanged.
+Root's six-window run is closed; no candidate server or native session is active.
+Review worker resume_review_sol_high owns only the bounded final evidence/docs
+review under camera-browser-text-run-v1/review-sol-high-v1. All helpers use
+GPT-6.1 Sol high. No next implementation worktree is assigned yet.
+
+Earlier at796d774 all helper and review leases were closed. Reviewsd4a12d9c and767c1257
+approve only the negative diagnosis and exact seven-doc patch97fa0ee4.
+Root owns this required postcommit STATUS update. No new GUI/server/build
+session or implementation assignment exists. Continue from Next, not old seats.
+
 The first-Resume diagnosis lease is closed. Worker resume_capture_audit_high
 commits only handoff4e124c6 in camera-first-resume-text-20261011, based on
 a3a1392. Reporta3e5cd88 and manifest92347620 preserve the negative CPU probes.
@@ -2500,15 +2529,17 @@ Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camer
 
 ## Next
 
-The bounded CPU diagnosis is closed without a runtime patch. At3888502,
-the fixed first Camera main HOME1 versus Resume600 difference remains252 upper
-and623 lower pixels. Next use the handoff's browser-specific diagnostic to
-distinguish text-cache ink from destination compositing/history. Review its
-opt-in, receipt correlation and overhead before running it. Hash existing ink
-arrays only; no additional Canvas readbacks, replacement baseline or fitted mask.
-Do not repeat the CPU probes or the retained compositor repair. Preserve all
-captures and frozen23b7546. Native moving-pixel, input/cadence and all four
-whole-flow acceptances remain open; diagnostic captures cannot pass them.
+The production text discriminator is closed, audit5e0a411c and triage1dcb8f57.
+Complete its bounded final review/docs commit, then assign a narrow candidate
+in a new worktree: explicitly readback-oriented context creation for generic
+temporary text ink, preserving direct-alpha controls, geometry, assets and
+readback count. It is a falsifiable hypothesis, not an established backend cause.
+The unchanged six-window run is red at fixed252/623. Test the same guide/main/
+HOME/Manual/Close/Resume/repeat history in the production browser; require exact
+fixed first/repeated baseline closure. Reject an ineffective candidate, never
+mask or reselect the baseline. Native recapture and affected native-text
+regressions remain required after a visible correction. Do not repeat the CPU
+probes or retained compositor repair. All four whole flows remain fail/unproven.
 
 Current at2e76dfc: Camera main/gallery retained Resume is implemented, reviewed,
 integrated and pushed. Focused50 and independent58 pass; typecheck/build pass.

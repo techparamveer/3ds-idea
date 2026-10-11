@@ -2,11 +2,41 @@
 
 ## First Resume text residual
 
-The [bounded real-renderer diagnosis](workstream-handoffs/camera-first-resume-text-20261011.md)
-does not reproduce the fixed first-Resume difference on CPU Canvas. Runtime
-and assets remain unchanged. The next probe must examine the production
-browser's text-cache and destination history without adding Canvas readbacks.
-No cause, correction or native acceptance is claimed from the negative tests.
+The [bounded CPU diagnosis](workstream-handoffs/camera-first-resume-text-20261011.md)
+does not reproduce the fixed first-Resume difference. The subsequent
+[browser diagnostic](workstream-handoffs/camera-browser-text-probe-20261011.md)
+is integrated asbf47af0 after source reviewe4a86438 and freeze reviewb9f7e27e.
+It uses existing ink arrays, without additional Canvas reads or a rendering fix.
+
+Private camera-browser-text-run-v1 records policy1b495a2c, transport addendum
+763d6a64 and the chronological coordinator ledger. Frozen build
+eT_1xyXYZpGi6zxbNSNiR saves1573 pairs across HOME190, Manual277, Close258,
+first Resume241, repeated HOME298 and Resume309. All stops follow visible
+ready endpoints and all exports complete. Fixed first comparison uses window1
+pair1 and window4 pair241; repeat uses window5 pair1 and window6 pair309.
+The candidate tab/server are stopped; root rehashes all2844 files unchanged.
+Audit report5e0a411cc2fee91b504c024209f35234b9d27365b96fbb96fad524f9cdcf92c9
+and manifestff3f745f verify4719 unchanged originals and all3146 PNGs. All1573
+dictionary-expanded receipts match their top-level originals. POST bodies stay
+below8MiB. No fully black LCD/pair is present.
+
+The first fixed difference is again252 upper/623 lower RGB pixels, with1/333
+above delta2 and maximum channel differences3/20. Repeat PNGs and RGBA match
+exactly. Both Resume windows contain footer0..14 then departure0..40. All
+postpose86..241 and86..309 pairs equal their respective terminal. Root opens
+all six compact1x sheets, attestation1982ec12; this is not all-frame inspection.
+
+Seven of nine corresponding pre-color/colored draw fingerprints differ, with
+matching keys, recorded font metadata, options and destination contexts.
+There are six distinct differing fills because thumbnail1 is reused. Source
+triage1dcb8f5734fe9d304d3388ba7253c0f080f543f706570780ba04a095217958ea
+locates all differing draws in generic scaled-atlas rendering; Slideshow and
+Settings use direct alpha sampling and agree. Temporary ink context and live
+decoded atlas bytes are unobserved. No Chromium/backend cause is established.
+Next test the narrow readback-oriented generic ink-context hypothesis against
+the same production history. No geometry/assets/readback-count change is
+justified. These browser-only diagnostics cannot establish native moving
+pixels, cadence, input equivalence or audio acceptance.
 
 ## Retained Resume implementation and recapture
 

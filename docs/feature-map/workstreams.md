@@ -1,5 +1,17 @@
 # Workstream Registry
 
+## Camera browser text probe, 11 October 2026
+
+Worker resume_capture_audit_high, GPT-6.1 Sol high, closed source3cf7045,
+integrated asbf47af0 after independent source reviewe4a86438. Its worktree
+camera-browser-text-probe-20261011 and build eT_1xyXYZpGi6zxbNSNiR are frozen.
+The trace uses existing ink arrays, with no rendering fix or added readback.
+Supporting reviewb9f7e27e approves the frozen build. Root closes the six-window
+1573-pair run; offline audit5e0a411c and source triage1dcb8f57 are complete.
+Reviewer resume_review_sol_high owns only the final bounded evidence/docs
+review. No new implementation worktree is assigned yet. All helpers use
+GPT-6.1 Sol high. Earlier captures/builds remain unchanged.
+
 ## First Camera Resume text residual, 11 October 2026
 
 The camera-first-resume-text-20261011 lease is closed at worker4e124c6,

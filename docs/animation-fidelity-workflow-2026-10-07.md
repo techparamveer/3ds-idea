@@ -2,12 +2,20 @@
 
 ## First Camera Resume text investigation
 
-The [bounded CPU diagnosis](workstream-handoffs/camera-first-resume-text-20261011.md)
-leaves the fixed first-run difference unresolved. No runtime patch or new build
-result follows. A next browser probe must correlate existing text-ink bytes,
-cache and Canvas state with the original first/Resume publications. Do not add
-readbacks that change the backing-store history being investigated. Keep the
-current baseline and separate diagnostic instrumentation from fidelity evidence.
+The [browser probe](workstream-handoffs/camera-browser-text-probe-20261011.md)
+atbf47af0 follows the negative CPU diagnosis. It hashes existing text-ink arrays
+without adding Canvas readbacks. The closed six-window run saves1573 pairs.
+Validate the opt-in exact-JSON trace dictionary before interpreting receipts.
+Fixed comparisons are first HOME pair1 versus first Resume pair241, and
+repeated HOME pair1 versus repeated Resume pair309, with empty masks.
+Do not substitute a later baseline or infer cadence from diagnostic overhead.
+Audit5e0a411c closes originals/transport and reproduces the red252/623 residual.
+Root inspects all six compact sheets. Triage1dcb8f57 narrows the differing ink
+to generic scaled-atlas draws. Test explicit readback-oriented temporary ink
+context creation as a bounded candidate, keeping direct alpha, geometry and
+readback count unchanged. Reject it if normal-production first/repeat fixed
+baseline identity does not close. Browser success still requires native
+recapture and affected text regressions; it does not pass whole-flow fidelity.
 
 ## Camera retained Resume verification
 

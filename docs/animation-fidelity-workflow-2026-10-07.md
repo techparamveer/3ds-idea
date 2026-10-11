@@ -1,5 +1,25 @@
 # Animation fidelity workflow
 
+## Camera retained Resume verification
+
+Current runtime2e76dfc extends the reviewed retained compositor to Camera
+main/gallery. Do not repeat that source repair. The coordinator has recorded
+3554 production pairs under a predeclared policy, including Manual, repeated
+Camera Resume, date-folder Resume and Health regression. Freeze originals,
+audit the actual recording sessions and decode every paired PNG before checking
+black-frame absence and baseline/terminal closure. The600-pair first Resume
+limit remains recorded; raw238..600 now proves ready inclusion and stability.
+Its failed original-baseline identity stays open. Do not replace that baseline
+or add a fitted mask after seeing the result. Repeated main/gallery exact
+closure does not erase the first-run mismatch.
+
+Workers and independent reviewers use GPT-6.1 Sol high. The coordinator alone
+drives muted browser/Azahar sessions on the MacBook and commits reviewed work
+to draft PR7. Keep source/tests, browser pixels, native ordering and native
+fidelity claims separate. The existing native gallery movie supplies ordering
+evidence only; mismatched content and lossy sampling do not prove1:1 cadence.
+See [current evidence and remaining adaptations](camera-resume-native-2026-10-11.md).
+
 ## Manual Close correction
 
 The [11 October captures](animation-capture-2026-10-11.md) establish a concrete

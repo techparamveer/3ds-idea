@@ -63,7 +63,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `daf0eb7ed994bafc024271a5f4ceb967ff85e083`. Four-doc native Camera checkpoint4d726f3f, evidence review47cbf4b8 and docs review3a857988. Runtime remains dbe6355, whose source/public/tests match frozen worker build eGGUJaaaGjH_h_YXiHEwH, manifest53ffed6c. Earlier focused206 and independent12 pass; typecheck/build pass; full suite2739 pass, one unchanged missing Camera fixture,102 skip,1 TODO. No new code checks for this documentation-only checkpoint. Human system.ts remains untouched/unstaged. Whole native fidelity remains unproven. |
+| HEAD | `2e76dfc57a7d3e349d40a4c5181c644c06f232d7`. Reviewed Camera retained-Resume worker23b7546 integrated; exact diff9d62a4ba approved21fa3211. Focused50 and independent58 pass; typecheck/build pass; full2743 pass, one unchanged Camera fixture failure,102 skip,1 TODO. Source/public/tests match frozen worker build oZ6jeHWud2wG1_a8KguxJ, manifest5021a3cb, all2840 files/154650241bytes reverified. Expected77 hydrated model files are not source edits. Human system.ts remains untouched/unstaged. Production recapture saves3554 pairs; audit759fecd1 finds zero black pairs but first baseline252/623 mismatch remains. Independent evidence review follows; whole native fidelity remains unproven. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -77,6 +77,23 @@ Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9dd
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
 
 ## Serving
+
+Camera retained-Resume recapture is closed under camera-resume-gallery-fixed-v1/
+policy.md and coordinator-ledger.md. Root served frozen23b7546/build
+oZ6jeHWud2wG1_a8KguxJ on fresh3033 after independent source/tree/build review.
+Muted Chrome20594/window136 remained on the sole MacBook built-in display.
+Ten windows saved3554 pairs: main HOME411, Manual495, Close578, main Resume600,
+repeat HOME443/Resume261, gallery HOME175/Resume186 and Health HOME205/Resume200.
+The first Resume stopped at the600-pair limit; raw238..600 proves ready
+inclusion and stability. Other stops were user-requested. All exports completed.
+The audit finds no fully black pair across3554, and verifies all7108 PNGs.
+Four Resume windows save footer0..14 then departure0..40. First original
+baseline identity still fails252 upper/623 lower pixels. Repeat main/gallery
+match their own baseline PNG/RGBA exactly. Root opens all33 compact1x sheets,
+attestationf43ef788. Audit759fecd1/manifestcb5320e6 is closed. Independent
+evidence review follows; no native pass.
+The new tab is closed; session49298 exits130 after Ctrl-C, listener16875 and
+port3033 are absent. Old3032 and all earlier builds/captures stay untouched.
 
 Native gallery comparison is reserved under private native-camera-gallery-v1/
 policy.md before launch/input. Root alone uses isolated executable3dfdfbed,
@@ -92,7 +109,8 @@ two normalized geometry fields. Decoder camera_native_decode_sol_high closes
 auditf8a0511b:7147 decoded movie frames, zero audio,25 unchanged originals and
 four own400x480 PNGs. Root opens all115 Resume frames605..719 on seven sheets
 and all four own PNGs. Gallery remains beneath HOME with no visibly black pair
-in that bracket. Independent native review is pending. Originals are closed.
+in that bracket. Independent native review5e1c6510 approves bounded evidence;
+exact docs reviewa2959f97 approves patch78596d67. Originals are closed.
 
 Gallery comparison at daf0eb7 is captured under private
 toprow-current-20261010/camera-gallery-resume-browser-v1/policy.md. Source
@@ -2038,13 +2056,15 @@ NAND writes between isolated copies. Nintendo Zone remains skipped.
 
 ## Seats
 
-Current: worker resume_capture_audit_high owns only the Camera Resume source,
-tests and handoff in camera-resume-gallery-20261011, as reserved in Next.
-Its prior browser audit3ced32e9 is closed and independently reviewed34ac4567.
-Native decoder camera_native_decode_sol_high has closed auditf8a0511b and
-released its lease. Reviewer resume_review_sol_high owns only the new native
-gallery review-sol-high-v1 and read-only checkpoint review. All use GPT-6.1
-Sol high. Native capture is closed; only root drives GUI or integrates code.
+Current: worker resume_capture_audit_high completed Camera commit23b7546;
+reviewer resume_review_sol_high approved21fa3211. Both leases are released.
+The coordinator integrated and pushed2e76dfc, then saved3554 production pairs.
+The audit worker closes759fecd1 and releases its reservation. Source, frozen
+build and original exports remain immutable. The reviewer now owns only new
+private camera-resume-gallery-fixed-v1/review-sol-high-v1 and read-only seven-doc
+checkpoint review. Native decoder
+camera_native_decode_sol_high is idle after closingf8a0511b. All helpers use
+GPT-6.1 Sol high. Only root drives GUI, edits shared docs or integrates code.
 
 Earlier seats below are history, not active reservations.
 Camera decoder helper camera_native_decode_sol_high has closed auditc7c3cf43.
@@ -2463,6 +2483,21 @@ The integration checkout remains here.
 Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camera Slideshow header 0. Camera Settings third 0. Welcome p5 **7615** live-feed source-gap **APPROVE**. Volume **130** live-slider source-gap **APPROVE**. Span **2314**/**2442** live-spectrum source-gap **APPROVE**. Birds **1558** held-offset source-gap **APPROVE**. Battery `[45,216,85,240]` **1** underbar-partition source-gap **APPROVE**. Line01 `(92,220)` partition source-gap **APPROVE**. Empty-entry row **1916** **APPROVE**. Thumb interiors **846/918** **APPROVE**. Guide perimeter **6072** = **860** dimmed grid + **4416** half + **728** (**144** row + **53** footer + **531** within 2) + **68** fringe; veil **REJECT** `be862ce6`; subsets **APPROVE-WITH-NITS** `d72ab4b1`. Empty-mid **2255**/**1024** → **0**/**0** by grid bind `603c5388` **APPROVE-WITH-NITS** `de5c6445`. p3 `TxtDlg` **1079→1078** after host-gate `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`. Sound upper 316 labelled `14533857` **APPROVE** `daa93bca`. y=177 **320** labelled `22e8b0a4` **APPROVE** `9fe268f8`. Slider **57** **APPROVE-WITH-NITS** `444ba8e0`. Plus-tint strip **1992** kept `ed55865e` **APPROVE** `b6620fa4`. HOME 1-row tail **291** **APPROVE** `f72296ff`. HOME idle Health 1-row left-anchor **23182 / 14754** empty mask (title/wallpaper **12255**, vacant-vs-Settings **7045**, HUD **2328**). **Static still only.** Whole scenarios still fail.
 
 ## Next
+
+Current at2e76dfc: Camera main/gallery retained Resume is implemented, reviewed,
+integrated and pushed. Focused50 and independent58 pass; typecheck/build pass.
+Full suite has2743 pass, one known missing Camera PNG failure,102 skip,1 TODO.
+Production recapture now saves3554 pairs across ten windows, described in
+Serving and the closed camera-resume-gallery-fixed-v1/coordinator-ledger.md.
+Raw audit finds zero black pairs and all footer/departure source poses. Root
+inspects all33 compact1x sheets. Repeated main/gallery baseline closure passes;
+first main baseline fails252 upper/623 lower despite stable ready238..600.
+Independently review this bounded result, then diagnose that fixed baseline
+mismatch without pose selection or masking. Health is regression-only; no
+new native acceptance follows.
+Do not repeat the source repair or rebuild frozen23b7546. The older reservation
+below is history. Native pixel/cadence/content residuals and all four whole-flow
+acceptances remain open. Preserve the unrelated human system.ts edit.
 
 Checkpoint daf0eb7 records the native Camera observation and its limits.
 Evidence47cbf4b8 and exact-document3a857988 reviews are complete.

@@ -7,8 +7,17 @@ Native auditf8a0511b verifies7147 silent movie frames and four own endpoint PNGs
 Root inspects every Resume605..719: gallery stays under departing HOME without
 a visible black pair. Native three-photo versus browser five-photo content,
 static rendering and lossy movie sampling prevent1:1 acceptance. A narrow
-Camera retained-Resume repair is assigned; review and production recapture
-are next. Shooting mode is not a browser requirement. Sessions are stopped.
+Camera retained-Resume repair23b7546 is independently reviewed21fa3211,
+integrated and pushed as2e76dfc. Ten production windows save3554 paired LCDs,
+including first/repeated main Resume, gallery Resume and Health regression.
+All7108 PNGs decode and no fully black pair remains. All four Resume windows
+have footer0..14 then departure0..40. First Resume238..600 is saved and stable
+despite the frame limit, but differs from its original baseline by252 upper
+and623 lower pixels. Repeat main and gallery endpoints match exactly. Root
+opens all33 compact sheets. Focused50 and independent58 tests, typecheck/build
+pass; full2743 pass with one known missing Camera PNG failure. Audit759fecd1
+is closed; independent evidence review follows. Shooting is out of scope.
+Sessions are stopped.
 
 11 October AN-02: the [Manual Close correction](manual-close-transition-2026-10-11.md)
 at dbe6355 closes the captured missing-cover and renderer-error regressions on

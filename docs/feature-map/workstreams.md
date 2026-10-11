@@ -1,5 +1,21 @@
 # Workstream Registry
 
+## Camera retained Resume, 11 October 2026
+
+Current coordinator2e76dfc has integrated/pushed worker23b7546 after review
+21fa3211. The worker worktree camera-resume-gallery-20261011 and its production
+build are frozen. Source/public/tests match integration; do not rebuild it.
+The completed Camera main/gallery source assignment is closed.
+
+Worker resume_capture_audit_high now owns only private
+camera-resume-gallery-fixed-v1/audit-sol-high-v1 for3554 closed production pairs.
+Audit759fecd1 is closed and its worker reservation released. Reviewer
+resume_review_sol_high now owns only the new private review-sol-high-v1 and
+read-only seven-doc checkpoint review. Both use
+GPT-6.1 Sol high. No worker may mutate original exports or operate GUI. Root
+owns shared docs and commits. Earlier assignments below are history; STATUS
+Seats is authoritative. All whole-flow1:1 claims remain open.
+
 ## Manual Close transition, 11 October 2026
 
 Coordinator57a92d3 reserves `codex/manual-close-transition-20261011` at

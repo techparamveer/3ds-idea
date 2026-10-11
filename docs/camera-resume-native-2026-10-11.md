@@ -1,5 +1,58 @@
 # Camera Resume native observation
 
+## Retained Resume implementation and recapture
+
+Reviewed worker23b7546 is integrated and pushed as2e76dfc. The shared guarded
+retained compositor now supports Camera `main` and `gallery` as well as Health.
+The change touches only screens.ts, the existing behavior test and its handoff.
+No native assets, input geometry or timing controller changed. Welcome, photo,
+settings and shooting remain outside this extension. See the [source mapping,
+guards and exact test limitations](workstream-handoffs/camera-resume-gallery-20261011.md).
+
+Focused50 tests pass. Independent review21fa3211 passes58 tests and checks all
+2840 frozen files. Typecheck/build pass. Full suite has2743 pass, one unchanged
+missing historical Camera PNG failure,102 skips and1 TODO. This is not a full
+suite pass. Worker build `oZ6jeHWud2wG1_a8KguxJ`, manifest5021a3cb, matches the
+integrated source/public/tests trees. The human system.ts edit remains separate
+and unstaged; the integration working tree was not the production build source.
+
+Root alone drove muted Chrome on the MacBook under private
+`camera-resume-gallery-fixed-v1/policy.md`, SHA55704906, and preflight2fc5d4ee.
+Ten windows save3554 pairs: main HOME411, Manual495, Close578, Resume600,
+repeat HOME443/Resume261, date-folder gallery HOME175/Resume186, Health
+HOME205/Resume200. All export counts finish. The first Resume stops at the
+frame limit. The other nine stop by user request after GUI readiness. The closed
+ledger preserves setup mistakes. The raw audit verifies10662 unchanged originals
+and all7108 PNG CRC/full decodes. There are no fully black LCDs or pairs. All
+four Resume windows save footer0..14 before departure0..40 and a ready endpoint.
+Root opens all33 compact1x sheets, attestationf43ef788. No all-frame visual
+inspection is claimed. Manual entry/Close retain their covers and endpoints.
+
+First main Resume238..600 is363 identical full-RGBA pairs, so the frame limit
+does not exclude the ready screen. Its terminal600 differs from fixed original
+HOME1 by252 upper and623 lower exact RGB pixels. At delta>2 the counts are1
+upper and333 lower; maximum channel deltas are3 and20. Alpha is unchanged.
+This is a failed browser baseline-identity check, not a native comparison.
+Do not fit a mask or select a different baseline to erase it. Repeat main
+Resume103..261 and gallery102..186 exactly match their own initial PNG/RGBA
+pairs. Health's lower matches; its upper background moves, so terminal200 is
+not an exact full-pair baseline match. This is browser regression evidence only.
+
+Closed audit report `759fecd1`, manifest `cb5320e6` and original freeze
+`83b3d1be` identify this capture. The black-pair defect is absent in the new
+capture, but the first baseline mismatch remains unexplained. Independent
+evidence review follows. Existing
+source tests do not establish native cadence or runtime-owner identity from
+equal pixels alone. Root rehashes all2840 frozen files after server shutdown;
+they remain unchanged at154650241bytes.
+The candidate tab and3033 server are stopped; earlier sessions stay untouched.
+
+Native gallery evidence below remains the ordering reference. Three-photo
+native and five-photo browser content differ. Accepted-pair scheduling, shared
+source epoch, settled feedback and portfolio gallery content remain adaptations.
+Exact native pixels, inputs, cadence and audio are not accepted. All four whole
+flows remain fail/unproven. No new native comparison metric or mask is claimed.
+
 ## Gallery follow-up, 11 October 2026
 
 The in-scope browser Camera route is read-only gallery. Completing its guide

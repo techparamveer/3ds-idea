@@ -1,5 +1,17 @@
 # Goal: finish the four remaining native animation flows
 
+11 October: [Camera retained Resume](docs/camera-resume-native-2026-10-11.md)
+is integrated and pushed as2e76dfc after independent review21fa3211. It extends
+the existing guarded compositor to Camera main/gallery. Focused50 and
+independent58 tests, typecheck and build pass. Full2743 pass with the unchanged
+missing Camera PNG failure. Ten muted MacBook production windows save3554 raw
+LCD pairs. The raw audit finds no fully black pairs and all four Resume windows
+contain footer0..14 then departure0..40. Repeated main and gallery endpoints
+match their baselines exactly; the first main endpoint still differs252 upper
+and623 lower pixels. Independent evidence review follows. No whole-flow
+acceptance follows these checks or observations. All helpers and
+reviews use GPT-6.1 Sol high. Earlier checkpoints below remain historical.
+
 11 October: [Manual Close correction dbe6355](docs/manual-close-transition-2026-10-11.md)
 is reviewed, integrated and pushed to draft PR7. The selected-Camera Manual
 route now shows the missing Close cover and no longer hits the captured

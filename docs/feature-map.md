@@ -1,5 +1,13 @@
 # Feature map — 1:1 queue
 
+12 October AN-04: the [temporary-ink experiment](camera-text-readback-2026-10-12.md)
+fails exact first Resume closure at 0 upper / 225 lower pixels. Repeated closure
+is exact. The candidate is not integrated; native fidelity remains unproven.
+The remaining four regions cover count labels while recorded text-ink
+fingerprints agree. A bounded composition-path diagnosis is next. All new
+workers and reviews use GPT-6 Astra extra-high. Earlier model records below
+are historical. AN-01 through AN-04 remain fail/unproven.
+
 AN-04 first Camera Resume text residual remains open. Reviewed diagnosticbf47af0
 now provides a closed six-window production capture,1573 pairs, with existing
 text-ink fingerprints and same-paint metadata. It changes no rendering behavior.

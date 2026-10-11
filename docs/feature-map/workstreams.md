@@ -1,5 +1,33 @@
 # Workstream Registry
 
+## Camera text readback context, 11 October 2026
+
+The coordinator assigns camera_text_readback_astra to
+`/Users/paramveer/.codex/worktrees/camera-text-readback-20261011/3ds-idea`,
+branch `codex/camera-text-readback-20261011`, base00c6423. Latest direct human
+instruction selects GPT-6 Astra extra-high for new workers and independent
+reviews. The running coordinator model cannot be changed through these tools.
+The worker owns native-renderer.ts, focused related tests and its handoff.
+Private evidence belongs in camera-text-readback-v1. The hypothesis is an
+explicit readback-oriented temporary ink context, not an established backend
+cause. Keep geometry, direct-alpha sampling, native assets, timing and readback
+count unchanged. Root repeats the six-window first/repeated Resume test after
+review. All previous source/build/capture artifacts remain frozen.
+
+The fixed production test now rejects the candidate's exact-closure claim:
+0 upper / 225 lower pixels differ on first Resume; repeat is exact. The worker
+has a read-only triage reservation in private
+camera-text-readback-v1/source-triage-astra-v1. Do not mutate source, builds or
+originals. Map the remaining count-label regions to the real drawing path.
+The audit worker continues only the closed six-window audit. Root owns the
+evidence checkpoint and keeps the runtime candidate out of integration.
+
+Audit a37234c1 and source triage 72aca8ba are now closed. Both worker reservations
+are released. Reviewer camera_readback_review_astra owns only private
+evidence-review-astra-v1 for the bounded evidence and exact-document review.
+The next stock-lower-context experiment requires its own reservation/worktree;
+none is assigned yet. All existing candidates/builds/originals remain frozen.
+
 ## Camera browser text probe, 11 October 2026
 
 Worker resume_capture_audit_high, GPT-6.1 Sol high, closed source3cf7045,

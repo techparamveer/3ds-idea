@@ -1,5 +1,16 @@
 # Goal: finish the four remaining native animation flows
 
+12 October: the [readback-context experiment](docs/camera-text-readback-2026-10-12.md)
+reduces first Camera Resume's captured difference from 252/623 to 0/225 pixels,
+but fails its exact-closure gate. Candidate f43f640 is not integrated. Repeated
+closure is exact. The remaining four regions cover photo-count labels despite
+matching recorded text-ink fingerprints. Complete the bounded composition
+diagnosis; preserve the fixed baseline and reject guessed offsets or masks.
+The four animation flows and their native verification remain the goal.
+New helpers and independent reviews use GPT-6 Astra extra-high, superseding
+older model preferences below. The running coordinator model cannot be changed
+or verified by these tools. All GUI testing stays on the muted MacBook.
+
 The reviewed [browser text diagnostic](docs/workstream-handoffs/camera-browser-text-probe-20261011.md)
 is integrated and pushed asbf47af0. Six muted MacBook windows save1573 paired
 frames through Camera HOME, Manual entry/Close and first/repeated Resume.

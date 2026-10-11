@@ -1,5 +1,17 @@
 # Animation fidelity workflow
 
+## Rejected partial text correction
+
+The [f43f640 experiment](camera-text-readback-2026-10-12.md) saves 1,940 paired
+LCD frames through the unchanged six-window route. First fixed closure remains
+red at 0 upper / 225 lower pixels; repeat is exact. Do not integrate a partial
+result as the required correction or relax the predeclared gate. Inspect the
+four count-label regions and actual draw/context lifetimes before another
+candidate. Preserve all originals, frozen builds, selectors and empty masks.
+Native recapture and affected text regressions remain required after a visible
+correction. New workers and reviewers use GPT-6 Astra extra-high; only the
+coordinator drives the muted production browser and Azahar on the MacBook.
+
 ## First Camera Resume text investigation
 
 The [browser probe](workstream-handoffs/camera-browser-text-probe-20261011.md)

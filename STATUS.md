@@ -3,7 +3,7 @@
 Rewrite this file whenever `HEAD` moves or localhost starts or stops.
 If this SHA disagrees with `git rev-parse HEAD`, git wins; rewrite this file before any worker.
 
-Updated: 11 October 2026. Local main remains clean at
+Updated: 12 October 2026. Local main remains clean at
 `5ee6fd7a42b0239c5f55f375f85593289a0ff532`. The final repository check finds
 origin/main at c767757, 20 commits ahead of that base, including the merged
 NVIDIA and Hack LDN portfolio work. Reviewed merge b84e1b2 now includes all
@@ -25,10 +25,10 @@ Use the MacBook for this run and verify owned window bounds before inputs.
 All 3DS test audio stays muted. The earlier9 October instruction and display
 inventories below are historical, not current placement requirements.
 
-Latest model instruction, 11 October: use GPT-6.1 Sol high for all work.
-New implementation and review workers use `gpt-6.1-sol` with high reasoning,
-superseding the earlier extra-high and different-model seat selections below.
-The previous worker/reviewer seats are interrupted with edits preserved.
+Latest model instruction, 11 October: use GPT-6 Astra extra-high for all work.
+New implementation and review workers use `gpt-6-astra` with xhigh reasoning,
+superseding the earlier Sol and different-model seat selections below.
+Completed worker/reviewer records retain their actual model identities.
 The coordinator model and service tier cannot be changed or verified through
 these tools; no change to this running chat is claimed.
 
@@ -63,7 +63,7 @@ The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)*
 | --- | --- |
 | Path | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `bf47af01dff7f5218a64b647656d22b5d1d82374`. Integrates diagnostic worker3cf7045 after source reviewe4a86438/freeze reviewb9f7e27e. Source/public/tests match the frozen worker. Independent132 checks pass; full suite2750 pass, one known missing Camera PNG failure,102 skip,1 TODO. Typecheck/build pass. The1573-pair audit5e0a411c reproduces first252/623 pixels and exact repeated closure, with seven differing pre-color text draws. Root inspects six compact sheets. All helpers use GPT-6.1 Sol high. Human system.ts stays untouched/unstaged; no rendering fix or whole-flow acceptance is claimed. |
+| HEAD | `00c6423eab4dc61a17dc18bbbeb32ab49a02426d`. Diagnostic bf47af0 and the reviewed checkpoint are pushed to draft PR7. Candidate f43f640 remains only in its frozen worker: its new production comparison fails exact first closure at 0 upper / 225 lower pixels; repeated closure is exact. Root prepares the rejected-candidate evidence checkpoint. The integrated runtime remains unchanged. New helpers use GPT-6 Astra extra-high. Human system.ts stays untouched and unstaged; no rendering fix or whole-flow acceptance is claimed. |
 | Draft PR | [#7](https://github.com/techparamveer/3ds-idea/pull/7), `codex/animation-fidelity-20261007` into `main`, updated with folder correction, supporting checks, production recapture and remaining comparison defects. No merge or deployment. |
 
 10 October human delivery instruction: commit changes as work proceeds and
@@ -77,6 +77,24 @@ Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9dd
 Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
 
 ## Serving
+
+The new camera-text-readback candidate is frozen at workerf43f640, build
+HJ8WGQGtilfahWVf4KDYM, manifest1bd8fe17. Root rehashes all2854 files unchanged.
+It is rejected and not integrated. Independent source checks pass88; final freeze review
+approves all2854 files and37 supporting artifacts unchanged. Candidate serving
+closed after six normal routes under policycb688af2. HOME206, Manual306,
+Close258, first Resume458, repeated HOME352 and Resume360 save1940 pairs.
+All stops follow visible ready endpoints; every export completes. Candidate tab
+and session6486/listener68065 stop, exit130, port3033 absent. Root's post-run
+rehash finds all2854 files unchanged. Fixed audit results reject exact first
+closure: 0 upper / 225 lower pixels differ, while repeat is exact. The remaining
+four regions cover count labels. Root opens all16 compact sheets, attestation
+e56835be. Audit a37234c1 is closed: all 5820 originals, 3880 PNGs and 1940
+expanded receipts verify, with zero fully black LCDs or pairs. No correction
+is integrated. Source triage 72aca8ba maps the four fractional count draws and
+proposes a separate stock-lower-context allocation experiment. Independent
+evidence/docs review is in progress. Earlier captures,
+builds, servers and human system.ts remain untouched.
 
 Camera text diagnostic capture is closed under camera-browser-text-run-v1.
 Source reviewe4a86438/freeze reviewb9f7e27e approve frozen3cf7045, integrated
@@ -93,7 +111,8 @@ Seven of nine text-draw fingerprints already differ before coloring.
 Root opens all six compact1x sheets, attestation1982ec12. Source triage1dcb8f57
 finds all differing draws use generic scaled-atlas rendering; the two agreeing
 controls use direct alpha sampling. Temporary ink context is unobserved.
-Independent final evidence/docs review follows. No causal/native pass.
+Final evidence/docs review0cb8abea approves the bounded result and exact
+seven-doc patch1ffc31ce, now committed/pushed as00c6423. No causal/native pass.
 
 Camera retained-Resume recapture is closed under camera-resume-gallery-fixed-v1/
 policy.md and coordinator-ledger.md. Root served frozen23b7546/build
@@ -2073,12 +2092,31 @@ NAND writes between isolated copies. Nintendo Zone remains skipped.
 
 ## Seats
 
-Current atbf47af0: implementation, source triage and offline audit leases
-are closed. Frozen worker3cf7045/build eT_1xyXYZpGi6zxbNSNiR is unchanged.
+Audit worker camera_readback_audit_astra has closed report a37234c1 and released
+its reservation. Reviewer camera_readback_review_astra now owns only private
+camera-text-readback-v1/evidence-review-astra-v1 for bounded independent
+fixed-comparison, evidence and exact-document review. It may not edit the
+repository, frozen candidates, capture originals or closed audit outputs.
+The coordinator will supply the staged document patch identity before final
+review. Source triage 72aca8ba is closed and its reservation is released.
+
+The first fixed candidate comparison fails exact closure: 0 upper and 225 lower
+pixels differ; repeated closure is exact. Worker camera_text_readback_astra has
+closed read-only source-triage-astra-v1. No further edits or probes are assigned.
+
+The implementation and source/build review reservations are closed. Candidate
+f43f640 remains frozen in
+`/Users/paramveer/.codex/worktrees/camera-text-readback-20261011/3ds-idea`,
+branch `codex/camera-text-readback-20261011`, based on 00c6423.
+No worker owns source edits or serving. The coordinator alone owns shared docs,
+integration and muted MacBook GUI. Closed audit/review directories must not be
+rewritten. New implementation requires a separate reservation and worktree.
+
+Earlier at00c6423: implementation, source triage, offline audit and final review
+leases are closed. Frozen worker3cf7045/build eT_1xyXYZpGi6zxbNSNiR is unchanged.
 Root's six-window run is closed; no candidate server or native session is active.
-Review worker resume_review_sol_high owns only the bounded final evidence/docs
-review under camera-browser-text-run-v1/review-sol-high-v1. All helpers use
-GPT-6.1 Sol high. No next implementation worktree is assigned yet.
+Review0cb8abea approves bounded evidence and the exact seven-doc checkpoint.
+All helpers use GPT-6.1 Sol high. No next implementation worktree is assigned yet.
 
 Earlier at796d774 all helper and review leases were closed. Reviewsd4a12d9c and767c1257
 approve only the negative diagnosis and exact seven-doc patch97fa0ee4.
@@ -2529,8 +2567,23 @@ Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camer
 
 ## Next
 
-The production text discriminator is closed, audit5e0a411c and triage1dcb8f57.
-Complete its bounded final review/docs commit, then assign a narrow candidate
+The readback candidate f43f640 fails the predeclared exact-closure gate.
+The fixed first comparison is 0 upper / 225 lower changed pixels; repeat is
+exact on both LCDs. Do not integrate it as a completed correction. Audit a37234c1,
+triage 72aca8ba and all16 sheet inspections are closed. Finish the independent
+evidence/docs review and commit the checkpoint. Then assign a separate candidate
+that retains the experimental ink options and changes only the first persistent
+stock lower context acquisition to request willReadFrequently. Keep upper and
+outer LCD contexts, geometry, sampling, timing and readback count unchanged.
+The four count labels use fractional blits from three cached fills; destination
+allocation/lifetime is plausible, not an established browser backend cause.
+Repeat the same six-window production history and exact fixed closure gate.
+The frozen candidate, build and originals remain unchanged. All four whole
+flows remain fail/unproven; native recapture remains required after a correction.
+
+Earlier instruction, superseded by the rejected-candidate result above:
+the production text discriminator is closed, audit5e0a411c and triage1dcb8f57.
+Review0cb8abea and checkpoint00c6423 are complete. Next assign a narrow candidate
 in a new worktree: explicitly readback-oriented context creation for generic
 temporary text ink, preserving direct-alpha controls, geometry, assets and
 readback count. It is a falsifiable hypothesis, not an established backend cause.

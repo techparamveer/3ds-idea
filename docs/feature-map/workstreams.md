@@ -1,5 +1,47 @@
 # Workstream Registry
 
+## Stock lower context experiment, 12 October 2026
+
+Root at 94bc9f8 assigns camera_text_readback_astra to
+`/Users/paramveer/.codex/worktrees/camera-lower-readback-20261012/3ds-idea`,
+branch `codex/camera-lower-readback-20261012`, experimental base f43f640.
+Only the persistent stock lower context's first acquisition, focused tests
+and a new handoff are owned. Keep the rejected temporary-ink candidate as an
+experimental base, not an integrated correction. Private policy and checks
+belong in camera-lower-readback-v1. No GUI or serving. Review and exact
+first/repeated production closure precede any integration decision.
+
+Worker add6d44 is frozen and independently source/build-reviewed. The closed
+1,954-pair Camera run now has exact first/repeated PNG and RGBA closure on both
+LCDs. Root inspected all 17 compact sheets. The audit worker owns only its
+private audit-astra-v1 closeout; the source worker has no active write lease.
+Reviewer checklist 6367bb6e separates reachable stock regressions from internal
+unlaunchable helpers. Root owns two historical lower-screen guards in the
+separate historical-guards-v1 output. All helpers remain GPT-6 Astra xhigh.
+No runtime integration or whole native fidelity claim follows yet.
+
+The Camera audit and bounded independent evidence review fc6d91b2 are closed.
+Root closes the separate Settings/Health run at 301 pairs under ledger 7de74d1d;
+the owned tab/server stop and all 2,840 frozen files rehash unchanged.
+camera_readback_audit_astra owns only historical-guards-audit-v1 derivatives.
+camera_readback_review_astra owns only integration-review-astra-v1 for the
+combined three context requests. The source worker remains idle. No worker
+may rewrite closed reports, original captures or any frozen build.
+
+Combined review 5f740019 finds no code issue. Both historical lower guards pass;
+all 301 triples and 602 PNGs validate with no later lower changes. Root integrates
+the exact tested bundle as 7ff67b3. A separate managed clean verification worktree
+is being created at that commit; no worker is assigned until its path resolves.
+The candidate worktrees/builds/originals remain frozen and human system.ts stays
+untouched. Whole native fidelity and broader regression coverage remain open.
+
+Clean integration verification is now closed in camera-integrated-checks-20261012,
+branch codex/camera-integrated-checks-20261012 at 7ff67b3. Focused 70 and full
+2,756 pass with one known failure; both typechecks/build pass. New frozen build
+OAnM8XeVOY2XnwhG0ctrc and manifest aa293c9f are separate from the captured candidate.
+The implementation worker has no further write lease. Reviewer owns only
+integrated-review-astra-v1 for bounded freeze/current-document review.
+
 ## Camera text readback context, 11 October 2026
 
 The coordinator assigns camera_text_readback_astra to

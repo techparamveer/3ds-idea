@@ -1,5 +1,15 @@
 # Goal: finish the four remaining native animation flows
 
+12 October update: [the combined lower-context candidate](docs/camera-lower-readback-2026-10-12.md)
+now passes fixed first and repeated Camera browser closure on both LCDs.
+Independent review confirms the result. Both historical Settings/Health lower
+guards pass, and the reviewed bundle is integrated as 7ff67b3. Clean integrated
+checks/build are complete, with the unchanged missing-PNG test failure reported.
+Do not repeat the resolved pixel-stability investigation. The four native animation flows
+remain the goal; exact native pixels, matched inputs, cadence and audio are open.
+
+The rejected intermediate experiment below is preserved history.
+
 12 October: the [readback-context experiment](docs/camera-text-readback-2026-10-12.md)
 reduces first Camera Resume's captured difference from 252/623 to 0/225 pixels,
 but fails its exact-closure gate. Candidate f43f640 is not integrated. Repeated

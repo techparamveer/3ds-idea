@@ -1,5 +1,17 @@
 # Animation fidelity workflow
 
+## Camera closure checkpoint
+
+The [combined context candidate](camera-lower-readback-2026-10-12.md) passes
+the unchanged fixed first/repeated browser comparisons. Preserve those closed
+originals and independent review; do not repeat the resolved investigation.
+Both fixed historical lower guards pass, combined review approves the correction,
+and integration is 7ff67b3. Clean integrated checks/build are complete with the
+known test failure retained. Verify its frozen identity and inspect it, then resume
+remaining native animation comparisons. Broader stock regressions and native
+motion, input, cadence and muted audio remain open. Helpers use Astra xhigh;
+only the coordinator drives the muted MacBook browser and isolated Azahar.
+
 ## Rejected partial text correction
 
 The [f43f640 experiment](camera-text-readback-2026-10-12.md) saves 1,940 paired

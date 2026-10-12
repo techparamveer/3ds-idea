@@ -89,6 +89,15 @@ active, and fresh frame 7 through handoff must publish. Friends uses Manual's
 existing retained recovery option and an independent generation. Canvas
 transport tests are not pixel acceptance or a Chromium-cause probe.
 
+The first full run preserved its known absent Camera PNG failure and exposed
+stale supporting fixtures: relative imports, exact published clip/message sets,
+and immediate Friends Back assumptions. Those fixtures now exercise the retained
+owner and new resources. The actual scene render test includes first/repeat
+Friends return and delayed banner activation. Production `screenPaint` receipts
+also transport same-paint `friendsClose` stages through cadence, state-driven
+and capture-restoration paints; recorder tests cover serialization, clearing,
+hidden/context-loss guards and unchanged pixel-read counts.
+
 Full-suite/typecheck/postcommit build results and final source/build hashes are
 reported in the private report and freeze manifest after this source commit.
 The known missing historical Camera PNG must remain an explicit suite failure.

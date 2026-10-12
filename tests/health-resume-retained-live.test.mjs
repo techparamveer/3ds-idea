@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import ts from 'typescript';
-import { createPortfolioState, tickSystem, touchSystem, reduceSystem, dispatchSystemEvent, setSystemSleeping, launchHomeShortcut, invokeSystemApplet, getActiveAppView } from '../src/os/system.ts';
+import { completeFriendsFooterClose, createPortfolioState, tickSystem, touchSystem, reduceSystem, dispatchSystemEvent, setSystemSleeping, launchHomeShortcut, invokeSystemApplet, getActiveAppView } from '../src/os/system.ts';
 import { enableHomeControls, selectHomeToolbarControlTouch } from '../src/os/home-controls.ts';
 import { createNativeScreenInputGate } from '../src/os/native-screen-input.ts';
 import { escapeUnreadyNativeScreen } from '../src/os/native-screen-system.ts';
@@ -324,6 +324,9 @@ test('toolbar focus and an actual applet open/back cycle cannot reuse the old ex
     }else{
       state=invokeSystemApplet(state,'friends',7200);assert.equal(state.system.runtime.instances[state.system.runtime.active].appId,'friends');
       state=dispatchSystemEvent(state,{type:'command',command:'back'},7210);
+      const friendsOwner=state.system.runtime.active;
+      assert.equal(state.system.phase,'app');assert.equal(state.system.runtime.instances[friendsOwner].state.friendsFooterClose,true);
+      state=completeFriendsFooterClose(state,friendsOwner,7220);
       assert.equal(state.system.phase,'home');assert.equal(state.system.runtime.homeReturn,owner);
     }
     state=dispatchSystemEvent(state,{type:'button',command:'home',phase:'down',source:'physical:HOME'},7300);

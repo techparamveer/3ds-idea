@@ -97,6 +97,7 @@ test('SBBtnRT LCD centres at y=112 are the face; the A8 frame centre is the blac
     textures.set(name, nativeTextureSamplePixels({width:meta.width,height:meta.height,data:png}, meta.picaFormat));
   }
   const compiled=ts.transpileModule(painter,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText
+    .replaceAll("'./friends-footer-close-assets.ts'", JSON.stringify(new URL('../src/os/friends-footer-close-assets.ts', import.meta.url).href))
     .replaceAll("'./native-layout'", JSON.stringify(new URL('../src/os/native-layout.ts', import.meta.url).href))
     .replaceAll("'./stock-screen-layout'", JSON.stringify(new URL('../src/os/stock-screen-layout.ts', import.meta.url).href))
     .replaceAll("'./device-status-profile'", JSON.stringify(new URL('../src/os/device-status-profile.ts', import.meta.url).href));

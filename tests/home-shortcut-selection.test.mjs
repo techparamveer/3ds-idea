@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  completeNotesFooterClose, completeNotificationsFooterClose, createPortfolioState,
+  completeFriendsFooterClose, completeNotesFooterClose, completeNotificationsFooterClose, createPortfolioState,
   dispatchSystemEvent, getActiveAppView, launchHomeShortcut, reduceSystem,
   tickHomeNavigationClockObserved, tickSystem,
 } from '../src/os/system.ts';
@@ -113,6 +113,12 @@ for (const [id, focus, category] of [
   assert.equal(state.system.homeNavigation.focus.toolbarActive, true);
   assert.equal(state.system.homeNavigation.focus.currentFocus, focus);
   state = reduceSystem(state, 'back', now(state) + 1);
+  if (id === 'friends') {
+    const owner = state.system.runtime.active;
+    assert.equal(state.system.phase, 'app');
+    assert.equal(state.system.runtime.instances[owner].state.friendsFooterClose, true);
+    state = completeFriendsFooterClose(state, owner, now(state) + 1);
+  }
   assert.equal(state.system.phase, 'home');
   assert.equal(state.system.runtime.active, null);
   assert.deepEqual(composition(state), {

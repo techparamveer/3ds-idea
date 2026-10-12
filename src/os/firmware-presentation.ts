@@ -16,6 +16,7 @@ import { selectNotesMetadata } from './notes-title-metadata';
 import { drawHomeSuspendedIcon, retainedSuspendedApplication } from './home-suspended-window';
 import { homeSoftwareClosingDialogKey, homeSoftwareDialogKey, homeSoftwareSwitchTitles } from './home-software-dialog';
 import { ownedHomeFooterContact } from './home-footer-touch';
+import { writeHomeNavigation } from './home-navigation';
 import { HOME_FOOTER_TOUCH_GEOMETRY, HOME_SETTINGS_MAX_SCROLL, clampHomeSettingsScroll } from './stock-screen-layout';
 import { selectHomeFolderFooterPose } from './home-folder-footer-return';
 import { HOME_ENTRY_FOOTER_LAST_FRAME, HOME_ENTRY_HUD_LAST_FRAME } from './home-entry-presentation';
@@ -337,7 +338,7 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   }
   return true;
  }
- function footer(ctx:Context,state:MenuState,reduced=false,entrySceneInFrame?:number,launchSceneOutFrame?:number,launchDecideFrame?:number,pauseSceneInFrame?:number,resumeSceneOutFrame?:number){
+ function footer(ctx:Context,state:MenuState,reduced=false,entrySceneInFrame?:number,launchSceneOutFrame?:number,launchDecideFrame?:number,pauseSceneInFrame?:number,resumeSceneOutFrame?:number,manualDecideGroup?:'G_BtnW_L_03'|'G_BtnW_C_03'){
   if(resumeSceneOutFrame!==undefined&&(!Number.isInteger(resumeSceneOutFrame)||resumeSceneOutFrame<0||resumeSceneOutFrame>14||getHomeFooter(state)?.right!=='resume'))throw new RangeError('Invalid HOME Resume footer owner/frame');
   if(resumeSceneOutFrame!==undefined){
    const clip=renderer.packs.launcher.animations.LncBtmBtn_02_SceneOut,source=renderer.packs.launcher.resourceSources?.animations?.LncBtmBtn_02_SceneOut;
@@ -408,6 +409,7 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
       // authored highlight at Decide5 (native N065 dark, N070 white).
       ?[binding(footerPose.clip,footerPose.frame),binding('LncBtmBtn_02_Decide',launchDecideFrame,[three?'G_BtnW_R_03':two?'G_BtnW_R_02':'G_BtnW_C_01'])]
       :[binding(footerPose.clip,footerPose.frame)];
+  if(manualDecideGroup)bindings.push(binding('LncBtmBtn_02_Decide',5,[manualDecideGroup]));
   const pressed=ownedHomeFooterContact(state,HOME_FOOTER_TOUCH_GEOMETRY,state.system?.homeNavigation.gesture);
   if(pressed){
    const group=three?(pressed.side==='left'?`G_Btn${leftTone}_L_03`:pressed.side==='middle'?'G_BtnW_C_03':'G_BtnW_R_03'):two?(pressed.side==='left'?`G_Btn${leftTone}_L_03`:'G_BtnW_R_02'):'G_BtnW_C_01';bindings.push(binding('LncBtmBtn_02_Select',1,[group]));
@@ -417,6 +419,20 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   // the source direct-LCD sampler without coverage snapping.
   const textCoverageAdaptation=!two&&rightAction==='create-folder'?'azahar-12p4-fit' as const:undefined;
   return renderer.draw(ctx,'launcher','LncBtmBtn_02',{bindings,overrides,clip:[0,210,320,30],textSampling:'lcd',textCoverageAdaptation});
+ }
+ function manualEntryFooter(ctx:Context,source:MenuState):boolean{
+  const navigation=source.system?.homeNavigation,contact=ownedHomeFooterContact(source,HOME_FOOTER_TOUCH_GEOMETRY,navigation?.gesture);
+  if(!navigation||contact?.action!=='manual')return true;
+  const group=contact.side==='middle'?'G_BtnW_C_03':'G_BtnW_L_03',pack=renderer.packs.launcher;
+  const layout=pack.layouts.LncBtmBtn_02,clip=pack.animations.LncBtmBtn_02_Decide,identity=pack.resourceSources?.animations?.LncBtmBtn_02_Decide;
+  if(!layout||!clip||clip.frames!==6||clip.loop||!clip.childBinding||!clip.groups.includes(group)
+   ||identity?.titleId!=='0004003000009802'||identity.path!=='launcher_LZ.bin/anim/LncBtmBtn_02_Decide.bclan'||identity.sha256!=='65eb55af8110e51cf8efdc9bafb70d681fdbf528a211a0df5d9ca172546de4bc')throw Error('Native Manual entry footer Decide source unavailable');
+  const tracks=boundAnimationTracks(layout,{...clip,groups:[group]}),suffix=group.slice('G_BtnW_'.length);
+  if(!['P_BtnW_','P_EdgeW_'].every(prefix=>tracks.some(track=>track.target===prefix+suffix&&track.property==='materialColor.6.3')))throw Error('Native Manual entry footer Decide group unavailable');
+  // Source Decide5 dispatch is a host adaptation, not a native input epoch.
+  // The retained contact selected this action; it cannot reapply Select now.
+  const released=writeHomeNavigation(source,{...navigation,gesture:null});
+  return footer(ctx,released,false,undefined,undefined,undefined,undefined,undefined,group);
  }
  /** Sample the last actual tile writer, not two possibly disabled controllers.
   * Dist has no density Scale clip: density sizes its child/artwork elsewhere,
@@ -612,5 +628,5 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   return renderer.draw(top,'common','CmnFade_U_00',{bindings:bindings.upper,opaquePictureAlphaPanes:['P_Bg_U_00']})
    &&renderer.draw(bottom,'common','CmnFade_D_00',{bindings:bindings.lower,overrides:{T_Aplt_00:label},opaquePictureAlphaPanes:['P_Bg_D_00']});
  }
- return {webFooterCover:notificationsFooterCover,manualFooterCover:notificationsFooterCover,notificationsFooterCover,notesFooterReturnLabel,notesFooterReturn,appletEntry,manualEntry,pauseLower,hud,upperBase,settingsUpper,settingsLower,folderSettingsLower,folderNotEmptyLower,folderBalloon,folderBannerLabel,appletBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,ordinaryTitleIcon,suspendedIcon,captureFolder,empty,cursor,cursorAt,cursorEffectAt,launchCursorEffectAt,arrows,pickup,pickupAt,pickupBlankAt,liftedSource,pressOffset,rows:rowCount};
+ return {webFooterCover:notificationsFooterCover,manualFooterCover:notificationsFooterCover,notificationsFooterCover,notesFooterReturnLabel,notesFooterReturn,appletEntry,manualEntry,manualEntryFooter,pauseLower,hud,upperBase,settingsUpper,settingsLower,folderSettingsLower,folderNotEmptyLower,folderBalloon,folderBannerLabel,appletBannerLabel,toolbar,homePlate,folderBackdrop,folderChrome,folderChild,footer,tilePressOffset,tile,ordinaryTitleIcon,suspendedIcon,captureFolder,empty,cursor,cursorAt,cursorEffectAt,launchCursorEffectAt,arrows,pickup,pickupAt,pickupBlankAt,liftedSource,pressOffset,rows:rowCount};
 }

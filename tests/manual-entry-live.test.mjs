@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import ts from 'typescript';
-import { createPortfolioState, tickSystem, launchHomeShortcut, reduceSystem, invokeSystemApplet } from '../src/os/system.ts';
+import { createPortfolioState, tickSystem, launchHomeShortcut, reduceSystem, invokeSystemApplet, dispatchSystemEvent } from '../src/os/system.ts';
+import { selectHomeSlot, settleHomeNavigation } from '../src/os/home-navigation.ts';
 import { manualEntryIdentity, manualEntryOrigin, manualEntryBackingMatches } from '../src/os/manual-entry-identity.ts';
 import { escapeUnreadyNativeScreen } from '../src/os/native-screen-system.ts';
 import { createNativeScreenInputGate } from '../src/os/native-screen-input.ts';
@@ -19,6 +20,10 @@ const overrides={
 };
 const {outputText}=ts.transpileModule(readFileSync(sourceUrl,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}});
 const {createScreens}=await import(data(outputText.replace(/(from\s*['"])(\.[^'"]+)(['"])/g,(_all,prefix,path,suffix)=>prefix+(overrides[path]??new URL(path.endsWith('.ts')?path:`${path}.ts`,sourceUrl).href)+suffix)));
+const firmwareUrl=new URL('../src/os/firmware-presentation.ts',import.meta.url);
+const firmwareJs=ts.transpileModule(readFileSync(firmwareUrl,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
+const {createFirmwareHome}=await import(data(firmwareJs.replace(/(from\s*['"])(\.[^'"]+)(['"])/g,(_all,prefix,path,suffix)=>prefix+(path==='./native-renderer'?data('export class NativeLayoutRenderer {}'):new URL(path.endsWith('.ts')?path:`${path}.ts`,firmwareUrl).href)+suffix)));
+const footerPacks=Object.fromEntries([['launcher','launcher.json'],['messages','messages-and-loose.json']].map(([name,file])=>[name,JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/home/'+file,import.meta.url)))]));
 const camera=()=>tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'camera',3010),6200);
 const cameraHome=()=>reduceSystem(camera(),'home',6300);
 const manual=state=>invokeSystemApplet(state,'manual',6400,{manualTitleId:'0004001000022400'});
@@ -26,20 +31,20 @@ const ms=step=>10000+step*1000/60+.01;
 
 async function fixture(run,{measurePaint=true,publicationGate=false}={}){
  const saved=new Map(['document','Image','FontFace','__manualGraphics'].map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
- const events=[],canvases=[];let status='ready',coverFailure=false,published=false;
+ const events=[],canvases=[];let status='ready',coverFailure=false,footerFailure=false,published=false;
  function canvas(){
   const surface={width:0,height:0};
   const ctx=new Proxy({canvas:surface,globalAlpha:1,record(name,args=[]){events.push({name,args,ctx});},drawImage(...args){ctx.record('drawImage',args);},createLinearGradient:()=>({addColorStop(){}}),getImageData(_x,_y,w,h){return {width:w,height:h,data:new Uint8ClampedArray(w*h*4)};}},{get:(target,key)=>key in target?target[key]:(()=>{})});
   surface.getContext=()=>ctx;canvases.push(surface);return surface;
  }
  Object.assign(globalThis,{document:{createElement:canvas,fonts:{add(){}}},Image:class {decode(){return Promise.resolve();}},FontFace:class {load(){return Promise.resolve(this);}},__manualGraphics:{ready:Promise.resolve(),selectedApp(){},syncStockView(){events.push({name:'prepare'});},readSuspendedCapture(runtime){return {status:'ready',owner:runtime.application,generation:1};},stockStatus:()=>status==='ready'&&publicationGate&&!published?'loading':status,preparedStockPair:()=>status==='ready'&&(!publicationGate||published)?{}:undefined,stockFailure:()=>status==='error'?Error('Manual destination failed'):null,retryStockScreen(){status='ready';return true;},banner(){},menuIcon(){},menuArtwork(){},overlay(t,b,state,_time,_reduced,_native,_date,_verification,deferManualDestination=false){if(deferManualDestination&&state.system?.runtime.instances[state.system.runtime.active]?.appId==='manual'&&status!=='error')return;t.record('destination-upper');b.record('destination-lower');if(status==='ready')published=true;},dispose(){}}});
- const presenter=new Proxy({pressOffset:0,tilePressOffset:()=>0,folderChild(_ctx,_state,_empty,draw){draw(1);return true;},manualEntry(t,b,pose){t.record('cover-upper',[pose]);b.record('cover-lower',[pose]);return !coverFailure;}},{get:(target,key)=>key in target?target[key]:()=>true});
+ const presenter=new Proxy({pressOffset:0,tilePressOffset:()=>0,folderChild(_ctx,_state,_empty,draw){draw(1);return true;},manualEntryFooter(ctx,state){return createFirmwareHome({renderer:{packs:footerPacks,draw(_ctx,_bank,_layout,options){ctx.record('manual-entry-footer',[state,options]);return !footerFailure;}}}).manualEntryFooter(ctx,state);},manualEntry(t,b,pose){t.record('cover-upper',[pose]);b.record('cover-lower',[pose]);return !coverFailure;}},{get:(target,key)=>key in target?target[key]:()=>true});
  const screens=createScreens({measurePaint,firmwareAssets:{presenter,sharedFont:{draw(){}},dispose(){},diagnostics:[],titleIcons:new Map([['0004001000022400',{}]]),titleDescriptions:new Map([['0004001000022400','Nintendo 3DS Camera']])},drawHomeBackground:()=>true,drawSuspendedBackground:()=>true});
  const paint=(state,step,receipt=true,verification)=>{
   events.length=0;const result=screens.paint(state,new Date(0),ms(step),verification);
   if(receipt)screens.presentManualEntry(state,ms(step));return result;
  };
- try{await screens.ready;await run({screens,paint,events,canvases,setStatus:value=>{status=value;if(value!=='ready')published=false;},dropPreparedPair:()=>{published=false;},failCover:value=>coverFailure=value,presenter});}
+ try{await screens.ready;await run({screens,paint,events,canvases,setStatus:value=>{status=value;if(value!=='ready')published=false;},dropPreparedPair:()=>{published=false;},failCover:value=>coverFailure=value,failFooter:value=>footerFailure=value,presenter});}
  finally{screens.dispose();for(const [key,descriptor]of saved){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}}
 }
 
@@ -54,6 +59,55 @@ test('paint timing is opt-in, returned by value and cleared on disposal',async()
   }else assert.equal(timing,null);
   screens.dispose();assert.equal(screens.paintTiming(),null);
  },{measurePaint});
+});
+
+test('presented Manual footer contact binds Decide5 on its retained lower pair before unchanged out0 and repeats',async()=>{
+ await fixture(({screens,paint,events,canvases})=>{
+  const booted=tickSystem(createPortfolioState(),3001),slot=Number(Object.entries(booted.system.layout).find(([,id])=>id==='camera')[0]);
+  let home=settleHomeNavigation(selectHomeSlot(booted,slot));
+  for(let cycle=0;cycle<2;cycle++){
+   const step=cycle*60,held=dispatchSystemEvent(home,{type:'touch',phase:'down',x:50,y:226,pointerId:7},6400+step);
+   assert.equal(held.system.homeNavigation.gesture.area,'footer');paint(held,step);
+   const released=dispatchSystemEvent(held,{type:'touch',phase:'up',x:50,y:226,pointerId:7},6900+step),before=JSON.stringify(held);
+   const result=paint(released,step+1,false);assert.deepEqual([result.manualEntry.phase,result.manualEntry.frame],['out',0]);
+   const footer=events.find(e=>e.name==='manual-entry-footer');assert.ok(footer);assert.equal(footer.ctx.canvas,canvases[6]);
+   assert.equal(footer.args[0],held,'use the state belonging to the visibly retained pair');
+   assert.deepEqual(footer.args[1].bindings.at(-1),{name:'LncBtmBtn_02_Decide',frame:5,groups:['G_BtnW_L_03']});
+   assert.ok(!footer.args[1].bindings.some(b=>b.name==='LncBtmBtn_02_Select'));
+   const upperCopy=events.find(e=>e.name==='drawImage'&&e.ctx.canvas===canvases[5]);
+   assert.equal(upperCopy.args[0],canvases[3],'copy actual retained upper without repainting it');
+   const lowerCopy=events.find(e=>e.name==='drawImage'&&e.ctx.canvas===canvases[6]);assert.equal(lowerCopy.args[0],canvases[4]);
+   assert.ok(events.indexOf(lowerCopy)<events.indexOf(footer));assert.ok(events.indexOf(footer)<events.findIndex(e=>e.name==='cover-lower'));
+   assert.equal(JSON.stringify(held),before,'presentation clearing does not mutate the retained contact');
+   assert.equal(screens.stockStatus(released),'loading');assert.equal(screens.presentManualEntry(released,ms(step+1)),true);
+   for(let frame=1;frame<=20;frame++){assert.equal(paint(released,step+1+frame).manualEntry.frame,frame);assert.ok(!events.some(e=>e.name==='manual-entry-footer'),'prepared release is retained, not sampled again');}
+   for(let frame=0;frame<=20;frame++){const incoming=paint(released,step+22+frame);assert.deepEqual([incoming.manualEntry.phase,incoming.manualEntry.frame],['in',frame]);}
+   assert.equal(screens.stockStatus(released),'ready');
+   home=escapeUnreadyNativeScreen(released,7500+step);
+  }
+ });
+});
+
+test('direct no-contact and app-owned Manual leave the retained caller pixels unchanged',async()=>{
+ for(const home of [cameraHome(),camera()])await fixture(({paint,events})=>{
+  paint(home,0);const result=paint(manual(home),1);assert.equal(result.manualEntry.frame,0);
+  assert.ok(!events.some(e=>e.name==='manual-entry-footer'));
+ });
+});
+
+test('unpresented held contact cannot replace the saved idle caller; failed release cannot publish and retries',async()=>{
+ await fixture(({screens,paint,events,failFooter})=>{
+  const home=cameraHome(),held=dispatchSystemEvent(home,{type:'touch',phase:'down',x:160,y:226,pointerId:7},6400);
+  paint(home,0);paint(held,1,false);const state=dispatchSystemEvent(held,{type:'touch',phase:'up',x:160,y:226,pointerId:7},6900);
+  paint(state,2);assert.ok(!events.some(e=>e.name==='manual-entry-footer'),'unpresented held candidate cannot authorize release binding');
+ });
+ await fixture(({screens,paint,events,failFooter})=>{
+  const held=dispatchSystemEvent(cameraHome(),{type:'touch',phase:'down',x:160,y:226,pointerId:7},6400);paint(held,0);
+  const state=dispatchSystemEvent(held,{type:'touch',phase:'up',x:160,y:226,pointerId:7},6900);failFooter(true);
+  assert.equal(paint(state,1,false),undefined);assert.match(String(screens.stockFailure()),/released footer unavailable/);assert.equal(screens.presentManualEntry(state,ms(1)),false);
+  failFooter(false);assert.equal(screens.retryStockScreen(),true);assert.equal(paint(state,2).manualEntry.frame,0);
+  assert.deepEqual(events.find(e=>e.name==='manual-entry-footer').args[1].bindings.at(-1),{name:'LncBtmBtn_02_Decide',frame:5,groups:['G_BtnW_C_03']});
+ });
 });
 
 test('Manual requires a matching WebGL-presented caller pair, not an offscreen paint',async()=>{

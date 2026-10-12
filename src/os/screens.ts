@@ -322,16 +322,17 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  let lastPaintTiming:{startedAt:number;overlayMs:number|null}|null=null;
  const manualCanvases=[400,320,400,320].map(width=>{const canvas=document.createElement('canvas');canvas.width=width;canvas.height=240;return canvas;});
  const [lastPresentedUpper,lastPresentedLower,manualBackingUpper,manualBackingLower]=manualCanvases;
- let manualGeneration=0,lastPresentedOrigin:ManualEntryOrigin|null=null,manualBackingIdentity:ManualEntryIdentity|null=null;
- let manualSourceCandidate:ManualEntryOrigin|null=null,manualCandidate:ManualEntryPose|undefined;
+ type ManualEntrySource=Readonly<{origin:ManualEntryOrigin;state:MenuState}>;
+ let manualGeneration=0,lastPresentedSource:ManualEntrySource|null=null,manualBackingIdentity:ManualEntryIdentity|null=null;
+ let manualSourceCandidate:ManualEntrySource|null=null,manualCandidate:ManualEntryPose|undefined;
  function revokeManualEntryCandidate(){manualPresentation.revoke();manualCandidate=undefined;manualSourceCandidate=null;}
- function resetManualEntry(){manualGeneration++;manualPresentation.reset();manualCandidate=undefined;manualSourceCandidate=null;manualBackingIdentity=null;lastPresentedOrigin=null;}
+ function resetManualEntry(){manualGeneration++;manualPresentation.reset();manualCandidate=undefined;manualSourceCandidate=null;manualBackingIdentity=null;lastPresentedSource=null;}
  function presentManualEntry(state:MenuState,elapsedMs:number):boolean{
   const source=manualSourceCandidate;manualSourceCandidate=null;
   if(disposed)return false;
-  if(source&&sameManualEntryOrigin(source,manualEntryOrigin(state,manualGeneration))){
+  if(source&&sameManualEntryOrigin(source.origin,manualEntryOrigin(state,manualGeneration))){
    for(const [target,image] of [[lastPresentedUpper,native],[lastPresentedLower,bottom]]){const ctx=target.getContext('2d')!;ctx.resetTransform();ctx.clearRect(0,0,target.width,240);ctx.drawImage(image,0,0);}
-   lastPresentedOrigin=source;
+   lastPresentedSource=source;
   }
   const candidate=manualCandidate;manualCandidate=undefined;
   if(!candidate)return false;
@@ -1091,8 +1092,9 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    if(nativeStatus==='error')revokeManualEntryCandidate();
    else{
     if(!sameManualEntryIdentity(manualBackingIdentity,manualIdentity)){
-     if(!manualEntryBackingMatches(lastPresentedOrigin,manualIdentity))throw Error('Manual entry has no matching presented caller pair');
+     if(!lastPresentedSource||!manualEntryBackingMatches(lastPresentedSource.origin,manualIdentity))throw Error('Manual entry has no matching presented caller pair');
      for(const [target,image] of [[manualBackingUpper,lastPresentedUpper],[manualBackingLower,lastPresentedLower]]){const ctx=target.getContext('2d')!;ctx.resetTransform();ctx.clearRect(0,0,target.width,240);ctx.drawImage(image,0,0);}
+     if(lastPresentedSource.origin.kind==='home'&&!nativeHome.manualEntryFooter(manualBackingLower.getContext('2d')!,lastPresentedSource.state))throw Error('Native Manual entry released footer unavailable');
      manualBackingIdentity=Object.freeze({...manualIdentity});manualPresentation.reset();
     }
     manualPose=manualPresentation.sample({identity:manualIdentity,elapsedMs:verification?.manualEntryObservedElapsedMs??elapsedMs,eligible:true,destinationReady:manualDestinationReadyAtPaintStart&&nativeStatus==='ready',reducedMotion:reduced});
@@ -1195,7 +1197,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
     metadata:suspendedMetadata.metadata,lower:resumeLowerWithoutFooter,sleepFrame:suspendedSleepFrame};
   }
   if(!diagnosticPaint&&state.system?.phase==='home'&&appletEntryEligible(state)&&nativeHome&&nativeStatus!=='error'&&nativeStatus!=='loading')appletSourceCandidate={source:appletEntryHomePair(state,appletGeneration),application:state.system.runtime.application,generation:appletGeneration};
-  if(!diagnosticPaint&&!manualIdentity&&nativeHome&&nativeStatus!=='error'&&nativeStatus!=='loading'){const source=manualEntryOrigin(state,manualGeneration);if(source&&(source.kind==='home'||nativeStatus==='ready'))manualSourceCandidate=source;}
+  if(!diagnosticPaint&&!manualIdentity&&nativeHome&&nativeStatus!=='error'&&nativeStatus!=='loading'){const source=manualEntryOrigin(state,manualGeneration);if(source&&(source.kind==='home'||nativeStatus==='ready'))manualSourceCandidate={origin:source,state};}
   if(!diagnosticPaint){
    const folderNeeds=folderMotion&&(!homeEntryMotionMatches(folderEntryMotion,folderIdentity)||folderEntryNeedsRebase||homeEntryMotionActive(folderEntryMotion)||!!pendingFolderEntryMotion||!!folderEntryBannerCandidate);
    const pauseNeeds=pauseMotion&&(!homeEntryMotionMatches(pauseEntryMotion,pauseIdentity)||pauseEntryNeedsRebase||homeEntryMotionActive(pauseEntryMotion)||!!pendingPauseEntryMotion);

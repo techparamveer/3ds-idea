@@ -111,6 +111,28 @@ test('actual Friends compositor retains first/repeat Close through paired title 
  });
 });
 
+test('Friends accepted HOME return survives firmware replacement and still requires a fresh reveal/handoff',async()=>{
+ await fixture(({screens,paint,assets})=>{
+  let state=open(home('friends'),'friends'),step=0;
+  screens.skipAppletEntryForAccessibilityShortcut(state);paint(state,step++);state=touchSystem(state,160,226,6401);
+  const owner=state.system.runtime.active;
+  const receipt=(kind,frame)=>{const result=paint(state,step,false);assert.deepEqual(result?.friendsClose,{kind,frame,owner,adaptation:true});return screens.presentFriendsFooterClose(state,ms(step++));};
+  for(let frame=0;frame<6;frame++)receipt('feedback',frame);
+  for(let frame=0;frame<20;frame++)receipt('out',frame);
+  assert.equal(receipt('out',20),owner);state=completeFriendsFooterClose(state,owner,ms(step));
+  for(let frame=0;frame<=7;frame++)receipt('in',frame);
+  assert.equal(paint(state,step++,false).friendsClose.frame,8);
+  screens.setFirmwareAssets(assets());assert.equal(screens.presentFriendsFooterClose(state,ms(step)),null);
+  assert.equal(screens.homeAppletFooterBannerReady(state),false);
+  assert.equal(paint(state,step++,false)?.friendsClose,undefined,'replacement invalidates the old resource receipt');
+  assert.equal(screens.homeAppletFooterBannerReady(state),false);
+  receipt('in',7);
+  for(let frame=8;frame<=20;frame++)receipt('in',frame);
+  assert.equal(screens.homeAppletFooterBannerReady(state),false);receipt('handoff',null);
+  assert.equal(screens.homeAppletFooterBannerReady(state),true);
+ });
+});
+
 test('Friends terminal rejects replaced, hidden, suspended and disposed publication; failed HOME cover permits recovery',async()=>{
  await fixture(({screens,paint,replacePair,failCover})=>{
   let state=open(home('friends'),'friends');screens.skipAppletEntryForAccessibilityShortcut(state);paint(state,0);

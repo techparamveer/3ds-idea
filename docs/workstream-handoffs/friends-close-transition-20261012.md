@@ -81,9 +81,13 @@ Private output only:
 It contains immutable source-disassembly/resource reports, publication proof,
 red regression log, dependency identity and exact 77-file LFS hydration record.
 The red test observed immediate `home` instead of retained `app`; the focused
-run now passes 138 tests, including actual loader, PNG/font decoding, production
+run now passes 139 tests, including actual loader, PNG/font decoding, production
 renderer calls, compositor receipts, resource replacement and repeated entry.
-Canvas transport tests are not pixel acceptance or a Chromium-cause probe.
+An additional red recovery test found and now covers firmware replacement after
+accepted HOME reveal frame 7: stale receipts are rejected, the reveal remains
+active, and fresh frame 7 through handoff must publish. Friends uses Manual's
+existing retained recovery option and an independent generation. Canvas
+transport tests are not pixel acceptance or a Chromium-cause probe.
 
 Full-suite/typecheck/postcommit build results and final source/build hashes are
 reported in the private report and freeze manifest after this source commit.

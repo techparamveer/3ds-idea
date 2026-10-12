@@ -4,8 +4,14 @@
 confirms direct app-to-uncovered-HOME jumps in both main Close routes. Audit
 adf43d92 validates 1,136 raw pairs. Fresh native audit c9ef88c2 confirms separate
 cover, HOME reveal and banner on different update/error-gate routes. Root
-inspected the stated browser/native sheets. A bounded source-backed repair is
-assigned in its own worktree; it is not yet delivered or browser-verified.
+inspected the stated browser/native sheets. Candidate 88640bc has source/build
+approval and 3,209 saved first/repeated opening/Close pairs across eight windows.
+Audit 5fdd90d1 closes all triples/PNGs and confirms the capped opening includes
+its completed transition and stable ready tail. All Close stages and four fixed
+opening-cover browser comparisons pass. Root inspects 28 chronological pages
+and eight fixed sheets. The reviewed fix is integrated and pushed as dd1a9e1,
+with committed source/public/tests/config equal to the tested candidate.
+No fresh integrated build or native post-integration run is claimed here.
 Exact native footer dispatch/timing remains open. All whole flows stay fail.
 
 12 October AN-01: [Friend List Close candidate](friends-close-transition-2026-10-12.md)

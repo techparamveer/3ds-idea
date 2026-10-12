@@ -1,5 +1,32 @@
 # Animation fidelity workflow
 
+## Browser and Miiverse Close repair
+
+The [captured main-Close defect](web-close-transition-2026-10-12.md) is an
+uncovered app-to-HOME jump. Candidate 88640bc retains the app through delivered
+feedback and common cover resources, then uses paired HOME reveal and handoff.
+Source/build review is closed. The eight ordinary-input MacBook windows contain
+3,209 saved pairs. Preserve the seventh window's 600-pair cap. Closed audit
+5fdd90d1 establishes its complete transition and 549-pair stable ready tail.
+
+The fixed opening regression policy uses the first saved complete outgoing20
+pair, against Browser baseline 261/730 or Miiverse 145/2474. Repeated openings
+use the same declared first baseline. Do not search for a better match or fit
+a mask after observing results. Inspect feedback, retained owner, cover, HOME
+reveal, handoff and selected banner before integration. Native update/error-gate
+returns provide ordering only, not ordinary-footer input or timing equivalence.
+All helpers use Astra extra-high; only root drives the muted MacBook sessions.
+
+Source is integrated and pushed as dd1a9e1 after source, build, capture and
+procedure review. The candidate and integration have identical committed
+source/public/tests/config. Keep its pre-integration captures distinct from
+the assigned clean integrated rebuild and any subsequent native comparison.
+Next use ordinary empty-folder entry and held Back, first and repeat, to
+compare lower tray/root fade against upper orbit retirement. The earlier
+cursor/orbit defect is fixed; overlap alone is not a new defect. Do not move
+items to force matching fixtures or implement a correction before a new capture
+shows an unexplained mismatch.
+
 ## Friend List Close repair
 
 The [1,397-pair baseline](friends-close-transition-2026-10-12.md) confirms the

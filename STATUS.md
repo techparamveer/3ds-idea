@@ -11,16 +11,16 @@ records, Git history and the private archive below.
 | --- | --- |
 | Coordinator | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `c7a1922861f64f260ce50ce645ef7eca16e869fb` |
+| HEAD | `dd1a9e1575ae6b116905081ebea7e4b4d45e1bf4` |
 | Delivery | Pushed to [draft PR 7](https://github.com/techparamveer/3ds-idea/pull/7). No merge or deployment. |
 | GitHub main | `c76775731fe539473934365d35210d79c3cbb551`, fetched again; already integrated through b84e1b2. |
 | Original checkout | `/Volumes/DeveloperStorage/GitHub/3ds-idea`, main 5ee6fd7, untouched. The older home-fidelity checkout is absent. |
 
 Preserve the unrelated human edit in `src/os/system.ts`, including its trailing
 `hello world`. It stays unstaged and unserved. Its SHA-256 is
-`e13dee4c69d5501c2472a6a5f464fd9e2f80c86bc48a4ba86c1ff0e8af9ce607`
-after the reviewed Friends integration hunks. Its unstaged diff remains exactly
-the original import-line suffix; pre-integration hash was e2684d15.
+`c627fd3fc6e02e06267390fc2e23b9e9223255a0a4bad73f18b2d2d5a8936c82`
+after the reviewed Web integration hunks. Its unstaged diff remains exactly
+the original import-line suffix; the Web pre-integration hash was e13dee4c.
 Do not build that dirty coordinator source. Use the assigned clean checkout.
 Stage explicit owned paths only, never `git add -A`.
 
@@ -94,13 +94,34 @@ The update/error-gate routes establish ordering only, not ordinary footer parity
 See the [bounded baseline](docs/web-close-transition-2026-10-12.md).
 `camera_text_readback_astra` owns the new worktree
 `/Users/paramveer/.codex/worktrees/web-close-transition-20261012/3ds-idea`,
-branch `codex/web-close-transition-20261012`, base c7a1922. Its reserved writes
-are the Browser/Miiverse Close controller, source validators, native web footer
-painting, required shared app-host/system/scene receipts, focused tests and a
-bounded source/adaptation handoff. Reuse delivered feedback and HOME resources.
-Preserve local Back, caller-owned return, failures and completed incoming paths.
-No firmware reconstruction or source claims for untraced native footer dispatch.
-Only root drives GUI. No worker may alter any frozen served checkout or capture.
+branch `codex/web-close-transition-20261012`, now frozen at 88640bc, build
+`N3pRiRWZMnkz9E_t3GYlI`. Its implementation assignment is finished. Independent
+source review a16292a2 and freeze review bc04b18a approve candidate recapture.
+Focused and independent checks each pass 190 with one skip; full tests pass
+2,799 with only the known missing Camera PNG failure. Both typechecks/build pass.
+No writes remain assigned to this source, dependencies or build.
+`camera_readback_audit_astra` closed the new private
+`web-close-20261012-v1/candidate-browser-audit-astra-v1` tree, report 5fdd90d1.
+It is immutable and that assignment is finished. Root closed eight
+muted MacBook capture windows, 3,209 pairs, and stopped temporary server 12056.
+Miiverse repeated opening reached its 600-pair recorder limit; preserve and
+audit this deviation. The other seven were user-stopped. All exports completed.
+Post-run rehash at 2026-10-12T02:32:56.211Z verifies 2,848 files unchanged.
+Only root drives GUI. No worker may alter any frozen checkout or capture.
+`camera_readback_review_astra` closed procedure review b4216833 with no blocker.
+Root inspected 28 chronological pages and eight fixed comparisons, record
+dc3b87a0. The exact reviewed patch is integrated and pushed as dd1a9e1, preserving
+the human edit and exact candidate source/public/tests/config equivalence.
+Every Close phase and all four fixed opening pairs pass the bounded browser gate.
+Native ordinary footer dispatch, moving pixels and timing remain unmatched.
+`camera_text_readback_astra` completed its read-only next-step recommendation.
+Its new assignment is clean integrated checks in
+`/Users/paramveer/.codex/worktrees/web-integrated-checks-20261012/3ds-idea`,
+branch `codex/web-integrated-checks-20261012`, commit dd1a9e1. It may hydrate
+exact dependencies/LFS assets from the frozen Web candidate, reconcile its local
+STATUS, run checks/build and freeze new artifacts only under
+`web-close-20261012-v1/integrated-verification-v1`. No source changes, GUI,
+server or writes to donor checkouts are assigned.
 Root owns integration, shared docs, PR updates and GUI. [Workstreams](docs/feature-map/workstreams.md) retain
 historical ownership, not permission to restart old assignments.
 
@@ -235,15 +256,18 @@ See [isolation](docs/native-reference-profile-isolation.md) and
 
 ## Next
 
-1. Source ea39e12 is pushed, the Friend List evidence review is closed, and the
-   source-equivalent preview is open on 3034. The candidate production run
-   passes its bounded missing-cover/opening-regression gate. Exact native footer
-   trigger, hold/cadence and banner growth remain open. Native post-integration
-   comparison is still required; do not relabel pre-integration candidate evidence.
-   Continue the remaining Browser/Miiverse top-row routes from visible captures.
-   Do not repeat resolved Camera text, Notes/Notifications or Friends missing-cover
-   repairs. Preserve the unrelated human system.ts edit.
-2. Continue remaining Manual, folder and HOME suspend/Resume native moving
+1. Source dd1a9e1 is pushed. Close the assigned clean integrated checks/build,
+   inspect its preview on the muted MacBook, and keep the evidence tiers separate.
+   The Web candidate passes its missing-cover/opening-regression gate; no native
+   post-integration pass follows. Do not repeat resolved Camera text, Manual,
+   Notes/Notifications, Friends or Web missing-cover repairs. Preserve the human edit.
+2. Capture ordinary empty-folder Open and held Back, first and repeat, in native
+   and current production. Compare lower tray/root fade against upper orbit
+   retirement. The old cursor/orbit defect is fixed, and native also has root/orbit
+   overlap; do not assume the overlap itself is wrong. Preserve slot/population/
+   density differences and do not move items to manufacture matching fixtures.
+   Historical first native Back and repeated browser entry are missing.
+3. Continue remaining Manual, folder and HOME suspend/Resume native moving
    pixels, input and cadence gaps. All four flows stay fail until their evidence
    supports acceptance. Follow-up shared text regressions remain on the checklist.
 

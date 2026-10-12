@@ -46,17 +46,57 @@ each provide six authored feedback frames. Existing HOME common resources
 provide the outgoing cover and incoming reveal. The selected native footer
 dispatch and exact timing are not traced; source clips alone do not prove them.
 
-The assigned `codex/web-close-transition-20261012` worktree starts at `c7a1922`.
-The bounded repair retains the app through feedback and accepted paired cover
-completion, then uses the guarded HOME reveal. Until reviewed and captured this
-is pending work, not a delivered correction. Lifecycle/timing reuse remains a
-labelled portfolio adaptation. No new native graphics are authorized.
+Candidate `88640bc` in `codex/web-close-transition-20261012` starts at
+`c7a1922`. It retains the app through its decoded six-frame feedback and HOME
+outgoing cover, retiring the owner only after accepted paired outgoing20.
+The existing guarded HOME reveal and separate handoff gate the selected banner.
+Local Back and caller-owned completion keep their previous paths. Lifecycle
+and timing reuse remain labelled portfolio adaptations. No native graphics,
+fonts, converters, manifest bytes or audio changed.
+
+Independent source review `a16292a2` has no blocking findings. Focused checks
+and the independent rerun each pass 190 tests with one existing skip. Full
+tests have 2,799 passes, the unchanged missing historical Camera PNG failure,
+102 skips and one TODO. Both typechecks and the production build pass.
+Freeze review `bc04b18a` verifies build `N3pRiRWZMnkz9E_t3GYlI` and all
+2,848 frozen files. These are candidate checks, not an integrated rebuild.
 
 Candidate policy `1b510dc8` precedes candidate pixels. It requires first/repeated
 opening and Close for both apps, retained body/owner, complete cover, distinct
 HOME reveal/handoff, and selected-app endpoints. Fixed opening-cover regression
 pairs use Browser baseline 261/730 and Miiverse 145/2474 with empty whole-LCD masks.
 No nearest-frame search, transforms or native pass are authorized.
+
+Root recorded eight muted MacBook candidate windows: Browser opening 324,
+Close 439, repeated opening 400 and repeated Close 337; Miiverse opening 324,
+Close 554, repeated opening 600 and repeated Close 231. All 3,209 pairs were
+saved. The seventh window hit the recorder limit during context compaction.
+The saved window contains incoming20, handoff51 and 549 byte-stable ready
+pairs from sequence52 through600. The cap remains a recorded deviation; it
+does not truncate the opening. The other seven stopped by user action.
+The live Close screenshots show the HOME cover over each retained app, then
+the correct selected-app HOME banner. The temporary capture tab/server are
+closed. The post-run
+rehash at 2026-10-12T02:32:56.211Z finds all frozen files unchanged.
+
+All 3,209 triples and 6,418 PNGs validate, including CRC and exact full-RGBA
+agreement between Sharp and pngjs. No malformed, incomplete or fully black
+LCD occurs. Every Close contains feedback0..5, outgoing0..20, HOME incoming0..20
+and a distinct handoff. App phase and owner survive through outgoing20.
+Each outgoing20 and HOME incoming0 pair has exact PNG/RGBA continuity.
+Some opening integer samples remain absent; first Browser incoming has no
+saved frame7 or frame10. No causal or native-cadence inference follows.
+
+The fixed Browser opening pairs are candidate30/801 and repeated27/3161 against
+baseline261/730. Miiverse pairs are candidate31/5552 and repeated29/8314 against
+baseline145/2474. All four comparisons are exact PNG/RGBA on both LCDs, with
+empty masks. Root inspected 28 of 36 chronological pages and all eight fixed
+comparison sheets. These pass the bounded browser missing-cover and opening
+regression checks, not native acceptance. Closed audit `5fdd90d1` validates
+all 9,627 originals unchanged. Reviewed source is integrated and pushed as
+`dd1a9e1`; committed source/public/tests/config exactly match the candidate.
+The human edit remains unstaged. Candidate checks and captures remain
+pre-integration evidence; a fresh integrated build is a separate verification.
 
 All whole animation flows remain fail/unproven. Exact native main-footer
 dispatch, feedback, input/hold, moving pixels, cadence and muted audio are open.
@@ -75,6 +115,13 @@ Private root:
 | source-audit/report.md | f12f341ee10d02148e1f749ccca7a641f869536e767cf0e34a58a8edb98491af |
 | coordinator-baseline-inspection-v1.md | 11c5f7537501a5876a92172416009c9c9d50abe085579a9bc39faa56c7e4c979 |
 | candidate-capture-policy-v1.md | 1b510dc85123b1affa86711c580863666e61ef3f6554c05fb65c4d298768496a |
+| source-review-astra-v1/source-review.md | a16292a2f825bebbf4f8fd3b99630b745d0d9b21adc94be3d8479d1aa6c37a68 |
+| source-review-astra-v1/freeze-review.md | bc04b18aaf475d3ac1d14d3d0d3f3978d80d94bffdd44ee8cf784c1b1d8f73a0 |
+| verification/manifest.json | d8e4179cc8cf6d3e6d8ea32899d0f2e30cff45127240d0bcad3d1c7a60000ed8 |
+| candidate-coordinator-inspection-v1.md | dc3b87a0c8929837b6bab4738713d2a7c5db015d8d6bc24f2780cb55bf68e14f |
+| candidate-browser-audit-astra-v1/report.md | 5fdd90d1d0152e90cde74462480e4fce40297eb887bce30367996a6d0c2a7844 |
+| candidate-browser-audit-astra-v1/manifest.json | d8ce10c5679353f2def58de8c0891b972f57aaacc2719b1a7477829d1a76bc0e |
+| integration-review-astra-v1/procedure-review.md | b42168330fa523950a11653c25f001bd4237406eb236fe363533da51eefb8a5a |
 
 The audits pin exact original paths, source/title identities, decoder/tool
 versions, input records and hashes. Policies, originals and closed audit trees

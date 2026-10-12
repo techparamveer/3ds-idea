@@ -11,7 +11,7 @@ records, Git history and the private archive below.
 | --- | --- |
 | Coordinator | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `7ff67b3b16a906563fd2c9088989467c4ee22807` |
+| HEAD | `a1ca6f594c3a0dafafd7afe69d4c6b4292395933` |
 | Delivery | Pushed to [draft PR 7](https://github.com/techparamveer/3ds-idea/pull/7). No merge or deployment. |
 | GitHub main | `c76775731fe539473934365d35210d79c3cbb551`, fetched again; already integrated through b84e1b2. |
 | Original checkout | `/Volumes/DeveloperStorage/GitHub/3ds-idea`, main 5ee6fd7, untouched. The older home-fidelity checkout is absent. |
@@ -67,23 +67,40 @@ Workers/reviewers use `gpt-6-astra`, `xhigh`. Tools cannot change or verify the
 in-flight coordinator model or service tier. Do not claim such a change.
 One coordinator, at most two workers, one independent reviewer.
 
-`camera_text_readback_astra` has closed clean integration verification in
-`/Users/paramveer/.codex/worktrees/camera-integrated-checks-20261012/3ds-idea`,
-branch `codex/camera-integrated-checks-20261012`, at 7ff67b3. Its checks and build
-are frozen under `camera-lower-readback-v1/integrated-verification-v1`. No further
-source, build, test, config, GUI or server writes are assigned.
+The Camera integration checkout at 7ff67b3 remains frozen and served. Its
+checks, build and review 59b1f30f are closed; no source or build writes are assigned
+there. `camera_text_readback_astra` now owns
+`/Users/paramveer/.codex/worktrees/friends-close-transition-20261012/3ds-idea`,
+branch `codex/friends-close-transition-20261012`, base a1ca6f5, for the captured
+missing Friend List Close cover. Reserved writes are necessary Friends
+controller/validator, shared `src/os` wiring, `src/scene/console-scene.ts`, focused
+tests, two decrypted SceneOut clips and HOME label provenance in the existing
+Friends incoming pack/manifest, plus its bounded handoff. Reuse existing
+conversion and receipt guards. Source return-branch identification does not
+prove footer/no-Mii trigger equivalence or hold timing. No GUI or served-build
+changes are assigned to the worker.
 
-`camera_readback_audit_astra` has closed its reports. Reviewer
-`camera_readback_review_astra` owns only new `integrated-review-astra-v1` for
-bounded integrated freeze and current documentation review. No capture corpus
-rerun or source/build mutation. Root owns integration, shared
-docs, PR updates and GUI. [Workstreams](docs/feature-map/workstreams.md) retain
+`camera_readback_audit_astra` has closed native audit 1ac25405 under private
+`friends-motion-20261012-v1/native-audit-astra-v1`; that tree is immutable.
+`camera_readback_review_astra` has closed five-window browser audit e487e2d1
+under the sibling `browser-audit-astra-v1`, then will review the candidate separately.
+Root owns integration, shared docs, PR updates and GUI. [Workstreams](docs/feature-map/workstreams.md) retain
 historical ownership, not permission to restart old assignments.
 
 ## Serving
 
-No new candidate server runs. Capture sessions 36663 and 78390 exited 130;
-port 3033 was verified absent. Their new tabs closed. Two older 3032 tabs and
+Latest preview is live at http://127.0.0.1:3033/, owned session 92702/listener
+84403, exact clean integrated cwd above and build OAnM8XeVOY2XnwhG0ctrc.
+HTTP 200, BUILD_ID, source/build freeze, Chrome mute and MacBook geometry verify
+before navigation. A new normal-URL tab renders the sourced console and both
+HOME LCDs with Health selected, without software input or diagnostic parameters.
+The tab/server remain for the user and further work. Policy and ledger are in
+camera-lower-readback-v1/integrated-preview-v1. This is a basic browser inspection,
+not a native, animation, responsive or audio acceptance run. Rehash at
+2026-10-12T00:27:04.461Z finds all 2,840 files / 154,336,563 bytes unchanged.
+
+Earlier capture sessions 36663 and 78390 exited 130 and their tabs closed.
+Two older 3032 tabs and
 listener PID 67749 remain untouched. That preview's cwd is
 `/Users/paramveer/.codex/worktrees/health-resume-diagnostics-20261010/3ds-idea`;
 it is not the newly integrated fix. Never mutate a frozen served build.
@@ -96,7 +113,28 @@ post-run rehash at 2026-10-12T00:01:27.864Z finds zero changes across
 154,387,075 bytes. It and predecessor f43f640/build HJ8WGQGtilfahWVf4KDYM stay
 frozen. The clean integrated checkout has separate build
 `OAnM8XeVOY2XnwhG0ctrc`, manifest `aa293c9f`: 2,840 files / 154,336,563 bytes,
-including all 223 .next files. It is frozen and has not been served or inspected.
+including all 223 .next files. It is now served and basic-preview-inspected
+as described above. It also supplies the closed five-window Friend List
+baseline described below; it has no matched native animation acceptance.
+
+## Current Friend List Defect
+
+Private `friends-motion-20261012-v1` contains a fresh native selection, first
+opening and repeated opening/no-Mii automatic return, plus five browser
+windows with 1,397 raw LCD pairs. Both browser Close runs jump from own-card
+sequence 27 directly to uncovered HOME sequence 28, with no exported transition.
+The native no-Mii OK route clears the dialog, briefly reveals the body, then
+shows a HOME Menu cover and later HOME reveal. This is not ordinary footer Close
+or the same body fixture. No masks, phase fitting or native pass follow.
+
+Native audit 1ac25405 validates five silent movies / 6,273 frames, five own PNGs,
+all 28 originals unchanged and the exact restored config 031bc535. Lossy movie
+frames provide chronology only. Root has inspected selected bracket pages, not
+all 807 extracted bracket frames. Browser audit e487e2d1 validates all 1,397 pairs
+and 2,794 PNGs. The [baseline record](docs/friends-close-transition-2026-10-12.md)
+pins both audits and root inspection. Source-backed Close implementation and
+independent review are pending. Integrated build post-run
+rehash at 2026-10-12T00:51:48.983Z verifies all 2,840 files unchanged.
 
 ## Latest Evidence
 
@@ -123,8 +161,9 @@ timing, geometry, sampling or readback-count change is included.
   missing historical Camera PNG failure, 102 skips and one TODO. Both typechecks
   and build pass. Clean integrated verification repeats the same totals and
   both typechecks/build successfully. All 2,617 scoped source/asset/test/config
-  files match the candidate and integration, with LFS-aware checks. Its new build
-  is not claimed browser-inspected or native-compared.
+  files match the candidate and integration, with LFS-aware checks. The new build
+  has the basic preview and subsequent Friend List baseline described above,
+  but no new matched native motion or whole-flow acceptance.
 
 Known test failure: `tests/camera-date-group.test.mjs:44`, missing
 `/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/camera-3d-badge-sdmc-recapture-20261005/browser/lower.png`.
@@ -150,15 +189,13 @@ See [isolation](docs/native-reference-profile-isolation.md) and
 
 ## Next
 
-1. Independently verify the completed clean integrated freeze and finish the
-   evidence/docs checkpoint and PR7. Inspect the new build before using it for
-   further comparisons; do not transfer whole-flow acceptance from the candidate.
-2. Resume HOME top-row opening/Close comparisons, starting with a named
-   unverified route such as Friends. Capture visible behavior before another
-   source slice. Use the same ordinary inputs in isolated muted Azahar and
-   the integrated muted browser. Do not repeat the resolved Camera text
-   investigation or existing Notes/Notifications cover repairs.
-3. Continue remaining Manual, folder and HOME suspend/Resume native moving
+1. Finish the captured Friend List Close defect in the assigned worktree,
+   independently review it, then recapture first/repeated Close and opening
+   regression on the muted MacBook. Distinguish the native no-Mii return from
+   browser footer Close. Integrate only reviewed changes, preserving the dirty
+   coordinator system.ts. Do not repeat resolved Camera text or Notes/Notifications
+   repairs. Remaining top-row routes follow after this visible correction.
+2. Continue remaining Manual, folder and HOME suspend/Resume native moving
    pixels, input and cadence gaps. All four flows stay fail until their evidence
    supports acceptance. Follow-up shared text regressions remain on the checklist.
 
@@ -171,7 +208,7 @@ Preserve failed attempts. Keep reviewed commits pushed to draft PR7.
 New artifacts use the writable Sandisk1 private root, not the full
 DeveloperStorage sparsebundle:
 `/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261009/opus-completion/toprow-current-20261010/`.
-Latest bundle: `camera-lower-readback-v1/`. Closed originals, reports,
+Latest bundle: `friends-motion-20261012-v1/`. Closed originals, reports,
 policies and manifests are immutable. The failed single-shot guard capture and
 pre-export live-recorder correction remain in its historical ledger.
 

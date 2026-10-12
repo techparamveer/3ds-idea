@@ -1,5 +1,16 @@
 # Animation fidelity workflow
 
+## Friend List Close repair
+
+The [1,397-pair baseline](friends-close-transition-2026-10-12.md) confirms the
+first/repeated browser Close jump. Preserve it as the red result. The native
+no-Mii OK return is a separate trigger and fixture, not a matched direct Close.
+Use the pinned decrypted return clips, existing guarded lifecycle and paired
+publication. Review and test the clean candidate before new production capture.
+Record first/repeated Close and opening regression with ordinary inputs on the
+muted MacBook. Do not turn source identification, a static cover or a successful
+browser transition into native motion, input, timing or whole-flow acceptance.
+
 ## Camera closure checkpoint
 
 The [combined context candidate](camera-lower-readback-2026-10-12.md) passes
@@ -7,8 +18,9 @@ the unchanged fixed first/repeated browser comparisons. Preserve those closed
 originals and independent review; do not repeat the resolved investigation.
 Both fixed historical lower guards pass, combined review approves the correction,
 and integration is 7ff67b3. Clean integrated checks/build are complete with the
-known test failure retained. Verify its frozen identity and inspect it, then resume
-remaining native animation comparisons. Broader stock regressions and native
+known test failure retained. Its frozen identity and basic preview are checked;
+the later Friend List baseline above starts the remaining animation work.
+Broader stock regressions and native
 motion, input, cadence and muted audio remain open. Helpers use Astra xhigh;
 only the coordinator drives the muted MacBook browser and isolated Azahar.
 

@@ -1,11 +1,20 @@
 # Feature map — 1:1 queue
 
+12 October AN-01: [Friend List baseline](friends-close-transition-2026-10-12.md)
+confirms both ordinary Close runs jump directly from the own card to HOME at
+sequence 28. Audit e487e2d1 validates all 1,397 pairs. Native audit 1ac25405
+closes selection, opening and no-Mii automatic-return evidence, not an ordinary
+footer Close comparison. A source-backed return fix is in its assigned worktree;
+review, tests, production recapture and integration remain pending. All helpers
+use GPT-6 Astra extra-high. All whole animation flows remain fail/unproven.
+
 12 October AN-04 update: [combined candidate add6d44](camera-lower-readback-2026-10-12.md)
 has exact first/repeated Camera browser closure, independently reviewed.
 The 1,954-pair production run has no fully black LCDs. Both historical lower
 guards pass, and the reviewed bundle is integrated as 7ff67b3. Clean integrated
 checks/build are complete with the known missing-PNG failure. The new build
-is not browser-inspected. No native animation or whole-flow pass follows;
+has a basic preview inspection and the later Friend List baseline above.
+No native animation or whole-flow pass follows;
 AN-01 through AN-04 remain fail/unproven.
 The intermediate failed experiment below is history, not the current defect.
 

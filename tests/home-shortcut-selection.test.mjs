@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  completeFriendsFooterClose, completeNotesFooterClose, completeNotificationsFooterClose, createPortfolioState,
+  completeWebFooterClose, completeFriendsFooterClose, completeNotesFooterClose, completeNotificationsFooterClose, createPortfolioState,
   dispatchSystemEvent, getActiveAppView, launchHomeShortcut, reduceSystem,
   tickHomeNavigationClockObserved, tickSystem,
 } from '../src/os/system.ts';
@@ -118,6 +118,12 @@ for (const [id, focus, category] of [
     assert.equal(state.system.phase, 'app');
     assert.equal(state.system.runtime.instances[owner].state.friendsFooterClose, true);
     state = completeFriendsFooterClose(state, owner, now(state) + 1);
+  }
+  if (id === 'browser' || id === 'miiverse') {
+    const owner = state.system.runtime.active;
+    assert.equal(state.system.phase, 'app');
+    assert.equal(state.system.runtime.instances[owner].state.webFooterClose, true);
+    state = completeWebFooterClose(state, owner, now(state) + 1);
   }
   assert.equal(state.system.phase, 'home');
   assert.equal(state.system.runtime.active, null);

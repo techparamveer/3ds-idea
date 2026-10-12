@@ -33,7 +33,10 @@ test('only no-caller Notifications main footer retains its owner; B/HOME/subscre
   assert.equal(returned.system.runtime.systemApplet, null);
   for (const appId of ['browser', 'miiverse']) {
     const other = invokeSystemApplet(home(), appId, 4000);
-    assert.equal(reduceSystem(other, 'back', 4100).system.runtime.systemApplet, null);
+    const closed = reduceSystem(other, 'back', 4100), owner = other.system.runtime.active;
+    assert.equal(closed.system.runtime.systemApplet, owner);
+    assert.equal(closed.system.runtime.instances[owner].state.webFooterClose, true);
+    assert.equal(closed.system.runtime.instances[owner].state.notificationsFooterClose, undefined);
   }
 });
 

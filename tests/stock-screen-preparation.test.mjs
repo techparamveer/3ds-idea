@@ -18,7 +18,7 @@ const layout=url(compile('stock-screen-layout')
  .replace("'./camera-browse.ts'",JSON.stringify(new URL('../src/os/camera-browse.ts',import.meta.url).href))
  .replace("'./stock-manual-index.ts'",JSON.stringify(url('export const manualPageZeroAvailable=()=>false;'))));
 source=source.replace("'./stock-native-personal-tools'",JSON.stringify(url(compile('stock-native-personal-tools').replace("'./friends-footer-close-assets.ts'",JSON.stringify(new URL('../src/os/friends-footer-close-assets.ts',import.meta.url).href)).replace("'./native-layout'",JSON.stringify(url(compile('native-layout')))).replace("'./stock-screen-layout'",JSON.stringify(layout)).replace("'./device-status-profile'",JSON.stringify(url(compile('device-status-profile')))))));
-source=source.replace("'./stock-native-web'",JSON.stringify(url("export const browserScreenPacks=[{url:'browser.json',alias:'browser',layouts:[],animations:[]}],miiverseScreenPacks=[{url:'miiverse.json',alias:'miiverse',layouts:[],animations:[]}];export const drawNativeWebFrame=()=>false;export const browserHudClock=()=>null;")));
+source=source.replace("'./stock-native-web'",JSON.stringify(url("export const browserScreenPacks=[{url:'browser.json',alias:'browser',layouts:[],animations:[]}],miiverseScreenPacks=[{url:'miiverse.json',alias:'miiverse',layouts:[],animations:[]}];export const drawNativeWebFrame=(renderer,top,bottom,view,...args)=>['browser','miiverse'].includes(view.appId)?globalThis.__nativeTestDraw?.(top,bottom,...args)??false:false;export const browserHudClock=()=>null;")));
 source=source.replace("'./stock-native-services'",JSON.stringify(url('export const nativeServiceView=()=>null;export const drawNativeServiceFrame=()=>false;export const zoneClock=()=>({hour:"00",minute:"00",frame:0});export const eshopWelcomePose=()=>null;export const eshopHudClock=()=>({year:0,month:1,day:1,hour:0,minute:0});')));
 source=source.replace("'./stock-native-helpers'",JSON.stringify(url("export const nativeHelperView=view=>view.appId==='manual'?{view:'manual',titleId:'0004001000022400',packs:[{url:'manual.json',alias:'manual',layouts:[],animations:[]}]}:null;export const drawNativeHelperFrame=(renderer,top,bottom,view,...args)=>view.appId==='manual'?globalThis.__nativeTestDraw?.(top,bottom,...args)??false:false;")));
 source=source.replace("'./stock-native-selectors'",JSON.stringify(url('export const nativeSelectorView=()=>null;export const drawNativeSelectorFrame=()=>false;')));
@@ -97,6 +97,26 @@ function paintFixture(options={}){
  return {screen,v,font,top,bottom,draw,drawAt,dispose(){screen.dispose();globalThis.document=old;delete globalThis.__nativeTestDraw;}};
 }
 const nativeAssets=()=>({renderer:{},diagnostics:[],disposals:0,dispose(){this.disposals++;}});
+for(const appId of ['browser','miiverse'])test(`${appId} feedback options key the actual stock pair; current resources require two successful outward copies`,async()=>{
+ const f=paintFixture(),v=view(appId),owner=appId+':1';let draws=0,frame=0;
+ const draw=()=>f.screen.draw(f.top,f.bottom,v,owner,f.font,undefined,new Date(0),0,undefined,undefined,undefined,undefined,undefined,undefined,{frame});
+ globalThis.__nativeTestDraw=(t,b,options)=>{draws++;assert.equal(options.webFooterClose.frame,frame);t.fillText('body');b.fillText('feedback:'+frame);return true;};
+ try{
+  assert.equal(draw(),false);assert.equal(f.screen.webFooterCloseResources(owner),undefined);
+  await flush();const assets=nativeAssets();calls[0].resolve(assets);await flush();
+  assert.equal(draw(),true);const first=f.screen.preparedPair(owner);assert.equal(f.screen.webFooterCloseResources(owner),assets.renderer);
+  assert.equal(draw(),true);assert.equal(draws,1);assert.notEqual(f.screen.preparedPair(owner),first);
+  frame=5;assert.equal(draw(),true);assert.equal(draws,2);assert.notEqual(f.screen.preparedPair(owner).key,first.key);
+  const copy=f.bottom.drawImage;f.bottom.drawImage=()=>{throw Error('lower copy failed');};
+  assert.throws(draw,/lower copy failed/);assert.equal(f.screen.webFooterCloseResources(owner),undefined);
+  f.bottom.drawImage=copy;assert.equal(draw(),true);assert.equal(draws,2);assert.equal(f.screen.webFooterCloseResources(owner),assets.renderer);
+  assert.equal(f.screen.webFooterCloseResources(appId+':stale'),undefined);
+  frame=4;globalThis.__nativeTestDraw=()=>false;assert.equal(draw(),false);assert.equal(f.screen.webFooterCloseResources(owner),undefined);
+  assert.equal(f.screen.retry(),true);assert.equal(draw(),false);await flush();
+  f.screen.sync(null);const late=nativeAssets();calls[1].resolve(late);await flush();assert.equal(late.disposals,1);
+  assert.equal(f.screen.webFooterCloseResources(owner),undefined);f.screen.dispose();assert.equal(f.screen.webFooterCloseResources(owner),undefined);
+ }finally{f.dispose();}
+});
 for(const appId of ['manual','sound'])test(`${appId} late image revision invalidates a published pair until both current screens are copied`,async()=>{
  const oldImage=globalThis.Image,images=[],owner=appId+':1',changedPairs=[];
  globalThis.Image=class{complete=false;naturalWidth=0;naturalHeight=0;ctx={marks:[['image','late']]};constructor(){images.push(this);}};

@@ -50,7 +50,7 @@ export type NotesIntroPaint =
     };
 export type CameraStereoFit={kind:'camera-stereo';originalWidth:number;originalHeight:number;parallaxPixels:number};
 type MediaFit='contain'|'camera-mono'|CameraStereoFit;
-export type StockScreenPaintOptions={settingsHud?:SettingsHudPose;soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground;font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number,fit?:MediaFit)=>boolean;nativeImage?:(url:string)=>NativePixels|undefined;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number;notesIntro?:NotesIntroPaint;healthEntryFrame?:number;notesFooterClose?:NotesFooterClosePaint;notificationsFooterClose?:{frame:number};manualFooterClose?:{frame:number};friendsFooterClose?:FriendsFooterClosePaint};
+export type StockScreenPaintOptions={settingsHud?:SettingsHudPose;soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground;font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number,fit?:MediaFit)=>boolean;nativeImage?:(url:string)=>NativePixels|undefined;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number;notesIntro?:NotesIntroPaint;healthEntryFrame?:number;notesFooterClose?:NotesFooterClosePaint;notificationsFooterClose?:{frame:number};manualFooterClose?:{frame:number};friendsFooterClose?:FriendsFooterClosePaint;webFooterClose?:{frame:number}};
 /** Portfolio media placement; native UI graphics continue through the layout renderer. */
 export function drawStockMediaImage(ctx:Context,image:CanvasImageSource,sourceWidth:number,sourceHeight:number,x:number,y:number,w:number,h:number,fit:MediaFit='contain'){
   if(typeof fit==='object'&&fit.kind==='camera-stereo'&&w===400&&h===240&&sourceWidth>=480&&sourceHeight>=240&&sourceWidth<=2*sourceHeight&&fit.originalWidth>=480&&fit.originalHeight>=240&&Number.isFinite(fit.parallaxPixels)){
@@ -340,6 +340,12 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         &&published===state.assets.renderer&&preparedPair?.owner===nextOwner&&preparedPair.appId==='notifications'
         &&preparedPair.renderer===published&&preparedPair.key===painted?published:undefined;
     },
+    webFooterCloseResources(nextOwner:string):object|undefined{
+      const state=session.getState();
+      return !disposed&&!failure&&complete&&roomReady&&owner===nextOwner&&state.status==='ready'
+        &&published===state.assets.renderer&&preparedPair?.owner===nextOwner&&(preparedPair.appId==='browser'||preparedPair.appId==='miiverse')
+        &&preparedPair.renderer===published&&preparedPair.key===painted?published:undefined;
+    },
     manualFooterCloseResources(nextOwner:string):object|undefined{
       const state=session.getState();
       return !disposed&&!failure&&complete&&roomReady&&owner===nextOwner&&state.status==='ready'
@@ -362,7 +368,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     revokeNotesBootCoverCandidate(){notesBootCandidate=undefined;notesBootGate.revoke();},
     retry(){if(!disposed&&failure){reset();changed();return true;}return false;},
     /** True only when the published pair is this owner's complete application frame. */
-    draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont,suspendedCapture?:SuspendedCapture,date=new Date(),elapsedMs=0,notesIntro?:NotesIntroPaint,verification?:{sampleCalendar?:boolean},notesFooterClose?:NotesFooterClosePaint,notificationsFooterClose?:{frame:number},manualFooterClose?:{frame:number},friendsFooterClose?:FriendsFooterClosePaint):boolean{
+    draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont,suspendedCapture?:SuspendedCapture,date=new Date(),elapsedMs=0,notesIntro?:NotesIntroPaint,verification?:{sampleCalendar?:boolean},notesFooterClose?:NotesFooterClosePaint,notificationsFooterClose?:{frame:number},manualFooterClose?:{frame:number},friendsFooterClose?:FriendsFooterClosePaint,webFooterClose?:{frame:number}):boolean{
       cameraTextSample=null;
       if(disposed)return false;
       preparedPair=undefined;notesBootCandidate=undefined;
@@ -410,7 +416,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         ?(reducedMotion||healthEntry!.complete?20:healthEntry!.origin===null?0:healthEntrySceneInFrame(healthElapsed-healthEntry!.origin))
         :undefined;
       const healthPaintKey=view.appId==='health-safety'?[healthTopLoopFrame(healthElapsed,reducedMotion),healthEntryFrame]:null;
-      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,notificationsHudKey,notesHudKey,browserHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey,notesFooterClose,notificationsFooterClose,manualFooterClose,friendsFooterClose]);
+      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,notificationsHudKey,notesHudKey,browserHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey,notesFooterClose,notificationsFooterClose,manualFooterClose,friendsFooterClose,webFooterClose]);
       let textRendered=false;
       if(painted!==key||paintedFont!==font){
         cameraTextPair=null;
@@ -425,7 +431,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
             if(notesFooterClose&&state.status==='ready')validateNotesFooterCloseAssets(state.assets.renderer.packs);
             if(notificationsFooterClose&&state.status==='ready')validateNotificationsFooterFeedbackAssets(state.assets.renderer.packs.notifications);
             if(manualFooterClose&&state.status==='ready')validateManualFooterFeedbackAssets(state.assets.renderer.packs['manual-footer-close']);
-            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,nativeImage,soundRoom:options.soundRoom,cameraShoot:options.cameraShoot,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs,notesIntro,settingsHud:hud??undefined,healthEntryFrame,notesFooterClose,notificationsFooterClose,manualFooterClose,friendsFooterClose});
+            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,nativeImage,soundRoom:options.soundRoom,cameraShoot:options.cameraShoot,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs,notesIntro,settingsHud:hud??undefined,healthEntryFrame,notesFooterClose,notificationsFooterClose,manualFooterClose,friendsFooterClose,webFooterClose});
             const source=probe?.endTextDiagnostic();
             if(source){cameraTextPair=immutableTextDiagnostic({owner:nextOwner,generation:textGeneration,pairId:++textPairId,stockKey:key.length<=65536?key:null,source});textRendered=true;}
             published=state.status==='ready'?state.assets.renderer:undefined;complete=true;

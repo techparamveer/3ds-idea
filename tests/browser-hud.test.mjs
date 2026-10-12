@@ -32,6 +32,7 @@ const compile=name=>ts.transpileModule(readFileSync(new URL(`../src/os/${name}.t
 }).outputText;
 const url=source=>'data:text/javascript;base64,'+Buffer.from(source).toString('base64');
 const web=await import(url(compile('stock-native-web')
+  .replace("'./web-footer-close-assets.ts'", JSON.stringify(new URL('../src/os/web-footer-close-assets.ts', import.meta.url).href))
   .replace("'./device-status-profile'", JSON.stringify(url(compile('device-status-profile'))))
   .replace("'./native-layout'", JSON.stringify(url(compile('native-layout'))))));
 const title=selection.titles['0004003000009d02'];

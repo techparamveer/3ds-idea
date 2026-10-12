@@ -28,7 +28,13 @@ test('only the no-caller main-list footer requests presentation and retains the 
   assert.equal(returned.system.runtime.systemApplet, null);
   for (const appId of ['notifications', 'browser', 'miiverse']) {
     const other = invokeSystemApplet(tickSystem(createPortfolioState(), 3001), appId, 4000);
-    assert.equal(reduceSystem(other, 'back', 4100).system.runtime.systemApplet, null);
+    const closed = reduceSystem(other, 'back', 4100), owner = other.system.runtime.active;
+    if (appId === 'notifications') assert.equal(closed.system.runtime.systemApplet, null);
+    else {
+      assert.equal(closed.system.runtime.systemApplet, owner);
+      assert.equal(closed.system.runtime.instances[owner].state.webFooterClose, true);
+      assert.equal(closed.system.runtime.instances[owner].state.notesFooterClose, undefined);
+    }
   }
 });
 

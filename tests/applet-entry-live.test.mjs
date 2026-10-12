@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import ts from 'typescript';
-import { createPortfolioState, tickSystem, invokeSystemApplet, reduceSystem, launchHomeShortcut, dispatchSystemEvent, releaseSystemInputs, touchSystem, completeNotesFooterClose, completeNotificationsFooterClose, completeFriendsFooterClose } from '../src/os/system.ts';
+import { createPortfolioState, tickSystem, invokeSystemApplet, reduceSystem, launchHomeShortcut, dispatchSystemEvent, releaseSystemInputs, touchSystem, completeNotesFooterClose, completeNotificationsFooterClose, completeFriendsFooterClose, completeWebFooterClose } from '../src/os/system.ts';
 import { enableHomeControls, selectHomeToolbarControlTouch } from '../src/os/home-controls.ts';
 import { escapeUnreadyNativeScreen } from '../src/os/native-screen-system.ts';
 import { createNativeScreenInputGate } from '../src/os/native-screen-input.ts';
@@ -56,16 +56,16 @@ async function fixture(run,withFirmware=true){
  const graphics={ready:Promise.resolve(),selectedApp(){},syncStockView(){},readSuspendedCapture(runtime){return {status:'ready',owner:runtime.application,generation:1};},
   stockStatus(state){return state.system.phase==='app'&&state.system.runtime.instances[state.system.runtime.active]?.appId==='game-notes'&&status==='ready'&&notesStep<21?'loading':status;},
   stockFailure:()=>status==='error'?Error('Destination failed'):null,retryStockScreen(){status='ready';pair=undefined;return true;},
-  preparedStockPair:()=>pair,notesFooterCloseResources:()=>pair?incomingResources:undefined,notificationsFooterCloseResources:()=>pair&&incomingAvailable?incomingResources:undefined,setAppletEntryCovered(owner){covered=owner;events.push({name:'covered',args:[owner]});},
+  webFooterCloseResources:()=>pair&&incomingAvailable?incomingResources:undefined,preparedStockPair:()=>pair,notesFooterCloseResources:()=>pair?incomingResources:undefined,notificationsFooterCloseResources:()=>pair&&incomingAvailable?incomingResources:undefined,setAppletEntryCovered(owner){covered=owner;events.push({name:'covered',args:[owner]});},
   appletIncomingResources(state){const owner=state.system.runtime.active,appId=state.system.runtime.instances[owner]?.appId;return pair&&preparedOwner===owner&&incomingAvailable&&['friends','notifications'].includes(appId)?incomingResources:undefined;},
   drawAppletIncoming(state,t,b,frame,resources){if(!pair||preparedOwner!==state.system.runtime.active||resources!==incomingResources||!incomingAvailable||incomingFailure)return false;t.record('incoming-upper',[frame,resources]);b.record('incoming-lower',[frame,resources]);return true;},
   revokeNotesBootCoverCandidate(){events.push({name:'notes-revoke',args:[]});},
   presentNotesBootCover(state){if(covered||status!=='ready'||state.system.runtime.instances[state.system.runtime.active]?.appId!=='game-notes')return false;notesStep++;return true;},
   notesBootCoverActive:()=>notesStep<21,banner(){},menuIcon(){},menuArtwork(){},
-  overlay(t,b,state,_time,_reduced,_native,_date,_verification,_defer,notesClose,notificationsClose,_manualClose,friendsClose){pair=status==='ready'&&copyReady?{}:undefined;preparedOwner=state.system.runtime.active;t.record('destination-upper');b.record('destination-lower');if(notesClose)t.record('notes-close',[notesClose]);if(notificationsClose)t.record('notifications-feedback',[notificationsClose]);if(friendsClose)t.record('friends-close',[friendsClose]);if(state.system.runtime.instances[state.system.runtime.active]?.appId==='game-notes')t.record('notes-step',[notesStep,covered]);},dispose(){pair=undefined;},
+  overlay(t,b,state,_time,_reduced,_native,_date,_verification,_defer,notesClose,notificationsClose,_manualClose,friendsClose,webClose){pair=status==='ready'&&copyReady?{}:undefined;preparedOwner=state.system.runtime.active;t.record('destination-upper');b.record('destination-lower');if(notesClose)t.record('notes-close',[notesClose]);if(notificationsClose)t.record('notifications-feedback',[notificationsClose]);if(friendsClose)t.record('friends-close',[friendsClose]);if(webClose)t.record('web-close',[webClose]);if(state.system.runtime.instances[state.system.runtime.active]?.appId==='game-notes')t.record('notes-step',[notesStep,covered]);},dispose(){pair=undefined;},
  };
  Object.assign(globalThis,{document:{createElement:canvas,fonts:{add(){}}},Image:class {decode(){return Promise.resolve();}},FontFace:class {load(){return Promise.resolve(this);}},__appletGraphics:graphics});
- const presenter=new Proxy({pressOffset:0,tilePressOffset:()=>0,folderChild(_ctx,_state,_empty,draw){draw(1);return true;},notesFooterReturnLabel:()=>({text:'HOME Menu'}),notesFooterReturn(t,b,frame){t.record('notes-return-upper',[frame]);b.record('notes-return-lower',[frame]);return !coverFailure;},notificationsFooterCover(t,b,kind,frame){t.record('notifications-'+kind+'-upper',[frame]);b.record('notifications-'+kind+'-lower',[frame]);return !coverFailure;},appletEntry(t,b,pose){const name=pose.phase==='in'?'common-incoming':'cover';t.record(name+'-upper',[pose]);b.record(name+'-lower',[pose]);return !coverFailure;}},{get:(target,key)=>key in target?target[key]:()=>true});
+ const presenter=new Proxy({pressOffset:0,tilePressOffset:()=>0,folderChild(_ctx,_state,_empty,draw){draw(1);return true;},notesFooterReturnLabel:()=>({text:'HOME Menu'}),notesFooterReturn(t,b,frame){t.record('notes-return-upper',[frame]);b.record('notes-return-lower',[frame]);return !coverFailure;},webFooterCover(t,b,kind,frame){t.record('web-'+kind+'-upper',[frame]);b.record('web-'+kind+'-lower',[frame]);return !coverFailure;},notificationsFooterCover(t,b,kind,frame){t.record('notifications-'+kind+'-upper',[frame]);b.record('notifications-'+kind+'-lower',[frame]);return !coverFailure;},appletEntry(t,b,pose){const name=pose.phase==='in'?'common-incoming':'cover';t.record(name+'-upper',[pose]);b.record(name+'-lower',[pose]);return !coverFailure;}},{get:(target,key)=>key in target?target[key]:()=>true});
  const assets=()=>({presenter,sharedFont:{draw(){}},dispose(){},diagnostics:[],titleIcons:new Map([['0004001000022400',{}]]),titleDescriptions:new Map([['0004001000022400','Nintendo 3DS Camera']])});
  const screens=createScreens({firmwareAssets:withFirmware?assets():undefined,drawHomeBackground:()=>true,drawSuspendedBackground:()=>true});
  const paint=(state,step,receipt=true,verification)=>{
@@ -74,6 +74,89 @@ async function fixture(run,withFirmware=true){
  };
  try{await screens.ready;await run({screens,paint,events,canvases,assets,graphics,setStatus(value){status=value;if(value!=='ready')pair=undefined;},failCover:value=>coverFailure=value,setCopyReady:value=>copyReady=value,setIncomingAvailable:value=>incomingAvailable=value,failIncoming:value=>incomingFailure=value,replaceIncomingResources(){incomingResources={};},replacePair(){pair={};},notesStep:()=>notesStep,covered:()=>covered});}
  finally{screens.dispose();for(const [key,descriptor]of saved){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}}
+}
+
+for(const appId of ['browser','miiverse']){
+test(appId+': actual Web compositor retains first/repeat Close through paired common cover and HOME reveal/handoff',async()=>{
+ await fixture(({screens,paint,events,setCopyReady,setIncomingAvailable,replaceIncomingResources})=>{
+  let homeState=home(appId);
+  for(let cycle=0;cycle<2;cycle++){
+   let state=open(homeState,appId),step=cycle*200;
+   screens.skipAppletEntryForAccessibilityShortcut(state);paint(state,step++);
+   const owner=state.system.runtime.active;state=touchSystem(state,appId==='browser'?53:288,226,6401);
+   const receipt=(kind,frame)=>{
+    const result=paint(state,step,false);
+    assert.deepEqual(result?.webClose,{kind,frame,owner,adaptation:true},String(screens.stockFailure()));
+    assert.equal(result.appletEntry,undefined);
+    if(kind==='feedback'||kind==='out')assert.deepEqual(events.find(e=>e.name==='web-close').args,[{frame:kind==='feedback'?frame:5}]);
+    if(kind==='out'||kind==='in'){
+     const upper=events.findIndex(e=>e.name==='web-'+kind+'-upper'),lower=events.findIndex(e=>e.name==='web-'+kind+'-lower');
+     assert.ok(upper>events.findIndex(e=>e.name==='destination-lower'));assert.ok(lower>upper);assert.deepEqual(events[upper].args,[frame]);
+    }
+    return screens.presentWebFooterClose(state,ms(step++));
+   };
+   for(let frame=0;frame<6;frame++)assert.equal(receipt('feedback',frame),null);
+   if(cycle===0){
+    setCopyReady(false);assert.equal(paint(state,step++,false)?.webClose,undefined);assert.equal(screens.presentWebFooterClose(state,ms(step)),null);
+    setCopyReady(true);setIncomingAvailable(false);assert.equal(paint(state,step++,false)?.webClose,undefined);
+    setIncomingAvailable(true);replaceIncomingResources();assert.equal(paint(state,step++,false)?.webClose,undefined);
+    for(let frame=0;frame<6;frame++)receipt('feedback',frame);
+   }
+   for(let frame=0;frame<20;frame++){assert.equal(receipt('out',frame),null);assert.ok(state.system.runtime.instances[owner]);}
+   const terminal=paint(state,step,false);assert.equal(terminal.webClose.frame,20);
+   screens.revokeNotesFooterCloseCandidate();assert.equal(screens.presentWebFooterClose(state,ms(step++)),null);
+   receipt('out',19);assert.equal(receipt('out',20),owner);
+   state=completeWebFooterClose(state,owner,ms(step));
+   for(let frame=0;frame<=20;frame++){assert.equal(receipt('in',frame),null);assert.equal(screens.homeAppletFooterBannerReady(state),false);}
+   assert.equal(screens.stockStatus(state),'loading');receipt('handoff',null);
+   assert.equal(screens.homeAppletFooterBannerReady(state),true);assert.equal(screens.webFooterCloseActive(state),false);
+   homeState=state;
+  }
+ });
+});
+
+test(appId+': Web accepted HOME return survives firmware replacement and still requires a fresh reveal/handoff',async()=>{
+ await fixture(({screens,paint,assets})=>{
+  let state=open(home(appId),appId),step=0;
+  screens.skipAppletEntryForAccessibilityShortcut(state);paint(state,step++);state=touchSystem(state,appId==='browser'?53:288,226,6401);
+  const owner=state.system.runtime.active;
+  const receipt=(kind,frame)=>{const result=paint(state,step,false);assert.deepEqual(result?.webClose,{kind,frame,owner,adaptation:true});return screens.presentWebFooterClose(state,ms(step++));};
+  for(let frame=0;frame<6;frame++)receipt('feedback',frame);
+  for(let frame=0;frame<20;frame++)receipt('out',frame);
+  assert.equal(receipt('out',20),owner);state=completeWebFooterClose(state,owner,ms(step));
+  for(let frame=0;frame<=7;frame++)receipt('in',frame);
+  assert.equal(paint(state,step++,false).webClose.frame,8);
+  screens.setFirmwareAssets(assets());assert.equal(screens.presentWebFooterClose(state,ms(step)),null);
+  assert.equal(screens.homeAppletFooterBannerReady(state),false);
+  assert.equal(paint(state,step++,false)?.webClose,undefined,'replacement invalidates the old resource receipt');
+  assert.equal(screens.homeAppletFooterBannerReady(state),false);
+  receipt('in',7);
+  for(let frame=8;frame<=20;frame++)receipt('in',frame);
+  assert.equal(screens.homeAppletFooterBannerReady(state),false);receipt('handoff',null);
+  assert.equal(screens.homeAppletFooterBannerReady(state),true);
+ });
+});
+
+test(appId+': Web terminal rejects replaced, hidden, suspended and disposed publication; failed HOME cover permits recovery',async()=>{
+ await fixture(({screens,paint,replacePair,failCover})=>{
+  let state=open(home(appId),appId);screens.skipAppletEntryForAccessibilityShortcut(state);paint(state,0);
+  state=reduceSystem(state,'back',6401);const owner=state.system.runtime.active;screens.setReducedMotion(true);
+  paint(state,1,false);screens.presentWebFooterClose(state,ms(1));
+  paint(state,2,false);replacePair();assert.equal(screens.presentWebFooterClose(state,ms(2)),null);
+  paint(state,3,false);document.hidden=true;assert.equal(screens.presentWebFooterClose(state,ms(3)),null);document.hidden=false;
+  paint(state,4,false);const suspended=reduceSystem(state,'home',6500);assert.equal(screens.presentWebFooterClose(suspended,ms(4)),null);
+  paint(state,5,false);assert.equal(screens.presentWebFooterClose(state,ms(5)),owner);
+  state=completeWebFooterClose(state,owner,ms(6));failCover(true);paint(state,6,false);
+  assert.match(String(screens.stockFailure()),/web HOME cover/);assert.equal(screens.presentWebFooterClose(state,ms(6)),null);
+  assert.equal(screens.cancelWebFooterClose(state),true);assert.equal(screens.homeAppletFooterBannerReady(state),true);
+ });
+ await fixture(({screens,paint})=>{
+  let state=open(home(appId),appId);screens.skipAppletEntryForAccessibilityShortcut(state);paint(state,0);state=touchSystem(state,appId==='browser'?53:288,226,6401);
+  screens.setReducedMotion(true);paint(state,1,false);screens.presentWebFooterClose(state,ms(1));paint(state,2,false);screens.dispose();
+  assert.equal(screens.presentWebFooterClose(state,ms(2)),null);assert.ok(state.system.runtime.instances[state.system.runtime.active]);
+ });
+});
+
 }
 
 test('actual Friends compositor retains first/repeat Close through paired title cover and HOME reveal/handoff',async()=>{

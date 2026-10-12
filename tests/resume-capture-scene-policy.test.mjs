@@ -99,6 +99,35 @@ test('Friends Close stages survive actual cadence, state-driven and restoration 
   }
 });
 
+test('Browser/Miiverse Close stages survive actual cadence, state-driven and restoration paint receipts without another pixel read', async () => {
+  for (const route of ['cadence', 'state-driven', 'restore0', 'restore1']) for (const kind of ['feedback', 'out', 'in', 'handoff']) {
+    const webClose = { kind, frame: kind === 'out' ? 20 : 0, owner: 'browser:1', adaptation: true };
+    const expected = { ...webClose }, f = fixture({ webClose });
+    try {
+      f.recorder.start();
+      if (route.startsWith('restore')) f.scene.restore(Number(route.at(-1)));
+      else f.scene.paintScreens(1090, route === 'state-driven');
+      assert.deepEqual(JSON.parse(f.host.dataset.screenPaint).webClose, expected);
+      webClose.owner = 'later'; webClose.frame = 99;
+      f.scene.renderFrame(); f.recorder.stop(); await f.recorder.save();
+      assert.equal(f.bodies.length, 1);
+      assert.deepEqual(f.bodies[0].paint.webClose, expected);
+      assert.deepEqual(f.bodies[0].receipt.paint.webClose, expected);
+      assert.equal(f.paintCalls(), 1); assert.equal(f.pairReads(), 1);
+      f.setResult(undefined); f.scene.paintScreens(1120);
+      assert.equal(JSON.parse(f.host.dataset.screenPaint).webClose, null);
+    } finally { f.recorder.dispose(); }
+  }
+  for (const options of [{ hidden: true }, { contextLost: true }, { diagnostics: false }]) {
+    const f = fixture({ webClose: { kind: 'out', frame: 20, owner: 'browser:1', adaptation: true } }, options);
+    try {
+      f.recorder.start(); f.scene.paintScreens(1090); f.scene.renderFrame(); f.recorder.stop(); await f.recorder.save();
+      assert.equal(f.pairReads(), 0); assert.equal(f.bodies.length, 0);
+      if (options.diagnostics === false) assert.equal(f.host.dataset.screenPaint, undefined);
+    } finally { f.recorder.dispose(); }
+  }
+});
+
 test('same-paint Resume footer and departure survive scene receipt and real recorder serialization', async () => {
   for (const [kind, frame, owner, stateDriven] of [['footer', 14, 'health:1', false], ['departure', 40, 'health:2', true]]) {
     const resume = { kind, frame, owner, adaptation: true }, expected = { ...resume };

@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import ts from 'typescript';
-import { completeFriendsFooterClose, completeManualFooterClose, completeNotesFooterClose, completeNotificationsFooterClose, createPortfolioState, tickSystem, invokeSystemApplet, touchSystem } from '../src/os/system.ts';
+import { completeWebFooterClose, completeFriendsFooterClose, completeManualFooterClose, completeNotesFooterClose, completeNotificationsFooterClose, createPortfolioState, tickSystem, invokeSystemApplet, touchSystem } from '../src/os/system.ts';
+import { createWebFooterClosePresentation } from '../src/os/web-footer-close.ts';
 import { createFriendsFooterClosePresentation } from '../src/os/friends-footer-close.ts';
 import { manualFooterCloseIdentity } from '../src/os/manual-footer-close.ts';
 import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostView, getHomeBannerHostBackgroundFrame, resetHomeBannerPrimary, resolveHomeBannerHostSelection } from '../src/os/home-banner-host.ts';
@@ -25,6 +26,7 @@ const loadScene=new Function('runtime','banner',`
  const completeNotificationsFooterClose=runtime.completeNotificationsFooterClose;
  const completeManualFooterClose=runtime.completeManualFooterClose;
  const completeFriendsFooterClose=runtime.completeFriendsFooterClose;
+ const completeWebFooterClose=runtime.completeWebFooterClose;
  const start=1000,scene={updateMatrixWorld(){}},camera={updateProjectionMatrix(){}},schedule={plan:()=>({shadows:false}),presented(){}};
  const poseSample=()=>({}),fitConsole=()=>{},publishProjectedTargets=()=>{},paintScreens=()=>{};
  const revokeTerminalPublications=()=>screens.revokeAppletEntryCandidate();
@@ -42,20 +44,20 @@ const screensAst=ts.createSourceFile('screens.ts',screensSource,ts.ScriptTarget.
 function findReady(node){if(ts.isFunctionDeclaration(node)&&node.name?.text==='homeAppletFooterBannerReady')readyFunction=node;ts.forEachChild(node,findReady);}
 findReady(screensAst);
 const readyCode=ts.transpileModule(readyFunction.getText(screensAst),{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
-const bindReady=new Function('notesClosePresentation','notificationsClosePresentation','friendsClosePresentation',`${readyCode};const appletGeneration=2,friendsCloseGeneration=2,manualCloseGeneration=0,manualClosePresentation={active:()=>false};return homeAppletFooterBannerReady;`);
+const bindReady=new Function('notesClosePresentation','notificationsClosePresentation','friendsClosePresentation','webClosePresentation',`${readyCode};const appletGeneration=2,friendsCloseGeneration=2,webCloseGeneration=2,manualCloseGeneration=0,manualClosePresentation={active:()=>false};return homeAppletFooterBannerReady;`);
 const bindObserver=new Function('runtime','banner',`
  const {crossHomeBannerBoundary,getHomeBannerHostView,resolveHomeBannerHostSelection,resetHomeBannerPrimary}=banner;
  const {screens}=runtime;
  let state=runtime.state,bannerHost=runtime.bannerHost,bannerObservedPhase=state.system.phase,bannerEntryFooterBootSince=null,lastBannerRestartBootSince=null,bannerLabelFailure=false;
  const homeClockSuspended=false,bannerClock=()=>({...bannerHost.clock,updateCount:runtime.count}),isHomeSwitchPresentationActive=()=>false,homeTitleBannerKind=()=>null;
- const folderBanner={syncStockTitles(){},status:()=>({memoReady:true,friendReady:true,newsReady:true})};
+ const folderBanner={syncStockTitles(){},status:()=>({memoReady:true,friendReady:true,newsReady:true,webReady:true,miiverseReady:true})};
  ${observe}
  return (next,count)=>{state=next;runtime.count=count;observeFolderBanner();return bannerHost;};
 `);
 const bannerApi={crossHomeBannerBoundary,getHomeBannerHostView,resolveHomeBannerHostSelection,resetHomeBannerPrimary};
 function selectedBanner(focus){
  let host=createHomeBannerHost({generation:'test',updateCount:0},{managerInhibited:false,sceneInhibited:false,loadInhibited:false,nativeWorkerReady:true,resourceReady:null});
- host=crossHomeBannerBoundary(host,host.clock,{selection:{kind:'toolbar',focus,category:focus===1?5:focus===2?4:6}});
+ host=crossHomeBannerBoundary(host,host.clock,{selection:{kind:'toolbar',focus,category:[0,5,4,6,7,8][focus]}});
  host=crossHomeBannerBoundary(host,host.clock,{inputs:{...host.inputs,resourceReady:getHomeBannerHostView(host).resourceTicket}});
  return crossHomeBannerBoundary(host,{...host.clock,updateCount:13});
 }
@@ -64,13 +66,15 @@ for(const [appId,focus,createPresentation,complete] of [
  ['game-notes',1,createNotesFooterClosePresentation,completeNotesFooterClose],
  ['friends',2,createFriendsFooterClosePresentation,completeFriendsFooterClose],
  ['notifications',3,createNotificationsFooterClosePresentation,completeNotificationsFooterClose],
+ ['browser',4,createWebFooterClosePresentation,completeWebFooterClose],
+ ['miiverse',5,createWebFooterClosePresentation,completeWebFooterClose],
 ])for(const reduced of [false,true])test(`actual ${appId} first/repeat footer return retires only its primary and waits for accepted HOME handoff (reduced ${reduced})`,()=>{
  const presentation=createPresentation(),other=createPresentation();
- const ready=bindReady(appId==='game-notes'?presentation:other,appId==='notifications'?presentation:other,appId==='friends'?presentation:other);
+ const ready=bindReady(appId==='game-notes'?presentation:other,appId==='notifications'?presentation:other,appId==='friends'?presentation:other,['browser','miiverse'].includes(appId)?presentation:other);
  let home=selectHomeToolbarControlTouch(enableHomeControls(tickSystem(createPortfolioState(),3001)),focus),host=selectedBanner(focus),step=0;
  const now=()=>5000+step++*1000/60+.01;
  for(let cycle=0;cycle<2;cycle++){
-  let state=touchSystem(invokeSystemApplet(home,appId,6400+cycle*1000),160,226,6401+cycle*1000);
+  let state=touchSystem(invokeSystemApplet(home,appId,6400+cycle*1000),appId==='browser'?53:appId==='miiverse'?288:160,226,6401+cycle*1000);
   const owner=state.system.runtime.active,resources={},firmware={};
   function candidate(){const time=now(),pose=presentation.sample(state,2,time,true,reduced),pair={};assert.equal(presentation.bind(pose,pair,pose.kind==='feedback'||pose.kind==='out'?resources:firmware),true);return {time,pose,pair};}
   function accept(value){return presentation.present(value.pose,state,2,value.time,true,value.pair,value.pose.kind==='feedback'||value.pose.kind==='out'?resources:firmware);}
@@ -85,11 +89,12 @@ for(const [appId,focus,createPresentation,complete] of [
   const screens=new Proxy({
    presentNotesFooterClose:current=>appId==='game-notes'?presentation.present(endpoint.pose,current,2,endpoint.time,true,endpoint.pair,resources):null,
    presentNotificationsFooterClose:current=>appId==='notifications'?presentation.present(endpoint.pose,current,2,endpoint.time,true,endpoint.pair,resources):null,
+   presentWebFooterClose:current=>['browser','miiverse'].includes(appId)?presentation.present(endpoint.pose,current,2,endpoint.time,true,endpoint.pair,resources):null,
    presentFriendsFooterClose:current=>appId==='friends'?presentation.present(endpoint.pose,current,2,endpoint.time,true,endpoint.pair,resources):null,
   },{get:(target,key)=>target[key]??(()=>null)});
   const run=load({document:{hidden:false},state,bannerHost:host,angle:100,topScreen:{visible:true},touchScreen:{visible:true},screens,
    renderer:{getContext:()=>({isContextLost:()=>false}),render(){}},performance:{now:()=>endpoint.time+1000},
-   completeNotesFooterClose:complete,completeNotificationsFooterClose:complete,completeFriendsFooterClose:complete});
+   completeNotesFooterClose:complete,completeNotificationsFooterClose:complete,completeFriendsFooterClose:complete,completeWebFooterClose:complete});
   run();state=run.state();host=run.banner();
   assert.equal(state.system.phase,'home');assert.equal(state.system.runtime.instances[owner],undefined);
   assert.equal(host.service,null);assert.equal(host.active,null);assert.equal(host.scope,scope);
@@ -122,7 +127,7 @@ for(const [appId,focus,createPresentation,complete] of [
   assert.equal(accept(handoff),null);assert.equal(ready(state),true);
   host=observeHost(state,count);assert.equal(getHomeBannerHostView(host).primary,null);
   for(let i=0;i<7&&getHomeBannerHostView(host).status!=='active';i++)host=observeHost(state,++count);
-  assert.deepEqual(getHomeBannerHostView(host).primary.selection,{kind:'toolbar',focus,category:focus===1?5:focus===2?4:6});
+  assert.deepEqual(getHomeBannerHostView(host).primary.selection,{kind:'toolbar',focus,category:[0,5,4,6,7,8][focus]});
   assert.equal(getHomeBannerHostView(host).primary.motion.scale,Math.fround(.8));
   for(let i=0;i<6;i++)host=observeHost(state,++count);
   assert.equal(getHomeBannerHostView(host).primary.motion.scale,1);

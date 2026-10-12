@@ -11,6 +11,20 @@ Record first/repeated Close and opening regression with ordinary inputs on the
 muted MacBook. Do not turn source identification, a static cover or a successful
 browser transition into native motion, input, timing or whole-flow acceptance.
 
+Reviewed candidate 0d6746d has four closed production windows with 1,087 pairs.
+Both Close routes show every integer feedback0..5 and outgoing/incoming0..20
+stage, then a distinct handoff. The first saved out20 opening checkpoints are
+fixed before comparison: candidate33/receipt729 against baseline44/1416, and
+candidate34/receipt2604 against baseline43/3078. Both LCDs are byte-exact in
+both comparisons. These are browser regression pairs, not native acceptance.
+Root's 15 chronological sheets and four comparisons cover the retained body,
+cover, HOME reveal and ready return. Preserve the different Camera-versus-Work
+HOME preparation and native no-Mii trigger/body. Audit e2a98a14 closes the
+candidate browser gate. Integration ea39e12 preserves exact committed source,
+asset, test and config equivalence, leaving the human edit unstaged. Keep the
+pre-integration candidate build identity explicit. Native post-integration
+comparison and exact timing/cadence acceptance remain open.
+
 ## Camera closure checkpoint
 
 The [combined context candidate](camera-lower-readback-2026-10-12.md) passes

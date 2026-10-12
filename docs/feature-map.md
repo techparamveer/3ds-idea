@@ -1,12 +1,19 @@
 # Feature map — 1:1 queue
 
-12 October AN-01: [Friend List baseline](friends-close-transition-2026-10-12.md)
-confirms both ordinary Close runs jump directly from the own card to HOME at
-sequence 28. Audit e487e2d1 validates all 1,397 pairs. Native audit 1ac25405
-closes selection, opening and no-Mii automatic-return evidence, not an ordinary
-footer Close comparison. A source-backed return fix is in its assigned worktree;
-review, tests, production recapture and integration remain pending. All helpers
-use GPT-6 Astra extra-high. All whole animation flows remain fail/unproven.
+12 October AN-01: [Friend List Close candidate](friends-close-transition-2026-10-12.md)
+0d6746d repairs the captured direct card-to-HOME jump using decrypted return
+clips. Source/build review e3456807 is closed. Four production windows save
+1,087 pairs; both Close runs have feedback, outgoing cover, separate HOME reveal
+and handoff. Both fixed opening out20 pairs exactly match the previous browser
+LCDs. Root inspects 15 chronological sheets and four comparison sheets. Closed
+audit e2a98a14 validates every triple/PNG. Reviewed source is integrated and pushed
+as ea39e12; source/public/tests/config equal the tested candidate. No fresh
+integrated build or matched native post-integration run is claimed.
+Focused 183 and independent 259+2 pass;
+full 2,770 pass with one known missing Camera PNG failure. Typechecks/build pass.
+Native audit 1ac25405 remains a different no-Mii automatic-return trigger/body,
+not an ordinary footer Close match. Helpers use GPT-6 Astra extra-high. All
+whole animation flows remain fail/unproven.
 
 12 October AN-04 update: [combined candidate add6d44](camera-lower-readback-2026-10-12.md)
 has exact first/repeated Camera browser closure, independently reviewed.

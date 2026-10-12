@@ -41,19 +41,70 @@ LCD pixels or native cadence. Root inspected selected bracket pages, not all
 
 The baseline uses generic Friends completion, without the guarded footer-close
 controller already used by Notes, Notifications and Manual. The read-only route
-map identifies this path and the existing Friends incoming pack. The worker's
-preliminary decrypted-code trace reports a return branch at `0x1d0164` selecting
+map identifies this path and the existing Friends incoming pack. The reviewed
+decrypted-code trace identifies a return branch at `0x1d0164` selecting
 `fri_title_menu`, the `FrdCmnFade_D/U` pair and the type-2 SceneOut helper at
-`0x1cce60`. This trace awaits independent review of the frozen candidate and
-does not establish the ordinary footer/no-Mii trigger mapping.
+`0x1cce60`. This is static source binding and does not establish the ordinary
+footer/no-Mii trigger mapping.
 
 The dedicated `codex/friends-close-transition-20261012` worktree, base `a1ca6f5`,
-is implementing the missing return using existing controller and converter
-patterns. Runtime review, required tests, production recapture and integration
-are pending. This record does not approve or deliver that candidate.
+has frozen candidate `0d6746d23e296d04de320ae5877606e67bf4a3b4`. Main Friends
+Close effects retain the owner through decoded Decide frames 0..5 and paired
+SceneOut frames 0..20. Only accepted outgoing frame 20 retires the owner. The
+existing HOME reveal then requires its own frames 0..20 and separate handoff
+before banner growth. Profile Back, caller-owned completion and unready escape
+keep their existing paths. Resource replacement preserves an accepted return
+while rejecting stale receipts. Same-paint capture metadata includes Friends.
+
+The only new resources are the two decoded SceneOut clips and original HOME
+label/provenance in the existing incoming pack. Existing layouts, textures,
+SceneIn clips, styles and font bindings are unchanged. Pack SHA-256 is
+`71aa6906925dc9b04ecea8b666d7360dc9e5f36280c39c275f382346891766f8`.
+The [source handoff](workstream-handoffs/friends-close-transition-20261012.md)
+maps the native title/version, content index, internal paths, hashes and converter.
+
+Source review `8ffc2372` and frozen-build review `e3456807` have no blockers.
+Worker focused 183 and independent 259+2 tests pass. Full tests have 2,770 pass,
+one unchanged missing historical Camera PNG failure, 102 skips and one TODO.
+Both typechecks and the final production build pass. Build
+`2-PE8STJtB8uO2e30W9ix`, manifest `099f28e1`, freezes 2,850 files / 154,952,980 bytes.
+All 229 build files and 2,621 source/public/test/config files independently match.
+
+Four ordinary muted MacBook candidate windows save 1,087 paired LCDs: first
+Open 276, first Close 274, repeated Open 280 and repeated Close 257. Root observes
+the HOME Menu return transition and ready selected-Friend HOME on both Close
+actions. All exports completed, the candidate tab/server closed, and the frozen
+build rehash stayed exact. Closed audit `e2a98a14` validates every triple and PNG,
+with no errors, warnings or fully black LCD. Both Close runs include every
+integer feedback 0..5 and outgoing/incoming 0..20 frame, plus a distinct handoff.
+Their outgoing20-to-incoming0 covered boundaries are byte-exact on both LCDs.
+Both fixed opening comparisons are also PNG/RGBA exact, with maximum delta 0.
+Opening retains some integer-frame sampling gaps; no dropped-frame cause or
+native cadence is inferred. Root inspection `742789b6` covers 15 chronological
+pages and all four fixed comparison sheets, not every saved frame.
+
+Reviewed source is integrated and pushed as
+`ea39e123250c37d01b422d1bec0c9e5528272886` to draft PR7. Committed source,
+public assets, tests and build config exactly equal the tested candidate.
+The human import-line edit stays unstaged and unserved. Tests and the production
+run above were performed in the clean candidate checkout before integration,
+not on dirty coordinator source. No fresh integrated build or matched native
+post-integration run is claimed. The captured missing-cover defect is corrected;
+full native acceptance remains open.
+
+Independent integration/evidence review `268f6c6b` approves committed source
+equivalence and the five-document checkpoint. Its exact reviewed patch is
+`66463462e74bfb4be15d3f47c7da46ee06be17f1a272aeb309544ceb9dd6a458`.
+The later normal-preview operational update is outside that review snapshot.
+A muted MacBook normal-URL preview now serves the same frozen candidate build
+at port 3034 and shows the sourced console and both HOME LCDs with Work selected.
+Post-preview rehash verifies all 2,850 files unchanged. This is basic inspection,
+not a fresh integrated build or matched native post-integration run.
 
 The read-only own-card content, hidden dynamic Mii surfaces and existing title
-text adapter remain portfolio adaptations. First-use Mii/account/network setup
+text adapter remain portfolio adaptations. Feedback scheduling, 60 Hz accepted
+publication, cover hold, footer-to-return mapping and the shared HOME reveal
+also remain adaptations. First-use Mii/account/network setup
 is not added. Exact moving pixels, feedback, hold timing, matched native inputs,
 cadence and muted audio remain unverified. All four whole animation flows stay
 fail/unproven.
@@ -74,6 +125,11 @@ The audit manifests pin exact session IDs, capture IDs and every original hash.
 | `browser-audit-astra-v1/report.md` | `e487e2d1030fa329e40ebd7e65baab46526d74f8b04b410c8c2768b958a46853` |
 | `browser-audit-astra-v1/manifest.json` | `108b6baf925dbc8f6bff398febd9861cbb7397564f12d9edc7de4a9dac8533da` |
 | `coordinator-inspection-v1.md` | `d77fd19a3143dc64d74fe4d9859088b1c7d90eae118f275ccef1d6ad7108f681` |
+| `candidate-review-astra-v1/report.md` | `e34568072752c9a48a236dfd405728fbdbf613f53884045732b6520a88f4da2a` |
+| `candidate-browser-audit-astra-v1/report.md` | `e2a98a142f61652df7282bf6d366dc3ecae4f17e138d4dd9e65e215deceb626e` |
+| `candidate-browser-audit-astra-v1/manifest.json` | `0aa563714fcfa91a8ad4c4a22f1999fff42d37f6222db70169d4648775edc507` |
+| `candidate-coordinator-inspection-v1.md` | `742789b68b61e8b4d289061248b6b0832935ce9bb1391376dc613558ea7c62e3` |
+| `integration-review-astra-v1/report.md` | `268f6c6bba6db401897d8f85292bcd1aaf6852b3806509f38a5dedde67c02ac7` |
 
 Root opened the first/repeated browser Close boundary sheets and opening cover
 sheets. Their exact lists and native inspection limits are in the coordinator
@@ -81,6 +137,10 @@ record. Post-run rehash at `2026-10-12T00:51:48.983Z` verifies all 2,840 integra
 source/build files unchanged. Native exited and its profile was restored. Only
 the capture tab closed; the ordinary muted MacBook preview remains at port 3033.
 
-The next gate is reviewed source, required checks and new first/repeated
-production Close captures, including opening regression. No whole-flow pass
-follows from this baseline or source identification.
+Candidate artifacts live under `candidate-verification-v1`,
+`candidate-review-astra-v1` and `candidate-production-v1` in the private root.
+The unchanged capture policy `ae59213f` pins the fixed first saved opening
+out20 comparisons to baseline first sequence44/receipt1416 and repeated
+sequence43/receipt3078, without masks or phase search. Baseline HOME preparation
+selected Camera; candidate preparation selected Work. That difference remains
+explicit. No whole-flow pass follows from source identification or browser checks.

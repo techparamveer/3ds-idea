@@ -11,7 +11,7 @@ records, Git history and the private archive below.
 | --- | --- |
 | Coordinator | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `e84757e99ca14371784b3ba99c6adcf665dc529d` |
+| HEAD | `48af1a7f28fb1b5d86aad9a4625449c362ccea79` |
 | Delivery | Pushed to [draft PR 7](https://github.com/techparamveer/3ds-idea/pull/7). No merge or deployment. |
 | GitHub main | `c76775731fe539473934365d35210d79c3cbb551`, fetched again; already integrated through b84e1b2. |
 | Original checkout | `/Volumes/DeveloperStorage/GitHub/3ds-idea`, main 5ee6fd7, untouched. The older home-fidelity checkout is absent. |
@@ -79,11 +79,25 @@ validate. Both workers are finished; no source, profile, build or GUI changes
 remain assigned to them. Closed audit trees are immutable.
 Root closed temporary capture tab/server93156. Isolated PID28603 has quit;
 only screenshotPath was restored, returning the exact before-config hash.
-`camera_readback_review_astra` is assigned a bounded read-only review of the six
-changed checkpoint documents and private PR body against those closed audits.
-It may write only new `folder-held-back-20261012-v1/review-astra-v1` records.
-No source, original, GUI, build, profile or other audit writes are assigned.
-Root owns shared docs and delivery.
+Independent review 20607678 is closed under `review-astra-v1`, with no remaining
+blocker. Its six-document patch 579ccfdf and PR body 9e7267b8 pass 586 relative
+file targets and whitespace checks. Reviewed checkpoint is committed and pushed
+as 48af1a7 to draft PR7. All helpers have finished and closed their processes;
+no source, original, GUI, build, profile or audit writes remain assigned.
+This live HEAD/delivery reconciliation follows the frozen review snapshot.
+
+Raw endpoint comparison5452f2e9 is closed under
+`folder-raw-endpoints-20261012-v1/comparison-astra-v1`, manifest8b2b938d.
+Root inspected all six1x sheets. Raw motion audit5c3ee4a1 is closed under
+`folder-raw-motion-20261012-v1/native-audit-astra-v1`, manifestcaf33ac0.
+Root inspected all13 paired1x pages. All121 PNGs and supporting originals
+remain unchanged. Both worker assignments are finished; those trees are
+immutable. No source/profile/build/GUI writes remain assigned.
+Native PID33245 quit. Restoring only path/speed/default returned exact031bc535.
+Five-percent speed and2000ms touches remain diagnostic adaptations.
+Reviewer may write only new `folder-raw-motion-20261012-v1/review-astra-v1`
+for the six-document/PR checkpoint, reading the closed evidence. Root alone
+owns shared docs, integration and GUI; other helpers remain idle.
 
 The Camera integration checkout at 7ff67b3 remains frozen and served. Its
 checks, build and review 59b1f30f are closed; no source or build writes are assigned
@@ -235,6 +249,14 @@ rehash at 2026-10-12T00:51:48.983Z verifies all 2,840 files unchanged.
 
 ## Latest Evidence
 
+[Raw endpoint and folder motion continuation](docs/folder-held-back-2026-10-12.md#raw-endpoint-diagnostic)
+has two fixed whole-LCD failures: first56,304/10,159 and repeat58,852/10,111
+pixels above RGB delta2. Toolbar and empty interior alone are within tolerance.
+The separate slowed run saves121 own PNGs, with moving tray/cursor/orbit/banner
+poses and all four endpoints. Its native folder origin is one column left of
+the browser's, so moving geometry is not paired. Align the starting fixture
+before further geometry comparisons; do not change runtime to compensate.
+
 [Fresh empty-folder entry and held Back](docs/folder-held-back-2026-10-12.md)
 have first/repeated browser and native capture windows. Root inspected all
 30 browser pages, 14 native paired bracket pages, four key-event pages, two
@@ -300,13 +322,19 @@ See [isolation](docs/native-reference-profile-isolation.md) and
    The Web candidate passes its missing-cover/opening-regression gate; no native
    post-integration pass follows. Do not repeat resolved Camera text, Manual,
    Notes/Notifications, Friends or Web missing-cover repairs. Preserve the human edit.
-2. Review the closed folder evidence checkpoint and commit/push it to PR7.
-   First native Back and repeated browser entry are now
-   captured. Do not repeat the broad-order investigation: no new reversal was
+2. Folder checkpoint 48af1a7 is reviewed, committed and pushed to PR7.
+   First native Back and repeated browser entry are captured.
+   Do not repeat the broad-order investigation: no new reversal was
    found, and native also has root/orbit overlap and translucent tray edges.
    Preserve the explicit release-boundary uncertainty and fixture differences.
-   Next native raw moving-pose comparison needs declared semantic boundaries;
-   do not move items or fit clocks/delays to manufacture matching evidence.
+   Fixed endpoint comparison5452f2e9 and raw motion audit5c3ee4a1 are now closed.
+   All four raw endpoints are saved, but the new native folder starts one
+   column left of the browser folder. Next align that visible origin through
+   ordinary empty-folder creation in an isolated fixture before a declared
+   moving-pose comparison. Do not move items, shift pixels or fit clocks/delays
+   to manufacture matching evidence.
+   Preserve the closed frame-advance/backend/video-dump limits documented in
+   the workflow; do not repeat those probes. This is no native acceptance claim.
 3. Continue remaining Manual, folder and HOME suspend/Resume native moving
    pixels, input and cadence gaps. All four flows stay fail until their evidence
    supports acceptance. Follow-up shared text regressions remain on the checklist.
@@ -320,7 +348,9 @@ Preserve failed attempts. Keep reviewed commits pushed to draft PR7.
 New artifacts use the writable Sandisk1 private root, not the full
 DeveloperStorage sparsebundle:
 `/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261009/opus-completion/toprow-current-20261010/`.
-Latest bundle: `folder-held-back-20261012-v1/`. Closed originals, reports,
+Latest bundles: `folder-raw-endpoints-20261012-v1/` and
+`folder-raw-motion-20261012-v1/`; the preceding full capture remains under
+`folder-held-back-20261012-v1/`. Closed originals, reports,
 policies and manifests are immutable. The earlier Web, Friends and Camera
 capture deviations remain in their separate historical ledgers.
 

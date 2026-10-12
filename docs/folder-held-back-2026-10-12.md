@@ -142,3 +142,95 @@ The frozen build's prior integrated checks remain separately reported in the
 [Web Close record](web-close-transition-2026-10-12.md), including the known
 missing historical Camera PNG test failure. All four whole animation flows
 remain fail/unproven; the goal remains active.
+
+## Raw endpoint diagnostic
+
+The later fixed comparison uses this record's first-entry native own PNG
+`04.13.14.805` against final browser sequence298, and repeat-entry
+`04.14.27.777` against final sequence305. Policy12bbb221 preceded metrics.
+Native upper crop is0,0,400,240 and lower crop40,240,320,240; browser raw LCDs
+are unchanged. No resizing, alignment shifts, color fitting or masks.
+
+| Pair / LCD | Pixels above RGB delta2 | Maximum delta | RGB MAE |
+| --- | ---: | ---: | ---: |
+| First upper | 56,304 | 248 | 7.169181 |
+| First lower | 10,159 | 182 | 2.566719 |
+| Repeat upper | 58,852 | 255 | 7.691031 |
+| Repeat lower | 10,111 | 182 | 2.430851 |
+
+All alpha differences are zero. In both runs the fixed lower toolbar
+0,0,320,34 has zero pixels above2, maximum2. Empty interior140,75,145,120
+has zero above2, maximum1, with32 RGB-changed pixels. Neither region is exact.
+The historical Back20,38,78,30 includes surrounding root pixels; its365 pixels
+above2 are not a button-only diagnosis. Left and bottom strips also differ.
+Upper HUD/wallpaper/orbit and exposed root populations/cursor phases remain
+unmatched. These whole failures do not identify a new renderer correction.
+
+Root opened all six original-scale comparison sheets. Eight selected originals,
+1,611,179bytes, remain unchanged; both decoders agree, all28 metric regions
+recompute, and42 sheet crops are exact copies. Private results are in sibling
+`folder-raw-endpoints-20261012-v1/comparison-astra-v1`.
+
+| Endpoint evidence | SHA-256 |
+| --- | --- |
+| Report | `5452f2e9e5e73ebec99a6639c485d2f7517fa67ffab295ee5006aa3299c17f54` |
+| Manifest | `8b2b938d777693e4bbf6accf01e9769ebe8a1eb96ec8fd2081ca419da6dd59bd` |
+| Checksums | `df0a53c5b3bc9f8cf8941bf66ed9d9119f33aff3a60dc5c91aea46c3039c9292` |
+
+## Raw moving poses
+
+A separate diagnostic under sibling `folder-raw-motion-20261012-v1` saves
+121 own400x480 PNGs,7,166,726bytes. Policy06288a82 precedes launch and input.
+The run has one100%-speed baseline and30 uninterrupted screenshots after
+each first/repeated Open/Back at GUI5% speed, with requested2000ms touches.
+These differ from the normal browser's500ms inputs. The screenshot action
+pauses/resumes emulation, so host gaps do not establish uninterrupted cadence.
+
+The previous native folder was not visible after two right-page inputs.
+Ordinary empty-position selection and Create Folder made1 (New Folder).
+No items moved and no density changed. This new native folder is visibly one
+column left of the browser folder. Moving tray geometry is therefore not
+paired, even though the terminal empty tray is qualitatively similar.
+Next align the visible root-folder position through ordinary creation in an
+isolated fixture before measuring moving geometry. Do not shift images or
+change runtime origin to compensate for this test-fixture mismatch.
+
+Root opened all13 chronological paired1x pages, covering every saved sample.
+All four sample30 endpoints are present. Values below are saved sample
+ordinals, not native frames or input epochs.
+
+| Event | First route | Repeat route |
+| --- | ---: | ---: |
+| Entry first saved advancing tray | 3 | 3 |
+| Entry child cursor | 10 | 10 |
+| Entry upper wallpaper without folder/label | 13 | 12 |
+| Entry orbit | 17 | 16 |
+| Back pale button with child cursor | 2 | 3 |
+| Back child cursor absent | 3 | 4 |
+| Back last visible orbit | 4 | 4 |
+| Back wallpaper without orbit | 5 | 5 |
+| Back root cursor | 11 | 11 |
+| Back folder/banner | 15 | 16 |
+
+Native moving poses include the tray shadow, faint underlying slots and
+folder-banner growth. No new ordering defect follows. After GUI Quit/Yes,
+PID33245 is absent. Restoring only screenshotPath, frame_limit and its default
+flag returns exact profile031bc535. Baseline, launch recovery, requests and
+restoration are recorded in coordinator-ledger.md, SHA0c9de243.
+Root inspection is5eadc15c. Browser source/build and prior captures stay frozen.
+Closed audit5c3ee4a1 validates every PNG with CRC/full independent decodes,
+including exact sheet copies and all unchanged originals. Actual mtime order
+has no ties; four literal numeric filename-order discrepancies stay explicit.
+Each PNG mtime follows its associated request return. Neither timestamp is a
+native input/render epoch. Audit manifest iscaf33ac0.
+
+| Raw motion evidence | SHA-256 |
+| --- | --- |
+| Report | `5c3ee4a10bc126b5121f5316900c6aa06dfc3f48768b28afa64bced98538a09e` |
+| Manifest | `caf33ac0297b509cab8044dfc3ef9dda1a348291658fde416b4897394672f29a` |
+| Checksums | `57bb2a8817f20ad1a8630717c28502332d942319e70f201c4c97e7917766c91c` |
+| Root inspection | `5eadc15c1470ecf3cb5c190c670b325e335c0c19a6b8d9f95238feb2fc41d051` |
+
+No new runtime tests/build, native assets, provenance mappings or timing
+corrections were introduced. Existing adaptations remain; all four whole
+flows fail/unproven and audio remains unverified-muted.

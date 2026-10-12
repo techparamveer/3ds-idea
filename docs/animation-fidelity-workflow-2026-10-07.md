@@ -1,5 +1,22 @@
 # Animation fidelity workflow
 
+## Raw folder comparison checkpoint
+
+The [fixed endpoint diagnostic](folder-held-back-2026-10-12.md#raw-endpoint-diagnostic)
+uses the last saved first/repeated browser entry endpoints and their native
+own PNGs, selected before metrics. Empty whole-LCD masks remain unchanged.
+Both full screens fail. The fixed toolbar and empty interior are within
+delta2, not RGBA-exact. Do not reinterpret the Back rectangle as button-only.
+
+The separate slowed native run saves121 own PNGs with uninterrupted30-request
+bursts for each first/repeated Open/Back. All four saved endpoints are present;
+root inspected all13 chronological paired1x pages. Five-percent speed,
+2000ms touches and screenshot pause/resume cannot establish native timing.
+This run's visible folder origin is one column left of the browser's. Align
+the fixture's starting position through ordinary empty-folder creation before
+comparing moving geometry; no item moves, pixel shifts, closest-pose selection
+or fitted delays. Keep all prior originals and failure results unchanged.
+
 ## Empty-folder held-input checkpoint
 
 The [12 October capture](folder-held-back-2026-10-12.md) adds the missing first

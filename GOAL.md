@@ -1,5 +1,13 @@
 # Goal: finish the four remaining native animation flows
 
+12 October raw-folder continuation: [fixed endpoint comparisons and moving PNGs](docs/folder-held-back-2026-10-12.md#raw-endpoint-diagnostic)
+retain both whole-screen failures. Toolbar and empty interior meet the regional
+delta-2 threshold only. A separate121-PNG slowed run includes tray motion and
+all four saved endpoints. Its root-folder origin is one column left of the
+browser fixture; align that visible starting position before a moving-geometry
+comparison. No runtime correction or native timing claim follows. All four
+flows remain fail/unproven, with Astra extra-high helpers and muted MacBook testing.
+
 12 October folder checkpoint: [first/repeated empty-folder entry and held Back](docs/folder-held-back-2026-10-12.md)
 now have fresh browser and isolated native captures. The observed tray, cursor,
 orbit and banner order broadly agrees; no new ordering correction is justified.

@@ -1,5 +1,13 @@
 # Feature map — 1:1 queue
 
+12 October AN-03 raw continuation: [fixed endpoints](folder-held-back-2026-10-12.md#raw-endpoint-diagnostic)
+still fail whole LCDs: first56,304/10,159 and repeat58,852/10,111 pixels above
+RGB delta2 on upper/lower. Toolbar and empty-interior regions are within
+tolerance, not exact. A separate121-PNG slowed native run includes moving
+tray/cursor/orbit/banner poses and all four endpoints. Its starting folder is
+one column left of the browser fixture. Align the visible origin before moving
+geometry comparison. No source change, native cadence or whole-flow pass.
+
 12 October AN-03: [fresh empty-folder entry and held Back](folder-held-back-2026-10-12.md)
 capture first/repeated routes in production and isolated native. Browser audit
 9bca3c30 validates all 1,102 pairs. Inspected native ordering broadly agrees,

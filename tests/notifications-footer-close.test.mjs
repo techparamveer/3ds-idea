@@ -31,7 +31,7 @@ test('only no-caller Notifications main footer retains its owner; B/HOME/subscre
   const returned = request(withCaller);
   assert.equal(returned.system.runtime.active, caller.system.runtime.application);
   assert.equal(returned.system.runtime.systemApplet, null);
-  for (const appId of ['friends', 'browser', 'miiverse']) {
+  for (const appId of ['browser', 'miiverse']) {
     const other = invokeSystemApplet(home(), appId, 4000);
     assert.equal(reduceSystem(other, 'back', 4100).system.runtime.systemApplet, null);
   }

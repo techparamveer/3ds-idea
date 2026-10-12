@@ -30,7 +30,9 @@ for (const caller of callers) {
   const pending = { skip: pack ? false : 'incoming export/publication pending; private fixture env is optional' };
   test(caller.slug+' incoming poses retain original independent alpha/belt/tint/icon bindings', pending, () => {
     assert.deepEqual(Object.keys(pack.layouts).sort(), [caller.upper, caller.lower].sort());
-    assert.deepEqual(Object.keys(pack.animations).sort(), [caller.upper+'_SceneIn', caller.lower+'_SceneIn'].sort());
+    const clips = [caller.upper+'_SceneIn', caller.lower+'_SceneIn'];
+    if (caller.slug === 'friends') clips.push(caller.upper+'_SceneOut', caller.lower+'_SceneOut');
+    assert.deepEqual(Object.keys(pack.animations).sort(), clips.sort());
     for (const frame of [0, 20]) {
       const upper = poseNativeLayout(pack.layouts[caller.upper], pack.animations,
         [{ name: caller.upper+'_SceneIn', frame }]);
@@ -47,9 +49,9 @@ for (const caller of callers) {
       assert.equal(lower.textures[lower.materials[icon.picture.material].textureMaps[0].texture], caller.icon);
       assert.deepEqual(icon.picture.uvSets[0], [0, 0, 2, 0, 0, 1, 2, 1]);
     }
-    for (const clip of Object.values(pack.animations)) {
+    for (const [name, clip] of Object.entries(pack.animations)) {
       assert.equal(clip.frames, 21);
-      assert.deepEqual(clip.sourceFrameRange, [20, 40]);
+      assert.deepEqual(clip.sourceFrameRange, name.endsWith('_SceneOut') ? [-20, 0] : [20, 40]);
       assert.equal(clip.loop, false);
       assert.equal(clip.childBinding, true);
       assert.deepEqual(clip.unsupported, []);
@@ -58,8 +60,13 @@ for (const caller of callers) {
 
   test(caller.slug+' proven plain-label override retains original metrics and non-applied style reference', pending, () => {
     const bank = pack.messages[caller.bank];
-    assert.deepEqual(bank.labels, { [caller.label]: 0 });
-    assert.deepEqual(pack.uiSelection.sourceMessageIndices, { [caller.bank]: [caller.index] });
+    assert.deepEqual(bank.labels, caller.slug === 'friends' ? { fri_title_fri: 0, fri_title_menu: 1 } : { [caller.label]: 0 });
+    assert.deepEqual(pack.uiSelection.sourceMessageIndices, { [caller.bank]: caller.slug === 'friends' ? [6, 7] : [caller.index] });
+    if (caller.slug === 'friends') {
+      assert.equal(bank.messages[1].text, 'HOME Menu');
+      assert.equal(bank.messages[1].styleIndex, 40);
+      assert.equal(pack.returnTextBinding.styleApplied, false);
+    }
     assert.equal(bank.messages[0].styleIndex, caller.style);
     const override = { text: bank.messages[bank.labels[caller.label]].text };
     assert.equal(override.text, caller.text);

@@ -8,6 +8,7 @@ import { decodeNativePng } from '../src/os/native-png.ts';
 
 const source = readFileSync(new URL('../src/os/stock-native-personal-tools.ts', import.meta.url), 'utf8');
 const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText
+  .replaceAll("'./friends-footer-close-assets.ts'", JSON.stringify(new URL('../src/os/friends-footer-close-assets.ts', import.meta.url).href))
   .replaceAll("'./native-layout'", JSON.stringify(new URL('../src/os/native-layout.ts', import.meta.url).href))
   .replaceAll("'./stock-screen-layout'", JSON.stringify(new URL('../src/os/stock-screen-layout.ts', import.meta.url).href))
   .replaceAll("'./device-status-profile'", JSON.stringify(new URL('../src/os/device-status-profile.ts', import.meta.url).href));

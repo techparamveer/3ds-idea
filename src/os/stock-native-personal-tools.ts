@@ -6,6 +6,7 @@ import type { NotesIntroPaint, StockScreenPaintOptions } from './stock-screen-pr
 import type { SuspendedCapture } from './notes-suspended-capture';
 import { nativeMessageOverride, sampleNativeTrack, type NativePack, type NativePixels, type PaneOverrides } from './native-layout';
 import { notesCaptureView, NOTES_SWITCH_LAST_FRAME } from './stock-screen-layout';
+import { drawFriendsFooterCover, validateFriendsFooterCloseAssets } from './friends-footer-close-assets.ts';
 
 const notesPrefix='packs/game-notes/';
 const notesEmptyThumbnail='runtime-empty-note-thumbnail';
@@ -105,9 +106,10 @@ export function notificationsHudClock(date:Date){
 }
 const friendLayouts=['FrdTopBG_U_00','FrdTopBG_D_00','FrdTopUIUp_D_00','FrdTopUIDw_D_00','FrdElemCard_UB_00','FrdElemCard_UF_00','FrdElemCard_DB_00','FrdElemCard_DF_00'];
 export const personalFriendPacks:readonly NativeTitlePackRequest[]=[
-  {url:'packs/friends/incoming.json',alias:'friends-incoming',layouts:['FrdCmnFade_U_00','FrdCmnFade_D_00'],animations:['FrdCmnFade_U_00_SceneIn','FrdCmnFade_D_00_SceneIn']},
+  {url:'packs/friends/incoming.json',alias:'friends-incoming',layouts:['FrdCmnFade_U_00','FrdCmnFade_D_00'],animations:['FrdCmnFade_U_00_SceneIn','FrdCmnFade_D_00_SceneIn','FrdCmnFade_U_00_SceneOut','FrdCmnFade_D_00_SceneOut']},
   {url:'packs/friends/friend.json',alias:'friends',layouts:friendLayouts,animations:[
     ...friendLayouts.slice(2).map(name=>name+'_SceneIn'),
+    'FrdTopUIDw_D_00_Decide',
     'FrdElemCard_UB_00_NotConnect','FrdElemCard_UF_00_NotConnect',
     'FrdElemCard_DB_00_Select','FrdElemCard_DF_00_Select',
     'FrdElemCard_DB_00_EdgeOn','FrdElemCard_DF_00_EdgeOn',
@@ -369,12 +371,17 @@ function drawNotesMainUpper(renderer:NativeLayoutRenderer,top:CanvasRenderingCon
 
 /** Read-only own-card composition; dynamic Mii surfaces are deliberately absent. */
 function drawFriendFrame(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,options:StockScreenPaintOptions):boolean{
+  const close=options.friendsFooterClose;
+  if(close){
+    if(view.screen!=='main'||!Number.isInteger(close.frame)||close.frame<0||close.frame>(close.kind==='feedback'?5:20))throw Error('Invalid Friends footer source frame');
+    validateFriendsFooterCloseAssets(renderer.packs);
+  }
   const message=(label:string)=>nativeMessageOverride(renderer.packs['friend-messages'],'friend_msbt_LZ',label,'');
   const profile=view.screen==='profile';
   const status=typeof view.data?.message==='string'?view.data.message:'';
   const settings=view.data?.settings as {nickname?:unknown}|undefined;
   const nickname=typeof settings?.nickname==='string'?settings.nickname:'';
-  const draw=(ctx:CanvasRenderingContext2D,name:string,overrides:PaneOverrides={},extra:{name:string;frame:number}[]=[])=>renderer.draw(ctx,'friends',name,{bindings:[{name:name+'_SceneIn',frame:20},...extra],overrides});
+  const draw=(ctx:CanvasRenderingContext2D,name:string,overrides:PaneOverrides={},extra:{name:string;frame:number;groups?:string[]}[]=[])=>renderer.draw(ctx,'friends',name,{bindings:[{name:name+'_SceneIn',frame:20},...extra],overrides});
   let okay=renderer.draw(top,'friends','FrdTopBG_U_00');
   okay=draw(top,'FrdElemCard_UB_00',{},[{name:'FrdElemCard_UB_00_NotConnect',frame:1}])&&okay;
   okay=draw(top,'FrdElemCard_UF_00',{
@@ -401,7 +408,8 @@ function drawFriendFrame(renderer:NativeLayoutRenderer,top:CanvasRenderingContex
     N_BtnNormal_00:{visible:false},N_BtnBtmPivot_03:{visible:false},
     T_BtnBakHM_01:message(profile?'fri_dlg_2b_back':'fri_base_1b_quit'),T_BtnBakHM_00:message(profile?'fri_dlg_2b_back':'fri_base_1b_quit'),
     T_FrdNumNumer_00:{text:'0'},T_FrdNumDenom_00:{text:'100'},
-  })&&okay;
+  },close?[{name:'FrdTopUIDw_D_00_Decide',frame:close.kind==='feedback'?close.frame:5,groups:['G_BtnBakHM_00']}]:[])&&okay;
+  if(close?.kind==='out')okay=drawFriendsFooterCover(renderer,top,bottom,close.frame)&&okay;
   return okay;
 }
 

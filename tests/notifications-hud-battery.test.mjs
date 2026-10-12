@@ -26,6 +26,7 @@ const compile=name=>ts.transpileModule(readFileSync(new URL(`../src/os/${name}.t
 }).outputText;
 const url=source=>'data:text/javascript;base64,'+Buffer.from(source).toString('base64');
 const tools=await import(url(compile('stock-native-personal-tools')
+ .replace("'./friends-footer-close-assets.ts'",JSON.stringify(new URL('../src/os/friends-footer-close-assets.ts',import.meta.url).href))
   .replace("'./device-status-profile'", JSON.stringify(url(compile('device-status-profile'))))
   .replace("'./native-layout'", JSON.stringify(url(compile('native-layout'))))
   .replace("'./stock-screen-layout'", JSON.stringify(url('export const notesCaptureView=()=>null;export const NOTES_SWITCH_LAST_FRAME=0;')))));

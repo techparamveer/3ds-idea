@@ -52,7 +52,7 @@ const plainWriterProofs = {
 function field(value: unknown, key: string): unknown {
   return value && typeof value === 'object' && !Array.isArray(value) ? Reflect.get(value, key) : undefined;
 }
-function exactMetadata(actual: unknown, expected: unknown): boolean {
+export function exactMetadata(actual: unknown, expected: unknown): boolean {
   if (actual === expected) return true;
   if (Array.isArray(expected)) return Array.isArray(actual) && actual.length === expected.length && expected.every((value, index) => exactMetadata(actual[index], value));
   if (!actual || !expected || typeof actual !== 'object' || typeof expected !== 'object' || Array.isArray(actual)) return false;

@@ -1,5 +1,12 @@
 # Feature map — 1:1 queue
 
+12 October AN-03: [fresh empty-folder entry and held Back](folder-held-back-2026-10-12.md)
+capture first/repeated routes in production and isolated native. Browser audit
+9bca3c30 validates all 1,102 pairs. Inspected native ordering broadly agrees,
+including dark held-Back feedback and root exposure while the orbit retires.
+No new runtime correction or whole-flow pass follows. Raw native moving poses,
+fine edge pixels, release timing and matched fixtures remain open.
+
 12 October AN-01: [Browser/Miiverse Close baseline](web-close-transition-2026-10-12.md)
 confirms direct app-to-uncovered-HOME jumps in both main Close routes. Audit
 adf43d92 validates 1,136 raw pairs. Fresh native audit c9ef88c2 confirms separate

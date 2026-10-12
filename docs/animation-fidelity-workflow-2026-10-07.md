@@ -1,5 +1,19 @@
 # Animation fidelity workflow
 
+## Empty-folder held-input checkpoint
+
+The [12 October capture](folder-held-back-2026-10-12.md) adds the missing first
+native Back and repeated browser entry observations. Preserve the four browser
+windows, four native movies, pilot and five own PNGs. Both runtimes show the
+same broad entry/Back order, so do not reopen the repaired cursor/orbit defect
+or treat root/orbit overlap and tray borders alone as new failures.
+The first native pale Back sample still contains the child cursor, unlike the
+first retained browser transition sample. Keep this boundary uncertainty open;
+unknown native input epochs and unsampled browser poses do not support a fitted
+one-frame delay. Native raw moving poses and fine-edge comparison remain next.
+Do not relabel lossy display movies as raw LCD acceptance. All helpers remain
+Astra extra-high and only root drives muted GUI on the MacBook.
+
 ## Browser and Miiverse Close repair
 
 The [captured main-Close defect](web-close-transition-2026-10-12.md) is an
@@ -24,11 +38,9 @@ the clean integrated rebuild and any subsequent native comparison. The rebuild
 now repeats the candidate test totals and passes both typechecks/build.
 Normal preview 3035 is basic-inspected with unchanged frozen files. It does
 not replace a matched native animation run.
-Next use ordinary empty-folder entry and held Back, first and repeat, to
-compare lower tray/root fade against upper orbit retirement. The earlier
-cursor/orbit defect is fixed; overlap alone is not a new defect. Do not move
-items to force matching fixtures or implement a correction before a new capture
-shows an unexplained mismatch.
+The ordinary empty-folder capture above follows this repair. The earlier
+cursor/orbit defect remains fixed. Do not move items to force matching fixtures
+or implement a correction before a new capture shows an unexplained mismatch.
 
 ## Friend List Close repair
 

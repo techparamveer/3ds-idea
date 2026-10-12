@@ -11,7 +11,7 @@ records, Git history and the private archive below.
 | --- | --- |
 | Coordinator | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `c31b852a72c5e2e57fb9892241ef42e33d1ca968` |
+| HEAD | `e84757e99ca14371784b3ba99c6adcf665dc529d` |
 | Delivery | Pushed to [draft PR 7](https://github.com/techparamveer/3ds-idea/pull/7). No merge or deployment. |
 | GitHub main | `c76775731fe539473934365d35210d79c3cbb551`, fetched again; already integrated through b84e1b2. |
 | Original checkout | `/Volumes/DeveloperStorage/GitHub/3ds-idea`, main 5ee6fd7, untouched. The older home-fidelity checkout is absent. |
@@ -68,6 +68,22 @@ Latest human model instruction selects **GPT-6 Astra extra-high** for all work.
 Workers/reviewers use `gpt-6-astra`, `xhigh`. Tools cannot change or verify the
 in-flight coordinator model or service tier. Do not claim such a change.
 One coordinator, at most two workers, one independent reviewer.
+
+Current folder continuation has closed its first/repeated ordinary empty-folder
+entry and held-Back capture sessions. Browser audit 9bca3c30 is closed under
+`folder-held-back-20261012-v1/browser-audit-astra-v1`; all 1,102 pairs validate,
+and originals/build stay unchanged. That worker assignment is finished.
+Native audit f354f3ec is closed under the same root's `native-audit-astra-v1`.
+All 31 originals remain unchanged; five movies/4,729 frames and five own PNGs
+validate. Both workers are finished; no source, profile, build or GUI changes
+remain assigned to them. Closed audit trees are immutable.
+Root closed temporary capture tab/server93156. Isolated PID28603 has quit;
+only screenshotPath was restored, returning the exact before-config hash.
+`camera_readback_review_astra` is assigned a bounded read-only review of the six
+changed checkpoint documents and private PR body against those closed audits.
+It may write only new `folder-held-back-20261012-v1/review-astra-v1` records.
+No source, original, GUI, build, profile or other audit writes are assigned.
+Root owns shared docs and delivery.
 
 The Camera integration checkout at 7ff67b3 remains frozen and served. Its
 checks, build and review 59b1f30f are closed; no source or build writes are assigned
@@ -219,6 +235,15 @@ rehash at 2026-10-12T00:51:48.983Z verifies all 2,840 files unchanged.
 
 ## Latest Evidence
 
+[Fresh empty-folder entry and held Back](docs/folder-held-back-2026-10-12.md)
+have first/repeated browser and native capture windows. Root inspected all
+30 browser pages, 14 native paired bracket pages, four key-event pages, two
+Back-button sheets, two full-size boundary frames and five own PNGs. Broad
+tray/cursor/orbit/banner order agrees; dark native Back feedback is visible.
+No new ordering correction is justified. Native fine-edge pixels and release
+boundary timing remain unresolved. Browser root slot16 and unknown native
+root slot have different surrounding populations. No native pixel pass follows.
+
 [Camera pixel-stability record](docs/camera-lower-readback-2026-10-12.md)
 contains exact capture identities and limits. Reviewed f43f640 + add6d447 is
 integrated as 7ff67b3. The runtime delta is three first context requests;
@@ -275,12 +300,13 @@ See [isolation](docs/native-reference-profile-isolation.md) and
    The Web candidate passes its missing-cover/opening-regression gate; no native
    post-integration pass follows. Do not repeat resolved Camera text, Manual,
    Notes/Notifications, Friends or Web missing-cover repairs. Preserve the human edit.
-2. Capture ordinary empty-folder Open and held Back, first and repeat, in native
-   and current production. Compare lower tray/root fade against upper orbit
-   retirement. The old cursor/orbit defect is fixed, and native also has root/orbit
-   overlap; do not assume the overlap itself is wrong. Preserve slot/population/
-   density differences and do not move items to manufacture matching fixtures.
-   Historical first native Back and repeated browser entry are missing.
+2. Review the closed folder evidence checkpoint and commit/push it to PR7.
+   First native Back and repeated browser entry are now
+   captured. Do not repeat the broad-order investigation: no new reversal was
+   found, and native also has root/orbit overlap and translucent tray edges.
+   Preserve the explicit release-boundary uncertainty and fixture differences.
+   Next native raw moving-pose comparison needs declared semantic boundaries;
+   do not move items or fit clocks/delays to manufacture matching evidence.
 3. Continue remaining Manual, folder and HOME suspend/Resume native moving
    pixels, input and cadence gaps. All four flows stay fail until their evidence
    supports acceptance. Follow-up shared text regressions remain on the checklist.
@@ -294,9 +320,9 @@ Preserve failed attempts. Keep reviewed commits pushed to draft PR7.
 New artifacts use the writable Sandisk1 private root, not the full
 DeveloperStorage sparsebundle:
 `/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261009/opus-completion/toprow-current-20261010/`.
-Latest bundle: `web-close-20261012-v1/`. Closed originals, reports,
-policies and manifests are immutable. The failed single-shot guard capture and
-pre-export live-recorder correction remain in its historical ledger.
+Latest bundle: `folder-held-back-20261012-v1/`. Closed originals, reports,
+policies and manifests are immutable. The earlier Web, Friends and Camera
+capture deviations remain in their separate historical ledgers.
 
 Append handoffs to `/Volumes/Sandisk1/3ds-claude-codex-handoff/LOG.md`.
 The previous full STATUS, including its pre-summary updates, is preserved

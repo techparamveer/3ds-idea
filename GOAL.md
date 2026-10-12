@@ -1,5 +1,12 @@
 # Goal: finish the four remaining native animation flows
 
+12 October folder checkpoint: [first/repeated empty-folder entry and held Back](docs/folder-held-back-2026-10-12.md)
+now have fresh browser and isolated native captures. The observed tray, cursor,
+orbit and banner order broadly agrees; no new ordering correction is justified.
+Exact moving pixels, release-boundary timing and whole-flow fidelity remain
+unproven. All helpers and reviews use GPT-6 Astra extra-high. This does not
+change or verify the running coordinator model. The four-flow goal stays active.
+
 12 October update: [the combined lower-context candidate](docs/camera-lower-readback-2026-10-12.md)
 now passes fixed first and repeated Camera browser closure on both LCDs.
 Independent review confirms the result. Both historical Settings/Health lower

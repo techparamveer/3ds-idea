@@ -234,3 +234,63 @@ native input/render epoch. Audit manifest iscaf33ac0.
 No new runtime tests/build, native assets, provenance mappings or timing
 corrections were introduced. Existing adaptations remain; all four whole
 flows fail/unproven and audio remains unverified-muted.
+
+## Aligned folder origin
+
+The next run is in sibling `folder-origin-aligned-20261012-v1`, declared by
+policy60b5202a before native launch. Root uses ordinary two-row HOME navigation
+and Create Folder to place the first default empty folder at lower244,84.
+Its saved baseline is opened against the fixed browser first-entry sequence1
+before motion. No items move, no saved layout changes, and no pixels shift.
+Surrounding native and portfolio title populations still differ.
+
+One100%-speed baseline and four30-request bursts at5% save121 own400x480 PNGs,
+6,727,111 bytes. Requested touches last2000ms. The screenshot pause/resume
+transport and unmatched browser500ms input remain diagnostic limitations.
+All PNGs fully decode, have valid CRCs and opaque pixels, and preserve black
+lower gutters. There are no duplicate full-RGBA images or mtime ties.
+Every saved file maps in ordinal order to its recorded host request; this does
+not identify a native input or display epoch. Both Open and both Back endpoints
+are present. Root quits PID35771 through the GUI and restores only the temporary
+path, speed and default flag to exact profile031bc535.
+
+Root opens the four early01-10 paired1x pages and the four final originals.
+The integrity auditor separately opens the baseline and four endpoint pages.
+The geometry worker inspects all native pages and the fixed browser moving
+intervals. Root also opens all three geometry measurement sheets.
+
+The pre-metric rule measures straight tray edges with independent +/-2-pixel
+uncertainty, using every identifiable pose with height48..112 in the fixed
+intervals. It excludes shadow, rounded extremes and the Back protrusion from
+plate bounds, not from image comparisons. No native/browser pair is chosen.
+The browser's centred scale path requires
+`(11 * top + 7 * bottom) / 18 - 120 = 0` at every phase.
+
+| Path residual | Eligible readings | Point estimates | Complete uncertainty intervals |
+| --- | ---: | ---: | ---: |
+| Native | 8 | -21.222 to -9.778 px | -23.222 to -7.778 px |
+| Browser | 14 | -0.222 to 0.222 px | -2.222 to 2.222 px |
+
+Every native interval excludes zero and every browser interval contains zero.
+First/repeated Open and Back all support a real path defect, not a frame delay.
+These measurements do not prove a single native pivot or an exact caller
+formula. The source lead is missing runtime parent position in folder chrome
+and inherited children. The original layout and FadeIn remain unchanged.
+Selected-folder exposure and Back/tray layering occur in both; neither is
+independently identified as defective.
+
+| Aligned evidence | SHA-256 |
+| --- | --- |
+| Capture ledger | `8a49136830f64352ad94c9b49dc69b7146df336c82aac597e8f10950e7fa1f8d` |
+| Host request brackets | `6be8c8c8a1e6073c33d20052211d30c68be5dfeb947cdc6c9fc2d31994f3cdfb` |
+| Native audit | `92cf99f7b63f304b4841b71ef4bf04d53a3e7125c253f039b510dce89a27cca0` |
+| Native manifest | `907ddfdf6ae86a87e9f1c11134cef19bcce385738682a619e1f774fc7ed6e7b1` |
+| Geometry report | `4fb832f394d17d7be9af81420e031087904281d54f7cd7cf2d6c26f9d61bba09` |
+| Geometry manifest | `2bace6d0e6c39b4cc8cd7920aead031b5e937323f04b3ff9fd6be1c443d931b5` |
+
+The clean `codex/folder-origin-transition-20261012` worktree is assigned a
+bounded source-backed repair. That pending candidate is not delivered or
+browser-tested evidence. No runtime tests/build were rerun for this capture
+checkpoint; no public asset or provenance mapping changed. Native comparison
+remains a failing geometry diagnosis, not pixel, input, timing or audio
+acceptance. All four whole flows remain fail/unproven.

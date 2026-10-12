@@ -1,5 +1,14 @@
 # Goal: finish the four remaining native animation flows
 
+12 October aligned-folder update: [the corrected fixture](docs/folder-held-back-2026-10-12.md#aligned-folder-origin)
+now starts at the same visible position as the browser. Its 121 raw native
+PNGs expose a real tray-path defect: the browser scales around the LCD centre,
+while native applies an additional position change. The phase-independent
+geometry check separates the paths beyond its declared uncertainty in all four
+routes. A source-backed correction is in progress in a separate worktree.
+It is not yet delivered, tested or browser-verified. Normal cadence, matched
+input, moving pixels and muted audio remain open; the whole-flow goal is active.
+
 12 October raw-folder continuation: [fixed endpoint comparisons and moving PNGs](docs/folder-held-back-2026-10-12.md#raw-endpoint-diagnostic)
 retain both whole-screen failures. Toolbar and empty interior meet the regional
 delta-2 threshold only. A separate121-PNG slowed run includes tray motion and

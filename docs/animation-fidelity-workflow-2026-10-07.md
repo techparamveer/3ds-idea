@@ -1,5 +1,21 @@
 # Animation fidelity workflow
 
+## Aligned folder correction
+
+The [origin-aligned run](folder-held-back-2026-10-12.md#aligned-folder-origin)
+has replaced the one-column fixture mismatch with a demonstrated tray-path
+defect. Preserve both runs. The browser's fixed-centre scaling cannot explain
+the native path at any phase within the declared edge uncertainty.
+Repair only the missing source-controlled folder translation, in its separate
+worktree, then review, test, build and recapture first/repeated Open and Back.
+Apply the same override to tray chrome and inherited children.
+
+The private candidate capture policy is declared before candidate GUI input.
+It uses ordinary controls and the same visible starting position, with no
+forced frame, clock or nearest-pose selection. Keep source formula checks,
+browser regression checks and native comparison as separate evidence tiers.
+The slowed native run is not proof of normal cadence or matched held input.
+
 ## Raw folder comparison checkpoint
 
 The [fixed endpoint diagnostic](folder-held-back-2026-10-12.md#raw-endpoint-diagnostic)

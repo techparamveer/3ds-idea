@@ -11,7 +11,7 @@ records, Git history and the private archive below.
 | --- | --- |
 | Coordinator | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `48af1a7f28fb1b5d86aad9a4625449c362ccea79` |
+| HEAD | `e61dd22bf910d639069a7d6abd6679cd0cc0fa12` |
 | Delivery | Pushed to [draft PR 7](https://github.com/techparamveer/3ds-idea/pull/7). No merge or deployment. |
 | GitHub main | `c76775731fe539473934365d35210d79c3cbb551`, fetched again; already integrated through b84e1b2. |
 | Original checkout | `/Volumes/DeveloperStorage/GitHub/3ds-idea`, main 5ee6fd7, untouched. The older home-fidelity checkout is absent. |
@@ -69,6 +69,31 @@ Workers/reviewers use `gpt-6-astra`, `xhigh`. Tools cannot change or verify the
 in-flight coordinator model or service tier. Do not claim such a change.
 One coordinator, at most two workers, one independent reviewer.
 
+Current origin-aligned folder run is under `folder-origin-aligned-20261012-v1`.
+Root created the default folder through ordinary HOME controls at lower LCD
+244,84 and inspected the saved baseline against the fixed browser baseline.
+Four diagnostic bursts requested 30 own PNGs each, following the one baseline.
+Native PID35771 has quit; only screenshot path and speed/default were restored.
+`camera_text_readback_astra` closed capture integrity report92cf99f7 and
+manifest907ddfdf in that run's `native-audit-astra-v1`; that tree is immutable.
+It now owns `/Users/paramveer/.codex/worktrees/folder-origin-transition-20261012/3ds-idea`,
+branch `codex/folder-origin-transition-20261012`, clean base e61dd22. Its bounded
+assignment is to trace the suspected selected-folder scale-origin translation
+and, only once supported by the visible geometry result, implement that defect
+in folder presentation and focused tests. Shared coordinator docs, served
+builds, original assets and GUI remain root-owned. Source-only work is bounded
+to this slice; unresolved native fields must stay explicit.
+`camera_readback_audit_astra` closed geometry report4fb832f3 and manifest2bace6d0
+in `geometry-investigation-astra-v1`. That tree is immutable; its assignment
+has finished. No worker may modify closed browser/native evidence or drive GUI.
+No native acceptance is authorized by these diagnostic captures alone.
+The measured path has disjoint native/browser origin intervals across first
+and repeated Open/Back. Root inspected all three fixed measurement sheets.
+`camera_readback_review_astra` closed method reviewdd4abdc1 and manifest99263b7
+in `origin-review-astra-v1`. It confirms the geometry defect, not the source
+formula or pending candidate. That tree is immutable. Candidate review follows
+the worker's coherent commit; do not treat a pending trace as delivered code.
+
 Current folder continuation has closed its first/repeated ordinary empty-folder
 entry and held-Back capture sessions. Browser audit 9bca3c30 is closed under
 `folder-held-back-20261012-v1/browser-audit-astra-v1`; all 1,102 pairs validate,
@@ -95,9 +120,14 @@ remain unchanged. Both worker assignments are finished; those trees are
 immutable. No source/profile/build/GUI writes remain assigned.
 Native PID33245 quit. Restoring only path/speed/default returned exact031bc535.
 Five-percent speed and2000ms touches remain diagnostic adaptations.
-Reviewer may write only new `folder-raw-motion-20261012-v1/review-astra-v1`
-for the six-document/PR checkpoint, reading the closed evidence. Root alone
-owns shared docs, integration and GUI; other helpers remain idle.
+Independent review693d2708 is closed under
+`folder-raw-motion-20261012-v1/review-astra-v1`, manifestf664d3ac.
+It approves six-doc patch177f39d6 and PR body7d13494f; all591 relative targets
+and whitespace checks pass. The reviewed checkpoint is committed and pushed
+as e61dd22, and PR7's head/body are updated. No merge or deployment.
+All helpers are finished with no running commands or remaining write
+assignments. Root alone owns shared docs, integration and GUI. This live
+HEAD/seat reconciliation follows the immutable review snapshot.
 
 The Camera integration checkout at 7ff67b3 remains frozen and served. Its
 checks, build and review 59b1f30f are closed; no source or build writes are assigned
@@ -249,6 +279,15 @@ rehash at 2026-10-12T00:51:48.983Z verifies all 2,840 files unchanged.
 
 ## Latest Evidence
 
+[Aligned folder origin](docs/folder-held-back-2026-10-12.md#aligned-folder-origin)
+now matches the visible starting position at lower244,84. Closed native
+audit92cf99f7 validates121 own PNGs and all four endpoints. Geometry report
+4fb832f3 and independent method reviewdd4abdc1 identify a real tray-path defect:
+the browser's fixed-centre scaling cannot explain native vertical placement
+at any phase within declared uncertainty. The source-backed translation
+candidate is in progress in its separate worktree. No new code, build or
+browser verification is delivered by this capture checkpoint.
+
 [Raw endpoint and folder motion continuation](docs/folder-held-back-2026-10-12.md#raw-endpoint-diagnostic)
 has two fixed whole-LCD failures: first56,304/10,159 and repeat58,852/10,111
 pixels above RGB delta2. Toolbar and empty interior alone are within tolerance.
@@ -322,17 +361,18 @@ See [isolation](docs/native-reference-profile-isolation.md) and
    The Web candidate passes its missing-cover/opening-regression gate; no native
    post-integration pass follows. Do not repeat resolved Camera text, Manual,
    Notes/Notifications, Friends or Web missing-cover repairs. Preserve the human edit.
-2. Folder checkpoint 48af1a7 is reviewed, committed and pushed to PR7.
+2. Folder checkpoint e61dd22 is reviewed, committed and pushed to PR7.
    First native Back and repeated browser entry are captured.
    Do not repeat the broad-order investigation: no new reversal was
    found, and native also has root/orbit overlap and translucent tray edges.
    Preserve the explicit release-boundary uncertainty and fixture differences.
    Fixed endpoint comparison5452f2e9 and raw motion audit5c3ee4a1 are now closed.
-   All four raw endpoints are saved, but the new native folder starts one
-   column left of the browser folder. Next align that visible origin through
-   ordinary empty-folder creation in an isolated fixture before a declared
-   moving-pose comparison. Do not move items, shift pixels or fit clocks/delays
-   to manufacture matching evidence.
+   The subsequent origin-aligned run closes the one-column fixture gap and
+   demonstrates a tray-path defect. Finish the bounded native translation
+   candidate in folder-origin-transition-20261012, review its coherent commit,
+   run checks/build and recapture first/repeated Open and Back under the declared
+   candidate policy. Apply the same source override to chrome and children.
+   Do not move items, shift pixels or fit clocks/delays to manufacture evidence.
    Preserve the closed frame-advance/backend/video-dump limits documented in
    the workflow; do not repeat those probes. This is no native acceptance claim.
 3. Continue remaining Manual, folder and HOME suspend/Resume native moving
@@ -348,8 +388,9 @@ Preserve failed attempts. Keep reviewed commits pushed to draft PR7.
 New artifacts use the writable Sandisk1 private root, not the full
 DeveloperStorage sparsebundle:
 `/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261009/opus-completion/toprow-current-20261010/`.
-Latest bundles: `folder-raw-endpoints-20261012-v1/` and
-`folder-raw-motion-20261012-v1/`; the preceding full capture remains under
+Latest bundle: `folder-origin-aligned-20261012-v1/`. Earlier bundles are
+`folder-raw-endpoints-20261012-v1/` and `folder-raw-motion-20261012-v1/`;
+the preceding full capture remains under
 `folder-held-back-20261012-v1/`. Closed originals, reports,
 policies and manifests are immutable. The earlier Web, Friends and Camera
 capture deviations remain in their separate historical ledgers.

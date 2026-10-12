@@ -1,5 +1,13 @@
 # Feature map — 1:1 queue
 
+12 October AN-03 aligned-origin finding: [new native captures](folder-held-back-2026-10-12.md#aligned-folder-origin)
+remove the previous one-column setup mismatch. First/repeated Open and Back
+all demonstrate a browser tray-path defect beyond the declared edge uncertainty.
+The browser omits the caller-controlled folder position while sampling the
+authored scale. A bounded source-backed fix is in progress, not yet integrated.
+Do not reopen hiding or layering based on this finding; those defects were not
+established. Whole-flow status remains fail/unproven.
+
 12 October AN-03 raw continuation: [fixed endpoints](folder-held-back-2026-10-12.md#raw-endpoint-diagnostic)
 still fail whole LCDs: first56,304/10,159 and repeat58,852/10,111 pixels above
 RGB delta2 on upper/lower. Toolbar and empty-interior regions are within

@@ -65,6 +65,33 @@ test('input release, sleep and HOME clear held feedback without starting a retur
  assert.equal(app(touch(touch(resumed,'down'),'up')).manualFooterClose,true);
 });
 
+test('unrelated buttons and ignored actions preserve the owned armed or disarmed contact',()=>{
+ const ignored=[
+  {type:'button',command:'right',phase:'down',source:'keyboard:ArrowRight'},
+  {type:'button',command:'right',phase:'up',source:'keyboard:ArrowRight'},
+  {type:'button',command:'right',phase:'repeat',source:'keyboard:ArrowRight'},
+  {type:'command',command:'right'},
+  {type:'command',command:'y'},
+  {type:'action',id:'unknown'},
+  {type:'action',id:'manual-page-0'},
+  {type:'action',id:'manual-page-1'},
+ ];
+ for(const origin of ['armed','moved-away','outside-origin'])for(const event of ignored){
+  let state=touch(open(),'down',origin==='outside-origin'?200:80,226);
+  if(origin==='moved-away')state=touch(state,'move',200,226);
+  const armed=origin==='armed';
+  state=dispatchSystemEvent(state,event,4200);
+  assert.equal(state.system.input.touch.pointerId,7);
+  assert.equal(app(state).manualClosePress,armed,`${origin}: ${JSON.stringify(event)}`);
+  const released=touch(touch(state,'move'),'up');
+  assert.equal(app(released).manualFooterClose,armed?true:undefined);
+  assert.equal(app(released).manualClosePress,undefined);
+ }
+ let state=touch(touch(open(),'down'),'move',200,226);
+ for(const event of ignored)state=dispatchSystemEvent(state,event,4200);
+ assert.equal(app(touch(touch(state,'move'),'up')).manualFooterClose,undefined,'a whole unrelated key/action sequence cannot restore compatibility-tap eligibility');
+});
+
 test('pure Manual state clears transient feedback for every lifecycle and semantic path, preserving document controls',()=>{
  const initial=module.create({manualTitleId:'0004001000022000'},null,context);
  const held=module.reduce(initial,{type:'touch',phase:'down',x:80,y:226},context).state;

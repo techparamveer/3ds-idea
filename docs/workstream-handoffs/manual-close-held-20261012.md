@@ -59,7 +59,7 @@ body/layout and cover timing adaptations remain. Audio stays muted/unverified.
 ## Checks and next gate
 
 Private logs are in `implementation-astra-v1` under the evidence root.
-The 15-file focused run passed 118, failed 0, skipped 4 existing optional pinned
+The corrected 15-file focused run passed 119, failed 0, skipped 4 existing optional pinned
 source tests. It covers the public latch/reducer, held source pose and actual
 picture raster, real PNG/font loader and renderer, missing Select/texture
 failure, and existing Manual entry/Close lifecycle regressions. Both standard
@@ -72,3 +72,13 @@ reviewed Manual candidate. There is no new BUILD_ID or production acceptance.
 The historical missing Camera PNG full-suite failure must remain explicit.
 Root alone will recapture first/repeat Manual entry and Close. No GUI, server,
 profile, original capture or frozen donor was changed by this worker.
+
+Independent review found a contact-ownership regression in the initial
+`91c01e1` candidate: an unrelated button or stale action cleared a disarmed
+contact while the public latch still owned it, allowing its later release to
+use one-shot compatibility. The correction preserves the transient state on
+ignored inputs and clears it only for actual Close/Back/page navigation,
+touch termination or lifecycle handling. Public regressions cover armed,
+moved-away and outside-origin contacts across button down/up/repeat,
+commands and ignored actions. `review-regression-red.log` preserves the
+failure; `focused-corrected.log` and both corrected typecheck logs pass.

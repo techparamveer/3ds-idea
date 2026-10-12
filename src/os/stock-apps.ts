@@ -188,9 +188,12 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
   function activate(state: AppState, action: string, context: AppContext, value?: JsonValue): AppReduction {
     const screen = str(state.screen, 'main');
     if(id==='manual'&&state.manualTitleId){
-      if(action==='manual-close')return {state,effects:[{type:'close'}]};
+      const {manualClosePress:_press,...released}=state;
+      const unpressed=_press===undefined?state:released;
+      if(action==='manual-close')return {state:unpressed,effects:[{type:'close'}]};
       if(action==='manual-page-0')return manualPageZeroAvailable(state.manualTitleId)&&screen==='main'
-        ?{state:withScreen(state,'document',{page:0})}:{state};
+        ?{state:withScreen(unpressed,'document',{page:0})}:{state};
+      if(action==='back')state=unpressed;
     }
     if (action === 'back') {
       if ((id === 'sound'||id === 'camera') && screen === 'guide') return { state: { ...state, guidePage: Math.max(0, num(state.guidePage) - 1) } };
@@ -356,7 +359,6 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
           // A release without a contact retains the public one-shot tap API.
           return action?activate(released,action,context):{state:released};
         }
-        if(event.type==='action'||event.type==='command'||event.type==='button')state=_press===undefined?state:released;
       }
       // Retain the captured outgoing list. Recovery B/HOME/power still use
       // their existing routes; only a footer request owns this presentation.

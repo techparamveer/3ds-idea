@@ -1,5 +1,13 @@
 # Feature map — 1:1 queue
 
+12 October AN-01: [Browser/Miiverse Close baseline](web-close-transition-2026-10-12.md)
+confirms direct app-to-uncovered-HOME jumps in both main Close routes. Audit
+adf43d92 validates 1,136 raw pairs. Fresh native audit c9ef88c2 confirms separate
+cover, HOME reveal and banner on different update/error-gate routes. Root
+inspected the stated browser/native sheets. A bounded source-backed repair is
+assigned in its own worktree; it is not yet delivered or browser-verified.
+Exact native footer dispatch/timing remains open. All whole flows stay fail.
+
 12 October AN-01: [Friend List Close candidate](friends-close-transition-2026-10-12.md)
 0d6746d repairs the captured direct card-to-HOME jump using decrypted return
 clips. Source/build review e3456807 is closed. Four production windows save

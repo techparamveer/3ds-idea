@@ -11,7 +11,7 @@ records, Git history and the private archive below.
 | --- | --- |
 | Coordinator | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `ea39e123250c37d01b422d1bec0c9e5528272886` |
+| HEAD | `c7a1922861f64f260ce50ce645ef7eca16e869fb` |
 | Delivery | Pushed to [draft PR 7](https://github.com/techparamveer/3ds-idea/pull/7). No merge or deployment. |
 | GitHub main | `c76775731fe539473934365d35210d79c3cbb551`, fetched again; already integrated through b84e1b2. |
 | Original checkout | `/Volumes/DeveloperStorage/GitHub/3ds-idea`, main 5ee6fd7, untouched. The older home-fidelity checkout is absent. |
@@ -84,7 +84,23 @@ Its candidate browser audit e2a98a14 is also closed and immutable under
 `candidate-browser-audit-astra-v1`. `camera_readback_review_astra` has closed source/build review
 e3456807 and integration/evidence review 268f6c6b. The latter approves the
 five-document checkpoint before the separate normal-preview operational update.
-All three helpers are finished. Closed review trees are immutable.
+Those Friends assignments are finished. Closed review trees are immutable.
+Browser/Miiverse source audit f12f341e and browser baseline audit adf43d92 are
+closed under `web-close-20261012-v1`. Both main Close routes jump from the app
+to uncovered HOME with no exit phase. Root inspected both raw boundary sheets.
+Fresh native audit c9ef88c2 is also closed: five silent movies, four own PNGs,
+exact config restoration. Root inspected 15 bracket pages and all own PNGs.
+The update/error-gate routes establish ordering only, not ordinary footer parity.
+See the [bounded baseline](docs/web-close-transition-2026-10-12.md).
+`camera_text_readback_astra` owns the new worktree
+`/Users/paramveer/.codex/worktrees/web-close-transition-20261012/3ds-idea`,
+branch `codex/web-close-transition-20261012`, base c7a1922. Its reserved writes
+are the Browser/Miiverse Close controller, source validators, native web footer
+painting, required shared app-host/system/scene receipts, focused tests and a
+bounded source/adaptation handoff. Reuse delivered feedback and HOME resources.
+Preserve local Back, caller-owned return, failures and completed incoming paths.
+No firmware reconstruction or source claims for untraced native footer dispatch.
+Only root drives GUI. No worker may alter any frozen served checkout or capture.
 Root owns integration, shared docs, PR updates and GUI. [Workstreams](docs/feature-map/workstreams.md) retain
 historical ownership, not permission to restart old assignments.
 
@@ -240,7 +256,7 @@ Preserve failed attempts. Keep reviewed commits pushed to draft PR7.
 New artifacts use the writable Sandisk1 private root, not the full
 DeveloperStorage sparsebundle:
 `/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261009/opus-completion/toprow-current-20261010/`.
-Latest bundle: `friends-motion-20261012-v1/`. Closed originals, reports,
+Latest bundle: `web-close-20261012-v1/`. Closed originals, reports,
 policies and manifests are immutable. The failed single-shot guard capture and
 pre-export live-recorder correction remain in its historical ledger.
 

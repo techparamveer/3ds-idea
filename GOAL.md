@@ -1,5 +1,15 @@
 # Goal: finish the four remaining native animation flows
 
+12 October folder repair: `5884417` is integrated and pushed to draft PR7.
+The [source-controlled tray translation](docs/folder-held-back-2026-10-12.md#folder-translation-repair)
+passes its bounded source, review and captured-geometry checks. Four ordinary
+first/repeated Open/Back recordings retain632 raw LCD pairs. All11 eligible
+tray measurements agree with the traced formula within the declared edge
+uncertainty; the old fixed-centre path defect is closed. Native timing, exact
+moving pixels, matched input and muted audio remain open. Continue the goal,
+using Astra extra-high helpers and muted MacBook testing. Next comparison is
+Manual Contents held-Close feedback, not another missing-cover repair.
+
 12 October aligned-folder update: [the corrected fixture](docs/folder-held-back-2026-10-12.md#aligned-folder-origin)
 now starts at the same visible position as the browser. Its 121 raw native
 PNGs expose a real tray-path defect: the browser scales around the LCD centre,

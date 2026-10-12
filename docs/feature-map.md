@@ -1,5 +1,14 @@
 # Feature map — 1:1 queue
 
+12 October AN-03 repair: [folder translation](folder-held-back-2026-10-12.md#folder-translation-repair)
+is integrated and pushed as5884417. Source-derived RootPane translation now
+moves chrome and children together toward the selected root folder. Independent
+reviews, focused tests and four captured browser routes pass the bounded defect
+gate. All11 eligible poses agree with the source formula within declared
+uncertainty. Native whole-flow pixels, normal cadence and input remain open;
+AN-03 stays fail/unproven. Next AN-02 comparison is Manual Contents held-Close
+feedback and moving cover, without reopening the resolved missing-cover defect.
+
 12 October AN-03 aligned-origin finding: [new native captures](folder-held-back-2026-10-12.md#aligned-folder-origin)
 remove the previous one-column setup mismatch. First/repeated Open and Back
 all demonstrate a browser tray-path defect beyond the declared edge uncertainty.

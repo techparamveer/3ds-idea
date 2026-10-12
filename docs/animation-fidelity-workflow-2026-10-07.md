@@ -1,5 +1,19 @@
 # Animation fidelity workflow
 
+## Folder translation delivered
+
+Reviewed candidate34cd3d4 is integrated and pushed as5884417. The
+[repair record](folder-held-back-2026-10-12.md#folder-translation-repair)
+separates decoded caller translation, real presenter tests,632 raw candidate
+LCD pairs and the fixed native edge comparison. The bounded tray-path defect
+is closed. No fitted pivot, clock, phase or asset change was added.
+Preserve the closed candidate build and captures. Clean integrated checks and
+preview are separate evidence. Do not repeat this defect investigation unless
+a new visible residual appears. Next ordinary comparison is Camera Manual
+Contents held Close, first and repeated, including pressed/released feedback
+and the first moving cover contributions. Opaque-cover matches alone do not
+establish those stages. Whole-flow native timing and audio remain unverified.
+
 ## Aligned folder correction
 
 The [origin-aligned run](folder-held-back-2026-10-12.md#aligned-folder-origin)

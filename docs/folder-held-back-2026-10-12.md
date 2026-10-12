@@ -294,3 +294,74 @@ browser-tested evidence. No runtime tests/build were rerun for this capture
 checkpoint; no public asset or provenance mapping changed. Native comparison
 remains a failing geometry diagnosis, not pixel, input, timing or audio
 acceptance. All four whole flows remain fail/unproven.
+
+## Folder translation repair
+
+Reviewed candidate34cd3d44b303fc7366bc63274a99862dd15e5dc3 is integrated
+and pushed as5884417245a3c4a29fd8cc071bc15a54e923fc0e to draft PR7.
+Its [source handoff](workstream-handoffs/folder-origin-transition-20261012.md)
+records the decoded ordinary setup/update and original executable hash.
+Native assets and their provenance are unchanged. Root coordinates come from
+the retained root selection/density/viewport, not captured244,84 constants.
+The float32 squared remaining-frame offset is applied to RootPane for both
+chrome and inherited empty/occupied children. Scale, alpha and clocks are unchanged.
+
+Private evidence is under the aligned run's `fix-astra-v1`,
+`candidate-code-review-astra-v1`, `candidate-standards-review-astra-v1` and
+`candidate-browser-audit-astra-v1`. Spec report12e6b375 and standards report4771195b
+have no findings. Candidate build `yv2hYrnqNOd9UR5hccB5_`, manifestb28e0ddc,
+pins2,849 source/build files. Focused224 pass/one skip; independent32 pass;
+full2,810 pass/one known missing historical Camera PNG failure/102 skips/one
+TODO. Both typechecks and production build pass. The candidate is immutable.
+
+The predeclared capture policy uses ordinary controls in muted Chrome on the
+MacBook. Root creates the first default empty folder at the same visible root
+position, then requests500ms Open/Back touches. The first/repeat recordings
+save223/131/138/140 pairs, all632 exported with user stops. Temporary3037 and
+its tab close;3035 stays intact. Pre/post rehashes find no source/build change.
+No forced frame, injected clock, moved item, nearest pose or fitted transform
+was used. The closed native run remains a5%-speed/2000ms diagnostic, not
+normal-cadence or identical-input evidence.
+
+Using the same straight-edge48..112px eligibility rule and independent +/-2px
+reading uncertainty, all11 candidate poses exclude the old fixed-centre path.
+Their complete vertical residual interval is[-23.222,-7.778]px, overlapping the
+fixed eight native observations and disjoint from old browser[-2.222,2.222]px.
+This compares phase-independent relations, not matched animation frames.
+Separately, all11 measured L/T/B edge positions agree with the decoded offset
+and authored scale at exported applied frames within the same tolerance;
+maximum error is1.060px. Metadata does not directly expose GPU RootPane state.
+Density and viewport are also not exported; source root coordinates84,38
+depend on the observed slot16/two-row fixture. Browser pointer holds measure
+543.0/528.1/502.1/525.3ms, separate from the requested500ms and native input.
+Missing integer samples remain explicit:8/5/6/5 across the four routes.
+
+| Closed candidate evidence | SHA-256 |
+| --- | --- |
+| Browser audit report | `4ccc9b9f4f76476edf05f6702c07f32a0f2fcf6b630f54cd97d78c826be2d62d` |
+| Browser audit manifest | `c9c5e90bb1d632f5e5449d13028dda2a4dc3673fb6c1621dbcdb818561008f1a` |
+| Original recheck | `3209c9fe61f6452dc7bbf464d01303cf973964c738aef744e9149b8cafdb50c4` |
+
+Root opens12 paired chronological pages, all four compact moving-lower sheets,
+the four-endpoint paired sheet and the upper boundary sheet. Chrome and children
+move together; first reverse applied16 remains open. Tray/Back layering, empty
+child visibility, toolbar states, cursor ordering and upper banner/orbit
+departure/return show no new regression. Fixed prior/candidate endpoints retain
+the toolbar and empty-interior regional checks. Whole LCDs are not exact:
+cursor, clock, wallpaper and upper pose differences remain unaligned.
+The audit closes all1,896 original files/324,051,794bytes unchanged, plus
+34 generated sheets and286 exact1x crop checks. No mask was expanded.
+
+The clean integrated checkout at 5884417 independently repeats the candidate
+test totals and passes both typechecks and build. Build `BTzL7zVs57q-6RDe4Y9jR`
+is frozen under manifest
+`153b7e8ed07d4acd1c3bbbd2c84ac3332b5ee79dcfa45be6a447adec46d53202`.
+Root's pre/post-preview rehashes find no change across 2,849 source/build files,
+39 artifacts, 14,826 dependency entries and 77 models. The normal 3037 preview
+shows the sourced console and both HOME LCDs with the saved folder selected.
+AX incorrectly calls that selection an empty slot. No app or recorder input
+occurred; the ledger preserves a corrected historical autocomplete URL.
+
+The bounded tray-path defect is closed. All four whole flows remain
+fail/unproven. This integrated preview is basic browser inspection only;
+candidate captures are not relabelled as an integrated native acceptance run.

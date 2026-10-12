@@ -11,7 +11,7 @@ records, Git history and the private archive below.
 | --- | --- |
 | Coordinator | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `e61dd22bf910d639069a7d6abd6679cd0cc0fa12` |
+| HEAD | `5884417245a3c4a29fd8cc071bc15a54e923fc0e` |
 | Delivery | Pushed to [draft PR 7](https://github.com/techparamveer/3ds-idea/pull/7). No merge or deployment. |
 | GitHub main | `c76775731fe539473934365d35210d79c3cbb551`, fetched again; already integrated through b84e1b2. |
 | Original checkout | `/Volumes/DeveloperStorage/GitHub/3ds-idea`, main 5ee6fd7, untouched. The older home-fidelity checkout is absent. |
@@ -69,127 +69,61 @@ Workers/reviewers use `gpt-6-astra`, `xhigh`. Tools cannot change or verify the
 in-flight coordinator model or service tier. Do not claim such a change.
 One coordinator, at most two workers, one independent reviewer.
 
-Current origin-aligned folder run is under `folder-origin-aligned-20261012-v1`.
-Root created the default folder through ordinary HOME controls at lower LCD
-244,84 and inspected the saved baseline against the fixed browser baseline.
-Four diagnostic bursts requested 30 own PNGs each, following the one baseline.
-Native PID35771 has quit; only screenshot path and speed/default were restored.
-`camera_text_readback_astra` closed capture integrity report92cf99f7 and
-manifest907ddfdf in that run's `native-audit-astra-v1`; that tree is immutable.
-It now owns `/Users/paramveer/.codex/worktrees/folder-origin-transition-20261012/3ds-idea`,
-branch `codex/folder-origin-transition-20261012`, clean base e61dd22. Its bounded
-assignment is to trace the suspected selected-folder scale-origin translation
-and, only once supported by the visible geometry result, implement that defect
-in folder presentation and focused tests. Shared coordinator docs, served
-builds, original assets and GUI remain root-owned. Source-only work is bounded
-to this slice; unresolved native fields must stay explicit.
-`camera_readback_audit_astra` closed geometry report4fb832f3 and manifest2bace6d0
-in `geometry-investigation-astra-v1`. That tree is immutable; its assignment
-has finished. No worker may modify closed browser/native evidence or drive GUI.
-No native acceptance is authorized by these diagnostic captures alone.
-The measured path has disjoint native/browser origin intervals across first
-and repeated Open/Back. Root inspected all three fixed measurement sheets.
-`camera_readback_review_astra` closed method reviewdd4abdc1 and manifest99263b7
-in `origin-review-astra-v1`. It confirms the geometry defect, not the source
-formula or pending candidate. That tree is immutable. Candidate review follows
-the worker's coherent commit; do not treat a pending trace as delivered code.
+Root owns integration, shared docs, PR updates and GUI. No source, dependency,
+build, native profile or original-capture writes remain assigned to workers.
+The folder source/build and capture assignments below are complete. All closed
+audit trees and frozen builds are immutable.
 
-Current folder continuation has closed its first/repeated ordinary empty-folder
-entry and held-Back capture sessions. Browser audit 9bca3c30 is closed under
-`folder-held-back-20261012-v1/browser-audit-astra-v1`; all 1,102 pairs validate,
-and originals/build stay unchanged. That worker assignment is finished.
-Native audit f354f3ec is closed under the same root's `native-audit-astra-v1`.
-All 31 originals remain unchanged; five movies/4,729 frames and five own PNGs
-validate. Both workers are finished; no source, profile, build or GUI changes
-remain assigned to them. Closed audit trees are immutable.
-Root closed temporary capture tab/server93156. Isolated PID28603 has quit;
-only screenshotPath was restored, returning the exact before-config hash.
-Independent review 20607678 is closed under `review-astra-v1`, with no remaining
-blocker. Its six-document patch 579ccfdf and PR body 9e7267b8 pass 586 relative
-file targets and whitespace checks. Reviewed checkpoint is committed and pushed
-as 48af1a7 to draft PR7. All helpers have finished and closed their processes;
-no source, original, GUI, build, profile or audit writes remain assigned.
-This live HEAD/delivery reconciliation follows the frozen review snapshot.
+- `camera_text_readback_astra` delivered candidate 34cd3d4, integrated as
+  5884417. Its source and integrated checks/builds are complete; all processes
+  are closed. The candidate checkout is
+  `/Users/paramveer/.codex/worktrees/folder-origin-transition-20261012/3ds-idea`,
+  build `yv2hYrnqNOd9UR5hccB5_`, manifest b28e0ddc.
+  The clean integrated checkout is
+  `/Users/paramveer/.codex/worktrees/folder-integrated-checks-20261012/3ds-idea`,
+  build `BTzL7zVs57q-6RDe4Y9jR`, manifest
+  `153b7e8ed07d4acd1c3bbbd2c84ac3332b5ee79dcfa45be6a447adec46d53202`.
+  Both checkouts report focused 224 passes/one skip. Full suites report
+  2,810 passes/one known missing Camera PNG failure/102 skips/one TODO, exit1.
+  Both typechecks and builds pass. Root independently verified the integrated
+  freeze before and after preview, with zero differences across 2,849 files,
+  39 artifacts, 14,826 dependency entries and 77 models.
+- `camera_readback_audit_astra` closed geometry investigation 4fb832f3,
+  candidate standards review 4771195b and candidate browser audit 4ccc9b9f.
+  Its assignments are finished. The candidate audit validates all 632 pairs
+  and closes the bounded tray-trajectory/regression gate, not native parity.
+- `camera_readback_review_astra` closed method review dd4abdc1 and candidate
+  source review 12e6b375. Its only current assignment is read-only review of
+  the eight-document integration checkpoint and private PR body, under the
+  aligned folder run's `integration-evidence-review-astra-v1`.
 
-Raw endpoint comparison5452f2e9 is closed under
-`folder-raw-endpoints-20261012-v1/comparison-astra-v1`, manifest8b2b938d.
-Root inspected all six1x sheets. Raw motion audit5c3ee4a1 is closed under
-`folder-raw-motion-20261012-v1/native-audit-astra-v1`, manifestcaf33ac0.
-Root inspected all13 paired1x pages. All121 PNGs and supporting originals
-remain unchanged. Both worker assignments are finished; those trees are
-immutable. No source/profile/build/GUI writes remain assigned.
-Native PID33245 quit. Restoring only path/speed/default returned exact031bc535.
-Five-percent speed and2000ms touches remain diagnostic adaptations.
-Independent review693d2708 is closed under
-`folder-raw-motion-20261012-v1/review-astra-v1`, manifestf664d3ac.
-It approves six-doc patch177f39d6 and PR body7d13494f; all591 relative targets
-and whitespace checks pass. The reviewed checkpoint is committed and pushed
-as e61dd22, and PR7's head/body are updated. No merge or deployment.
-All helpers are finished with no running commands or remaining write
-assignments. Root alone owns shared docs, integration and GUI. This live
-HEAD/seat reconciliation follows the immutable review snapshot.
-
-The Camera integration checkout at 7ff67b3 remains frozen and served. Its
-checks, build and review 59b1f30f are closed; no source or build writes are assigned
-there. `camera_text_readback_astra` completed its assignment in
-`/Users/paramveer/.codex/worktrees/friends-close-transition-20261012/3ds-idea`,
-branch `codex/friends-close-transition-20261012`, frozen at 0d6746d. Its Friends
-Close fix is integrated as ea39e12. No source/build writes remain assigned.
-Source return-branch identification does not prove footer/no-Mii trigger
-equivalence or hold timing.
-
-`camera_readback_audit_astra` has closed native audit 1ac25405 under private
-`friends-motion-20261012-v1/native-audit-astra-v1`; that tree is immutable.
-Its candidate browser audit e2a98a14 is also closed and immutable under
-`candidate-browser-audit-astra-v1`. `camera_readback_review_astra` has closed source/build review
-e3456807 and integration/evidence review 268f6c6b. The latter approves the
-five-document checkpoint before the separate normal-preview operational update.
-Those Friends assignments are finished. Closed review trees are immutable.
-Browser/Miiverse source audit f12f341e and browser baseline audit adf43d92 are
-closed under `web-close-20261012-v1`. Both main Close routes jump from the app
-to uncovered HOME with no exit phase. Root inspected both raw boundary sheets.
-Fresh native audit c9ef88c2 is also closed: five silent movies, four own PNGs,
-exact config restoration. Root inspected 15 bracket pages and all own PNGs.
-The update/error-gate routes establish ordering only, not ordinary footer parity.
-See the [bounded baseline](docs/web-close-transition-2026-10-12.md).
-`camera_text_readback_astra` owns the new worktree
-`/Users/paramveer/.codex/worktrees/web-close-transition-20261012/3ds-idea`,
-branch `codex/web-close-transition-20261012`, now frozen at 88640bc, build
-`N3pRiRWZMnkz9E_t3GYlI`. Its implementation assignment is finished. Independent
-source review a16292a2 and freeze review bc04b18a approve candidate recapture.
-Focused and independent checks each pass 190 with one skip; full tests pass
-2,799 with only the known missing Camera PNG failure. Both typechecks/build pass.
-No writes remain assigned to this source, dependencies or build.
-`camera_readback_audit_astra` closed the new private
-`web-close-20261012-v1/candidate-browser-audit-astra-v1` tree, report 5fdd90d1.
-It is immutable and that assignment is finished. Root closed eight
-muted MacBook capture windows, 3,209 pairs, and stopped temporary server 12056.
-Miiverse repeated opening reached its 600-pair recorder limit; preserve and
-audit this deviation. The other seven were user-stopped. All exports completed.
-Post-run rehash at 2026-10-12T02:32:56.211Z verifies 2,848 files unchanged.
-Only root drives GUI. No worker may alter any frozen checkout or capture.
-`camera_readback_review_astra` closed procedure review b4216833 with no blocker.
-Root inspected 28 chronological pages and eight fixed comparisons, record
-dc3b87a0. The exact reviewed patch is integrated and pushed as dd1a9e1, preserving
-the human edit and exact candidate source/public/tests/config equivalence.
-Every Close phase and all four fixed opening pairs pass the bounded browser gate.
-Native ordinary footer dispatch, moving pixels and timing remain unmatched.
-`camera_text_readback_astra` completed its read-only next-step recommendation.
-Its clean integrated checks are complete in
-`/Users/paramveer/.codex/worktrees/web-integrated-checks-20261012/3ds-idea`,
-branch `codex/web-integrated-checks-20261012`, commit dd1a9e1. Report 2aeafae7
-and manifest a766ffb5 close its tests/build, exact source/dependency/LFS
-identities and unchanged donor. All 2,848 source/build files are frozen.
-Focused 190 pass with one skip; full 2,799 pass with the one known failure,
-102 skips and one TODO. Both typechecks/build pass. No worker writes remain.
-Integration/evidence review 804be3b7 covers the earlier five-doc/PR checkpoint
-at c31b852, not this subsequent integrated-preview operational update.
-Root owns integration, shared docs, PR updates and GUI. [Workstreams](docs/feature-map/workstreams.md) retain
-historical ownership, not permission to restart old assignments.
+Native PID35771 has quit; restoring only the temporary screenshot path and
+speed/default returned exact profile hash 031bc535. Candidate capture tab and
+server71735 are closed. The new normal integrated preview is on3037 below;
+3035 and earlier preview tabs/servers remain unchanged. Root inspected all
+retained moving tray poses, four endpoints and upper boundaries in18 sheets.
+All11 eligible candidate measurements agree with the decoded source within
+the declared +/-2px edge tolerance. Native timing and whole-flow parity remain
+open. Earlier closed Camera, Friends, Web and folder assignments remain in
+their evidence records and Git history. [Workstreams](docs/feature-map/workstreams.md)
+retain historical ownership, not permission to restart old assignments.
 
 ## Serving
 
-Latest preview is live at http://127.0.0.1:3035/, owned session 63713/listener
+Latest preview is live at http://127.0.0.1:3037/, owned session 33647/listener
+52059, from the frozen folder-integrated-checks checkout at5884417 and build
+`BTzL7zVs57q-6RDe4Y9jR`. HTTP200, exact cwd, source/build freeze, Chrome mute
+and MacBook window bounds verified. A new normal-URL tab shows the sourced
+console and both HOME LCDs with the saved folder selected. AX calls that
+selection an empty slot; the visible folder/name are recorded separately.
+Address autocomplete first selected the historical candidate diagnostic URL;
+root corrected it before app or recorder input. All five prior tabs and
+servers remain. Policy/ledger are in the aligned folder run's
+`integrated-preview-v1`. Post-preview rehash finds zero changes across all
+2,849 files,39 artifacts,14,826 dependencies and77 models. This is basic
+browser inspection, not native animation or audio acceptance.
+
+Previous preview is live at http://127.0.0.1:3035/, owned session 63713/listener
 25766, from the frozen clean integrated checkout above, build
 `X_PEHoqEx5Cyi-WhOw3JK`. HTTP 200, cwd, BUILD_ID, source/build freeze, Chrome
 mute and MacBook-only geometry were verified before GUI input. The new normal
@@ -285,8 +219,10 @@ audit92cf99f7 validates121 own PNGs and all four endpoints. Geometry report
 4fb832f3 and independent method reviewdd4abdc1 identify a real tray-path defect:
 the browser's fixed-centre scaling cannot explain native vertical placement
 at any phase within declared uncertainty. The source-backed translation
-candidate is in progress in its separate worktree. No new code, build or
-browser verification is delivered by this capture checkpoint.
+repair is now integrated and pushed as5884417. Candidate audit4ccc9b9f closes
+the bounded geometry/regression gate across632 pairs. All11 eligible edge
+measurements agree with the source formula within +/-2px. Whole native moving
+pixels, normal cadence, exact input and muted audio remain unproven.
 
 [Raw endpoint and folder motion continuation](docs/folder-held-back-2026-10-12.md#raw-endpoint-diagnostic)
 has two fixed whole-LCD failures: first56,304/10,159 and repeat58,852/10,111
@@ -367,17 +303,25 @@ See [isolation](docs/native-reference-profile-isolation.md) and
    found, and native also has root/orbit overlap and translucent tray edges.
    Preserve the explicit release-boundary uncertainty and fixture differences.
    Fixed endpoint comparison5452f2e9 and raw motion audit5c3ee4a1 are now closed.
-   The subsequent origin-aligned run closes the one-column fixture gap and
-   demonstrates a tray-path defect. Finish the bounded native translation
-   candidate in folder-origin-transition-20261012, review its coherent commit,
-   run checks/build and recapture first/repeated Open and Back under the declared
-   candidate policy. Apply the same source override to chrome and children.
+   The subsequent origin-aligned checkpoint7410b0c closes the fixture gap and
+   demonstrates a tray-path defect. Reviewed correction34cd3d4 is integrated
+   and pushed as5884417. Closed candidate audit4ccc9b9f validates632 pairs and
+   passes the bounded trajectory gate. Do not repeat that diagnosis. Clean
+   integrated checks/build and preview in folder-integrated-checks-20261012 are
+   complete; keep their evidence separate from the captured candidate.
    Do not move items, shift pixels or fit clocks/delays to manufacture evidence.
    Preserve the closed frame-advance/backend/video-dump limits documented in
    the workflow; do not repeat those probes. This is no native acceptance claim.
-3. Continue remaining Manual, folder and HOME suspend/Resume native moving
-   pixels, input and cadence gaps. All four flows stay fail until their evidence
-   supports acceptance. Follow-up shared text regressions remain on the checklist.
+3. Next ordinary comparison: Camera-selected HOME without launching Camera,
+   Manual, ready Contents, held Close/release, ready Camera HOME; repeat once.
+   Compare pressed/released feedback and first cover contributions, then cover
+   withdrawal/banner return. The old manual-continuous-v1 native and
+   manual-browser-fixed-v2 browser audits prove opaque cover only, not moving
+   feedback parity. No new Manual runtime defect is established yet. Preserve
+   equal requested inputs and actual dispatch brackets without phase fitting.
+   Remaining folder and HOME suspend/Resume moving pixels/input/cadence stay open.
+   All four flows stay fail until evidence supports acceptance. Follow-up shared
+   text regressions remain on the checklist.
 
 Do not infer native timing from browser receipt gaps or diagnostic overhead,
 force poses/clock to obtain a match, or substitute a nearest-frame baseline.

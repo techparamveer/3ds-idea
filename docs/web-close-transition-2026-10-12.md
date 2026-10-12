@@ -96,7 +96,16 @@ regression checks, not native acceptance. Closed audit `5fdd90d1` validates
 all 9,627 originals unchanged. Reviewed source is integrated and pushed as
 `dd1a9e1`; committed source/public/tests/config exactly match the candidate.
 The human edit remains unstaged. Candidate checks and captures remain
-pre-integration evidence; a fresh integrated build is a separate verification.
+pre-integration evidence.
+
+The separate clean integrated run repeats 190 focused passes and 2,799 full
+passes with the same one historical PNG failure. Both typechecks and build
+pass. Build `X_PEHoqEx5Cyi-WhOw3JK` is frozen under manifest `a766ffb5`.
+The normal 3035 preview renders the sourced console and both HOME LCDs on the
+muted MacBook. Its initial address autocomplete chose a historical diagnostic
+URL; root corrected it before app or recorder input. Post-preview rehash at
+2026-10-12T02:55:00.175Z verifies all 2,848 files unchanged. This is basic
+integrated-build inspection, not a new animation or matched native run.
 
 All whole animation flows remain fail/unproven. Exact native main-footer
 dispatch, feedback, input/hold, moving pixels, cadence and muted audio are open.
@@ -122,6 +131,9 @@ Private root:
 | candidate-browser-audit-astra-v1/report.md | 5fdd90d1d0152e90cde74462480e4fce40297eb887bce30367996a6d0c2a7844 |
 | candidate-browser-audit-astra-v1/manifest.json | d8ce10c5679353f2def58de8c0891b972f57aaacc2719b1a7477829d1a76bc0e |
 | integration-review-astra-v1/procedure-review.md | b42168330fa523950a11653c25f001bd4237406eb236fe363533da51eefb8a5a |
+| integration-review-astra-v1/integration-evidence-review.md | 804be3b7f49ee64d6a41941d0e90b9f59168cce45ee07a272e7b434faf0c2f9b |
+| integrated-verification-v1/report.md | 2aeafae7b9e73eceb0f9ac7abdb34866cd49cc8a2e2ee9b795b8b9a5f4c21d89 |
+| integrated-verification-v1/manifest.json | a766ffb5e33f6395d89bff1e067069fc8f2a96681f9ed68afecfa5265184af97 |
 
 The audits pin exact original paths, source/title identities, decoder/tool
 versions, input records and hashes. Policies, originals and closed audit trees

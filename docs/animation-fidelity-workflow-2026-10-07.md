@@ -20,7 +20,10 @@ All helpers use Astra extra-high; only root drives the muted MacBook sessions.
 Source is integrated and pushed as dd1a9e1 after source, build, capture and
 procedure review. The candidate and integration have identical committed
 source/public/tests/config. Keep its pre-integration captures distinct from
-the assigned clean integrated rebuild and any subsequent native comparison.
+the clean integrated rebuild and any subsequent native comparison. The rebuild
+now repeats the candidate test totals and passes both typechecks/build.
+Normal preview 3035 is basic-inspected with unchanged frozen files. It does
+not replace a matched native animation run.
 Next use ordinary empty-folder entry and held Back, first and repeat, to
 compare lower tray/root fade against upper orbit retirement. The earlier
 cursor/orbit defect is fixed; overlap alone is not a new defect. Do not move

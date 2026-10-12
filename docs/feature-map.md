@@ -11,7 +11,9 @@ its completed transition and stable ready tail. All Close stages and four fixed
 opening-cover browser comparisons pass. Root inspects 28 chronological pages
 and eight fixed sheets. The reviewed fix is integrated and pushed as dd1a9e1,
 with committed source/public/tests/config equal to the tested candidate.
-No fresh integrated build or native post-integration run is claimed here.
+Clean integrated checks repeat the candidate totals, both typechecks and a
+successful fresh build. The muted normal 3035 preview renders both HOME LCDs;
+all 2,848 frozen files remain unchanged. No new native animation run is claimed.
 Exact native footer dispatch/timing remains open. All whole flows stay fail.
 
 12 October AN-01: [Friend List Close candidate](friends-close-transition-2026-10-12.md)

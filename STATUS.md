@@ -11,7 +11,7 @@ records, Git history and the private archive below.
 | --- | --- |
 | Coordinator | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `dd1a9e1575ae6b116905081ebea7e4b4d45e1bf4` |
+| HEAD | `c31b852a72c5e2e57fb9892241ef42e33d1ca968` |
 | Delivery | Pushed to [draft PR 7](https://github.com/techparamveer/3ds-idea/pull/7). No merge or deployment. |
 | GitHub main | `c76775731fe539473934365d35210d79c3cbb551`, fetched again; already integrated through b84e1b2. |
 | Original checkout | `/Volumes/DeveloperStorage/GitHub/3ds-idea`, main 5ee6fd7, untouched. The older home-fidelity checkout is absent. |
@@ -115,19 +115,33 @@ the human edit and exact candidate source/public/tests/config equivalence.
 Every Close phase and all four fixed opening pairs pass the bounded browser gate.
 Native ordinary footer dispatch, moving pixels and timing remain unmatched.
 `camera_text_readback_astra` completed its read-only next-step recommendation.
-Its new assignment is clean integrated checks in
+Its clean integrated checks are complete in
 `/Users/paramveer/.codex/worktrees/web-integrated-checks-20261012/3ds-idea`,
-branch `codex/web-integrated-checks-20261012`, commit dd1a9e1. It may hydrate
-exact dependencies/LFS assets from the frozen Web candidate, reconcile its local
-STATUS, run checks/build and freeze new artifacts only under
-`web-close-20261012-v1/integrated-verification-v1`. No source changes, GUI,
-server or writes to donor checkouts are assigned.
+branch `codex/web-integrated-checks-20261012`, commit dd1a9e1. Report 2aeafae7
+and manifest a766ffb5 close its tests/build, exact source/dependency/LFS
+identities and unchanged donor. All 2,848 source/build files are frozen.
+Focused 190 pass with one skip; full 2,799 pass with the one known failure,
+102 skips and one TODO. Both typechecks/build pass. No worker writes remain.
+Integration/evidence review 804be3b7 covers the earlier five-doc/PR checkpoint
+at c31b852, not this subsequent integrated-preview operational update.
 Root owns integration, shared docs, PR updates and GUI. [Workstreams](docs/feature-map/workstreams.md) retain
 historical ownership, not permission to restart old assignments.
 
 ## Serving
 
-Latest preview is live at http://127.0.0.1:3034/, owned session 70330/listener
+Latest preview is live at http://127.0.0.1:3035/, owned session 63713/listener
+25766, from the frozen clean integrated checkout above, build
+`X_PEHoqEx5Cyi-WhOw3JK`. HTTP 200, cwd, BUILD_ID, source/build freeze, Chrome
+mute and MacBook-only geometry were verified before GUI input. The new normal
+URL tab shows the sourced console and both HOME LCDs, with Work selected.
+Address autocomplete first chose a historical diagnostic URL; root corrected it
+before any app/recorder input. This deviation is recorded, not discarded.
+All four prior tabs and servers remain. Policy/ledger are in
+`web-close-20261012-v1/integrated-preview-v1`. Post-preview rehash at
+2026-10-12T02:55:00.175Z verifies 2,848 files / 154,769,838 bytes unchanged.
+This is basic preview inspection, not a new native or animation acceptance run.
+
+The previous preview remains at http://127.0.0.1:3034/, owned session 70330/listener
 6976, from the frozen Friends checkout at 0d6746d, build
 `2-PE8STJtB8uO2e30W9ix`. Its committed source/assets/tests/config equal integrated
 ea39e12; this is not a new integrated build. HTTP 200, cwd, BUILD_ID, Chrome
@@ -256,8 +270,8 @@ See [isolation](docs/native-reference-profile-isolation.md) and
 
 ## Next
 
-1. Source dd1a9e1 is pushed. Close the assigned clean integrated checks/build,
-   inspect its preview on the muted MacBook, and keep the evidence tiers separate.
+1. Source dd1a9e1 is pushed; clean integrated checks/build and the normal 3035
+   preview are complete. Keep their evidence tiers separate.
    The Web candidate passes its missing-cover/opening-regression gate; no native
    post-integration pass follows. Do not repeat resolved Camera text, Manual,
    Notes/Notifications, Friends or Web missing-cover repairs. Preserve the human edit.

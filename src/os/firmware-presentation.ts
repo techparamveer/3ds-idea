@@ -9,7 +9,7 @@ import { boundAnimationTracks, nativeFolderGlyphPixels, nativeMessageOverride, n
 import { rowCount, type MenuState } from './state';
 import { getHomeDensityControls } from './home-density-controls';
 import { ownedHomeDensityContact, ownedHomeFolderBackContact, ownedHomeToolbarContact } from './home-gestures';
-import { getHomeFooter, getNativeFolderBalloon, getNativeFolderPanel, getNativeHomePanel, nativeHomeDensityFrame, nativeHomeDensityMetric, type HomePresentation } from './home-presentation';
+import { getHomeFooter, getNativeFolderBalloon, getNativeFolderPanel, getNativeFolderTranslation, getNativeHomePanel, nativeHomeDensityFrame, nativeHomeDensityMetric, type HomePresentation } from './home-presentation';
 import type { HomeTilePose } from './home-tile-pose';
 import { selectHomeSettingsBalloonText, selectHomeHealthBalloonText, selectHomeSoundBalloonText, selectHomeCameraBalloonText } from './home-balloon-presentation';
 import { selectNotesMetadata } from './notes-title-metadata';
@@ -324,14 +324,14 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   const close=sampleSystemHomeFolderClose(state),frame=reduced?16:close?.controller.phase==='closing'?close.controller.folder.appliedFrame??16:entry?.folderFrame??16;
   const gesture=state.system?.homeNavigation.gesture;
   const pressed=ownedHomeFolderBackContact(state,gesture);
-  return renderer.draw(ctx,'launcher','LncFolder_00',{bindings:[binding('LncFolder_00_FadeIn',frame),binding('LncFolder_00_Select',pressed?1:0,['G_Btn_00'])],overrides:{W_Plt_00:{translation:[panel.x,-16,0],size:[panel.width,144]},W_Shdw_00:{translation:[panel.x,-20,0],size:[panel.shadowWidth,164]}}});
+  return renderer.draw(ctx,'launcher','LncFolder_00',{bindings:[binding('LncFolder_00_FadeIn',frame),binding('LncFolder_00_Select',pressed?1:0,['G_Btn_00'])],overrides:{RootPane:{translation:getNativeFolderTranslation(state,frame)},W_Plt_00:{translation:[panel.x,-16,0],size:[panel.width,144]},W_Shdw_00:{translation:[panel.x,-20,0],size:[panel.shadowWidth,164]}}});
  }
  function folderChild(ctx:Context,state:MenuState,empty:boolean,draw:(alpha:number)=>void,reduced=false,entry:HomeFolderEntryPose|null=null){
   if(entry)validateHomeFolderEntryAssets(renderer.packs.launcher);
   const close=sampleSystemHomeFolderClose(state);
   if(reduced||!state.opened||close?.controller.phase!=='closing'&&!entry){draw(1);return true;}
   const frame=close?.controller.phase==='closing'?close.controller.folder.appliedFrame??16:entry?.folderFrame??16;
-  if(!renderer.withPaneParent(ctx,'launcher','LncFolder_00',empty?'N_BlankAnime_00':'N_Dlg_00',[binding('LncFolder_00_FadeIn',frame)],draw)){
+  if(!renderer.withPaneParent(ctx,'launcher','LncFolder_00',empty?'N_BlankAnime_00':'N_Dlg_00',[binding('LncFolder_00_FadeIn',frame)],draw,{RootPane:{translation:getNativeFolderTranslation(state,frame)}})){
    if(entry)throw Error('Native folder entry parent unavailable');
    draw(1);
   }

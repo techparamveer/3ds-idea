@@ -1,7 +1,7 @@
 import { getHomeGestureView, homeSlotAppId } from './system.ts';
 import { getHomeCursorSlot } from './home-cursor-visibility.ts';
 import { hasEmptyHomeFolderSelection, isFolder, menuTiles, rowCount, type MenuState } from './state.ts';
-import { getHomeExposedExtent, getHomeNavigationView, homeGridMetrics, type HomeDensity } from './home-navigation.ts';
+import { getHomeExposedExtent, getHomeNavigation, getHomeNavigationView, homeGridMetrics, type HomeDensity } from './home-navigation.ts';
 import { getTitle } from './app-registry.ts';
 import { LAUNCH_FADE_START_MS, systemTransitionFrame } from './system-transitions.ts';
 
@@ -35,6 +35,16 @@ export function getNativeFolderPanel(state:MenuState){
  if(!state.opened)return null;
  const view=getHomeNavigationView(state);
  return nativeFolderPanelGeometry({...view,firstNativeX:Math.fround(view.unscrolledSlots[0].x-160),lastNativeX:Math.fround(view.unscrolledSlots[view.capacity-1].x-160)});
+}
+
+/** HOME 0x2a3228 saves root selection before loading child history. Opening
+ * 0x29b964 and closing 0x29f0bc translate RootPane independently of CLAN scale.
+ * Use the presented frame: the layout pass applies current before advancing it. */
+export function getNativeFolderTranslation(state:MenuState,frame:number):[number,number,number]{
+ const root=getHomeNavigation(state).rootView,grid=homeGridMetrics(false,root.density),f=Math.fround;
+ const x=f(f(grid.baseX-160+Math.floor(root.selectedSlot/grid.rows)*grid.pitchX)-f(root.currentLeftSlot/grid.rows*grid.pitchX));
+ const y=f(120-grid.baseY-root.selectedSlot%grid.rows*grid.pitchY),remaining=f(1-f(frame/16));
+ return [f(f(x*remaining)*remaining),f(f(y*remaining)*remaining),0];
 }
 
 

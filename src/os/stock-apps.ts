@@ -355,6 +355,12 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
         if(event.type!=='tick'&&event.type!=='lifecycle'&&!(event.type==='command'&&event.command==='back')
           &&!(event.type==='button'&&event.command==='back'))return {state};
       }
+      if(id==='friends'&&state.friendsFooterClose===true){
+        if(event.type==='lifecycle'&&event.phase==='suspend'){
+          const {friendsFooterClose:_close,...rest}=state;return {state:rest};
+        }
+        if(event.type!=='tick'&&event.type!=='lifecycle')return {state};
+      }
       if(cameraTitles.has(id)&&state.screen==='gallery'){
         const count=folder(state)?.photos.length??0,step=cameraStep(state);
         if(event.type==='tick')return {state:cameraPut(state,cameraBrowseTick(step,event.elapsedMs,count))};

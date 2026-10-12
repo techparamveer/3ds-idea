@@ -10,7 +10,7 @@ import { getHomeCursorLoopFrame } from '../os/home-cursor-loop';
 import { getHomeCursorSlot } from '../os/home-cursor-visibility';
 import { apps, getApp } from '@/os/apps';
 import { homeTitles, getTitle } from '@/os/app-registry';
-import { completeManualFooterClose, completeNotificationsFooterClose, completeNotesFooterClose, currentEntry, getActiveAppView, launchHomeShortcut, selectedTitle } from '@/os/system';
+import { completeFriendsFooterClose, completeManualFooterClose, completeNotificationsFooterClose, completeNotesFooterClose, currentEntry, getActiveAppView, launchHomeShortcut, selectedTitle } from '@/os/system';
 import { createMenuAudio, type Sound } from '@/os/audio';
 import { createPortfolioState, reduceSystem, tickSystem, tickHomeNavigationClockObserved, restoreSettings, restoreRuntimeData, dispatchSystemEvent, releaseSystemInputs, setSystemSleeping, STORAGE_KEY } from '@/os/system';
 import { enableHomeControls, reconcileHomeControls, isHomeSwitchPresentationActive } from '@/os/home-controls';
@@ -419,7 +419,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   function dispatch(event:AppEvent,userGesture=false){if(userGesture)void audio.unlock();const label=event.type==='button'||event.type==='command'?event.command:event.type;commit((current,now)=>{
     const decision=nativeScreenInput(event,screens.stockStatus(current));
     if(decision==='home'){
-      const cancelled=screens.cancelManualFooterClose(current)||screens.cancelNotesFooterClose(current)||screens.cancelNotificationsFooterClose(current),escaped=escapeUnreadyNativeScreen(current,now);
+      const cancelled=screens.cancelFriendsFooterClose(current)||screens.cancelManualFooterClose(current)||screens.cancelNotesFooterClose(current)||screens.cancelNotificationsFooterClose(current),escaped=escapeUnreadyNativeScreen(current,now);
       return cancelled?releaseSystemInputs(escaped,now):escaped;
     }
     if(decision==='retry'){screens.retryStockScreen();return releaseSystemInputs(current,now);}
@@ -606,6 +606,12 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
         if(next!==state){state=next;bannerHost=resetHomeBannerPrimary(bannerHost);observeFolderBanner();effects.drain(false);paint();}
         else screens.revokeNotesFooterCloseCandidate();
       }
+      const friendsOwner=screens.presentFriendsFooterClose(state,performance.now()-start);
+      if(friendsOwner){
+        const next=completeFriendsFooterClose(state,friendsOwner,performance.now()-start);
+        if(next!==state){state=next;bannerHost=resetHomeBannerPrimary(bannerHost);observeFolderBanner();effects.drain(false);paint();}
+        else screens.revokeNotesFooterCloseCandidate();
+      }
       const manualIdentity=screens.presentManualFooterClose(state,performance.now()-start);
       if(manualIdentity){
         const next=completeManualFooterClose(state,manualIdentity,performance.now()-start);
@@ -671,7 +677,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     // cadence, and a high-refresh monitor cannot paint extra close updates.
     const closeAdvanced=(!!applicationCloseBeforeTick||!!closeBeforeTick&&closeBeforeTick.controller.phase!=='complete')&&state.system!.homeClock.updateCount!==updatesBeforeTick;
     const entryActive=state.powered&&angle>12&&!homeClockSuspended&&!document.hidden&&!state.system!.sleeping&&topScreen.visible&&touchScreen.visible&&!renderer.getContext().isContextLost()
-     &&(screens.homeEntryMotionActive(state)||screens.notesBootCoverActive(state)||screens.manualEntryActive(state)||screens.notesFooterCloseActive(state)||screens.notificationsFooterCloseActive(state)||screens.manualFooterCloseActive(state)||screens.appletEntryActive(state));
+     &&(screens.homeEntryMotionActive(state)||screens.notesBootCoverActive(state)||screens.manualEntryActive(state)||screens.notesFooterCloseActive(state)||screens.notificationsFooterCloseActive(state)||screens.manualFooterCloseActive(state)||screens.friendsFooterCloseActive(state)||screens.appletEntryActive(state));
     const lcdFps=screenPaintFps(quality,closeAdvanced||entryActive);
     const bootFrame=state.system!.phase==='boot'?bootRevealFrame(now-start-state.system!.since,reduced):null;
     const bootPaintDue=state.powered&&angle>12&&!document.hidden&&!state.system!.sleeping&&bootRevealNeedsPaint(bootFrame,lastBootPaintFrame,reduced);

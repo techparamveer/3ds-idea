@@ -329,6 +329,13 @@ export function completeNotificationsFooterClose(state:MenuState,owner:string,no
   ||instance.state.screen!=='main'||instance.state.notificationsFooterClose!==true)return state;
  return commitRuntime(state,completeApplet(s.runtime,owner,null,true,now),now);
 }
+export function completeFriendsFooterClose(state:MenuState,owner:string,now:number):MenuState {
+ const s=state.system,instance=s?.runtime.instances[owner];
+ if(!s||!state.powered||!Number.isFinite(now)||s.phase!=='app'||s.sleeping||s.preferences||s.dialog||s.runtime.active!==owner
+  ||s.runtime.systemApplet!==owner||instance?.appId!=='friends'||instance.caller!==null||instance.closing||instance.suspended
+  ||instance.state.screen!=='main'||instance.state.friendsFooterClose!==true)return state;
+ return commitRuntime(state,completeApplet(s.runtime,owner,null,true,now),now);
+}
 export function completeManualFooterClose(state:MenuState,identity:ManualFooterCloseIdentity,now:number):MenuState {
  const s=state.system;
  if(!s||!state.powered||!Number.isFinite(now)||s.sleeping||s.preferences||s.dialog||state.panel

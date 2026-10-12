@@ -21,6 +21,12 @@ export function manualFooterCloseRequestEligible(runtime: AppRuntime, owner: str
     && instance?.appId === 'manual' && instance.caller === null && !instance.closing && !instance.suspended
     && instance.state.screen === 'main' && typeof instance.state.manualTitleId === 'string' && /^[0-9a-f]{16}$/.test(instance.state.manualTitleId);
 }
+export function friendsFooterCloseRequestEligible(runtime: AppRuntime, owner: string): boolean {
+  const instance = runtime.instances[owner];
+  return !runtime.sleeping && runtime.active === owner && runtime.systemApplet === owner
+    && instance?.appId === 'friends' && instance.caller === null && !instance.closing && !instance.suspended
+    && instance.state.screen === 'main';
+}
 export function runtimeView(runtime: AppRuntime, now = runtime.lastTick): AppView | null {
   const active = activeInstance(runtime); return active ? getAppModule(active.appId)!.view(active.state, { now, shared: runtime.shared }) : null;
 }
@@ -64,6 +70,8 @@ function applyEffects(runtime: AppRuntime, owner: string, effects: readonly AppE
       const instance = next.instances[owner];
       if (manualFooterCloseRequestEligible(next, owner)) next = instance.state.manualFooterClose === true ? next
         : { ...next, instances: { ...next.instances, [owner]: { ...instance, state: { ...instance.state, manualFooterClose: true } } } };
+      else if (friendsFooterCloseRequestEligible(next, owner)) next = instance.state.friendsFooterClose === true ? next
+        : { ...next, instances: { ...next.instances, [owner]: { ...instance, state: { ...instance.state, friendsFooterClose: true } } } };
       else if (getTitle(instance.appId)!.kind === 'application') next = closeApplication(next, now);
       else next = completeApplet(next, owner, null, true, now, depth + 1);
     } else if (effect.type === 'launch') next = { ...next, pendingLaunch: effect.appId };

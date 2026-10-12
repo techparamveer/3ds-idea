@@ -25,6 +25,7 @@ export function createAppletFooterClosePresentation<Identity extends NotesFooter
   identityOf: (state: MenuState, generation: number) => Identity | null,
   sameIdentity: (a: Identity | null, b: Identity | null) => boolean = same,
   retainRecoveryOnResourceReplacement = false,
+  feedbackTerminalFrame = 1,
 ) {
   let identity: Identity | null = null, ticket = 0, disposed = false, recovering = false, done = false;
   let presented: AppletFooterClosePose<Identity> | undefined, acceptedAt: number | undefined;
@@ -56,9 +57,9 @@ export function createAppletFooterClosePresentation<Identity extends NotesFooter
         pose = presented?.kind === 'in' && presented.frame === 20 && advance
           ? Object.freeze({ ...base, kind: 'handoff' })
           : Object.freeze({ ...base, kind: 'in', frame: reduced ? 20 : Math.min(20, (presented?.kind === 'in' ? presented.frame : 0) + (advance && presented?.kind === 'in' ? 1 : 0)) });
-      } else if (presented?.kind === 'out' || presented?.kind === 'feedback' && presented.frame === 1 && advance) {
+      } else if (presented?.kind === 'out' || presented?.kind === 'feedback' && presented.frame === feedbackTerminalFrame && advance) {
         pose = Object.freeze({ ...base, kind: 'out', frame: reduced ? 20 : presented?.kind === 'out' ? Math.min(20, presented.frame + (advance ? 1 : 0)) : 0 });
-      } else pose = Object.freeze({ ...base, kind: 'feedback', frame: reduced ? 1 : Math.min(1, (presented?.kind === 'feedback' ? presented.frame : 0) + (advance ? 1 : 0)) });
+      } else pose = Object.freeze({ ...base, kind: 'feedback', frame: reduced ? feedbackTerminalFrame : Math.min(feedbackTerminalFrame, (presented?.kind === 'feedback' ? presented.frame : 0) + (advance ? 1 : 0)) });
       pending = { pose, sampledAt: now }; return pose;
     },
     bind(pose: AppletFooterClosePose<Identity>, pair: object, resources: object): boolean {

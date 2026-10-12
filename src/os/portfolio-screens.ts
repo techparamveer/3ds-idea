@@ -8,6 +8,7 @@ import { getTitle } from './app-registry';
 import type { AppView } from './app-types';
 import type { MenuState } from './state';
 import type { NotesFooterCloseDraw as NotesFooterClosePaint } from './notes-footer-close-assets';
+import type { FriendsFooterClosePaint } from './friends-footer-close-assets';
 import { measureBitmapText, type BitmapFont } from './bitmap-font';
 import { createStockScreenPresentation, type NotesIntroPaint } from './stock-screen-presentation';
 import { createSuspendedApplicationCapture } from './notes-suspended-capture';
@@ -211,15 +212,15 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
   if(s.detail&&entry.images&&entry.images.length>1)label(b,`◀ ${s.photo+1}/${entry.images.length} ▶`,157,226,12,'#6b7380','center');
   button(b,222,214,95,24,s.detail?(entry.app?'Ⓐ Open':entry.url?'Ⓐ Visit':'Ⓐ Done'):'Ⓐ Open');
  }
- function semanticApplication(t:C,b:C,view:AppView,state:MenuState,owner:string,date:Date,time:number,verification?:{sampleCalendar?:boolean},notesFooterClose?:NotesFooterClosePaint,notificationsFooterClose?:{frame:number},manualFooterClose?:{frame:number}){
+ function semanticApplication(t:C,b:C,view:AppView,state:MenuState,owner:string,date:Date,time:number,verification?:{sampleCalendar?:boolean},notesFooterClose?:NotesFooterClosePaint,notificationsFooterClose?:{frame:number},manualFooterClose?:{frame:number},friendsFooterClose?:FriendsFooterClosePaint){
   const runtime=state.system!.runtime;
   const capture=view.appId==='game-notes'?suspendedCapture.read(runtime):undefined;
   notesMetadata.sync(runtime,capture??{status:'none'});
   const native=stockScreens.prepare(view,owner,nativeFonts.get(t));
   const notesPaint=syncNotesIntro(state,view,native.status==='ready'?native.assets.renderer.packs:undefined);
-  return stockScreens.draw(t,b,view,owner,nativeFonts.get(t),capture,date,time,notesPaint,verification,notesFooterClose,notificationsFooterClose,manualFooterClose);
+  return stockScreens.draw(t,b,view,owner,nativeFonts.get(t),capture,date,time,notesPaint,verification,notesFooterClose,notificationsFooterClose,manualFooterClose,friendsFooterClose);
  }
- function overlay(t:C,b:C,state:MenuState,time:number,reduced:boolean,nativeSystem=false,date=new Date(),verification?:{sampleCalendar?:boolean},deferManualDestination=false,notesFooterClose?:NotesFooterClosePaint,notificationsFooterClose?:{frame:number},manualFooterClose?:{frame:number}){
+ function overlay(t:C,b:C,state:MenuState,time:number,reduced:boolean,nativeSystem=false,date=new Date(),verification?:{sampleCalendar?:boolean},deferManualDestination=false,notesFooterClose?:NotesFooterClosePaint,notificationsFooterClose?:{frame:number},manualFooterClose?:{frame:number},friendsFooterClose?:FriendsFooterClosePaint){
   const s=state.system;if(!s)return;
   if(s.phase==='app'){
    const view=getActiveAppView(state,time);let complete=false;
@@ -228,7 +229,7 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
     // Keep acquisition live while the caller pair is covered. Resource errors
     // still draw the existing paired recovery rather than waiting for a cover.
     if(view.appId==='manual'&&deferManualDestination)syncStockView(state,t);
-    if(view.appId!=='manual'||!deferManualDestination||stockScreens.getFailure()!==null)complete=semanticApplication(t,b,view,state,s.runtime.active,date,time,verification,notesFooterClose,notificationsFooterClose,manualFooterClose);
+    if(view.appId!=='manual'||!deferManualDestination||stockScreens.getFailure()!==null)complete=semanticApplication(t,b,view,state,s.runtime.active,date,time,verification,notesFooterClose,notificationsFooterClose,manualFooterClose,friendsFooterClose);
    }
    // Retain the application slot's last complete pair, before host overlays.
    if(complete&&s.runtime.active&&s.runtime.active!==resumeCoveredOwner&&!s.sleeping&&!s.preferences&&!s.dialog)suspendedCapture.record(s.runtime,s.runtime.active,t.canvas,b.canvas);

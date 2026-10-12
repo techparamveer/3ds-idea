@@ -26,7 +26,7 @@ test('only the no-caller main-list footer requests presentation and retains the 
   const returned = close(withCaller);
   assert.equal(returned.system.runtime.active, caller.system.runtime.application);
   assert.equal(returned.system.runtime.systemApplet, null);
-  for (const appId of ['friends', 'notifications', 'browser', 'miiverse']) {
+  for (const appId of ['notifications', 'browser', 'miiverse']) {
     const other = invokeSystemApplet(tickSystem(createPortfolioState(), 3001), appId, 4000);
     assert.equal(reduceSystem(other, 'back', 4100).system.runtime.systemApplet, null);
   }

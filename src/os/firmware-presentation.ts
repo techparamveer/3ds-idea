@@ -426,6 +426,7 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   const group=contact.side==='middle'?'G_BtnW_C_03':'G_BtnW_L_03',pack=renderer.packs.launcher;
   const layout=pack.layouts.LncBtmBtn_02,clip=pack.animations.LncBtmBtn_02_Decide,identity=pack.resourceSources?.animations?.LncBtmBtn_02_Decide;
   if(!layout||!clip||clip.frames!==6||clip.loop||!clip.childBinding||!clip.groups.includes(group)
+   ||('unsupported' in clip&&(!Array.isArray(clip.unsupported)||clip.unsupported.length))
    ||identity?.titleId!=='0004003000009802'||identity.path!=='launcher_LZ.bin/anim/LncBtmBtn_02_Decide.bclan'||identity.sha256!=='65eb55af8110e51cf8efdc9bafb70d681fdbf528a211a0df5d9ca172546de4bc')throw Error('Native Manual entry footer Decide source unavailable');
   const tracks=boundAnimationTracks(layout,{...clip,groups:[group]}),suffix=group.slice('G_BtnW_'.length);
   if(!['P_BtnW_','P_EdgeW_'].every(prefix=>tracks.some(track=>track.target===prefix+suffix&&track.property==='materialColor.6.3')))throw Error('Native Manual entry footer Decide group unavailable');

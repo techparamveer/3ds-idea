@@ -69,6 +69,14 @@ test('idle, foreign, outside, cancelled, changed selection and app-origin contac
  }
 }));
 
+test('selected Manual entry Decide rejects unsupported source fields before drawing',()=>{
+ const pack=structuredClone(launcher);pack.animations.LncBtmBtn_02_Decide.unsupported.push('unsupported source field');
+ fixture(({home,draws})=>{
+  assert.throws(()=>home.manualEntryFooter(canvas().getContext('2d'),touch(selected(boot(),'camera'),'down')),/Manual entry footer Decide source unavailable/);
+  assert.equal(draws.length,0);
+ },pack);
+});
+
 test('selected Decide source and binding groups fail explicitly instead of keeping held pixels',()=>{
  const mutations=[
   p=>delete p.animations.LncBtmBtn_02_Decide,

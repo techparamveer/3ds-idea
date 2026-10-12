@@ -50,7 +50,7 @@ function applicationManualPacks(titleId:string,page=false):readonly NativeTitleP
     {url:'packs/manual/layout-HLTxt.json',alias:'manual-category',layouts:['HLTxt'],animations:[]},
     {url:'packs/manual/layout-ScrollIndicator.json',alias:'manual-scroll',layouts:['ScrollIndicator'],animations:['ScrollIndicator_Wait']},
     {url:'packs/manual/layout-BtnShdw00.json',alias:'manual-footer-shadow',layouts:['BtnShdw00'],animations:['BtnShdw00_SceneIn']},
-    {url:'packs/manual/layout-BtnCloseLng00.json',alias:'manual-footer-close',layouts:['BtnCloseLng00'],animations:['BtnCloseLng00_SceneIn','BtnCloseLng00_Decide']},
+    {url:'packs/manual/layout-BtnCloseLng00.json',alias:'manual-footer-close',layouts:['BtnCloseLng00'],animations:['BtnCloseLng00_SceneIn','BtnCloseLng00_Select','BtnCloseLng00_Decide']},
     {url:'packs/manual/layout-BtnLngSel00.json',alias:'manual-footer-language',layouts:['BtnLngSel00'],animations:['BtnLngSel00_SceneIn']},
   ];
   // An unknown title has no delivered manual: its absent pack fails the load explicitly.
@@ -659,8 +659,10 @@ function drawApplicationManual(renderer:NativeLayoutRenderer,top:CanvasRendering
   }
   draw(bottom,'manual-cursor','CsrHeadLine00',{center:[160,APPLICATION_MANUAL_SLOTS.firstRow+4],bindings:[{name:'CsrHeadLine00_Wait',frame:22}],clip:APPLICATION_MANUAL_LIST_CLIP});
   draw(bottom,'manual-footer-shadow','BtnShdw00',{bindings:[{name:'BtnShdw00_SceneIn',frame:20}]});
-  const closeOptions:Parameters<NativeLayoutRenderer['draw']>[3]={textSampling:'lcd-source-size',bindings:[{name:'BtnCloseLng00_SceneIn',frame:20},...(options?.manualFooterClose?[{name:'BtnCloseLng00_Decide',frame:manualFooterFeedbackFrame(options.manualFooterClose.frame)}]:[])],overrides:{T_BtnB_01:message('BtnCloseLng'),T_BtnF_01:message('BtnCloseLng')}};
-  if(options?.manualFooterClose)okay=renderer.drawLayout(bottom,'manual-footer-close','BtnCloseLng00',prepareManualFooterFeedback(renderer),closeOptions)&&okay;
+  const feedback=options?.manualFooterClose?{name:'BtnCloseLng00_Decide',frame:manualFooterFeedbackFrame(options.manualFooterClose.frame)}
+    :view.data?.manualClosePress===true?{name:'BtnCloseLng00_Select',frame:1}:undefined;
+  const closeOptions:Parameters<NativeLayoutRenderer['draw']>[3]={textSampling:'lcd-source-size',bindings:[{name:'BtnCloseLng00_SceneIn',frame:20},...(feedback?[feedback]:[])],overrides:{T_BtnB_01:message('BtnCloseLng'),T_BtnF_01:message('BtnCloseLng')}};
+  if(feedback)okay=renderer.drawLayout(bottom,'manual-footer-close','BtnCloseLng00',prepareManualFooterFeedback(renderer),closeOptions)&&okay;
   else draw(bottom,'manual-footer-close','BtnCloseLng00',closeOptions);
   draw(bottom,'manual-footer-language','BtnLngSel00',{textSampling:'lcd-source-size',bindings:[{name:'BtnLngSel00_SceneIn',frame:20}],overrides:languageOverrides});
   return okay;

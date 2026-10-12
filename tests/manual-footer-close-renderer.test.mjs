@@ -38,10 +38,12 @@ function canvas(){
  };
  c.getContext=()=>ctx;return c;
 }
-async function fixture(run,brokenTexture=false){
+async function fixture(run,brokenTexture=false,missingSelect=false){
  const names=['fetch','document','window','Image'],saved=new Map(names.map(name=>[name,Object.getOwnPropertyDescriptor(globalThis,name)])),nativeFetch=globalThis.fetch,fetched=[];
  const footer=JSON.parse(readFileSync(new URL('packs/manual/layout-BtnCloseLng00.json',base))),texture=footer.textures[footer.layouts.BtnCloseLng00.textures[0]].url;
- globalThis.fetch=async(url,options)=>{if(String(url).startsWith('blob:'))return nativeFetch(url,options);const path=String(url).slice(href.length);assert.ok(String(url).startsWith(href));fetched.push(path);return brokenTexture&&path===texture?new Response(null,{status:404}):new Response(readFileSync(new URL(path,base)));};
+ globalThis.fetch=async(url,options)=>{if(String(url).startsWith('blob:'))return nativeFetch(url,options);const path=String(url).slice(href.length);assert.ok(String(url).startsWith(href));fetched.push(path);
+  if(missingSelect&&path==='packs/manual/layout-BtnCloseLng00.json'){const pack=structuredClone(footer);delete pack.animations.BtnCloseLng00_Select;return new Response(JSON.stringify(pack));}
+  return brokenTexture&&path===texture?new Response(null,{status:404}):new Response(readFileSync(new URL(path,base)));};
  globalThis.document={createElement:name=>{assert.equal(name,'canvas');return canvas();}};
  globalThis.window={location:{href}};
  globalThis.Image=class{async decode(){const response=await nativeFetch(this.src),{data,info}=await sharp(Buffer.from(await response.arrayBuffer())).ensureAlpha().raw().toBuffer({resolveWithObject:true});this.data=new Uint8ClampedArray(data);this.width=this.naturalWidth=info.width;this.height=this.naturalHeight=info.height;}};
@@ -53,7 +55,9 @@ async function fixture(run,brokenTexture=false){
 test('real Manual loader and renderer publish first/repeat Contents and both Close feedback poses without losing source textures',async()=>{
  for(let cycle=0;cycle<2;cycle++)await fixture(async({renderer,dispose},fetched)=>{
  const original=JSON.stringify(renderer.packs['manual-footer-close']),aliases=Object.keys(renderer.packs),top=canvas(),bottom=canvas();top.width=400;top.height=240;bottom.width=320;bottom.height=240;
- const draw=options=>helpers.drawNativeHelperFrame(renderer,top.getContext('2d'),bottom.getContext('2d'),view,options);
+ const draw=(options,held=false)=>helpers.drawNativeHelperFrame(renderer,top.getContext('2d'),bottom.getContext('2d'),held?{...view,data:{...view.data,manualClosePress:true}}:view,options);
+ assert.equal(draw(),true,renderer.diagnostics.join('\n'));
+ assert.equal(draw(undefined,true),true,renderer.diagnostics.join('\n'));
  assert.equal(draw(),true,renderer.diagnostics.join('\n'));
  assert.equal(draw({manualFooterClose:{frame:0}}),true,renderer.diagnostics.join('\n'));
  assert.equal(draw({manualFooterClose:{frame:1}}),true,renderer.diagnostics.join('\n'));
@@ -63,6 +67,7 @@ test('real Manual loader and renderer publish first/repeat Contents and both Clo
  const prepared=JSON.stringify(renderer.packs);assert.equal(draw({manualFooterClose:{frame:0}}),true);assert.equal(JSON.stringify(renderer.packs),prepared);
  assert.equal(JSON.stringify(renderer.packs['manual-footer-close']),original);
  renderer.textures['manual-footer-close'].clear();
+ assert.equal(draw(undefined,true),false,'held feedback cannot bypass missing source textures');
  assert.equal(draw({manualFooterClose:{frame:1}}),false,'missing decoded selected textures must still fail composition');
  assert.match(renderer.diagnostics.at(-1),/manual-footer-close\/BtnCloseLng00: Missing native texture/);
  dispose();dispose();assert.equal(renderer.cacheBytes,0);assert.equal(renderer.draw(bottom.getContext('2d'),'manual-footer-close','BtnCloseLng00'),false);
@@ -72,4 +77,8 @@ test('real Manual loader and renderer publish first/repeat Contents and both Clo
 
 test('missing selected Manual texture bytes fail the real loader instead of manufacturing a ready renderer',async()=>{
  await assert.rejects(fixture(()=>assert.fail('missing texture cannot reach readiness'),true),/Native title texture HTTP 404/);
+});
+
+test('missing Select fails the real required-clip loader before a Manual can become ready',async()=>{
+ await assert.rejects(fixture(()=>assert.fail('missing Select cannot reach readiness'),false,true),/BtnCloseLng00_Select/);
 });

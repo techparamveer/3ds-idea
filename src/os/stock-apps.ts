@@ -343,6 +343,21 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
         }
         if(event.type!=='tick'&&event.type!=='lifecycle')return {state};
       }
+      if(id==='manual'&&state.manualTitleId&&state.screen==='main'){
+        const {manualClosePress:_press,...released}=state;
+        if(event.type==='lifecycle')return {state:_press===undefined?state:released};
+        if(event.type==='touch'){
+          if(event.phase==='cancel')return {state:_press===undefined?state:released};
+          const action=Number.isFinite(event.x)&&Number.isFinite(event.y)?stockScreenActionAt(view(state,context),event.x,event.y):null;
+          if(event.phase==='down')return {state:{...state,manualClosePress:action==='back'}};
+          // False records a disarmed contact, so sliding back cannot close.
+          if(event.phase==='move')return {state:_press===true&&action!=='back'?{...state,manualClosePress:false}:state};
+          if((_press===true&&action!=='back')||(_press===false&&action==='back'))return {state:released};
+          // A release without a contact retains the public one-shot tap API.
+          return action?activate(released,action,context):{state:released};
+        }
+        if(event.type==='action'||event.type==='command'||event.type==='button')state=_press===undefined?state:released;
+      }
       // Retain the captured outgoing list. Recovery B/HOME/power still use
       // their existing routes; only a footer request owns this presentation.
       if(id==='game-notes'&&state.notesFooterClose===true&&event.type!=='tick'&&event.type!=='lifecycle'

@@ -11,8 +11,8 @@ records, Git history and the private archive below.
 | --- | --- |
 | Coordinator | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `2b08f0a1e05fc8caa03222024648e6cb9a76a6e1` |
-| Delivery | Runtime integrated at the exact tested commit. Documentation review and push to [draft PR 7](https://github.com/techparamveer/3ds-idea/pull/7) follow. No merge or deployment. |
+| HEAD | `0b890db58ec3ca4089b4c3ff31baabf5c0f30e86` |
+| Delivery | Manual HOME reveal runtime 0b890db is integrated and pushed at the exact reviewed, built and captured commit. Documentation review for [draft PR 7](https://github.com/techparamveer/3ds-idea/pull/7) follows. No merge or deployment. |
 | GitHub main | `c76775731fe539473934365d35210d79c3cbb551`, fetched again; already integrated through b84e1b2. |
 | Original checkout | `/Volumes/DeveloperStorage/GitHub/3ds-idea`, main 5ee6fd7, untouched. The older home-fidelity checkout is absent. |
 
@@ -69,7 +69,37 @@ Workers/reviewers use `gpt-6-astra`, `xhigh`. Tools cannot change or verify the
 in-flight coordinator model or service tier. Do not claim such a change.
 One coordinator, at most two workers, one independent reviewer.
 
-Current continuation is `manual-held-close-20261012-v1`. Both source workers
+Current slice: `manual-home-reveal-20261012-v1`, integrated at0b890db.
+The source worker and audit worker have finished; neither has a source or
+artifact write reservation. Source review22fb41f9 and verification review0477e313
+are closed with no actionable findings. Root owns integration, shared docs,
+PR7 and the muted GUI. A final documentation/evidence review may use only a
+new private `integration-review-astra-v1` directory, not source or shared docs.
+
+The candidate is frozen in
+`/Users/paramveer/.codex/worktrees/manual-home-reveal-20261012/3ds-idea`,
+branch `codex/manual-home-reveal-20261012`, exact commit0b890db, build
+`aliq5AWB4-hIMEWfdtw6D`. Do not edit or rebuild it, including local STATUS.
+Manifestc6ad7fd6 binds 2,852 source/build files, 15 verification artifacts,
+14,826 dependency entries and 77 models. Pre/post capture checks find zero
+changes. Worker checks report 259 passes/two skips; independent checks report
+108 passes/two skips plus six compositor probes. Both typechecks and build
+pass. Full tests report 2,829 passes, the known Camera PNG failure, 102 skips
+and one TODO. No shader/material changes.
+
+Raw native audit07aee4ea, manifest1359bb55, validates 123 own PNGs.
+Native PID83097 quit with exit0 and profile031bc535 is restored. Candidate
+auditc20648a2, manifeste4931b2d, validates all 1,218 pairs/2,436 PNGs and
+unchanged originals. All 16 fixed paired gates, 46 supplementary Close pairs,
+22 held-Close crops and two released-entry crops are exact. Root inspected
+all 25 candidate sheets and reopened both native boundary sheets, recorded
+in inspection2252b3ba. The bounded selected-first ordering defect is corrected.
+Native per-neighbour stagger, HOME ring/toolbar/upper residuals, input epochs,
+cadence and muted audio remain open. All four whole flows remain fail/unproven.
+The temporary 3040 capture tab/server are closed. The new normal 3040 preview
+is inspected below; older normal 3039 is unchanged.
+
+The preceding continuation is `manual-held-close-20261012-v1`. Both source workers
 have finished. Held Close commits91c01e1/bea9aed and released-entry
 commits a10af11/2b08f0a are integrated by fast-forward, preserving the exact
 tested SHA2b08f0a. Independent source reviews3f4d03c1 and2744baa3 verified the
@@ -103,9 +133,13 @@ differences. No native whole-screen equality or audio acceptance follows.
 `camera_text_readback_astra` has finished the candidate audit with no running
 commands or further writes. `camera_readback_audit_astra` has finished source
 work. Root owns shared docs, integration, PR updates and GUI.
-`camera_readback_review_astra` may receive only the final bounded documentation/
-evidence review in the new private `integration-evidence-review-astra-v1`.
-No reviewer source, shared-doc, frozen-build or original-capture writes.
+`camera_readback_review_astra` closed the final documentation/evidence review
+c86c610e, manifestd4af050c, with no findings. All704 relative file targets and
+whitespace checks pass. The seven-document snapshot58de39b5 was committed as
+2a73754 after checking every staged file against the reviewed bytes.
+PR bodyf13c072f and pushed head verify. Those assignments have finished and
+their finite commands are closed. New assignments are listed above.
+This live HEAD/seat update follows the immutable reviewed snapshot.
 
 Native PID55219 quit and profile031bc535 is restored. Capture tab/server3039
 are closed, as is the unused3038 setup server. Normal3037 and six older tabs
@@ -150,7 +184,17 @@ retain historical ownership, not permission to restart old assignments.
 
 ## Serving
 
-Latest preview is live at http://127.0.0.1:3039/, owned session37010/listener
+Latest preview is live at http://127.0.0.1:3040/, owned session 30872/listener
+94900, from the frozen Manual HOME reveal checkout at exact integrated commit
+0b890db and build `aliq5AWB4-hIMEWfdtw6D`. HTTP 200, exact cwd, Chrome mute and
+MacBook window bounds verify. The normal URL renders the sourced console and
+both HOME LCDs with Camera selected. Address autocomplete first chose the old
+diagnostic query; root corrected it before any app or recorder input. All seven
+older tabs remain. The policy and observations are in the current reveal run's
+`integrated-preview.md`. This is basic inspection, not native animation or
+audio acceptance.
+
+Previous preview is live at http://127.0.0.1:3039/, owned session37010/listener
 78976, from the frozen Manual candidate checkout at exact integrated commit
 2b08f0a and build `hOpO6-7Ggwg0malvjowVR`. HTTP200, exact cwd, pre/post
 freeze, Chrome mute and MacBook window bounds verify. The normal URL renders
@@ -262,6 +306,14 @@ rehash at 2026-10-12T00:51:48.983Z verifies all 2,840 files unchanged.
 
 ## Latest Evidence
 
+[Manual HOME reveal](docs/manual-home-reveal-2026-10-12.md) is integrated at
+the exact tested commit0b890db. It keeps selected Camera while the cover
+withdraws, restores neighbours at the existing banner-free handoff, then
+admits the banner. This is a fitted visibility adaptation, not the native
+loader schedule. Its 1,218-pair audit and fixed browser regressions are closed.
+Whole native motion remains unproven; the explicit unmasked residuals and
+partial-neighbour stagger are not waived by the ordering improvement.
+
 [Manual feedback](docs/manual-feedback-2026-10-12.md) closes the missing held
 Close response and retained dark entry footer at exact tested commit2b08f0a.
 Native movie ordering supports the intended feedback sequence; the fixed
@@ -371,17 +423,19 @@ See [isolation](docs/native-reference-profile-isolation.md) and
    Preserve the closed frame-advance/backend/video-dump limits documented in
    the workflow; do not repeat those probes. This is no native acceptance claim.
 3. Both [Manual feedback defects](docs/manual-feedback-2026-10-12.md) are
-   corrected, reviewed, built and recaptured. Finish the documentation/evidence
-   review and push the exact integrated commits to PR7. Do not reopen the two
-   resolved feedback paths or the earlier missing-cover repair.
-4. The next visible Manual residual is the HOME reveal population: native
-   exposes selected Camera before the surrounding icons, while the browser
-   reveals its populated grid. First separate root-fixture differences from
-   actual reveal scheduling using the existing captures and source. Any new
-   runtime edit needs a captured defect beyond the current sampling uncertainty.
-   Keep exact moving pixels/input/cadence, remaining folder and HOME suspend/
-   Resume comparison, and the shared text regression sweep open. All four
-   whole flows remain fail/unproven. Do not force phases to manufacture a pass.
+   corrected, reviewed, built, recaptured and pushed. Exact runtime2b08f0a and
+   reviewed checkpoint2a73754 are on PR7. Normal preview 3039 is preserved;
+   the latest selected-first reveal preview is 3040, listed under Serving.
+   Do not reopen the two resolved feedback paths or the earlier missing-cover
+   repair. The known missing historical Camera PNG test remains a failure.
+4. Manual selected-first reveal is corrected at0b890db and recaptured. Do not
+   repeat its closed diagnosis or add another source-only pass. Native also
+   has partial-neighbour population, which the single handoff does not match.
+   Next compare that remaining visible stagger against the preserved normal
+   movie and own-PNG sequence, without guessing a clock or replacing fixed
+   baselines. Keep the ring/toolbar/upper residuals, exact moving pixels/input/
+   cadence, folder and HOME suspend/Resume comparison, and shared text sweep
+   open. All four whole flows remain fail/unproven.
 
 Do not infer native timing from browser receipt gaps or diagnostic overhead,
 force poses/clock to obtain a match, or substitute a nearest-frame baseline.
@@ -392,7 +446,8 @@ Preserve failed attempts. Keep reviewed commits pushed to draft PR7.
 New artifacts use the writable Sandisk1 private root, not the full
 DeveloperStorage sparsebundle:
 `/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261009/opus-completion/toprow-current-20261010/`.
-Latest bundle: `manual-held-close-20261012-v1/`. Earlier bundles are
+Latest bundle: `manual-home-reveal-20261012-v1/`. The preceding bundle is
+`manual-held-close-20261012-v1/`. Earlier bundles are
 `folder-origin-aligned-20261012-v1/`,
 `folder-raw-endpoints-20261012-v1/` and `folder-raw-motion-20261012-v1/`;
 the preceding full capture remains under

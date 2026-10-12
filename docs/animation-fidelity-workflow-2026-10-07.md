@@ -1,5 +1,21 @@
 # Animation fidelity workflow
 
+## Manual selected-first return delivered
+
+The [bounded reveal fix](manual-home-reveal-2026-10-12.md) is integrated at
+exact reviewed, built and captured commit0b890db. Source identifies the native
+ordinary-artwork gate and blank fallback, not the Manual-return loader clock.
+The browser uses existing source empties through incoming20 and restores the
+grid at its existing handoff before banner admission. Label this adaptation.
+
+The closed 1,218-pair audit validates selected-first ordering and 16 exact
+fixed paired regressions. Preserve the named selectors, the entry sampling
+gaps and all unmasked upper/ring/toolbar residuals. Do not reopen the missing
+cover, feedback or early full-grid defects. Native partial-neighbour stagger
+is the next visible residual. Use the existing normal movie and slowed own
+PNGs; neither establishes the loader epoch or permits guessed delays.
+Whole moving pixels/input/cadence and muted audio remain unverified.
+
 ## Manual feedback delivered
 
 The [two captured feedback defects](manual-feedback-2026-10-12.md) are corrected

@@ -1,5 +1,15 @@
 # Goal: finish the four remaining native animation flows
 
+12 October Manual HOME reveal: exact reviewed/captured commit `0b890db` now
+keeps the selected title visible before restoring surrounding icons. The
+[1,218-pair production audit](docs/manual-home-reveal-2026-10-12.md) confirms
+the bounded ordering fix and 16 exact paired browser regressions. Full tests
+retain the known missing Camera PNG failure; both typechecks and build pass.
+Native partial-neighbour stagger, moving pixels, input epochs, cadence and
+muted audio remain open. This fitted handoff is not the recovered native
+loader schedule. All four flows remain fail/unproven. Use Astra extra-high
+helpers and muted MacBook testing; tools cannot switch the running main model.
+
 12 October Manual feedback: reviewed source is integrated at the exact tested
 commit `2b08f0a`. [Held Close and released entry](docs/manual-feedback-2026-10-12.md)
 now use the delivered feedback poses. Four production routes retain1,512 raw

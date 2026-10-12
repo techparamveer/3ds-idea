@@ -1,5 +1,14 @@
 # Feature map — 1:1 queue
 
+12 October AN-02 reveal: [selected-first Manual return](manual-home-reveal-2026-10-12.md)
+is integrated at exact tested commit0b890db. Both production Close routes
+retain the selected icon through the withdrawing cover, restore neighbours
+on a banner-free handoff, then admit the banner. Auditc20648a2 validates
+1,218 pairs and 16 exact fixed paired regressions. The bounded ordering defect
+is closed as a fitted adaptation. Native partial-neighbour stagger and
+unmasked HOME upper/ring/toolbar residuals remain. AN-02 and all four whole
+flows stay fail/unproven; no timing, input or audio acceptance follows.
+
 12 October AN-02 repair: [Manual feedback](manual-feedback-2026-10-12.md) is
 integrated at exact tested commit2b08f0a. Close now lightens while held, and
 released Manual entry shows white beneath the cover. Both repairs use delivered

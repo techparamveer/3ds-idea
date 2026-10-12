@@ -1,5 +1,21 @@
 # Workstream Registry
 
+## Manual HOME reveal integrated, 12 October 2026
+
+Coordinator0b890db is the exact reviewed, built and captured candidate.
+`camera_text_readback_astra` has handed over the frozen
+`manual-home-reveal-20261012/3ds-idea` worktree and has no write reservation.
+`camera_readback_audit_astra` closed source, native and candidate derivative
+assignments. Candidate auditc20648a2 validates 1,218 pairs and the selected-first
+ordering improvement, while preserving the native stagger and HOME residuals.
+Source review22fb41f9 and verification review0477e313 are closed.
+
+All helpers use GPT-6 Astra extra-high. Root alone owns GUI, shared docs,
+integration and PR7. The independent reviewer may check the final evidence/
+documentation snapshot only in new private
+`manual-home-reveal-20261012-v1/integration-review-astra-v1`. No source, build,
+shared-document or original-capture writes. Earlier assignments are history.
+
 ## Manual feedback integrated, 12 October 2026
 
 Coordinator2b08f0a is the exact reviewed, built and captured commit. The held

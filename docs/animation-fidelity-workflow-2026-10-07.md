@@ -1,5 +1,15 @@
 # Animation fidelity workflow
 
+## Manual neighbour comparison closed
+
+[Settings return](manual-home-reveal-2026-10-12.md#settings-neighbour-comparison)
+shows a different partial-population grouping from Camera. Keep the scheduling
+gap explicit; do not add a post-hoc geometric order or loading delay. The closed
+143-PNG comparison has no native/browser pixel or cadence acceptance.
+Continue AN-04 settled HOME selection away/back and actual touchscreen Resume,
+with new native/browser capture identities. Initial compact Appear and retained
+Resume black-frame repairs remain closed.
+
 ## Manual selected-first return delivered
 
 The [bounded reveal fix](manual-home-reveal-2026-10-12.md) is integrated at

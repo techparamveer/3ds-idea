@@ -1,5 +1,11 @@
 # Feature map — 1:1 queue
 
+12 October AN-02 follow-up: [Settings neighbour comparison](manual-home-reveal-2026-10-12.md#settings-neighbour-comparison)
+validates143 native PNGs but establishes no reusable loading schedule.
+The repeated middle-column-first grouping differs from Camera. No guessed
+stagger is added. Partial-neighbour order stays open; next is AN-04 suspended
+window compact/expand and Resume. All four whole flows remain fail/unproven.
+
 12 October AN-02 reveal: [selected-first Manual return](manual-home-reveal-2026-10-12.md)
 is integrated at exact tested commit0b890db. Both production Close routes
 retain the selected icon through the withdrawing cover, restore neighbours

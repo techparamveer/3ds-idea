@@ -153,3 +153,32 @@ in a new muted MacBook tab. Address autocomplete briefly chose the old
 diagnostic query; root corrected it before any app or recorder input. The
 private `integrated-preview.md` records this deviation and process identity.
 This basic preview inspection does not add native acceptance evidence.
+
+## Settings neighbour comparison
+
+The follow-up private run `manual-neighbour-order-20261012-v1` saves143
+own400x480 PNGs from first/repeated System Settings Manual Close. The exact
+isolated executable, HOME content and restored profile remain3dfdfbed,
+c622d1c5 and031bc535. Requests use5% diagnostic speed and2,000ms Close contacts,
+not normal-cadence measurements. Native PID97143 quits with exit0.
+
+Repeat53..54 retain only selected Settings. Face Raiders and Activity appear
+at55, Download Play and AR join at56, and eShop/exposed far-left tiles join
+at57. The banner first appears in saved59. Six fixed40x40 interiors corroborate
+the full-artwork grouping. The first run's selected-only60 to populated61
+crosses a10,030ms file gap, so that population order is unknown.
+
+This differs from Camera's earlier right-column group. It does not establish
+a general geometric or title-loading schedule. The preliminary claim of blank
+raised plates at repeat55 was incorrect and is explicitly withdrawn. Exact
+paired sheets show Face Raiders/Activity artwork at55.
+
+Closed report SHA-256
+`6c60246d2d9861e7ecce51dbf2f33fc8608c84b4221dd09784375420a639ce3b`
+and manifest
+`60ecd20ca4f15de1bfc847e897a6a0ba06d60f37b12cf7085b9e146ad30d3084`
+are in that run's `comparison-astra-v1`. All143 originals and142 recorded
+request brackets validate and remain unchanged. Root opened all eleven sheets,
+recorded in `root-inspection.md`. No browser comparison, mask or phase fit
+was added. Keep the partial-neighbour scheduling gap; no runtime change is
+justified. Continue AN-04 compact/expanded HOME and Resume comparison.

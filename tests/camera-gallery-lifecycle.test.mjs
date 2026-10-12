@@ -44,14 +44,16 @@ class FakeImage{
 /** Completes every live request for a URL; released requests have an empty URL. */
 function load(src){for(const image of images)if(image.url===src&&!image.complete){image.complete=true;image.naturalWidth=640;image.naturalHeight=480;image.onload?.();}}
 function surface(canvas){
- return {canvas,marks:[],fillStyle:'',strokeStyle:'',lineWidth:1,globalAlpha:1,globalCompositeOperation:'source-over',
+ return {canvas,marks:[],copies:[],pixelReads:0,fillStyle:'',strokeStyle:'',lineWidth:1,globalAlpha:1,globalCompositeOperation:'source-over',
+  getContextAttributes(){return {willReadFrequently:canvas.contextRequests?.[0]?.args[1]?.willReadFrequently??false};},
+  getImageData(){this.pixelReads++;throw new Error('Unexpected pixel read in stock presentation');},
   resetTransform(){},clearRect(){this.marks=[];},fillRect(){this.marks.push(['fill',this.fillStyle]);},strokeRect(){},fillText(){},
   beginPath(){},roundRect(){},rect(){},clip(){},save(){},restore(){},fill(){},stroke(){},createLinearGradient:()=>({addColorStop(){}}),
-  drawImage(image,...rect){if(image instanceof FakeImage)this.marks.push(['photo',image.src,...rect]);else this.marks=structuredClone(image.ctx.marks);}};
+  drawImage(image,...rect){this.copies.push({image,rect});if(image instanceof FakeImage)this.marks.push(['photo',image.src,...rect]);else this.marks=structuredClone(image.ctx.marks);}};
 }
 function nativeAssets(){
- let active=false;
- return {diagnostics:[],disposals:0,dispose(){this.disposals++;},renderer:{packs:{'camera-messages':messages,'camera-gallery':gallery},beginTextDiagnostic(){active=true;},endTextDiagnostic(){if(!active)return null;active=false;return Object.freeze({draws:Object.freeze([]),fixture:true});},draw(ctx,_pack,name,opts={}){ctx.marks.push(['layout',name,opts.overrides?.ThmbPic?.alpha===0]);return true;},drawLayout(ctx,_pack,name){ctx.marks.push(['layout',name,false]);return true;}}};
+ let active=false;const renderCalls=[];
+ return {diagnostics:[],renderCalls,disposals:0,dispose(){this.disposals++;},renderer:{packs:{'camera-messages':messages,'camera-gallery':gallery},beginTextDiagnostic(){active=true;},endTextDiagnostic(){if(!active)return null;active=false;return Object.freeze({draws:Object.freeze([]),fixture:true});},draw(ctx,pack,name,opts={}){renderCalls.push({ctx,pack,name,opts});ctx.marks.push(['layout',name,opts.overrides?.ThmbPic?.alpha===0]);return true;},drawLayout(ctx,pack,name,_layout,opts={}){renderCalls.push({ctx,pack,name,opts});ctx.marks.push(['layout',name,false]);return true;}}};
 }
 const cells=marks=>marks.filter(([kind,name])=>kind==='layout'&&name==='P_BrwsPic').map(([,,shown])=>shown?'photo':'placeholder');
 const photos=marks=>marks.filter(([kind])=>kind==='photo').map(([,src])=>src);
@@ -59,14 +61,21 @@ const black=[['fill','#000']];
 
 function harness(options={}){
  const old={document:globalThis.document,Image:globalThis.Image};
- globalThis.document={createElement:()=>{const canvas={width:0,height:0};canvas.ctx=surface(canvas);canvas.getContext=()=>canvas.ctx;return canvas;}};
+ const canvases=[];
+ function canvas(){
+  const result={contextRequests:[],dimensionWrites:[]},dimensions={width:0,height:0};
+  for(const name of ['width','height'])Object.defineProperty(result,name,{get:()=>dimensions[name],set(value){dimensions[name]=value;result.dimensionWrites.push([name,value]);}});
+  result.ctx=surface(result);result.getContext=(...args)=>{result.contextRequests.push({args,width:result.width,height:result.height});return result.ctx;};return result;
+ }
+ globalThis.document={createElement:()=>{const result=canvas();canvases.push(result);return result;}};
  globalThis.Image=FakeImage;images.length=0;calls.length=0;
- const screen=createStockScreenPresentation(options),top=surface({}),bottom=surface({}),font={draw(){}},loaded=[];
+ const screen=createStockScreenPresentation(options),outerUpper=canvas(),outerLower=canvas();outerUpper.width=400;outerUpper.height=240;outerLower.width=320;outerLower.height=240;
+ const top=outerUpper.getContext('2d'),bottom=outerLower.getContext('2d'),font={draw(){}},loaded=[];
  let runtime=startApplication(createAppRuntime(),'camera',0),now=0;
  const finishGuide=()=>{for(let page=0;page<5;page++)runtime=dispatchRuntime(runtime,{type:'action',id:'guide-next'},++now);};
  finishGuide();
  const h={
-  get runtime(){return runtime;},loaded,screen,
+  get runtime(){return runtime;},loaded,screen,canvases,top,bottom,
   act(id){runtime=dispatchRuntime(runtime,{type:'action',id},++now);},
   home(){runtime=showRuntimeHome(runtime,++now);},
   resume(){runtime=resumeRuntimeApplication(runtime,++now);},
@@ -86,6 +95,50 @@ function harness(options={}){
 
 const folder=id=>portfolioMedia.folders.find(item=>item.id===id);
 const sources=id=>folder(id).photos.map(photo=>photo.src);
+
+test('stock lower first allocation requests readback orientation and retains the paired surfaces through Camera resets',async()=>{
+ const h=harness({cameraTextProbe:true});
+ try{
+  const [upper,lower]=h.canvases;
+  const allocation=()=>{
+   assert.deepEqual(h.canvases,[upper,lower],'reset does not allocate replacement stock canvases');
+   assert.deepEqual(upper.contextRequests,[{args:['2d'],width:400,height:240}]);
+   assert.deepEqual(lower.contextRequests,[{args:['2d',{willReadFrequently:true}],width:320,height:240}]);
+   for(const [canvas,width]of [[upper,400],[lower,320]])assert.deepEqual(canvas.dimensionWrites,[['width',width],['height',240]],'reset neither resizes nor reacquires the persistent context');
+   for(const [ctx,width]of [[h.top,400],[h.bottom,320]])assert.deepEqual(ctx.canvas.contextRequests,[{args:['2d'],width,height:240}],'stock does not request or replace the caller-owned outer context');
+   for(const ctx of [upper.ctx,lower.ctx,h.top,h.bottom])assert.equal(ctx.pixelReads,0);
+  };
+  const published=()=>{
+   assert.deepEqual(h.top.copies.at(-1),{image:upper,rect:[0,0]});
+   assert.deepEqual(h.bottom.copies.at(-1),{image:lower,rect:[0,0]});
+   assert.equal(h.top.copies.length,h.bottom.copies.length);
+  };
+  const main=()=>{
+   const assets=h.loaded.at(-1),counts=assets.renderCalls.filter(call=>call.name==='P_BrwsFld');
+   assert.deepEqual(counts.map(call=>call.opts.overrides.TxtThmb.text),['5','1','3','1']);
+   for(const call of counts){assert.equal(call.ctx,lower.ctx);assert.equal(call.opts.textSampling,undefined);}
+   const menu=assets.renderCalls.find(call=>call.name==='P_BrwsMenu_D');
+   assert.equal(menu.ctx,lower.ctx);assert.equal(menu.opts.textSampling,'lcd-source-size');
+   assert.deepEqual(menu.opts.textSamplingPanes,['TxtSShow','TxtSet']);
+   const diagnostic=h.screen.textDiagnostic();
+   assert.equal(diagnostic.destination.upper.contextAttributes.willReadFrequently,false);
+   assert.equal(diagnostic.destination.lower.contextAttributes.willReadFrequently,false,'pair destination diagnostics describe the unchanged outer LCDs');
+   assert.equal(lower.ctx.getContextAttributes().willReadFrequently,true);
+   const drawCount=assets.renderCalls.length;h.frame();assert.equal(assets.renderCalls.length,drawCount,'cached pair publishes without repainting');
+   assert.equal(h.screen.textDiagnostic().use,'cached-pair');allocation();published();
+  };
+  allocation();assert.equal((await h.ready()).complete,true);main();
+  for(const leave of [()=>{h.home();assert.equal(h.frame(),null);h.resume();},()=>h.relaunch()]){
+   const previous=h.loaded.at(-1);leave();
+   const pending=h.frame();assert.equal(pending.complete,false);assert.deepEqual([pending.upper,pending.lower],[black,black]);
+   assert.equal(previous.disposals,1);allocation();published();
+   assert.equal((await h.ready()).complete,true);main();
+  }
+  const current=h.loaded.at(-1);h.screen.dispose();assert.equal(current.disposals,1);
+  for(const canvas of [upper,lower]){assert.equal(canvas.width,0);assert.equal(canvas.height,0);assert.equal(canvas.contextRequests.length,1);}
+  assert.equal(h.screen.textDiagnostic(),null);assert.equal(h.frame().complete,false);
+ }finally{h.dispose();}
+});
 
 test('opt-in Camera main sample follows the successful cached pair and clears on HOME, reload, unrelated views and failure',async()=>{
  const h=harness({cameraTextProbe:true});

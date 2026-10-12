@@ -235,7 +235,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
   const deadlineMs=options.deadlineMs??NATIVE_SCREEN_DEADLINE_MS;
   if(!Number.isFinite(deadlineMs)||deadlineMs<=0)throw new Error('Invalid native preparation deadline');
   const upper=document.createElement('canvas'),lower=document.createElement('canvas');upper.width=400;upper.height=240;lower.width=320;lower.height=240;
-  const upperContext=upper.getContext('2d')!,lowerContext=lower.getContext('2d')!;
+  const upperContext=upper.getContext('2d')!,lowerContext=lower.getContext('2d',{willReadFrequently:true})!;
   const clearDeadline=()=>{if(deadline!==undefined)clearTimeout(deadline);deadline=undefined;};
   function fail(error:unknown){
     cameraTextPair=null;cameraTextSample=null;

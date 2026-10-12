@@ -1,5 +1,17 @@
 # Goal: finish the four remaining native animation flows
 
+12 October Manual feedback: reviewed source is integrated at the exact tested
+commit `2b08f0a`. [Held Close and released entry](docs/manual-feedback-2026-10-12.md)
+now use the delivered feedback poses. Four production routes retain1,512 raw
+LCD pairs; all16 fixed browser regression pairs are exact on both LCDs.
+Focused153 tests, both typechecks and build pass. Full tests retain the one
+known missing Camera PNG failure. Native broad feedback order is supported,
+not whole-motion parity. Next inspect the selected-icon-versus-grid HOME
+reveal residual, separating fixture and sampling differences first.
+All four whole flows stay fail/unproven. Astra extra-high helpers and muted
+MacBook testing remain current; the running coordinator model is not changed
+or verified by a helper override.
+
 12 October folder repair: `5884417` is integrated and pushed to draft PR7.
 The [source-controlled tray translation](docs/folder-held-back-2026-10-12.md#folder-translation-repair)
 passes its bounded source, review and captured-geometry checks. Four ordinary

@@ -1,5 +1,47 @@
 # Workstream Registry
 
+## Manual feedback integrated, 12 October 2026
+
+Coordinator2b08f0a is the exact reviewed, built and captured commit. The held
+Close and released-entry worktree assignments below are complete; neither
+worker has an active source reservation. Source reviews3f4d03c1/2744baa3
+and candidate audit68b914a3 are closed. All1,512 pairs validate and all16 fixed
+paired browser regressions are exact. The candidate build and all closed
+evidence remain immutable. All helpers use GPT-6 Astra extra-high.
+
+Root owns final documentation, push, PR7 and any preview. The independent
+reviewer may check the final documentation/evidence snapshot only in new private
+`manual-held-close-20261012-v1/integration-evidence-review-astra-v1`.
+No reviewer shared-doc/source/build/GUI writes. Remaining whole-flow native
+pixels/input/cadence and the HOME reveal comparison stay open. Historical
+reservations below do not authorize renewed work.
+
+## Manual held Close, 12 October 2026
+
+At coordinator456fdc8, first/repeated normal-speed captures show native Close
+lightening while held. Both browser holds keep the footer byte-identical to
+idle until release. The private run is `manual-held-close-20261012-v1`.
+Native audit c6b2e6bc and browser audit e11e71a6 are closed. Root opened
+the native event/feedback sheets and both raw browser Close footer sheets.
+
+Worker `camera_text_readback_astra`, GPT-6 Astra xhigh, owns
+`/Users/paramveer/.codex/worktrees/manual-close-held-20261012/3ds-idea`,
+branch `codex/manual-close-held-20261012`, base456fdc8. Its narrow reservation
+is `stock-apps.ts`, `stock-native-helpers.ts`, `manual-footer-close-assets.ts`,
+focused Manual tests and a new handoff. Use the existing decrypted Select clip;
+preserve released feedback, cover timing and native asset bytes. No GUI or
+serving. Root owns shared docs and integration. The browser audit worker owns
+only its private derivatives. All earlier assignments below are history.
+
+Both audits are now closed, native c6b2e6bc/browser e11e71a6. A second disjoint
+worker assignment gives `camera_readback_audit_astra` the captured released-dark
+Manual entry footer in `manual-entry-release-20261012/3ds-idea`, branch
+`codex/manual-entry-release-20261012`, base456fdc8. It owns `screens.ts`,
+`firmware-presentation.ts`, Manual entry helpers, focused tests and its handoff.
+No system.ts/public writes. Both workers use Astra xhigh and run focused checks
+before independent review. Root combines reviewed commits for production
+checks and the four-route recapture. Closed audit directories stay immutable.
+
 ## Stock lower context experiment, 12 October 2026
 
 Root at 94bc9f8 assigns camera_text_readback_astra to

@@ -1,5 +1,20 @@
 # Animation fidelity workflow
 
+## Manual feedback delivered
+
+The [two captured feedback defects](manual-feedback-2026-10-12.md) are corrected
+at exact tested commit2b08f0a. Source reviews and the four-route production
+recapture are closed. Audit68b914a3 validates1,512 pairs and16 exact paired
+browser regressions. Preserve the immutable originals and fixed selectors.
+Do not repeat the held-Close, released-entry or missing-cover repairs.
+
+Next compare the HOME reveal population. Native selected Camera appears before
+surrounding icons; the browser reveals a populated grid. Use existing captures
+and source first to distinguish fixture/sampling effects from a real scheduling
+defect. A new edit requires a captured defect beyond that uncertainty.
+Native movie ordering is not exact pixel, epoch or cadence evidence. The
+existing binding/dispatch adaptations and all whole-flow failures remain open.
+
 ## Folder translation delivered
 
 Reviewed candidate34cd3d4 is integrated and pushed as5884417. The

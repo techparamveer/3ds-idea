@@ -1,5 +1,15 @@
 # Feature map — 1:1 queue
 
+12 October AN-02 repair: [Manual feedback](manual-feedback-2026-10-12.md) is
+integrated at exact tested commit2b08f0a. Close now lightens while held, and
+released Manual entry shows white beneath the cover. Both repairs use delivered
+clips; source reviews verified contact cancellation and unsupported-resource
+handling. Four candidate routes retain1,512 valid raw LCD pairs. Root opened
+all22 sheets; all16 fixed browser regression pairs are exact on both LCDs.
+The two captured defects are closed. Whole-flow parity, native timing, the
+selected-icon-versus-grid reveal comparison and muted audio remain open.
+AN-02 stays fail/unproven. Native ordering is not native pixel acceptance.
+
 12 October AN-03 repair: [folder translation](folder-held-back-2026-10-12.md#folder-translation-repair)
 is integrated and pushed as5884417. Source-derived RootPane translation now
 moves chrome and children together toward the selected root folder. Independent

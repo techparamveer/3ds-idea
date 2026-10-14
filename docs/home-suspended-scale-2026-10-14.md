@@ -2,38 +2,46 @@
 
 ## Integrated checkpoint
 
-Runtime `89cc769` adds suspended-banner lifecycle `dff0842`, shortcut test
-alignment `22bc0a8`, and native caption centring to the earlier ScaleUpDown and
-Resume fixes. The clean candidate in `health-resume-touch-20261014/3ds-idea`
-passes typecheck and production build, ID `aBUClwv-9SvUSKXywzPsa`. Full tests
-report 2,853 passes, one unchanged missing historical Camera PNG failure,
-102 skips and one TODO. Independent banner review passes 189 tests and caption
-review passes 16; neither has remaining actionable findings.
+Runtime `fd1561f` moves scale from renderer receipts to logical upper HOME
+passes. It includes suspended-banner lifecycle `dff0842`, shortcut alignment
+`22bc0a8`, native caption centring `89cc769`, and the earlier Resume fixes.
+The clean candidate in `home-scale-clock-20261014/3ds-idea` passes typecheck
+and production build, ID `1d53IIkwjAYI_0DIBqwab`. Full tests report 2,855 passes,
+one unchanged missing historical Camera PNG failure, 102 skips and one TODO.
+Worker focused checks pass 214 with one existing conditional skip. Independent
+source and receipt/scene reviews pass 32 and 183 tests with no findings.
+The runtime is pushed directly to draft PR 7. The old coordinator's unrelated
+human edit prevented a fast-forward there and remains untouched at `9b60905`.
 
-The candidate has not been visually verified. Muted Helium opened its localhost
-page on the MacBook, but window capture/AX access subsequently failed and a
-desktop capture returned black. No candidate LCD captures were collected.
+The candidate has not been visually verified. Three consecutive goal-turn
+checks find unavailable MacBook window capture/AX; the earlier desktop capture
+was black. No input was attempted on the latest failed check and its Cua
+session is ended. No candidate LCD captures were collected.
 The browser check plan and verification logs are under the private
 `animation-20261007/continuation-20261014/` directory. Live first/repeated and
 rapid Resume checks remain required before any visual acceptance claim.
 
 ## Implementation
 
-This patch replaces the immediate compact/expanded switch with samples from the
-delivered `LncBase_U_00_ScaleUpDown` clip. The initial HOME Appear still starts at
-the selected scale endpoint. Subsequent selection away/back advances one source
-frame per accepted LCD pair and changed HOME update. Reversal starts from the
-last accepted pose. This receipt cadence is a host adaptation and now has a
-confirmed source mismatch: native scale advances once per upper HOME task,
-after its banner manager. Moving logical scale to that clock is the next fix.
-Native wall-clock cadence and the initial HOME-return caller remain unproved.
+The delivered `LncBase_U_00_ScaleUpDown` clip supplies the geometry. Logical
+current/target and epoch belong to System state. The initial HOME Appear still
+starts at the selected endpoint through the existing lifecycle bridge. Ordinary
+passes fold input resolver requests, one upper scale step, then lower requests.
+Reversal preserves current. Incomplete handoffs spend no upper step, and raw
+pickup selection without a resolver does not retarget. Repeated paints and
+receipts cannot advance, initialize or reset scale. Missing paints do not stop
+admitted logical updates. Reduced motion settles during a logical pass and
+triggers the existing state-driven redraw. Sleep/hidden rebasing retains state
+without spending suspended wall time. Capture/resource replacement is not mode entry.
 
-The scale receipt binds the retained application, capture generation, firmware
-generation, runtime sequence and HOME origin. Hidden, sleeping, covered, failed,
-diagnostic, stale and revoked candidates cannot advance it. Reduced motion also
-requires its own endpoint receipt. Resume captures a settled HOME source only
-when that paint's expanding-target scale pose receives the same accepted pair
-receipt. An accepted intermediate expansion is valid backing for rapid Resume.
+A Resume source records the actual rendered scale frame and target epoch.
+Its owner, HOME origin, capture/resource generation, settled-input, readiness
+and paired-publication guards remain. Hidden, sleeping, covered, failed,
+diagnostic, stale and revoked pairs cannot publish backing. A frame-14 pair
+may be accepted after logical current reaches 15 if the epoch is unchanged;
+Resume must still use displayed frame 14. Away/back target changes invalidate
+old backing, while Resume's own HOME-mode exit preserves the accepted epoch.
+An accepted intermediate expansion remains valid backing for rapid Resume.
 The footer retains the accepted upper/lower pixels and SceneOut keeps the exact
 stored scale frame. SceneOut contains static expanded descendant channels, so
 the validated scale binding is reapplied after it. The existing expanded
@@ -46,6 +54,27 @@ times half the remaining text-pane width. The actual source width is 252, not
 the previously fitted 250; the expanded caption shifts one pixel accordingly.
 Native font measurement and exact rendered text pixels remain unverified.
 No firmware resource or asset was changed.
+
+## Logical clock source contract
+
+Pinned code `0x286e74` calls the banner wrapper at `0x286f30`, then scale helper
+`0x285ab0` at `0x286f3c`. The helper advances upper `+0x308` toward `+0x304`
+by one and clamps to 0..15. Banner inhibition does not gate it. Same mode-1
+entry does not reseed; a true transition seeds current and target together.
+The implementation follows ordinary input -> upper -> lower call order.
+
+Native lower initialization can also call upper directly through `0x1e1988`.
+That exception is not proof of duplicate ordinary close/switch updates. The
+browser's initial-return bridge, helper admission and nominal 60 Hz scheduler
+remain adaptations. Live initial-return flags, normal cadence and exact moving
+pixels remain unproved. Source report SHA-256:
+`41070f40ddee0c9956eda166547f1a522812dec4d48194ab19c32f743d322b73`.
+
+Current logs are in private `continuation-20261014/scale-clock-design/` and
+`scale-clock-native/`, with root `scale-clock-full-tests.log` and
+`scale-clock-production-build.log`. No tests outside the two scale files were
+changed. The existing reduced-navigation test caught an intermediate regression
+and passes unchanged after its zero-update settlement was preserved.
 
 ## Source
 

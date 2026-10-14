@@ -1,12 +1,13 @@
 # Feature map — 1:1 queue
 
 14 October AN-04 candidate: [ScaleUpDown and Resume](home-suspended-scale-2026-10-14.md)
-are reviewed through `89cc769`. Suspended selection now requests native clear
-type 6 and retains the outgoing banner through its hide. Caption centring uses
-the recovered linear writer and actual 252-pixel pane width. Full checks report
-2,853 passes and the known missing Camera PNG; typecheck/build pass. Replace
-the receipt-driven scale clock with the traced upper-task progression next.
-Live browser recapture and native timing/pixel comparisons remain open. No whole-flow pass.
+are reviewed and pushed through `fd1561f`. Scale now advances on ordinary upper
+HOME passes, independently of rendering. Resume retains the displayed pose;
+native banner hiding and linear 252-pixel caption centring remain included.
+Full checks report 2,855 passes and the known missing Camera PNG; typecheck/build
+pass. Independent reviews pass 32 and 183 focused tests. Live browser recapture
+is blocked by unavailable MacBook capture/AX. Native timing/pixel comparisons
+and all four whole-flow acceptance checks remain open. No whole-flow pass.
 
 12 October AN-04 baseline: [suspended window comparison](home-compact-resume-baseline-2026-10-12.md)
 shows native intermediate shrink/grow poses but endpoint-only browser output.

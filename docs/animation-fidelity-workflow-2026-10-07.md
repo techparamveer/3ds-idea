@@ -4,13 +4,15 @@
 
 The [fresh baseline](home-compact-resume-baseline-2026-10-12.md) establishes
 missing ScaleUpDown interpolation. The [reviewed correction](home-suspended-scale-2026-10-14.md)
-is reviewed through `89cc769`. Ordinary suspended reselection now uses native
-clear type 6 and retains the outgoing banner's actual hide. The recovered
-caption writer uses linear progression and the source pane width of 252.
-Native scale advances after the banner manager on each upper-task update;
-the current receipt-paced scale must move to that clock without weakening
-Resume's accepted-pair guards. No guessed banner delay or compact-endpoint gate.
-Verify first/repeated away/back on the new production build when capture returns.
+is pushed through `fd1561f`. Ordinary input requests precede logical upper scale
+steps; lower requests affect the next step. Rendering no longer owns scale.
+Resume keeps the frame actually displayed even when logic subsequently advances.
+Native clear type 6, retained outgoing banners and linear 252-pixel caption
+centring remain included. Initial-return and helper admission are still bounded
+browser adaptations, not recovered native timing. No guessed banner delay or
+compact-endpoint gate. The third consecutive MacBook capture/AX failure blocks
+live checking. Resume at first/repeated away/back on build `1d53IIkwjAYI_0DIBqwab`
+when capture returns; do not rebuild the older frozen candidates.
 
 Actual touchscreen Resume captures contain a paired black interval. Settled
 Decide1 acceptance repairs the reproduced route. Independent review also found

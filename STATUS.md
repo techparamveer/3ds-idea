@@ -5,30 +5,31 @@ seat, server and verification notes retained later in this file.
 
 ## Current checkpoint
 
-- Reviewed runtime `89cc769` is integrated for draft
-  [PR 7](https://github.com/techparamveer/3ds-idea/pull/7). New commits are native
-  suspended-banner lifecycle `dff0842`, shortcut expectations `22bc0a8`, and
-  source-linear caption centring `89cc769`. Earlier ScaleUpDown and Resume fixes remain.
-- Full tests: 2,853 pass, one missing historical Camera PNG failure, 102 skips,
-  one TODO. Typecheck and production build pass. Independent banner review
-  passes 189 tests; caption review passes 16. Neither has remaining findings.
-- The clean build is in `health-resume-touch-20261014/3ds-idea`, branch
-  `codex/home-suspended-banner-20261014`, build ID `aBUClwv-9SvUSKXywzPsa`.
-  Earlier captured/build candidates are unchanged. The human `system.ts` edit is unchanged.
-- New browser verification has not happened. Muted Helium PID 59039, window
-  309, is wholly on the MacBook at 650,150,1102x700. Its localhost page opened,
-  but subsequent window capture/AX access failed and the desktop capture was
-  black. A wake/unlock request is pending. Do not infer a rendered UI pass.
-- All helpers were explicitly run as GPT-6 Astra extra-high. The main chat
-  model cannot be changed or verified by these tools. Source/review workers
-  are finished; the read-only browser audit helper is prepared for new captures.
-- Next code task: replace receipt-driven scale with the recovered per-upper-task
-  scale progression, retaining actual accepted pixels for Resume. The private
-  `scale-clock-design/plan.md` specifies ownership, pass order and receipt races.
-  Then capture ordinary first/repeated away/back/Resume, including rapid Resume,
-  and compare against the existing native baseline. Native timing, pixels,
-  initial-return caller and continuous Resume parity remain unverified.
-  All four flows and the goal remain active, not complete or blocked.
+- Reviewed runtime `fd1561f` is pushed to draft
+  [PR 7](https://github.com/techparamveer/3ds-idea/pull/7). Logical upper HOME
+  passes now drive scale; receipts retain the actual displayed Resume pose.
+  Earlier banner, caption, touch and rapid-Resume fixes remain included.
+- Full tests: 2,855 pass, one unchanged missing historical Camera PNG failure,
+  102 skips, one TODO. Typecheck and production build pass. Worker focused checks
+  pass 214 with one conditional skip; independent reviews pass 32 and 183 tests
+  with no actionable findings.
+- Authoritative clean candidate: `/Users/paramveer/.codex/worktrees/home-scale-clock-20261014/3ds-idea`,
+  branch `codex/home-scale-clock-20261014`, build ID `1d53IIkwjAYI_0DIBqwab`.
+  A safe fast-forward in the old coordinator refused its human `system.ts` edit.
+  Nothing was stashed or reverted. That checkout remains at `9b60905`; the clean
+  candidate pushed directly to the existing PR branch. Earlier builds are unchanged.
+- Live verification is blocked. The third consecutive goal-turn check found
+  Helium window 309 at MacBook bounds 650,150,1102x700, but capture was unavailable
+  and AX returned no resolved window/elements. The prior desktop capture was
+  black. No input was attempted; the Cua session is ended. The exact cause is
+  not established. No server or Azahar instance is running, and no new LCDs exist.
+- All helpers use GPT-6 Astra extra-high. Tools cannot switch or verify the
+  main model. The implementation and both reviews are complete.
+- Next required work is live first/repeated away/back/Resume and rapid Resume,
+  followed by the fixed native comparison. Do not repeat completed source fixes
+  or invent delays while capture is unavailable. Native timing, pixels,
+  initial-return caller, Manual neighbour loading and continuous Resume parity
+  remain unverified. All four flows remain fail/unproven, not complete.
 - Current logs and capture plan are under
   `/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261014/`.
   See [scale and Resume changes](docs/home-suspended-scale-2026-10-14.md) and

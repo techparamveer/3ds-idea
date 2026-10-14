@@ -1,5 +1,19 @@
 # Animation fidelity workflow
 
+## Suspended window candidate ready for capture
+
+The [fresh baseline](home-compact-resume-baseline-2026-10-12.md) establishes
+missing ScaleUpDown interpolation. The [reviewed correction](home-suspended-scale-2026-10-14.md)
+is pushed through `93fb03b`, preserving initial Appear and settled endpoints.
+Native banner/footer dispatch and cadence remain residuals, not grounds for
+guessed delays. Verify first/repeated away/back on the new production build.
+
+Actual touchscreen Resume captures contain a paired black interval. Settled
+Decide1 acceptance repairs the reproduced route. Independent review also found
+and corrected rapid Resume during expansion by retaining the accepted scale
+pose. Both fixes pass compositor regressions, but still need actual browser
+recapture. The MacBook capture is currently unavailable; no GUI pass is claimed.
+
 ## Manual neighbour comparison closed
 
 [Settings return](manual-home-reveal-2026-10-12.md#settings-neighbour-comparison)

@@ -1,9 +1,36 @@
 # STATUS: animation fidelity
 
-Updated 12 October 2026. This is the live restart index, not the history log.
-Read it before a slice, localhost start or worker. Git wins if HEAD differs.
-Reconcile this file before dispatch. Earlier evidence stays in the linked
-records, Git history and the private archive below.
+Updated 14 October 2026. The current checkpoint below supersedes the older
+seat, server and verification notes retained later in this file.
+
+## Current checkpoint
+
+- Reviewed runtime `93fb03b220d2f23032cdb44a20f61651224fa711` is pushed to draft
+  [PR 7](https://github.com/techparamveer/3ds-idea/pull/7). It includes source
+  ScaleUpDown progression `17e2ebf`, settled touch-Resume repair `1bf1a69`, and
+  rapid Resume retaining the accepted intermediate pose `93fb03b`.
+- Full tests: 2,848 pass, one missing historical Camera PNG failure, 102 skips,
+  one TODO. Typecheck and production build pass. Independent review has no
+  remaining actionable findings and its focused suite passes 57 tests.
+- The clean build is in `home-compact-resume-20261012/3ds-idea`, build ID
+  `RMDw65oWgaPfwwJ0n3ldW`. The coordinator's human `system.ts` edit is unchanged.
+- New browser verification has not happened. Muted Helium PID 59039, window
+  309, is wholly on the MacBook at 650,150,1102x700. Its localhost page opened,
+  but subsequent window capture/AX access failed and the desktop capture was
+  black. A wake/unlock request is pending. Do not infer a rendered UI pass.
+- All helpers were explicitly run as GPT-6 Astra extra-high. The main chat
+  model cannot be changed or verified by these tools. Source/review workers
+  are finished; the read-only browser audit helper is prepared for new captures.
+- Next: capture ordinary first/repeated away/back/Resume, including rapid
+  Resume, then compare against the existing native baseline. Native banner
+  ordering, timing, pixels and continuous Resume parity remain unverified.
+  All four flows and the goal remain active, not complete or blocked.
+- Current logs and capture plan are under
+  `/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261014/`.
+  See [scale and Resume changes](docs/home-suspended-scale-2026-10-14.md) and
+  [the captured baseline](docs/home-compact-resume-baseline-2026-10-12.md).
+
+## Earlier checkpoint notes
 
 ## Checkout
 
@@ -11,8 +38,8 @@ records, Git history and the private archive below.
 | --- | --- |
 | Coordinator | `/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea` |
 | Branch | `codex/animation-fidelity-20261007` |
-| HEAD | `0b890db58ec3ca4089b4c3ff31baabf5c0f30e86` |
-| Delivery | Manual HOME reveal runtime 0b890db is integrated and pushed at the exact reviewed, built and captured commit. Documentation review for [draft PR 7](https://github.com/techparamveer/3ds-idea/pull/7) follows. No merge or deployment. |
+| HEAD | Runtime `93fb03b220d2f23032cdb44a20f61651224fa711`; documentation may follow. |
+| Delivery | Manual HOME reveal runtime 0b890db, documentation a480053 and neighbour-order checkpoint dc7ff78 are pushed to [draft PR 7](https://github.com/techparamveer/3ds-idea/pull/7). Exact PR head verifies; its body remains the preceding reviewed version 673cf99f. No merge or deployment. |
 | GitHub main | `c76775731fe539473934365d35210d79c3cbb551`, fetched again; already integrated through b84e1b2. |
 | Original checkout | `/Volumes/DeveloperStorage/GitHub/3ds-idea`, main 5ee6fd7, untouched. The older home-fidelity checkout is absent. |
 
@@ -69,12 +96,49 @@ Workers/reviewers use `gpt-6-astra`, `xhigh`. Tools cannot change or verify the
 in-flight coordinator model or service tier. Do not claim such a change.
 One coordinator, at most two workers, one independent reviewer.
 
+Closed continuation: `manual-neighbour-order-20261012-v1`, based on a480053.
+Root compares System Settings Manual return against the closed Camera return
+in isolated muted Azahar. No additional source-only pass or guessed schedule.
+The comparison is sealed at report6c60246d/manifest60ecd20c, with root's eleven
+sheet inspection. No generic neighbour schedule is supported. Bounded doc
+review850ab544 found no issues. Four documentation additions are committed
+asdc7ff78; live STATUS reconciliation stays separate.
+
+Next-flow preparation: `camera_text_readback_astra` reads the current compact
+HOME window and Resume contract in clean `home-compact-resume-20261012/3ds-idea`,
+branch `codex/home-compact-resume-20261012`, base a480053. It owns only private
+`home-compact-resume-20261012-v1/preparation-astra-v1` notes. No runtime edits,
+build, model hydration or GUI until a captured discrepancy is supplied.
+Preparation is closed. Root completed71 native own PNGs across first/repeated
+compaction/expansion and ready Resume endpoints. Audit worker now owns only
+`home-compact-resume-20261012-v1/native-audit-astra-v1`. Native99256 quit,
+profile031bc535 restored. Root opened provisional pages02/06 showing intermediate
+native geometry. Capture browser3041 uses frozen0b890db/buildaliq5AWB4-hIMEWfdtw6D,
+session51307 and a new muted MacBook tab; normal3040 remains untouched.
+Root has now opened browser first-away raw upper pairs88/89: full expanded
+window becomes compact directly. The 442 ms receipt gap alone cannot exclude
+unsampled poses; the endpoint-only ScaleUpDown binding in the frozen source
+confirms the missing interpolation. Native71 audit4a282786/manifestd15e56f0
+is closed, and root inspected all twelve paired sheets. Source worker
+camera_text_readback_astra is authorized to implement the bounded authored
+ScaleUpDown interpolation in WCMP with focused tests and its own handoff.
+Use existing owner/origin/readiness/paired-publication guards. Preserve initial
+Appear and retained Resume repairs. Native cadence and banner/footer scheduling
+remain separate unproven gaps unless corrected with explicit source evidence.
+Audit worker owns browser-audit-astra-v1 while root finishes repeat capture.
+The reviewer is idle. All helpers retain GPT-6 Astra extra-high.
+
 Current slice: `manual-home-reveal-20261012-v1`, integrated at0b890db.
 The source worker and audit worker have finished; neither has a source or
 artifact write reservation. Source review22fb41f9 and verification review0477e313
 are closed with no actionable findings. Root owns integration, shared docs,
-PR7 and the muted GUI. A final documentation/evidence review may use only a
-new private `integration-review-astra-v1` directory, not source or shared docs.
+PR7 and the muted GUI. Final documentation/evidence review 3e06ea85, manifest
+b928eae2, is closed with no remaining findings after correcting the stale
+preview pointer. All 707 relative file targets and whitespace checks pass.
+Root verified each staged file against the reviewed seven-document snapshot
+dc2c3805, then committed and pushed a480053. PR body 673cf99f and remote head
+match. All helpers have finished and their finite commands are closed.
+This local HEAD/seat update follows the immutable reviewed snapshot.
 
 The candidate is frozen in
 `/Users/paramveer/.codex/worktrees/manual-home-reveal-20261012/3ds-idea`,
@@ -431,9 +495,11 @@ See [isolation](docs/native-reference-profile-isolation.md) and
 4. Manual selected-first reveal is corrected at0b890db and recaptured. Do not
    repeat its closed diagnosis or add another source-only pass. Native also
    has partial-neighbour population, which the single handoff does not match.
-   Next compare that remaining visible stagger against the preserved normal
-   movie and own-PNG sequence, without guessing a clock or replacing fixed
-   baselines. Keep the ring/toolbar/upper residuals, exact moving pixels/input/
+   Settings follow-up now validates143 own PNGs, audit6c60246d and manifest60ecd20c.
+   Root inspected all eleven sheets. The repeated middle-column-first grouping
+   differs from Camera; no generic loading schedule is established. Do not add
+   guessed stagger. Next compare settled HOME compact/expand and Resume in
+   `home-compact-resume-20261012-v1`. Keep the ring/toolbar/upper residuals, exact moving pixels/input/
    cadence, folder and HOME suspend/Resume comparison, and shared text sweep
    open. All four whole flows remain fail/unproven.
 

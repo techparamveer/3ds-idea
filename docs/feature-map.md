@@ -1,5 +1,17 @@
 # Feature map — 1:1 queue
 
+14 October AN-04 candidate: [ScaleUpDown and Resume](home-suspended-scale-2026-10-14.md)
+are reviewed and pushed through `93fb03b`. Source poses now interpolate, and
+settled-touch plus rapid Resume regressions pass. Full checks/build are complete
+apart from the known missing Camera PNG fixture. Live browser recapture and
+native banner/timing/pixel comparisons remain open. No whole-flow pass.
+
+12 October AN-04 baseline: [suspended window comparison](home-compact-resume-baseline-2026-10-12.md)
+shows native intermediate shrink/grow poses but endpoint-only browser output.
+A source-backed ScaleUpDown fix was then assigned. Actual
+touchscreen Resume also exposes black paired LCDs before Health returns;
+that captured path is under diagnosis. All four whole flows stay fail/unproven.
+
 12 October AN-02 follow-up: [Settings neighbour comparison](manual-home-reveal-2026-10-12.md#settings-neighbour-comparison)
 validates143 native PNGs but establishes no reusable loading schedule.
 The repeated middle-column-first grouping differs from Camera. No guessed

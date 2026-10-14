@@ -1,5 +1,22 @@
 # Suspended HOME scale progression
 
+## Integrated checkpoint
+
+Runtime commits `17e2ebf`, `1bf1a69` and `93fb03b` are pushed to draft PR 7.
+The clean candidate at `93fb03b` passes typecheck and production build, ID
+`RMDw65oWgaPfwwJ0n3ldW`. Full tests report 2,848 passes, one unchanged missing
+historical Camera PNG failure, 102 skips and one TODO. Independent review
+reports no remaining actionable findings; its six-file suite passes 57 tests.
+
+The candidate has not been visually verified. Muted Helium opened its localhost
+page on the MacBook, but window capture/AX access subsequently failed and a
+desktop capture returned black. No candidate LCD captures were collected.
+The browser check plan and verification logs are under the private
+`animation-20261007/continuation-20261014/` directory. Live first/repeated and
+rapid Resume checks remain required before any visual acceptance claim.
+
+## Implementation
+
 This patch replaces the immediate compact/expanded switch with samples from the
 delivered `LncBase_U_00_ScaleUpDown` clip. The initial HOME Appear still starts at
 the selected scale endpoint. Subsequent selection away/back advances one source

@@ -901,7 +901,6 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    &&hostedBanner.resourceTicket?.generation===hostedBanner.primary.generation
    &&hostedBanner.resourceTicket.requestEpoch===hostedBanner.primary.requestEpoch
    ?launchCandidate:null;
-  if(!expanded){
   homeEntryDrawnNoBannerIdentity=homeEntryNoBannerIdentity(hostedBanner);
   const hostedToolbar=hostedBanner?.status!=='unsupported'&&hostedBanner?.selection.kind==='toolbar'?hostedBanner.selection:null;
   // Captured root-held HOME has no title/banner. A confirmed continuous stroke
@@ -925,10 +924,12 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    if(visible&&!label||options.drawFolderBannerFrame?.(t,retainedFolderBanner.primary.motion,label)!==true)throw Error('Native retained folder-entry banner unavailable');
    folderEntryBannerCandidate=retainedFolderBanner;
   }else{
-  const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&!hostedToolbar&&!(hasHomeTitleBanner(app.id)&&hostedBanner?.selection?.kind==='app'&&hostedBanner.selection.id===app.id))graphics.banner(t,app,time,reduced);
+  const app=graphics.selectedApp(state);if(app&&app.id!==suspended?.appId&&!state.panel&&state.system?.phase!=='app'&&!hostedToolbar&&!(hasHomeTitleBanner(app.id)&&hostedBanner?.selection?.kind==='app'&&hostedBanner.selection.id===app.id))graphics.banner(t,app,time,reduced);
   if(hostedBanner&&hostedBanner.status!=='unsupported'){
    // Pending/hidden native instances are handled without painting the incoming fallback.
-   if(hostedBanner.status==='active'&&hostedBanner.primary.motion.visible&&(!state.panel||((state.panel==='folder-settings'||state.panel==='folder-not-empty')&&hostedBanner.primary.selection.kind==='folder'))&&(state.system?.phase==='home'||launchPresentation!==null)){
+   // Keep initial HOME's owner title suppressed, but let an outgoing primary
+   // finish its native hide while the suspended window expands.
+   if(hostedBanner.status==='active'&&hostedBanner.primary.motion.visible&&!(hostedBanner.primary.selection.kind==='app'&&hostedBanner.primary.selection.id===suspended?.appId)&&(!state.panel||((state.panel==='folder-settings'||state.panel==='folder-not-empty')&&hostedBanner.primary.selection.kind==='folder'))&&(state.system?.phase==='home'||launchPresentation!==null)){
     const {selection,motion}=hostedBanner.primary;
     homeEntryDrawnBannerIdentity=homeEntryBannerIdentity(hostedBanner);
     if(selection.kind==='default'){
@@ -987,7 +988,6 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
     t.save();t.shadowColor='#6c718855';t.shadowBlur=4;t.shadowOffsetY=3;rounded(t,x-sz/2,y-sz/2,sz,sz,3,'#ffffff99','#fff');t.restore();
     if(sprite.complete&&sprite.naturalWidth){const sx=[12,55,96,138,181][i];t.drawImage(sprite,sx,3,i===4?30:25,25,x-sz*.4,y-sz*.4,sz*.8,sz*.8);}
    }
-  }
   }
   if(suspended){
    if(!firmwareAssets)throw Error('Suspended application frame unavailable');

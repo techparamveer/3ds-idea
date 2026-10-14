@@ -3,9 +3,11 @@ import assert from 'node:assert/strict';
 import { createPortfolioState, tickSystem, tickHomeNavigationClock, reduceSystem, restoreSettings, saveSettings, launchHomeShortcut } from '../src/os/system.ts';
 import { reduceMenu } from '../src/os/state.ts';
 import { enterHomeFolder, selectHomeSlot, writeHomeNavigation, getHomeNavigation } from '../src/os/home-navigation.ts';
-import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostView, resolveHomeBannerHostSelection, getHomeBannerCloseReadyUpdate, homeApplicationBannerBoundary } from '../src/os/home-banner-host.ts';
+import { createHomeBannerHost, crossHomeBannerBoundary, getHomeBannerHostView, resolveHomeBannerHostSelection, resolveHomeBannerHostObservation, getHomeBannerCloseReadyUpdate, homeApplicationBannerBoundary } from '../src/os/home-banner-host.ts';
 
 const T=4000,F=1000/60;
+const observation=state=>({kind:'banner-resolve',phase:'lower',reason:'idle-update',context:state.opened?state.selected:null,
+ slot:state.opened?state.folderSelected:state.selected,focus:-1,toolbarActive:false,updateOffset:0,updateCount:1});
 const at=(host,count,boundary={})=>crossHomeBannerBoundary(host,{...host.clock,updateCount:count},boundary);
 function select(host,state,count=state.system.homeClock.updateCount){
  host=at(host,count,{selection:resolveHomeBannerHostSelection(state)});
@@ -27,6 +29,7 @@ function advance(pair,count){
 }
 for(const [offscreen,readyAt] of [[false,31],[true,41]])test(`close clear and restored request are identical under batched/stepped updates (ready${readyAt})`,()=>{
  const initial=setup(offscreen);assert.deepEqual(resolveHomeBannerHostSelection(initial.state),{kind:'clear'});
+ assert.deepEqual(resolveHomeBannerHostObservation(initial.state,observation(initial.state)),{kind:'clear'});
  const before=advance(initial,readyAt-1);assert.deepEqual(resolveHomeBannerHostSelection(before.state),{kind:'clear'});
  const boundary=advance(before,readyAt);assert.equal(getHomeBannerCloseReadyUpdate(before.state,boundary.state),readyAt);
  assert.equal(resolveHomeBannerHostSelection(boundary.state).kind,'folder');
@@ -49,6 +52,7 @@ test('software close requests reacquisition once at footer departure frame 4 bef
  const closing=reduceSystem(reduceSystem(suspended,'back',6400),'open',6500);
  assert.deepEqual(homeApplicationBannerBoundary(suspended,closing),{kind:'clear'});
  assert.deepEqual(resolveHomeBannerHostSelection(closing),{kind:'clear'});
+ assert.deepEqual(resolveHomeBannerHostObservation(closing,observation(closing)),{kind:'clear'});
  assert.equal(homeApplicationBannerBoundary(closing,closing),undefined);
  let state=closing,retirement,departure;
  for(let i=0;i<12&&state.system.homeApplicationTransition?.phase!=='footer-returning';i++){
@@ -61,6 +65,7 @@ test('software close requests reacquisition once at footer departure frame 4 bef
    assert.equal(departure,undefined,'only one crossing requests');departure=state;
    assert.deepEqual(homeApplicationBannerBoundary(before,state),resolveHomeBannerHostSelection(state));
    assert.notDeepEqual(resolveHomeBannerHostSelection(state),{kind:'clear'});
+   assert.deepEqual(resolveHomeBannerHostObservation(state,observation(state)),{kind:'app',id:'work'});
    assert.equal(state.system.runtime.application,closing.system.runtime.application);
   }else assert.equal(homeApplicationBannerBoundary(before,state),undefined);
  }

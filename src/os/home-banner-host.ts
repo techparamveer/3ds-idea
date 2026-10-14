@@ -20,7 +20,8 @@ export type HomeFolderBannerSelection = Readonly<{
   kind: 'folder'; key: HomeFolderIdentity; label: string; nativeType: 9 | 10;
 }>;
 export type HomeDefaultBannerSelection = Readonly<{ kind: 'default' }>;
-export type HomeClearBannerSelection = Readonly<{ kind: 'clear' }>;
+/** Suspended selection uses type6; existing close boundaries retain type13. */
+export type HomeClearBannerSelection = Readonly<{ kind: 'clear'; nativeType?: 6 }>;
 type RenderSelection = HomeFolderBannerSelection | HomeDefaultBannerSelection;
 export type HomeSettingsBannerSelection = Readonly<{ kind: 'app'; id: string }>;
 export type HomeMemoBannerSelection = Readonly<{ kind: 'toolbar'; focus: 1; category: 5 }>;
@@ -117,7 +118,7 @@ function resolveSelectedHomeBannerContent(state: MenuState): HomeBannerHostSelec
   return resolveContentAt(state, state.opened ? state.selected : null, slot);
 }
 
-/** Resolve content only. Overlays, power, suspension and pass eligibility are host inputs. */
+/** Resolve content only. Overlays, power and pass eligibility are host inputs. */
 export function resolveHomeBannerHostSelection(state: MenuState): HomeBannerHostSelection {
   if (isSystemHomeFolderClosing(state)) return { kind: 'clear' };
   const applicationClose=sampleSystemHomeApplicationTransition(state);
@@ -139,6 +140,9 @@ export function resolveHomeBannerHostObservation(state: MenuState,
     || !Number.isInteger(slot) || slot < 0 || slot >= (context === null ? SLOT_COUNT : FOLDER_SLOT_COUNT)
     || !Number.isInteger(focus) || focus < -1 || focus > 7 || typeof toolbarActive !== 'boolean'
     || toolbarActive && focus < 0) throw new RangeError('Invalid HOME banner resolver snapshot');
+  if (isSystemHomeFolderClosing(state)) return { kind: 'clear' };
+  const applicationClose = sampleSystemHomeApplicationTransition(state);
+  if (applicationClose?.intent.kind === 'close' && !closeBannerRequested(applicationClose)) return { kind: 'clear' };
   if (toolbarActive) {
     // Category2 follows the existing default-banner path. Categories4..8 use
     // the source dispatcher types14..18 and their decoded applet resources.
@@ -156,7 +160,16 @@ export function resolveHomeBannerHostObservation(state: MenuState,
 
 function resolveContentAt(state: MenuState, context: number | null, slot: number): HomeBannerHostSelection {
   const app = homeSlotAppId(state, slot, context);
-  if (app) return { kind: 'app', id: app };
+  if (app) {
+    const runtime = state.system?.runtime, owner = runtime?.application;
+    const application = owner ? runtime?.instances[owner] : undefined;
+    // EUR HOME 0x1d7498..74d4: category1 normally requests type6; the old
+    // primary remains attached until its manager-owned hide completes.
+    if (application?.appId === app && application.suspended && !application.closing
+      && runtime?.active === null && runtime.homeReturn === owner
+      && !closeBannerRequested(sampleSystemHomeApplicationTransition(state))) return { kind: 'clear', nativeType: 6 };
+    return { kind: 'app', id: app };
+  }
   if (context === null) {
     const key = getHomeFolderIdentity(state, slot);
     if (key !== undefined) return { kind: 'folder', key, label: state.folders[slot], nativeType: folderHasItems(state, slot) ? 10 : 9 };
@@ -229,7 +242,10 @@ function copySelection(selection: HomeBannerHostSelection): HomeBannerHostSelect
       case 5: if (selection.category === 8) return { kind: 'toolbar', focus: 5, category: 8 }; break;
     }
   }
-  if (selection.kind === 'default' || selection.kind === 'clear') return { kind: selection.kind };
+  if (selection.kind === 'clear' && (selection.nativeType === undefined || selection.nativeType === 6)) {
+    return selection.nativeType === 6 ? { kind: 'clear', nativeType: 6 } : { kind: 'clear' };
+  }
+  if (selection.kind === 'default') return { kind: 'default' };
   throw new RangeError('Unsupported HOME banner host selection');
 }
 function sameFolder(a: HomeFolderBannerSelection, b: HomeFolderBannerSelection): boolean {
@@ -255,7 +271,7 @@ function targetFor(selection: SupportedSelection): HomeBannerTarget {
   }
   return selection.kind === 'default'
     ? { kind: 'default', key: HOME_BANNER_EMPTY_KEY, nativeType: 7 }
-    : { kind: 'clear', key: HOME_BANNER_EMPTY_KEY, nativeType: 13 };
+    : { kind: 'clear', key: HOME_BANNER_EMPTY_KEY, nativeType: selection.nativeType ?? 13 };
 }
 
 export function createHomeBannerHost(clock: HomeBannerServiceClock, inputs: HomeBannerHostInputs): HomeBannerHost {

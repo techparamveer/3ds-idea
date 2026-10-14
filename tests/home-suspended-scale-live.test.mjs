@@ -8,6 +8,11 @@ import { createPortfolioState, tickSystem, touchSystem, reduceSystem, dispatchSy
 import { sampleHomeGrid, selectHomeSlot, settleHomeNavigation } from '../src/os/home-navigation.ts';
 import { homeTitles } from '../src/os/app-registry.ts';
 import { nativePaneParentPath, poseNativeLayout } from '../src/os/native-layout.ts';
+import { enableHomeControls } from '../src/os/home-controls.ts';
+import { tickHomeNavigationClockObserved } from '../src/os/system.ts';
+import { createHomeBannerHost, crossHomeBannerBoundary, stepHomeBannerHost, skipHomeBannerHostPass,
+  getHomeBannerHostView, resolveHomeBannerHostSelection, resolveHomeBannerHostObservation,
+  homeApplicationBannerBoundary } from '../src/os/home-banner-host.ts';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const data = source => 'data:text/javascript;base64,' + Buffer.from(source).toString('base64');
@@ -47,7 +52,7 @@ const pane = (pair, name) => nativePaneParentPath(window(pair).pose, name).at(-1
 
 // Native sessions, HOME composition and source posing run here. Canvas/GPU and
 // asynchronous asset delivery are the browser boundaries supplied by the fixture.
-async function fixture(run) {
+async function fixture(run, options = {}) {
   const saved = new Map(['document', 'Image', 'FontFace', '__scaleLoad'].map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
   const events = [], loads = [], homePacks = structuredClone(packs);
   let failure = null, notice = null;
@@ -84,7 +89,7 @@ async function fixture(run) {
       events.push({ name: 'retained-upper', capture });
       if (capture.status === 'ready') ctx.canvas.marks.push(['retained', capture.owner, capture.generation]);
       return capture.status === 'none' || capture.status === 'ready';
-    } });
+    }, ...options });
   let now = 10000;
   const paint = (state, receipt = true, verification) => {
     events.length = 0;
@@ -101,16 +106,24 @@ async function fixture(run) {
   finally { screens.dispose(); for (const [key, descriptor] of saved) { if (descriptor) Object.defineProperty(globalThis, key, descriptor); else delete globalThis[key]; } }
 }
 
-async function initialHome(f) {
+async function initialHome(f, controls = false) {
   let state = tickSystem(createPortfolioState(), 3001);
+  if (controls) state = enableHomeControls(state);
   const slot = Number(Object.entries(state.system.layout).find(([, id]) => id === 'health-safety')[0]);
   state = settleHomeNavigation(selectHomeSlot(state, slot));
   const grid = sampleHomeGrid(state.system.homeNavigation), point = grid.slots[slot];
-  state = touchSystem(state, point.x - grid.scrollPixels, point.y, 3010);
+  if (controls) {
+    const touch = phase => ({ type: 'touch', phase, x: point.x - grid.scrollPixels, y: point.y, pointerId: 89 });
+    state = dispatchSystemEvent(state, touch('down'), 3010);
+    state = dispatchSystemEvent(state, touch('up'), 3020);
+    for (let now = 3037; now <= 3230 && state.system.phase === 'home'; now += 17) state = tickSystem(state, now);
+  } else state = touchSystem(state, point.x - grid.scrollPixels, point.y, 3010);
   assert.equal(state.system.phase, 'launch'); f.paint(state); await flush(); await f.resolveLoad();
   state = tickSystem(state, 6500); f.paint(state); state = tickSystem(state, 7000); f.paint(state);
   assert.equal(f.screens.stockStatus(state), 'ready');
-  return reduceSystem(state, 'home', 7100);
+  if (!controls) return reduceSystem(state, 'home', 7100);
+  state = dispatchSystemEvent(state, { type: 'button', command: 'home', phase: 'down', source: 'physical:HOME' }, 7100);
+  return dispatchSystemEvent(state, { type: 'button', command: 'home', phase: 'up', source: 'physical:HOME' }, 7101);
 }
 function settle(f, state) {
   for (let update = 100; update <= 122; update++) { state = at(state, update); f.paint(state); }
@@ -121,6 +134,117 @@ function select(state, slot) {
   const next = touchSystem(state, point.x - grid.scrollPixels, point.y, 7200);
   assert.equal(next.selected, slot); return next;
 }
+
+test('public HOME reselection retains outgoing Camera through hiding without exposing the suspended Health banner', async () => {
+  for (const route of ['touch', 'left']) for (const initialWait of [0, 40]) {
+    let host;
+    await fixture(async f => {
+      let state = await initialHome(f, true), now = 7101;
+      const health = state.selected, rows = [];
+      const clock = () => ({ generation: 'suspended-banner', updateCount: state.system.homeClock.updateCount });
+      const inputs = { managerInhibited: false, sceneInhibited: false, loadInhibited: false,
+        nativeWorkerReady: true, activationReady: true, resourceReady: null };
+      // Launch retains this primary while foreground software inhibits its manager.
+      host = createHomeBannerHost({ ...clock(), updateCount: 0 }, inputs);
+      host = crossHomeBannerBoundary(host, host.clock, { selection: { kind: 'app', id: 'health-safety' } });
+      host = crossHomeBannerBoundary(host, host.clock, { inputs: { ...inputs, resourceReady: getHomeBannerHostView(host).resourceTicket } });
+      host = crossHomeBannerBoundary(host, { ...host.clock, updateCount: 20 });
+      host = { ...host, clock: clock(), service: { ...host.service, clock: { ...host.service.clock, updateCount: clock().updateCount } } };
+      assert.equal(getHomeBannerHostView(host).primary.selection.id, 'health-safety');
+      function paint() {
+        const pair = f.paint(state), view = getHomeBannerHostView(host);
+        const row = { selected: state.system.layout[state.selected], frame: scale(pair),
+          primary: view.status === 'active' ? view.primary : null,
+          banners: pair.upper.filter(mark => mark[0] === 'banner').map(mark => mark[1]), owner: state.system.runtime.application };
+        if (row.banners.length && row.frame !== undefined) {
+          assert.ok(pair.upper.findIndex(mark => mark[0] === 'banner') < pair.upper.findIndex(mark => mark[0] === 'native' && mark[1] === 'LncBase_U_00'),
+            'retained primary is composed beneath the suspended window');
+        }
+        rows.push(row); return row;
+      }
+      function observe(selection) {
+        host = crossHomeBannerBoundary(host, clock(), { selection });
+        host = crossHomeBannerBoundary(host, clock(), { inputs: { ...host.inputs, resourceReady: getHomeBannerHostView(host).resourceTicket } });
+      }
+      function advance(ms = 17) {
+        now += ms;
+        const before = state, advanced = tickHomeNavigationClockObserved(state, now);
+        for (const pass of advanced.passes) {
+          state = pass.state;
+          let beforeManager, afterManager;
+          for (const entry of pass.observations) if (entry.observation.kind === 'banner-resolve') {
+            const selection = resolveHomeBannerHostObservation(pass.state, entry.observation);
+            if (entry.phase === 'input') beforeManager = selection; else afterManager = selection;
+          }
+          host = pass.completed ? stepHomeBannerHost(host, clock(), {
+            beforeManager: { selection: beforeManager, inputs: { ...host.inputs,
+              activationReady: f.screens.homeEntryActivationReady(state) && f.screens.homeFolderBannerActivationReady(state)
+                && f.screens.homeAppletFooterBannerReady(state) } },
+            afterManager: afterManager ? { selection: afterManager } : undefined,
+          }) : skipHomeBannerHostPass(host, clock());
+          observe();
+        }
+        state = advanced.state;
+        host = crossHomeBannerBoundary(host, clock());
+        observe(homeApplicationBannerBoundary(before, state));
+        return paint();
+      }
+      function event(event) {
+        advance(1);
+        const before = state;
+        state = dispatchSystemEvent(state, event, now);
+        observe(homeApplicationBannerBoundary(before, state));
+        return paint();
+      }
+      const wait = count => { for (let i = 0; i < count; i++) advance(); };
+      const button = (command, phase) => event({ type: 'button', command, phase, source: 'keyboard:' + command });
+      const key = command => { button(command, 'down'); wait(2); button(command, 'up'); };
+      const touch = (x, y) => {
+        event({ type: 'touch', phase: 'down', x, y, pointerId: 91 }); wait(2);
+        event({ type: 'touch', phase: 'up', x, y, pointerId: 91 });
+      };
+      assert.deepEqual(paint().banners, [], 'initial HOME must not expose its retained launch primary');
+      wait(initialWait);
+      for (let repeat = 0; repeat < 2; repeat++) {
+        const awayStart = rows.length;
+        key('right'); wait(40);
+        assert.equal(state.system.layout[state.selected], 'camera');
+        assert.ok(rows.slice(awayStart).every(row => !row.banners.includes('health')), 'selection-away cannot expose the suspended owner primary');
+        assert.deepEqual(rows.at(-1).banners, ['camera']); assert.equal(rows.at(-1).frame, 0);
+        const primary = getHomeBannerHostView(host).primary, returnStart = rows.length;
+        if (route === 'left') key('left');
+        else {
+          const grid = sampleHomeGrid(state.system.homeNavigation), point = grid.slots[health];
+          touch(point.x - grid.scrollPixels, point.y);
+        }
+        wait(40);
+        const returning = rows.slice(returnStart).filter(row => row.selected === 'health-safety');
+        const visible = returning.filter(row => row.primary?.selection.id === 'camera' && row.primary.motion.visible);
+        assert.ok(visible.some(row => row.frame > 0 && row.frame < 15), 'the old primary survives into expansion');
+        for (const row of visible) {
+          assert.deepEqual(row.banners, ['camera'], 'actual outgoing visibility, not selected owner, controls drawing');
+          assert.equal(row.primary.activationEpoch, primary.activationEpoch);
+          assert.equal(row.primary.requestEpoch, primary.requestEpoch);
+        }
+        assert.ok(returning.some(row => row.primary?.selection.id === 'camera' && !row.primary.motion.visible));
+        assert.ok(returning.every(row => !row.banners.includes('health')));
+        assert.equal(getHomeBannerHostView(host).status, 'cleared');
+        assert.equal(host.service.lifecycle.requested.target.nativeType, 6);
+        assert.equal(rows.at(-1).frame, 15); assert.deepEqual(rows.at(-1).banners, []);
+      }
+      touch(52, 226); assert.equal(state.system.homeApplicationTransition?.intent.kind, 'close');
+      wait(100);
+      assert.equal(state.system.runtime.application, null);
+      assert.equal(state.system.homeApplicationTransition, null);
+      assert.deepEqual(getHomeBannerHostView(host).selection, { kind: 'app', id: 'health-safety' });
+      assert.deepEqual(rows.at(-1).banners, ['health'], 'the existing Close request restores the ordinary title banner');
+      assert.equal(f.screens.stockFailure(), null);
+    }, {
+      getHomeBanner: () => host ? getHomeBannerHostView(host) : undefined,
+      drawStockTitleBannerFrame(ctx, _motion, _ticket, kind) { ctx.canvas.marks.push(['banner', kind]); return true; },
+    });
+  }
+});
 
 test('real HOME keeps initial Appear separate and presents every source scale pose on away/back', async () => {
   await fixture(async f => {

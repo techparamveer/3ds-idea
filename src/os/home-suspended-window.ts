@@ -77,7 +77,9 @@ export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:Canvas
   {name:'LncBase_U_00_ScaleUpDown',frame:scaleFrame},
   {name:'LncBase_U_00_Sleep',frame:sleepFrame},
   {name:'LncBase_U_00_WhiteBlack',frame:closeOpacity===undefined?1:0},
-  ...(sceneOutFrame===undefined?[]:[{name:'LncBase_U_00_SceneOut',frame:sceneOutFrame}]),
+  // SceneOut includes static descendant keys for the expanded endpoint.
+  // Restore the accepted scale pose after applying its root departure tracks.
+  ...(sceneOutFrame===undefined?[]:[{name:'LncBase_U_00_SceneOut',frame:sceneOutFrame},{name:'LncBase_U_00_ScaleUpDown',frame:scaleFrame}]),
  ];
  if(!pack?.layouts.LncBase_U_00)throw Error('Native suspended window layout unavailable');
  for(const binding of bindings)if(!pack.animations[binding.name])throw Error(`Native suspended window animation unavailable: ${binding.name}`);

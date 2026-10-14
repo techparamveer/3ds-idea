@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import ts from 'typescript';
-import { createPortfolioState, tickSystem, touchSystem, reduceSystem, setSystemSleeping } from '../src/os/system.ts';
+import { createPortfolioState, tickSystem, touchSystem, reduceSystem, dispatchSystemEvent, setSystemSleeping } from '../src/os/system.ts';
 import { sampleHomeGrid, selectHomeSlot, settleHomeNavigation } from '../src/os/home-navigation.ts';
 import { homeTitles } from '../src/os/app-registry.ts';
 import { nativePaneParentPath, poseNativeLayout } from '../src/os/native-layout.ts';
@@ -41,7 +41,7 @@ const packs = Object.fromEntries([['launcher', 'launcher.json'], ['messages', 'm
   .map(([alias, path]) => [alias, readPack('packs/home/' + path)]));
 const flush = () => new Promise(resolve => setImmediate(resolve));
 const at = (state, updateCount) => ({ ...state, system: { ...state.system, homeClock: { ...state.system.homeClock, updateCount } } });
-const window = pair => pair.events.find(event => event.name === 'LncBase_U_00');
+const window = pair => pair.events.find(event => event.name === 'LncBase_U_00' && event.options.bindings?.some(binding => binding.name === 'LncBase_U_00_ScaleUpDown'));
 const scale = pair => window(pair)?.options.bindings.find(binding => binding.name === 'LncBase_U_00_ScaleUpDown')?.frame;
 const pane = (pair, name) => nativePaneParentPath(window(pair).pose, name).at(-1);
 
@@ -59,6 +59,7 @@ async function fixture(run) {
       createLinearGradient: () => ({ addColorStop() {} }),
       getImageData(_x, _y, width, height) { return { width, height, data: new Uint8ClampedArray(width * height * 4).fill(127) }; },
       createImageData(width, height) { return { width, height, data: new Uint8ClampedArray(width * height * 4) }; },
+      putImageData(image) { surface.marks = [['pixels', image.width, image.height, image.data[0]]]; },
     }, { get: (target, key) => key in target ? target[key] : () => {} });
     surface.getContext = () => ctx; return surface;
   }
@@ -79,14 +80,18 @@ async function fixture(run) {
     titleIcons: new Map(homeTitles.filter(title => title.titleId).map(title => [title.titleId.toLowerCase(), {}])),
     titleDescriptions: new Map([['0004001000022300', 'Health and Safety Information']]) };
   const screens = createScreens({ firmwareAssets: assets, drawHomeBackground: () => true, runtimeNotice: () => notice,
-    drawSuspendedBackground(_ctx, capture) { events.push({ name: 'retained-upper', capture }); return capture.status === 'none' || capture.status === 'ready'; } });
+    drawSuspendedBackground(ctx, capture) {
+      events.push({ name: 'retained-upper', capture });
+      if (capture.status === 'ready') ctx.canvas.marks.push(['retained', capture.owner, capture.generation]);
+      return capture.status === 'none' || capture.status === 'ready';
+    } });
   let now = 10000;
   const paint = (state, receipt = true, verification) => {
     events.length = 0;
     const result = screens.paint(state, new Date(0), now++, verification);
     const pending = screens.homeEntryMotionPublicationPending();
     const presented = receipt && screens.presentHomeEntryMotion(state);
-    return { result, events: events.slice(), pending, presented };
+    return { result, events: events.slice(), pending, presented, upper: screens.nativeTop.marks.slice(), lower: screens.bottom.marks.slice() };
   };
   const resolveLoad = async () => {
     const selected = loads.at(-1), source = Object.fromEntries(selected.args[2].map(request => [request.alias, readPack(request.url)]));
@@ -201,22 +206,94 @@ test('resource replacement, runtime identity and disposal retire pending scale r
   });
 });
 
-test('reduced motion requires its endpoint receipt and Resume cannot capture an intermediate expansion', async () => {
-  for (const terminal of ['intermediate', 'unpresented', 'presented', 'reduced-unpresented', 'reduced-presented']) await fixture(async f => {
+async function compactHome(f) {
+  let state = settle(f, await initialHome(f)), selected = state.selected;
+  state = select(state, selected + 1);
+  for (let frame = 14; frame >= 0; frame--) { state = at(state, 137 - frame); assert.equal(scale(f.paint(state)), frame); }
+  return { state, selected };
+}
+function resume(state, route) {
+  if (route === 'home') return reduceSystem(state, 'home', 7400);
+  state = dispatchSystemEvent(state, { type: 'touch', phase: 'down', x: 210, y: 226, pointerId: 73 }, 7400);
+  return dispatchSystemEvent(state, { type: 'touch', phase: 'up', x: 210, y: 226, pointerId: 73 }, 7410);
+}
+
+test('rapid Resume retains the accepted expansion pair on both LCDs and keeps its scale through departure', async t => {
+  for (const route of ['touch', 'home']) for (const acceptedFrame of [1, 7, 15]) await fixture(async f => {
+    let { state, selected } = await compactHome(f);
+    state = select(state, selected);
+    let acceptedPair;
+    for (let frame = 1; frame <= acceptedFrame; frame++) {
+      state = at(state, 137 + frame); acceptedPair = f.paint(state); assert.equal(scale(acceptedPair), frame);
+    }
+    assert.equal(f.screens.stockStatus(state), 'ready');
+    state = resume(state, route); assert.equal(state.system.phase, 'app');
+    let pair = f.paint(state, false);
+    t.diagnostic(JSON.stringify({ route, acceptedFrame, resume: pair.result?.resume ?? null, upper: pair.upper, lower: pair.lower }));
+    assert.notDeepEqual(pair.upper, [['fill', '#000']], 'accepted intermediate source must cover pending Health on upper LCD');
+    assert.notDeepEqual(pair.lower, [['fill', '#000']], 'accepted intermediate source must cover pending Health on lower LCD');
+    assert.equal(pair.result?.resume?.kind, 'footer');
+    assert.ok(pair.upper.some(mark => mark[0] === 'pixels' && mark[3] === 127));
+    for (let frame = 0; frame <= 14; frame++) {
+      assert.equal(pair.result.resume.kind, 'footer'); assert.equal(pair.result.resume.frame, frame);
+      assert.ok(pair.upper.some(mark => mark[0] === 'pixels' && mark[3] === 127));
+      assert.ok(pair.lower.some(mark => mark[0] === 'pixels' && mark[3] === 127));
+      assert.equal(f.screens.presentHomeEntryMotion(state), true); pair = f.paint(state, false);
+    }
+    for (let frame = 0; frame <= 40; frame++) {
+      assert.equal(pair.result.resume.kind, 'departure'); assert.equal(pair.result.resume.frame, frame);
+      assert.equal(scale(pair), acceptedFrame, 'SceneOut preserves the accepted ScaleUpDown pose');
+      assert.deepEqual(pane(pair, 'N_WndwScale_00').translation, pane(acceptedPair, 'N_WndwScale_00').translation);
+      assert.deepEqual(pane(pair, 'W_Wndw_00').size, pane(acceptedPair, 'W_Wndw_00').size);
+      assert.ok(pair.upper.some(mark => mark[0] === 'retained'));
+      assert.ok(pair.lower.some(mark => mark[0] === 'native' && mark[1] === 'LncPauseFade_D_00'));
+      assert.equal(f.screens.presentHomeEntryMotion(state), true); pair = f.paint(state, false);
+    }
+    assert.equal(f.screens.stockFailure(), null);
+  });
+});
+
+test('unpresented expansion cannot become a Resume source and a later unpresented pose cannot replace an accepted source', async () => {
+  for (const acceptedFrame of [0, 1, 14]) await fixture(async f => {
+    let { state, selected } = await compactHome(f); state = select(state, selected);
+    for (let frame = 1; frame <= acceptedFrame; frame++) { state = at(state, 137 + frame); f.paint(state); }
+    state = at(state, 138 + acceptedFrame); assert.equal(scale(f.paint(state, false)), acceptedFrame + 1);
+    state = resume(state, 'touch');
+    let pair = f.paint(state, false);
+    if (!acceptedFrame) { assert.equal(pair.result?.resume, undefined); return; }
+    assert.equal(pair.result.resume.kind, 'footer');
+    while (pair.result.resume.kind === 'footer') { f.screens.presentHomeEntryMotion(state); pair = f.paint(state, false); }
+    assert.equal(scale(pair), acceptedFrame);
+  });
+});
+
+test('stale or ineligible expansion receipts cannot authorize the retained Resume source', async () => {
+  for (const reject of ['origin', 'hidden', 'sleep', 'notice', 'revoke', 'resources']) await fixture(async f => {
+    let { state, selected } = await compactHome(f);
+    state = at(select(state, selected), 138); assert.equal(scale(f.paint(state, false)), 1);
+    if (reject === 'origin') state = select(select(state, selected + 1), selected);
+    if (reject === 'hidden') document.hidden = true;
+    if (reject === 'notice') f.notice('Test runtime notice');
+    if (reject === 'revoke') f.screens.revokeHomeEntryMotionCandidate();
+    if (reject === 'resources') f.screens.setFirmwareAssets({ ...f.assets });
+    assert.equal(f.screens.presentHomeEntryMotion(reject === 'sleep' ? setSystemSleeping(state, true, 7300) : state), false);
+    document.hidden = false; f.notice(null);
+    state = resume(state, 'home'); assert.equal(f.paint(state, false).result?.resume, undefined, reject);
+  });
+});
+
+test('reversal and reduced Resume retain their own accepted scale pose', async () => {
+  for (const reduced of [false, true]) for (const receipt of [false, true]) await fixture(async f => {
     let state = settle(f, await initialHome(f)), selected = state.selected;
     state = select(state, selected + 1);
-    for (let frame = 14; frame >= 0; frame--) { state = at(state, 137 - frame); assert.equal(scale(f.paint(state)), frame); }
-    state = select(state, selected);
-    const reduced = terminal.startsWith('reduced'); f.screens.setReducedMotion(reduced);
-    const last = terminal === 'intermediate' || reduced ? 1 : 15;
-    for (let frame = 1; frame <= last; frame++) {
-      state = at(state, 137 + frame);
-      const receipt = frame < last || terminal === 'presented' || terminal === 'reduced-presented';
-      assert.equal(scale(f.paint(state, receipt)), reduced ? 15 : frame);
-    }
-    state = reduceSystem(state, 'home', 7400);
-    assert.equal(state.system.phase, 'app');
-    const pair = f.paint(state, false), accepted = terminal === 'presented' || terminal === 'reduced-presented';
-    assert.equal(pair.result?.resume?.kind, accepted ? 'footer' : undefined, terminal);
+    for (let frame = 14; frame >= 10; frame--) { state = at(state, 137 - frame); f.paint(state); }
+    state = at(select(state, selected), 128); f.screens.setReducedMotion(reduced);
+    const expected = reduced ? 15 : 11; assert.equal(scale(f.paint(state, receipt)), expected);
+    state = resume(state, 'home'); let pair = f.paint(state, false);
+    if (!receipt) { assert.equal(pair.result?.resume, undefined); return; }
+    assert.equal(pair.result.resume.kind, 'footer');
+    while (pair.result.resume.kind === 'footer') { f.screens.presentHomeEntryMotion(state); pair = f.paint(state, false); }
+    assert.equal(scale(pair), expected);
+    assert.notDeepEqual(pair.upper, [['fill', '#000']]); assert.notDeepEqual(pair.lower, [['fill', '#000']]);
   });
 });

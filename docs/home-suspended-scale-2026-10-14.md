@@ -10,9 +10,13 @@ epochs, duration and frame timing have not been recovered.
 The scale receipt binds the retained application, capture generation, firmware
 generation, runtime sequence and HOME origin. Hidden, sleeping, covered, failed,
 diagnostic, stale and revoked candidates cannot advance it. Reduced motion also
-requires its own endpoint receipt. Resume can capture its HOME source only after
-the expanded scale endpoint is painted and accepted. Existing Resume input
-settling is outside this patch.
+requires its own endpoint receipt. Resume captures a settled HOME source only
+when that paint's expanding-target scale pose receives the same accepted pair
+receipt. An accepted intermediate expansion is valid backing for rapid Resume.
+The footer retains the accepted upper/lower pixels and SceneOut keeps the exact
+stored scale frame. SceneOut contains static expanded descendant channels, so
+the validated scale binding is reapplied after it. The existing expanded
+departure pose is unchanged. Existing Resume input settling remains in force.
 
 The window uses the decoded geometry, opacity, visibility and caption tracks.
 All 23 bound channels are checked against the source contract. Caption centring
@@ -41,12 +45,17 @@ been browser-inspected or compared with new matched native captures. The native
 outgoing banner persists into expansion and the incoming banner follows compact
 arrival; that visibility ordering remains unresolved in the existing banner path.
 
-Worker checks pass 76 focused tests and `npm run typecheck`. Tests run the real
-HOME compositor and native sessions with Canvas/GPU boundaries supplied by the
-fixture. They cover all scale frames, initial Appear, reversal, rejected receipts,
-identity/resource replacement, disposal, reduced motion and Resume's endpoint
-barrier. Source geometry checks also preserve both prior endpoints and fail on
-changed or unsupported bound channels.
+The initial 76 focused checks and typecheck passed but missed rapid Resume.
+Independent review reproduced both black LCDs after accepted expansion frame 1:
+the endpoint-only source barrier left no retained cover while Health reloaded.
+The corrected regression first failed on that actual black compositor output.
+It now checks touch down/up and HOME Resume at accepted frames 1, 7 and 15,
+retained pixels throughout the footer, and unchanged local scale geometry across
+all SceneOut frames. Further cases cover unpresented/stale sources, reversal and
+reduced motion. Tests run the real HOME compositor and native sessions with
+Canvas/GPU boundaries supplied by the fixture. Source checks preserve both prior
+endpoints and fail on changed or unsupported bound channels.
+The corrected candidate passes 82 focused tests and `npm run typecheck`.
 
 Logs are under
 `/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261014/scale-worker/`.

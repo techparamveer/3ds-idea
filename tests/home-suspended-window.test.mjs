@@ -62,6 +62,17 @@ test('every bound ScaleUpDown channel must retain its decrypted source keys',()=
  }
 });
 
+test('restoring the accepted scale after SceneOut preserves the previous settled expanded departure pose',()=>{
+ for(const frame of [0,1,10,20,40])for(const sleepFrame of [0,60,119]){
+  let options;
+  drawHomeSuspendedWindow({packs,measureSingleLineText:()=>222,draw(_ctx,_pack,_name,value){options=value;return true;}},{},metadata(),'expanded',sleepFrame,undefined,undefined,undefined,frame,15);
+  assert.deepEqual(options.bindings.at(-1),{name:'LncBase_U_00_ScaleUpDown',frame:15});
+  const pose=poseNativeLayout(packs.launcher.layouts.LncBase_U_00,packs.launcher.animations,options.bindings,options.overrides);
+  const before=poseNativeLayout(packs.launcher.layouts.LncBase_U_00,packs.launcher.animations,options.bindings.slice(0,-1),options.overrides);
+  assert.deepEqual(pose,before);
+ }
+});
+
 test('lower highlight retains its application owner across selection and toolbar focus, never foreground or retired owners',()=>{
  const state=suspended(),owner=state.system.runtime.application;
  const other=settleHomeNavigation(selectHomeSlot(state,1));

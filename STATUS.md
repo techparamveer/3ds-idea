@@ -5,15 +5,16 @@ seat, server and verification notes retained later in this file.
 
 ## Current checkpoint
 
-- Reviewed runtime `93fb03b220d2f23032cdb44a20f61651224fa711` is pushed to draft
-  [PR 7](https://github.com/techparamveer/3ds-idea/pull/7). It includes source
-  ScaleUpDown progression `17e2ebf`, settled touch-Resume repair `1bf1a69`, and
-  rapid Resume retaining the accepted intermediate pose `93fb03b`.
-- Full tests: 2,848 pass, one missing historical Camera PNG failure, 102 skips,
-  one TODO. Typecheck and production build pass. Independent review has no
-  remaining actionable findings and its focused suite passes 57 tests.
-- The clean build is in `home-compact-resume-20261012/3ds-idea`, build ID
-  `RMDw65oWgaPfwwJ0n3ldW`. The coordinator's human `system.ts` edit is unchanged.
+- Reviewed runtime `89cc769` is integrated for draft
+  [PR 7](https://github.com/techparamveer/3ds-idea/pull/7). New commits are native
+  suspended-banner lifecycle `dff0842`, shortcut expectations `22bc0a8`, and
+  source-linear caption centring `89cc769`. Earlier ScaleUpDown and Resume fixes remain.
+- Full tests: 2,853 pass, one missing historical Camera PNG failure, 102 skips,
+  one TODO. Typecheck and production build pass. Independent banner review
+  passes 189 tests; caption review passes 16. Neither has remaining findings.
+- The clean build is in `health-resume-touch-20261014/3ds-idea`, branch
+  `codex/home-suspended-banner-20261014`, build ID `aBUClwv-9SvUSKXywzPsa`.
+  Earlier captured/build candidates are unchanged. The human `system.ts` edit is unchanged.
 - New browser verification has not happened. Muted Helium PID 59039, window
   309, is wholly on the MacBook at 650,150,1102x700. Its localhost page opened,
   but subsequent window capture/AX access failed and the desktop capture was
@@ -21,9 +22,12 @@ seat, server and verification notes retained later in this file.
 - All helpers were explicitly run as GPT-6 Astra extra-high. The main chat
   model cannot be changed or verified by these tools. Source/review workers
   are finished; the read-only browser audit helper is prepared for new captures.
-- Next: capture ordinary first/repeated away/back/Resume, including rapid
-  Resume, then compare against the existing native baseline. Native banner
-  ordering, timing, pixels and continuous Resume parity remain unverified.
+- Next code task: replace receipt-driven scale with the recovered per-upper-task
+  scale progression, retaining actual accepted pixels for Resume. The private
+  `scale-clock-design/plan.md` specifies ownership, pass order and receipt races.
+  Then capture ordinary first/repeated away/back/Resume, including rapid Resume,
+  and compare against the existing native baseline. Native timing, pixels,
+  initial-return caller and continuous Resume parity remain unverified.
   All four flows and the goal remain active, not complete or blocked.
 - Current logs and capture plan are under
   `/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261014/`.

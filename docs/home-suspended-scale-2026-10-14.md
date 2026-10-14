@@ -2,11 +2,13 @@
 
 ## Integrated checkpoint
 
-Runtime commits `17e2ebf`, `1bf1a69` and `93fb03b` are pushed to draft PR 7.
-The clean candidate at `93fb03b` passes typecheck and production build, ID
-`RMDw65oWgaPfwwJ0n3ldW`. Full tests report 2,848 passes, one unchanged missing
-historical Camera PNG failure, 102 skips and one TODO. Independent review
-reports no remaining actionable findings; its six-file suite passes 57 tests.
+Runtime `89cc769` adds suspended-banner lifecycle `dff0842`, shortcut test
+alignment `22bc0a8`, and native caption centring to the earlier ScaleUpDown and
+Resume fixes. The clean candidate in `health-resume-touch-20261014/3ds-idea`
+passes typecheck and production build, ID `aBUClwv-9SvUSKXywzPsa`. Full tests
+report 2,853 passes, one unchanged missing historical Camera PNG failure,
+102 skips and one TODO. Independent banner review passes 189 tests and caption
+review passes 16; neither has remaining actionable findings.
 
 The candidate has not been visually verified. Muted Helium opened its localhost
 page on the MacBook, but window capture/AX access subsequently failed and a
@@ -21,8 +23,10 @@ This patch replaces the immediate compact/expanded switch with samples from the
 delivered `LncBase_U_00_ScaleUpDown` clip. The initial HOME Appear still starts at
 the selected scale endpoint. Subsequent selection away/back advances one source
 frame per accepted LCD pair and changed HOME update. Reversal starts from the
-last accepted pose. This receipt cadence is a host adaptation; native activation
-epochs, duration and frame timing have not been recovered.
+last accepted pose. This receipt cadence is a host adaptation and now has a
+confirmed source mismatch: native scale advances once per upper HOME task,
+after its banner manager. Moving logical scale to that clock is the next fix.
+Native wall-clock cadence and the initial HOME-return caller remain unproved.
 
 The scale receipt binds the retained application, capture generation, firmware
 generation, runtime sequence and HOME origin. Hidden, sleeping, covered, failed,
@@ -37,9 +41,11 @@ departure pose is unchanged. Existing Resume input settling remains in force.
 
 The window uses the decoded geometry, opacity, visibility and caption tracks.
 All 23 bound channels are checked against the source contract. Caption centring
-keeps the existing fitted endpoints and interpolates them with the source
-`N_TextBtm_00` curve. That centring remains an adaptation because the native
-`N_TestCenter_00` writer is untraced. No firmware resource or asset was changed.
+now follows the recovered `N_TestCenter_00` writer: scale frame / last frame
+times half the remaining text-pane width. The actual source width is 252, not
+the previously fitted 250; the expanded caption shifts one pixel accordingly.
+Native font measurement and exact rendered text pixels remain unverified.
+No firmware resource or asset was changed.
 
 ## Source
 
@@ -60,7 +66,8 @@ records intermediate native shrinking and expanding poses in both cycles.
 Its browser baseline records endpoint-only switching. This patch has not yet
 been browser-inspected or compared with new matched native captures. The native
 outgoing banner persists into expansion and the incoming banner follows compact
-arrival; that visibility ordering remains unresolved in the existing banner path.
+arrival. The outgoing lifecycle is now corrected in code. Source does not prove
+an incoming scale-zero barrier; no such delay was added. Fresh captures remain required.
 
 The initial 76 focused checks and typecheck passed but missed rapid Resume.
 Independent review reproduced both black LCDs after accepted expansion frame 1:
@@ -78,3 +85,32 @@ Logs are under
 `/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261014/scale-worker/`.
 The coordinator owns combined tests/build and GUI verification. Exact native
 pixels, input epochs, banner ordering, cadence and muted audio remain unproven.
+
+## Native banner and caption trace
+
+Pinned HOME code SHA-256:
+`243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9`.
+Ordinary idle/scroll-completion calls supply resolver flag zero. Suspended
+category 1 requests clear type 6 at `0x1d74b4..0x1d74d4`; it does not detach
+the current primary immediately. The retained manager performs its hide.
+Browser composition now draws that outgoing nonowner primary while suppressing
+the suspended owner's stale title. Close type 13 and snapshot/toolbar precedence
+remain distinct. The initial-return flag is not inferred from ordinary selection.
+
+Six original-ARM replays on synthetic mature objects verify the bounded dispatch,
+manager hide and scale call order. They are not native raster or elapsed-time
+proof. The public-controls regression independently failed on stale Health
+while moving away and missing Camera during expansion, then passed for initial
+and repeated keyboard/touch selection, quick-away and released footer Close.
+
+Caption lookup `0x2867dc` binds `N_TestCenter_00`; `0x2867ec..0x286800` derives
+its extent from `T_TextBtmR_00` width minus measured text. The Pane constructor
+copies raw width unchanged to object `+0x48`. Writer `0x285b28..0x285b44`
+applies the linear scale fraction, independently of the authored Hermite track.
+The regression checks every scale frame plus three text widths and Resume.
+
+Private evidence under `continuation-20261014/banner-native-trace/`:
+report SHA `5d3e95eb7d4d5d5ea3eb73e067a5b3f60f8400d8a2c3422608c9b9a69cda4c93`,
+replay results SHA `a14500c0daa8f6b3fc0d8ee35aaf7e13d50173cbe791dfeb22f8d80096ef20d3`,
+caption note SHA `1794e5940a981d293277d0ceef46e4c667a4ba0e69012b57070a21c7f24d33e8`.
+The browser trace and final full-test/build logs are in `banner-browser-trace/`.

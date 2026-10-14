@@ -4,9 +4,13 @@
 
 The [fresh baseline](home-compact-resume-baseline-2026-10-12.md) establishes
 missing ScaleUpDown interpolation. The [reviewed correction](home-suspended-scale-2026-10-14.md)
-is pushed through `93fb03b`, preserving initial Appear and settled endpoints.
-Native banner/footer dispatch and cadence remain residuals, not grounds for
-guessed delays. Verify first/repeated away/back on the new production build.
+is reviewed through `89cc769`. Ordinary suspended reselection now uses native
+clear type 6 and retains the outgoing banner's actual hide. The recovered
+caption writer uses linear progression and the source pane width of 252.
+Native scale advances after the banner manager on each upper-task update;
+the current receipt-paced scale must move to that clock without weakening
+Resume's accepted-pair guards. No guessed banner delay or compact-endpoint gate.
+Verify first/repeated away/back on the new production build when capture returns.
 
 Actual touchscreen Resume captures contain a paired black interval. Settled
 Decide1 acceptance repairs the reproduced route. Independent review also found

@@ -1,13 +1,15 @@
 # Goal: finish the four remaining native animation flows
 
 14 October checkpoint: [source ScaleUpDown and retained Resume fixes](docs/home-suspended-scale-2026-10-14.md)
-are reviewed and pushed through `93fb03b`. The touch-reselection and rapid-Resume
-black-screen regressions pass real-compositor tests. Full checks report 2,848
+are reviewed through `89cc769`, including native suspended-banner hide requests
+and linear caption centring. The touch-reselection and rapid-Resume
+black-screen regressions pass real-compositor tests. Full checks report 2,853
 passes and the unchanged missing Camera PNG failure; typecheck and build pass.
 New live verification is pending because window capture failed and the MacBook
 desktop capture was black. Keep the four-flow goal active. Use GPT-6 Astra
 extra-high helpers and muted MacBook testing. Do not claim a main-model switch
-or native 1:1 from these code checks.
+or native 1:1 from these code checks. Native scale advances per upper HOME task;
+replacing the current receipt-driven scale clock is the next source-backed fix.
 
 12 October Manual HOME reveal: exact reviewed/captured commit `0b890db` now
 keeps the selected title visible before restoring surrounding icons. The

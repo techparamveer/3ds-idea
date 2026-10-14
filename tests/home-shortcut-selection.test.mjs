@@ -58,7 +58,7 @@ function composition(state) {
   };
 }
 const suspendedHealthComposition = {
-  banner: { kind: 'app', id: 'health-safety' },
+  banner: { kind: 'clear', nativeType: 6 },
   suspendedWindow: 'health-safety',
   footer: { two: true, left: 'close-software', right: 'resume' },
 };

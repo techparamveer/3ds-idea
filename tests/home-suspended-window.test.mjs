@@ -29,9 +29,20 @@ test('every ScaleUpDown frame poses authored geometry and caption fading without
   assert.equal(pane('T_AppTitle_00').flags&1,frame>0?1:0);
   assert.ok(pane('T_TextTop_00').flags&2,'source parent alpha propagates to application title');
   assert.equal(options.overrides.T_AppTitle_00.alpha,undefined);
-  assert.ok(Math.abs(pane('N_TestCenter_00').translation[0]-14*sample('N_TextBtm_00','translation.x')/-126)<1e-12);
+  assert.ok(Math.abs(pane('N_TestCenter_00').translation[0]-15*frame/15)<1e-12);
  }
  assert.equal(JSON.stringify(packs),before);
+});
+
+test('suspended caption uses the native linear centring writer for different measured widths',()=>{
+ const layout=packs.launcher.layouts.LncBase_U_00;
+ const paneWidth=nativePaneParentPath(layout,'T_TextBtmR_00').at(-1).size[0];
+ assert.equal(paneWidth,252);
+ for(const width of [144,222,300])for(const frame of [0,1,4,7,11,14,15]){
+  let options;
+  drawHomeSuspendedWindow({packs,measureSingleLineText:()=>width,draw(_ctx,_pack,_name,value){options=value;return true;}},{},metadata(),'expanded',0,undefined,undefined,undefined,undefined,frame);
+  assert.deepEqual(options.overrides.N_TestCenter_00.translation,[(paneWidth-width)*.5*frame/15,0,0]);
+ }
 });
 
 test('malformed or unsupported ScaleUpDown resources fail before drawing',()=>{
@@ -202,7 +213,7 @@ test('source expanded window keeps native frame geometry, message styles and ico
  assert.equal(pane('T_TextTop_00').text.value,'Suspended software');
  assert.equal(pane('T_AppTitle_00').text.value,meta.description);
  assert.equal(pane('T_TextBtmR_00').text.value,'HOME: Resume suspended software');
- assert.deepEqual(pane('N_TestCenter_00').translation,[14,0,0]);
+ assert.deepEqual(pane('N_TestCenter_00').translation,[15,0,0]);
  assert.ok(pane('T_TextTop_00').text.messageStyle);
  const material=pose.materials[pane('P_Icon_00').picture.material];
  assert.equal(pose.textures[material.textureMaps[0].texture],'runtime:suspended-icon');

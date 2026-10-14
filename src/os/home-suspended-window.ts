@@ -1,6 +1,6 @@
 import { homeSlotAppId } from './system.ts';
 import type { MenuState } from './state';
-import { boundAnimationTracks, nativeMessageOverride, nativePaneParentPath, sampleNativeTrack, type AnimationBinding, type NativePixels } from './native-layout.ts';
+import { boundAnimationTracks, nativeMessageOverride, nativePaneParentPath, type AnimationBinding, type NativePixels } from './native-layout.ts';
 import type { NativeLayoutRenderer } from './native-renderer';
 import { sampleSystemHomeApplicationTransition } from './system-home-application-transition.ts';
 import { homePauseWindowAppearFrame, type HomeEntryMotion } from './home-entry-motion.ts';
@@ -85,7 +85,6 @@ export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:Canvas
  for(const binding of bindings)if(!pack.animations[binding.name])throw Error(`Native suspended window animation unavailable: ${binding.name}`);
  const scale=pack.animations.LncBase_U_00_ScaleUpDown,source=pack.resourceSources?.animations?.LncBase_U_00_ScaleUpDown;
  const scaleTracks=boundAnimationTracks(pack.layouts.LncBase_U_00,scale);
- const captionTrack=scaleTracks.filter(track=>track.target==='N_TextBtm_00'&&track.property==='translation.x');
  const scaleTrack=(target:string,property:string,from:number,to:number,start=0)=>{
   const tracks=scaleTracks.filter(track=>track.target===target&&track.property===property);
   return tracks.length===1&&tracks[0].binding==='pane'&&tracks[0].interpolation==='hermite'&&tracks[0].keys.length===2
@@ -155,14 +154,13 @@ export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:Canvas
  if(!metadata.description.trim()||metadata.icon.width!==64||metadata.icon.height!==64||metadata.icon.data.length!==64*64*4)throw Error('Native suspended window metadata unavailable');
  const message=(key:string)=>nativeMessageOverride(renderer.packs.messages,'menu_msbt_LZ',key,'');
  const resume=message('lau_rest_comm_u'),layout=pack.layouts.LncBase_U_00;
- const text=nativePaneParentPath(layout,'T_TextBtmR_00')?.at(-1)?.text;
- if(!text)throw Error('Native suspended window resume pane unavailable');
+ const captionPane=nativePaneParentPath(layout,'T_TextBtmR_00')?.at(-1);
+ if(!captionPane?.text)throw Error('Native suspended window resume pane unavailable');
+ const text=captionPane.text;
  const width=renderer.measureSingleLineText(layout.fonts[text.font],{...text,value:resume.text!,messageStyle:resume.messageStyle});
- // Capture-fitted assembly: center the source glyph + gap + measured caption.
- // The original host's N_TestCenter writer has not yet been traced.
- // Preserve fitted caption endpoints, sampling their interpolation from the
- // authored N_TextBtm curve. Native N_TestCenter assembly remains untraced.
- const centerOffset=scaleFrame===0?0:(125-width/2)*(sampleNativeTrack(captionTrack[0],scaleFrame)/-126);
+ // EUR HOME 0x2867ec measures the remaining pane width; 0x285b28 applies
+ // the linear scale fraction independently of the authored text motion.
+ const centerOffset=(captionPane.size[0]-width)*.5*scaleFrame/(scale.frames-1);
  if(!renderer.draw(ctx,'launcher','LncBase_U_00',{bindings,textSampling:'lcd',pictureSampling:'lcd',
   textures:{'runtime:suspended-icon':metadata.icon},overrides:{
    ...(closeOpacity===undefined?{}:{N_Wndw_00:{alpha:Math.round(255*closeOpacity)}}),

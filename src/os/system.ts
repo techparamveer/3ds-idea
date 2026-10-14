@@ -4,6 +4,7 @@ import { advanceSystemHomeApplicationTransition, beginSystemHomeApplicationTrans
 import { createSystemHomeFolderClose, beginSystemHomeFolderClose, advanceSystemHomeFolderClose, cancelSystemHomeFolderClose, reconcileSystemHomeFolderClose, isSystemHomeFolderClosing, sampleSystemHomeFolderClose, type SystemHomeFolderCloseSession } from './home-folder-close-system.ts';
 import { createHomeCursorLoop, advanceHomeCursorLoop, type HomeCursorLoop } from './home-cursor-loop.ts';
 import { getHomeCursorSlot } from './home-cursor-visibility.ts';
+import { applyHomeSuspendedScalePass, createHomeSuspendedScale, reconcileSystemHomeSuspendedScale, stepSystemHomeSuspendedScale, type HomeSuspendedScale } from './home-suspended-scale.ts';
 import { cancelHomeControls, cancelHomeControlTouch, isHomeControlsActive, isHomeSwitchPresentationActive, queueHomeControlEvent, queueHomeControlTouch, reconcileHomeControlGesture, reconcileHomeControls, selectHomeControlTouch, selectHomeToolbarControlTouch, stepHomeControls, type HomeControls, type HomeControlPass } from './home-controls.ts';
 import { getHomeToolbarCursorAnchor } from './home-cursor-presentation.ts';
 export { sampleSystemHomeFolderClose, isSystemHomeFolderClosing, type SystemHomeFolderCloseRecord, type SystemHomeFolderCloseSession } from './home-folder-close-system.ts';
@@ -30,9 +31,9 @@ export type System = {
  app:string|null; pending:string|null; item:number; detail:boolean; page:number; photo:number;
  layout:Record<number,string>; muted:boolean; volume:number; dialog:'switch'|'close'|null;
  returnPhase:'home'|'app'; link:string|null; preferences:boolean; preferenceChoice:number;
- runtime: AppRuntime; input: InputLatch; folderLayouts: FolderLayouts; homeNavigation: HomeNavigation; homeClock: HomeUpdateClock; homeFolderIdentities: HomeFolderIdentities; homeFolderClose: SystemHomeFolderCloseSession; homeApplicationTransition: HomeApplicationTransition | null; homeCursorLoop: HomeCursorLoop; homeControls: HomeControls | null;
+ runtime: AppRuntime; input: InputLatch; folderLayouts: FolderLayouts; homeNavigation: HomeNavigation; homeClock: HomeUpdateClock; homeFolderIdentities: HomeFolderIdentities; homeFolderClose: SystemHomeFolderCloseSession; homeApplicationTransition: HomeApplicationTransition | null; homeCursorLoop: HomeCursorLoop; homeControls: HomeControls | null; homeSuspendedScale: HomeSuspendedScale;
 };
-export function createPortfolioState():MenuState {return {...initialState,folders:{},system:{phase:'boot',since:0,sleeping:false,app:null,pending:null,item:0,detail:false,page:0,photo:0,layout:initialAppLayout(),muted:false,volume:.35,dialog:null,returnPhase:'home',link:null,preferences:false,preferenceChoice:0,runtime:createAppRuntime(),input:createInputLatch(),folderLayouts:{},homeNavigation:createHomeNavigation(),homeClock:createHomeUpdateClock(),homeFolderIdentities:createHomeFolderIdentities(),homeFolderClose:createSystemHomeFolderClose(),homeApplicationTransition:null,homeCursorLoop:createHomeCursorLoop(),homeControls:null}};}
+export function createPortfolioState():MenuState {return {...initialState,folders:{},system:{phase:'boot',since:0,sleeping:false,app:null,pending:null,item:0,detail:false,page:0,photo:0,layout:initialAppLayout(),muted:false,volume:.35,dialog:null,returnPhase:'home',link:null,preferences:false,preferenceChoice:0,runtime:createAppRuntime(),input:createInputLatch(),folderLayouts:{},homeNavigation:createHomeNavigation(),homeClock:createHomeUpdateClock(),homeFolderIdentities:createHomeFolderIdentities(),homeFolderClose:createSystemHomeFolderClose(),homeApplicationTransition:null,homeCursorLoop:createHomeCursorLoop(),homeControls:null,homeSuspendedScale:createHomeSuspendedScale()}};}
 /** Kept for portfolio artwork compatibility; use selectedTitle for every installed title. */
 export function selectedApp(state:MenuState){return getApp(homeSlotAppId(state,state.opened?state.folderSelected:state.selected));}
 export function selectedTitle(state:MenuState){return getTitle(homeSlotAppId(state,state.opened?state.folderSelected:state.selected));}
@@ -42,8 +43,8 @@ function syncRuntime(state: MenuState, runtime: AppRuntime, phase?: System['phas
  if(runtime.active!==state.system?.runtime.active)state=resetHomeNavigation(cancelSystemHomeFolderClose(state));
  const s=state.system!, application=runtime.application?runtime.instances[runtime.application]:undefined;
  const portfolio=application&&getApp(application.appId)?application.state:null;
- return {...state,system:{...s,runtime,input:runtime.active===s.runtime.active?s.input:createInputLatch(),app:application?.appId??null,phase:phase??(runtime.active?'app':'home'),link:runtime.link,
-  ...(portfolio?{item:Number(portfolio.item),detail:portfolio.detail===true,page:Number(portfolio.page),photo:Number(portfolio.photo)}:{item:0,detail:false,page:0,photo:0})}};
+ return reconcileSystemHomeSuspendedScale({...state,system:{...s,runtime,input:runtime.active===s.runtime.active?s.input:createInputLatch(),app:application?.appId??null,phase:phase??(runtime.active?'app':'home'),link:runtime.link,
+  ...(portfolio?{item:Number(portfolio.item),detail:portfolio.detail===true,page:Number(portfolio.page),photo:Number(portfolio.photo)}:{item:0,detail:false,page:0,photo:0})}});
 }
 function commitRuntime(state: MenuState, runtime: AppRuntime, now: number): MenuState {
  const pending=runtime.pendingLaunch;
@@ -113,7 +114,7 @@ export function tickHomeNavigationClock(state: MenuState, now: number, reduced =
 /** Scene consumes journals once; nested action reducers see the same timestamp
  * and therefore cannot replay their input, cue or banner observations. */
 export function tickHomeNavigationClockObserved(state: MenuState, now: number, reduced = false): {state:MenuState;passes:readonly HomeControlPass[]} {
- state=reconcileSystemHomeApplicationTransition(reconcileSystemHomeFolderClose(state));
+ state=reconcileSystemHomeSuspendedScale(reconcileSystemHomeApplicationTransition(reconcileSystemHomeFolderClose(state)));
  const s=state.system;if(!s||!Number.isFinite(now))return {state,passes:[]};
  const applicationTransition=isSystemHomeApplicationTransitionActive(state);
  const applicationTransitionEligible=applicationTransition&&state.powered&&s.phase==='home'&&!s.sleeping&&!s.dialog&&!s.preferences&&!state.panel;
@@ -123,6 +124,9 @@ export function tickHomeNavigationClockObserved(state: MenuState, now: number, r
   const advanced=advanceSystemHomeApplicationTransition(state,stepped.updates,applicationTransitionEligible);
   state=advanced.state;
   const processed=advanced.processedUpdates;
+  // Helper admission follows the existing browser host bridge, not resource
+  // readiness or banner inhibition. Its native outer lifecycle remains scoped.
+  for(let i=1;i<=processed;i++)state=stepSystemHomeSuspendedScale(state,s.homeClock.updateCount+i,reduced);
   const clock=processed<stepped.updates
    ?{lastNow:now,remainderMs:0,updateCount:s.homeClock.updateCount+processed}
    :stepped.clock;
@@ -150,7 +154,7 @@ export function tickHomeNavigationClockObserved(state: MenuState, now: number, r
    const beforeGesture=state,afterGesture=tickHomeGesture(state,passNow);
    state=beforeGesture.system!.homeNavigation.activeFolderSlot!==afterGesture.system!.homeNavigation.activeFolderSlot
     ?reconcileHomeControls(beforeGesture,afterGesture):reconcileHomeControlGesture(afterGesture);
-   const pass=stepHomeControls(state);state=pass.state;
+   const pass=applyHomeSuspendedScalePass(stepHomeControls(state),reduced);state=pass.state;
    if(pass.handoff){
     // The audited open call ends the native input pass. Existing application
     // and folder lifecycles remain explicit browser bridges after that point.
@@ -163,7 +167,13 @@ export function tickHomeNavigationClockObserved(state: MenuState, now: number, r
   return {state,passes};
  }
  if(stepped.clock!==s.homeClock)state={...state,system:{...s,homeClock:stepped.clock}};
- return {state:active?advanceHomePresentationClocks(state,stepped.updates,reduced):state,passes:[]};
+ if(active&&stepped.updates===0)state=reconcileSystemHomeSuspendedScale(advanceHomePresentationClocks(state,0,reduced));
+ for(let i=1;i<=stepped.updates;i++){
+  state={...state,system:{...state.system!,homeClock:{...stepped.clock,updateCount:s.homeClock.updateCount+i}}};
+  state=stepSystemHomeSuspendedScale(state,s.homeClock.updateCount+i,reduced);
+  if(active)state=reconcileSystemHomeSuspendedScale(advanceHomePresentationClocks(state,1,reduced));
+ }
+ return {state,passes:[]};
 }
 /** Lower navigation tasks precede the cursor layout submission. The close's
  * selection-ready update itself is eligible, followed by any visible tail.
@@ -218,7 +228,7 @@ export function tickSystem(state:MenuState,now:number,reduced=false):MenuState {
  return state;
 }
 export function reduceSystem(state:MenuState,input:Input,now:number):MenuState {
- return reconcileHomeControls(state,reduceSystemAction(state,input,now));
+ return reconcileSystemHomeSuspendedScale(reconcileHomeControls(state,reduceSystemAction(state,input,now)));
 }
 function reduceSystemAction(state:MenuState,input:Input,now:number):MenuState {
  let s=state.system;if(!s||!Number.isFinite(now))return !s?reduceMenu(state,input):state;
@@ -356,7 +366,7 @@ export function cancelManualForRecovery(state:MenuState,now:number):MenuState {
  return commitRuntime(state,completeApplet(s.runtime,owner,null,true,now),now);
 }
 export function touchSystem(state:MenuState,x:number,y:number,now:number):MenuState {
- return reconcileHomeControls(state,touchSystemAction(state,x,y,now));
+ return reconcileSystemHomeSuspendedScale(reconcileHomeControls(state,touchSystemAction(state,x,y,now)));
 }
 function pageSystemHomeViewport(state:MenuState,direction:'left'|'right'){
  const s=state.system;if(!s)return state;
@@ -426,7 +436,7 @@ function touchSystemAction(state:MenuState,x:number,y:number,now:number):MenuSta
 }
 /** Full pointer/button protocol for scene adapters. Legacy single-command inputs remain supported. */
 export function dispatchSystemEvent(state: MenuState,event: AppEvent,now: number): MenuState {
- return reconcileHomeControls(state,dispatchSystemEventAction(state,event,now));
+ return reconcileSystemHomeSuspendedScale(reconcileHomeControls(state,dispatchSystemEventAction(state,event,now)));
 }
 function dispatchSystemEventAction(state: MenuState,event: AppEvent,now: number): MenuState {
  let s=state.system;if(!s||!Number.isFinite(now))return state;

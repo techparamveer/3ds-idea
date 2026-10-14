@@ -410,7 +410,8 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     try{effects.drain(userGesture);}finally{closePublicationEffectNow=previousEffectNow;}
     // Ordinary clock updates keep the quality cadence; terminal close pairs must publish.
     const reducedChanged=reduced&&(previousBanner!==reducedBannerKey()||before.homeNavigation!==after.homeNavigation
-      ||before.homeControls?.tilePoses!==after.homeControls?.tilePoses||before.homeControls?.tilePickup!==after.homeControls?.tilePickup);
+      ||before.homeControls?.tilePoses!==after.homeControls?.tilePoses||before.homeControls?.tilePickup!==after.homeControls?.tilePickup
+      ||after.homeSuspendedScale.kind==='home'&&(before.homeSuspendedScale.kind!=='home'||before.homeSuspendedScale.current!==after.homeSuspendedScale.current));
     if(input!=='tick'||mustPaintApplicationClose||reducedChanged||before.phase!==after.phase||previous.powered!==state.powered||previous.panel!==state.panel)paint();else writeState();
     // Upload the terminal pair now, before another update can retire its owner.
     // Offscreen painting alone cannot cross the outer 30/45fps render gate.

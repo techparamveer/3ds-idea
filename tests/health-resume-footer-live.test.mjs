@@ -131,6 +131,76 @@ function home(f,state,now=7100){
 
 const pointer=(state,phase,x,y,now)=>dispatchSystemEvent(state,{type:'touch',phase,x,y,pointerId:81},now);
 
+function touchReturnToHealth(f,state,receipt=true){
+  let now=7200;
+  const health=state.selected;
+  const settle=count=>{
+    for(let frame=0;frame<count;frame++){
+      state=tickSystem(state,now+=17);f.paint(state,receipt);
+    }
+  };
+  state=dispatchSystemEvent(state,{type:'button',command:'right',phase:'down',source:'keyboard:ArrowRight'},now);
+  settle(2);
+  state=dispatchSystemEvent(state,{type:'button',command:'right',phase:'up',source:'keyboard:ArrowRight'},now);
+  settle(40);assert.notEqual(state.selected,health);
+  const grid=sampleHomeGrid(state.system.homeNavigation),point=grid.slots[health];
+  f.readback(171);
+  state=pointer(state,'down',point.x-grid.scrollPixels,point.y,now+1);settle(2);
+  state=pointer(state,'up',point.x-grid.scrollPixels,point.y,now+1);settle(100);
+  assert.equal(state.selected,health);assert.equal(state.system.phase,'home');
+  const widget=state.system.homeControls.tileTouch.widgets[health];
+  assert.deepEqual(widget.pose,{clip:'decide',frame:1});
+  assert.equal(widget.state,0);assert.equal(widget.capture,false);
+  assert.equal(widget.select.status,0);assert.equal(widget.decide.status,0);
+  return {state,now};
+}
+
+test('controls-enabled touch return to Health keeps both LCDs through accepted footer and physical HOME Resume',async()=>{
+  for(const route of ['footer','physical-home'])for(const receipt of [false,true])await fixture(async f=>{
+    let {state,now}=touchReturnToHealth(f,home(f,await ordinaryHealth(f,true)),receipt);
+    const owner=state.system.runtime.application;
+    f.readback(211);
+    if(route==='footer'){
+      state=pointer(state,'down',160,226,++now);
+      for(let frame=0;frame<2;frame++){state=tickSystem(state,now+=17);f.paint(state,receipt);}
+      state=pointer(state,'up',160,226,++now);
+    }else state=dispatchSystemEvent(state,{type:'button',command:'home',phase:'down',source:'physical:HOME'},++now);
+    assert.equal(state.system.phase,'app');assert.equal(state.system.runtime.application,owner);
+    const pair=f.paint(state,false);
+    assert.equal(pair.result?.resume?.kind,receipt?'footer':undefined,'a settled touch selection requires a fresh accepted HOME pair for Resume');
+    if(!receipt)return;
+    assert.equal(pair.result.resume.frame,0);
+    assert.notDeepEqual(pair.upper,[['fill','#000']]);assert.notDeepEqual(pair.lower,[['fill','#000']]);
+    assert.equal(pair.copies[0].data[0],171);assert.equal(pair.copies[1].data[0],171);
+  });
+});
+
+test('held tiles, active Decide and stale receipts cannot replace a settled touch-return source',async()=>{
+  for(const stage of ['held','decide','stale-receipt'])await fixture(async f=>{
+    let {state,now}=touchReturnToHealth(f,home(f,await ordinaryHealth(f,true)));
+    const grid=sampleHomeGrid(state.system.homeNavigation),point=grid.slots[state.selected];
+    f.readback(211);
+    if(stage==='stale-receipt')f.paint(state,false);
+    state=pointer(state,'down',point.x-grid.scrollPixels,point.y,++now);
+    if(stage==='stale-receipt')f.screens.presentHomeEntryMotion(state);
+    else{
+      for(let frame=0;frame<2;frame++){state=tickSystem(state,now+=17);f.paint(state);}
+      assert.equal(state.system.homeControls.tileTouch.widgets[state.selected].capture,true);
+      if(stage==='decide'){
+        state=pointer(state,'up',point.x-grid.scrollPixels,point.y,++now);
+        state=tickSystem(state,now+=17);f.paint(state);
+        const widget=state.system.homeControls.tileTouch.widgets[state.selected];
+        assert.equal(widget.state,2);assert.notEqual(widget.decide.status,0);
+      }
+    }
+    state=pointer(state,'cancel',point.x-grid.scrollPixels,point.y,++now);
+    state=dispatchSystemEvent(state,{type:'button',command:'home',phase:'down',source:'physical:HOME'},++now);
+    const pair=f.paint(state,false);
+    assert.equal(pair.result?.resume?.kind,'footer');
+    assert.equal(pair.copies[0].data[0],171);assert.equal(pair.copies[1].data[0],171);
+  });
+});
+
 test('actual Health Resume withdraws the native footer before retained HOME departure',async()=>{
   await fixture(async f=>{
     let state=home(f,await ordinaryHealth(f,true));

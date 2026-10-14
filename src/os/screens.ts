@@ -542,7 +542,8 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   return !nav.gesture&&!nav.motion&&!state.system?.input.touch&&!controls?.tileCandidate&&!controls?.tilePickup
    &&(!touch||!touch.strokeOwned&&!touch.globalCapture&&!touch.pending.length&&Object.values(touch.widgets).every(widget=>
     !widget.capture&&widget.state===0&&widget.select.status===0&&widget.decide.status===0
-    &&(!widget.pose||widget.pose.clip==='select'&&widget.pose.frame===0)));
+    // Idle controllers retain the completed Decide1 pose after touch selection.
+    &&(!widget.pose||widget.pose.clip==='select'&&widget.pose.frame===0||widget.pose.clip==='decide'&&widget.pose.frame===1)));
  }
  function retainedResumeSupported(instance:AppInstance|null|undefined):boolean {
   return instance?.appId==='health-safety'||instance?.appId==='camera'&&(instance.state.screen==='main'||instance.state.screen==='gallery');

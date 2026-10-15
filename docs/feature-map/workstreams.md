@@ -1,5 +1,14 @@
 # Workstream Registry
 
+## Detail candidate transferred
+
+Root owns `applet-paint-detail-20261015` after clean handoff `613a2e7` and
+coordinator merge `dbd4cfe`. Reviewed source `4626dc8` and checked build
+`3O1VJY2p2mFLyJ__sHpJn` remain unchanged. Source review `3a8070f2` has no
+findings. All helper reservations are released. Root alone operates the
+declared two-opening muted MacBook measurement, shared docs and PR7.
+The captured incoming-raster source/build and all original evidence stay frozen.
+
 ## Incoming detail measurement
 
 Root reconciled 59303db and retains the captured incoming-raster checkout/build.

@@ -1,5 +1,24 @@
 # STATUS: animation fidelity
 
+## Reviewed detail candidate transferred
+
+Root accepted clean handoff `613a2e7` and merged coordinator `097f894` as
+`dbd4cfe`. Root now owns
+`/Users/paramveer/.codex/worktrees/applet-paint-detail-20261015/3ds-idea`,
+branch `codex/applet-paint-detail-20261015`. Reviewed runtime `4626dc8` and
+build `3O1VJY2p2mFLyJ__sHpJn` are unchanged. Review `3a8070f2` has no findings;
+focused checks pass 50, typecheck/build pass, full checks have 2,990 passes and
+only the known Camera PNG failure. All worker/reviewer reservations are released.
+
+Next root follows the predeclared first Friends and Notifications measurement
+under private `continuation-20261015/applet-paint-detail`, loopback 3046.
+A blank Chromium Guest is open on the sole built-in MacBook; no app/server is
+running yet. Verify mute before app navigation. Pin the build, source and
+analyzer before inputs, save every pair, close owned sessions and rehash.
+The incoming-raster baseline stays frozen. Usage is 35% remaining; pause at
+10%, with no bot message or automatic resume. All four whole flows remain
+fail/unproven. This section supersedes older ownership and next actions.
+
 ## Incoming detail measurement assigned
 
 Root reconciled HEAD `59303db` after the reservation checkpoint. The earlier

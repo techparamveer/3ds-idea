@@ -91,4 +91,27 @@ was needed.
 
 ## Final verification
 
-Pending source review checkpoint and full sequential checks.
+Source/test commit:
+`7cadf117733f4c0ad74505011e6345a6ae0af8e6`
+(base `5e51e22043912b0cdeb2a40733bf91ffa796f0f2`).
+
+- `git diff --check`: passed.
+- `npm run typecheck -- --incremental false`: passed.
+- Focused command above: 34 passed, 0 failed.
+- `npm test`: 3,091 tests; 2,987 passed, 1 failed, 102 skipped,
+  1 TODO. The sole failure is the preserved baseline Camera test
+  `frozen HNI pair hashes and the ThmbBase date rect stay the recorded
+  leftover`, because historical
+  `/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/camera-3d-badge-sdmc-recapture-20261005/browser/lower.png`
+  is absent. No title-entry or raster test failed.
+- `npm run build`: passed; build ID `0gMCf5YkNIK5fheLAfL7o`.
+
+Private logs:
+
+- `applet-incoming-raster/npm-test.log`, SHA-256
+  `a549d7f8410019af2b7ef4dc13b4c741b70f1c4e00b41868bbaa5ab1d632d049`
+- `applet-incoming-raster/npm-build.log`, SHA-256
+  `347f74dc0435a408edcade532060ae179e33d3127416e660dfe65b8935dab11c`
+
+Independent source review is pending at this checkpoint. Root owns integration
+and the intentionally small Friends/Notifications production recapture.

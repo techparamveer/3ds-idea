@@ -1,7 +1,38 @@
 # STATUS: animation fidelity
 
-Updated 14 October 2026. The current checkpoint below supersedes the older
+Updated 15 October 2026. The current checkpoint below supersedes the older
 seat, server and verification notes retained later in this file.
+
+Restart reconciliation: checked-out HEAD is
+`bdf146ddaa82957ff81f41bbc6012684a2b5f124`, branch
+`codex/home-scale-clock-20261014`. Runtime remains `fd1561f`; the subsequent
+commit changes documentation only. The previous turn delivered that reviewed
+fix. This resumed run starts a fresh blocker audit; old GUI PIDs are not reused.
+MacBook capture recovered on this resumed run. Production build
+`1d53IIkwjAYI_0DIBqwab` was served at port 3041 from this checkout. The capture
+tab and server are now closed, and the owned Cua lease is ended. Helium's test
+window was on the only built-in display with the dedicated profile and verified
+`--mute-audio`. Root alone operates GUI. All three helpers use Astra extra-high.
+Browser, native and touch audits are closed; the source worker now owns rapid
+Resume readiness in the new worktree.
+Raw exports go to private `continuation-20261015/browser-candidate/` on Sandisk1,
+which has 597 GiB available. No runtime change or rebuild accompanies this run.
+
+The browser run is closed at 1,468 pairs across eleven saved sessions. A bounded
+rapid-Resume defect is visible in `browser-audit-astra/rapid-home-paired-01-1x.png`:
+two near-black paired frames follow Camera selection without a Resume descriptor.
+The new `rapid-resume-readiness-20261015/3ds-idea` worktree starts at this HEAD
+on `codex/rapid-resume-readiness-20261015`. Its source worker is assigned only
+that regression and fix. Existing builds and original captures stay frozen.
+
+Fresh muted native capture at normal speed is closed. Azahar PID 33211 exited;
+only its screenshot destination was restored. The final profile hash is
+`d460f825fc8e490e6e59648f40dd426b8807bcacc71a7872bf671817ce0c8750`,
+not the prior byte identity. Volume 0, Null output 1, Static input 2 and frame
+limit 100 remain verified. All 33 own PNGs validate. Root inspected every native
+sheet and both fixed failing unmasked pixel diagnostics. The sparse captures
+do not establish matching input epochs or continuous native motion. See
+[the closed live audit](docs/home-scale-live-2026-10-15.md).
 
 ## Current checkpoint
 
@@ -18,20 +49,19 @@ seat, server and verification notes retained later in this file.
   A safe fast-forward in the old coordinator refused its human `system.ts` edit.
   Nothing was stashed or reverted. That checkout remains at `9b60905`; the clean
   candidate pushed directly to the existing PR branch. Earlier builds are unchanged.
-- Live verification is blocked. The third consecutive goal-turn check found
-  Helium window 309 at MacBook bounds 650,150,1102x700, but capture was unavailable
-  and AX returned no resolved window/elements. The prior desktop capture was
-  black. No input was attempted; the Cua session is ended. The exact cause is
-  not established. No server or Azahar instance is running, and no new LCDs exist.
+- Live verification recovered. Eleven browser windows save 1,468 pairs; root
+  inspected all 25 sheets. Ordinary shrink/grow and footer Resume animate.
+  Rapid Left then HOME still flashes near-black without a Resume descriptor.
+  A failing real System/readiness regression reproduces it in the new worktree.
 - All helpers use GPT-6 Astra extra-high. Tools cannot switch or verify the
-  main model. The implementation and both reviews are complete.
-- Next required work is live first/repeated away/back/Resume and rapid Resume,
-  followed by the fixed native comparison. Do not repeat completed source fixes
-  or invent delays while capture is unavailable. Native timing, pixels,
+  main model. The prior implementation/reviews and new capture audits are complete.
+- Next required work is the bounded rapid-readiness fix, independent review,
+  tests/build and fresh rapid plus ordinary Resume capture. Do not repeat
+  completed scale-clock source work or invent delays. Native timing, pixels,
   initial-return caller, Manual neighbour loading and continuous Resume parity
   remain unverified. All four flows remain fail/unproven, not complete.
 - Current logs and capture plan are under
-  `/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261014/`.
+  `/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261015/`.
   See [scale and Resume changes](docs/home-suspended-scale-2026-10-14.md) and
   [the captured baseline](docs/home-compact-resume-baseline-2026-10-12.md).
 

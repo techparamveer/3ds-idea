@@ -1,5 +1,22 @@
 # Animation fidelity workflow
 
+## Live scale capture closed; rapid readiness next
+
+[The 15 October run](home-scale-live-2026-10-15.md) supersedes the GUI blocker
+below. Preserve frozen runtime fd1561f/build 1d53IIkwjAYI_0DIBqwab and its 1,468
+browser pairs. Ordinary shrink/grow and footer Resume have visible coverage.
+Immediate Left then HOME bypasses the retained transition before the new HOME
+pair is ready. Fix only that reproduced path in the assigned worktree, preserving
+owner, origin, epoch, generation and paired-publication guards. Review and test
+before rebuilding a new candidate; recapture rapid and ordinary paths afterward.
+
+The 33 native PNGs support order diagnostics, not matched moving pixels or
+cadence. Preserve lost screenshot requests and the two failing unmasked pairs.
+Do not infer native durations from GUI requests or saved receipt spacing.
+Long-contact tile cancellation remains unexplained and outside current pickup
+scope; ordinary short touch works. All helpers use Astra extra-high; all GUI
+testing stays muted on the MacBook. All four whole flows remain fail/unproven.
+
 ## Suspended window candidate ready for capture
 
 The [fresh baseline](home-compact-resume-baseline-2026-10-12.md) establishes

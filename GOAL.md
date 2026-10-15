@@ -1,5 +1,16 @@
 # Goal: finish the four remaining native animation flows
 
+15 October: [live HOME scale and Resume capture](docs/home-scale-live-2026-10-15.md)
+recovered on the muted MacBook. The frozen candidate now shows intermediate
+shrink/grow poses and retained ordinary footer Resume. Rapid Left then HOME
+still produces two near-black pairs without a Resume descriptor. A bounded
+readiness fix is in progress in its own worktree, with a failing regression.
+The closed audits validate 1,468 browser pairs and 33 native own PNGs.
+Native rapid samples retain their cover, but moving epochs are unmatched and
+both fixed unmasked pixel diagnostics fail. All four whole flows remain
+fail/unproven. Continue with Astra extra-high helpers, review, tests and fresh
+recapture; the main chat model cannot be changed or verified through helper tools.
+
 14 October checkpoint: [logical ScaleUpDown and retained Resume](docs/home-suspended-scale-2026-10-14.md)
 are reviewed and pushed through `fd1561f`. Ordinary upper HOME passes now advance
 scale independently of rendering; Resume retains the actual accepted displayed

@@ -1,5 +1,14 @@
 # Feature map — 1:1 queue
 
+15 October AN-04: [the live scale audit](home-scale-live-2026-10-15.md)
+confirms intermediate shrink/grow and both ordinary retained Resume recordings.
+Rapid Left then HOME still skips Resume and flashes two near-black paired
+frames. Its separate readiness fix has a failing regression, not yet delivery.
+All 1,468 browser pairs and 33 native PNGs validate. Native rapid samples retain
+the cover; no matched moving epoch exists and both fixed pixel diagnostics fail.
+All four flows remain fail/unproven. Next review, test and recapture that bounded
+fix without reopening excluded pickup or completed scale-clock source work.
+
 14 October AN-04 candidate: [ScaleUpDown and Resume](home-suspended-scale-2026-10-14.md)
 are reviewed and pushed through `fd1561f`. Scale now advances on ordinary upper
 HOME passes, independently of rendering. Resume retains the displayed pose;

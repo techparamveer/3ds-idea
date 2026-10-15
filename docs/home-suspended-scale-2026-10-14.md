@@ -1,5 +1,14 @@
 # Suspended HOME scale progression
 
+## Live follow-up, 15 October
+
+[The fresh browser/native capture](home-scale-live-2026-10-15.md) supersedes
+the unavailable-GUI checkpoint below. Intermediate scale poses and ordinary
+footer Resume are now visible. Rapid HOME before the newly selected pair is
+published still skips Resume and flashes near-black. A separate readiness
+regression reproduces that failure; its fix and candidate recapture remain next.
+This does not invalidate the logical scale clock or establish whole-flow parity.
+
 ## Integrated checkpoint
 
 Runtime `fd1561f` moves scale from renderer receipts to logical upper HOME

@@ -1,5 +1,12 @@
 # Goal: finish the four remaining native animation flows
 
+15 October AN-01: the [private browser comparison](docs/applet-cold-browser-probe-2026-10-15.md)
+preserves exact selected pixels across eight runs. Generic backgrounds have
+lower first-draw samples but higher later and aggregate costs. One scoped
+production candidate may be tested after review; no production improvement
+or native pass is claimed. Keep the frozen build and reject the candidate if
+the complete opening regresses. STATUS owns the active assignment.
+
 15 October AN-01: the [native opening comparison](docs/applet-native-opening-2026-10-15.md)
 is audited and root-inspected. Friends and Notifications agree in broad opening
 order; no new belt-direction correction follows. Friends ends in first-use
@@ -62,9 +69,8 @@ change the running coordinator model. Both capture and final wording review
 are closed; the latter used the newly requested helper settings.
 
 Stop and pause this goal at 10% or less weekly usage remaining, interrupting helpers and
-preserving the checkpoint. The latest reading is 66% used / 34% remaining in
-the 10080-minute account window. Follow STATUS for usage
-checks. The user cancelled the Grok Bot notification. Send no external message;
+preserving the checkpoint. Follow STATUS for readings from the 10080-minute
+account window and usage checks. The user cancelled the Grok Bot notification. Send no external message;
 report the threshold pause only in this chat.
 
 15 October AN-03: the [cursor transport control](docs/folder-cursor-transport-2026-10-15.md)

@@ -1,5 +1,12 @@
 # Feature map — 1:1 queue
 
+15 October AN-01: the [private browser probe](applet-cold-browser-probe-2026-10-15.md)
+completed eight fixed runs with exact 21-pose RGBA equality per app across modes
+and repetitions. Generic title backgrounds have lower first-draw samples but
+higher later medians. This small standalone result is not a production speedup
+or native acceptance. Source/build remain frozen while independent review
+checks whether one scoped candidate is justified. STATUS owns the next action.
+
 15 October AN-01: [native opening audits](applet-native-opening-2026-10-15.md)
 are closed and root-inspected. No broad-order or Notifications belt-direction
 defect was found. Friends has a different first-use/error destination; the

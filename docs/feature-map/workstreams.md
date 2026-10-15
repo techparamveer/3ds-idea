@@ -1,12 +1,25 @@
 # Workstream Registry
 
+## Private browser probe review
+
+Root completed the fixed eight-run comparison on the muted MacBook. All 21
+paired poses per app match exactly across compiled/generic modes and repeats.
+First-draw samples favor generic backgrounds, but later medians are higher;
+no production speedup or native acceptance is claimed. The preparation worker
+and GPT-6.1 Sol high reviewer are released. Review 272dad8a supports one scoped
+production experiment only, with later-frame regression as a rejection gate.
+No source worker is assigned yet. Root owns
+shared docs and PR #7; b83b768/build g-qLVPFQLrJnvHrbuaS0e stay frozen.
+
 ## Native audits released; cold diagnosis reserved
 
 Both native opening auditors are complete and released. Root inspected all
 four authoritative sheets, rehashed both original/derivative sets, and owns
 their evidence checkpoint. No broad-order correction is justified. Only the
-GPT-5.6 Sol high cold-draw worker remains active, writing private
-`applet-cold-draw-diagnosis` output. It has no source/build/shared-doc/GUI scope.
+GPT-5.6 Sol high cold-draw diagnosis is complete. Its next assignment prepares
+only private `applet-cold-browser-probe` files for root's headed comparison of
+the existing compiled/generic background paths. It has no repository/source,
+build, shared-doc, original-evidence, server-start or GUI scope.
 Source b83b768 and build g-qLVPFQLrJnvHrbuaS0e remain frozen. Root owns the
 compact STATUS, shared documents and draft PR #7.
 

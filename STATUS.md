@@ -2,7 +2,7 @@
 
 ## Checkout
 
-Reconciled HEAD: `ce633d96182dd50e96c76f03308cd04909939097`.
+Reconciled HEAD: `3c3b51cc29aea816ac64b1ef20b51db6741551d0`.
 Git wins if this differs from HEAD. Reconcile before another slice or worker.
 Keep this file current, not append-only.
 
@@ -14,7 +14,7 @@ checkout. Create new source worktrees from this coordinator HEAD.
 
 Draft [PR #7](https://github.com/techparamveer/3ds-idea/pull/7) uses remote
 branch `codex/animation-fidelity-20261007`. Latest verified pushed SHA is
-`ce633d96182dd50e96c76f03308cd04909939097`. Review coherent changes, stage
+`3c3b51cc29aea816ac64b1ef20b51db6741551d0`. Review coherent changes, stage
 explicit paths and push normally. Do not merge, deploy, reset or clean.
 
 Preserve the human edit in
@@ -58,16 +58,25 @@ docs, integration, Azahar and the production browser.
 
 Both native auditors are done and their reservations released. Root inspected
 all four sheets and rehashed each audit's originals and derivatives unchanged.
-One bounded offline cold-draw worker
-owns only new private `applet-cold-draw-diagnosis` outputs, distinguishing
-raster/kernel setup from Canvas costs through existing actual rendering paths.
-No worker may modify originals, source, build or shared docs, or operate GUI.
-No runtime optimization is assigned yet. See [registry](docs/feature-map/workstreams.md).
+The bounded cold-draw diagnosis is complete at private report `a36272ee`.
+It identifies local Node raster first-execution cost; its Canvas transport is
+an emulator, so it does not rule out real browser Canvas cost. Root reran one
+Friends child without overwriting the results. No production change follows.
+The private headed probe is complete: eight first-page runs, two per app/mode,
+all 21 paired source poses equal across modes and repeats. First-draw samples
+favor generic title backgrounds; later-frame medians are higher in that mode.
+This small standalone sample is not a production performance verdict. The
+GPT-6.1 Sol high review is complete at private `applet-cold-browser-probe/review`,
+report 272dad8a. It supports one scoped production experiment only, with later
+cost as an explicit rejection gate. Its PICA-normalization fixture finding has
+no effect on the 160 visible rasters but must be corrected in future probes.
+The preparation worker and reviewer are released. A new source worker is not
+yet assigned. See [registry](docs/feature-map/workstreams.md).
 Independent GPT-6.1 Sol high checkpoint review is complete. Its one stale
 RESTART serving sentence was corrected; its reservation is released. Report
 is private `applet-native-opening/checkpoint-review/report.md`.
 
-Latest account reading is 70% used / 30% weekly remaining. Check before new
+Latest account reading is 72% used / 28% weekly remaining. Check before new
 heavy work and at least every ten minutes. At **10% remaining or less**, stop
 new work, interrupt helpers, close owned sessions, preserve a minimal checkpoint
 and pause the goal. The user cancelled the Grok/My King bot message. Send no
@@ -76,10 +85,17 @@ external message and do not resume automatically after reset. Existing heartbeat
 
 ## Serving and display
 
-No owned GUI, test server or recorder remains active. The last Chrome Guest,
-port 3047 server and both isolated native processes have closed. The original
-regular browser New tab was preserved. Do not treat old historical previews
-as current or alter unrelated sessions.
+No app, test server or recorder is active. Root completed all eight private
+probe runs on the built-in MacBook, then closed owned Guest window 5092 and
+stopped server 3048 (session 56904, exit 130); the port has no listener. The
+browser was Chrome for Testing 153.0.8010.12, V8 15.3.76.4, PID 55412, at
+88,61,1200,1028. Executable is under Library/Caches/ms-playwright/chromium-1243.
+Root verified "Unmute Site" on inert /health before loading any probe. There
+was one rejected navigation before slot 3; state was refreshed, and no Run was
+retried. Eight unique receipts exist, in policy order, with distinct page IDs.
+Root inspected Friends and Notifications final paired LCDs. Other regular New
+tabs and unrelated applications remain untouched. The earlier attempted
+agent-browser binding timed out and may have opened a regular New tab.
 
 Test only on the MacBook built-in display. Last verified geometry is display 1,
 1800x1169 logical, 3600x2338 backing pixels. Recheck display/window bounds
@@ -153,13 +169,18 @@ See [reference isolation](docs/native-reference-profile-isolation.md).
 
 ## Next
 
-1. Finish the bounded cold-title diagnosis against the existing first-draw cost.
-   Preserve both closed native audits, Friends error and Notifications fixture
-   differences. No broad-order correction follows from these comparisons.
-2. Use measured raster/kernel/Canvas costs to choose a bounded correction in a
-   new source worktree, if supported. Preserve exact bytes and existing clocks,
-   cache bounds, resource failures and publication guards. No prewarming or
-   guessed delay. Sampled-pose gaps and native timing remain separate issues.
+1. Implement one bounded candidate after the completed independent review.
+   Probe identity is 282488e4, receipts under `applet-cold-browser-probe/results`.
+   Friends first draws: compiled 75.4/102.8 ms, generic 63.8/57.9 ms;
+   Notifications: compiled 95.5/90.3 ms, generic 75.7/76.5 ms. All 21 paired
+   hashes per app agree across all four runs. These are page-cold, not fresh
+   processes; no production timing or native acceptance follows.
+2. Use a new source worktree, then review and production measurement. Reject
+   the candidate if the complete opening regresses. Preserve clocks, cache
+   bounds, resource failures
+   and publication guards. No prewarming or guessed delay. Sampled-pose gaps
+   and native timing remain separate. Keep both closed native audits and their
+   fixture/error limits; do not repeat broad-order work.
 3. Integrate reviewed fixes in separate source worktrees. Run focused/full
    checks, typecheck and build, then perform the matched muted verification loop.
    Update evidence, commit explicit paths and push to draft PR #7. Continue the

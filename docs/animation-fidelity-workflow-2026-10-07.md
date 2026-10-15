@@ -1,5 +1,17 @@
 # Animation fidelity workflow
 
+## Private browser comparison
+
+The [eight-run probe](applet-cold-browser-probe-2026-10-15.md) is closed and
+preserves exact selected RGBA poses. First-draw samples favor the generic title
+background, while later medians and aggregate draw sums do not. The small
+standalone experiment is not a production performance verdict. Independent
+review supports one scoped candidate followed by a production comparison,
+with sustained regression as a rejection gate. Preserve source clocks, source
+poses, cache bounds and the existing compiled route for unrelated pictures.
+Apply production texture-sample normalization in any future probe. STATUS
+owns the actual checkout and next action; all four whole flows remain unproven.
+
 ## Native opening comparison closed
 
 The [Friends and Notifications audits](applet-native-opening-2026-10-15.md)

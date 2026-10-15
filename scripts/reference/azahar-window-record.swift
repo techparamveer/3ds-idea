@@ -42,20 +42,53 @@ struct Request: Codable {
         try require(output.hasPrefix("/") && output != "/" && URL(fileURLWithPath: output).standardized.path == output, "Canonical unused absolute output directory required")
     }
 }
-struct Snapshot: Codable {
+struct ProcessGeneration: Codable, Equatable {
+    let pid: UInt32, startSeconds: UInt64, startMicroseconds: UInt64
+}
+typealias ProcessInfoQuery = (Int32, Int32, UInt64, UnsafeMutableRawPointer?, Int32) throws -> Int32
+func processGeneration(_ pid: Int32, query: ProcessInfoQuery = proc_pidinfo) throws -> ProcessGeneration {
+    try require(pid > 0, "Positive kernel PID required")
+    var info = proc_bsdinfo()
+    let size = Int32(MemoryLayout<proc_bsdinfo>.size)
+    let received = try query(pid, PROC_PIDTBSDINFO, 0, &info, size)
+    try require(received == size, "Kernel process identity unavailable or incomplete (\(received)/\(size) bytes)")
+    try require(info.pbi_pid == UInt32(pid), "Kernel process PID mismatch")
+    try require(info.pbi_start_tvsec > 0 && info.pbi_start_tvusec < 1_000_000, "Invalid kernel process start time")
+    return ProcessGeneration(pid: info.pbi_pid, startSeconds: info.pbi_start_tvsec, startMicroseconds: info.pbi_start_tvusec)
+}
+struct WindowObservation: Codable {
     let pid: Int32, windowID: UInt32, displayID: UInt32
     let bundleID: String, executable: String, executableSha256: String
     let displayBounds: Bounds, windowBounds: Bounds
     let onScreen: Bool, displayBuiltin: Bool, layer: Int
-    let launchTime: Double
+    let appKitLaunchTime: Double?
 }
-func validateIdentity(_ actual: Snapshot, _ request: Request, baseline: Snapshot? = nil) throws {
+struct Snapshot: Codable {
+    let window: WindowObservation, processGeneration: ProcessGeneration
+}
+func collectSnapshot(_ pid: Int32, query: ProcessInfoQuery = proc_pidinfo, observe: () throws -> WindowObservation) throws -> Snapshot {
+    // Bracket AppKit, window, display and executable reads to detect PID reuse mid-snapshot.
+    let before = try processGeneration(pid, query: query)
+    let window = try observe()
+    let after = try processGeneration(pid, query: query)
+    try require(before == after, "Process replaced while reading snapshot")
+    return Snapshot(window: window, processGeneration: before)
+}
+func validateIdentity(_ snapshot: Snapshot, _ request: Request, baseline: Snapshot? = nil) throws {
+    let actual = snapshot.window
     try require(actual.pid == request.pid && actual.windowID == request.windowID, "Stale or mismatched PID/window")
     try require(actual.bundleID == request.bundleID && actual.executable == request.executable && actual.executableSha256 == request.executableSha256, "Bundle/executable identity mismatch")
     try require(actual.displayID == request.displayID && actual.displayBuiltin && actual.displayBounds == request.displayBounds, "Built-in display identity/bounds mismatch")
     try require(actual.windowBounds == request.windowBounds && actual.onScreen && actual.layer == 0, "Window moved, hidden or wrong layer")
-    try require(actual.launchTime.isFinite && actual.launchTime > 0, "Process launch identity unavailable")
-    if let baseline { try require(actual.launchTime == baseline.launchTime, "Process replaced during capture") }
+    if let launchTime = actual.appKitLaunchTime {
+        try require(launchTime.isFinite && launchTime > 0, "Invalid AppKit launch time")
+    }
+    if let baseline {
+        try require(snapshot.processGeneration == baseline.processGeneration, "Process replaced during capture")
+        if let initial = baseline.window.appKitLaunchTime, let current = actual.appKitLaunchTime {
+            try require(initial == current, "AppKit launch time changed during capture")
+        }
+    }
 }
 struct Completion: Codable {
     let started: Bool, finished: Bool, failure: String?
@@ -68,15 +101,45 @@ struct Completion: Codable {
         try require(duration.isFinite && duration > 0, "Empty movie duration")
     }
 }
+struct FixtureProcessInfo: Codable {
+    let bytesReturned: Int32, pid: UInt32, startSeconds: UInt64, startMicroseconds: UInt64
+}
+struct FixtureSnapshot: Codable {
+    let window: WindowObservation, processReads: [FixtureProcessInfo]
+    func snapshot(_ pid: Int32) throws -> Snapshot {
+        try require(processReads.count == 2, "Fixture requires two kernel reads per snapshot")
+        var reads = 0, observed = false
+        let result = try collectSnapshot(pid, query: { requestedPID, flavor, arg, buffer, size in
+            try require(requestedPID == pid && flavor == PROC_PIDTBSDINFO && arg == 0 && size == MemoryLayout<proc_bsdinfo>.size, "Unexpected kernel query arguments")
+            try require(reads < 2 && observed == (reads == 1), "Kernel reads must bracket the observation")
+            guard let buffer else { throw Refusal("Missing kernel query buffer") }
+            let fixture = processReads[reads]
+            var info = proc_bsdinfo()
+            info.pbi_pid = fixture.pid
+            info.pbi_start_tvsec = fixture.startSeconds
+            info.pbi_start_tvusec = fixture.startMicroseconds
+            buffer.assumingMemoryBound(to: proc_bsdinfo.self).pointee = info
+            reads += 1
+            return fixture.bytesReturned
+        }, observe: {
+            try require(reads == 1 && !observed, "Observation must follow the first kernel read")
+            observed = true
+            return window
+        })
+        try require(reads == 2 && observed, "Incomplete fixture snapshot")
+        return result
+    }
+}
 struct Fixture: Codable {
-    let request: Request, before: Snapshot, after: Snapshot, completion: Completion
+    let request: Request, before: FixtureSnapshot, after: FixtureSnapshot, completion: Completion
     let permissionGranted: Bool, outputExists: Bool
     func validate() throws {
         try request.validate()
         try require(permissionGranted, "Existing screen-capture permission required; no request will be made")
         try require(!outputExists, "Output already exists")
-        try validateIdentity(before, request)
-        try validateIdentity(after, request, baseline: before)
+        let initial = try before.snapshot(request.pid)
+        try validateIdentity(initial, request)
+        try validateIdentity(after.snapshot(request.pid), request, baseline: initial)
         try completion.validate()
     }
 }
@@ -91,31 +154,35 @@ func digest(_ url: URL) throws -> String {
     return hash.finalize().map { String(format: "%02x", $0) }.joined()
 }
 func snapshot(_ request: Request, knownDigest: String? = nil) throws -> Snapshot {
-    guard let app = NSRunningApplication(processIdentifier: request.pid), !app.isTerminated,
-          let bundle = app.bundleIdentifier, let executable = app.executableURL,
-          let launch = app.launchDate else { throw Refusal("Exact running application unavailable") }
-    guard let windows = CGWindowListCopyWindowInfo(.optionIncludingWindow, request.windowID) as? [[String: Any]],
-          windows.count == 1, let window = windows.first,
-          let pid = window[kCGWindowOwnerPID as String] as? NSNumber,
-          let number = window[kCGWindowNumber as String] as? NSNumber,
-          let layer = window[kCGWindowLayer as String] as? NSNumber,
-          let onScreen = window[kCGWindowIsOnscreen as String] as? Bool,
-          let rawBounds = window[kCGWindowBounds as String] as? [String: Any],
-          let bounds = CGRect(dictionaryRepresentation: rawBounds as CFDictionary)
-    else { throw Refusal("Exact window unavailable") }
-    return Snapshot(pid: pid.int32Value, windowID: number.uint32Value, displayID: request.displayID,
-                    bundleID: bundle, executable: executable.resolvingSymlinksInPath().path,
-                    executableSha256: try knownDigest ?? digest(executable),
-                    displayBounds: Bounds(CGDisplayBounds(request.displayID)), windowBounds: Bounds(bounds),
-                    onScreen: onScreen, displayBuiltin: CGDisplayIsActive(request.displayID) != 0 && CGDisplayIsBuiltin(request.displayID) != 0,
-                    layer: layer.intValue, launchTime: launch.timeIntervalSince1970)
+    try collectSnapshot(request.pid) {
+        guard let app = NSRunningApplication(processIdentifier: request.pid), !app.isTerminated,
+              let bundle = app.bundleIdentifier, let executable = app.executableURL
+        else { throw Refusal("Exact running application unavailable") }
+        guard let windows = CGWindowListCopyWindowInfo(.optionIncludingWindow, request.windowID) as? [[String: Any]],
+              windows.count == 1, let window = windows.first,
+              let pid = window[kCGWindowOwnerPID as String] as? NSNumber,
+              let number = window[kCGWindowNumber as String] as? NSNumber,
+              let layer = window[kCGWindowLayer as String] as? NSNumber,
+              let onScreen = window[kCGWindowIsOnscreen as String] as? Bool,
+              let rawBounds = window[kCGWindowBounds as String] as? [String: Any],
+              let bounds = CGRect(dictionaryRepresentation: rawBounds as CFDictionary)
+        else { throw Refusal("Exact window unavailable") }
+        return WindowObservation(pid: pid.int32Value, windowID: number.uint32Value, displayID: request.displayID,
+                        bundleID: bundle, executable: executable.resolvingSymlinksInPath().path,
+                        executableSha256: try knownDigest ?? digest(executable),
+                        displayBounds: Bounds(CGDisplayBounds(request.displayID)), windowBounds: Bounds(bounds),
+                        onScreen: onScreen, displayBuiltin: CGDisplayIsActive(request.displayID) != 0 && CGDisplayIsBuiltin(request.displayID) != 0,
+                        layer: layer.intValue, appKitLaunchTime: app.launchDate?.timeIntervalSince1970)
+    }
 }
 
 // Delegate callbacks and the hard deadline share only lock-protected state.
 final class Journal: @unchecked Sendable {
     let directory: URL
     private let lock = NSLock()
-    private var data: [String: Any] = ["schema": 1, "status": "preparing", "finalized": false,
+    private var data: [String: Any] = ["schema": 2, "status": "preparing", "finalized": false,
+        "processGenerationSource": "proc_pidinfo(PROC_PIDTBSDINFO): pbi_pid, pbi_start_tvsec, pbi_start_tvusec; two reads per snapshot",
+        "appKitLaunchTimeSource": "NSRunningApplication.launchDate; optional observation, omitted when unavailable",
         "filter": "desktopIndependentWindow", "capturesAudio": false, "captureMicrophone": false,
         "scopeAcceptance": "unverified; coordinator must open decoded pilot before animation input",
         "nativeTimingAcceptance": false, "rawLcdAcceptance": false]
@@ -182,7 +249,7 @@ func capture(_ request: Request) async throws {
         try require(matches.count == 1, "Exact SCWindow unavailable; no fallback")
         let window = matches[0]
         try require(window.owningApplication?.processID == request.pid && window.owningApplication?.bundleIdentifier == request.bundleID && Bounds(window.frame) == request.windowBounds && window.windowLayer == 0, "SCWindow identity/bounds mismatch")
-        try validateIdentity(snapshot(request, knownDigest: before.executableSha256), request, baseline: before)
+        try validateIdentity(snapshot(request, knownDigest: before.window.executableSha256), request, baseline: before)
         let filter = SCContentFilter(desktopIndependentWindow: window)
         let scale = Double(filter.pointPixelScale)
         try require(scale.isFinite && scale > 0 && Bounds(filter.contentRect).valid && filter.contentRect.width * scale <= 8192 && filter.contentRect.height * scale <= 8192, "Unsupported full-window content scale")
@@ -215,7 +282,7 @@ func capture(_ request: Request) async throws {
             let state = events.state()
             if let error = state.2 { throw Refusal(error) }
             try require(!state.1, "Recording ended before bounded interval")
-            try validateIdentity(snapshot(request, knownDigest: before.executableSha256), request, baseline: before)
+            try validateIdentity(snapshot(request, knownDigest: before.window.executableSha256), request, baseline: before)
             try await Task.sleep(nanoseconds: 250_000_000)
         }
         try await active.stopCapture()
@@ -287,7 +354,7 @@ func parse(_ args: [String]) throws -> Request {
             if args == ["--self-test"] {
                 try require(try Bounds.parse("0,0,1800,1169").valid, "Bounds self-test")
                 do { _ = try Bounds.parse("0,0,nan,1"); throw Refusal("Nonfinite self-test did not reject") } catch let error as Refusal { try require(error.description == "Invalid bounds", "Nonfinite rejection self-test") }
-                print("{\"mode\":\"offline-self-test\",\"captureAttempted\":false,\"passed\":true}")
+                print("{\"mode\":\"offline-self-test\",\"captureAttempted\":false,\"passed\":true,\"procBsdInfoSize\":\(MemoryLayout<proc_bsdinfo>.size)}")
                 return
             }
             if args.count == 2 && args[0] == "--validate-fixture" {

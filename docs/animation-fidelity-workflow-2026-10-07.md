@@ -1,5 +1,22 @@
 # Animation fidelity workflow
 
+## Selected-first return captured
+
+[The integrated correction](toprow-selected-return-2026-10-15.md) passes its
+bounded source, review and browser-order checks. Preserve runtime bda07ff,
+hydrated build zLdGYm3oKVkMVHflG5Fw1 and all 2,575 closed raw pairs. Do not
+repeat the premature-neighbour fix or describe simultaneous handoff population
+as a recovered native loading schedule. The audit is sealed; retain its fixed
+handoff residuals and opening coverage gaps. Independent integrity/claims review
+is complete and runtime bda07ff is pushed to draft PR7. Continue first/repeated Browser/Miiverse
+opening/Close and remaining Friend List coverage in the validated browser.
+Native error-driven exits remain distinct from local footer Close.
+
+Camera Manual supporting capture was not reached in this candidate run; keep
+that gap explicit. Manual's source-only loader pass remains closed. Root alone
+drives muted MacBook GUI, helpers use Astra extra-high, and all four whole
+flows remain fail/unproven. This section supersedes older next actions below.
+
 ## Top-row grid defect captured
 
 [The Notes/Notifications baseline](toprow-chromium-2026-10-15.md) exposes all

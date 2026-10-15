@@ -1,5 +1,16 @@
 # Goal: finish the four remaining native animation flows
 
+15 October AN-01 repair: [selected-first Notes/Notifications return](docs/toprow-selected-return-2026-10-15.md)
+is reviewed, integrated as `bda07ff`, tested and captured. Root inspected 23
+sheets from 2,575 paired frames. All four target returns keep the selected tile
+through incoming, restore neighbours at handoff and admit the banner afterward.
+This is a fitted visibility adaptation; partial native loading remains open.
+The audit is sealed, independent claims review is complete and runtime bda07ff
+is pushed to draft PR7. Continue Browser/Miiverse and remaining Friend List
+comparison. Fixed handoff residuals and opening coverage gaps remain
+explicit. All four whole flows remain fail/unproven. Use Astra
+extra-high helpers, muted MacBook testing and reviewed commits to draft PR7.
+
 15 October AN-01: [Notes/Notifications Chromium comparison](docs/toprow-chromium-2026-10-15.md)
 captures 2,031 pairs and exposes a return-grid defect. Both apps reveal all
 ordinary icons during the incoming cover; native initially retains only the

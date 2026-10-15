@@ -1,5 +1,16 @@
 # Feature map — 1:1 queue
 
+15 October AN-01 repair: [integrated selected-first return](toprow-selected-return-2026-10-15.md)
+keeps only the ordinary selection during Notes/Notifications incoming. Root
+inspected 23 sheets from 2,575 pairs; all four target Close routes restore
+neighbours at handoff, then the banner. Friend List remains populated. Camera
+Manual was not captured in this candidate run. The premature-neighbour defect
+is corrected, not the native partial-loading schedule. The audit is sealed;
+fixed handoff residuals and opening coverage gaps remain. Runtime bda07ff is
+pushed to draft PR7 and independent claims review is complete. Continue
+Browser/Miiverse and remaining Friend List comparison. AN-01
+through AN-04 remain fail/unproven.
+
 15 October AN-01 [Notes/Notifications baseline](toprow-chromium-2026-10-15.md)
 retains 2,031 raw pairs across ten windows covering first selection and
 first/repeated focused opening and Close. Both apps expose all ordinary neighbours throughout incoming; native

@@ -1,5 +1,48 @@
 # STATUS: animation fidelity
 
+## Top-row verification checkout
+
+Root now owns `/Users/paramveer/.codex/worktrees/toprow-reveal-verified-20261015/3ds-idea`,
+branch `codex/toprow-reveal-verified-20261015`, verified runtime
+`bda07ff57247343de09b919a3f8a98b968c42f93`, base `e20d1d3`. Read Git for the
+following documentation commit's HEAD. This supersedes the checkout and
+Next fields below. The previous source/build and all captures remain frozen.
+Runtime `bda07ff` and the prior baseline documentation are pushed to draft PR7.
+
+Independent Standards and Spec reviews of worker `20f9a15` found no issues.
+Standards passed 41 tests; Spec passed 16 and reproduced eight target failures
+with eight passing controls against the exact base renderer in memory.
+Only the worker's three committed files are integrated as `bda07ff`.
+Typecheck and hydrated production build `zLdGYm3oKVkMVHflG5Fw1` pass. Initial
+full tests exposed tracked LFS pointers; `git lfs checkout` restored them with
+no model/source diff. Preserve the failed-setup logs. The hydrated full run
+reports 2,877 passes, one known missing Camera PNG failure, 102 skips and one TODO.
+The [integrated recapture](docs/toprow-selected-return-2026-10-15.md) is closed
+at 2,575 pairs in twelve windows. Root inspected 23 targeted/comparison sheets.
+All four target Close routes retain only Work during visible incoming, populate
+neighbours at handoff, then show the top-row banner. Friend List remains
+populated. Camera Manual supporting capture was not reached and is not a pass.
+The partial native loader schedule remains unimplemented. Audit abb48396 and
+manifest 72e916b1 are sealed. Fixed handoff pixel residuals and opening coverage
+gaps remain. Independent integrity/claims review d8e86b67 has no actionable
+findings. This documentation checkpoint records the reviewed delivery; no
+whole-flow pass follows from this bounded repair.
+
+Root alone operates muted GUI on the MacBook built-in display. Helpers use
+GPT-6 Astra extra-high. Tools cannot switch the main chat model. Port3041 has no
+listener; the test Guest window and server are closed. The original empty-profile
+New tab remains. All 2,423 scoped source/build files rehash unchanged. Build
+`zLdGYm3oKVkMVHflG5Fw1` and raw captures stay frozen.
+Next: finish Browser/Miiverse first/repeated open/Close comparison
+and remaining Friend List coverage on this validated browser. Their native
+error-driven exits are not ordinary local Close equivalence. Preserve the
+Manual loader-source gap and all previously repaired paths.
+Do not touch system audio or the
+human edit in the older animation-fidelity checkout. All four flows remain
+fail/unproven; the goal stays active.
+
+## Prior frozen baseline
+
 Current checkpoint, 15 October: this checkout is
 `/Users/paramveer/.codex/worktrees/resume-expansion-verified-20261015/3ds-idea`,
 branch `codex/resume-expansion-verified-20261015`, verified HEAD `ff5ae95`,

@@ -1,5 +1,9 @@
 # Notes and Notifications Chromium comparison
 
+The [subsequent selected-first correction](toprow-selected-return-2026-10-15.md)
+integrates and recaptures the bounded defect below. This document preserves the
+pre-fix baseline and its historical next actions; it is not the current queue.
+
 15 October 2026. Evidence-only continuation at HEAD `ff5ae95`, runtime
 `d40d8e1`, test fixture `06bec2a`, frozen build `u777TCZvyAq0o5fDm5U3g`.
 No runtime or native asset change. All four whole animation flows remain

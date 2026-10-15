@@ -6,9 +6,20 @@ All helpers are released. Candidate 5e1dec9 and handoff 74db674 are preserved
 in closed, unmerged PR #8. The fixed production experiment ended after A1
 Friends when power and Energy Saver changed; audit1980935a verifies253 pairs
 but rejects the incomplete campaign. No candidate production run or retry.
-Both builds stay frozen. Power is now connected. Root owns one Notifications
-own-PNG idle series and matching production-browser comparison to distinguish
-unread-marker phase from a geometric defect. No source worker is assigned.
+Both builds stay frozen. Power is now connected. Root collected ten native
+Notifications own-PNGs and325 production-browser pairs, then closed both
+sessions. The idle audit and supplemental localization are complete. Root
+inspected both sheets and rehashed all 985 originals. The GPT-5.6 Sol high
+source worker delivered 26e5230 and a2aeb4d in
+notifications-marker-pulse-20261016/3ds-idea, branch
+codex/notifications-marker-pulse-20261016, base6da2f83. It changes only the
+lamp clock, paired paint key, focused tests and handoff. Both worker seats
+were released. GPT-6.1 Sol high source review b70fc11c closed both findings at
+f68f3fd. The source worker now owns candidate-only full checks and build. The
+idle auditor owns only new private notifications-marker-pulse/audit outputs.
+Root captured43 native own-PNGs and closed Azahar with config restored.
+Root owns shared docs, GUI and integration. Native phase/rate remain explicit
+adaptations, not 1:1 proof. The baseline build stays frozen.
 Read STATUS Next before starting a worker or server.
 The sections below record earlier assignments, not active reservations.
 

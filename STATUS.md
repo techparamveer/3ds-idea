@@ -2,7 +2,7 @@
 
 ## Checkout
 
-Reconciled HEAD: `e35545a1ef26f7132ef4d4276299997de4094c1b`.
+Reconciled HEAD: `6da2f83b5f8596bbd20a4419c76496aaa5bbe01f`.
 Git wins if this differs from HEAD. Reconcile before another slice or worker.
 Keep this file current, not append-only.
 
@@ -14,7 +14,7 @@ checkout. Create new source worktrees from this coordinator HEAD.
 
 Draft [PR #7](https://github.com/techparamveer/3ds-idea/pull/7) uses remote
 branch `codex/animation-fidelity-20261007`. Latest verified pushed SHA is
-`e35545a1ef26f7132ef4d4276299997de4094c1b`. Review coherent changes, stage
+`6da2f83b5f8596bbd20a4419c76496aaa5bbe01f`. Review coherent changes, stage
 explicit paths and push normally. Do not merge, deploy, reset or clean.
 
 Preserve the human edit in
@@ -92,7 +92,17 @@ Independent GPT-6.1 Sol high checkpoint review is complete. Its one stale
 RESTART serving sentence was corrected; its reservation is released. Report
 is private `applet-native-opening/checkpoint-review/report.md`.
 
-Latest account reading is 74% used / 26% weekly remaining. Check before new
+Independent review b70fc11c is complete at f68f3fd in the separate
+notifications-marker-pulse-20261016/3ds-idea worktree. Both findings are fixed:
+Close no longer jumps to frame 60, and only rendered unread rows key redraws.
+The GPT-5.6 Sol high source worker owns candidate-only full checks and build;
+the GPT-5.6 Sol high auditor owns private notifications-marker-pulse/audit.
+Focused 66 checks and nonincremental typecheck pass. Native title-specific
+clock and start epoch remain unknown. Host elapsed phase and LCD VBlank rate
+are explicit adaptations; feedback continues that same curve.
+Root alone owns shared docs and GUI. The baseline build stays frozen.
+
+Latest account reading is 76% used / 24% weekly remaining. Check before new
 heavy work and at least every ten minutes. At **10% remaining or less**, stop
 new work, interrupt helpers, close owned sessions, preserve a minimal checkpoint
 and pause the goal. The user cancelled the Grok/My King bot message. Send no
@@ -101,9 +111,11 @@ external message and do not resume automatically after reset. Existing heartbeat
 
 ## Serving and display
 
-No owned test server, Guest, recorder or Azahar session is active. Root closed
-A1 Guest5536 and server77096, exit130, and confirmed port3047 free. Latest
-power readback reports AC attached, 10% battery and charging. The earlier
+No owned test server, recorder or Azahar session is active. A fresh Chrome for
+Testing Guest is open on New tab pending the candidate build; no app loaded.
+Latest native follow-up closed Azahar6247/session15662, exit0; restored config
+d460f825. Browser Guest5671 and server26263 are closed, exit130, port3047 free.
+Latest power readback reports AC attached, 23% battery and charging. The earlier
 low-power hold is resolved. Recheck power before capture; battery percentage
 is separate from the weekly account stop rule.
 
@@ -136,6 +148,18 @@ checkout HEAD 74db674. Private `applet-generic-production` contains authoritativ
 fixed capture-policy.md. Both builds must rehash unchanged before inputs.
 
 ## Evidence
+
+The completed Notifications idle audit is private
+`notifications-marker-idle/audit/report.md`, SHA-256
+`dc5b612ad13388ff67066d60ff189dcbd2a3165a57ac101f323483a4e641af17`.
+All 985 originals rehash unchanged; 660 PNGs fully decode. Native markers have
+five raw states in 0.775 seconds, while all 263 ready browser pairs over
+13.0394 seconds retain one state. Root inspected both all-ten comparison
+sheets. Common rows 2-4 differ at 1,866-1,977 pixels above RGB delta 2.
+The other 189 persistent lower pixels are precisely the row-1 read fixture;
+none persist outside all four marker regions. Supplemental localization code
+and seal preserve that calculation without changing the original audit.
+This proves a missing pulse, not a geometry error, native cadence or phase.
 
 [Alpha retention](docs/applet-alpha-retention-2026-10-15.md) bounds opaque-alpha
 scratch canvases inside the existing 8 MiB LRU. Source review `e64b0eb0` has
@@ -199,13 +223,11 @@ The user explicitly resumed work. Power is now connected. The goal tool still
 reports blocked and exposes no resume operation; do not claim its state changed.
 The separate 10% weekly usage stop rule remains active.
 
-1. Capture one muted native Notifications opening followed by a predeclared
-   short own-PNG idle series, then matching raw production-browser idle frames.
-   Compare common unread rows 2-4. Existing lower endpoint residual is 2,237
-   pixels above delta2, bounding box (0,24,28,186); first-row read-state
-   differences do not explain all of it. Determine whether the remaining
-   difference changes with native pulse phase or persists geometrically.
-   No in-title navigation, fitted phase, residual masks or source change yet.
+1. Review the missing-pulse candidate, resolve findings, then run candidate-only
+   full checks and build. Root will capture one longer native idle sample and
+   the candidate production browser under the predeclared private
+   notifications-marker-pulse/policy.md. Compare chronologically, not best-of.
+   Keep artwork/geometry unchanged and exact native clock/phase unverified.
 2. Keep the generic production experiment closed and PR #8 unmerged. No retry,
    replacement tuning campaign or rebuild of either frozen build. Keep Manual
    loader and folder cursor source-only investigations closed until a new

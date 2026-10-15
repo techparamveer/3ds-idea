@@ -1,46 +1,60 @@
 # STATUS: animation fidelity
 
-## Candidate capture closed
+## Current checkpoint
 
-Root reconciled Git at `cdffbbe9a49079e0090f111ff8cd3f3986e57d74` before
-this audit handoff. The current checkout and frozen runtime/build below remain
-unchanged. Root saved nine opening recordings, 2,521 paired LCD frames, through
-the normal HOME touchscreen controls. Order: Friends first/repeat 600/207,
-Browser first/repeat 251/147, Miiverse first/repeat 248/171, Notes 261,
-Notifications 299, and Browser Manual 337. The first Friends recording reached
-the 600-frame cap during context recovery; preserve it without retry. All nine
-ready endpoints were observed and every export finished before another input.
+Root reconciled Git at `c7c09ef541792f44fc207b5e51bfca4db9f186e7` before this
+documentation checkpoint. Read Git for the resulting commit. Root owns
+`/Users/paramveer/.codex/worktrees/applet-opening-cadence-20261015/3ds-idea`
+on `codex/applet-opening-cadence-20261015`, following the clean worker transfer.
+Runtime `dcb6fb3` and build `KlvHppEeEH9Xi0W9-2Eux` remain frozen. Capture HEAD
+was `cdffbbe9a49079e0090f111ff8cd3f3986e57d74`. The old top-row checkout at
+`236d118` retains runtime `d4c7276` and its frozen build.
 
-The owned muted Chromium Guest and loopback3043 server are closed. The original
-New tab remains. All 2,425 candidate source/build files, 159,547,430 bytes, and
-the separate human system.ts edit rehash unchanged. Root owns shared documents.
-Next the existing Astra extra-high worker audits the closed private recordings
-only, followed by independent claims/integrity review. No source or build edits,
-GUI, native acceptance or additional recording is authorized by that handoff.
-The private policy and closure ledger live under
-`continuation-20261015/applet-opening-cadence/`. Weekly usage is 57% used,
-43% remaining. Stop at 10% remaining, without external notification.
-All four whole animation flows remain fail/unproven.
+The [destination scheduling record](docs/applet-destination-scheduling-2026-10-15.md)
+separates source, tests, browser evidence and native gaps. Root saved nine
+openings in 2,521 paired LCD frames through normal touchscreen controls and
+opened ten sheets. The first Friends window reached its 600-frame cap after
+the ready endpoint; it is preserved without retry. Six comparable openings
+support relocation of expensive destination composition beneath the accepted
+opaque cover. Their six fixed opaque pairs and all 24 later opaque pairs are
+exact on both LCDs. Overall cadence improvement is not established.
 
-## Current coordinator and candidate
+Source review `3a0c9175` has no actionable findings and 199 focused passes.
+Final worker checks have 208 focused passes, 2,982 full passes, the known missing
+historical Camera PNG failure, 102 skips/one TODO, and passing typecheck/build.
+The private capture audit is sealed at report `4fed891f` and manifest `92d5df21`.
+Independent capture review `b0483e13` verifies all originals, selectors, metrics
+and 192 native-size sheet placements with no actionable finding. Final document
+review `b91edb3e` identified one wording overclaim, now corrected. All helpers
+are done. Root owns shared documents; no helper owns source,
+build, GUI or original evidence.
 
-Root now owns `/Users/paramveer/.codex/worktrees/applet-opening-cadence-20261015/3ds-idea`
-on `codex/applet-opening-cadence-20261015`, reconciled at cdffbbe after the
-worker's explicit clean transfer4fa5fe1 and two docs-only coordinator commits.
-Runtime dcb6fb3 and buildKlvHppEeEH9Xi0W9-2Eux are frozen for capture.
-Independent review3a0c9175 has no actionable findings and199 focused passes.
-Worker checks have208 focused passes,2982 full passes, the known missing
-historical Camera PNG failure,102 skips/one TODO, passing typecheck/build.
-The old top-row checkout at236d118 retains unchanged runtime d4c7276 and its
-frozen build. All2425 baseline files and the separate human edit rehash unchanged.
-The worker and reviewer are done, with no source/build reservation.
+All 2,425 candidate source/build files, 159,547,430 bytes, and the 2,425 baseline
+files, 150,895,425 bytes, rehash unchanged. The separate human system.ts edit is
+preserved. Private evidence lives under
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261015/applet-opening-cadence/`.
 
-Root completed the candidate capture under the private policy named above.
-Only built-in MacBook display1 was connected. The owned muted Chromium153 Guest
-and loopback3043 server are closed. Candidate capture analysis is pending;
-no new native acceptance exists. All four whole flows remain fail.
-Weekly usage is57% used/43% remaining; stop at10%, no external notification.
-This section supersedes older ownership, serving and next-action entries.
+## Next and operating constraints
+
+Next isolate sustained
+Friends/Notifications incoming paint work and recorder overhead before changing
+timing or collecting another broad run. Preserve both capture sets and the
+frozen build. Do not repeat the cold-composition fix or claim the opaque
+regression match establishes native acceptance. All four whole flows remain
+fail/unproven. No new Azahar comparison occurred in this slice.
+
+The owned muted Chromium 153 Guest and loopback server on port 3043 are closed.
+The original New tab remains. GUI testing uses the built-in MacBook display;
+only root operates it, with all 3DS sessions muted and system audio untouched.
+Weekly usage is 59% used / 41% remaining. Stop and pause at 10% remaining,
+interrupt helpers and preserve the checkpoint. No external notification or
+automatic resume is authorized. The existing ten-minute usage guard remains.
+
+The latest user-supplied AGENTS instructions select GPT-5.6 Sol high for new
+helpers at normal speed, superseding earlier model preferences. Tools cannot
+verify service tier or change the running coordinator model. Both reviewers are
+done; the bounded final wording reviewer used the new settings.
+This section supersedes older ownership, serving, model and next-action entries.
 
 ## Opening-pose cadence continuation
 

@@ -1,14 +1,29 @@
 # Animation fidelity workflow
 
+## Destination scheduling checkpoint
+
+The [accepted-cover correction](applet-destination-scheduling-2026-10-15.md)
+has source review, checks and nine closed production capture windows. Six
+comparable openings support relocation of expensive destination composition;
+fixed opaque pixels are unchanged. The recordings do not establish smoother
+cadence or native parity. Preserve runtime dcb6fb3, its build and both evidence
+sets. Next isolate sustained Friends/Notifications incoming paint work and
+recorder overhead before changing timing or collecting another broad run.
+This next action supersedes earlier next actions below. Root alone operates
+muted MacBook GUI; all owned sessions are currently closed. All four flows fail.
+
 ## Current usage guard
 
-The latest user preference selects GPT-6 Astra extra-high for every helper.
+The latest user-supplied AGENTS instructions select GPT-5.6 Sol high for new
+helpers, at normal speed. Tools do not expose a service-tier selector or a
+running-coordinator model switch. Both reviewers are done; the bounded final
+wording reviewer used the new settings.
 Check account weekly usage before dispatching helpers or starting a GUI/test
 batch, and at least every 10 minutes of active work. At 90% used / 10% remaining
 or less remaining, interrupt helpers, checkpoint and pause the goal. Do not
 start another project slice. The user cancelled the Grok Bot notification.
 Send no external message; report the pause only in this chat. The ten-minute
-heartbeat has been updated accordingly. Current reading is 54% used / 46%
+heartbeat has been updated accordingly. Current reading is 59% used / 41%
 remaining. No bot message has been sent.
 
 ## Cursor control closed

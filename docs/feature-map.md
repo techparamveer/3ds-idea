@@ -1,5 +1,14 @@
 # Feature map — 1:1 queue
 
+15 October AN-01: [destination scheduling](applet-destination-scheduling-2026-10-15.md)
+now defers hidden destination composition until the opaque cover is accepted.
+The reviewed runtime is dcb6fb3. Nine production recordings contain 2,521 pairs;
+six comparable openings support relocation, and their fixed opaque pairs remain
+pixel-exact to the earlier browser build. Overall cadence is not proven improved.
+Next isolate sustained Friends/Notifications incoming paint work and recorder
+overhead before changing timing or collecting a broad run. AN-01 through AN-04
+remain fail/unproven. This next action supersedes the history below.
+
 15 October AN-03: [cursor source and browser control](folder-cursor-transport-2026-10-15.md)
 is closed without a production change. All 244 private outputs validate;
 source assets and geometry match, while sampling routes differ within the

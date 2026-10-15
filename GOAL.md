@@ -1,9 +1,22 @@
 # Goal: finish the four remaining native animation flows
 
-Current execution constraint, 15 October: use GPT-6 Astra extra-high for all
-subagents. Stop and pause this goal at 10% or less weekly usage remaining,
-interrupting helpers and preserving the checkpoint. The latest reading is 54%
-used / 46% remaining in the 10080-minute account window. Follow STATUS for usage
+15 October AN-01: the [destination scheduling correction](docs/applet-destination-scheduling-2026-10-15.md)
+is implemented, reviewed, tested and browser-inspected in 2,521 paired frames.
+Six comparable openings support relocation of expensive destination composition
+beneath an accepted opaque cover. Their fixed opaque pixels remain exact to the baseline.
+This does not establish smoother cadence or native parity. Next isolate
+sustained Friends/Notifications incoming paint work and recorder overhead,
+preserving both capture sets and the frozen build. This next action supersedes
+the history below. All four whole flows remain fail/unproven.
+
+The latest user-supplied AGENTS instructions select GPT-5.6 Sol high for newly
+dispatched helpers, at normal speed. Tooling cannot verify a service tier or
+change the running coordinator model. Both capture and final wording review
+are closed; the latter used the newly requested helper settings.
+
+Stop and pause this goal at 10% or less weekly usage remaining, interrupting helpers and
+preserving the checkpoint. The latest reading is 59% used / 41% remaining in
+the 10080-minute account window. Follow STATUS for usage
 checks. The user cancelled the Grok Bot notification. Send no external message;
 report the threshold pause only in this chat.
 

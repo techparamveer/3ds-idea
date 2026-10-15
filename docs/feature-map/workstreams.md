@@ -2,13 +2,16 @@
 
 ## Closed capture audit, 15 October 2026
 
-Root reconciled the current applet checkout at cdffbbe and closed all nine
-candidate recordings and owned GUI/server sessions. The existing worker may
-write only private derivatives under `applet-opening-cadence/candidate-audit`.
-Its task is receipt chronology, cover20 scheduling and fixed opaque-pair
-comparison. No source, build, original-evidence or GUI reservation exists.
-The existing independent reviewer follows with integrity and claims checks.
-Root owns shared documents, sequential commits and draft PR7 publication.
+Root reconciled the current applet checkout at c7c09ef and closed all nine
+candidate recordings and owned GUI/server sessions. The worker audit is sealed
+at report 4fed891f; independent capture review b0483e13 has no actionable finding.
+The worker and both reviewers' reservations are closed. Final wording review
+b91edb3e identified one overclaim, now corrected. No source, build,
+original-evidence or GUI reservation exists. Root owns shared documents,
+sequential commits and draft PR7 publication. Next isolate sustained incoming
+paint work and recorder overhead; there is no implementation reservation yet.
+New helpers follow the latest user-supplied AGENTS preference, GPT-5.6 Sol high,
+at normal speed. The completed final wording reviewer used those settings.
 
 ## Applet candidate transfer, 15 October2026
 

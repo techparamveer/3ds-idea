@@ -1,5 +1,11 @@
 # Feature map — 1:1 queue
 
+15 October AN-01: [experimental candidate](applet-generic-candidate-2026-10-15.md)
+is reviewed and built in separate draft PR #8, not integrated. Full checks retain
+only the known Camera PNG failure. Production comparison is held before inputs
+because the MacBook is on low battery. No performance or native pass follows.
+Recheck power/build identities, then run the fixed A1/B1/B2/A2 gate in STATUS.
+
 15 October AN-01: the [private browser probe](applet-cold-browser-probe-2026-10-15.md)
 completed eight fixed runs with exact 21-pose RGBA equality per app across modes
 and repetitions. Generic title backgrounds have lower first-draw samples but

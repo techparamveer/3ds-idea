@@ -1,5 +1,39 @@
 # Workstream Registry
 
+## Current reservations
+
+All helpers are released. Candidate 5e1dec9 and handoff 74db674 are reviewed,
+checked and built in separate draft PR #8, not integrated. Root owns the next
+production comparison, held before inputs after low-battery preflight. Both
+builds stay frozen. Private audit tools are prepared but not used on real
+captures. Recheck power and read STATUS Next before starting a worker or server.
+The sections below record earlier assignments, not active reservations.
+
+## Scoped generic-background candidate
+
+One GPT-5.6 Sol high worker owns
+`/Users/paramveer/.codex/worktrees/applet-generic-background-20261015/3ds-idea`
+on `codex/applet-generic-background-20261015`, base fa963ae. It owns only
+native-layout, native-renderer, applet-title-entry-assets, focused tests and
+its new handoff. Add an explicit validated title-entry-only generic base-raster
+choice; preserve compiled defaults, belt, cache and all resource failures.
+No clocks, input, assets, GUI, original evidence or shared-document changes.
+The candidate is experimental; review and real production comparison must
+resolve later-frame cost before adoption. Root keeps the frozen coordinator
+runtime/build, shared docs, GUI and draft PR #7. The worker's STATUS-only dirty
+reconciliation was made by root before dispatch and must not be staged.
+Source a3094c2 is now committed and frozen. A GPT-6.1 Sol high reviewer has
+completed review cf22e0da with no source bug. Test-only correction 5e1dec9 uses
+visible frame0 and asserts a draw in the cache-identity check. Focused checks
+pass. Follow-up review 077fb86e closes the P3 with no remaining findings.
+Source remains frozen. The worker owns full tests, nonincremental typecheck,
+candidate-only build and handoff. The reviewer is released.
+
+The diagnosis helper owns private `applet-generic-production/audit-tools`
+preparation for the fixed A1/B1/B2/A2 policy. It may write tools and synthetic
+tests there only. No source, build, GUI, server, original-evidence or shared-doc
+writes, and no audit execution during the live production captures.
+
 ## Private browser probe review
 
 Root completed the fixed eight-run comparison on the muted MacBook. All 21

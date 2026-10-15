@@ -2,7 +2,7 @@
 
 ## Checkout
 
-Reconciled HEAD: `3c3b51cc29aea816ac64b1ef20b51db6741551d0`.
+Reconciled HEAD: `fa963ae5cf7833bebeb53c479cf166baf081609f`.
 Git wins if this differs from HEAD. Reconcile before another slice or worker.
 Keep this file current, not append-only.
 
@@ -14,7 +14,7 @@ checkout. Create new source worktrees from this coordinator HEAD.
 
 Draft [PR #7](https://github.com/techparamveer/3ds-idea/pull/7) uses remote
 branch `codex/animation-fidelity-20261007`. Latest verified pushed SHA is
-`3c3b51cc29aea816ac64b1ef20b51db6741551d0`. Review coherent changes, stage
+`fa963ae5cf7833bebeb53c479cf166baf081609f`. Review coherent changes, stage
 explicit paths and push normally. Do not merge, deploy, reset or clean.
 
 Preserve the human edit in
@@ -70,13 +70,24 @@ GPT-6.1 Sol high review is complete at private `applet-cold-browser-probe/review
 report 272dad8a. It supports one scoped production experiment only, with later
 cost as an explicit rejection gate. Its PICA-normalization fixture finding has
 no effect on the 160 visible rasters but must be corrected in future probes.
-The preparation worker and reviewer are released. A new source worker is not
-yet assigned. See [registry](docs/feature-map/workstreams.md).
+All workers and reviewers are released. Experimental source a3094c2, test
+correction 5e1dec9 and handoff 74db674 are frozen in the separate
+`applet-generic-background-20261015/3ds-idea` worktree, branch
+`codex/applet-generic-background-20261015`. Source review cf22e0da and follow-up
+077fb86e are complete with no remaining finding. Full suite has 2,993 passes,
+one known Camera PNG failure, 103 skips and one TODO. Nonincremental typecheck
+and build pass. The candidate is pushed to separate draft
+[PR #8](https://github.com/techparamveer/3ds-idea/pull/8), based on PR #7; it is
+not integrated or adopted. See [candidate](docs/applet-generic-candidate-2026-10-15.md).
+Private `applet-generic-production/audit-tools` is prepared but has not audited
+a real campaign. Review it before use and update power/Energy Saver limits to
+the actual capture conditions. Root retains inputs and adoption decisions.
+See [registry](docs/feature-map/workstreams.md).
 Independent GPT-6.1 Sol high checkpoint review is complete. Its one stale
 RESTART serving sentence was corrected; its reservation is released. Report
 is private `applet-native-opening/checkpoint-review/report.md`.
 
-Latest account reading is 72% used / 28% weekly remaining. Check before new
+Latest account reading is 73% used / 27% weekly remaining. Check before new
 heavy work and at least every ten minutes. At **10% remaining or less**, stop
 new work, interrupt helpers, close owned sessions, preserve a minimal checkpoint
 and pause the goal. The user cancelled the Grok/My King bot message. Send no
@@ -84,6 +95,12 @@ external message and do not resume automatically after reset. Existing heartbeat
 `3ds-weekly-usage-stop-guard` enforces the same rule; do not duplicate it.
 
 ## Serving and display
+
+Production comparison has not started. Power preflight at about 22:46 UTC
+found 13% battery, about 11 minutes estimated remaining, and Chrome Energy
+Saver on. Root asked the user to connect power and held GUI work before any
+new server or app input. Recheck power before capture; do not confuse this
+condition with the separate weekly usage stop rule.
 
 No app, test server or recorder is active. Root completed all eight private
 probe runs on the built-in MacBook, then closed owned Guest window 5092 and
@@ -108,6 +125,10 @@ Frozen production runtime is `b83b7683aaba2f50ce9a7724e1a7e370deac19bd`, build
 `g-qLVPFQLrJnvHrbuaS0e`, in the coordinator checkout. Capture HEAD was
 `1ea60b619e1d9ee205a19522a036c28354aa3311`; later documentation commits do not
 change that identity. Keep this build and earlier captured builds frozen.
+The separate candidate build is `qrqJDhOcclmu2RuyNXUMi`, source 5e1dec9,
+checkout HEAD 74db674. Private `applet-generic-production` contains authoritative
+`baseline-before-v2.json` and `candidate-before.json` inventories, plus the
+fixed capture-policy.md. Both builds must rehash unchanged before inputs.
 
 ## Evidence
 
@@ -169,18 +190,19 @@ See [reference isolation](docs/native-reference-profile-isolation.md).
 
 ## Next
 
-1. Implement one bounded candidate after the completed independent review.
-   Probe identity is 282488e4, receipts under `applet-cold-browser-probe/results`.
-   Friends first draws: compiled 75.4/102.8 ms, generic 63.8/57.9 ms;
-   Notifications: compiled 95.5/90.3 ms, generic 75.7/76.5 ms. All 21 paired
-   hashes per app agree across all four runs. These are page-cold, not fresh
-   processes; no production timing or native acceptance follows.
-2. Use a new source worktree, then review and production measurement. Reject
-   the candidate if the complete opening regresses. Preserve clocks, cache
-   bounds, resource failures
-   and publication guards. No prewarming or guessed delay. Sampled-pose gaps
-   and native timing remain separate. Keep both closed native audits and their
-   fixture/error limits; do not repeat broad-order work.
+1. Recheck MacBook power, usage, display and both frozen build inventories.
+   Candidate review/checks/build are complete; do not repeat or rebuild them.
+   When power is stable, run the declared A1 baseline, B1 candidate, B2 candidate,
+   A2 baseline sessions. Each fresh muted Guest opens Friends then Notifications.
+   Ports 3047/3049, one server at a time, distinct private A1/B1/B2/A2 output roots.
+   Follow capture-policy.md; no retries or best-of selection. Do no heavy worker
+   work during capture. Review the prepared audit tools before using them.
+2. Keep PR #8 separate pending the complete opening comparison. Reject worse
+   or inconclusive later/whole cost, even if the first call improves. Preserve
+   clocks, resource failures, cache bounds and publication guards. No prewarming
+   or fitted delays. Sampled-pose gaps and native timing remain separate. Keep
+   both closed native audits and their fixture/error limits; do not repeat
+   broad-order work.
 3. Integrate reviewed fixes in separate source worktrees. Run focused/full
    checks, typecheck and build, then perform the matched muted verification loop.
    Update evidence, commit explicit paths and push to draft PR #7. Continue the

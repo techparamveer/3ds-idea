@@ -1,5 +1,14 @@
 # Animation fidelity workflow
 
+## Production candidate held before capture
+
+The [reviewed generic-background candidate](applet-generic-candidate-2026-10-15.md)
+is isolated in draft PR #8. Keep it separate from PR #7 until the fixed
+A1/B1/B2/A2 comparison supports adoption. Reject worse or inconclusive full
+opening/later cost. Power preflight held capture before any server or app input;
+recheck power, Energy Saver, display, source/build hashes and site mute first.
+Both builds stay frozen. No new native comparison or whole-flow pass follows.
+
 ## Private browser comparison
 
 The [eight-run probe](applet-cold-browser-probe-2026-10-15.md) is closed and

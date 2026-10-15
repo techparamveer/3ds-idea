@@ -1,5 +1,11 @@
 # Goal: finish the four remaining native animation flows
 
+15 October AN-01: the [generic-background candidate](docs/applet-generic-candidate-2026-10-15.md)
+is reviewed, checked and preserved separately in draft PR #8. It is not adopted.
+The fixed production comparison has not started: low MacBook battery and
+Energy Saver were found during preflight. Resume capture only after power and
+both frozen builds are rechecked. All workers are released. STATUS owns Next.
+
 15 October AN-01: the [private browser comparison](docs/applet-cold-browser-probe-2026-10-15.md)
 preserves exact selected pixels across eight runs. Generic backgrounds have
 lower first-draw samples but higher later and aggregate costs. One scoped

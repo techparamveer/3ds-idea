@@ -166,14 +166,15 @@ cover20 without outgoing rebase. Pending or revoked cover20 cannot authorize
 it. Retained incoming and handed-off owners, including the accessibility
 shortcut, keep permission to compose their destination. The outgoing terminal
 stays active while its first destination pair is cold. Incoming missing-pair
-scheduling is unchanged.
+scheduling is unchanged. A prepared destination waiting only for title incoming
+resources remains inactive, avoiding needless repaint while that resource loads.
 
 The bounded native-destination flag covers Manual and the five existing applet
 IDs. Resource acquisition continues. Explicit load failures still draw paired
 recovery, and a loaded asset cannot masquerade as a published pair. The first
 cold draw stays under cover20 because applet sampling already precedes the
 overlay and reads the prepared pair at paint start. No clock, timer, frame
-step, incoming raster, native asset or input behavior was changed.
+step, incoming raster, native asset, input routing or readiness guard was changed.
 
 Failing-before command at `85e9fcc`, with only the new tests applied:
 
@@ -201,12 +202,49 @@ until composition; the other historical cases retain their warm fixture.
 
 Worker dependencies were copied with APFS clone semantics into independent
 `node_modules`, and all three public LFS GLBs were hydrated from the local
-cache. Root's dependencies and frozen build were not modified. The initial
-focused run passed 196 tests and the nonincremental typecheck passed. Final
-candidate checks and build identity will be appended after completion.
+cache. The initial full run found 37 additional failures from unhydrated model
+reference pointers, one cold-terminal scheduling assertion and the known missing
+historical Camera PNG. That failed attempt is preserved in
+`candidate-full-tests.log` (3,038 tests: 2,896 pass, 39 fail, 102 skip, one todo).
+The 38 model GLBs required by those tests were then materialized from the same
+local cache and verified against their tracked LFS OIDs. No files were downloaded,
+no source model was edited, and no tests were skipped to hide a failure. Exact
+paths, sizes and verified OIDs are in `candidate-model-lfs-hydration.json` and
+`candidate-public-lfs-hydration.json`. Root's dependencies and frozen build were
+not modified.
+
+The first source commit is `5844aab12b55ec8da4076dd5dc1c5fed1c6473f6`.
+Review narrowed the terminal repaint addition to missing destination pairs in
+`dcb6fb3b5c3bb79f6a9b98cc6eb8e8daa4b050fd`. The extended title test first failed
+with an already-prepared pair waiting for incoming resources (11 pass, one fail
+in `candidate-cold-pair-narrow-red.log`), then passed after that narrowing.
+The exact final source passes all 208 focused tests with no skips:
+
+```sh
+node --test tests/applet-entry-*.test.mjs tests/applet-title-entry-presentation.test.mjs tests/stock-screen-preparation.test.mjs tests/manual-entry-*.test.mjs
+```
+
+The log is `candidate-cold-pair-focused.log`. `npm run build` passes at the final
+source with build ID `KlvHppEeEH9Xi0W9-2Eux` (`candidate-final-build.log`).
+The post-build `npm run typecheck -- --incremental false` also passes
+(`candidate-final-postbuild-typecheck.log`). Final `npm test` exits 1 with
+3,086 tests: 2,982 pass, one fail, 102 skip and one todo. Its only failure is
+the unchanged `tests/camera-date-group.test.mjs:44` historical PNG dependency:
+`/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/camera-3d-badge-sdmc-recapture-20261005/browser/lower.png`.
+The final log is `candidate-final-full-tests.log`, SHA-256
+`8a3a2e3f19504b2386ec6be23976a2565aec7603cef98d7db66b74e451efc059`.
+`candidate-final-checks.json` records the source/build identity, command exits,
+counts, log hashes and hydration-manifest hashes. No shader/material change
+was made. Handoff relative links and `git diff --check` pass.
 
 This remains a browser scheduling adaptation. It relocates cold work behind
 an accepted opaque cover; it does not reduce that work or establish native
 duration. No server or GUI was started. Root's independent review and live
 recapture must precede runtime integration. All four whole flows remain
 fail/unproven.
+
+On delivery of this final handoff, the worker relinquishes this checkout's
+source, tests, build and worktree ownership to root. The build is no longer
+available for worker mutation. Any subsequent worker assignment is private
+capture analysis only, without source/build/server/GUI access. The previous
+root runtime `d4c7276` and build `Tc7ZG3LaSUpILEb72xG1X` remain untouched.

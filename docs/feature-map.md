@@ -2,10 +2,14 @@
 
 15 October AN-01 continuation: [remaining top-row return correction](toprow-remaining-return-2026-10-15.md)
 extends selected-only incoming to Friend List, Browser and Miiverse in d4c7276.
-Implemented and behavior-tested; candidate browser/native verification remains
-pending. The native references are gate returns, not ordinary footer Close.
-Next recapture all three first/repeated paths. Partial loader scheduling stays
-open; AN-01 through AN-04 remain fail/unproven.
+Implemented, behavior-tested and browser-inspected in 3,545 pairs across
+15 windows. All six first/repeated Close paths retain Work alone through
+incoming, restore neighbours at handoff and show the banner afterward. Root
+inspected 31 sheets. Six fixed opaque opening comparisons are exact; opening
+pose gaps and prior-Friends pixel residuals remain. Native references are gate
+returns, not ordinary footer Close. Partial loading stays open. Next is AN-03
+normal-speed aligned empty-folder Open/held Back verification. AN-01 through
+AN-04 remain fail/unproven.
 
 15 October AN-01 repair: [integrated selected-first return](toprow-selected-return-2026-10-15.md)
 keeps only the ordinary selection during Notes/Notifications incoming. Root

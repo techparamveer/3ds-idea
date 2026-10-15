@@ -1,11 +1,14 @@
 # Goal: finish the four remaining native animation flows
 
 15 October continuation: [Friends/Browser/Miiverse selected-first return](docs/toprow-remaining-return-2026-10-15.md)
-is implemented as `d4c7276`. Its cross-route fitted behavior is covered by tests;
-new production-browser and native acceptance are pending. Reviews have no
-findings; full checks retain only the known missing Camera PNG failure.
-Recapture the reviewed build before another source slice. The attempted
-baseline setup produced no 3DS frames. All four flows remain fail/unproven.
+is implemented as `d4c7276` and recaptured in 3,545 raw pairs. Root inspected
+31 sheets; all six Close paths retain Work alone through incoming, restore
+neighbours at handoff and show the banner afterward. Six fixed opaque opening
+pairs are exact to earlier browser captures. Partial native loading, opening
+pose gaps and exact native acceptance remain open. Reviews and checks retain
+only the known missing Camera PNG test failure. Next verify normal-speed
+aligned empty-folder Open/held Back first/repeat. All four flows remain
+fail/unproven; this fitted visibility correction is not whole-flow parity.
 Use Astra extra-high helpers; tools cannot change the main chat model.
 
 15 October AN-01 repair: [selected-first Notes/Notifications return](docs/toprow-selected-return-2026-10-15.md)

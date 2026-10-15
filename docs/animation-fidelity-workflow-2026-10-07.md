@@ -5,11 +5,20 @@
 [Runtime d4c7276](toprow-remaining-return-2026-10-15.md) extends the existing
 selected-only adaptation to Friends/Browser/Miiverse without new timing or
 controller logic. Independent review and root full checks are complete, with
-only the known missing Camera PNG test failure. Recapture build
-`Tc7ZG3LaSUpILEb72xG1X` on the muted MacBook. Browser setup failed before app input;
-there is no new capture or visual pass. Preserve the old build and all evidence.
-No further source-only slice before recapture. All four whole flows remain
-fail/unproven. This next action supersedes the historical sections below.
+only the known missing Camera PNG test failure. The muted MacBook recapture of
+build `Tc7ZG3LaSUpILEb72xG1X` is closed at 3,545 pairs across 15 windows.
+Root inspected 31 targeted sheets and confirmed the bounded selected-only
+correction in all six Close routes. Opening pose gaps, prior-Friends residuals
+and native partial loading remain. Preserve this build and all original files.
+
+Next compare normal-speed native empty-folder Open/held Back first/repeat with
+the same two-row root origin in the current browser. Use one uninterrupted
+native movie, separate endpoint own-PNG anchors and bounded browser windows.
+Do not move items, infer native cadence from the 100% setting, or reopen the
+repaired tray path without a new visible mismatch. The earlier aligned native
+reference runs at 5% and does not close this check. Root alone drives muted
+MacBook GUI. All four flows remain fail/unproven. This next action supersedes
+the historical sections below.
 
 ## Selected-first return captured
 

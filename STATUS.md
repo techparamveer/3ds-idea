@@ -2,6 +2,10 @@
 
 ## Remaining top-row return verification
 
+Capture source HEAD is `d7babbbfbe1885b3f22098875d3b6aef4492e98d`, pushed to
+draft PR7. Read Git for the following documentation checkpoint. Runtime and
+source/build stay frozen; the current turn completed candidate recapture.
+
 Handed to root on 15 October 2026 after worker processes exited. Root owns
 `/Users/paramveer/.codex/worktrees/toprow-remaining-reveal-20261015/3ds-idea`,
 branch `codex/toprow-remaining-reveal-20261015`, runtime commit
@@ -19,12 +23,24 @@ and Spec reviews have no actionable findings; they pass 73 and 33 focused tests.
 Root full checks report 2,894 passes, the unchanged missing historical Camera PNG
 failure, 102 skips and one TODO. Typecheck and production build
 `Tc7ZG3LaSUpILEb72xG1X` pass. Source and this build are now frozen.
-Next recapture first/repeated Friends/Browser/Miiverse open/Close before another
-source slice. See [the bounded record](docs/toprow-remaining-return-2026-10-15.md).
+The closed first/repeated Friends/Browser/Miiverse run saves 3,545 pairs across
+15 windows. Root inspected all 31 targeted sheets. All six Close routes show
+Work alone during incoming, neighbours at handoff, then the selected banner.
+Every feedback0..5/out0..20/in0..20 value is saved. The six fixed historical
+opaque opening pairs are exact. Opening pose gaps and eight non-exact prior
+Friends comparisons remain explicit. Native partial loading is not implemented.
+Audit a5dd2b86 and manifest 7212df77 are sealed. Independent integrity/claims
+review 552c69c7 has no actionable findings.
+See [the bounded record](docs/toprow-remaining-return-2026-10-15.md).
 Helpers use Astra extra-high; tools cannot change this chat's model.
-Only root may operate muted MacBook GUI. The earlier Guest setup attempt
-failed before app input/capture; no new visual verification exists. Port 3041 has
-no listener. The original test-browser New tab remains; no Guest was created.
+Only root may operate muted MacBook GUI. Guest setup recovered with the exposed
+Raise action. The test Guest window and server are now closed; port3041 has no
+listener. The original empty-profile New tab remains. Browser first opening
+hit the 600-pair cap; all later actions are separate recordings, not continuity.
+All 2,425 scoped source/build files rehash unchanged across capture.
+Next: normal-speed aligned empty-folder Open/held Back first/repeat comparison.
+The repaired tray path stays closed; no source change is justified before a
+new visible mismatch. Preserve Manual's loader gap and the completed repairs.
 The old human edit in animation-fidelity remains unchanged. Artifacts
 remain on Sandisk1. All four whole flows remain fail/unproven. These ownership
 and next-action fields supersede the historical sections below.

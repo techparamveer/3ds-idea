@@ -1,5 +1,15 @@
 # Feature map — 1:1 queue
 
+15 October AN-04 follow-up: [rapid publication readiness](home-rapid-resume-readiness-2026-10-15.md)
+is delivered as `7650caa`, with independent review and integrated tests/build.
+Four new windows save 872 valid pairs. Both rapid runs retain footer and
+departure without near-black output. Compact Health/outgoing Camera still
+freeze through the footer; native source supports continued upper work before
+the expanded-scale/footer-absent departure gate. That is the next bounded fix.
+A stable lower-Health difference from the previous build remains unexplained.
+No exact endpoint regression or whole-flow pass follows. All four flows stay
+fail/unproven; do not reopen excluded moving/pickup work.
+
 15 October AN-04: [the live scale audit](home-scale-live-2026-10-15.md)
 confirms intermediate shrink/grow and both ordinary retained Resume recordings.
 Rapid Left then HOME still skips Resume and flashes two near-black paired

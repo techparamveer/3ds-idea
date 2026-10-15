@@ -1,5 +1,40 @@
 # STATUS: animation fidelity
 
+Current checkpoint, 15 October: this checkout is
+`/Users/paramveer/.codex/worktrees/rapid-resume-verified-20261015/3ds-idea`, branch
+`codex/rapid-resume-verified-20261015`, verified HEAD `979977f` after runtime
+`7650caa` and its scene assertion update. Base was `d88dec1`.
+Runtime and test commits are pushed to draft PR 7. Independent Astra extra-high
+review passes 79 tests with no findings. Final full checks report 2,861 passes,
+one unchanged missing historical Camera PNG failure, 102 skips and one TODO.
+Typecheck and build `5gnRkIxt5z2uQM-gzoSBy` pass. Source/build are frozen.
+
+Muted MacBook capture is closed at 872 pairs in four windows. Root inspected
+all 13 audit sheets. Both rapid attempts and ordinary Resume retain complete
+footer/departure stages with no saved near-black pair. The short-touch window
+hits its cap before Resume; the later footer run is a separate recording.
+Audit `1921c6e4`, manifest `d02e7ba4` are under private
+`continuation-20261015/rapid-candidate-audit-astra/`. Exact input replay and
+execution of the deferred branch are not established by these recordings.
+
+Next: rapid Resume still freezes compact Health and outgoing Camera during the
+footer. Native mode 8 continues upper scale/banner work and gates SceneOut on
+expanded scale plus absent footer. The worker owns this bounded correction in
+`/Users/paramveer/.codex/worktrees/resume-scale-departure-20261015/3ds-idea`,
+branch `codex/resume-scale-departure-20261015`, base `979977f`. Do not add a
+scale-15 HOME admission gate. A separate read-only reviewer investigates the
+stable lower-Health endpoint difference from the previous build: 27,690 pixels
+above delta 2, maximum 8. Cause remains unknown; exact regression acceptance
+is withheld. See [the rapid Resume record](docs/home-rapid-resume-readiness-2026-10-15.md).
+
+Root alone drives GUI; all sessions stay muted on the MacBook. Test tab/server,
+Azahar and the owned Cua lease are closed. All helpers use Astra extra-high;
+tools cannot change or verify the main model. All four whole flows remain
+fail/unproven and the goal is active. This checkpoint supersedes historical
+checkout, next-action and serving fields below. The old human edit is untouched.
+
+## Prior capture checkpoint
+
 Updated 15 October 2026. The current checkpoint below supersedes the older
 seat, server and verification notes retained later in this file.
 

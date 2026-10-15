@@ -1,5 +1,24 @@
 # Animation fidelity workflow
 
+## Rapid readiness delivered; upper expansion next
+
+[The publication fix](home-rapid-resume-readiness-2026-10-15.md) is reviewed,
+tested, pushed and captured at runtime `7650caa`, build `5gnRkIxt5z2uQM-gzoSBy`.
+Preserve its 872-pair recording and the older 1,468-pair baseline. The two rapid
+runs retain Resume with no saved paired black output, but compact Health and
+outgoing Camera remain frozen throughout footer exit. Native mode 8 continues
+upper scale/banner work and waits for expanded scale plus absent footer before
+SceneOut. Implement that contract in the assigned separate worktree. Preserve
+the publication barrier, current ownership guards and expanded ordinary path;
+do not add a scale-15 HOME admission gate or guessed delay. Review, test and
+recapture the rapid and ordinary paths before claiming that defect closed.
+
+A separate lower endpoint difference is unexplained. Keep the fixed unmasked
+selectors and inspect its cause without changing tolerances or choosing nearer
+frames. Both native and pre/post exact regression acceptance remain withheld.
+All helpers use Astra extra-high; all GUI stays muted on the MacBook. All four
+whole flows remain fail/unproven. Historical blockers below are not current.
+
 ## Live scale capture closed; rapid readiness next
 
 [The 15 October run](home-scale-live-2026-10-15.md) supersedes the GUI blocker

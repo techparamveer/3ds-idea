@@ -1,5 +1,27 @@
 # STATUS: animation fidelity
 
+## Rendering-cost repair assigned
+
+Root reconciled HEAD `a7af99a`, committed and pushed the closed detail audit
+to draft PR7. The detail runtime/build stays frozen in root's
+`applet-paint-detail-20261015` checkout. No GUI or server is live.
+
+One GPT-5.6 Sol high worker owns the new
+`/Users/paramveer/.codex/worktrees/applet-alpha-retention-20261015/3ds-idea`,
+branch `codex/applet-alpha-retention-20261015`, based on a7af99a. It must
+reproduce the measured incoming-alpha cache pressure through actual rendering
+paths, then make a bounded fix if the reproduction supports it. Owned files
+are native-renderer, applet-title-entry-assets, their focused tests and one
+handoff. No shared docs, GUI, native assets, clocks, HUD policy or recorder
+changes. Preserve the 8 MiB cache bound, exact source rasters, failures and
+disposal. Root reviews and captures any accepted repair before claiming a
+visible improvement. First-title cold cost remains open unless separately
+demonstrated fixed; no prewarming or scheduling workaround is assigned.
+
+Root owns shared docs, GUI and PR7. All four whole flows remain fail/unproven.
+Usage is 34% remaining; stop at 10%, no external message or automatic resume.
+This section supersedes older seats and next actions.
+
 ## Detail audit closed
 
 Root reconciled HEAD `3683d96` after capture checkpoint `b803b8e`. The declared first Friends and Notifications

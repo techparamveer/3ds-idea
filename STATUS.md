@@ -2,8 +2,9 @@
 
 ## Current checkpoint
 
-Root reconciled Git at `c7c09ef541792f44fc207b5e51bfca4db9f186e7` before this
-documentation checkpoint. Read Git for the resulting commit. Root owns
+Root reconciled Git at `a0836737823b9cb060bc5b03ac4ab9329feb869e` on restart.
+The previous turn completed the independently reviewed capture record and
+pushed it to draft PR7, so it counts as progress. Root owns
 `/Users/paramveer/.codex/worktrees/applet-opening-cadence-20261015/3ds-idea`
 on `codex/applet-opening-cadence-20261015`, following the clean worker transfer.
 Runtime `dcb6fb3` and build `KlvHppEeEH9Xi0W9-2Eux` remain frozen. Capture HEAD
@@ -36,12 +37,20 @@ preserved. Private evidence lives under
 
 ## Next and operating constraints
 
-Next isolate sustained
-Friends/Notifications incoming paint work and recorder overhead before changing
+Next isolate sustained Friends/Notifications incoming paint work and recorder overhead before changing
 timing or collecting another broad run. Preserve both capture sets and the
 frozen build. Do not repeat the cold-composition fix or claim the opaque
 regression match establishes native acceptance. All four whole flows remain
 fail/unproven. No new Azahar comparison occurred in this slice.
+
+A replay of the final Friends/Notifications recording sequences reproduces
+11/15 missing incoming source values, with median whole paint 20/34.8 ms,
+overlay 0.4/0.7 ms and pair encoding 10.9/12.8 ms. The red-capable pose assertion
+exits 1. This diagnoses recorded coverage, not uncontrolled-runtime cadence.
+One bounded measurement worker will add optional pre-overlay/title-incoming
+timings to the existing measured-paint receipt. No timing, raster, input or
+resource behavior may change. Its worktree is applet-incoming-cost-20261015,
+based at a083673; root preserves this captured build. Root alone owns GUI.
 
 The owned muted Chromium 153 Guest and loopback server on port 3043 are closed.
 The original New tab remains. GUI testing uses the built-in MacBook display;

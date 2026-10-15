@@ -8,6 +8,9 @@ worker owns `applet-opening-cadence-20261015/3ds-idea` on
 as 770562d. The next bounded candidate may edit `src/os/applet-entry-presentation.ts`,
 `src/os/screens.ts`, `src/os/portfolio-screens.ts`, focused `tests/applet-entry-*.test.mjs`
 and `tests/stock-screen-preparation.test.mjs`, plus its existing handoff.
+The full-suite follow-up also owns `tests/applet-title-entry-presentation.test.mjs`.
+Cold-terminal scheduling applies only while its destination pair is absent;
+a prepared pair waiting on incoming resources retains its previous idle policy.
 Private logs stay under `continuation-20261015/applet-opening-cadence`.
 Defer cold destination composition until an accepted opaque outgoing frame20,
 using the existing Manual contract. Keep acquisition, paired recovery, lifecycle

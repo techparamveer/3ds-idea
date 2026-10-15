@@ -2,7 +2,9 @@
 
 15 October AN-01: [bounded incoming timing](applet-incoming-cost-2026-10-15.md)
 locates most measured paint work in title incoming drawing. Both first openings
-are saved in 462 raw pairs. A narrowly scoped background-raster reuse candidate
+are saved in 462 audited raw pairs. Fixed comparisons retain only two upper
+clock-digit residuals; all other 24 LCD pairs are exact. A narrowly scoped
+background-raster reuse candidate
 is assigned to its own worktree; review and live regression are still required.
 No timing or asset change is authorized. AN-01 through AN-04 remain fail/unproven.
 

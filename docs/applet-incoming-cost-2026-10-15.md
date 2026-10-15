@@ -35,8 +35,28 @@ They identify title-owned incoming drawing as the dominant measured paint
 interval. Medians are not additive. Encoding can perturb scheduling; this
 run does not establish unrecorded cadence or native timing. Recorded coverage
 misses 10 Friends and 12 Notifications source values. The explicit all-pose
-assertion remains red. Original PNG integrity and regression comparisons are
-being audited separately; timings alone do not verify them.
+assertion remains red. Timings alone do not verify image integrity or equality.
+
+## Saved-image audit
+
+The sealed audit verifies all 462 pairs and 1,386 original files, 288,426,176
+bytes, including metadata, embedded PNG data and receipt chronology. Root also
+checks every chunk CRC and fully decodes all 924 PNGs at native dimensions with
+opaque RGBA output. All originals and 24 sealed derivatives rehash unchanged.
+The measured stationary Open holds are 513.3 ms and 508.1 ms.
+
+The first opaque pair and each first shared incoming source value produce
+13 logical comparisons, 26 whole LCDs, with empty masks and no alignment or
+nearest search. Both opaque pairs are exact on both LCDs. All eight shared
+Friends incoming values are exact on both LCDs. Notifications incoming0 is
+exact; incoming13 and incoming20 each differ by 152 upper pixels in
+`x344 y3 width19 height13`, maximum deltas 163 and 205. Their lower LCDs are
+exact. Thus 24 of 26 LCDs are exact, not all 26.
+
+Root opened both boundary sheets and both complete comparison sheets. The
+Notifications residual occupies the clock digits, visibly 20:19 versus 20:56.
+It remains reported under the declared empty mask. The audit verifies all 84
+native-size placements. This is browser regression evidence, not native parity.
 
 ## Next bounded change
 
@@ -58,6 +78,12 @@ intervals are in `measured-timings.json`; actual GUI closure is in
 `review/source-review-ce402ac.md`, SHA-256
 `bee62cc6eb4408da8089eff51a7c03dd4074078470d27e024ea8208653f1925d`.
 The source mapping and exact feasibility method are in `alpha-feasibility/`.
+The authoritative capture audit is `capture-audit/run-3/report.json`, SHA-256
+`2bd93577b49c1bf9423ce38f7adfe7a8b466d5bfc3e0023384477c632e6312be`;
+its seal is `926e8cbd7633b672078f7b19b1d46fdef668c1341a531998937e3dc3b1d711f4`.
+The first two audit runs are checker-development artifacts, not evidence.
+Root's complete CRC/decode check is `root-png-verification.json`, SHA-256
+`e57eabee62dc5f973a64f16d83b3fb4398d0e2c067987e2cabe77f70648aa58e`.
 All 2,417 candidate source/build files, 149,124,389 bytes, rehash unchanged.
 The separate human edit is preserved.
 

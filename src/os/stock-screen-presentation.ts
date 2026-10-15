@@ -418,9 +418,10 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       const eshopHudKey=eshop?eshopHudClock(date):null;
       // notificationsHudClock includes batteryFrame so 0x181018 1 Hz Bat republishes.
       const notificationsHudKey=view.appId==='notifications'?notificationsHudClock(date):null;
-      // Only a visible unread lamp advances this paired composition. Close keeps
-      // its retained caller pixels; reduced motion keeps the prior frame-60 pose.
-      const notificationsLampKey=notificationReceiveLampPaintKey(view,elapsedMs,reducedMotion,notificationsFooterClose!==undefined);
+      // Only a rendered unread lamp advances this paired composition. Footer
+      // feedback is an ordinary redraw at the same elapsed pose; reduced motion
+      // keeps the prior frame-60 pose.
+      const notificationsLampKey=notificationReceiveLampPaintKey(view,elapsedMs,reducedMotion);
       const notesHudKey=view.appId==='game-notes'?notesHudClock(date):null;
       // browserHudClock includes batteryFrame and colonVisible so Battery_Bat / TimeC 1 Hz republishes.
       const browserHudKey=view.appId==='browser'?browserHudClock(date):null;

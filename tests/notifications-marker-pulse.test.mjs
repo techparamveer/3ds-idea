@@ -28,10 +28,9 @@ test('decoded receive-lamp loop uses the existing elapsed clock and snapshot end
   assert.equal(tools.notificationReceiveLampFrame(Number.NaN),0);
   assert.equal(tools.notificationReceiveLampFrame(-100),0);
   assert.equal(tools.notificationReceiveLampFrame(0,true),60);
-  assert.equal(tools.notificationReceiveLampFrame(0,false,true),60);
 });
 
-test('paired paint key advances only for visible unread lamps and freezes snapshots',()=>{
+test('paired paint key advances only for one of the five rendered unread rows',()=>{
   assert.equal(tools.notificationReceiveLampPaintKey(view(),0),0);
   assert.equal(tools.notificationReceiveLampPaintKey(view(),1003),60);
   assert.equal(tools.notificationReceiveLampPaintKey(view(),2007),0);
@@ -39,10 +38,12 @@ test('paired paint key advances only for visible unread lamps and freezes snapsh
   assert.equal(tools.notificationReceiveLampPaintKey(view([{id:'n1',label:'Read',value:''}]),1003),null);
   assert.equal(tools.notificationReceiveLampPaintKey({...view(),appId:'friends'},1003),null);
   assert.equal(tools.notificationReceiveLampPaintKey(view(),0,true),60);
-  assert.equal(tools.notificationReceiveLampPaintKey(view(),0,false,true),60);
+  const rows=Array.from({length:9},(_,index)=>({id:`n${index}`,label:`Row ${index}`,value:index===8?'New':''}));
+  assert.equal(tools.notificationReceiveLampPaintKey({...view(rows),selection:0},500),null);
+  assert.equal(tools.notificationReceiveLampPaintKey({...view(rows),selection:8},500),29);
 });
 
-test('painter binds the decoded loop pose while SceneIn remains settled',()=>{
+test('painter keeps the same non-settled loop pose through footer feedback',()=>{
   const calls=[];
   const renderer={packs:{notifications:{messages:{}},'notification-hud':{messages:{}},'notification-messages':lamp},draw(_ctx,alias,layout,options){
     calls.push({alias,layout,options});
@@ -52,9 +53,15 @@ test('painter binds the decoded loop pose while SceneIn remains settled',()=>{
   const messages={messages:{newslist_msbt_LZ:{labels:{new_news_u:0,new_news_u0:1,new_news_u1:2,new_ce_u0:3,new_ce_u1:4,new_back:5},messages:Array.from({length:6},()=>({text:'%d'}))},hud_msbt_LZ:{labels:{lau_date:0},messages:[{text:'%d/%M (%w)'}]}}};
   renderer.packs['notification-messages']=messages;
   renderer.packs.notifications.messages=messages.messages;
-  assert.equal(tools.drawNativePersonalToolFrame(renderer,{}, {},view(),{elapsedMs:1003,date:new Date(0)}),true);
-  const draw=calls.find(call=>call.alias==='notification-receivelamp');
-  assert.deepEqual(draw.options.bindings,[{name:'RcvLamp_00_ReceiveBlue',frame:60},{name:'RcvLamp_00_SceneIn',frame:20}]);
+  const paint=options=>{
+    calls.length=0;
+    assert.equal(tools.drawNativePersonalToolFrame(renderer,{}, {},view(),{elapsedMs:500,date:new Date(0),...options}),true);
+    return calls.find(call=>call.alias==='notification-receivelamp').options.bindings;
+  };
+  const expected=[{name:'RcvLamp_00_ReceiveBlue',frame:29},{name:'RcvLamp_00_SceneIn',frame:20}];
+  assert.deepEqual(paint({}),expected);
+  assert.deepEqual(paint({notificationsFooterClose:{frame:5}}),expected);
+  assert.deepEqual(paint({reducedMotion:true}),[{name:'RcvLamp_00_ReceiveBlue',frame:60},{name:'RcvLamp_00_SceneIn',frame:20}]);
 });
 
 test('real native raster changes marker pixels across decoded ReceiveBlue poses',async()=>{

@@ -54,18 +54,21 @@ and the global host elapsed origin are explicitly adaptations: a Notifications-
 specific native dispatch rate and animation epoch were not recovered.
 
 `stock-screen-presentation.ts` adds only the selected lamp pose to the existing
-paired paint key. It does so only for Notifications main with at least one
-visible unread row, so read-only lists and other apps do not recompose. The
+paired paint key. It uses the painter's same start calculation and five-row
+slice, so an unread row outside the rendered window does not trigger recomposition.
+Read-only lists and other apps do not recompose. The
 ordinary two-LCD cache, owner/resource guards and fresh outward copies remain
-unchanged. Reduced motion and Notifications footer-close feedback retain the
-previous shipped settled frame 60. `SceneIn` stays at frame 20. The separate
+unchanged. Reduced motion retains the previous shipped settled frame 60.
+Notifications footer feedback redraws the ordinary stock pair, so it keeps the
+same elapsed ReceiveBlue curve rather than forcing frame 60; native feedback
+freeze semantics remain untraced. `SceneIn` stays at frame 20. The separate
 first-title incoming renderer is unchanged.
 
 ## Checks
 
 - `node --test tests/notifications-marker-pulse.test.mjs tests/notifications-source-ownership.test.mjs tests/stock-screen-preparation.test.mjs tests/notifications-footer-close.test.mjs tests/applet-title-entry-presentation.test.mjs`: 66 pass, 0 fail.
-- Focused coverage exercises elapsed poses, no-unread cache suppression,
-  reduced-motion and Close snapshot endpoints, painter bindings, and real
+- Focused coverage exercises elapsed poses, exact rendered-row cache suppression,
+  reduced motion, normal/Close phase continuity, painter bindings, and real
   decoded native rasters (`frame 0 != frame 60`, `frame 120 == frame 0`).
 - `./node_modules/.bin/tsc --noEmit --incremental false`: pass, using the
   coordinator dependency installation through the ignored worker symlink.

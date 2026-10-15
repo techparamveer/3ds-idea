@@ -108,18 +108,23 @@ export function notificationsHudClock(date:Date){
  * the lamp at 0x139520 and passes state 1 to 0x139434. The meaning of that state,
  * exact native start epoch and title-specific dispatch rate remain untraced, so
  * the existing measured LCD VBlank and host elapsed origin are explicit timing
- * adaptations. Reduced motion and retained feedback snapshots keep the
- * previously shipped settled frame 60. */
+ * adaptations. Reduced motion keeps the previously shipped settled frame 60;
+ * footer feedback follows the same elapsed curve because native freeze behavior
+ * is untraced and the ordinary stock pair is recomposed for that feedback. */
 const NOTIFICATION_RECEIVE_LAMP_FRAMES=120;
 const NOTIFICATION_RECEIVE_LAMP_VBLANK_HZ=268111856/4481136;
-export function notificationReceiveLampFrame(elapsedMs:number,reducedMotion=false,snapshot=false):number{
-  if(reducedMotion||snapshot)return 60;
+export function notificationReceiveLampFrame(elapsedMs:number,reducedMotion=false):number{
+  if(reducedMotion)return 60;
   const elapsed=Number.isFinite(elapsedMs)?Math.max(0,elapsedMs):0;
   return Math.floor(elapsed*NOTIFICATION_RECEIVE_LAMP_VBLANK_HZ/1000)%NOTIFICATION_RECEIVE_LAMP_FRAMES;
 }
-export function notificationReceiveLampPaintKey(view:AppView,elapsedMs:number,reducedMotion=false,snapshot=false):number|null{
-  return view.appId==='notifications'&&view.screen==='main'&&view.rows.some(row=>row.value==='New')
-    ?notificationReceiveLampFrame(elapsedMs,reducedMotion,snapshot):null;
+function notificationVisibleRowStart(view:AppView):number{
+  return Math.max(0,Math.min(view.rows.length-1,view.selection)-Math.min(3,Math.max(0,view.selection)));
+}
+export function notificationReceiveLampPaintKey(view:AppView,elapsedMs:number,reducedMotion=false):number|null{
+  if(view.appId!=='notifications'||view.screen!=='main')return null;
+  const start=notificationVisibleRowStart(view);
+  return view.rows.slice(start,start+5).some(row=>row.value==='New')?notificationReceiveLampFrame(elapsedMs,reducedMotion):null;
 }
 const friendLayouts=['FrdTopBG_U_00','FrdTopBG_D_00','FrdTopUIUp_D_00','FrdTopUIDw_D_00','FrdElemCard_UB_00','FrdElemCard_UF_00','FrdElemCard_DB_00','FrdElemCard_DF_00'];
 export const personalFriendPacks:readonly NativeTitlePackRequest[]=[
@@ -249,7 +254,7 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
       // NewsTopUI_D_00/N_ElemPos_00 is the source first-row parent at
       // (-160,100). Each native item advances by its 53px source cell height.
       // Five draws preserve the partially clipped fifth row visible above Close.
-      const start=Math.max(0,Math.min(view.rows.length-1,view.selection)-Math.min(3,Math.max(0,view.selection)));
+      const start=notificationVisibleRowStart(view);
       for(let slot=0;slot<5;slot++){
         const index=start+slot,row=view.rows[index];if(!row)break;
         // T_NewsTitleB_00 (y -9.5) and T_NewsTitleF_00 are 0x101 one-line
@@ -265,7 +270,7 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
         },attachments:{N_IconNew_00:()=>{
           okay=renderer.draw(bottom,'notification-receivelamp','RcvLamp_00',{
             bindings:[
-              {name:'RcvLamp_00_ReceiveBlue',frame:notificationReceiveLampFrame(options.elapsedMs??0,options.reducedMotion,options.notificationsFooterClose!==undefined)},
+              {name:'RcvLamp_00_ReceiveBlue',frame:notificationReceiveLampFrame(options.elapsedMs??0,options.reducedMotion)},
               {name:'RcvLamp_00_SceneIn',frame:20},
             ],
           })&&okay;

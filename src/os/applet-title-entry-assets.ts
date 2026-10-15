@@ -255,7 +255,7 @@ export function drawAppletTitleEntry(renderer: NativeLayoutRenderer, top: Canvas
   const pack = renderer.packs[selection.alias];
   if (!pack) throw Error('Title incoming pack unavailable');
   validateAppletTitleEntryAssets(pack, selection.appId);
-  const upper = renderer.draw(top, selection.alias, selection.upper, { bindings: [{ name: selection.upper + '_SceneIn', frame: pose.frame }] });
-  const lower = renderer.draw(bottom, selection.alias, selection.lower, { bindings: [{ name: selection.lower + '_SceneIn', frame: pose.frame }], overrides: overrides(pack, selection) });
+  const upper = renderer.draw(top, selection.alias, selection.upper, { bindings: [{ name: selection.upper + '_SceneIn', frame: pose.frame }], opaquePictureAlphaPanes: ['P_Bg_U_00'] });
+  const lower = renderer.draw(bottom, selection.alias, selection.lower, { bindings: [{ name: selection.lower + '_SceneIn', frame: pose.frame }], overrides: overrides(pack, selection), opaquePictureAlphaPanes: ['P_Bg_D_00'] });
   return upper && lower;
 }

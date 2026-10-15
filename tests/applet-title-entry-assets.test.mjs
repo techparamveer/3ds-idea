@@ -30,9 +30,10 @@ for (const appId of ['friends', 'notifications']) {
     for (let frame = 0; frame <= 20; frame++) {
       assert.equal(drawAppletTitleEntry(renderer, 'upper', 'lower', { appId, frame }), true);
       const [upper, lower] = draws.slice(-2);
-      assert.deepEqual([upper.ctx, upper.alias, upper.name, upper.options], ['upper', selection.alias, selection.upper, { bindings: [{ name: selection.upper + '_SceneIn', frame }] }]);
+      assert.deepEqual([upper.ctx, upper.alias, upper.name, upper.options], ['upper', selection.alias, selection.upper, { bindings: [{ name: selection.upper + '_SceneIn', frame }], opaquePictureAlphaPanes: ['P_Bg_U_00'] }]);
       assert.deepEqual([lower.ctx, lower.alias, lower.name, lower.options], ['lower', selection.alias, selection.lower, {
         bindings: [{ name: selection.lower + '_SceneIn', frame }], overrides: { T_Aplt_00: { text: appId === 'friends' ? 'Friend List' : 'Notifications' }, T_Home_00: { text: appId === 'friends' ? 'Friend List' : 'Notifications' } },
+        opaquePictureAlphaPanes: ['P_Bg_D_00'],
       }]);
       assert.equal(pane(upper.posed, 'P_Bg_U_00').alpha, pane(lower.posed, 'P_Bg_D_00').alpha, 'shared browser pose, not proved native LCD phase-lock');
       for (const name of ['T_Aplt_00', 'T_Home_00']) {

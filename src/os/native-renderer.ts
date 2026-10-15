@@ -110,11 +110,12 @@ export class NativeLayoutRenderer {
    const source=this.picture(pack,layout,picture,width,height,1,textures,override,sampling);
    if(!this.opaque.has(source))throw new Error('Unsupported nonopaque native picture alpha source');
    if(alpha===1)return source;
-   return this.cached(key,()=>{
-    const data=source.getContext('2d')!.getImageData(0,0,w,h);
-    for(let at=3;at<data.data.length;at+=4)data.data[at]=byte;
-    const canvas=surface(w,h);canvas.getContext('2d')!.putImageData(data,0,0);return canvas;
-   });
+   const data=source.getContext('2d')!.getImageData(0,0,w,h);
+   for(let at=3;at<data.data.length;at+=4)data.data[at]=byte;
+   // The derived canvas is consumed synchronously by composite(). Retain one
+   // mutable surface per size in the same LRU instead of one full LCD per alpha.
+   const canvas=this.cached(JSON.stringify(['opaque-alpha-scratch',w,h]),()=>surface(w,h));
+   canvas.getContext('2d')!.putImageData(data,0,0);return canvas;
   }
   return this.cached(key,()=>{
    const pixels=rasterNativePicture(layout,picture,w,h,textures,alpha,material,sampling),canvas=surface(w,h),ctx=canvas.getContext('2d')!;

@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
 import { drawAppletTitleEntry } from '../src/os/applet-title-entry-assets.ts';
 import { nativePaneParentPath, nativeTextureSamplePixels } from '../src/os/native-layout.ts';
@@ -21,6 +23,12 @@ for (const spec of specs) {
 }
 
 const moduleUrl = source => 'data:text/javascript;base64,' + Buffer.from(ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText + '\n//# sourceURL=applet-title-entry-raster-fixture.js').toString('base64');
+const personalToolsUrl = moduleUrl(readFileSync(new URL('../src/os/stock-native-personal-tools.ts', import.meta.url), 'utf8')
+  .replace("'./device-status-profile'", JSON.stringify(new URL('../src/os/device-status-profile.ts', import.meta.url).href))
+  .replace("'./native-layout'", JSON.stringify(new URL('../src/os/native-layout.ts', import.meta.url).href))
+  .replace("'./stock-screen-layout'", JSON.stringify(moduleUrl('export const notesCaptureView=()=>null;export const NOTES_SWITCH_LAST_FRAME=0;')))
+  .replace("'./friends-footer-close-assets.ts'", JSON.stringify(moduleUrl('export const drawFriendsFooterCover=()=>false;export const validateFriendsFooterCloseAssets=()=>{};'))));
+const { drawNativePersonalToolFrame } = await import(personalToolsUrl);
 const layoutSource = readFileSync(new URL('../src/os/native-layout.ts', import.meta.url), 'utf8');
 const layoutUrl = moduleUrl(layoutSource.replace('export function rasterNativePicture(', `export const pictureRasters=[];
 export function rasterNativePicture(...args){const output=measuredRaster(...args);pictureRasters.push({name:args[0].materials[args[1].material].name,alpha:args[5]??1});return output;}
@@ -31,6 +39,35 @@ const rendererUrl = moduleUrl(readFileSync(new URL('../src/os/native-renderer.ts
   .replace("'./native-layout'", JSON.stringify(layoutUrl))
   .replace("'./bitmap-font'", JSON.stringify(new URL('../src/os/bitmap-font.ts', import.meta.url).href)));
 const { NativeLayoutRenderer } = await import(rendererUrl);
+const canvasModule = process.env.NATIVE_CANVAS_MODULE
+  ? await import(pathToFileURL(resolve(process.env.NATIVE_CANVAS_MODULE)).href)
+  : null;
+const createRealCanvas = canvasModule?.createCanvas ?? canvasModule?.default?.createCanvas;
+
+const notificationPackFiles = [
+  ['notifications-incoming', 'packs/notifications/incoming.json'],
+  ['notifications', 'packs/notifications/news.json'],
+  ['notification-hud', 'packs/notifications/hud.json'],
+  ['notification-receivelamp', 'packs/notifications/contents/0000-00000012/receivelamp.json'],
+  ['notification-slidebar', 'packs/notifications/slidebar.json'],
+  ['notification-messages', 'packs/notifications/messages-and-loose.json'],
+];
+
+async function notificationFixture() {
+  const packs = {}, textures = {};
+  for (const [alias, path] of notificationPackFiles) {
+    const pack = JSON.parse(readFileSync(new URL(path, assetRoot)));
+    packs[alias] = pack;
+    textures[alias] = new Map();
+    for (const [name, record] of Object.entries(pack.textures)) {
+      const bytes = readFileSync(new URL(record.url, assetRoot));
+      textures[alias].set(name, nativeTextureSamplePixels(await decodeNativePng(bytes, record), record.picaFormat));
+    }
+  }
+  const manifest = JSON.parse(readFileSync(new URL('fonts/shared/font.json', assetRoot)));
+  const font = { manifest, drawNative() {}, draw() {} };
+  return { packs, textures, fonts: new Map([['cbf_std.bcfnt', font], ['Hud.bcfnt', font]]), font };
+}
 
 // This transport stub records prepared source RGBA and Canvas composition state.
 // It does not implement filtering, destination rasterization or native text ink.
@@ -72,6 +109,37 @@ function paint(renderer, spec, frame, measured) {
   const top = canvas(), bottom = canvas();
   assert.equal(drawAppletTitleEntry(renderer, top.getContext('2d'), bottom.getContext('2d'), { appId: spec.appId, frame }, measured), true);
   return { upper: top.draws, lower: bottom.draws };
+}
+
+function notificationRetentionRun(fixture, makeCanvas, stress) {
+  const view = { appId: 'notifications', screen: 'main', heading: 'Notifications', rows: [], selection: 0, footer: {}, text: ['No notifications.'], data: {} };
+  const textures = Object.fromEntries(Object.entries(fixture.textures).map(([alias, images]) => [alias, new Map(images)]));
+  const renderer = new NativeLayoutRenderer(fixture.packs, textures, fixture.fonts);
+  const stock = second => {
+    const upper = makeCanvas(400, 240), lower = makeCanvas(320, 240);
+    const drawn = drawNativePersonalToolFrame(renderer, upper.getContext('2d'), lower.getContext('2d'), view,
+      { native: renderer, date: new Date(2026, 9, 15, 12, 0, second), font: fixture.font });
+    assert.equal(drawn, true, renderer.diagnostics.join('\n'));
+    return { upper: upper.getContext('2d').getImageData(0, 0, 400, 240).data, lower: lower.getContext('2d').getImageData(0, 0, 320, 240).data };
+  };
+  try {
+    pictureRasters.length = 0;
+    stock(0);
+    const afterFirstStock = pictureRasters.length;
+    if (stress) for (let frame = 0; frame <= 20; frame++) {
+      const upper = makeCanvas(400, 240), lower = makeCanvas(320, 240);
+      assert.equal(drawAppletTitleEntry(renderer, upper.getContext('2d'), lower.getContext('2d'), { appId: 'notifications', frame }), true);
+    }
+    const beforeInvalidation = pictureRasters.length;
+    const pixels = stock(1);
+    return {
+      firstStockRasters: afterFirstStock,
+      invalidationRasters: pictureRasters.length - beforeInvalidation,
+      cacheBytes: renderer.cacheBytes,
+      cacheEntries: renderer.cacheEntryCount,
+      pixels,
+    };
+  } finally { renderer.dispose(); }
 }
 
 function expectedOptions(spec, frame) {
@@ -121,6 +189,30 @@ test('the existing cache rasterizes each title background once while leaving the
       assert.ok(renderer.cacheBytes <= 8 * 1024 * 1024);
     } finally { renderer.dispose(); }
   }
+}));
+
+test('two title packs reuse only one scratch per LCD size without cross-pack pixels or disposal leaks', () => withCanvas(() => {
+  const packs = Object.fromEntries(specs.map(spec => [spec.alias, spec.pack]));
+  const textures = Object.fromEntries(specs.map(spec => [spec.alias, new Map(spec.textures)]));
+  const fonts = new Map([['cbf_std.bcfnt', { manifest: { height: 32 }, drawNative() {} }]]);
+  const ordinary = new NativeLayoutRenderer(packs, Object.fromEntries(Object.entries(textures).map(([alias, images]) => [alias, new Map(images)])), fonts);
+  const reused = new NativeLayoutRenderer(packs, Object.fromEntries(Object.entries(textures).map(([alias, images]) => [alias, new Map(images)])), fonts);
+  const ordinaryDraw = ordinary.draw.bind(ordinary);
+  ordinary.draw = (ctx, bank, name, options) => ordinaryDraw(ctx, bank, name, { ...options, opaquePictureAlphaPanes: undefined });
+  try {
+    for (let frame = 0; frame <= 20; frame++) for (const spec of frame % 2 ? [...specs].reverse() : specs) {
+      assert.deepEqual(paint(reused, spec, frame), paint(ordinary, spec, frame), `${spec.appId}/incoming${frame}`);
+      assert.ok(reused.cacheBytes <= 8 * 1024 * 1024);
+    }
+    const scratchKeys = [...reused.cache.keys()].filter(key => key.startsWith('["opaque-alpha-scratch"'));
+    assert.equal(scratchKeys.length, 2, 'upper and lower sizes each retain one mutable scratch');
+    assert.equal(new Set(scratchKeys).size, scratchKeys.length);
+    const retained = [...reused.cache.values()];
+    reused.dispose();
+    assert.equal(reused.cacheBytes, 0);
+    assert.equal(reused.cacheEntryCount, 0);
+    for (const source of retained) assert.deepEqual([source.width, source.height], [0, 0]);
+  } finally { ordinary.dispose(); reused.dispose(); }
 }));
 
 test('opt-in title detail measures validation and each unchanged draw with retained-cache deltas', () => withCanvas(() => {
@@ -196,3 +288,34 @@ test('a small existing cache evicts and disposal releases title rasters without 
     assert.equal(drawAppletTitleEntry(reused.renderer, top.getContext('2d'), bottom.getContext('2d'), { appId: spec.appId, frame: 0 }), false);
   } finally { setCompiledRasterEnabled(true); ordinary.renderer.dispose(); reused.renderer.dispose(); }
 }));
+
+test('the normal suite retains Notifications stock rasters across all title poses within the existing budget', async t => {
+  const fixture = await notificationFixture(), previous = globalThis.document;
+  const makeCanvas = (width, height) => { const result = canvas(); result.width = width; result.height = height; return result; };
+  globalThis.document = { createElement: () => canvas() };
+  try {
+    const control = notificationRetentionRun(fixture, makeCanvas, false);
+    const stressed = notificationRetentionRun(fixture, makeCanvas, true);
+    assert.equal(stressed.invalidationRasters, control.invalidationRasters,
+      'title alpha poses retain the same reusable stock rasters as the unstressed HUD invalidation');
+    assert.ok(stressed.cacheBytes <= 8 * 1024 * 1024);
+    t.diagnostic(JSON.stringify({ control: { firstStockRasters: control.firstStockRasters, invalidationRasters: control.invalidationRasters },
+      stressed: { invalidationRasters: stressed.invalidationRasters, cacheBytes: stressed.cacheBytes, cacheEntries: stressed.cacheEntries } }));
+  } finally { globalThis.document = previous; }
+});
+
+test('title alpha retention does not evict reusable Notifications stock rasters before a HUD invalidation', { skip: !createRealCanvas }, async t => {
+  const fixture = await notificationFixture();
+  const previous = globalThis.document;
+  globalThis.document = { createElement: () => createRealCanvas(1, 1) };
+  try {
+    const control = notificationRetentionRun(fixture, createRealCanvas, false);
+    const stressed = notificationRetentionRun(fixture, createRealCanvas, true);
+    assert.deepEqual(stressed.pixels, control.pixels, 'font-ink-stubbed native-size stock composition remains byte exact');
+    assert.equal(stressed.invalidationRasters, control.invalidationRasters,
+      'title alpha poses retain the same reusable stock rasters as the unstressed HUD invalidation');
+    assert.ok(stressed.cacheBytes <= 8 * 1024 * 1024);
+    t.diagnostic(JSON.stringify({ control: { firstStockRasters: control.firstStockRasters, invalidationRasters: control.invalidationRasters },
+      stressed: { invalidationRasters: stressed.invalidationRasters, cacheBytes: stressed.cacheBytes, cacheEntries: stressed.cacheEntries } }));
+  } finally { globalThis.document = previous; }
+});

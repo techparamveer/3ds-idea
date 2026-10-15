@@ -2,7 +2,7 @@
 
 ## Checkout
 
-Reconciled HEAD: `fa963ae5cf7833bebeb53c479cf166baf081609f`.
+Reconciled HEAD: `8d073a5ffe5d95b12774643e5e56e9c3f3272259`.
 Git wins if this differs from HEAD. Reconcile before another slice or worker.
 Keep this file current, not append-only.
 
@@ -14,7 +14,7 @@ checkout. Create new source worktrees from this coordinator HEAD.
 
 Draft [PR #7](https://github.com/techparamveer/3ds-idea/pull/7) uses remote
 branch `codex/animation-fidelity-20261007`. Latest verified pushed SHA is
-`fa963ae5cf7833bebeb53c479cf166baf081609f`. Review coherent changes, stage
+`8d073a5ffe5d95b12774643e5e56e9c3f3272259`. Review coherent changes, stage
 explicit paths and push normally. Do not merge, deploy, reset or clean.
 
 Preserve the human edit in
@@ -79,9 +79,11 @@ one known Camera PNG failure, 103 skips and one TODO. Nonincremental typecheck
 and build pass. The candidate is pushed to separate draft
 [PR #8](https://github.com/techparamveer/3ds-idea/pull/8), based on PR #7; it is
 not integrated or adopted. See [candidate](docs/applet-generic-candidate-2026-10-15.md).
-Private `applet-generic-production/audit-tools` is prepared but has not audited
-a real campaign. Review it before use and update power/Energy Saver limits to
-the actual capture conditions. Root retains inputs and adoption decisions.
+Root corrected private `applet-generic-production/audit-tools` pair selection
+and requested/observed hold labels. Tool dc346145 passes syntax and 14 in-memory
+checks, but no real campaign is audited. Its sample sheets do not cover every
+comparison; inspect the remaining pairs before promotion. Capture power/Energy
+Saver conditions remain unknown until attested. Root owns adoption decisions.
 See [registry](docs/feature-map/workstreams.md).
 Independent GPT-6.1 Sol high checkpoint review is complete. Its one stale
 RESTART serving sentence was corrected; its reservation is released. Report
@@ -196,7 +198,8 @@ See [reference isolation](docs/native-reference-profile-isolation.md).
    A2 baseline sessions. Each fresh muted Guest opens Friends then Notifications.
    Ports 3047/3049, one server at a time, distinct private A1/B1/B2/A2 output roots.
    Follow capture-policy.md; no retries or best-of selection. Do no heavy worker
-   work during capture. Review the prepared audit tools before using them.
+   work during capture. Use corrected audit tool dc346145 and inspect all
+   compared frames, including pairs not present in its sample sheets.
 2. Keep PR #8 separate pending the complete opening comparison. Reject worse
    or inconclusive later/whole cost, even if the first call improves. Preserve
    clocks, resource failures, cache bounds and publication guards. No prewarming

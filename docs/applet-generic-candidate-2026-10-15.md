@@ -61,10 +61,16 @@ SHA-256 `4b68cd0f8db210516207ed456a4a1e2a1eec61b9b48d1b4a67e07ad6df69039b`.
 Different build inventories are not evidence of a rendering difference.
 Rehash both before inputs. The capture policy is `d2ee0916`.
 
-Private audit tools are prepared but have not audited a real campaign.
-Review their selection and current power/Energy Saver limitations before use;
-their syntax and synthetic checks do not validate future captures. All workers
-are released. Root alone operates the production browser and Azahar.
+Root reviewed the private audit tools before capture and corrected a selector
+that discarded valid pairs unless all four runs contained that frame. The tool
+now compares each candidate/baseline intersection, separates requested from
+observed hold duration, rejects orphan LCDs and leaves capture power conditions
+unknown until attested. Syntax and 14 in-memory checks pass; no real campaign
+has been audited. Tool SHA-256 is
+`dc34614535ea7bfaaddec0eaa887bed8f266e19ca85220bf177bce5338cec119`.
+The original revision is preserved. Sample sheets are not full visual coverage;
+inspect pair-only and remaining unsheeted comparisons before promotion. All
+workers are released. Root alone operates the production browser and Azahar.
 
 ## Remaining limits
 

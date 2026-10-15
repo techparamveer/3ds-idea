@@ -2,7 +2,7 @@
 
 ## Rendering-cost repair assigned
 
-Root reconciled HEAD `a7af99a`, committed and pushed the closed detail audit
+Root reconciled HEAD `80c2c29` after the reservation checkpoint. Root committed and pushed the closed detail audit
 to draft PR7. The detail runtime/build stays frozen in root's
 `applet-paint-detail-20261015` checkout. No GUI or server is live.
 
@@ -21,6 +21,21 @@ demonstrated fixed; no prewarming or scheduling workaround is assigned.
 Root owns shared docs, GUI and PR7. All four whole flows remain fail/unproven.
 Usage is 34% remaining; stop at 10%, no external message or automatic resume.
 This section supersedes older seats and next actions.
+
+Worker source b83b768 is fixed for independent review. Its actual-path
+Notifications test reproduces 19 stock picture rasters after title stress
+versus one control; candidate retains one versus one below the existing 8 MiB
+bound. Focused 104 and typecheck pass. Worker retains full checks/build/handoff.
+A read-only reviewer may inspect b83b768 and write only private
+`applet-alpha-retention/review` output. Root owns shared docs and GUI. The
+supplemental Canvas test stubs font ink and is not a full LCD/native result.
+
+Independent source review e64b0eb0 has no findings, reproduces the regression
+and checks same-size/dynamic panes at seven cache limits. Full tests report
+2,992 passes, only the known Camera PNG failure, 103 skips and one TODO.
+The worker is resolving its ignored dependency symlink before completing
+production build and clean handoff. Root has a blank Guest on the sole
+built-in MacBook; no app or server is loaded. Usage is 33% remaining.
 
 ## Detail audit closed
 

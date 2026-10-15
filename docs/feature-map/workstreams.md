@@ -12,6 +12,12 @@ Preserve source rasters, 8 MiB bound, disposal and unsupported-resource errors.
 No clock, input, HUD-update, asset, recorder, shared-document or GUI change.
 Root retains the frozen detail source/build, shared docs, GUI and PR7.
 
+Source b83b768 is fixed for independent review. Worker retains only full
+checks/build and its handoff; a read-only reviewer owns only the private
+`applet-alpha-retention/review` report. No reviewer repository/build/GUI writes.
+That review is now closed without findings, report e64b0eb0. The worker retains
+only build/handoff; root must accept release before serving the candidate.
+
 ## Detail capture audit closed
 
 Root reconciled `3683d96` and closed the first Friends/Notifications capture,

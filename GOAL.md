@@ -1,11 +1,20 @@
 # Goal: finish the four remaining native animation flows
 
-Current execution constraint,15October: use GPT-6 Astra extra-high for all
-subagents. Stop and pause this goal at10% or less weekly usage remaining,
-interrupting helpers and preserving the checkpoint. The latest reading is44%
-used /56% remaining in the10080-minute account window. Follow STATUS for usage
-checks and the user's threshold-triggered Grok Bot notification; its exact
-destination still needs clarification. Do not send it before the threshold.
+Current execution constraint, 15 October: use GPT-6 Astra extra-high for all
+subagents. Stop and pause this goal at 10% or less weekly usage remaining,
+interrupting helpers and preserving the checkpoint. The latest reading is 50%
+used / 50% remaining in the 10080-minute account window. Follow STATUS for usage
+checks. The user cancelled the Grok Bot notification. Send no external message;
+report the threshold pause only in this chat.
+
+15 October AN-03: [normal-speed folder comparison](docs/folder-normal-speed-2026-10-15.md)
+is captured and inspected on the unchanged runtime d4c7276. The recorder-only
+identity repair is integrated and pushed. Native broad order agrees with the
+browser, but fixed endpoints retain pixel residuals and exact motion remains
+unproven. Both settled browser runs animate through all 60 cursor phases; no
+frozen-clock fix is needed. Next inspect the fixed child-cursor resource and
+sampling residual without guessing phase alignment or a Back delay. All four
+whole flows remain fail/unproven. This next action supersedes the history below.
 
 15 October continuation: [Friends/Browser/Miiverse selected-first return](docs/toprow-remaining-return-2026-10-15.md)
 is implemented as `d4c7276` and recaptured in 3,545 raw pairs. Root inspected

@@ -1,5 +1,63 @@
 # STATUS: animation fidelity
 
+## Integrated recorder and closed folder capture
+
+Capture checkpoint is `f2131fc`, integrating reviewed worker `8631dc4` as `05db330`
+and its two handoff-only check updates. Runtime
+`d4c7276` and captured build `Tc7ZG3LaSUpILEb72xG1X` are unchanged. The independent
+Astra extra-high review found no actionable issues; 94 focused tests pass.
+Root compiled the integrated recorder to the new native-v2 private root and
+verified binary SHA-256 `922ac24b823f9cde4c1051e458fda8f23b6b43b7706c0f8f84a2b314f82a6190`.
+Only root drove the exact muted native-folder-slow session, PID98294,
+render window3651 at40,81,511,645 on the built-in1800x1169 display. The empty
+folder fixture is prepared. The two-second scoped pilot finalized silently
+and root opened its decoded1022x1290 first frame. Kernel identity is stable,
+AppKit time remains absent and target scope matches. Root also opened the
+400x480 native baseline d348336e. The 45-second movie finalized with the
+session-first Open/Back inside it; its repeat inputs were late. A 90-second
+recovery finalized with later Open/Back/Open inside it. Its final Back was
+late after context compaction. Preserve both coverage limits; no third retry.
+Four own-PNG anchors are saved and opened, including the baseline and a later
+endpoint-only cycle. Azahar exited0 and PID98294 is absent. ScreenshotPath is
+restored; two Qt-normalized geometry fields remain. Config is d460f825.
+Browser capture is closed at1,311 pairs and all
+12 chronological sheets have been opened by root. Browser/server are closed.
+All2,425 scoped source/build files rehash unchanged. The human edit is preserved.
+The offline movie, endpoint and child-cursor audits are sealed. Root opened
+36 sheets, four own-PNG anchors and the pilot. Native broad order agrees with
+the browser; sampled Back/cursor boundary variation does not justify a timer
+change. Both browser settled runs contain all 60 cursor phases, rejecting the
+frozen-cursor hypothesis. Fixed endpoint pixel residuals remain unexplained.
+The [bounded record](docs/folder-normal-speed-2026-10-15.md) separates those
+findings from the still-failing whole flows. Independent final claims review
+8d84750b has no outstanding findings. Read Git for the following documentation
+checkpoint.
+
+Next inspect the fixed child-cursor residual against the pinned resource and
+current sampling path. Preserve the existing captures and applied phases;
+do not phase-fit an endpoint into a pass, repeat the frozen-clock check or
+change Back timing on the current evidence. No new source edit is justified
+yet. The user cancelled bot notification; only the 10%-remaining stop remains.
+No GUI session is live from this slice. This section supersedes older next
+actions below.
+
+## Recorder identity continuation
+
+Restart reconciled on15October at `cd4746486bd2bbfaf0cf37f813a146d1f25f03f7`,
+clean and pushed to draft PR7. The preceding turn made progress: aligned native
+folder setup and a refused pilot isolated missing AppKit launchDate as the
+capture prerequisite. Runtime d4c7276 and build Tc7ZG3LaSUpILEb72xG1X stay
+frozen. Next is a bounded recorder-only repair with an independently verified
+process-generation identity, preserving exact executable/window/display checks
+and silent capture. Review and pilot validation precede animation inputs.
+Latest weekly check is45% used /55% remaining. Astra extra-high helpers and the
+10%-remaining stop guard below remain binding. Root alone drives muted GUI.
+
+Worker owns `azahar-process-identity-20261015/3ds-idea`, branch
+`codex/azahar-process-identity-20261015`, base cd47464. Its reservation is the
+exact-window recorder, focused recorder tests and one handoff. No runtime,
+firmware, profile, shared-document or GUI writes. Independent review follows.
+
 ## Current model and usage limit
 
 Latest user instruction on 15 October: all subagents use GPT-6 Astra extra-high
@@ -8,20 +66,20 @@ Sol helpers stay idle. Fresh helpers must use the explicit requested settings.
 This supersedes the earlier Sol preference below; the main chat model is not
 changed by helper tools.
 
-Stop this goal when the account's weekly remaining usage is10% or less. At the
-latest account-tool check, the10080-minute window was44% used /56% remaining.
+Stop this goal when the account's weekly remaining usage is 10% or less. At the
+latest account-tool check, the 10080-minute window was 50% used / 50% remaining.
 Recheck before each worker dispatch and GUI/test batch, and at least every10
 minutes during active work. Read usedPercent as consumed, not remaining. If
 the threshold is reached, interrupt helpers, preserve the current checkpoint,
 start no new project work and mark the goal paused under this explicit user
-instruction. The user also requests a computer-use message to their "My King
-Bot" through "Grok Bot": "10% left weekly, repeat to Paramveer rn." The exact
-app/URL and recipient are awaiting clarification; do not guess or send early.
-Send once when the threshold is reached and the destination is verified.
+instruction. The user cancelled the Grok Bot/My King Bot message request.
+Do not send an external message or use computer use for notification. Report
+the threshold pause only in this chat. No notification question remains.
 Unknown usage is not permission to assume the budget is available.
 A ten-minute heartbeat, `3ds-weekly-usage-stop-guard`, is active for this chat.
 It must not resume a paused/completed goal, and it pauses itself after the
-threshold notification is handled. No bot message has been sent.
+threshold pause is reported here. Its updated prompt was read back and verified.
+No bot message has been sent.
 
 ## Folder normal-speed continuation
 

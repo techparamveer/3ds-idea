@@ -1,5 +1,16 @@
 # Feature map — 1:1 queue
 
+15 October AN-03: [normal-speed folder comparison](folder-normal-speed-2026-10-15.md)
+adds 1,311 raw browser pairs, five in-movie native actions and four own-PNG
+anchors on unchanged runtime d4c7276. Recorder identity repair 05db330 is
+reviewed, tested and pushed. Root inspected 36 sheets. Broad order agrees;
+the native pale-Back/child boundary varies between saved runs. No fixed-delay
+correction follows. Pixel residuals remain in fixed endpoints, while both
+browser settled spans contain all 60 cursor phases. The frozen-cursor hypothesis
+is closed. Next inspect the fixed cursor resource/sampling residual, preserving
+phase uncertainty. AN-01 through AN-04 remain fail/unproven; no new animation
+fix or whole-flow pass is claimed.
+
 15 October AN-01 continuation: [remaining top-row return correction](toprow-remaining-return-2026-10-15.md)
 extends selected-only incoming to Friend List, Browser and Miiverse in d4c7276.
 Implemented, behavior-tested and browser-inspected in 3,545 pairs across

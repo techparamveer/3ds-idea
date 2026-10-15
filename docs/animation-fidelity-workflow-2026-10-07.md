@@ -4,11 +4,30 @@
 
 The latest user preference selects GPT-6 Astra extra-high for every helper.
 Check account weekly usage before dispatching helpers or starting a GUI/test
-batch, and at least every10minutes of active work. At90% used /10% remaining
+batch, and at least every 10 minutes of active work. At 90% used / 10% remaining
 or less remaining, interrupt helpers, checkpoint and pause the goal. Do not
-start another project slice. Follow STATUS for the threshold-triggered message
-to the user's Grok Bot destination, which is awaiting clarification. Current
-reading is44% used /56% remaining; no threshold message has been sent.
+start another project slice. The user cancelled the Grok Bot notification.
+Send no external message; report the pause only in this chat. The ten-minute
+heartbeat has been updated accordingly. Current reading is 50% used / 50%
+remaining. No bot message has been sent.
+
+## Normal-speed folder comparison closed
+
+The [bounded capture](folder-normal-speed-2026-10-15.md) retains 1,311 raw
+browser pairs, five in-movie native actions across two partial recordings,
+and four own-PNG anchors: one baseline and three later endpoint-only anchors,
+none movie-synchronous. Neither native movie supplies a continuous four-action
+cycle. Root opened 36 sheets, the four anchors and the pilot.
+Native broad order agrees; the saved pale-Back/child boundary varies and does
+not prove an omitted browser pose. Fixed endpoint pixels still differ.
+
+The child cursor is not frozen: both browser settled spans contain all 60
+phases. Next inspect the fixed cursor residual against the pinned resource and
+sampling path, preserving phase uncertainty and the sealed evidence. Do not
+repeat the closed clock hypothesis, guess a Back delay or reopen the repaired
+tray path. No new runtime edit follows from this comparison. All four whole
+flows remain fail/unproven. All owned GUI/server sessions are closed; future
+testing stays muted on the MacBook. This next action supersedes history below.
 
 ## Remaining top-row return
 

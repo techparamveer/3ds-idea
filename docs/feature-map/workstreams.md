@@ -1,5 +1,27 @@
 # Workstream Registry
 
+## Normal-speed folder evidence, 15 October 2026
+
+Root owns top-row integration checkout `toprow-remaining-reveal-20261015/3ds-idea`
+on `codex/toprow-remaining-reveal-20261015`, HEAD f2131fc during capture.
+Runtime d4c7276 and build Tc7ZG3LaSUpILEb72xG1X remain frozen. Recorder worker
+8631dc4 and its handoffs are reviewed, integrated and pushed to draft PR7.
+The worker's source reservation is closed. Only root operated muted MacBook
+GUI; all owned capture sessions are now closed.
+
+Two Astra extra-high helpers completed private derivatives only under
+`continuation-20261015/folder-normal-speed-native-v2`: the browser audit helper
+sealed `native-movie-audit`; the recorder helper sealed `endpoint-audit` and
+`cursor-continuation-check`. The independent Astra reviewer sealed
+`closure-review`, with no outstanding findings. All helper reservations are
+closed; no helper changed repository source, profiles, frozen builds, original
+captures or shared documents during these audits. Root owns the
+[comparison record](../folder-normal-speed-2026-10-15.md), shared docs and PR7.
+No new implementation reservation exists. Next is a bounded resource/sampling
+check of the saved child-cursor residual, not a clock or guessed Back-delay fix.
+Earlier reservations below are history.
+Stop all work at 10% weekly remaining; no external bot notification.
+
 ## Manual HOME reveal integrated, 12 October 2026
 
 Coordinator0b890db is the exact reviewed, built and captured candidate.

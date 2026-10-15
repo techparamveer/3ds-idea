@@ -459,5 +459,6 @@ export class NativeLayoutRenderer {
   finally{ctx.restore();}
  }
  get cacheBytes(){return this.bytes;}
+ get cacheEntryCount(){return this.cache.size;}
  dispose(){if(this.disposed)return;this.disposed=true;this.textDiagnostic=undefined;for(const c of this.cache.values())c.width=c.height=0;this.cache.clear();this.poses.clear();this.bytes=0;if(this.blendTarget)this.blendTarget.width=this.blendTarget.height=0;if(this.projectedTarget)this.projectedTarget.width=this.projectedTarget.height=0;for(const images of Object.values(this.textures))images.clear();}
 }

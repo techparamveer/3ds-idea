@@ -6,6 +6,15 @@ export type AppletTitleEntrySelection = Readonly<{
   appId: AppletTitleEntryAppId; alias: 'friends-incoming' | 'notifications-incoming';
   upper: string; lower: string; bank: string; label: string; styleIndex: number;
 }>;
+export type AppletTitleEntryPaintMeasurement = Readonly<{
+  validationMs: number;
+  upperDrawMs: number;
+  lowerDrawMs: number;
+  upperCacheEntriesDelta: number;
+  upperCacheBytesDelta: number;
+  lowerCacheEntriesDelta: number;
+  lowerCacheBytesDelta: number;
+}>;
 const selections = {
   friends: { appId: 'friends', alias: 'friends-incoming', upper: 'FrdCmnFade_U_00', lower: 'FrdCmnFade_D_00', bank: 'friend_msbt_LZ', label: 'fri_title_fri', styleIndex: 39 },
   notifications: { appId: 'notifications', alias: 'notifications-incoming', upper: 'CmnFade_U_00', lower: 'CmnFade_D_00', bank: 'newslist_msbt_LZ', label: 'new_title_new', styleIndex: 13 },
@@ -248,14 +257,36 @@ export function validateAppletTitleEntryAssets(pack: NativePack, appId: AppletTi
 /** Caller draws its complete destination first. Notifications' traced
  * descending500/100/3 list draws this title cover last; Friends' equivalent
  * final-cover composition is an adaptation, not a traced sort result. */
-export function drawAppletTitleEntry(renderer: NativeLayoutRenderer, top: CanvasRenderingContext2D, bottom: CanvasRenderingContext2D, pose: { appId: AppletTitleEntryAppId; frame: number }): boolean {
+export function drawAppletTitleEntry(renderer: NativeLayoutRenderer, top: CanvasRenderingContext2D, bottom: CanvasRenderingContext2D, pose: { appId: AppletTitleEntryAppId; frame: number }, measured?: (measurement: AppletTitleEntryPaintMeasurement) => void): boolean {
   if (!Number.isInteger(pose.frame) || pose.frame < 0 || pose.frame > 20) throw Error('Invalid title incoming source frame');
   const selection = appletTitleEntrySelection(pose.appId);
   if (!selection) throw Error('Unsupported title incoming caller');
   const pack = renderer.packs[selection.alias];
   if (!pack) throw Error('Title incoming pack unavailable');
+  const validationStarted = measured ? performance.now() : null;
   validateAppletTitleEntryAssets(pack, selection.appId);
-  const upper = renderer.draw(top, selection.alias, selection.upper, { bindings: [{ name: selection.upper + '_SceneIn', frame: pose.frame }], opaquePictureAlphaPanes: ['P_Bg_U_00'] });
-  const lower = renderer.draw(bottom, selection.alias, selection.lower, { bindings: [{ name: selection.lower + '_SceneIn', frame: pose.frame }], overrides: overrides(pack, selection), opaquePictureAlphaPanes: ['P_Bg_D_00'] });
+  if (!measured || validationStarted === null) {
+    const upper = renderer.draw(top, selection.alias, selection.upper, { bindings: [{ name: selection.upper + '_SceneIn', frame: pose.frame }], opaquePictureAlphaPanes: ['P_Bg_U_00'] });
+    const lower = renderer.draw(bottom, selection.alias, selection.lower, { bindings: [{ name: selection.lower + '_SceneIn', frame: pose.frame }], overrides: overrides(pack, selection), opaquePictureAlphaPanes: ['P_Bg_D_00'] });
+    return upper && lower;
+  }
+  const validationEnded = performance.now();
+  const upperOptions = { bindings: [{ name: selection.upper + '_SceneIn', frame: pose.frame }], opaquePictureAlphaPanes: ['P_Bg_U_00'] };
+  const upperEntries = renderer.cacheEntryCount, upperBytes = renderer.cacheBytes, upperStarted = performance.now();
+  const upper = renderer.draw(top, selection.alias, selection.upper, upperOptions);
+  const upperEnded = performance.now(), lowerOverrides = overrides(pack, selection);
+  const lowerEntries = renderer.cacheEntryCount, lowerBytes = renderer.cacheBytes;
+  const lowerStarted = performance.now();
+  const lower = renderer.draw(bottom, selection.alias, selection.lower, { bindings: [{ name: selection.lower + '_SceneIn', frame: pose.frame }], overrides: lowerOverrides, opaquePictureAlphaPanes: ['P_Bg_D_00'] });
+  const lowerEnded = performance.now();
+  measured(Object.freeze({
+    validationMs: validationEnded - validationStarted,
+    upperDrawMs: upperEnded - upperStarted,
+    lowerDrawMs: lowerEnded - lowerStarted,
+    upperCacheEntriesDelta: lowerEntries - upperEntries,
+    upperCacheBytesDelta: lowerBytes - upperBytes,
+    lowerCacheEntriesDelta: renderer.cacheEntryCount - lowerEntries,
+    lowerCacheBytesDelta: renderer.cacheBytes - lowerBytes,
+  }));
   return upper && lower;
 }

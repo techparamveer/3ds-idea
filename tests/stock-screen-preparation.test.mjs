@@ -294,6 +294,69 @@ test('actual graphics defer only Manual composition, keep acquisition live, publ
   graphics.dispose();assert.equal(other.disposals,1);
  }finally{graphics.dispose();setPortfolioFont(f.top);setPortfolioFont(f.bottom);f.dispose();}
 });
+
+test('opt-in Notifications paint detail distinguishes cached, parity, revision and multi-reason recomposition',async()=>{
+ const saved=Object.getOwnPropertyDescriptor(globalThis,'performance');let readings=[],nowCalls=0,invalidate;
+ Object.defineProperty(globalThis,'performance',{configurable:true,value:{now(){nowCalls++;return readings.shift()??0;}}});
+ const soundRoom={prepare(_owner,changed){invalidate=changed;return {status:'inactive'};}};
+ const f=paintFixture({measurePaint:true,soundRoom});let v=view('notifications');const owner='notifications:detail';
+ let font=f.font,draws=0,failDraw=false;
+ const draw=(second)=>f.screen.draw(f.top,f.bottom,v,owner,font,undefined,new Date(2026,9,15,12,0,second));
+ try{
+  assert.equal(draw(0),false);assert.equal(f.screen.paintMeasurement(),null);await flush();
+  const assets=incomingAssets('notifications'),original=assets.renderer.draw;
+  assets.renderer.draw=(...args)=>{draws++;return failDraw?false:original(...args);};calls[0].resolve(assets);await flush();
+
+  readings=[100,111];nowCalls=0;assert.equal(draw(0),true);
+  const cold=f.screen.paintMeasurement();
+  assert.deepEqual(cold,{outcome:'recomposed',compositionMs:11,changedKeyComponents:['cold']});
+  assert.equal(nowCalls,2);assert.equal(draws,5);
+  assert.throws(()=>cold.changedKeyComponents.push('revision'),TypeError,'returned reasons are immutable');
+
+  nowCalls=0;assert.equal(draw(0),true);
+  assert.deepEqual(f.screen.paintMeasurement(),{outcome:'cached',compositionMs:null,changedKeyComponents:[]});
+  assert.equal(nowCalls,0,'cache-hit diagnostic does not read the clock');assert.equal(draws,5);
+  assert.equal(draw(2),true);assert.deepEqual(f.screen.paintMeasurement(),{outcome:'cached',compositionMs:null,changedKeyComponents:[]});assert.equal(draws,5);
+
+  v={...v,heading:'detail'};readings=[150,156];assert.equal(draw(2),true);
+  assert.deepEqual(f.screen.paintMeasurement(),{outcome:'recomposed',compositionMs:6,changedKeyComponents:['view']});assert.equal(draws,10);
+
+  readings=[200,207];assert.equal(draw(3),true);
+  assert.deepEqual(f.screen.paintMeasurement(),{outcome:'recomposed',compositionMs:7,changedKeyComponents:['notificationsHud']});
+  assert.equal(draws,15);
+
+  invalidate();readings=[300,313];assert.equal(draw(3),true);
+  assert.deepEqual(f.screen.paintMeasurement(),{outcome:'recomposed',compositionMs:13,changedKeyComponents:['revision']});
+  assert.equal(draws,20);
+
+  font={draw(){}};readings=[320,321];assert.equal(draw(4),false);assert.equal(f.screen.paintMeasurement(),null);await flush();
+  const replacement=incomingAssets('notifications'),replacementDraw=replacement.renderer.draw;
+  replacement.renderer.draw=(...args)=>{draws++;return failDraw?false:replacementDraw(...args);};calls[1].resolve(replacement);await flush();
+  readings=[330,343];assert.equal(draw(4),true);
+  assert.deepEqual(f.screen.paintMeasurement(),{outcome:'recomposed',compositionMs:13,changedKeyComponents:['revision','notificationsHud','font']});
+  assert.equal(draws,25);
+
+  failDraw=true;invalidate();readings=[400,417];assert.equal(draw(4),false);
+  assert.equal(f.screen.paintMeasurement(),null,'failed composition clears current detail');
+  assert.equal(f.screen.retry(),true);assert.equal(f.screen.paintMeasurement(),null,'retry does not retain failed detail');
+  f.screen.dispose();assert.equal(f.screen.paintMeasurement(),null,'disposal clears detail');
+ }finally{f.dispose();if(saved)Object.defineProperty(globalThis,'performance',saved);else delete globalThis.performance;}
+});
+
+test('disabled Notifications paint detail adds no clock reads or reason work and preserves draw output',async()=>{
+ const saved=Object.getOwnPropertyDescriptor(globalThis,'performance');let nowCalls=0;
+ Object.defineProperty(globalThis,'performance',{configurable:true,value:{now(){nowCalls++;return 0;}}});
+ const f=paintFixture({measurePaint:false}),v=view('notifications'),owner='notifications:disabled';
+ let draws=0;const draw=second=>f.screen.draw(f.top,f.bottom,v,owner,f.font,undefined,new Date(2026,9,15,12,0,second));
+ try{
+  assert.equal(draw(0),false);await flush();const assets=incomingAssets('notifications'),original=assets.renderer.draw;
+  assets.renderer.draw=(...args)=>{draws++;return original(...args);};calls[0].resolve(assets);await flush();
+  assert.equal(draw(0),true);const first={top:structuredClone(f.top.marks),bottom:structuredClone(f.bottom.marks)};
+  assert.equal(draw(0),true);assert.deepEqual({top:f.top.marks,bottom:f.bottom.marks},first);
+  assert.equal(draw(3),true);assert.equal(draws,10,'parity still performs the same two-LCD native draw sequence');
+  assert.equal(nowCalls,0);assert.equal(f.screen.paintMeasurement(),null);
+ }finally{f.dispose();if(saved)Object.defineProperty(globalThis,'performance',saved);else delete globalThis.performance;}
+});
 test('Notes HUD clock repaints a settled pair only when visible calendar or charging phase changes',async()=>{
  const f=await notesFixture();let draws=0;
  f.assets.renderer.draw=(_ctx,alias)=>{if(alias==='notes-hud')draws++;return true;};

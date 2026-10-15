@@ -28,6 +28,9 @@ async function fixture(measurePaint, run) {
   let preparedOwner;
   let readings = [];
   let nowCalls = 0;
+  let diagnosticReads = 0;
+  let stockDetail = null;
+  let titleDetail = null;
   function canvas() {
     const surface = { width: 0, height: 0 };
     const ctx = new Proxy({ canvas: surface, globalAlpha: 1, drawImage() {}, createLinearGradient: () => ({ addColorStop() {} }), getImageData(_x, _y, width, height) { return { width, height, data: new Uint8ClampedArray(width * height * 4) }; } }, { get: (target, key) => key in target ? target[key] : (() => {}) });
@@ -48,9 +51,12 @@ async function fixture(measurePaint, run) {
     preparedStockPair: state => preparedOwner === state.system.runtime.active ? pair : undefined,
     appletIncomingResources: state => preparedOwner === state.system.runtime.active && pair ? graphics.resources : undefined,
     resources: {}, setAppletEntryCovered() {}, revokeNotesBootCoverCandidate() {}, notesBootCoverActive: () => false,
-    drawAppletIncoming(_state, _top, _bottom, _frame, resources) { assert.equal(resources, graphics.resources); events.push('incoming'); return true; },
+    drawAppletIncoming(_state, _top, _bottom, _frame, resources) { assert.equal(resources, graphics.resources); events.push('incoming'); titleDetail = Object.freeze({ validationMs: 1, upperDrawMs: 2, lowerDrawMs: 3, upperCacheEntriesDelta: 2, upperCacheBytesDelta: 400, lowerCacheEntriesDelta: 3, lowerCacheBytesDelta: 500 }); return true; },
+    paintMeasurement() { diagnosticReads++; return stockDetail; },
+    titleIncomingMeasurement() { diagnosticReads++; return titleDetail; },
+    clearPaintMeasurements() { stockDetail = null; titleDetail = null; },
     banner() {}, menuIcon() {}, menuArtwork() {},
-    overlay(_top, _bottom, state) { events.push('overlay'); pair = {}; preparedOwner = state.system.runtime.active; },
+    overlay(_top, _bottom, state) { events.push('overlay'); pair = {}; preparedOwner = state.system.runtime.active; stockDetail = Object.freeze({ outcome: 'recomposed', compositionMs: 2, changedKeyComponents: Object.freeze(['notificationsHud']) }); },
     dispose() { pair = undefined; },
   };
   Object.assign(globalThis, {
@@ -62,10 +68,10 @@ async function fixture(measurePaint, run) {
   });
   const presenter = new Proxy({ pressOffset: 0, tilePressOffset: () => 0, folderChild(_ctx, _state, _empty, draw) { draw(1); return true; }, appletEntry() { events.push('cover'); return true; } }, { get: (target, key) => key in target ? target[key] : (() => true) });
   const screens = createScreens({ measurePaint, firmwareAssets: { presenter, sharedFont: { draw() {} }, dispose() {}, diagnostics: [], titleIcons: new Map(), titleDescriptions: new Map() }, drawHomeBackground: () => true, drawSuspendedBackground: () => true });
-  const setReadings = values => { readings = [...values]; nowCalls = 0; events.length = 0; };
+  const setReadings = values => { readings = [...values]; nowCalls = 0; diagnosticReads = 0; events.length = 0; };
   try {
     await screens.ready;
-    await run({ screens, events, setReadings, nowCalls: () => nowCalls });
+    await run({ screens, events, setReadings, nowCalls: () => nowCalls, diagnosticReads: () => diagnosticReads });
   } finally {
     screens.dispose();
     for (const [key, descriptor] of saved) {
@@ -75,8 +81,8 @@ async function fixture(measurePaint, run) {
   }
 }
 
-test('measured applet paints isolate pre-overlay and title incoming cost without changing publication order', async () => {
-  for (const measurePaint of [false, true]) await fixture(measurePaint, ({ screens, events, setReadings, nowCalls }) => {
+test('measured applet paints isolate detailed overlay and title cost without changing publication order', async () => {
+  for (const measurePaint of [false, true]) await fixture(measurePaint, ({ screens, events, setReadings, nowCalls, diagnosticReads }) => {
     const caller = home();
     screens.paint(caller, new Date(0), ms(0));
     screens.presentAppletEntry(caller, ms(0));
@@ -91,18 +97,32 @@ test('measured applet paints isolate pre-overlay and title incoming cost without
     assert.deepEqual(events.filter(event => event === 'overlay' || event === 'incoming'), ['overlay', 'incoming']);
     const timing = screens.paintTiming();
     if (measurePaint) {
-      assert.deepEqual(timing, { startedAt: 100, preOverlayMs: 7, overlayMs: 3, titleIncomingMs: 9 });
+      assert.deepEqual(timing, {
+        startedAt: 100, preOverlayMs: 7, overlayMs: 3, titleIncomingMs: 9,
+        titleIncomingDetail: { validationMs: 1, upperDrawMs: 2, lowerDrawMs: 3, remainderMs: 3, upperCacheEntriesDelta: 2, upperCacheBytesDelta: 400, lowerCacheEntriesDelta: 3, lowerCacheBytesDelta: 500 },
+        notificationsStockDetail: { outcome: 'recomposed', compositionMs: 2, changedKeyComponents: ['notificationsHud'] },
+      });
       assert.equal(nowCalls(), 5);
       timing.preOverlayMs = -1;
       timing.titleIncomingMs = -1;
-      assert.deepEqual(screens.paintTiming(), { startedAt: 100, preOverlayMs: 7, overlayMs: 3, titleIncomingMs: 9 });
+      assert.throws(() => timing.notificationsStockDetail.changedKeyComponents.push('revision'), TypeError);
+      assert.deepEqual(screens.paintTiming(), {
+        startedAt: 100, preOverlayMs: 7, overlayMs: 3, titleIncomingMs: 9,
+        titleIncomingDetail: { validationMs: 1, upperDrawMs: 2, lowerDrawMs: 3, remainderMs: 3, upperCacheEntriesDelta: 2, upperCacheBytesDelta: 400, lowerCacheEntriesDelta: 3, lowerCacheBytesDelta: 500 },
+        notificationsStockDetail: { outcome: 'recomposed', compositionMs: 2, changedKeyComponents: ['notificationsHud'] },
+      });
+      assert.equal(diagnosticReads(), 2);
       assert.equal(screens.presentAppletEntry(state, ms(2)), true, 'measurement does not change incoming publication');
       setReadings([200, 205, 207]);
       screens.paint(state, new Date(0), ms(3), { sampleCalendar: true });
-      assert.deepEqual(screens.paintTiming(), { startedAt: 200, preOverlayMs: 5, overlayMs: 2, titleIncomingMs: null });
+      assert.deepEqual(screens.paintTiming(), {
+        startedAt: 200, preOverlayMs: 5, overlayMs: 2, titleIncomingMs: null, titleIncomingDetail: null,
+        notificationsStockDetail: { outcome: 'recomposed', compositionMs: 2, changedKeyComponents: ['notificationsHud'] },
+      });
     } else {
       assert.equal(timing, null);
       assert.equal(nowCalls(), 0, 'disabled diagnostics add no timing reads');
+      assert.equal(diagnosticReads(), 0, 'disabled diagnostics do not read nested measurements');
     }
     screens.dispose();
     assert.equal(screens.paintTiming(), null);

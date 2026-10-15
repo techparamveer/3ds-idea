@@ -19,7 +19,7 @@ import { drawNativeWebFrame, browserHudClock, browserScreenPacks, miiverseScreen
 import { NATIVE_RECOVERY_TARGETS } from './native-screen-input';
 import { stockScreenTargets } from './stock-screen-layout';
 import { createNotesBootCoverPublicationGate, type NotesBootCoverPaint } from './notes-boot-cover';
-import { appletTitleEntrySelection, drawAppletTitleEntry, validateAppletTitleEntryAssets } from './applet-title-entry-assets';
+import { appletTitleEntrySelection, drawAppletTitleEntry, validateAppletTitleEntryAssets, type AppletTitleEntryPaintMeasurement } from './applet-title-entry-assets';
 import type { NotesFooterCloseDraw as NotesFooterClosePaint } from './notes-footer-close-assets';
 import { validateNotesFooterCloseAssets } from './notes-footer-close-assets';
 import type { FriendsFooterClosePaint } from './friends-footer-close-assets';
@@ -29,6 +29,13 @@ import { immutableTextDiagnostic, textDestinationDiagnostic, type NativeTextDiag
 
 type CameraTextPair=Readonly<{owner:string;generation:number;pairId:number;stockKey:string|null;source:NativeTextDiagnostic}>;
 export type CameraTextDiagnostic=Readonly<{pair:CameraTextPair;use:'rendered'|'cached-pair';destination:Readonly<{upper:ReturnType<typeof textDestinationDiagnostic>;lower:ReturnType<typeof textDestinationDiagnostic>}>}>;
+export type NotificationsStockPaintKeyComponent='cold'|'owner'|'view'|'revision'|'capture'|'reducedMotion'|'zone'|'eshopPose'|'eshopHud'|'notificationsHud'|'notesHud'|'browserHud'|'settingsHud'|'soundClock'|'intro'|'health'|'notesFooterClose'|'notificationsFooterClose'|'manualFooterClose'|'friendsFooterClose'|'webFooterClose'|'font';
+export type NotificationsStockPaintMeasurement =
+  | Readonly<{outcome:'recomposed';compositionMs:number;changedKeyComponents:readonly NotificationsStockPaintKeyComponent[]}>
+  | Readonly<{outcome:'cached';compositionMs:null;changedKeyComponents:readonly []}>;
+type NotificationsStockPaintSnapshot=Readonly<{components:readonly (string|undefined)[];font:BitmapFont|undefined}>;
+const notificationKeyComponentNames:readonly Exclude<NotificationsStockPaintKeyComponent,'cold'|'font'>[]=['owner','view','revision','capture','reducedMotion','zone','eshopPose','eshopHud','notificationsHud','notesHud','browserHud','settingsHud','soundClock','intro','health','notesFooterClose','notificationsFooterClose','manualFooterClose','friendsFooterClose','webFooterClose'];
+const noChangedNotificationKeyComponents:readonly []=Object.freeze([]);
 
 type Context=CanvasRenderingContext2D;
 type MediaRecord=Record<string,JsonValue>;
@@ -216,11 +223,13 @@ export function drawStockScreenFrame(top:Context,bottom:Context,view:AppView,opt
 }
 
 /** One foreground session; asynchronous resources never outlive its owner. */
-export function createStockScreenPresentation(options:{manifestUrl?:string;onChange?:()=>void;deadlineMs?:number;soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground;reducedMotion?:()=>boolean;cameraTextProbe?:boolean}={}){
+export function createStockScreenPresentation(options:{manifestUrl?:string;onChange?:()=>void;deadlineMs?:number;soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground;reducedMotion?:()=>boolean;cameraTextProbe?:boolean;measurePaint?:boolean}={}){
   let textGeneration=0,textPairId=0,cameraTextPair:CameraTextPair|null=null,cameraTextSample:CameraTextDiagnostic|null=null;
+  let titleIncomingMeasurement:AppletTitleEntryPaintMeasurement|null=null,notificationsPaintMeasurement:NotificationsStockPaintMeasurement|null=null;
+  let notificationsPaintSnapshot:NotificationsStockPaintSnapshot|null=null;
   let revision=0,painted='',paintedFont:BitmapFont|undefined,complete=false;
   let preparedPair:Readonly<{owner:string;appId:string;renderer:NativeLayoutRenderer;key:string}>|undefined;
-  const changed=()=>{revision++;preparedPair=undefined;options.onChange?.();};
+  const changed=()=>{revision++;preparedPair=undefined;notificationsPaintMeasurement=null;options.onChange?.();};
   const session=createNativeTitleSession({manifestUrl:options.manifestUrl??'/os/firmware/10.7.0-32E/manifest.json',onChange:state=>{if((state.status==='ready'&&roomReady)||state.status==='error')clearDeadline();changed();}});
   const images=new Map<string,HTMLImageElement>(),nativeImages=new Map<string,NativePixels>();let owner:string|null=null,disposed=false;
   let identity='',failure:unknown=null,recoveryPublished=false,deadline:ReturnType<typeof setTimeout>|undefined;
@@ -239,14 +248,14 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
   const upperContext=upper.getContext('2d')!,lowerContext=lower.getContext('2d',{willReadFrequently:true})!;
   const clearDeadline=()=>{if(deadline!==undefined)clearTimeout(deadline);deadline=undefined;};
   function fail(error:unknown){
-    cameraTextPair=null;cameraTextSample=null;
+    cameraTextPair=null;cameraTextSample=null;titleIncomingMeasurement=null;notificationsPaintMeasurement=null;
     preparedPair=undefined;
     notesBootCandidate=undefined;notesBootGate.revoke();
     options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);roomReady=true;clearDeadline();failure=error??new Error('Native screen preparation failed');recoveryPublished=false;published=undefined;
     // Invalidates the generation as well as aborting a cooperative loader.
     session.update(null);changed();
   }
-  function reset(){if(options.cameraTextProbe)textGeneration++;cameraTextPair=null;cameraTextSample=null;preparedPair=undefined;notesBootCandidate=undefined;options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);roomReady=true;clearDeadline();identity='';failure=null;recoveryPublished=false;published=undefined;session.update(null);painted='';}
+  function reset(){if(options.cameraTextProbe)textGeneration++;cameraTextPair=null;cameraTextSample=null;titleIncomingMeasurement=null;notificationsPaintMeasurement=null;preparedPair=undefined;notesBootCandidate=undefined;options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);roomReady=true;clearDeadline();identity='';failure=null;recoveryPublished=false;published=undefined;session.update(null);painted='';}
   function releaseImages(){for(const image of images.values()){image.onload=null;image.onerror=null;image.src='';}images.clear();nativeImages.clear();}
   function sourceImage(url:string){
     let im=images.get(url);
@@ -353,11 +362,15 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         &&preparedPair.renderer===published&&preparedPair.key===painted?published:undefined;
     },
     drawIncoming(nextOwner:string,appId:string,top:Context,bottom:Context,frame:number,resources:object):boolean{
+      titleIncomingMeasurement=null;
       const incoming=appletTitleEntrySelection(appId),state=session.getState();
       if(!incoming||disposed||failure||!complete||!roomReady||owner!==nextOwner||state.status!=='ready'
         ||resources!==state.assets.renderer||resources!==published||preparedPair?.owner!==nextOwner||preparedPair.appId!==appId
         ||preparedPair.renderer!==published||preparedPair.key!==painted)return false;
-      return drawAppletTitleEntry(state.assets.renderer,top,bottom,{appId:incoming.appId,frame});
+      let measurement:AppletTitleEntryPaintMeasurement|null=null;
+      const drawn=drawAppletTitleEntry(state.assets.renderer,top,bottom,{appId:incoming.appId,frame},options.measurePaint?value=>{measurement=value;}:undefined);
+      if(drawn&&measurement)titleIncomingMeasurement=measurement;
+      return drawn;
     },
     presentNotesBootCover(nextOwner:string,accept:(pair:NotesBootCoverPaint)=>boolean):boolean{
       const candidate=notesBootCandidate,state=session.getState();
@@ -369,7 +382,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     retry(){if(!disposed&&failure){reset();changed();return true;}return false;},
     /** True only when the published pair is this owner's complete application frame. */
     draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont,suspendedCapture?:SuspendedCapture,date=new Date(),elapsedMs=0,notesIntro?:NotesIntroPaint,verification?:{sampleCalendar?:boolean},notesFooterClose?:NotesFooterClosePaint,notificationsFooterClose?:{frame:number},manualFooterClose?:{frame:number},friendsFooterClose?:FriendsFooterClosePaint,webFooterClose?:{frame:number}):boolean{
-      cameraTextSample=null;
+      cameraTextSample=null;notificationsPaintMeasurement=null;
       if(disposed)return false;
       preparedPair=undefined;notesBootCandidate=undefined;
       // Pixels stay out of the key; one frozen capture has one generation.
@@ -416,9 +429,14 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         ?(reducedMotion||healthEntry!.complete?20:healthEntry!.origin===null?0:healthEntrySceneInFrame(healthElapsed-healthEntry!.origin))
         :undefined;
       const healthPaintKey=view.appId==='health-safety'?[healthTopLoopFrame(healthElapsed,reducedMotion),healthEntryFrame]:null;
-      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,notificationsHudKey,notesHudKey,browserHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey,notesFooterClose,notificationsFooterClose,manualFooterClose,friendsFooterClose,webFooterClose]);
+      const keyComponents=[nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,notificationsHudKey,notesHudKey,browserHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey,notesFooterClose,notificationsFooterClose,manualFooterClose,friendsFooterClose,webFooterClose];
+      const key=JSON.stringify(keyComponents);
+      const measuredSnapshot=options.measurePaint&&view.appId==='notifications'
+        ?{components:keyComponents.map(value=>JSON.stringify(value)),font} satisfies NotificationsStockPaintSnapshot:null;
+      const recomposed=painted!==key||paintedFont!==font;
+      const compositionStarted=measuredSnapshot&&recomposed?performance.now():null;
       let textRendered=false;
-      if(painted!==key||paintedFont!==font){
+      if(recomposed){
         cameraTextPair=null;
         complete=false;
         black();
@@ -445,18 +463,33 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         // replaced with the pending/error pair. Never expose a partial draw.
         painted=key;paintedFont=font;
       }
+      const compositionMs=compositionStarted===null?null:performance.now()-compositionStarted;
       const destination=cameraTextPair&&complete&&!failure?{upper:textDestinationDiagnostic(top),lower:textDestinationDiagnostic(bottom)}:null;
       top.drawImage(upper,0,0);bottom.drawImage(lower,0,0);
       if(cameraTextPair&&destination&&complete&&!failure)cameraTextSample=immutableTextDiagnostic({pair:cameraTextPair,use:textRendered?'rendered':'cached-pair',destination});
       if(complete&&!failure&&state.status==='ready')preparedPair=Object.freeze({owner:nextOwner,appId:view.appId,renderer:state.assets.renderer,key:painted});
       if(failure)recoveryPublished=true;
       else if(complete&&state.status==='ready'&&view.appId==='game-notes'&&notesIntro?.status==='boot-cover')notesBootCandidate={owner:nextOwner,pair:notesIntro,renderer:state.assets.renderer};
+      if(measuredSnapshot&&complete&&!failure&&state.status==='ready'){
+        if(recomposed&&compositionMs!==null){
+          const previous=notificationsPaintSnapshot;
+          const changedKeyComponents:NotificationsStockPaintKeyComponent[]=previous
+            ?notificationKeyComponentNames.filter((_,index)=>previous.components[index]!==measuredSnapshot.components[index])
+            :['cold'];
+          if(previous&&previous.font!==measuredSnapshot.font)changedKeyComponents.push('font');
+          notificationsPaintMeasurement=Object.freeze({outcome:'recomposed',compositionMs,changedKeyComponents:Object.freeze(changedKeyComponents)});
+        }else notificationsPaintMeasurement=Object.freeze({outcome:'cached',compositionMs:null,changedKeyComponents:noChangedNotificationKeyComponents});
+        notificationsPaintSnapshot=measuredSnapshot;
+      }
       return complete&&!failure;
     },
+    clearPaintMeasurements(){titleIncomingMeasurement=null;notificationsPaintMeasurement=null;},
+    titleIncomingMeasurement:()=>titleIncomingMeasurement,
+    paintMeasurement:()=>notificationsPaintMeasurement,
     getState:session.getState,
     clearTextDiagnostic(){cameraTextSample=null;},
     textDiagnostic:()=>cameraTextSample,
     getFailure:()=>failure,
-    dispose(){if(disposed)return;disposed=true;cameraTextPair=null;cameraTextSample=null;preparedPair=undefined;clearDeadline();session.dispose();options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);releaseImages();owner=null;healthEntry=null;notesBootCandidate=undefined;notesBootGate.reset();published=undefined;upper.width=upper.height=lower.width=lower.height=0;},
+    dispose(){if(disposed)return;disposed=true;cameraTextPair=null;cameraTextSample=null;titleIncomingMeasurement=null;notificationsPaintMeasurement=null;notificationsPaintSnapshot=null;preparedPair=undefined;clearDeadline();session.dispose();options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);releaseImages();owner=null;healthEntry=null;notesBootCandidate=undefined;notesBootGate.reset();published=undefined;upper.width=upper.height=lower.width=lower.height=0;},
   };
 }

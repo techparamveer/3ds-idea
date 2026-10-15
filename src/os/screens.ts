@@ -12,7 +12,8 @@ import { activeHomeRecord, getHomeNavigation, getHomePageBoundary, leaveHomeFold
 import { getHomeFooter, getHomeLaunchPresentation, getHomePresentation, type HomePresentation, type HomeLaunchPresentation } from './home-presentation';
 import { type MenuState, type Theme, isFolder, pageStart, rowCount, slotCount, themeChoices } from './state';
 import { type BitmapFont } from './bitmap-font';
-import type { CameraTextDiagnostic } from './stock-screen-presentation';
+import type { CameraTextDiagnostic, NotificationsStockPaintMeasurement } from './stock-screen-presentation';
+import type { AppletTitleEntryPaintMeasurement } from './applet-title-entry-assets';
 import { createFirmwareHome, type FirmwarePresentationAssets } from './firmware-presentation';
 import { createHomeLayoutManager, type HomeLayoutPreview } from './home-native-layouts';
 import {homeSoftwareDialogKey,homeSoftwareClosingDialogKey,homeSoftwareDialogTitles,drawHomeSoftwareDialog} from './home-software-dialog';
@@ -63,6 +64,8 @@ type SystemWithHomeApplicationTransition = NonNullable<MenuState['system']> & {
 };
 type NativeHome=ReturnType<typeof createFirmwareHome>;
 type FooterCloseDiagnostic={kind:NotesFooterClosePose['kind'];frame:number|null;owner:string;adaptation:true};
+type TitleIncomingPaintDetail=Readonly<AppletTitleEntryPaintMeasurement&{remainderMs:number}>;
+export type ScreenPaintTiming=Readonly<{startedAt:number;preOverlayMs:number|null;overlayMs:number|null;titleIncomingMs:number|null;titleIncomingDetail:TitleIncomingPaintDetail|null;notificationsStockDetail:NotificationsStockPaintMeasurement|null}>;
 type ScreenPaintResult={cameraText?:Readonly<{stock:CameraTextDiagnostic;coveredByResume:boolean}>;homeWallpaper?:boolean;healthBanner?:boolean;nativeSystem?:true;resume?:{kind:HomeResumePose['kind'];frame:number;upperScaleFrame:number;owner:string;adaptation:true};entryMotion?:{folder:HomeFolderEntryPose|null;pauseFrame:number|null;pauseLower:HomePauseLowerPresentation|null};manualEntry?:{phase:'out'|'in';frame:number;owner:string};appletEntry?:{kind:AppletEntryPose['kind'];frame:number|null;owner:string};notesClose?:FooterCloseDiagnostic;notificationsClose?:FooterCloseDiagnostic;manualClose?:FooterCloseDiagnostic;friendsClose?:FooterCloseDiagnostic;webClose?:FooterCloseDiagnostic};
 const fonts = new WeakMap<Context, BitmapFont>();
 let systemFont: Promise<void> | undefined;
@@ -320,10 +323,10 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  const bottom=document.createElement('canvas');bottom.width=320;bottom.height=240;
  const native=document.createElement('canvas');native.width=400;native.height=240;
  const output=top.getContext('2d')!,t=native.getContext('2d')!,b=bottom.getContext('2d')!;
- const graphics=createPortfolioGraphics({soundRoom:options.soundRoom,cameraShoot:options.cameraShoot,reducedMotion:()=>reduced,cameraTextProbe:options.cameraTextProbe});const chrome=createNativeChrome();
+ const graphics=createPortfolioGraphics({soundRoom:options.soundRoom,cameraShoot:options.cameraShoot,reducedMotion:()=>reduced,cameraTextProbe:options.cameraTextProbe,measurePaint:options.measurePaint});const chrome=createNativeChrome();
  const manualPresentation=createManualEntryPresentation();
  // Opt-in CPU composition timing; presentation and GPU work are measured separately.
- let lastPaintTiming:{startedAt:number;preOverlayMs:number|null;overlayMs:number|null;titleIncomingMs:number|null}|null=null;
+ let lastPaintTiming:{-readonly [Key in keyof ScreenPaintTiming]:ScreenPaintTiming[Key]}|null=null;
  const manualCanvases=[400,320,400,320].map(width=>{const canvas=document.createElement('canvas');canvas.width=width;canvas.height=240;return canvas;});
  const [lastPresentedUpper,lastPresentedLower,manualBackingUpper,manualBackingLower]=manualCanvases;
  type ManualEntrySource=Readonly<{origin:ManualEntryOrigin;state:MenuState}>;
@@ -779,7 +782,8 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   * Manual and outgoing applet entry consume it without making the paint diagnostic. */
  function paint(state:MenuState,date=new Date(),elapsedMs=0,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;homeCursorLoopFrame?:number;reuseHomeBackgroundMs?:number;manualEntryObservedElapsedMs?:number}):ScreenPaintResult|undefined{
   if(disposed)return;
-  lastPaintTiming=options.measurePaint?{startedAt:performance.now(),preOverlayMs:null,overlayMs:null,titleIncomingMs:null}:null;
+  if(options.measurePaint)graphics.clearPaintMeasurements?.();
+  lastPaintTiming=options.measurePaint?{startedAt:performance.now(),preOverlayMs:null,overlayMs:null,titleIncomingMs:null,titleIncomingDetail:null,notificationsStockDetail:null}:null;
   if(options.cameraTextProbe)graphics.clearTextDiagnostic();
   entryMotionCandidate=undefined;
   resumeCandidate=undefined;resumeSourceCandidate=undefined;
@@ -794,7 +798,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   if(key!==panelPublished)panelFailure=undefined;
   if(key&&panelFailure){revokeHomeEntryMotionCandidate();revokeManualEntryCandidate();revokeAppletEntryCandidate();panelRecovery(state);return;}
   try{const result=paintPair(state,date,elapsedMs,verification);panelPublished=key;const stock=options.cameraTextProbe?graphics.textDiagnostic():null;return stock?{...result,cameraText:Object.freeze({stock,coveredByResume:!!result?.resume})}:result;}
-  catch(error){revokeNotesFooterCloseCandidate();revokeHomeEntryMotionCandidate();revokeManualEntryCandidate();revokeAppletEntryCandidate();if(!key)throw error;panelFailure=error instanceof Error?error:new Error(String(error));panelRecovery(state);panelPublished=key;}
+  catch(error){if(lastPaintTiming){lastPaintTiming.titleIncomingDetail=null;lastPaintTiming.notificationsStockDetail=null;}if(options.measurePaint)graphics.clearPaintMeasurements?.();revokeNotesFooterCloseCandidate();revokeHomeEntryMotionCandidate();revokeManualEntryCandidate();revokeAppletEntryCandidate();if(!key)throw error;panelFailure=error instanceof Error?error:new Error(String(error));panelRecovery(state);panelPublished=key;}
  }
  function paintPair(state:MenuState,date:Date,elapsedMs:number,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;homeCursorLoopFrame?:number;reuseHomeBackgroundMs?:number;manualEntryObservedElapsedMs?:number}):ScreenPaintResult|undefined{
   if(disposed)return;
@@ -1081,7 +1085,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const overlayStarted=timing?performance.now():null;
   if(timing&&overlayStarted!==null)timing.preOverlayMs=overlayStarted-timing.startedAt;
   graphics.overlay(t,b,state,elapsedMs,reduced,!!firmwareAssets,date,verification,deferNativeDestination,notesCloseDraw,notificationsCloseDraw,manualCloseDraw,friendsCloseDraw,webCloseDraw);
-  if(timing&&overlayStarted!==null)timing.overlayMs=performance.now()-overlayStarted;
+  if(timing&&overlayStarted!==null){timing.overlayMs=performance.now()-overlayStarted;timing.notificationsStockDetail=graphics.paintMeasurement?.()??null;}
   const dialogKey=homeSoftwareDialogKey(state),dialogTitles=homeSoftwareDialogTitles(state);
   if(!dialogTitles)softwareDialogIcons=undefined;
   if(dialogTitles&&softwareDialogIcons?.key!==dialogKey){
@@ -1165,7 +1169,11 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
       if(!appletPose.resources)throw Error('Native title-owned incoming paired cover unavailable');
       const titleIncomingStarted=timing?performance.now():null;
       const titleIncomingDrawn=graphics.drawAppletIncoming(state,t,b,appletPose.frame,appletPose.resources);
-      if(timing&&titleIncomingStarted!==null)timing.titleIncomingMs=performance.now()-titleIncomingStarted;
+      if(timing&&titleIncomingStarted!==null){
+       timing.titleIncomingMs=performance.now()-titleIncomingStarted;
+       const detail=titleIncomingDrawn?graphics.titleIncomingMeasurement?.():null;
+       if(detail)timing.titleIncomingDetail=Object.freeze({...detail,remainderMs:timing.titleIncomingMs-detail.validationMs-detail.upperDrawMs-detail.lowerDrawMs});
+      }
       if(!titleIncomingDrawn)throw Error('Native title-owned incoming paired cover unavailable');
      }else{
       // The stock overlay above supplied the exact pair; SceneIn clears over it.

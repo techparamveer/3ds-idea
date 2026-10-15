@@ -68,9 +68,9 @@ function withCanvas(run) {
   try { return run(); } finally { globalThis.document = previous; }
 }
 
-function paint(renderer, spec, frame) {
+function paint(renderer, spec, frame, measured) {
   const top = canvas(), bottom = canvas();
-  assert.equal(drawAppletTitleEntry(renderer, top.getContext('2d'), bottom.getContext('2d'), { appId: spec.appId, frame }), true);
+  assert.equal(drawAppletTitleEntry(renderer, top.getContext('2d'), bottom.getContext('2d'), { appId: spec.appId, frame }, measured), true);
   return { upper: top.draws, lower: bottom.draws };
 }
 
@@ -123,6 +123,38 @@ test('the existing cache rasterizes each title background once while leaving the
   }
 }));
 
+test('opt-in title detail measures validation and each unchanged draw with retained-cache deltas', () => withCanvas(() => {
+  const saved = Object.getOwnPropertyDescriptor(globalThis, 'performance');
+  const spec = specs[0], { renderer, calls } = createRenderer(spec);
+  let readings = [10, 13, 14, 21, 22, 31], detail;
+  Object.defineProperty(globalThis, 'performance', { configurable: true, value: { now: () => readings.shift() } });
+  try {
+    paint(renderer, spec, 0, value => { detail = value; });
+    assert.deepEqual(calls.map(call => call.name), [spec.upper, spec.lower], 'measurement preserves native draw order');
+    assert.deepEqual({ validationMs: detail.validationMs, upperDrawMs: detail.upperDrawMs, lowerDrawMs: detail.lowerDrawMs },
+      { validationMs: 3, upperDrawMs: 7, lowerDrawMs: 9 });
+    assert.equal(detail.upperCacheEntriesDelta + detail.lowerCacheEntriesDelta, 5);
+    assert.equal(detail.upperCacheBytesDelta + detail.lowerCacheBytesDelta, 852736);
+    assert.ok(detail.upperCacheEntriesDelta > 0 && detail.lowerCacheEntriesDelta > 0);
+    assert.ok(detail.upperCacheBytesDelta > 0 && detail.lowerCacheBytesDelta > 0);
+    assert.equal(renderer.cacheEntryCount, 5);
+
+    calls.length = 0; detail = undefined; readings = [40, 42, 43, 48, 49, 55];
+    paint(renderer, spec, 0, value => { detail = value; });
+    assert.deepEqual(calls.map(call => call.name), [spec.upper, spec.lower]);
+    assert.deepEqual({
+      upperCacheEntriesDelta: detail.upperCacheEntriesDelta,
+      upperCacheBytesDelta: detail.upperCacheBytesDelta,
+      lowerCacheEntriesDelta: detail.lowerCacheEntriesDelta,
+      lowerCacheBytesDelta: detail.lowerCacheBytesDelta,
+    }, { upperCacheEntriesDelta: 0, upperCacheBytesDelta: 0, lowerCacheEntriesDelta: 0, lowerCacheBytesDelta: 0 });
+    assert.equal(renderer.cacheEntryCount, 5);
+  } finally {
+    renderer.dispose();
+    if (saved) Object.defineProperty(globalThis, 'performance', saved); else delete globalThis.performance;
+  }
+}));
+
 test('invalid title source data fails before or inside the unchanged opaque-alpha guard', () => withCanvas(() => {
   const spec = specs[0], invalidPack = structuredClone(spec.pack);
   nativePaneParentPath(invalidPack.layouts[spec.upper], 'P_Bg_U_00').at(-1).picture.colors[0][3] = 128;
@@ -158,6 +190,7 @@ test('a small existing cache evicts and disposal releases title rasters without 
     assert.ok(sources.length > 0);
     reused.renderer.dispose();
     assert.equal(reused.renderer.cacheBytes, 0);
+    assert.equal(reused.renderer.cacheEntryCount, 0);
     for (const source of sources) assert.deepEqual([source.width, source.height], [0, 0]);
     const top = canvas(), bottom = canvas();
     assert.equal(drawAppletTitleEntry(reused.renderer, top.getContext('2d'), bottom.getContext('2d'), { appId: spec.appId, frame: 0 }), false);

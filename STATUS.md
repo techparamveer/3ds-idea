@@ -1,5 +1,25 @@
 # STATUS: animation fidelity
 
+## Reviewed raster candidate transferred
+
+Root accepted clean worker handoff `2707ff2` and merged coordinator checkpoint
+`ce27581` as `53abb3e3d4fca7d5eb459f63d89949223d73dc9e`. Root now owns
+`/Users/paramveer/.codex/worktrees/applet-incoming-raster-20261015/3ds-idea`
+on `codex/applet-incoming-raster-20261015`. Runtime `7cadf11` and build
+`0gMCf5YkNIK5fheLAfL7o` are unchanged by that docs-only merge. Independent
+review `16515c64` has no findings and reproduces the intended base failures.
+All worker/reviewer source and build reservations are released. The previous
+measurement checkout and build remain frozen at coordinator `ce27581`.
+
+Next root follows the predeclared two-opening `applet-incoming-raster/capture-policy.md`
+on muted MacBook Chromium Guest, loopback port 3045. Only the built-in display
+is present. Port 3045 is free; no candidate browser/server is started yet.
+Pin candidate identities before serving, save all pairs, then close owned
+Guest/server. No broad capture, clock change or native acceptance is authorized
+by this regression. All four whole flows remain fail/unproven. Usage is 39%
+remaining; pause at 10%, without bot notification or automatic resume.
+This entry supersedes older ownership, serving, next-action and seat entries.
+
 ## Incoming regression audit closed
 
 Root reconciled Git at `b6cc578`; read Git for this following docs checkpoint.

@@ -1,5 +1,14 @@
 # Workstream Registry
 
+## Raster candidate transferred
+
+Root accepted clean worker handoff `2707ff2`, then merged coordinator docs as
+`53abb3e`. Root owns applet-incoming-raster-20261015, runtime `7cadf11`, build
+`0gMCf5YkNIK5fheLAfL7o`. Independent source review `16515c64` has no findings.
+All worker source/test/build and reviewer reservations are released. Root alone
+owns the declared two-opening browser regression and shared docs. The previous
+applet-incoming-cost source/build and its sealed audit remain frozen.
+
 ## Incoming raster candidate
 
 Root reconciled at `5e51e22` and closed the two-opening live cost measurement.

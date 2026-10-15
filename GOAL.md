@@ -1,5 +1,11 @@
 # Goal: finish the four remaining native animation flows
 
+16 October AN-01: the [generic experiment](docs/applet-generic-candidate-2026-10-15.md)
+is closed unadopted in PR #8. A1 Friends saved253 pairs, but power/Energy Saver
+changed during the run. The fixed campaign stopped without retry. All originals
+validate; no candidate performance result or native pass follows. Preserve both
+builds and continue actual visual defects, not another timing-tuning campaign.
+
 15 October AN-01: the [generic-background candidate](docs/applet-generic-candidate-2026-10-15.md)
 is reviewed, checked and preserved separately in draft PR #8. It is not adopted.
 The fixed production comparison has not started: low MacBook battery and

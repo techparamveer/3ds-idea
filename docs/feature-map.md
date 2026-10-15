@@ -1,5 +1,10 @@
 # Feature map — 1:1 queue
 
+16 October AN-01: [generic background experiment](applet-generic-candidate-2026-10-15.md)
+is closed without adoption. The first baseline recording preserves253 pairs;
+changed power/Energy Saver invalidates the planned timing control. No retry or
+candidate run. Whole-flow defects remain open; no additional performance claim.
+
 15 October AN-01: [experimental candidate](applet-generic-candidate-2026-10-15.md)
 is reviewed and built in separate draft PR #8, not integrated. Full checks retain
 only the known Camera PNG failure. Production comparison is held before inputs

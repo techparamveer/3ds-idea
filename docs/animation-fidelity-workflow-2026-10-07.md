@@ -1,5 +1,13 @@
 # Animation fidelity workflow
 
+## Generic experiment closed without adoption
+
+The [candidate](applet-generic-candidate-2026-10-15.md) remains separate and
+PR #8 is closed unmerged. Power/Energy Saver changed during A1 Friends, so root
+stopped the fixed campaign without retry. Keep all253 saved pairs and the
+incomplete audit. Do not replace the missing comparisons with source tests,
+declare a speedup, or start another tuning campaign to rescue this candidate.
+
 ## Production candidate held before capture
 
 The [reviewed generic-background candidate](applet-generic-candidate-2026-10-15.md)

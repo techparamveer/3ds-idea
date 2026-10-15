@@ -2,11 +2,14 @@
 
 ## Current reservations
 
-All helpers are released. Candidate 5e1dec9 and handoff 74db674 are reviewed,
-checked and built in separate draft PR #8, not integrated. Root owns the next
-production comparison, held before inputs after low-battery preflight. Both
-builds stay frozen. Private audit tools are prepared but not used on real
-captures. Recheck power and read STATUS Next before starting a worker or server.
+All helpers are released. Candidate 5e1dec9 and handoff 74db674 are preserved
+in closed, unmerged PR #8. The fixed production experiment ended after A1
+Friends when power and Energy Saver changed; audit1980935a verifies253 pairs
+but rejects the incomplete campaign. No candidate production run or retry.
+Both builds stay frozen. Power is now connected. Root owns one Notifications
+own-PNG idle series and matching production-browser comparison to distinguish
+unread-marker phase from a geometric defect. No source worker is assigned.
+Read STATUS Next before starting a worker or server.
 The sections below record earlier assignments, not active reservations.
 
 ## Scoped generic-background candidate

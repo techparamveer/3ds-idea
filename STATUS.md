@@ -2,7 +2,7 @@
 
 ## Checkout
 
-Reconciled HEAD: `8d073a5ffe5d95b12774643e5e56e9c3f3272259`.
+Reconciled HEAD: `e35545a1ef26f7132ef4d4276299997de4094c1b`.
 Git wins if this differs from HEAD. Reconcile before another slice or worker.
 Keep this file current, not append-only.
 
@@ -14,7 +14,7 @@ checkout. Create new source worktrees from this coordinator HEAD.
 
 Draft [PR #7](https://github.com/techparamveer/3ds-idea/pull/7) uses remote
 branch `codex/animation-fidelity-20261007`. Latest verified pushed SHA is
-`8d073a5ffe5d95b12774643e5e56e9c3f3272259`. Review coherent changes, stage
+`e35545a1ef26f7132ef4d4276299997de4094c1b`. Review coherent changes, stage
 explicit paths and push normally. Do not merge, deploy, reset or clean.
 
 Preserve the human edit in
@@ -76,20 +76,23 @@ correction 5e1dec9 and handoff 74db674 are frozen in the separate
 `codex/applet-generic-background-20261015`. Source review cf22e0da and follow-up
 077fb86e are complete with no remaining finding. Full suite has 2,993 passes,
 one known Camera PNG failure, 103 skips and one TODO. Nonincremental typecheck
-and build pass. The candidate is pushed to separate draft
+and build pass. The candidate is preserved in separate closed, unmerged
 [PR #8](https://github.com/techparamveer/3ds-idea/pull/8), based on PR #7; it is
 not integrated or adopted. See [candidate](docs/applet-generic-candidate-2026-10-15.md).
 Root corrected private `applet-generic-production/audit-tools` pair selection
 and requested/observed hold labels. Tool dc346145 passes syntax and 14 in-memory
-checks, but no real campaign is audited. Its sample sheets do not cover every
-comparison; inspect the remaining pairs before promotion. Capture power/Energy
-Saver conditions remain unknown until attested. Root owns adoption decisions.
+checks. The sole real campaign audit, 1980935a, validates 253 A1 pairs but
+rejects the incomplete experiment. AC power and Energy Saver changed during
+A1, so root stopped without retry. No candidate production run occurred and
+PR #8 is closed without adoption. All helpers are released. The read-only
+next-defect review selects Notifications unread-marker appearance for one
+bounded native idle series before any source change.
 See [registry](docs/feature-map/workstreams.md).
 Independent GPT-6.1 Sol high checkpoint review is complete. Its one stale
 RESTART serving sentence was corrected; its reservation is released. Report
 is private `applet-native-opening/checkpoint-review/report.md`.
 
-Latest account reading is 73% used / 27% weekly remaining. Check before new
+Latest account reading is 74% used / 26% weekly remaining. Check before new
 heavy work and at least every ten minutes. At **10% remaining or less**, stop
 new work, interrupt helpers, close owned sessions, preserve a minimal checkpoint
 and pause the goal. The user cancelled the Grok/My King bot message. Send no
@@ -98,11 +101,11 @@ external message and do not resume automatically after reset. Existing heartbeat
 
 ## Serving and display
 
-Production comparison has not started. Power preflight at about 22:46 UTC
-found 13% battery, about 11 minutes estimated remaining, and Chrome Energy
-Saver on. Root asked the user to connect power and held GUI work before any
-new server or app input. Recheck power before capture; do not confuse this
-condition with the separate weekly usage stop rule.
+No owned test server, Guest, recorder or Azahar session is active. Root closed
+A1 Guest5536 and server77096, exit130, and confirmed port3047 free. Latest
+power readback reports AC attached, 10% battery and charging. The earlier
+low-power hold is resolved. Recheck power before capture; battery percentage
+is separate from the weekly account stop rule.
 
 No app, test server or recorder is active. Root completed all eight private
 probe runs on the built-in MacBook, then closed owned Guest window 5092 and
@@ -192,20 +195,21 @@ See [reference isolation](docs/native-reference-profile-isolation.md).
 
 ## Next
 
-1. Recheck MacBook power, usage, display and both frozen build inventories.
-   Candidate review/checks/build are complete; do not repeat or rebuild them.
-   When power is stable, run the declared A1 baseline, B1 candidate, B2 candidate,
-   A2 baseline sessions. Each fresh muted Guest opens Friends then Notifications.
-   Ports 3047/3049, one server at a time, distinct private A1/B1/B2/A2 output roots.
-   Follow capture-policy.md; no retries or best-of selection. Do no heavy worker
-   work during capture. Use corrected audit tool dc346145 and inspect all
-   compared frames, including pairs not present in its sample sheets.
-2. Keep PR #8 separate pending the complete opening comparison. Reject worse
-   or inconclusive later/whole cost, even if the first call improves. Preserve
-   clocks, resource failures, cache bounds and publication guards. No prewarming
-   or fitted delays. Sampled-pose gaps and native timing remain separate. Keep
-   both closed native audits and their fixture/error limits; do not repeat
-   broad-order work.
+The user explicitly resumed work. Power is now connected. The goal tool still
+reports blocked and exposes no resume operation; do not claim its state changed.
+The separate 10% weekly usage stop rule remains active.
+
+1. Capture one muted native Notifications opening followed by a predeclared
+   short own-PNG idle series, then matching raw production-browser idle frames.
+   Compare common unread rows 2-4. Existing lower endpoint residual is 2,237
+   pixels above delta2, bounding box (0,24,28,186); first-row read-state
+   differences do not explain all of it. Determine whether the remaining
+   difference changes with native pulse phase or persists geometrically.
+   No in-title navigation, fitted phase, residual masks or source change yet.
+2. Keep the generic production experiment closed and PR #8 unmerged. No retry,
+   replacement tuning campaign or rebuild of either frozen build. Keep Manual
+   loader and folder cursor source-only investigations closed until a new
+   captured defect supports a change.
 3. Integrate reviewed fixes in separate source worktrees. Run focused/full
    checks, typecheck and build, then perform the matched muted verification loop.
    Update evidence, commit explicit paths and push to draft PR #7. Continue the

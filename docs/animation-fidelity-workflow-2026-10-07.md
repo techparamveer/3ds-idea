@@ -1,5 +1,23 @@
 # Animation fidelity workflow
 
+## Chromium endpoint control closed; Manual reveal next
+
+[The unchanged-build control](home-resume-motion-control-2026-10-15.md#chromium-control-and-fixed-health-endpoints)
+verifies exact known-pattern export in Chromium 153 Guest. Fixed Health lower
+endpoints agree exactly across entry/Resume and two documents, and meet the
+existing native delta-2 threshold. This is a bounded static result, not a
+whole-flow pass or an isolated cause of Helium's historical differences. Do not
+alter app rendering to compensate for that browser pipeline discrepancy.
+
+Use this validated capture environment for the next ordinary first/repeated
+Manual Close comparison. Keep the same frozen build initially, read the Camera
+and Settings neighbour evidence, and record the visible residual before any
+source slice. Do not guess one native loading schedule from differing groups.
+Preserve the selected-first reveal and completed feedback fixes. Native input,
+moving pixels, cadence and muted audio remain open for all four whole flows.
+Only root drives muted MacBook GUI; all helpers remain Astra extra-high. The
+test tabs and owned server are closed. This section supersedes older next steps.
+
 ## Native broad motion covered; isolate pixel export next
 
 [The closed follow-up](home-resume-motion-control-2026-10-15.md) adds continuous

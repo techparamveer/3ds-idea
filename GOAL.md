@@ -1,5 +1,15 @@
 # Goal: finish the four remaining native animation flows
 
+15 October Chromium follow-up: the [fixed Health endpoint control](docs/home-resume-motion-control-2026-10-15.md#chromium-control-and-fixed-health-endpoints)
+meets the existing native lower-pixel delta-2 threshold on the unchanged build.
+The two entry and two Resume lower endpoints are exact to each other. No app
+compensation, privacy change or native tolerance change was needed. This does not establish
+exact native bytes, motion or cadence. Next recapture first/repeated Manual
+Close in validated Chromium, then address the documented partial-neighbour
+reveal gap from native evidence. Preserve all closed repairs. All four whole
+flows remain fail/unproven; Astra extra-high helpers and muted MacBook testing
+remain current. The goal is active.
+
 15 October follow-up: [two uninterrupted native Resume recordings and a browser
 pixel control](docs/home-resume-motion-control-2026-10-15.md) are complete.
 Native early growth through departure follows the repaired broad order. Native

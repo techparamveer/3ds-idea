@@ -1,5 +1,13 @@
 # Feature map — 1:1 queue
 
+15 October AN-04 endpoint control: [Chromium and fixed Health](home-resume-motion-control-2026-10-15.md#chromium-control-and-fixed-health-endpoints)
+save 1,549 pairs on the frozen build. Four fixed lower endpoints are exact to
+each other and meet the existing native delta-2 threshold. No Health workaround
+is justified by the historical Helium residual. Exact native bytes, motion and
+cadence remain open. Next is AN-02 first/repeated Manual Close capture in the
+validated browser, preserving selected-first reveal and the unresolved native
+partial-neighbour groups. AN-01 through AN-04 remain fail/unproven.
+
 15 October AN-04 native follow-up: [continuous rapid Resume and the pixel control](home-resume-motion-control-2026-10-15.md)
 cover native early growth, expanded cover, footer retirement and departure.
 Root inspected all 15 sheets; no new broad-order defect is established. Native

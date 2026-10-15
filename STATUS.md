@@ -2,18 +2,18 @@
 
 Current checkpoint, 15 October: this checkout is
 `/Users/paramveer/.codex/worktrees/resume-expansion-verified-20261015/3ds-idea`,
-branch `codex/resume-expansion-verified-20261015`, verified HEAD `2081c89`,
+branch `codex/resume-expansion-verified-20261015`, verified HEAD `cf7d720`,
 base `be33b26b75d75851c0185c615692f2f9a9eb3d4e`. Root owns this checkout and STATUS.
 Runtime `d40d8e1` integrates reviewed worker `70d1911`; test fixture `06bec2a`
 exposes the Resume query to the non-Resume folder scene mock. Both commits are
-pushed to draft PR 7 with documentation `2081c89`. This continuation reconciles
+pushed to draft PR 7 with documentation through `cf7d720`. This continuation reconciles
 that Git HEAD before further capture or workers. Independent Astra extra-high
 Standards and Spec reviews have no
 findings. Final full tests report 2,866 passes, the one unchanged missing
 historical Camera PNG failure, 102 skips and one TODO. Typecheck and production
 build `u777TCZvyAq0o5fDm5U3g` pass. Source/build are frozen.
 
-Six muted MacBook sessions save 1,678 raw pairs. Root inspected all 25 audit
+The prior six Helium sessions save 1,678 raw pairs. Root inspected all 25 audit
 sheets. Rapid Health and Camera visibly grow during their late footer poses;
 all five completed Resumes save footer 0-14 then departure 0-40, expanded at
 departure. No saved near-black pair exists. Camera fixed pre-HOME/ordinary/rapid
@@ -27,27 +27,38 @@ New [native motion and pixel control](docs/home-resume-motion-control-2026-10-15
 fill the native earlier-growth and continuous-departure coverage gap. Two silent
 movies contain 2,311 decoded window frames; root inspected all 15 audit sheets.
 Both show growth, expanded cover, footer retirement, departure and Health.
-Native lower endpoints are exact before/after both attempts. The fixed browser
+Native lower endpoints are exact before/after both attempts. The fixed Helium
 lower still differs at 1,776 pixels above delta 2, maximum 6. No matched input
 epoch, exact moving-pixel or cadence pass follows.
 
-The standalone control establishes a discrepancy in Helium's canvas
-write/storage/export pipeline, outside app code, without locating its stage.
-Independent decoding confirms all 24 retained
-PNGs differ from known bytes at 47,921 pixels, maximum delta 2.
-Do not attribute all Health maximum deltas 7/8 to that result or patch around
-it. Next repeat the control in an isolated default Chromium browser, then
-capture fixed Health lower endpoints from this frozen build. Do not disable
-privacy/security features, recolor captures or loosen native tolerances.
-Preserve the closed growth/readiness fixes. Native epochs/cadence, the third
-controller predicate and Manual neighbour loading remain open. Follow the
-four-flow queue after this bounded check. All four flows remain fail/unproven;
-moving/pickup remains excluded and the goal is active.
+The [Chromium endpoint control](docs/home-resume-motion-control-2026-10-15.md#chromium-control-and-fixed-health-endpoints)
+now closes that bounded comparison. Independently decoded known-pattern PNGs
+are exact in Chromium 153 Guest; Helium's retained export is not. The same
+frozen app build saved 1,549 pairs across three windows. All 1,106 eligible
+Health root lowers are exact. Both fixed Health
+entries and both post-Resume lowers are exact to each other; each differs from
+native at 3,406 pixels, none above delta 2, maximum 2. This meets the existing
+static lower-pixel threshold, not exact native bytes or whole animation parity.
+No app compensation follows. Browser environment differs in version, profile
+and distribution; a specific feature or all historical max7/8 causes remain
+unproved. Preserve those failures without further speculative rendering fixes.
 
-Only root operates GUI, muted on the MacBook. The candidate/control tabs and
-port-3041 server are closed; Azahar is not running and its isolated config is
-restored byte-for-byte. Dedicated muted Helium remains on a blank New tab;
-its exit was not verified. Recheck display and process identity before reuse.
+Next return to AN-02 Manual neighbour reveal, using the validated Chromium
+capture environment and the existing native Settings/Camera evidence. Capture
+first/repeated ordinary Manual Close on this frozen build before any new source
+slice. Preserve the selected-first repair; do not invent a generic stagger from
+the different native loading groups. Native epochs/cadence, the third Resume
+controller predicate and all four whole-flow checks remain open. No privacy
+feature changes, recoloring, relaxed tolerance or nearest-frame selection.
+Moving/pickup remains excluded and the goal stays active.
+
+Only root operates GUI, muted on the MacBook. Guest test tabs/window and the
+port-3041 server are closed. The original Chromium empty-profile New tab remains;
+browser exit is not claimed. Azahar was not launched in this continuation.
+Its prior isolated config restoration remains recorded. Dedicated muted Helium
+also remains on a blank New tab. Recheck display/process identity before reuse.
+All 2,417 scoped source/asset/build/config files rehash unchanged. No new app
+tests or build were needed for this evidence-only continuation.
 Earlier sources/builds/capture roots remain frozen, including the 614-pair
 lower-pixel control. Root inspected all seven control sheets. Its within-run
 lower endpoints are exact, while across-run differences remain unexplained.

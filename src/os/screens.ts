@@ -323,7 +323,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  const graphics=createPortfolioGraphics({soundRoom:options.soundRoom,cameraShoot:options.cameraShoot,reducedMotion:()=>reduced,cameraTextProbe:options.cameraTextProbe});const chrome=createNativeChrome();
  const manualPresentation=createManualEntryPresentation();
  // Opt-in CPU composition timing; presentation and GPU work are measured separately.
- let lastPaintTiming:{startedAt:number;overlayMs:number|null}|null=null;
+ let lastPaintTiming:{startedAt:number;preOverlayMs:number|null;overlayMs:number|null;titleIncomingMs:number|null}|null=null;
  const manualCanvases=[400,320,400,320].map(width=>{const canvas=document.createElement('canvas');canvas.width=width;canvas.height=240;return canvas;});
  const [lastPresentedUpper,lastPresentedLower,manualBackingUpper,manualBackingLower]=manualCanvases;
  type ManualEntrySource=Readonly<{origin:ManualEntryOrigin;state:MenuState}>;
@@ -779,7 +779,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   * Manual and outgoing applet entry consume it without making the paint diagnostic. */
  function paint(state:MenuState,date=new Date(),elapsedMs=0,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;homeCursorLoopFrame?:number;reuseHomeBackgroundMs?:number;manualEntryObservedElapsedMs?:number}):ScreenPaintResult|undefined{
   if(disposed)return;
-  lastPaintTiming=options.measurePaint?{startedAt:performance.now(),overlayMs:null}:null;
+  lastPaintTiming=options.measurePaint?{startedAt:performance.now(),preOverlayMs:null,overlayMs:null,titleIncomingMs:null}:null;
   if(options.cameraTextProbe)graphics.clearTextDiagnostic();
   entryMotionCandidate=undefined;
   resumeCandidate=undefined;resumeSourceCandidate=undefined;
@@ -1078,7 +1078,10 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const webCloseDraw=webClosePose&&(webClosePose.kind==='feedback'||webClosePose.kind==='out')?{frame:webClosePose.kind==='feedback'?webClosePose.frame:5}:undefined;
   const friendsCloseDraw=friendsClosePose&&(friendsClosePose.kind==='feedback'||friendsClosePose.kind==='out')?{kind:friendsClosePose.kind,frame:friendsClosePose.frame}:undefined;
   const resumeUpperPixels=resumeUpper?{width:400,height:240,data:new Uint8ClampedArray(t.getImageData(0,0,400,240).data)}:undefined;
-  const overlayStarted=timing?performance.now():null;graphics.overlay(t,b,state,elapsedMs,reduced,!!firmwareAssets,date,verification,deferNativeDestination,notesCloseDraw,notificationsCloseDraw,manualCloseDraw,friendsCloseDraw,webCloseDraw);if(timing&&overlayStarted!==null)timing.overlayMs=performance.now()-overlayStarted;
+  const overlayStarted=timing?performance.now():null;
+  if(timing&&overlayStarted!==null)timing.preOverlayMs=overlayStarted-timing.startedAt;
+  graphics.overlay(t,b,state,elapsedMs,reduced,!!firmwareAssets,date,verification,deferNativeDestination,notesCloseDraw,notificationsCloseDraw,manualCloseDraw,friendsCloseDraw,webCloseDraw);
+  if(timing&&overlayStarted!==null)timing.overlayMs=performance.now()-overlayStarted;
   const dialogKey=homeSoftwareDialogKey(state),dialogTitles=homeSoftwareDialogTitles(state);
   if(!dialogTitles)softwareDialogIcons=undefined;
   if(dialogTitles&&softwareDialogIcons?.key!==dialogKey){
@@ -1159,7 +1162,11 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
     }
     if(appletPose?.kind==='incoming'){
      if(appletEntryIncomingKind(appletIdentity.appId)==='title'){
-      if(!appletPose.resources||!graphics.drawAppletIncoming(state,t,b,appletPose.frame,appletPose.resources))throw Error('Native title-owned incoming paired cover unavailable');
+      if(!appletPose.resources)throw Error('Native title-owned incoming paired cover unavailable');
+      const titleIncomingStarted=timing?performance.now():null;
+      const titleIncomingDrawn=graphics.drawAppletIncoming(state,t,b,appletPose.frame,appletPose.resources);
+      if(timing&&titleIncomingStarted!==null)timing.titleIncomingMs=performance.now()-titleIncomingStarted;
+      if(!titleIncomingDrawn)throw Error('Native title-owned incoming paired cover unavailable');
      }else{
       // The stock overlay above supplied the exact pair; SceneIn clears over it.
       if(!nativeHome!.appletEntry(t,b,{appId:appletIdentity.appId,phase:'in',frame:appletPose.frame}))throw Error('Native common incoming paired cover unavailable');

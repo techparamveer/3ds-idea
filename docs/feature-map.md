@@ -1,5 +1,16 @@
 # Feature map — 1:1 queue
 
+15 October AN-04 expansion: [the bounded upper-work repair](home-resume-expansion-2026-10-15.md)
+is delivered as `d40d8e1`, with independent reviews, tests and production build.
+Six muted MacBook windows save 1,678 pairs. Rapid Health and Camera visibly
+expand through their late footer poses, then depart at expanded scale. All
+five completed Resumes preserve footer/departure order with no saved near-black
+pair. Fixed Camera before/ordinary/rapid endpoints match exactly on both LCDs.
+The Health lower residual is unresolved. Earlier compact growth and matched
+native input/cadence remain uncaptured; these are next, not another rewrite of
+the resolved freeze. All four whole flows stay fail/unproven. Moving/pickup
+remains excluded.
+
 15 October AN-04 follow-up: [rapid publication readiness](home-rapid-resume-readiness-2026-10-15.md)
 is delivered as `7650caa`, with independent review and integrated tests/build.
 Four new windows save 872 valid pairs. Both rapid runs retain footer and

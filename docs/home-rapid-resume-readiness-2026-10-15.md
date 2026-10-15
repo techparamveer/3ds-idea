@@ -43,6 +43,11 @@ not prove that the deferred branch executed; the source regression covers it.
 
 ## Remaining captured differences
 
+The following freeze is the older readiness candidate's result. The later
+[Resume expansion checkpoint](home-resume-expansion-2026-10-15.md) repairs
+the captured late-footer freeze and preserves the publication barrier. Earlier
+growth and native matched-motion acceptance remain open.
+
 Both rapid footer stages freeze compact Health plus outgoing Camera. At
 departure frame 0, Camera disappears but Health remains compact. Fresh native
 ordinals 25-26 grow and 27-32 retain an expanded panel. The source trace narrows
@@ -83,6 +88,33 @@ scheduling and retained Resume compositor/timing remain adaptations. Native
 moving pixels, input epochs, cadence and muted audio remain unverified. All
 four whole flows stay fail/unproven. Test browser/server, native app and owned
 Cua lease are closed. The unrelated human edit remains untouched.
+
+## Lower endpoint control
+
+A later control uses the same frozen build, muted Helium process/profile and
+origin, with no source or settings change. It saves 614 valid pairs in three
+windows: document A before HOME, A after ordinary footer Resume, then document
+B before HOME after address-bar navigation. All 555 eligible settled lower
+frames are PNG/RGBA-identical, lower PNG
+`ef91a3124c557894953e3e0a01a62b33463cbea97f8dbca55b0c2b7cab7dc8a9`.
+Ordinary Resume therefore preserves the lower endpoint within document A.
+
+That image is a third across-run result. Against the prior candidate it differs
+at 17,044 pixels above delta 2, maximum 8; against the earlier build it differs
+at 26,202, maximum 8. The residual is present before HOME and does not require
+a source revision or Resume. Its cause is still unestablished, and these two
+documents do not reproduce simple per-document variation. No mask or threshold
+change clears the across-run/native residual.
+
+Private `continuation-20261015/lower-control-audit/report.md` SHA-256 is
+`7b27db743323748477d2ea6a5a6c75a1f2b87d20efe6a722c0eb586e8eace50b`;
+manifest is `0d6cda49922a27dca171a1f0c73b53bb9b964786ee5f58c6772993d044c4a9cd`.
+All 1,842 original files are unchanged; root opened all seven sheets. Pre-input
+policy is `lower-control-policy.md`, and raw files are in `lower-control-browser`.
+The source/files/decoding triage is `rapid-lower-residual-triage/report.md`,
+SHA-256 `abd32856e7b2f4284bea1ff2450f62714a67b7278800d96202b300ae7b301e1a`.
+Browser tab and server are closed. This is bounded browser endpoint evidence,
+not native animation, timing or audio acceptance.
 
 ## Original worker change
 

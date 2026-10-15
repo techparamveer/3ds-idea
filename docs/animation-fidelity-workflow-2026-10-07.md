@@ -1,5 +1,23 @@
 # Animation fidelity workflow
 
+## Expansion captured; matched native motion next
+
+[The upper-work repair](home-resume-expansion-2026-10-15.md) is reviewed,
+integrated at `d40d8e1` and pushed with fixture correction `06bec2a`. Preserve
+build `u777TCZvyAq0o5fDm5U3g`, its 1,678 saved pairs and sealed audit. The
+recorded late footer grows for rapid Health and Camera; all completed Resumes
+depart expanded. Do not repeat the resolved compact-freeze source work.
+
+Next use ordinary inputs to capture earlier compact/intermediate growth and
+continuous departure against isolated native. Keep actual input durations and
+epochs explicit; saved label completeness is not native cadence. Do not join
+Camera's capped pre-HOME window to its later Resume recording. Continue fixed
+unmasked Health diagnostics without a tolerance change or nearest-frame search.
+Its earlier before-HOME control does not identify the cause of across-run noise.
+All helpers use Astra extra-high; only root drives muted MacBook GUI. The test
+tab/server are closed. All four whole flows remain fail/unproven. Historical
+next-action sections below record earlier checkpoints, not new assignments.
+
 ## Rapid readiness delivered; upper expansion next
 
 [The publication fix](home-rapid-resume-readiness-2026-10-15.md) is reviewed,

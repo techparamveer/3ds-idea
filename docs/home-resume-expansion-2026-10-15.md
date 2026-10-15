@@ -1,10 +1,117 @@
 # Resume expansion before departure
 
-Source-only correction based on captured rapid Resume from Camera selection back
+Source-backed correction based on captured rapid Resume from Camera selection back
 to suspended Health. Base `979977f84e085be339a6ebb2012be4fc08cd4ec5` includes the
 accepted-backing readiness fix. That fix remains intact. This note supersedes
 only the frozen intermediate upper assumption in the earlier Resume handoffs
 and [scale design](home-suspended-scale-2026-10-14.md).
+
+## Integrated capture checkpoint
+
+Worker `70d1911f57a16e404604d498fd28a623975a05db` is integrated as
+`d40d8e1494e09450de27204d322539e7641e9f33`. Test-only commit
+`06bec2ae5d6f2d2bf27e2e39a305e674dbfc06a9` gives the non-Resume folder scene mock
+its `homeResumeUpperActive: () => false` query. Both are pushed to draft PR 7.
+The frozen candidate is
+`/Users/paramveer/.codex/worktrees/resume-expansion-verified-20261015/3ds-idea`,
+branch `codex/resume-expansion-verified-20261015`, build `u777TCZvyAq0o5fDm5U3g`.
+This checkpoint supersedes the original worker-only verification boundary below.
+
+Two independent Astra extra-high reviews found no actionable issues. Spec
+review passed 110 focused tests and two private probes; Standards review
+passed 127 focused tests, a private paint probe and nine integrated folder
+tests. The full integrated rerun reports 2,866 passes, one unchanged missing
+historical Camera PNG failure, 102 skips and one TODO. Typecheck and production
+build pass. The missing fixture is required by `tests/camera-date-group.test.mjs:44`:
+`/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/camera-3d-badge-sdmc-recapture-20261005/browser/lower.png`.
+It was not replaced or waived. The initial integrated run had eight additional
+folder mock failures; the explicit fixture correction removes those eight.
+
+Under private root `P` defined below, the review report/manifest SHA-256 pairs are:
+
+- `expansion-spec-review/report.md`:
+  `fa404ee289adb88dc2359ff016c726ad0c8c159e1f3c8fe142dca5f6665466c3`;
+  manifest `b770db143f997365cf5e33feb523d54bb7eded42bcd018ef280181fb3fed42e0`.
+- `expansion-standards-review/report.md`:
+  `f10a9647a1e953d396a0062d81a40aea5d54db64e882450f713da06a82bfc40e`;
+  manifest `707bfbf04c7fbc347d6eaba22a31963934a99475056e6b1cd838b6a07ae88750`.
+
+Application logs are `expansion-integrated-full-tests-rerun.log`,
+`expansion-integrated-typecheck.log` and `expansion-integrated-build.log`.
+No asset or shader changes accompany this slice; shader checks were not rerun.
+
+## Browser and fixed native comparisons
+
+The coordinator alone drove ordinary keyboard/touch inputs in muted Helium
+on the built-in MacBook display. Six sessions saved 1,678 raw pairs and 5,034
+original files. The auditor rehashed every original with zero structural
+errors; root opened all 25 chronological and fixed-comparison sheets. All
+346 placed source crops are RGBA-exact to their originals. Pre-input selectors
+are in `P/expansion-candidate-policy.md`; execution details are in
+`P/expansion-capture-attestation.md`. The raw root is
+`P/expansion-browser-candidate/reference/scenario-matrix/v1/captures/`.
+
+| Session prefix, in actual order | Pairs | Saved footer / departure / first app sequences |
+| --- | ---: | --- |
+| Health rapid `40f631a9` | 220 | 2-16 / 17-57 / 58 |
+| Health repeated rapid `e9869e96` | 220 | 3-17 / 18-58 / 59 |
+| Health ordinary footer `be6856f6` | 220 | 4-18 / 19-59 / 60 |
+| Camera before HOME `c91ece27` | 315 | No Resume before capture cap |
+| Camera ordinary HOME Resume `e66b8924` | 349 | 1-15 / 16-56 / 57 |
+| Camera rapid `5b9e264a` | 354 | 3-17 / 18-58 / 59 |
+
+Camera uses a new document. Generic sheets sort document-relative clocks;
+the table and audit supplement preserve actual cross-document order. The
+Camera-before cap is not continuous with either later Resume recording.
+Actual rapid direction/H holds are 45.9/110.6 ms, 47.9/108.6 ms and 49.1/121.3 ms.
+Their down events are 91.9, 94.1 and 99.3 ms apart. Ordinary Health touch holds
+170.6 ms. These are not exact replays of earlier browser inputs or native epochs.
+
+Rapid Health's first saved footer scales are 14 then 15, and 11 then 13 then
+15. Camera's are 12 then 15. Actual upper pixels enlarge and outgoing banners
+are absent by the first saved footer. These are late published poses, not
+proof of the precise input-admission pose or every earlier scale step. Each
+completed Resume saves footer source frames 0-14 then departure 0-40; every
+departure is expanded at scale 15. None of the saved pairs has both opaque
+LCDs with every RGB channel at most 1. Ordinary expanded footers retain their
+upper bytes across all 15 samples. These are saved publication results, not
+independent physical scan-out or native cadence acceptance.
+
+Fixed Camera pre-HOME, ordinary and rapid app endpoints are PNG/RGBA-exact on
+both LCDs. All 783 eligible Camera pairs retain stable endpoints. The five-photo
+gallery and counts are the existing read-only portfolio fixture, not native
+Camera fidelity. No cameraFixture query or SDMC override was used.
+
+All 486 settled Health lower frames share PNG SHA-256
+`1fce3ad4e9100fc4e6144a102b5a7ba832f6ed86b06ccfe692c79ff0e5d9ed06`.
+The three new fixed endpoints match each other. Ordinary Health against the
+prior candidate differs at 26,742 pixels above RGB delta 2, maximum 7; against
+the lower control, 25,956/max8; against the old baseline, 14,638/max8; against
+native ordinal 23, 1,776/max6. All comparisons use the complete 76,800 lower
+pixels, no mask, nearest-frame search, translation or color correction. The
+native crop is x40,y240,320x240 from `_15.10.26_12.26.19.209.png`.
+The cause of the diffuse lower residual remains unestablished. The earlier
+[614-pair control](home-rapid-resume-readiness-2026-10-15.md#lower-endpoint-control)
+already reproduced an across-run difference before HOME, without a source
+revision. It does not establish why the result differs.
+
+The sealed audit is `P/expansion-candidate-audit-astra/report.md`, SHA-256
+`683d1dedded358d2a370fdc48691ae6b014db9e363ad8c0b63a0a7248d33de98`.
+Its manifest is `e84f62fa86ec99aeddc719f733b3533156bd756db6a2eaeffab759d4b8bcd2b9`;
+original manifest is `e11ebbb30ce78a781c4108ec540711ec42648a6bbe790e059abbd0c37ebb6a02`.
+The fixed native order sheet reuses ordinals 25/26/27/32/33. No new native
+capture occurred in this candidate segment. Those sparse own PNGs show growth,
+expanded cover and later Health, but not continuous departure or matched input
+epochs. Native moving pixels and timing therefore remain unverified.
+
+The bounded late-footer freeze is repaired, tested and browser-inspected.
+All four whole flows remain fail/unproven. Next capture earlier growth and
+matched native departure; keep Health lower regression acceptance withheld.
+Portfolio content, initial-return/helper admission, scheduler, receipt cadence,
+retained compositor and Camera fixture adaptations remain explicit. The third
+native controller predicate, native raster/input timing and muted audio are
+unverified. Test tab/server and the earlier native session are closed. Prior
+sources/builds/captures and the unrelated human edit remain unchanged.
 
 ## Evidence boundary
 

@@ -1,6 +1,47 @@
 # STATUS: animation fidelity
 
 Current checkpoint, 15 October: this checkout is
+`/Users/paramveer/.codex/worktrees/resume-expansion-verified-20261015/3ds-idea`,
+branch `codex/resume-expansion-verified-20261015`, verified HEAD `06bec2a`,
+base `be33b26b75d75851c0185c615692f2f9a9eb3d4e`. Root owns this checkout and STATUS.
+Runtime `d40d8e1` integrates reviewed worker `70d1911`; test fixture `06bec2a`
+exposes the Resume query to the non-Resume folder scene mock. Both commits are
+pushed to draft PR 7. Documentation may follow; reconcile actual Git HEAD on
+restart. Independent Astra extra-high Standards and Spec reviews have no
+findings. Final full tests report 2,866 passes, the one unchanged missing
+historical Camera PNG failure, 102 skips and one TODO. Typecheck and production
+build `u777TCZvyAq0o5fDm5U3g` pass. Source/build are frozen.
+
+Six muted MacBook sessions save 1,678 raw pairs. Root inspected all 25 audit
+sheets. Rapid Health and Camera visibly grow during their late footer poses;
+all five completed Resumes save footer 0-14 then departure 0-40, expanded at
+departure. No saved near-black pair exists. Camera fixed pre-HOME/ordinary/rapid
+endpoints are exact on both LCDs. Health lower endpoints match each other but retain
+unexplained across-run and native differences. Camera-before caps before Resume;
+the later windows are separate recordings, not continuous coverage.
+Audit `683d1ded`, manifest `e84f62fa` and the full evidence are in
+[the expansion record](docs/home-resume-expansion-2026-10-15.md).
+
+Next: preserve this bounded late-growth repair and capture earlier rapid upper
+poses against matched ordinary native inputs. No guessed timer or scale-15
+input gate. Native input epochs, continuous departure/cadence, the third native
+controller predicate, Health lower pixels and Manual neighbour loading remain
+open. Follow the four-flow queue after that comparison; do not reopen excluded
+moving/pickup work. All four whole flows remain fail/unproven; the goal is active.
+
+Only root operates GUI, muted on the MacBook. The candidate tab and port-3041
+server are closed; Azahar is not running. Helium's dedicated muted process
+has no owned test window. Recheck display and process identity before reuse.
+Earlier sources/builds/capture roots remain frozen, including the 614-pair
+lower-pixel control. Root inspected all seven control sheets. Its within-run
+lower endpoints are exact, while across-run differences remain unexplained.
+All helpers use GPT-6 Astra extra-high. Tools cannot switch or verify the main
+model or speed. The old human edit remains untouched. This checkpoint
+supersedes all historical checkout, serving and next-action fields below.
+
+## Prior readiness checkpoint
+
+Prior checkpoint, 15 October: this checkout is
 `/Users/paramveer/.codex/worktrees/rapid-resume-verified-20261015/3ds-idea`, branch
 `codex/rapid-resume-verified-20261015`, verified HEAD `979977f` after runtime
 `7650caa` and its scene assertion update. Base was `d88dec1`.

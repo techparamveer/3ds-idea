@@ -1,5 +1,16 @@
 # Goal: finish the four remaining native animation flows
 
+15 October expansion: [continued upper Resume work](docs/home-resume-expansion-2026-10-15.md)
+is reviewed, integrated as `d40d8e1`, tested and pushed to draft PR 7. Six muted
+MacBook sessions save 1,678 pairs; root inspected all 25 sheets. Rapid Health
+and Camera now visibly expand during the late footer and depart expanded.
+Camera's fixed endpoints match on both LCDs. Health lower pixel differences
+remain unexplained. Earlier compact-to-intermediate growth, matched native
+input epochs and continuous departure/cadence remain unverified. Capture those
+next, preserving the bounded fix and all four whole-flow fail/unproven states.
+All helpers use GPT-6 Astra extra-high; tools cannot change or verify the main
+model. The goal stays active, with no new asset, audio or pickup work.
+
 15 October rapid Resume: [the publication barrier](docs/home-rapid-resume-readiness-2026-10-15.md)
 is reviewed, integrated as `7650caa`, tested and pushed to draft PR 7. New muted
 MacBook captures save 872 valid pairs with no paired black flash. Both rapid

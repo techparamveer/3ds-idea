@@ -1,5 +1,28 @@
 # STATUS: animation fidelity
 
+## Opening-pose cadence continuation
+
+Restart reconciled at `770562d` after integrating receipt audit `85e9fcc`.
+The previous turn completed the reviewed cursor control
+and changed the next action, so it counts as progress. Runtime d4c7276 and
+build Tc7ZG3LaSUpILEb72xG1X remain frozen. Next distinguish saved AN-01 opening
+pose gaps from publication cadence using existing receipts and the actual
+recorder path before changing timing or repeating captures. Root owns shared
+documents and GUI. One worker is assigned the clean worktree
+`applet-opening-cadence-20261015/3ds-idea`, branch
+`codex/applet-opening-cadence-20261015`, base 670804c. The completed audit finds
+44 missing source values between consecutive successful render receipts, with
+stock-overlay spikes during all six outgoing covers. Root independently ran
+the red-capable audit with zero integrity errors. A bounded candidate now owns
+the applet presentation, screens, portfolio overlay and focused tests listed
+in the workstream registry. Reuse Manual's accepted opaque-cover scheduling
+guard, without changing animation clocks or claiming native timing. Independent
+review and a live recapture must precede runtime integration. Root alone owns
+GUI. No browser/native session is live. Latest usage is
+54% used / 46% remaining; the 10%-remaining pause and no-notification rule apply.
+Cursor sampling is closed as a diagnostic, not a production fix or native pass.
+All four whole flows remain fail/unproven.
+
 ## Cursor control closed
 
 Restart reconciled on 15 October at Git HEAD

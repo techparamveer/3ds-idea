@@ -1,5 +1,25 @@
 # Workstream Registry
 
+## Opening-pose cadence, 15 October 2026
+
+Root remains in top-row integration checkout, now 770562d. One Astra extra-high
+worker owns `applet-opening-cadence-20261015/3ds-idea` on
+`codex/applet-opening-cadence-20261015`, base 670804c. Audit 85e9fcc is integrated
+as 770562d. The next bounded candidate may edit `src/os/applet-entry-presentation.ts`,
+`src/os/screens.ts`, `src/os/portfolio-screens.ts`, focused `tests/applet-entry-*.test.mjs`
+and `tests/stock-screen-preparation.test.mjs`, plus its existing handoff.
+Private logs stay under `continuation-20261015/applet-opening-cadence`.
+Defer cold destination composition until an accepted opaque outgoing frame20,
+using the existing Manual contract. Keep acquisition, paired recovery, lifecycle
+guards and animation clocks unchanged. Verify with failing-before/passing-after
+tests. No original capture, firmware/profile, GUI or server writes. Root owns
+shared docs and live comparison. Independent review and live evidence precede
+runtime integration. This does not authorize Friends incoming optimization.
+Independent Astra extra-high reviewer `applet_destination_review_20261015`
+may read the candidate and run focused checks. It writes only private
+`applet-opening-cadence/review`, and must recheck the final committed SHA.
+It has no source, shared-document, server or GUI reservation.
+
 ## Folder cursor resource audit, 15 October 2026
 
 Closed: worker handoff ee5e221 is integrated as c705bf4. The reviewed private

@@ -1,5 +1,18 @@
 # Animation fidelity workflow
 
+## Incoming paint measurement
+
+The [two-opening diagnostic](applet-incoming-cost-2026-10-15.md) locates most
+measured paint work in title incoming drawing. Use the existing receipt's
+pre-overlay, overlay and title-incoming intervals within the same paint;
+derive the unassigned remainder and reject negative overlap. Keep pair encoding
+separate. Null title timing outside its draw branch is valid. Neither these
+intervals nor source-frame gaps establish unrecorded cadence or native timing.
+The next worker may opt only validated title backgrounds into existing guarded
+alpha reuse. Root audits fixed first-occurrence pairs and recaptures after
+independent review, without changing animation clocks or source poses.
+This next action supersedes history below. All four whole flows remain fail.
+
 ## Destination scheduling checkpoint
 
 The [accepted-cover correction](applet-destination-scheduling-2026-10-15.md)
@@ -23,7 +36,7 @@ batch, and at least every 10 minutes of active work. At 90% used / 10% remaining
 or less remaining, interrupt helpers, checkpoint and pause the goal. Do not
 start another project slice. The user cancelled the Grok Bot notification.
 Send no external message; report the pause only in this chat. The ten-minute
-heartbeat has been updated accordingly. Current reading is 59% used / 41%
+heartbeat has been updated accordingly. Current reading is 61% used / 39%
 remaining. No bot message has been sent.
 
 ## Cursor control closed

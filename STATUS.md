@@ -1,5 +1,23 @@
 # STATUS: animation fidelity
 
+## Incoming detail measurement assigned
+
+Root reconciled clean HEAD `bae2e9ce1e8cb7e88b21a134cd35d7ed6cc7edd5`, pushed
+and read back from draft PR7. The preceding header control yielded new evidence
+and is closed. Both current and baseline source/builds stay frozen. No GUI or
+server is live. Usage is 64% used / 36% remaining; pause at 10%, no bot or
+automatic resume.
+
+One worker owns `/Users/paramveer/.codex/worktrees/applet-paint-detail-20261015/3ds-idea`,
+branch `codex/applet-paint-detail-20261015`, based on bae2e9c. Its bounded
+diagnostic adds title upper/lower draw timings and cache
+deltas, plus Notifications pair recomposition timing/reasons, under the
+existing opt-in measurePaint path. It must preserve clocks, rendering, cache
+policy, input, resource/failure handling and publication guards. Focused tests,
+full checks and independent review precede root's two-opening live measurement.
+Root owns shared docs, GUI and PR7. All four whole flows remain fail/unproven.
+This section supersedes older seats, serving and next actions below.
+
 ## Header control closed
 
 Root reconciled HEAD `f922ab456d31f2bbb135ac9c4f2aec0c034ecfb1`; read Git for

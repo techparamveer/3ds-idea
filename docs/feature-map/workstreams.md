@@ -1,5 +1,19 @@
 # Workstream Registry
 
+## Incoming detail measurement
+
+Root reconciled bae2e9c and retains the captured incoming-raster checkout/build.
+A GPT-5.6 Sol high worker owns
+`/Users/paramveer/.codex/worktrees/applet-paint-detail-20261015/3ds-idea`, branch
+`codex/applet-paint-detail-20261015`, at that base.
+Reservation: optional measured title draw/cache details and Notifications
+recomposition details in applet-title-entry-assets, stock-screen-presentation,
+portfolio-screens and screens; focused diagnostic tests and its handoff.
+It must not change rendering, clocks, input, cache policy, assets, recorder
+behavior, publication/failure guards or shared documents. Disabled measurement
+must perform no additional time/cache reads. Root alone owns GUI and will use
+a bounded first Friends/Notifications capture after checks and review.
+
 ## Header control closed
 
 Root reconciled `f922ab4`, closed both declared muted Guest/server sessions,

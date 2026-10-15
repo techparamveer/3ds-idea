@@ -1,9 +1,30 @@
 # STATUS: animation fidelity
 
+## Alpha audit closed; native opening saved
+
+Root reconciled HEAD 6df6c33 before this checkpoint. Runtime b83b768 and build
+g-qLVPFQLrJnvHrbuaS0e stay frozen. Audit 11d5d1dd validates 859 pairs and
+1,718 PNGs; root opened nine sheets and rehashed 2,577 candidate originals and
+18 derivatives. All Friends and lower LCD comparisons are exact. Nine
+Notifications upper clock/battery residuals remain unmasked. First-cold draws
+and missing incoming values stay open. Image helper is released.
+
+Root's new muted native opening under private applet-native-opening captures
+Friends then error002-0121. Normal Close and Notifications inputs were not
+issued. The silent 90.21-second movie and two own400x480 PNGs are preserved.
+Root inspected pilot and both anchors. Azahar PID4443 exited0 and is absent;
+screenshotPath restored. Config031bc535 differs from pre-run only in Qt's
+gameListHeaderState. No GUI/server/recorder remains active. Next audit the
+saved opening movie's actual coverage and broad order. One bounded GPT-5.6 Sol
+high helper owns only new private applet-native-opening/motion-audit outputs;
+no GUI, originals, source/build or shared docs. Root owns integration and PR7.
+All four whole flows remain fail/unproven. Usage is 32% remaining; stop at10%,
+no external message or automatic resume. This entry supersedes older state.
+
 ## Alpha retention captures saved
 
-Root reconciled HEAD `1ea60b619e1d9ee205a19522a036c28354aa3311` before
-this checkpoint. The first Friends opening saved all 259 pairs, user-stopped.
+Root reconciled HEAD `6df6c33` after the capture checkpoint. Actual capture
+HEAD was `1ea60b619e1d9ee205a19522a036c28354aa3311`. The first Friends opening saved all 259 pairs, user-stopped.
 The first Notifications opening saved all 600 pairs after reaching the frame
 limit while root's context was compacted. This is a preserved protocol
 deviation, not a successful manual stop. No retry or extra opening occurred.
@@ -19,7 +40,8 @@ this run, so the recording does not establish that the earlier spike is fixed.
 All-pair PNG and fixed-pose pixel audits are next. One bounded GPT-5.6 Sol high
 helper may write only new private `applet-alpha-retention/capture-audit`
 derivatives. Root owns shared docs, integration and GUI. No source/build edits
-are assigned; root may inspect the remaining cold draw read-only.
+are assigned. Root may inspect the remaining cold draw read-only and run the
+predeclared muted native-opening comparison under private applet-native-opening.
 All four whole flows remain fail/unproven. Weekly usage is 32% remaining;
 stop at 10%, with no external message or automatic resume. This section
 supersedes older seats, serving and next actions.

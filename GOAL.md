@@ -1,5 +1,15 @@
 # Goal: finish the four remaining native animation flows
 
+15 October AN-01: [alpha retention b83b768](docs/applet-alpha-retention-2026-10-15.md)
+fixes reproduced stock-raster eviction without changing source pixels or clocks.
+The 859-pair regression is audited and nine sheets inspected. All Friends and
+lower LCD comparisons match; Notifications clock/battery differences remain
+unmasked. Cold first draws and missing pose coverage remain open. Native Friends
+reaches service error002-0121; normal Close and Notifications were not issued.
+All four whole flows remain fail/unproven. STATUS owns active work; the latest
+AGENTS preference is GPT-5.6 Sol high helpers, normal speed. Stop at 10% weekly
+remaining, no external message and no automatic resume.
+
 15 October AN-01: the [detailed paint measurement](docs/applet-paint-detail-2026-10-15.md)
 is reviewed, tested and recorded in 529 paired frames. First title drawing
 takes 35.9/29.9 ms; a Notifications incoming18 HUD-key recomposition takes

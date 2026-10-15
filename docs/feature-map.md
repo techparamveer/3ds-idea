@@ -1,5 +1,14 @@
 # Feature map — 1:1 queue
 
+15 October AN-01: [alpha retention](applet-alpha-retention-2026-10-15.md)
+prevents reproduced stock-raster eviction within the unchanged cache bound.
+Runtime b83b768 is reviewed and checked. The 859-pair browser audit is closed
+with root inspection; Friends and lower LCDs match the prior build, while
+Notifications clock/battery differences remain unmasked. Cold drawing and
+six/seven missing incoming values remain open. Native Friends reaches
+error002-0121; no normal Close or Notifications input follows. Whole flows
+remain fail/unproven. STATUS owns the next action.
+
 15 October AN-01: [detailed incoming measurements](applet-paint-detail-2026-10-15.md)
 add reviewed opt-in upper/lower draw and Notifications recomposition detail.
 Root saves all 529 pairs and closes the muted MacBook Guest/server. First

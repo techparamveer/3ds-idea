@@ -1,5 +1,15 @@
 # Workstream Registry
 
+## Alpha audit closed; native movie audit reserved
+
+Root closed audit 11d5d1dd and inspected all nine sheets. The image helper is
+released. Source b83b768/build g-qLVPFQLrJnvHrbuaS0e stay frozen. Root's isolated
+native Friends movie reached error002-0121, without normal Close or Notifications
+inputs. Azahar/recorder exited; screenshotPath restored. A GPT-5.6 Sol high
+helper may audit only the saved movie/own PNGs into new private
+applet-native-opening/motion-audit. No GUI, source, build, original-evidence or
+shared-document writes. Root owns docs, visual inspection and PR7.
+
 ## Alpha retention capture audit
 
 The candidate source b83b768 and production build are frozen after one Friends

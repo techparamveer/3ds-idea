@@ -1,5 +1,21 @@
 # Animation fidelity workflow
 
+## Alpha retention comparison
+
+The [bounded cache repair](applet-alpha-retention-2026-10-15.md) has a closed
+859-pair regression. Root inspected all nine sheets. Preserve the capped
+Notifications run, empty masks, clock/battery differences and missing poses.
+No incoming HUD recomposition occurs in this recording, so it cannot establish
+that the earlier live spike is fixed. The source reproduction and pixel
+regression are separate evidence. Cold first-title cost remains open.
+
+The next isolated native movie reaches Friends first-use help then service
+error002-0121. No error dismissal, normal Close, Notifications opening, network
+or account changes follow. Preserve its partial scenario instead of relabeling
+it matched. Azahar is closed and screenshotPath restored. Motion audit is
+pending; any Notifications attempt must have its own declared input route.
+All four whole flows stay fail/unproven. STATUS supersedes historical next steps.
+
 ## Incoming detail measurement
 
 The [detailed receipt record](applet-paint-detail-2026-10-15.md) has two closed

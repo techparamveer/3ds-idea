@@ -1,5 +1,12 @@
 # Verification and evidence architecture
 
+[Alpha retention](../applet-alpha-retention-2026-10-15.md) distinguishes the
+actual-path cache-pressure reproduction from a recording without a HUD redraw
+during incoming. The latter cannot establish removal of the earlier live
+recomposition spike. Preserve frame-limit stops as protocol deviations even
+when every saved pair is intact. Native service dialogs can block the planned
+next input; missing Close/open actions must remain absent, not inferred.
+
 [Detailed incoming receipts](../applet-paint-detail-2026-10-15.md) keep title
 validation, upper/lower draws and remainder within the existing outer interval.
 Cache entry/byte deltas measure net retention, not allocation volume, and may

@@ -1,5 +1,35 @@
 # STATUS: animation fidelity
 
+## Cursor control closed
+
+Restart reconciled on 15 October at Git HEAD
+`5099bd5365b39618db9dc9314834e2d7f2fb0c2c`, clean and pushed to draft PR7.
+The previous turn completed and reviewed the normal-speed folder comparison,
+so it counts as progress. Runtime d4c7276 and build Tc7ZG3LaSUpILEb72xG1X remain
+frozen. The bounded child-cursor source and sampling control is now closed.
+Existing direct-LCD cursor sampling was rejected on 2 October and is not
+promoted by this experiment. Native phase and precision remain unproven.
+Root owns shared documents and GUI. The completed worker used the worktree
+`folder-cursor-sampling-20261015/3ds-idea`, branch
+`codex/folder-cursor-sampling-20261015`, base 5099bd5. Its one-file source
+handoff ee5e221 is integrated as c705bf4. Read Git for the following docs
+checkpoint. There is no runtime edit. The [closed control](docs/folder-cursor-transport-2026-10-15.md)
+has 244 raw images, exact PNG transport, zero outside-ROI differences and exact
+phase-41 repeats. Root inspected all four raw outputs and the live comparison
+on muted Chromium Guest, MacBook only. Independent review verifies all metrics
+and originals. The production bridge includes intentionally omitted tile/Back
+content, so its full-ROI mismatch is not a new cursor defect. Native phase and
+precision remain open; this control does not identify the native-correct route.
+All 2,425 frozen files and the human edit rehash unchanged. Guest/server are
+closed, port3042 is free, and the original New tab remains. All helpers are done.
+
+Next return to AN-01 opening-pose coverage. Distinguish recorder sampling gaps
+from production publication cadence before changing timing or repeating large
+captures. Do not repeat the static cursor experiment or promote its route
+differences into a production fix. All four whole flows remain fail/unproven.
+Latest weekly check is 54% used / 46% remaining; stop at 10% remaining, with
+no external notification. This next action supersedes the history below.
+
 ## Integrated recorder and closed folder capture
 
 Capture checkpoint is `f2131fc`, integrating reviewed worker `8631dc4` as `05db330`
@@ -67,7 +97,7 @@ This supersedes the earlier Sol preference below; the main chat model is not
 changed by helper tools.
 
 Stop this goal when the account's weekly remaining usage is 10% or less. At the
-latest account-tool check, the 10080-minute window was 50% used / 50% remaining.
+latest account-tool check, the 10080-minute window was 54% used / 46% remaining.
 Recheck before each worker dispatch and GUI/test batch, and at least every10
 minutes during active work. Read usedPercent as consumed, not remaining. If
 the threshold is reached, interrupt helpers, preserve the current checkpoint,

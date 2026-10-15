@@ -2,10 +2,18 @@
 
 Current execution constraint, 15 October: use GPT-6 Astra extra-high for all
 subagents. Stop and pause this goal at 10% or less weekly usage remaining,
-interrupting helpers and preserving the checkpoint. The latest reading is 50%
-used / 50% remaining in the 10080-minute account window. Follow STATUS for usage
+interrupting helpers and preserving the checkpoint. The latest reading is 54%
+used / 46% remaining in the 10080-minute account window. Follow STATUS for usage
 checks. The user cancelled the Grok Bot notification. Send no external message;
 report the threshold pause only in this chat.
+
+15 October AN-03: the [cursor transport control](docs/folder-cursor-transport-2026-10-15.md)
+is closed with 244 independently verified static browser outputs. Source assets
+and geometry match; sampling routes differ without changing outside pixels.
+No native-correct route is established and no runtime change is justified.
+Keep cursor phase/precision open. Next distinguish AN-01 recorder sampling gaps
+from production publication cadence before another opening-pose capture.
+All four whole flows remain fail/unproven; this next action supersedes history.
 
 15 October AN-03: [normal-speed folder comparison](docs/folder-normal-speed-2026-10-15.md)
 is captured and inspected on the unchanged runtime d4c7276. The recorder-only

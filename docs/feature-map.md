@@ -1,5 +1,12 @@
 # Feature map — 1:1 queue
 
+15 October AN-03: [cursor source and browser control](folder-cursor-transport-2026-10-15.md)
+is closed without a production change. All 244 private outputs validate;
+source assets and geometry match, while sampling routes differ within the
+cursor region only. Native phase/precision remain unproven. Do not revive the
+rejected direct-LCD candidate from this experiment. Next distinguish AN-01
+opening recorder gaps from publication cadence. All four flows remain fail.
+
 15 October AN-03: [normal-speed folder comparison](folder-normal-speed-2026-10-15.md)
 adds 1,311 raw browser pairs, five in-movie native actions and four own-PNG
 anchors on unchanged runtime d4c7276. Recorder identity repair 05db330 is

@@ -1,5 +1,29 @@
 # Workstream Registry
 
+## Folder cursor resource audit, 15 October 2026
+
+Closed: worker handoff ee5e221 is integrated as c705bf4. The reviewed private
+control saved 244 images; independent result review 0cab5d49 verifies all metrics.
+Root inspected the outputs and closed Guest/server. No runtime reservation or
+candidate promotion follows. Native phase/precision remain open. Next is AN-01
+opening recorder/publication cadence discrimination, not another cursor audit.
+The following dispatch record is historical; both helpers have completed.
+
+Root reconciled the integration checkout at 5099bd5. One Astra extra-high
+worker owns `/Users/paramveer/.codex/worktrees/folder-cursor-sampling-20261015/3ds-idea`,
+branch `codex/folder-cursor-sampling-20261015`, base 5099bd5. Its scope is the
+source-to-delivery cursor window/material/sampling audit and one handoff.
+Private derivatives belong under `continuation-20261015/folder-cursor-source`.
+No runtime edits, GUI, serving, profile changes or original-evidence writes
+are authorized for this audit. Its source result supports a private static
+four-route transport control under `continuation-20261015/folder-cursor-transport-control`.
+The worker prepares it without running a server or GUI. No production code
+reservation exists. Independent Astra extra-high review owns only
+`continuation-20261015/folder-cursor-source-review`, checking the source probe
+and experiment before execution. Root alone runs the control on the MacBook.
+Do not promote the rejected live direct-LCD candidate or a Loop-phase search.
+Root owns shared docs and subsequent integration.
+
 ## Normal-speed folder evidence, 15 October 2026
 
 Root owns top-row integration checkout `toprow-remaining-reveal-20261015/3ds-idea`

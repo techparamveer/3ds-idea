@@ -8,8 +8,19 @@ batch, and at least every 10 minutes of active work. At 90% used / 10% remaining
 or less remaining, interrupt helpers, checkpoint and pause the goal. Do not
 start another project slice. The user cancelled the Grok Bot notification.
 Send no external message; report the pause only in this chat. The ten-minute
-heartbeat has been updated accordingly. Current reading is 50% used / 50%
+heartbeat has been updated accordingly. Current reading is 54% used / 46%
 remaining. No bot message has been sent.
+
+## Cursor control closed
+
+The [private four-route experiment](folder-cursor-transport-2026-10-15.md)
+passes transport, isolation and repeat checks, not native acceptance. Source
+assets/geometry agree; native phase/precision remain open. No production change
+is justified. Preserve all 244 images and the independent review. Do not repeat
+this experiment or promote a nearest native phase. Next distinguish the AN-01
+opening recordings' sample gaps from production publication cadence before
+changing timing or making another large capture. Root alone operates muted
+MacBook GUI. Sessions are closed and all four whole flows remain fail/unproven.
 
 ## Normal-speed folder comparison closed
 

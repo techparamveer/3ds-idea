@@ -233,6 +233,39 @@ test('actual graphics pause Notes local source tracks beneath common cover and e
  }finally{graphics.dispose();setPortfolioFont(f.top);setPortfolioFont(f.bottom);f.dispose();}
 });
 
+for(const appId of ['game-notes','friends','notifications','browser','miiverse'])test(`${appId}: actual graphics defer destination composition while acquiring assets and preserve paired recovery`,async()=>{
+ const f=paintFixture();Object.assign(globalThis.document,{hidden:false,addEventListener(){},removeEventListener(){}});
+ const graphics=createPortfolioGraphics(),home=tickSystem(createPortfolioState(),3001),state=invokeSystemApplet(home,appId,3010);
+ let draws=0;
+ globalThis.__nativeTestDraw=(t,b)=>{draws++;t.fillText('native upper');b.fillText('native lower');return true;};
+ const assets=appId==='game-notes'?notesAssets():['friends','notifications'].includes(appId)?incomingAssets(appId):nativeAssets();
+ if(assets.renderer.draw){const draw=assets.renderer.draw;assets.renderer.draw=(...args)=>{draws++;return draw(...args);};}
+ if(assets.renderer.drawLayout){const draw=assets.renderer.drawLayout;assets.renderer.drawLayout=(...args)=>{draws++;return draw(...args);};}
+ setPortfolioFont(f.top,f.font);setPortfolioFont(f.bottom,f.font);
+ const draw=(defer=true)=>graphics.overlay(f.top,f.bottom,state,6200,false,false,new Date(0),undefined,defer);
+ try{
+  graphics.setAppletEntryCovered(state.system.runtime.active);
+  draw();await flush();assert.equal(calls.length,1);assert.equal(draws,0);
+  calls[0].resolve(assets);await flush();
+  for(let i=0;i<3;i++)draw();
+  assert.equal(draws,0,'loaded applet resources must not compose beneath unfinished outgoing');
+  assert.equal(graphics.preparedStockPair(state),undefined,'acquisition cannot manufacture a destination pair');
+  assert.equal(graphics.appletIncomingResources(state),undefined);
+  draw(false);assert.ok(draws>0);assert.ok(graphics.preparedStockPair(state));
+  const copy=f.bottom.drawImage;f.bottom.drawImage=()=>{throw Error('lower copy failed');};
+  assert.throws(()=>draw(false),/lower copy failed/);assert.equal(graphics.preparedStockPair(state),undefined);
+  f.bottom.drawImage=copy;draw(false);assert.ok(graphics.preparedStockPair(state));
+  graphics.syncStockView(home,f.top);assert.equal(assets.disposals,1);
+  draw();await flush();calls[1].reject(Error('Applet load failed'));await flush();
+  draw();assert.equal(graphics.stockStatus(state,f.top),'error');
+  assert.ok(f.top.marks.some(mark=>mark[1]==='Website display unavailable'));
+  assert.ok(f.bottom.marks.some(mark=>mark[1]==='A: Retry'));
+  assert.equal(graphics.retryStockScreen(),true);draw();await flush();
+  const before=draws;graphics.syncStockView(home,f.top);const stale=nativeAssets();calls[2].resolve(stale);await flush();
+  assert.equal(stale.disposals,1);assert.equal(draws,before);assert.equal(graphics.preparedStockPair(state),undefined);
+ }finally{graphics.dispose();setPortfolioFont(f.top);setPortfolioFont(f.bottom);f.dispose();}
+});
+
 test('actual graphics defer only Manual composition, keep acquisition live, publish recovery and release stale owners',async()=>{
  const f=paintFixture();Object.assign(globalThis.document,{hidden:false,addEventListener(){},removeEventListener(){}});
  const graphics=createPortfolioGraphics(),home=tickSystem(createPortfolioState(),3001),state=invokeSystemApplet(home,'manual',3010,{manualTitleId:'0004001000022400'});

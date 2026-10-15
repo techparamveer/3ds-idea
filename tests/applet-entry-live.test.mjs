@@ -45,7 +45,7 @@ const bindDispatch=new Function('state','screens','onPaint','createNativeScreenI
  return {dispatch,state:()=>state};
 `);
 
-async function fixture(run,withFirmware=true){
+async function fixture(run,withFirmware=true,{publicationGate=false}={}){
  const saved=new Map(['document','Image','FontFace','__appletGraphics'].map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
  const events=[],canvases=[];let status='ready',coverFailure=false,pair,covered=null,notesStep=0,copyReady=true,incomingResources={},incomingAvailable=true,incomingFailure=false,preparedOwner;
  function canvas(){
@@ -56,13 +56,13 @@ async function fixture(run,withFirmware=true){
  const graphics={ready:Promise.resolve(),selectedApp(){},syncStockView(){},readSuspendedCapture(runtime){return {status:'ready',owner:runtime.application,generation:1};},
   stockStatus(state){return state.system.phase==='app'&&state.system.runtime.instances[state.system.runtime.active]?.appId==='game-notes'&&status==='ready'&&notesStep<21?'loading':status;},
   stockFailure:()=>status==='error'?Error('Destination failed'):null,retryStockScreen(){status='ready';pair=undefined;return true;},
-  webFooterCloseResources:()=>pair&&incomingAvailable?incomingResources:undefined,preparedStockPair:()=>pair,notesFooterCloseResources:()=>pair?incomingResources:undefined,notificationsFooterCloseResources:()=>pair&&incomingAvailable?incomingResources:undefined,setAppletEntryCovered(owner){covered=owner;events.push({name:'covered',args:[owner]});},
+  webFooterCloseResources:()=>pair&&incomingAvailable?incomingResources:undefined,preparedStockPair:state=>!publicationGate||state.system.phase==='app'&&preparedOwner===state.system.runtime.active?pair:undefined,notesFooterCloseResources:()=>pair?incomingResources:undefined,notificationsFooterCloseResources:()=>pair&&incomingAvailable?incomingResources:undefined,setAppletEntryCovered(owner){covered=owner;events.push({name:'covered',args:[owner]});},
   appletIncomingResources(state){const owner=state.system.runtime.active,appId=state.system.runtime.instances[owner]?.appId;return pair&&preparedOwner===owner&&incomingAvailable&&['friends','notifications'].includes(appId)?incomingResources:undefined;},
   drawAppletIncoming(state,t,b,frame,resources){if(!pair||preparedOwner!==state.system.runtime.active||resources!==incomingResources||!incomingAvailable||incomingFailure)return false;t.record('incoming-upper',[frame,resources]);b.record('incoming-lower',[frame,resources]);return true;},
   revokeNotesBootCoverCandidate(){events.push({name:'notes-revoke',args:[]});},
   presentNotesBootCover(state){if(covered||status!=='ready'||state.system.runtime.instances[state.system.runtime.active]?.appId!=='game-notes')return false;notesStep++;return true;},
   notesBootCoverActive:()=>notesStep<21,banner(){},menuIcon(){},menuArtwork(){},
-  overlay(t,b,state,_time,_reduced,_native,_date,_verification,_defer,notesClose,notificationsClose,_manualClose,friendsClose,webClose){pair=status==='ready'&&copyReady?{}:undefined;preparedOwner=state.system.runtime.active;t.record('destination-upper');b.record('destination-lower');if(notesClose)t.record('notes-close',[notesClose]);if(notificationsClose)t.record('notifications-feedback',[notificationsClose]);if(friendsClose)t.record('friends-close',[friendsClose]);if(webClose)t.record('web-close',[webClose]);if(state.system.runtime.instances[state.system.runtime.active]?.appId==='game-notes')t.record('notes-step',[notesStep,covered]);},dispose(){pair=undefined;},
+  overlay(t,b,state,_time,_reduced,_native,_date,_verification,defer,notesClose,notificationsClose,_manualClose,friendsClose,webClose){if(publicationGate&&defer&&status!=='error')return;pair=status==='ready'&&copyReady?{}:undefined;preparedOwner=state.system.runtime.active;t.record('destination-upper');b.record('destination-lower');if(notesClose)t.record('notes-close',[notesClose]);if(notificationsClose)t.record('notifications-feedback',[notificationsClose]);if(friendsClose)t.record('friends-close',[friendsClose]);if(webClose)t.record('web-close',[webClose]);if(state.system.runtime.instances[state.system.runtime.active]?.appId==='game-notes')t.record('notes-step',[notesStep,covered]);},dispose(){pair=undefined;},
  };
  Object.assign(globalThis,{document:{createElement:canvas,fonts:{add(){}}},Image:class {decode(){return Promise.resolve();}},FontFace:class {load(){return Promise.resolve(this);}},__appletGraphics:graphics});
  const presenter=new Proxy({pressOffset:0,tilePressOffset:()=>0,folderChild(_ctx,_state,_empty,draw){draw(1);return true;},notesFooterReturnLabel:()=>({text:'HOME Menu'}),notesFooterReturn(t,b,frame){t.record('notes-return-upper',[frame]);b.record('notes-return-lower',[frame]);return !coverFailure;},webFooterCover(t,b,kind,frame){t.record('web-'+kind+'-upper',[frame]);b.record('web-'+kind+'-lower',[frame]);return !coverFailure;},notificationsFooterCover(t,b,kind,frame){t.record('notifications-'+kind+'-upper',[frame]);b.record('notifications-'+kind+'-lower',[frame]);return !coverFailure;},appletEntry(t,b,pose){const name=pose.phase==='in'?'common-incoming':'cover';t.record(name+'-upper',[pose]);b.record(name+'-lower',[pose]);return !coverFailure;}},{get:(target,key)=>key in target?target[key]:()=>true});
@@ -397,6 +397,62 @@ test('failed Notes HOME return remains explicit and B/HOME recovery can abandon 
  });
 });
 
+for(const appId of ids)test(`${appId}: first cold destination composition requires an accepted opaque cover and a later prepared-pair reveal`,async()=>{
+ await fixture(({screens,paint,events,graphics,setStatus})=>{
+  const caller=home(appId),state=open(caller,appId);paint(caller,0);setStatus('loading');
+  for(let frame=0;frame<20;frame++){
+   if(frame===15)setStatus('ready');
+   assert.equal(paint(state,frame+1).appletEntry.frame,frame);
+   assert.equal(events.filter(e=>e.name.startsWith('destination-')).length,0,`no hidden composition at cover${frame}`);
+   assert.equal(graphics.preparedStockPair(state),undefined);
+  }
+  assert.equal(paint(state,21,false).appletEntry.frame,20);
+  assert.equal(events.filter(e=>e.name.startsWith('destination-')).length,0,'pending cover20 cannot authorize composition');
+  assert.equal(screens.presentAppletEntry(state,ms(21)),true);
+  assert.equal(screens.appletEntryActive(state),true,'cold terminal must schedule its first destination paint');
+  const cold=paint(state,22,false);
+  assert.deepEqual(cold.appletEntry,{kind:'cover',frame:20,owner:state.system.runtime.active});
+  assert.equal(events.filter(e=>e.name.startsWith('destination-')).length,2);assert.ok(graphics.preparedStockPair(state));
+  assert.equal(screens.presentAppletEntry(state,ms(27)),true);
+  const reveal=paint(state,28,false);
+  assert.equal(reveal.appletEntry.kind,appId==='game-notes'?'handoff':'incoming');
+  if(appId!=='game-notes')assert.equal(reveal.appletEntry.frame,0,'cold work cannot consume the first incoming source poses');
+  assert.equal(screens.presentAppletEntry(state,ms(28)),true);
+  if(appId!=='game-notes')assert.equal(paint(state,29).appletEntry.frame,1);
+ },true,{publicationGate:true});
+});
+
+for(const appId of ['friends','browser'])for(const frame of [9,20])test(`${appId}: cold incoming${frame} recovery holds its accepted pose before advancing or handing off`,async()=>{
+ await fixture(({screens,paint,events,setStatus})=>{
+  const caller=home(appId),state=open(caller,appId);paint(caller,0);
+  for(let out=0;out<=20;out++)paint(state,out+1);
+  assert.equal(paint(state,22).appletEntry.kind,'cover');
+  for(let incoming=0;incoming<=frame;incoming++)assert.equal(paint(state,23+incoming).appletEntry.frame,incoming);
+  let step=24+frame;screens.revokeAppletEntryCandidate();setStatus('loading');
+  assert.equal(paint(state,step++),undefined);assert.equal(screens.appletEntryActive(state),false,'incoming cold recovery does not change the existing scheduling policy');
+  setStatus('ready');assert.equal(paint(state,step,false),undefined);
+  assert.equal(events.filter(e=>e.name.startsWith('destination-')).length,2,'cold incoming recovery still composes');
+  assert.equal(events.find(e=>e.name==='cover-upper').args[0].frame,20,'a replacement pair remains covered for its cold paint');
+  assert.equal(screens.presentAppletEntry(state,ms(step+5)),false);step+=6;
+  const held=paint(state,step++);assert.deepEqual(held.appletEntry,{kind:'incoming',frame,owner:state.system.runtime.active});
+  assert.equal(screens.stockStatus(state),'loading');
+  const next=paint(state,step);
+  assert.equal(next.appletEntry.kind,frame===20?'handoff':'incoming');
+  if(frame===9)assert.equal(next.appletEntry.frame,10);else assert.equal(screens.stockStatus(state),'ready');
+ },true,{publicationGate:true});
+});
+
+for(const appId of ids)test(`${appId}: revoked terminal cannot compose until a fresh terminal is accepted`,async()=>{
+ await fixture(({screens,paint,events})=>{
+  const caller=home(appId),state=open(caller,appId);paint(caller,0);screens.setReducedMotion(true);
+  paint(state,1,false);screens.revokeAppletEntryCandidate();assert.equal(screens.presentAppletEntry(state,ms(1)),false);
+  paint(state,2);assert.equal(events.filter(e=>e.name.startsWith('destination-')).length,0);
+  screens.revokeAppletEntryCandidate();paint(state,3);assert.equal(events.filter(e=>e.name.startsWith('destination-')).length,0);
+  const cold=paint(state,4);assert.equal(cold.appletEntry.kind,'cover');assert.equal(events.filter(e=>e.name.startsWith('destination-')).length,2);
+  assert.equal(paint(state,5).appletEntry.kind,appId==='game-notes'?'handoff':'incoming');
+ },true,{publicationGate:true});
+});
+
 for(const appId of ids)test(`${appId} outgoing cover requires a matching presented HOME pair then all source poses and a destination receipt`,async()=>{
  await fixture(({screens,paint,events,setStatus})=>{
   const caller=home(appId),state=open(caller,appId);paint(caller,0);setStatus('loading');
@@ -406,7 +462,7 @@ for(const appId of ids)test(`${appId} outgoing cover requires a matching present
    assert.deepEqual(result.appletEntry,{kind:'cover',frame,owner:state.system.runtime.active});
    assert.equal(events.filter(e=>e.name.startsWith('cover-')).length,2);assert.equal(screens.stockStatus(state),'loading');
   }
-  assert.equal(screens.appletEntryActive(state),false);assert.equal(paint(state,22).appletEntry.frame,20);
+  assert.equal(screens.appletEntryActive(state),true,'the opaque cover still schedules a cold destination');assert.equal(paint(state,22).appletEntry.frame,20);
   setStatus('ready');assert.equal(paint(state,23).appletEntry.frame,20,'the pair must be prepared before release is selected');
   let handoffStep=24;
   if(['friends','notifications','browser','miiverse'].includes(appId)){

@@ -1064,9 +1064,10 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   }
   if(!state.panel)dragGhost(b,view,graphics,nativeHome,firmwareAssets);panel(b,state,time,reduced,themeSprite,shopSprite,nativeHome);
   if(state.panel==='home-layouts'&&!layoutManager?.draw(t,b,state,()=>{if(!nativeHome?.hud(t,date,time,verification?.homeHudSample,homeEntry.hudSceneInFrame??undefined))status(t,date,chrome);},layoutPreview))throw new Error('Native HOME layout manager unavailable.');
-  // Browser scheduling adaptation: compose Manual only after the opaque
+  // Browser scheduling adaptation: compose native destinations after the opaque
   // outgoing pair was presented, not invisibly beneath unfinished outgoing.
-  const deferManualDestination=!!manualIdentity&&manualEntryEligible(state)&&!diagnosticPaint&&!manualPresentation.destinationCompositionAllowed(manualIdentity);
+  const deferNativeDestination=!diagnosticPaint&&(!!manualIdentity&&manualEntryEligible(state)&&!manualPresentation.destinationCompositionAllowed(manualIdentity)
+   ||!!appletIdentity&&appletEntryEligible(state)&&!appletPresentation.destinationCompositionAllowed(appletIdentity));
   // A first cold composition stays under out20 for this paired receipt. Only
   // a destination already published at paint start can begin the reveal.
   const manualDestinationReadyAtPaintStart=!!manualIdentity&&graphics.stockStatus(state,t)==='ready'&&!!graphics.preparedStockPair(state);
@@ -1077,7 +1078,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const webCloseDraw=webClosePose&&(webClosePose.kind==='feedback'||webClosePose.kind==='out')?{frame:webClosePose.kind==='feedback'?webClosePose.frame:5}:undefined;
   const friendsCloseDraw=friendsClosePose&&(friendsClosePose.kind==='feedback'||friendsClosePose.kind==='out')?{kind:friendsClosePose.kind,frame:friendsClosePose.frame}:undefined;
   const resumeUpperPixels=resumeUpper?{width:400,height:240,data:new Uint8ClampedArray(t.getImageData(0,0,400,240).data)}:undefined;
-  const overlayStarted=timing?performance.now():null;graphics.overlay(t,b,state,elapsedMs,reduced,!!firmwareAssets,date,verification,deferManualDestination,notesCloseDraw,notificationsCloseDraw,manualCloseDraw,friendsCloseDraw,webCloseDraw);if(timing&&overlayStarted!==null)timing.overlayMs=performance.now()-overlayStarted;
+  const overlayStarted=timing?performance.now():null;graphics.overlay(t,b,state,elapsedMs,reduced,!!firmwareAssets,date,verification,deferNativeDestination,notesCloseDraw,notificationsCloseDraw,manualCloseDraw,friendsCloseDraw,webCloseDraw);if(timing&&overlayStarted!==null)timing.overlayMs=performance.now()-overlayStarted;
   const dialogKey=homeSoftwareDialogKey(state),dialogTitles=homeSoftwareDialogTitles(state);
   if(!dialogTitles)softwareDialogIcons=undefined;
   if(dialogTitles&&softwareDialogIcons?.key!==dialogKey){

@@ -9,6 +9,36 @@ const ms=step=>10000+step*1000/60+.01;
 const sample=(s,step,overrides={})=>s.sample({identity,elapsedMs:ms(step),eligible:true,reducedMotion:false,...overrides});
 const present=(s,pose,step,pair)=>s.present(pose,identity,ms(step),true,pair);
 
+for(const appId of ['game-notes','friends','notifications','browser','miiverse'])test(`${appId}: destination composition needs the same accepted terminal identity and preserves incoming recovery`,()=>{
+ const s=createAppletEntryPresentation(),id={...identity,appId,owner:appId+':1'},pair={},resources={};
+ const next=(step,ready=false)=>sample(s,step,{identity:id,pair:ready?pair:undefined,incomingResources:ready?resources:undefined});
+ const accept=(pose,step)=>s.present(pose,id,ms(step),true,pair,resources);
+ assert.equal(s.destinationCompositionAllowed(id),false);
+ for(let frame=0;frame<=20;frame++){
+  const pose=next(frame);assert.equal(s.destinationCompositionAllowed(id),false,'a sampled terminal is not accepted');
+  assert.equal(s.present(pose,{...id,generation:2},ms(frame),true),false);
+  assert.equal(s.present(pose,id,ms(frame),false),false);
+  assert.equal(accept(pose,frame),true);
+ }
+ assert.equal(s.destinationCompositionAllowed(id),true);assert.equal(s.active(id),true,'the cold destination still needs composition');
+ for(const key of Object.keys(id))assert.equal(s.destinationCompositionAllowed({...id,[key]:key==='generation'?2:'different'}),false);
+ s.revoke();assert.equal(s.destinationCompositionAllowed(id),false);
+ const terminal=next(21);assert.equal(terminal.frame,20);assert.equal(s.destinationCompositionAllowed(id),false);
+ accept(terminal,21);assert.equal(s.destinationCompositionAllowed(id),true);
+ const first=next(22,true);accept(first,22);
+ if(appId!=='game-notes'){
+  const incoming=next(27,true);assert.equal(incoming.frame,5);accept(incoming,27);
+  s.revoke();assert.equal(s.destinationCompositionAllowed(id),true,'retained incoming must allow its destination to recover');
+  assert.equal(next(28),undefined);assert.equal(s.active(id),false,'missing incoming pairs retain their existing scheduling policy');
+  const held=next(34,true);assert.equal(held.frame,5);accept(held,34);
+  for(let step=35;step<=50;step++)accept(next(step,true),step);
+ }
+ assert.equal(s.ready(id),true);s.revoke();assert.equal(s.destinationCompositionAllowed(id),true,'a handed-off owner must keep composing');
+ assert.equal(s.active(id),false);s.reset();assert.equal(s.destinationCompositionAllowed(id),false);
+ s.skipAccessibilityShortcut(id);assert.equal(s.destinationCompositionAllowed(id),true);
+ assert.equal(s.destinationCompositionAllowed({...id,generation:2}),false);s.dispose();assert.equal(s.destinationCompositionAllowed(id),false);
+});
+
 test('all 21 outgoing poses survive repeated paints and only a matching destination render receipt releases the cover',()=>{
  const s=createAppletEntryPresentation(),pair={};
  for(let frame=0;frame<=20;frame++){
@@ -163,9 +193,9 @@ test('incoming elapsed catch-up still publishes title terminal20 before handoff 
 test('absent prepared pairs hold the source terminal; stalls and invalid publication rebase that hold',()=>{
  const s=createAppletEntryPresentation();
  for(let frame=0;frame<=20;frame++)present(s,sample(s,frame),frame);
- assert.equal(s.active(identity),false);const held=sample(s,21);assert.deepEqual([held.kind,held.frame],['cover',20]);
+ assert.equal(s.active(identity),true,'accepted terminal must schedule cold destination composition');const held=sample(s,21);assert.deepEqual([held.kind,held.frame],['cover',20]);
  assert.equal(s.active(identity),true,'an unacknowledged held pair remains pending');present(s,held,21);
- assert.equal(s.active(identity),false);
+ assert.equal(s.active(identity),true);
  const pair={};assert.equal(s.active(identity,pair),true);
  const stalled=sample(s,500,{pair});assert.deepEqual([stalled.kind,stalled.frame],['cover',20]);present(s,stalled,500,pair);
  const release=sample(s,501,{pair});assert.equal(release.kind,'handoff');s.revoke();

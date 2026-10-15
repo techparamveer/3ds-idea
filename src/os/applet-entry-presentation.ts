@@ -48,6 +48,10 @@ export function createAppletEntryPresentation() {
   let presented: PresentedAppletEntry | undefined, pending: { pose: AppletEntryPose; update: number } | undefined;
   const revoke = () => { ticket++; pending = undefined; rebase = true; };
   const ready = (next: AppletEntryIdentity | null) => !disposed && handedOff && sameAppletEntryIdentity(identity, next);
+  // Composition starts behind an accepted opaque cover. Retained incoming
+  // and completed owners keep their destination through publication rebases.
+  const destinationCompositionAllowed = (next: AppletEntryIdentity | null) => !disposed && sameAppletEntryIdentity(identity, next)
+    && (handedOff || presented?.kind === 'incoming' || !rebase && presented?.kind === 'cover' && presented.frame === 20);
   return {
     sample(input: Readonly<{ identity: AppletEntryIdentity | null; elapsedMs: number; eligible: boolean; pair?: object; incomingResources?: object; reducedMotion: boolean }>): AppletEntryPose | undefined {
       if (disposed) return undefined;
@@ -134,12 +138,12 @@ export function createAppletEntryPresentation() {
       const incomingKind = appletEntryIncomingKind(next.appId);
       if (presented?.kind === 'incoming' && sameAppletEntryIdentity(identity, next)) return !!pair && (incomingKind !== 'title' || !!incomingResources);
       return !sameAppletEntryIdentity(identity, next) || !!pending || rebase || !presented || presented.frame < 20
-        || !!pair && (incomingKind !== 'title' || !!incomingResources);
+        || !!pair && (incomingKind !== 'title' || !!incomingResources) || destinationCompositionAllowed(next);
     },
     // Accessibility-only adaptation: the existing nonvisual direct shortcut
     // has no selected, presented HOME pair. Do not fabricate one for its cover.
     skipAccessibilityShortcut(next: AppletEntryIdentity) { if(disposed)return;revoke(); identity = Object.freeze({ ...next }); presented = undefined; handedOff = true; },
-    ready, revoke,
+    ready, destinationCompositionAllowed, revoke,
     reset() { revoke(); identity = null; presented = undefined; handedOff = false; },
     dispose() { disposed = true; revoke(); identity = null; presented = undefined; handedOff = false; },
   };

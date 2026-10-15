@@ -150,3 +150,63 @@ simultaneous neighbour restoration still differs from partial native loading.
 Work and portfolio neighbours remain portfolio content. Existing native pixel,
 input, cadence and muted-audio gaps remain open. All four whole flows remain
 fail/unproven.
+
+## Isolated composition candidate
+
+After the audit, root authorized a bounded candidate on this worker branch.
+The visible capture had destination stock-overlay work during the outgoing
+cover. Source inspection confirms the graphics overlay composed the applet
+before the painter restored the retained HOME pair and drew that cover.
+This source fact establishes hidden composition independently of assigning a
+cause to the measured gaps.
+
+The candidate reuses Manual's accepted-cover scheduling boundary. Applet
+destination composition requires the complete current identity and an accepted
+cover20 without outgoing rebase. Pending or revoked cover20 cannot authorize
+it. Retained incoming and handed-off owners, including the accessibility
+shortcut, keep permission to compose their destination. The outgoing terminal
+stays active while its first destination pair is cold. Incoming missing-pair
+scheduling is unchanged.
+
+The bounded native-destination flag covers Manual and the five existing applet
+IDs. Resource acquisition continues. Explicit load failures still draw paired
+recovery, and a loaded asset cannot masquerade as a published pair. The first
+cold draw stays under cover20 because applet sampling already precedes the
+overlay and reads the prepared pair at paint start. No clock, timer, frame
+step, incoming raster, native asset or input behavior was changed.
+
+Failing-before command at `85e9fcc`, with only the new tests applied:
+
+```sh
+node --test --test-name-pattern='actual graphics defer destination|first cold destination' tests/applet-entry-live.test.mjs tests/stock-screen-preparation.test.mjs
+```
+
+All ten tests failed for early destination drawing. The actual graphics path
+made five Notes, eight Friends, eleven Notifications and one Browser/Miiverse
+native draw calls while composition was deferred. Each screens-painter case
+also drew both destination LCDs at cover0. The same command passes all ten
+after the correction. Logs are `candidate-red.log` and `candidate-green.log`
+in the private derivative directory.
+
+The expanded focused suite covers all five applets, current identity,
+revoked/pending terminals, late assets, cold composition crossing host ticks,
+incoming9 and incoming20 recovery, paired-copy failure, retry, disposal, Notes
+boot gating, reduced motion, accessibility and the existing Manual behavior.
+The real graphics tests use the real portfolio overlay, stock presentation
+and native session. They retain the existing fake Canvas and selected native
+draw callbacks; they are composition-order tests, not pixel acceptance.
+The live screens tests use the real screens painter with the existing graphics
+fixture. Its explicit cold-publication mode withholds current-owner pairs
+until composition; the other historical cases retain their warm fixture.
+
+Worker dependencies were copied with APFS clone semantics into independent
+`node_modules`, and all three public LFS GLBs were hydrated from the local
+cache. Root's dependencies and frozen build were not modified. The initial
+focused run passed 196 tests and the nonincremental typecheck passed. Final
+candidate checks and build identity will be appended after completion.
+
+This remains a browser scheduling adaptation. It relocates cold work behind
+an accepted opaque cover; it does not reduce that work or establish native
+duration. No server or GUI was started. Root's independent review and live
+recapture must precede runtime integration. All four whole flows remain
+fail/unproven.

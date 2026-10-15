@@ -224,7 +224,7 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
   const notesPaint=syncNotesIntro(state,view,native.status==='ready'?native.assets.renderer.packs:undefined);
   return stockScreens.draw(t,b,view,owner,nativeFonts.get(t),capture,date,time,notesPaint,verification,notesFooterClose,notificationsFooterClose,manualFooterClose,friendsFooterClose,webFooterClose);
  }
- function overlay(t:C,b:C,state:MenuState,time:number,reduced:boolean,nativeSystem=false,date=new Date(),verification?:{sampleCalendar?:boolean},deferManualDestination=false,notesFooterClose?:NotesFooterClosePaint,notificationsFooterClose?:{frame:number},manualFooterClose?:{frame:number},friendsFooterClose?:FriendsFooterClosePaint,webFooterClose?:{frame:number}){
+ function overlay(t:C,b:C,state:MenuState,time:number,reduced:boolean,nativeSystem=false,date=new Date(),verification?:{sampleCalendar?:boolean},deferNativeDestination=false,notesFooterClose?:NotesFooterClosePaint,notificationsFooterClose?:{frame:number},manualFooterClose?:{frame:number},friendsFooterClose?:FriendsFooterClosePaint,webFooterClose?:{frame:number}){
   const s=state.system;if(!s)return;
   if(s.phase==='app'){
    const view=getActiveAppView(state,time);let complete=false;
@@ -232,8 +232,9 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    else if(view&&s.runtime.active){
     // Keep acquisition live while the caller pair is covered. Resource errors
     // still draw the existing paired recovery rather than waiting for a cover.
-    if(view.appId==='manual'&&deferManualDestination)syncStockView(state,t);
-    if(view.appId!=='manual'||!deferManualDestination||stockScreens.getFailure()!==null)complete=semanticApplication(t,b,view,state,s.runtime.active,date,time,verification,notesFooterClose,notificationsFooterClose,manualFooterClose,friendsFooterClose,webFooterClose);
+    const deferDestination=deferNativeDestination&&['manual','game-notes','friends','notifications','browser','miiverse'].includes(view.appId);
+    if(deferDestination)syncStockView(state,t);
+    if(!deferDestination||stockScreens.getFailure()!==null)complete=semanticApplication(t,b,view,state,s.runtime.active,date,time,verification,notesFooterClose,notificationsFooterClose,manualFooterClose,friendsFooterClose,webFooterClose);
    }
    // Retain the application slot's last complete pair, before host overlays.
    if(complete&&s.runtime.active&&s.runtime.active!==resumeCoveredOwner&&!s.sleeping&&!s.preferences&&!s.dialog)suspendedCapture.record(s.runtime,s.runtime.active,t.canvas,b.canvas);

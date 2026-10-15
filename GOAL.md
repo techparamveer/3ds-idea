@@ -1,5 +1,14 @@
 # Goal: finish the four remaining native animation flows
 
+15 October AN-01: the [incoming raster candidate](docs/applet-incoming-raster-2026-10-15.md)
+is reviewed, tested and captured in 618 pairs. Its observed sustained title
+draw cost is lower, but 7/10 source values remain missing. All lower LCDs and
+opaque anchors match the baseline. A small Friends upper-header residual is
+unexplained; do not call the pixel regression clean. Next isolate that residual
+with a bounded same-browser control before further animation edits. Preserve
+both builds. All four whole flows remain fail/unproven. This next action
+supersedes the history below; STATUS records the active seats and usage.
+
 15 October AN-01: the [incoming paint measurement](docs/applet-incoming-cost-2026-10-15.md)
 identifies title drawing as the dominant paint interval in both first openings.
 The diagnostic is reviewed, tested and captured in 462 paired frames. Next
@@ -22,7 +31,7 @@ change the running coordinator model. Both capture and final wording review
 are closed; the latter used the newly requested helper settings.
 
 Stop and pause this goal at 10% or less weekly usage remaining, interrupting helpers and
-preserving the checkpoint. The latest reading is 60% used / 40% remaining in
+preserving the checkpoint. The latest reading is 62% used / 38% remaining in
 the 10080-minute account window. Follow STATUS for usage
 checks. The user cancelled the Grok Bot notification. Send no external message;
 report the threshold pause only in this chat.

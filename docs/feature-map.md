@@ -1,5 +1,14 @@
 # Feature map — 1:1 queue
 
+15 October AN-01: [incoming background reuse](applet-incoming-raster-2026-10-15.md)
+is reviewed, tested and captured in 618 pairs. All lower LCDs and opaque anchors
+match the baseline, but seven upper Friends comparisons have an unexplained
+small-header residual. Notifications retains clock/battery differences. Twenty
+of 32 fixed LCD comparisons are exact. Keep the regression open and isolate
+the header with a bounded same-browser control. Recorded incoming coverage
+still misses 7/10 source values. AN-01 through AN-04 remain fail/unproven.
+This next action supersedes the older entries below.
+
 15 October AN-01: [bounded incoming timing](applet-incoming-cost-2026-10-15.md)
 locates most measured paint work in title incoming drawing. Both first openings
 are saved in 462 audited raw pairs. Fixed comparisons retain only two upper

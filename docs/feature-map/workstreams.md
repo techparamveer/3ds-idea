@@ -1,5 +1,30 @@
 # Workstream Registry
 
+## Raster image audit closed
+
+The capture auditor is done. Its seal is `33ecb3dd`; root inspects all four
+sheets and verifies all original/derivative hashes. Root retains the frozen
+candidate and shared documents. The read-only remaining-cost helper is still
+active within its private derivative directory only. No implementation or GUI
+reservation belongs to a helper. The small Friends header residual is open.
+
+## Raster capture audit
+
+Root reconciled HEAD `91f15d0` and closed the declared two-opening candidate
+capture, with 618 pairs saved. Runtime `7cadf11` and its build are frozen.
+One GPT-5.6 Sol high helper may audit originals and fixed comparisons only into
+new private `applet-incoming-raster/capture-audit` derivatives. It has no
+repository, build, GUI, native profile or original-evidence write reservation.
+Root owns shared documentation, visual sheet inspection, commits and PR7.
+Prior worker source/test/build reservations remain closed.
+
+One second bounded helper may diagnose the saved Notifications incoming15
+overlay spike and Friends incoming0 cold cost using existing receipts and
+read-only source. Its only output is new private
+`applet-incoming-raster/remaining-cost-diagnosis`. No implementation, clock,
+resource, recorder, build or GUI change is assigned. Reproduce any claimed
+cause through the actual call path before proposing a correction.
+
 ## Raster candidate transferred
 
 Root accepted clean worker handoff `2707ff2`, then merged coordinator docs as

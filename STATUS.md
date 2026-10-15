@@ -1,5 +1,48 @@
 # STATUS: animation fidelity
 
+## Raster audit closed with a header residual
+
+Root still owns incoming-raster at reconciled HEAD `91f15d0`; read Git for the
+following documentation checkpoint. Audit `8ff74681` verifies all 618 pairs
+and 1,236 PNG CRC/decode checks. Root opens all four sheets and rehashes all
+1,854 originals and 12 sealed derivatives. Twenty of 32 exact-source LCD
+comparisons are exact. All lower LCDs and opaque anchors match, but the Friends
+header differs within x171 y8 width58 height12, reaching 348 pixels/max61.
+This is unexplained. Notifications clock/battery residuals remain unmasked.
+
+Next isolate the Friends header with a bounded same-browser baseline/candidate
+control before further animation edits. Runtime `7cadf11` and captured build
+`0gMCf5YkNIK5fheLAfL7o` stay frozen, as do the prior measurement source/build.
+No GUI or server is live. The image auditor is done; only the separately
+assigned read-only cost diagnosis remains active. All four whole flows remain
+fail/unproven. Weekly usage is 38% remaining. Pause at 10%, with no external
+message or automatic resume. This entry supersedes older next actions and seats.
+
+## Raster regression saved
+
+Root reconciled HEAD `91f15d05a15d2302885e2e0e608c8985098ce693` on
+`codex/applet-incoming-raster-20261015`. The declared first Friends and first
+Notifications openings are complete, with 309 pairs saved for each. Both
+stopped by user input, without a cap or retry. The muted MacBook Guest and
+server are closed; port 3045 is free and the original New tab remains.
+Runtime `7cadf11`, build `0gMCf5YkNIK5fheLAfL7o` and all 2,417 source/build
+files, 149,101,683 bytes, rehash unchanged. The separate human edit is intact.
+
+Next audit the 618 original pairs and the predeclared fixed comparisons against
+the sealed incoming-cost baseline. One helper may write only new private
+`applet-incoming-raster/capture-audit` derivatives; root owns shared documents,
+GUI and integration. No source, build, original-evidence or native-session
+write is assigned. Whole-paint medians in these recordings are 9.95/8.9 ms,
+with title-incoming medians 6.35/6 ms. Missing incoming source values remain
+7/10; first-raster cost and a Notifications overlay spike remain visible.
+These observations do not establish unrecorded cadence or native acceptance.
+One second read-only helper may diagnose those two remaining measured costs
+into new private `applet-incoming-raster/remaining-cost-diagnosis` files only.
+It has no implementation or shared-document reservation.
+All four whole flows remain fail/unproven. Usage is 62% used / 38% remaining;
+pause at 10%, without a bot message or automatic resume. This entry supersedes
+older serving, next-action and reservation entries below.
+
 ## Reviewed raster candidate transferred
 
 Root accepted clean worker handoff `2707ff2` and merged coordinator checkpoint

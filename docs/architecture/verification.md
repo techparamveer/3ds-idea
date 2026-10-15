@@ -1,5 +1,12 @@
 # Verification and evidence architecture
 
+[Title-background reuse](../applet-incoming-raster-2026-10-15.md) retains
+exact source-raster tests separately from full-LCD comparisons. Exact lower
+LCDs and opaque anchors do not excuse an unexplained upper-header residual.
+Compare first chronological shared source values with the declared empty
+masks. Report first-raster, remaining nonterminal, terminal and encoding costs
+separately; one recorded improvement does not establish unrecorded cadence.
+
 [Incoming paint intervals](../applet-incoming-cost-2026-10-15.md) are opt-in
 CPU measurements within one receipt, not native presentation timing. Check
 whole paint against pre-overlay, overlay, title incoming and the remainder;

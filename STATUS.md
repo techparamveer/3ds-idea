@@ -1,5 +1,26 @@
 # STATUS: animation fidelity
 
+## Current coordinator and candidate
+
+Root now owns `/Users/paramveer/.codex/worktrees/applet-opening-cadence-20261015/3ds-idea`
+on `codex/applet-opening-cadence-20261015`, reconciled at7b1b868 after the
+worker's explicit clean transfer4fa5fe1 and two docs-only coordinator commits.
+Runtime dcb6fb3 and buildKlvHppEeEH9Xi0W9-2Eux are frozen for capture.
+Independent review3a0c9175 has no actionable findings and199 focused passes.
+Worker checks have208 focused passes,2982 full passes, the known missing
+historical Camera PNG failure,102 skips/one TODO, passing typecheck/build.
+The old top-row checkout at236d118 retains unchanged runtime d4c7276 and its
+frozen build. All2425 baseline files and the separate human edit rehash unchanged.
+The worker and reviewer are done, with no source/build reservation.
+
+Next root serves only the reviewed candidate on loopback3043, following private
+`continuation-20261015/applet-opening-cadence/candidate-policy.md`. A fresh
+Chromium153 Guest is blank; verify mute on an inert manifest before app input.
+Only built-in MacBook display1 is connected. Root alone drives GUI. No candidate
+capture or native acceptance exists yet. All four whole flows remain fail.
+Weekly usage is56%used/44%remaining; stop at10%, no external notification.
+This section supersedes older ownership, serving and next-action entries.
+
 ## Opening-pose cadence continuation
 
 Restart reconciled at `770562d` after integrating receipt audit `85e9fcc`.

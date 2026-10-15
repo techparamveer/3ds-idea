@@ -1,5 +1,14 @@
 # Workstream Registry
 
+## Applet candidate transfer, 15 October2026
+
+Root owns the former `applet-opening-cadence-20261015/3ds-idea` worker checkout
+and branch after clean transfer4fa5fe1. Runtime dcb6fb3/buildKlvHppEeEH9Xi0W9-2Eux
+are reviewed and built. Worker source/test/build reservations are closed.
+Root alone serves and captures; further helper work may only analyze new
+private derivatives after root closes the capture. Old top-row coordinator
+checkout and its source/build stay frozen. Prior dispatch entries are history.
+
 ## Opening-pose cadence, 15 October 2026
 
 Root remains in top-row integration checkout, now 770562d. One Astra extra-high

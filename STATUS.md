@@ -1,5 +1,34 @@
 # STATUS: animation fidelity
 
+## Remaining top-row return verification
+
+Handed to root on 15 October 2026 after worker processes exited. Root owns
+`/Users/paramveer/.codex/worktrees/toprow-remaining-reveal-20261015/3ds-idea`,
+branch `codex/toprow-remaining-reveal-20261015`, runtime commit
+`d4c72760f2c43b5a5231dde6b39b91bcbb32799c`, base
+`2ba95e52b33aa77f57c5a2bcd66ce81730a89316`. The previous checkout/build remains
+frozen. The worker committed only the renderer, its tests and handoff document.
+The existing selected-only incoming visibility adaptation now includes Friend
+List, Browser and Miiverse with unchanged handoff and banner guards.
+Root inspected the native return brackets and the historical browser incoming
+sheets. Native references show notice/gate returns, not direct-footer Close.
+Do not infer a native partial-loader schedule or change any controller/timing.
+Worker checks pass: 33 reveal tests, 158 focused tests, typecheck and build.
+Base-renderer replay fails 18 tests with 15 controls passing. Independent Standards
+and Spec reviews have no actionable findings; they pass 73 and 33 focused tests.
+Root full checks report 2,894 passes, the unchanged missing historical Camera PNG
+failure, 102 skips and one TODO. Typecheck and production build
+`Tc7ZG3LaSUpILEb72xG1X` pass. Source and this build are now frozen.
+Next recapture first/repeated Friends/Browser/Miiverse open/Close before another
+source slice. See [the bounded record](docs/toprow-remaining-return-2026-10-15.md).
+Helpers use Astra extra-high; tools cannot change this chat's model.
+Only root may operate muted MacBook GUI. The earlier Guest setup attempt
+failed before app input/capture; no new visual verification exists. Port 3041 has
+no listener. The original test-browser New tab remains; no Guest was created.
+The old human edit in animation-fidelity remains unchanged. Artifacts
+remain on Sandisk1. All four whole flows remain fail/unproven. These ownership
+and next-action fields supersede the historical sections below.
+
 ## Top-row verification checkout
 
 Root now owns `/Users/paramveer/.codex/worktrees/toprow-reveal-verified-20261015/3ds-idea`,

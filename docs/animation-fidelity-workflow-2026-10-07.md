@@ -1,5 +1,16 @@
 # Animation fidelity workflow
 
+## Remaining top-row return
+
+[Runtime d4c7276](toprow-remaining-return-2026-10-15.md) extends the existing
+selected-only adaptation to Friends/Browser/Miiverse without new timing or
+controller logic. Independent review and root full checks are complete, with
+only the known missing Camera PNG test failure. Recapture build
+`Tc7ZG3LaSUpILEb72xG1X` on the muted MacBook. Browser setup failed before app input;
+there is no new capture or visual pass. Preserve the old build and all evidence.
+No further source-only slice before recapture. All four whole flows remain
+fail/unproven. This next action supersedes the historical sections below.
+
 ## Selected-first return captured
 
 [The integrated correction](toprow-selected-return-2026-10-15.md) passes its

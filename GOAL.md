@@ -1,5 +1,13 @@
 # Goal: finish the four remaining native animation flows
 
+15 October continuation: [Friends/Browser/Miiverse selected-first return](docs/toprow-remaining-return-2026-10-15.md)
+is implemented as `d4c7276`. Its cross-route fitted behavior is covered by tests;
+new production-browser and native acceptance are pending. Reviews have no
+findings; full checks retain only the known missing Camera PNG failure.
+Recapture the reviewed build before another source slice. The attempted
+baseline setup produced no 3DS frames. All four flows remain fail/unproven.
+Use Astra extra-high helpers; tools cannot change the main chat model.
+
 15 October AN-01 repair: [selected-first Notes/Notifications return](docs/toprow-selected-return-2026-10-15.md)
 is reviewed, integrated as `bda07ff`, tested and captured. Root inspected 23
 sheets from 2,575 paired frames. All four target returns keep the selected tile

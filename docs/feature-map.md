@@ -1,5 +1,12 @@
 # Feature map — 1:1 queue
 
+15 October AN-01 continuation: [remaining top-row return correction](toprow-remaining-return-2026-10-15.md)
+extends selected-only incoming to Friend List, Browser and Miiverse in d4c7276.
+Implemented and behavior-tested; candidate browser/native verification remains
+pending. The native references are gate returns, not ordinary footer Close.
+Next recapture all three first/repeated paths. Partial loader scheduling stays
+open; AN-01 through AN-04 remain fail/unproven.
+
 15 October AN-01 repair: [integrated selected-first return](toprow-selected-return-2026-10-15.md)
 keeps only the ordinary selection during Notes/Notifications incoming. Root
 inspected 23 sheets from 2,575 pairs; all four target Close routes restore

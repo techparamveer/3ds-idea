@@ -1,5 +1,15 @@
 # Animation fidelity workflow
 
+## Current usage guard
+
+The latest user preference selects GPT-6 Astra extra-high for every helper.
+Check account weekly usage before dispatching helpers or starting a GUI/test
+batch, and at least every10minutes of active work. At90% used /10% remaining
+or less remaining, interrupt helpers, checkpoint and pause the goal. Do not
+start another project slice. Follow STATUS for the threshold-triggered message
+to the user's Grok Bot destination, which is awaiting clarification. Current
+reading is44% used /56% remaining; no threshold message has been sent.
+
 ## Remaining top-row return
 
 [Runtime d4c7276](toprow-remaining-return-2026-10-15.md) extends the existing

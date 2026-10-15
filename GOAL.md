@@ -1,5 +1,12 @@
 # Goal: finish the four remaining native animation flows
 
+Current execution constraint,15October: use GPT-6 Astra extra-high for all
+subagents. Stop and pause this goal at10% or less weekly usage remaining,
+interrupting helpers and preserving the checkpoint. The latest reading is44%
+used /56% remaining in the10080-minute account window. Follow STATUS for usage
+checks and the user's threshold-triggered Grok Bot notification; its exact
+destination still needs clarification. Do not send it before the threshold.
+
 15 October continuation: [Friends/Browser/Miiverse selected-first return](docs/toprow-remaining-return-2026-10-15.md)
 is implemented as `d4c7276` and recaptured in 3,545 raw pairs. Root inspected
 31 sheets; all six Close paths retain Work alone through incoming, restore

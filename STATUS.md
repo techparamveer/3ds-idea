@@ -1,5 +1,57 @@
 # STATUS: animation fidelity
 
+## Current model and usage limit
+
+Latest user instruction on 15 October: all subagents use GPT-6 Astra extra-high
+(`gpt-6-astra`, `xhigh`). The running Sol helper was interrupted and completed
+Sol helpers stay idle. Fresh helpers must use the explicit requested settings.
+This supersedes the earlier Sol preference below; the main chat model is not
+changed by helper tools.
+
+Stop this goal when the account's weekly remaining usage is10% or less. At the
+latest account-tool check, the10080-minute window was44% used /56% remaining.
+Recheck before each worker dispatch and GUI/test batch, and at least every10
+minutes during active work. Read usedPercent as consumed, not remaining. If
+the threshold is reached, interrupt helpers, preserve the current checkpoint,
+start no new project work and mark the goal paused under this explicit user
+instruction. The user also requests a computer-use message to their "My King
+Bot" through "Grok Bot": "10% left weekly, repeat to Paramveer rn." The exact
+app/URL and recipient are awaiting clarification; do not guess or send early.
+Send once when the threshold is reached and the destination is verified.
+Unknown usage is not permission to assume the budget is available.
+A ten-minute heartbeat, `3ds-weekly-usage-stop-guard`, is active for this chat.
+It must not resume a paused/completed goal, and it pauses itself after the
+threshold notification is handled. No bot message has been sent.
+
+## Folder normal-speed continuation
+
+This continuation started on 15 October at Git HEAD
+`78c7fdece953eb6d449f31c6417a9f916dc504f9`, clean and pushed to draft PR7.
+Read Git for the following documentation checkpoint.
+The preceding turn completed and independently reviewed the remaining top-row
+candidate capture, so it counts as progress. Root retains this checkout and
+the frozen runtime/build below. Continue normal-speed aligned empty-folder
+Open/held Back first/repeat verification. Only root drives muted MacBook GUI.
+Two GPT-6.1 Sol extra-high helpers prepared this slice before the user switched
+helpers back to Astra extra-high. The current model section above is binding.
+No source change before a captured mismatch.
+
+Root established native folder1 at lower244,84 and opened its own400x480 PNG
+8dc74e5a. The unchanged exact-window pilot refused before recording because
+NSRunningApplication.launchDate was nil. A clean direct no-title launch also
+lacked that identity; no second pilot or animation inputs followed. Both
+processes exited0 and their absence was verified. Only screenshotPath was
+restored; Qt-normalized render/secondary geometry remains. Current private
+config is3db2b3c2; volume0/Null1/Static2 and frame_limit100 are unchanged.
+No source, browser, test or build changed. All four flows remain fail/unproven.
+Private evidence is continuation-20261015/folder-normal-speed-native, with
+policy, own endpoint, failed pilot and capture-ledger.md. The new Sol helpers
+prepared the native checklist and browser recipe without controlling GUI.
+Next: diagnose the missing process-generation identity without dropping the
+recorder guard, security changes or display-recording fallback. Do not repeat
+unchanged launches. Resume aligned Open/Back capture after a scoped pilot
+passes. This is the first continuation turn with this capture issue.
+
 ## Remaining top-row return verification
 
 Capture source HEAD is `d7babbbfbe1885b3f22098875d3b6aef4492e98d`, pushed to

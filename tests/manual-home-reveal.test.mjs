@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import ts from 'typescript';
-import {createPortfolioState,tickSystem,dispatchSystemEvent,completeManualFooterClose,invokeSystemApplet} from '../src/os/system.ts';
+import {createPortfolioState,tickSystem,dispatchSystemEvent,completeManualFooterClose,completeNotesFooterClose,completeNotificationsFooterClose,completeFriendsFooterClose,completeWebFooterClose,invokeSystemApplet} from '../src/os/system.ts';
+import {enableHomeControls,selectHomeToolbarControlTouch} from '../src/os/home-controls.ts';
 import {selectHomeSlot,settleHomeNavigation} from '../src/os/home-navigation.ts';
 import {getHomePresentation} from '../src/os/home-presentation.ts';
 import {decodeNativePng} from '../src/os/native-png.ts';
@@ -38,6 +39,13 @@ const ms=step=>10000+step*1000/60+.01;
 let inputAt=6000;
 const touch=(state,phase,x=80,y=226)=>dispatchSystemEvent(state,{type:'touch',phase,pointerId:7,x,y},inputAt+=100);
 const boot=id=>{const state=tickSystem(createPortfolioState(),3001),slot=Number(Object.entries(state.system.layout).find(([,app])=>app===id)[0]);return settleHomeNavigation(selectHomeSlot(state,slot));};
+const routes=[
+ {appId:'game-notes',focus:1,key:'notesClose',present:'presentNotesFooterClose',cancel:'cancelNotesFooterClose',complete:completeNotesFooterClose,x:160},
+ {appId:'notifications',focus:3,key:'notificationsClose',present:'presentNotificationsFooterClose',cancel:'cancelNotificationsFooterClose',complete:completeNotificationsFooterClose,x:160},
+ {appId:'friends',focus:2,key:'friendsClose',present:'presentFriendsFooterClose',complete:completeFriendsFooterClose,x:160},
+ {appId:'browser',focus:4,key:'webClose',present:'presentWebFooterClose',complete:completeWebFooterClose,x:53},
+ {appId:'miiverse',focus:5,key:'webClose',present:'presentWebFooterClose',complete:completeWebFooterClose,x:288},
+];
 
 // Runs the real material renderer and records its prepared pixels/placement.
 // Canvas transport is not a browser rasterizer or a native pixel oracle.
@@ -66,17 +74,20 @@ async function fixture(run){
  },{get:(target,key)=>key in target?target[key]:()=>true});
  globalThis.__manualRevealGraphics={ready:Promise.resolve(),selectedApp(){},syncStockView(){},stockStatus:()=>status,stockFailure:()=>status==='error'?Error('Manual resources unavailable'):null,
   preparedStockPair:()=>status==='ready'?pair:undefined,manualFooterCloseResources:()=>status==='ready'?resources:undefined,readSuspendedCapture:()=>({status:'none'}),
+  notesFooterCloseResources:()=>status==='ready'?resources:undefined,notificationsFooterCloseResources:()=>status==='ready'?resources:undefined,webFooterCloseResources:()=>status==='ready'?resources:undefined,
+  appletIncomingResources:()=>status==='ready'?resources:undefined,drawAppletIncoming:()=>true,setAppletEntryCovered(){},notesBootCoverActive:()=>false,revokeNotesBootCoverCandidate(){},
   banner(){},menuIcon(_ctx,app,x,y,size){calls.push({name:'portfolio',args:[app.id,x,y,size]});},menuArtwork(){},
   overlay(){pair={};},retryStockScreen(){status='ready';return true;},dispose(){},
  };
  const assets=()=>({presenter,sharedFont:{draw(){}},renderer,titleIconPixels:pixels,titleIcons:new Map(),titleDescriptions:new Map(),diagnostics:renderer.diagnostics,dispose(){}});
  const screens=createScreens({firmwareAssets:assets(),drawHomeBackground:()=>true,drawSuspendedBackground:()=>true});
  let step=0;
- const paint=(state,{receipt=true,verification}={})=>{
+ const paint=(state,{receipt=true,verification,present='presentManualFooterClose'}={})=>{
   calls.length=0;const before=JSON.stringify(state),now=ms(step++),result=screens.paint(state,new Date(0),now,verification);
   assert.equal(JSON.stringify(state),before,'presentation does not mutate grid/selection/input');
   screens.presentManualEntry(state,now);
-  const identity=receipt?screens.presentManualFooterClose(state,now):null;
+  screens.presentAppletEntry(state,now);
+  const identity=receipt?screens[present](state,now):null;
   return {result,identity,now,calls:structuredClone(calls)};
  };
  const open=state=>{
@@ -89,7 +100,22 @@ async function fixture(run){
   for(let count=0;count<30;count++){const sample=paint(released);if(sample.identity)return completeManualFooterClose(released,sample.identity,ms(step));}
   assert.fail('Manual Close did not accept outgoing20');
  };
- try{await screens.ready;await run({screens,paint,open,close,calls,home,renderer,pixels,
+ const openToolbar=(state,route)=>{
+  const selected=selectHomeToolbarControlTouch(enableHomeControls(state),route.focus);paint(selected);
+  const entered=invokeSystemApplet(selected,route.appId,inputAt+=100);
+  for(let count=0;count<50;count++){paint(entered);if(!screens.appletEntryActive(entered))return entered;}
+  assert.fail(`${route.appId} entry did not settle: ${screens.stockFailure()}`);
+ };
+ const closeToolbar=(state,route)=>{
+  const held=touch(state,'down',route.x);paint(held,{present:route.present});const released=touch(held,'up',route.x);
+  for(let count=0;count<40;count++){
+   const sample=paint(released,{present:route.present});
+   assert.equal(screens.stockFailure(),null);assert.ok(['feedback','out'].includes(sample.result?.[route.key]?.kind));
+   if(sample.identity)return route.complete(released,sample.identity,ms(step));
+  }
+  assert.fail(`${route.appId} Close did not accept outgoing20: ${screens.stockFailure()}`);
+ };
+ try{await screens.ready;await run({screens,paint,open,close,openToolbar,closeToolbar,calls,home,renderer,pixels,
   failEmpty:value=>{emptyFailure=value;},setStatus:value=>{status=value;},replaceResources:()=>{resources={};},replaceFirmware:()=>screens.setFirmwareAssets(assets())});}
  finally{screens.dispose();renderer.dispose();for(const[key,descriptor]of saved){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}}
 }
@@ -152,7 +178,7 @@ test('unaccepted terminal, revoked receipts and replaced firmware retain the pol
 
 test('missing empty or restored title resources fail explicitly and cannot retire the return',async()=>fixture(({screens,paint,open,close,home,failEmpty,pixels})=>{
  screens.setReducedMotion(true);const state=close(open(boot('camera')));
- failEmpty(true);assert.equal(paint(state).result,undefined);assert.match(String(screens.stockFailure()),/Manual HOME return empty slot unavailable/);assert.equal(screens.homeAppletFooterBannerReady(state),false);
+ failEmpty(true);assert.equal(paint(state).result,undefined);assert.match(String(screens.stockFailure()),/HOME return empty slot unavailable/);assert.equal(screens.homeAppletFooterBannerReady(state),false);
  failEmpty(false);screens.retryStockScreen();
  const sound=pixels.get('0004001000022500');pixels.delete('0004001000022500');
  assertSelectedOnly(paint(state),state,home);
@@ -169,4 +195,57 @@ test('cancelled and replaced Manual owners cannot leave HOME neighbours masked',
  const replacement=invokeSystemApplet(returned,'manual',7000,{manualTitleId:'0004001000022400'});
  assert.equal(screens.presentManualFooterClose(replacement,ms(100)),null);assertPopulated(paint(replacement),replacement);
  screens.dispose();assert.equal(paint(returned).result,undefined);
+}));
+
+for(const route of routes.slice(0,2)){
+ for(const reduced of [false,true])test(`${route.appId} first/repeated incoming retains the ordinary selection despite toolbar focus, reduced=${reduced}`,async()=>fixture(({screens,paint,openToolbar,closeToolbar,home})=>{
+  screens.setReducedMotion(reduced);let state=boot('health-safety');
+  for(let cycle=0;cycle<2;cycle++){
+   const selected=state.selected;
+   state=closeToolbar(openToolbar(state,route),route);
+   assert.equal(state.system.phase,'home');assert.equal(state.selected,selected);
+   assert.equal(state.system.homeNavigation.focus.toolbarActive,true);assert.equal(state.system.homeNavigation.focus.currentFocus,route.focus);
+   for(const frame of reduced?[20]:Array.from({length:21},(_,i)=>i)){
+    const sample=paint(state,{present:route.present});assert.deepEqual([sample.result?.[route.key]?.kind,sample.result?.[route.key]?.frame],['in',frame]);
+    assertSelectedOnly(sample,state,home);assert.equal(screens.homeAppletFooterBannerReady(state),false);assert.equal(screens.stockStatus(state),'loading');
+   }
+   const handoff=paint(state,{receipt:false,present:route.present});assert.equal(handoff.result?.[route.key]?.kind,'handoff');assertPopulated(handoff,state);
+   assert.equal(screens.homeAppletFooterBannerReady(state),false,'a painted but unaccepted handoff cannot admit the banner');
+   screens[route.present](state,handoff.now);assert.equal(screens.homeAppletFooterBannerReady(state),true);
+   const clear=paint(state,{present:route.present});assert.equal(clear.result?.[route.key],undefined);assertPopulated(clear,state);
+   if(!cycle)state=settleHomeNavigation(selectHomeSlot(state,Number(Object.entries(state.system.layout).find(([,id])=>id==='camera')[0])));
+  }
+ }));
+
+ test(`${route.appId} rejects unavailable empty graphics and unavailable restored artwork without accepting handoff`,async()=>fixture(({screens,paint,openToolbar,closeToolbar,home,failEmpty,pixels})=>{
+  screens.setReducedMotion(true);const state=closeToolbar(openToolbar(boot('health-safety'),route),route),options={present:route.present};
+  failEmpty(true);assert.equal(paint(state,options).result,undefined);assert.match(String(screens.stockFailure()),/HOME return empty slot unavailable/);assert.equal(screens.homeAppletFooterBannerReady(state),false);
+  failEmpty(false);screens.retryStockScreen();
+  const camera=pixels.get('0004001000022400');pixels.delete('0004001000022400');
+  assertSelectedOnly(paint(state,options),state,home);
+  assert.equal(paint(state,options).result,undefined);assert.match(String(screens.stockFailure()),/ordinary title icon unavailable/);assert.equal(screens.homeAppletFooterBannerReady(state),false);
+  pixels.set('0004001000022400',camera);screens.retryStockScreen();
+  for(let i=0;i<3&&!screens.homeAppletFooterBannerReady(state);i++)paint(state,options);
+  assert.equal(screens.homeAppletFooterBannerReady(state),true);assertPopulated(paint(state,options),state);
+ }));
+
+ test(`${route.appId} revoked receipts retain selected-only return; cancellation and firmware replacement restore the grid`,async()=>fixture(({screens,paint,openToolbar,closeToolbar,home,replaceFirmware})=>{
+  screens.setReducedMotion(true);const state=closeToolbar(openToolbar(boot('health-safety'),route),route),options={receipt:false,present:route.present};
+  assertSelectedOnly(paint(state,options),state,home);
+  screens.revokeNotesFooterCloseCandidate();assert.equal(screens[route.present](state,ms(100)),null);
+  assertSelectedOnly(paint(state,options),state,home);
+  assert.equal(screens[route.cancel](state),true);assertPopulated(paint(state,options),state);assert.equal(screens.homeAppletFooterBannerReady(state),true);
+  const next=closeToolbar(openToolbar(state,route),route);assertSelectedOnly(paint(next,options),next,home);
+  replaceFirmware();assert.equal(screens[route.present](next,ms(100)),null);
+  assertPopulated(paint(next,options),next);assert.equal(screens.homeAppletFooterBannerReady(next),true);
+ }));
+}
+
+for(const route of routes.slice(2))test(`${route.appId} incoming and handoff retain their existing populated grid`,async()=>fixture(({screens,paint,openToolbar,closeToolbar})=>{
+ const state=closeToolbar(openToolbar(boot('health-safety'),route),route);
+ for(let frame=0;frame<=20;frame++){
+  const sample=paint(state,{present:route.present});assert.deepEqual([sample.result?.[route.key]?.kind,sample.result?.[route.key]?.frame],['in',frame]);assertPopulated(sample,state);
+ }
+ const handoff=paint(state,{present:route.present});assert.equal(handoff.result?.[route.key]?.kind,'handoff');assertPopulated(handoff,state);
+ assert.equal(screens.homeAppletFooterBannerReady(state),true);
 }));

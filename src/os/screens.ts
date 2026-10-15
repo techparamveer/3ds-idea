@@ -177,7 +177,7 @@ function titleIcon(c:Context,appId:string|null|undefined,x:number,y:number,size:
  const side=Math.round(size*2/3);
  return titleArtwork(c,appId,Math.round(x+(size-side)/2),Math.round(y+(size-side)/2),side,side,assets);
 }
-function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:ReturnType<typeof createPortfolioGraphics>,chrome:ReturnType<typeof createNativeChrome>,view:HomePresentation,nativeHome?:NativeHome,capture=false,assets?:FirmwarePresentationAssets,suspendedSleepFrame=0,launchRetained:HomeLaunchPresentation|null=null,cursorLoop=getHomeCursorLoopFrame(state,reduced),folderEntry:HomeFolderEntryPose|null=null,manualReturnSelectedOnly=false){
+function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:ReturnType<typeof createPortfolioGraphics>,chrome:ReturnType<typeof createNativeChrome>,view:HomePresentation,nativeHome?:NativeHome,capture=false,assets?:FirmwarePresentationAssets,suspendedSleepFrame=0,launchRetained:HomeLaunchPresentation|null=null,cursorLoop=getHomeCursorLoopFrame(state,reduced),folderEntry:HomeFolderEntryPose|null=null,returnSelectedOnly=false){
  const system=state.system,controls=nativeHome?system?.homeControls:null;
  // Browser adaptation of captured ordering: reveal the child cursor at the panel endpoint.
  const folderCursorReady=!nativeHome||!state.opened||!folderEntry||folderEntry.folderFrame>=HOME_FOLDER_ENTRY_LAST_FRAME;
@@ -197,10 +197,10 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
    if(!drawn){
     artwork(()=>{const inset=size*.34;rounded(c,x+inset,tile.y+inset,size-inset*2,size-inset*2,2,'#d3d4d766','#c8c9cc');});
    }
-  }else if(manualReturnSelectedOnly&&appId&&folderLabel===null&&tile.index!==(state.opened?state.folderSelected:state.selected)){
-   // Fitted Manual return: keep selected-only through incoming20, then restore
-   // neighbours at handoff. This is not the native per-record loader schedule.
-   if(!nativeHome?.empty(c,x,y,size,view.density))throw Error('Native Manual HOME return empty slot unavailable');
+  }else if(returnSelectedOnly&&appId&&folderLabel===null&&tile.index!==(state.opened?state.folderSelected:state.selected)){
+   // Fitted Manual, Notes and Notifications return: retain selection through
+   // incoming20, then restore neighbours at handoff, not on a native loader clock.
+   if(!nativeHome?.empty(c,x,y,size,view.density))throw Error('Native HOME return empty slot unavailable');
   }else if(occupied){
    const nativeDrawn=capture&&tile.index===state.selected&&folderLabel!==null
     ?nativeHome?.captureFolder(c,x,y,size,view.density,folderLabel)
@@ -819,6 +819,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    !diagnosticPaint&&!document.hidden&&notesFooterCloseEligible(state)&&!panelFailure&&graphics.stockFailure()===null,reduced);
   const manualClosePose=manualClosePresentation.sample(state,manualCloseGeneration,notesCloseNow,
    !diagnosticPaint&&!document.hidden&&notesFooterCloseEligible(state)&&!panelFailure&&graphics.stockFailure()===null,reduced);
+  const returnSelectedOnly=manualClosePose?.kind==='in'||notesClosePose?.kind==='in'||notificationsClosePose?.kind==='in';
   if(diagnosticPaint||!appletIdentity||!appletEntryEligible(state))revokeAppletEntryCandidate();
   const appletOwner=state.system?.runtime.systemApplet;
   if(!appletIdentity&&(!appletOwner||!state.system?.runtime.instances[appletOwner])){appletPresentation.reset();appletBackingIdentity=null;}
@@ -1041,7 +1042,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    if(pauseHudFrame!==null&&!hudDrawn)throw Error('Native HOME pause HUD unavailable');
    if(!hudDrawn)status(t,date,chrome);
   }
-  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time,folderEntry);const folderChromeDrawn=nativeHome?.folderChrome(b,state,reduced,folderEntry);if(state.opened&&nativeHome&&!folderChromeDrawn)throw Error('Native folder entry chrome unavailable');grid(b,state,time,reduced,graphics,chrome,view,nativeHome,false,firmwareAssets,suspendedSleepFrame,launchPresentation,verification?.homeCursorLoopFrame??getHomeCursorLoopFrame(state,reduced),folderEntry,manualClosePose?.kind==='in');nativeHome?.folderBalloon(b,state,view);
+  b.fillStyle=palette.bottom;b.fillRect(0,0,320,240);if(!nativeHome&&state.theme==='white')chrome.draw(b,'icon-tray',0,33);if(!nativeHome?.toolbar(b,state))toolbar(b,sprite,chrome);nativeHome?.homePlate(b,state);folderBackdrop(state,time,folderEntry);const folderChromeDrawn=nativeHome?.folderChrome(b,state,reduced,folderEntry);if(state.opened&&nativeHome&&!folderChromeDrawn)throw Error('Native folder entry chrome unavailable');grid(b,state,time,reduced,graphics,chrome,view,nativeHome,false,firmwareAssets,suspendedSleepFrame,launchPresentation,verification?.homeCursorLoopFrame??getHomeCursorLoopFrame(state,reduced),folderEntry,returnSelectedOnly);nativeHome?.folderBalloon(b,state,view);
   if(pauseLower?.fadeFrame!==null&&pauseLower?.fadeFrame!==undefined){
    if(suspendedCapture.status!=='ready'||!pauseOwner||suspendedCapture.owner!==pauseOwner)throw Error('Native HOME lower pause capture unavailable');
    if(pauseLowerHomeCapture?.owner!==pauseOwner||pauseLowerHomeCapture.generation!==suspendedCapture.generation){

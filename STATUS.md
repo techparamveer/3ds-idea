@@ -1,5 +1,31 @@
 # STATUS: animation fidelity
 
+## Incoming cost isolated
+
+Root reconciled Git at `5e51e22043912b0cdeb2a40733bf91ffa796f0f2` in
+`/Users/paramveer/.codex/worktrees/applet-incoming-cost-20261015/3ds-idea`,
+branch `codex/applet-incoming-cost-20261015`. Runtime `ce402ac` and build
+`xzX--oY_BchQrfOIYENUa` remain frozen. Root completed the declared first Friends
+and Notifications openings on the muted MacBook Guest, saving all 253 and 209
+pairs. Both recordings stopped by user input, without a cap or retry. The
+owned Guest/server are closed and port 3044 is free. The original New tab remains.
+
+Same-receipt timing identifies title incoming drawing as the dominant paint
+interval: medians 17.8/21.8 ms against whole paint 20.5/25.3 ms. Pre-overlay
+medians are 1.4/2.5 ms; pair encoding is separate at 9.3/9.8 ms. Recorded pose
+coverage still misses 10/12 source values. These are CPU measurements during
+recording, not unrecorded cadence or native acceptance. Private evidence is
+`continuation-20261015/applet-incoming-cost/measured-timings.json`.
+
+Next audit those originals and their fixed regression pairs, while a bounded
+worker opts only the validated Friends/Notifications SceneIn backgrounds into
+the existing guarded opaque-alpha raster reuse. Preserve clocks, source poses,
+resources, composition order, cache bounds and disposal. The candidate must
+have focused/full checks, independent source review and root live recapture.
+Root owns shared docs and GUI. All four whole flows remain fail/unproven.
+Weekly usage is 60% used / 40% remaining; pause at 10% remaining without an
+external message or automatic resume. This entry supersedes older live state.
+
 ## Incoming measurement candidate
 
 Root accepted the clean worker handoff at `5c3005a2112bdb0e79fa66a3e4cd50b2983d6ec1`.

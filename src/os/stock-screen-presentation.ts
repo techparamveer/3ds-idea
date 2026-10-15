@@ -429,10 +429,9 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         ?(reducedMotion||healthEntry!.complete?20:healthEntry!.origin===null?0:healthEntrySceneInFrame(healthElapsed-healthEntry!.origin))
         :undefined;
       const healthPaintKey=view.appId==='health-safety'?[healthTopLoopFrame(healthElapsed,reducedMotion),healthEntryFrame]:null;
-      const keyComponents=[nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,notificationsHudKey,notesHudKey,browserHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey,notesFooterClose,notificationsFooterClose,manualFooterClose,friendsFooterClose,webFooterClose];
-      const key=JSON.stringify(keyComponents);
+      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,notificationsHudKey,notesHudKey,browserHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey,notesFooterClose,notificationsFooterClose,manualFooterClose,friendsFooterClose,webFooterClose]);
       const measuredSnapshot=options.measurePaint&&view.appId==='notifications'
-        ?{components:keyComponents.map(value=>JSON.stringify(value)),font} satisfies NotificationsStockPaintSnapshot:null;
+        ?{components:[nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,notificationsHudKey,notesHudKey,browserHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey,notesFooterClose,notificationsFooterClose,manualFooterClose,friendsFooterClose,webFooterClose].map(value=>JSON.stringify(value)),font} satisfies NotificationsStockPaintSnapshot:null;
       const recomposed=painted!==key||paintedFont!==font;
       const compositionStarted=measuredSnapshot&&recomposed?performance.now():null;
       let textRendered=false;

@@ -8,7 +8,10 @@ import { createPortfolioState, tickSystem, touchSystem, dispatchSystemEvent, set
 import { sampleHomeGrid, selectHomeSlot, settleHomeNavigation } from '../src/os/home-navigation.ts';
 import { homeTitles } from '../src/os/app-registry.ts';
 import { nativePaneParentPath, poseNativeLayout } from '../src/os/native-layout.ts';
-import { enableHomeControls } from '../src/os/home-controls.ts';
+import { enableHomeControls, isHomeSwitchPresentationActive } from '../src/os/home-controls.ts';
+import * as bannerFunctions from '../src/os/home-banner-host.ts';
+import { homeTitleBannerKind } from '../src/os/home-title-banner.ts';
+import { applicationCloseNeedsReadyScreen } from '../src/scene/application-close-input.ts';
 import { tickHomeNavigationClockObserved } from '../src/os/system.ts';
 import { createNativeScreenInputGate } from '../src/os/native-screen-input.ts';
 import { escapeUnreadyNativeScreen, releaseUnreadyNativeInput } from '../src/os/native-screen-system.ts';
@@ -43,6 +46,28 @@ function moduleUrl(path) {
   const url = data(code); modules.set(path, url); return url;
 }
 const { createScreens } = await import(moduleUrl(resolve(root, 'src/os/screens.ts')));
+const sceneAst = ts.createSourceFile('console-scene.ts', readFileSync(resolve(root, 'src/scene/console-scene.ts'), 'utf8'), ts.ScriptTarget.Latest, true);
+const sceneFunctions = [];
+function collectSceneFunctions(node) {
+  if (ts.isFunctionDeclaration(node) && ['observeFolderBanner', 'advanceBeforeMutation'].includes(node.name?.text)) sceneFunctions.push(node.getText(sceneAst));
+  ts.forEachChild(node, collectSceneFunctions);
+}
+collectSceneFunctions(sceneAst);
+assert.equal(sceneFunctions.length, 2);
+const sceneDependencies = { ...bannerFunctions, isHomeSwitchPresentationActive, tickHomeNavigationClockObserved, tickSystem, homeTitleBannerKind, applicationCloseNeedsReadyScreen, dispatchSystemEvent };
+const createSceneClock = new Function('initial', 'screens', ...Object.keys(sceneDependencies), `
+  let state=initial,homeClockSuspended=false,bannerObservedPhase=state.system.phase,lastBannerRestartBootSince=null,bannerEntryFooterBootSince=null,bannerLabelFailure=false;
+  const reduced=false,bannerClock=()=>({generation:'resume-scene',updateCount:state.system.homeClock.updateCount});
+  let bannerHost=createHomeBannerHost(bannerClock(),{managerInhibited:false,sceneInhibited:false,loadInhibited:false,nativeWorkerReady:true,activationReady:true,resourceReady:null});
+  const folderBanner={syncStockTitles:async()=>{},stockTitleStatus:()=>({ready:true}),status:()=>({ready:true,defaultReady:true})};
+  const audio={play(){}};
+  ${ts.transpileModule(sceneFunctions.join('\n'), { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText}
+  observeFolderBanner();
+  return {get state(){return state;},get host(){return bannerHost;},
+    advance(now){advanceBeforeMutation(now);state=tickSystem(state,now);observeFolderBanner();},
+    event(event,now){advanceBeforeMutation(now);const before=state;state=dispatchSystemEvent(state,event,now);observeFolderBanner(bannerClock(),homeApplicationBannerBoundary(before,state));},
+    replace(next){state=next;observeFolderBanner();},suspend(value){homeClockSuspended=value;observeFolderBanner();}};
+`);
 const readPack = path => JSON.parse(readFileSync(resolve(root, 'public/os/firmware/10.7.0-32E/' + path)));
 const packs = Object.fromEntries([['launcher', 'launcher.json'], ['messages', 'messages-and-loose.json'], ['hud', 'hud.json']]
   .map(([alias, path]) => [alias, readPack('packs/home/' + path)]));
@@ -55,7 +80,7 @@ const pane = (pair, name) => nativePaneParentPath(window(pair).pose, name).at(-1
 // asynchronous asset delivery are the browser boundaries supplied by the fixture.
 async function fixture(run, options = {}) {
   const saved = new Map(['document', 'Image', 'FontFace', '__scaleLoad'].map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
-  const events = [], loads = [], homePacks = structuredClone(packs);
+  const events = [], loads = [], homePacks = structuredClone(packs), pixelSnapshots = new Map();
   let failure = null, notice = null;
   function canvas() {
     const surface = { width: 0, height: 0, marks: [] };
@@ -63,9 +88,13 @@ async function fixture(run, options = {}) {
       clearRect() { surface.marks = []; }, fillRect() { surface.marks.push(['fill', ctx.fillStyle]); },
       drawImage(source) { if (source.marks) surface.marks = source.marks.map(mark => mark.slice()); },
       createLinearGradient: () => ({ addColorStop() {} }),
-      getImageData(_x, _y, width, height) { return { width, height, data: new Uint8ClampedArray(width * height * 4).fill(127) }; },
+      getImageData(_x, _y, width, height) {
+        const data = new Uint8ClampedArray(width * height * 4), id = pixelSnapshots.size + 1;
+        new DataView(data.buffer).setUint32(0, id);
+        pixelSnapshots.set(id, surface.marks.map(mark => mark.slice())); return { width, height, data };
+      },
       createImageData(width, height) { return { width, height, data: new Uint8ClampedArray(width * height * 4) }; },
-      putImageData(image) { surface.marks = [['pixels', image.width, image.height, image.data[0]]]; },
+      putImageData(image) { surface.marks = (pixelSnapshots.get(new DataView(image.data.buffer).getUint32(0)) ?? [['pixels', image.width, image.height]]).map(mark => mark.slice()); },
     }, { get: (target, key) => key in target ? target[key] : () => {} });
     surface.getContext = () => ctx; return surface;
   }
@@ -78,7 +107,10 @@ async function fixture(run, options = {}) {
     return { packs: source, measureSingleLineText: () => 222,
       draw(ctx, alias, name, options = {}) {
         const pack = source[alias], pose = poseNativeLayout(pack.layouts[name], pack.animations, options.bindings, options.overrides);
-        events.push({ name, options, pose }); ctx.canvas.marks.push(['native', name]); return name !== failure;
+        events.push({ name, options, pose }); ctx.canvas.marks.push(['native', name]);
+        const scale = options.bindings?.find(binding => binding.name === 'LncBase_U_00_ScaleUpDown');
+        if (scale) ctx.canvas.marks.push(['upper-scale', scale.frame]);
+        return name !== failure;
       }, drawLayout() { return true; }, dispose() {} };
   }
   const assets = { renderer: renderer(homePacks), sharedFont: { draw() {} }, dispose() {}, diagnostics: [],
@@ -252,7 +284,7 @@ function controls(f, initial) {
       let pair;
       for (let i = 0; i < count; i++) {
         now += 1000 / 60 - state.system.homeClock.remainderMs + .001;
-        state = tickHomeNavigationClockObserved(state, now, reduced).state;
+        state = tickHomeNavigationClockObserved(state, now, reduced, f.screens.homeResumeUpperActive(state)).state;
         if (paint) pair = f.paint(state, receipt);
       }
       return pair;
@@ -322,10 +354,35 @@ function departure(f, d) {
   assert.notDeepEqual(pair.upper, [['fill', '#000']]); assert.notDeepEqual(pair.lower, [['fill', '#000']]);
   for (let i = 0; pair.result.resume.kind === 'footer' && i < 20; i++) {
     assert.equal(f.screens.presentHomeEntryMotion(d.state), true);
+    d.advance(1, false);
     pair = f.paint(d.state, false);
   }
   assert.equal(pair.result.resume.kind, 'departure');
   return pair;
+}
+
+function sceneControls(f, initial) {
+  const scene = createSceneClock(initial, f.screens, ...Object.values(sceneDependencies));
+  let now = 7101;
+  scene.advance(now);
+  return {
+    get state() { return scene.state; }, get host() { return scene.host; },
+    replace: next => scene.replace(next), suspend: value => scene.suspend(value),
+    advance(count = 1, paint = true, receipt = true) {
+      let pair;
+      for (let i = 0; i < count; i++) {
+        now += 1000 / 60 - scene.state.system.homeClock.remainderMs + .001;
+        scene.advance(now); if (paint) pair = f.paint(scene.state, receipt);
+      }
+      return pair;
+    },
+    event(event) { scene.event(event, ++now); },
+    key(command) {
+      this.event({ type: 'button', command, phase: 'down', source: 'keyboard:' + command });
+      this.advance(2, false);
+      this.event({ type: 'button', command, phase: 'up', source: 'keyboard:' + command });
+    },
+  };
 }
 
 test('public HOME initial Appear stays separate and render samples every ordinary upper scale step', async () => {
@@ -388,11 +445,11 @@ test('a delayed receipt accepts its displayed frame after logical scale reaches 
     assert.equal(f.screens.presentHomeEntryMotion(d.state), true);
     assert.equal(f.screens.presentHomeEntryMotion(d.state), false);
     d.resume(route);
-    assert.equal(scale(departure(f, d)), 14, 'Resume uses displayed 14, not unpresented logical 15');
+    assert.equal(scale(departure(f, d)), 15, 'departure requires a newly composed and accepted expanded upper');
   });
 });
 
-test('quick footer and physical HOME Resume preserve accepted intermediate Health and Camera pairs', async () => {
+test('quick footer and physical HOME Resume expand accepted intermediate Health and Camera pairs', async () => {
   for (const appId of ['health-safety', 'camera']) for (const route of ['touch', 'home']) for (const selection of ['touch', 'left']) await fixture(async f => {
     const { d, selected } = await compact(f, appId); startExpansion(d, selected, selection);
     d.advance(2, false);
@@ -402,9 +459,8 @@ test('quick footer and physical HOME Resume preserve accepted intermediate Healt
     assert.equal(scale(f.paint(d.state, false)), frame + 2);
     d.resume(route);
     const pair = departure(f, d);
-    assert.equal(scale(pair), frame);
-    assert.deepEqual(pane(pair, 'N_WndwScale_00').translation, pane(accepted, 'N_WndwScale_00').translation);
-    assert.deepEqual(pane(pair, 'W_Wndw_00').size, pane(accepted, 'W_Wndw_00').size);
+    assert.equal(scale(pair), 15);
+    assert.deepEqual(pane(pair, 'W_Wndw_00').size, [296, 132]);
     assert.equal(f.screens.stockFailure(), null);
   });
 });
@@ -433,6 +489,139 @@ test('rapid HOME after unpublished Health or Camera reselection cannot expose tw
       assert.equal(d.sceneEvent({ type: 'button', command: 'home', phase: 'up', source: 'keyboard:KeyH' }), 'block');
       assert.equal(d.state.system.phase, 'app', 'the physical release cannot suspend the resumed owner');
     }
+  });
+});
+
+test('Resume footer continues the admitted upper scale before expanded SceneOut', async () => {
+  for (const appId of ['health-safety', 'camera']) await fixture(async f => {
+    const { d, selected } = await compact(f, appId);
+    startExpansion(d, selected);
+    const accepted = f.paint(d.state), start = scale(accepted);
+    assert.ok(start < 15);
+    d.resume('home');
+    const pair = d.advance();
+    assert.equal(pair.result?.resume?.kind, 'footer');
+    assert.equal(scale(pair), start + 1, 'Resume must grow the upper window while its footer leaves');
+    assert.equal(pair.result.resume.upperScaleFrame, start + 1);
+    assert.deepEqual(pair.upper.filter(mark => mark[0] === 'upper-scale'), [['upper-scale', start + 1]], 'the final upper pixels contain the sampled pose');
+  });
+});
+
+test('actual scene passes grow the resumed upper and retire its outgoing banner during the footer', async () => {
+  for (const appId of ['health-safety', 'camera']) {
+    let d;
+    await fixture(async f => {
+      d = sceneControls(f, await initialHome(f, true, appId)); d.advance(40);
+      const away = appId === 'health-safety' ? 'right' : 'left', back = away === 'right' ? 'left' : 'right';
+      d.key(away); d.advance(40);
+      assert.equal(logical(d).current, 0);
+      const outgoing = getHomeBannerHostView(d.host).primary;
+      assert.equal(outgoing.motion.visible, true);
+      d.key(back);
+      for (let i = 0; i < 40 && (logical(d).target !== 15 || !settled(d.state)); i++) d.advance(1, false);
+      assert.ok(logical(d).current < 15);
+      f.paint(d.state);
+      d.event({ type: 'button', command: 'home', phase: 'down', source: 'physical:HOME' });
+      assert.equal(d.state.system.phase, 'app');
+      assert.equal(f.screens.homeResumeUpperActive(d.state), true);
+      assert.equal(d.host.inputs.managerInhibited, false);
+      const rows = [];
+      for (let i = 0; i < 30; i++) {
+        if (i === 2) {
+          const scale = logical(d), update = d.state.system.homeClock.updateCount, primary = getHomeBannerHostView(d.host).primary;
+          d.suspend(true); d.advance(30, false);
+          assert.equal(logical(d), scale); assert.equal(d.state.system.homeClock.updateCount, update);
+          assert.deepEqual(getHomeBannerHostView(d.host).primary, primary);
+          assert.equal(d.host.inputs.managerInhibited, true);
+          d.suspend(false);
+        }
+        const pair = d.advance(), view = getHomeBannerHostView(d.host);
+        rows.push({ ...pair.result?.resume, upper: pair.upper, view });
+        if (pair.result?.resume?.kind === 'departure') break;
+      }
+      const footer = rows.filter(row => row.kind === 'footer');
+      assert.ok(footer.some(row => row.upperScaleFrame > 0 && row.upperScaleFrame < 15));
+      assert.ok(footer.some(row => row.upperScaleFrame === 15));
+      assert.ok(footer.some(row => row.upper.some(mark => mark[0] === 'banner')), 'outgoing banner is drawn, not replaced by the selected owner');
+      assert.ok(footer.some(row => !row.upper.some(mark => mark[0] === 'banner')), 'its source hide completes during the footer');
+      for (const row of footer) {
+        assert.deepEqual(row.upper.filter(mark => mark[0] === 'upper-scale'), [['upper-scale', row.upperScaleFrame]]);
+        if (row.view.status === 'active') assert.equal(row.view.primary.activationEpoch, outgoing.activationEpoch);
+      }
+      assert.equal(getHomeBannerHostView(d.host).status, 'cleared');
+      assert.equal(rows.at(-1).kind, 'departure'); assert.equal(rows.at(-1).upperScaleFrame, 15);
+      assert.equal(f.screens.homeResumeUpperActive(d.state), false);
+      const stopped = logical(d), update = d.state.system.homeClock.updateCount;
+      d.advance(5, false);
+      assert.equal(logical(d), stopped); assert.equal(d.state.system.homeClock.updateCount, update);
+      assert.equal(d.host.inputs.managerInhibited, true);
+      assert.equal(f.screens.stockFailure(), null);
+    }, {
+      getHomeBanner: () => d ? getHomeBannerHostView(d.host) : undefined,
+      drawStockTitleBannerFrame(ctx, _motion, _ticket, kind) { ctx.canvas.marks.push(['banner', kind]); return true; },
+    });
+  }
+});
+
+test('footer terminal waits for an accepted expanded upper, not the latest unpainted logical frame', async () => {
+  for (const appId of ['health-safety', 'camera']) await fixture(async f => {
+    const { d, selected } = await compact(f, appId); startExpansion(d, selected);
+    f.paint(d.state); d.resume('home');
+    const start = logical(d).current;
+    for (let i = 0; i < 15; i++) {
+      const pair = f.paint(d.state);
+      assert.equal(pair.result.resume.kind, 'footer'); assert.equal(pair.result.resume.upperScaleFrame, start);
+    }
+    const terminal = f.paint(d.state, false);
+    assert.equal(terminal.result.resume.frame, 14);
+    d.advance(20, false);
+    assert.equal(logical(d).current, 15);
+    assert.equal(f.screens.presentHomeEntryMotion(d.state), true, 'late receipt accepts exactly the compact paint');
+    assert.equal(f.screens.homeResumeUpperActive(d.state), true, 'that receipt cannot claim the unpainted expansion');
+    const expanded = f.paint(d.state, false);
+    assert.equal(expanded.result.resume.kind, 'footer'); assert.equal(expanded.result.resume.frame, 14);
+    assert.deepEqual(expanded.upper.filter(mark => mark[0] === 'upper-scale'), [['upper-scale', 15]]);
+    assert.equal(f.screens.homeResumeUpperActive(d.state), true, 'paint alone cannot admit SceneOut');
+    assert.equal(f.screens.presentHomeEntryMotion(d.state), true);
+    assert.equal(f.screens.presentHomeEntryMotion(d.state), false);
+    const departure = f.paint(d.state);
+    assert.equal(departure.result.resume.kind, 'departure'); assert.equal(departure.result.resume.frame, 0);
+    assert.equal(departure.result.resume.upperScaleFrame, 15); assert.equal(scale(departure), 15);
+  });
+});
+
+test('ordinary expanded Resume keeps the existing footer0..14 then departure0 sequence', async () => {
+  for (const appId of ['health-safety', 'camera']) await fixture(async f => {
+    const d = controls(f, await initialHome(f, true, appId)); d.advance(40); f.paint(d.state); d.resume('home');
+    for (let frame = 0; frame <= 14; frame++) {
+      const pair = f.paint(d.state);
+      assert.equal(pair.result.resume.kind, 'footer'); assert.equal(pair.result.resume.frame, frame);
+      assert.equal(pair.result.resume.upperScaleFrame, 15);
+    }
+    const pair = f.paint(d.state);
+    assert.equal(pair.result.resume.kind, 'departure'); assert.equal(pair.result.resume.frame, 0); assert.equal(scale(pair), 15);
+  });
+});
+
+test('Resume upper admission and pending expanded receipt retain invalidation guards', async () => {
+  for (const reject of ['hidden', 'sleep', 'power', 'owner', 'origin', 'notice', 'resources', 'revoke', 'dispose']) await fixture(async f => {
+    const { d, selected } = await compact(f); startExpansion(d, selected); f.paint(d.state); d.resume('home');
+    d.advance(20, false); f.paint(d.state, false);
+    let state = d.state;
+    if (reject === 'hidden') document.hidden = true;
+    if (reject === 'sleep') state = setSystemSleeping(state, true, 10000);
+    if (reject === 'power') state = { ...state, powered: false };
+    if (reject === 'owner') state = { ...state, system: { ...state.system, runtime: { ...state.system.runtime, application: null } } };
+    if (reject === 'origin') state = { ...state, selected: state.selected + 1 };
+    if (reject === 'notice') f.notice('Unavailable');
+    if (reject === 'resources') f.screens.setFirmwareAssets({ ...f.assets });
+    if (reject === 'revoke') f.screens.revokeHomeEntryMotionCandidate();
+    if (reject === 'dispose') f.screens.dispose();
+    if (reject !== 'revoke') assert.equal(f.screens.homeResumeUpperActive(state), false, reject);
+    assert.equal(f.screens.presentHomeEntryMotion(state), false, reject);
+    const before = state.system.homeSuspendedScale;
+    const advanced = tickHomeNavigationClockObserved(state, 20000, false, f.screens.homeResumeUpperActive(state));
+    if (reject !== 'revoke' && reject !== 'power' && reject !== 'owner') assert.equal(advanced.state.system.homeSuspendedScale.current, before.current, reject);
   });
 });
 

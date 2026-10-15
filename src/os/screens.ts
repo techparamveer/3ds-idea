@@ -63,7 +63,7 @@ type SystemWithHomeApplicationTransition = NonNullable<MenuState['system']> & {
 };
 type NativeHome=ReturnType<typeof createFirmwareHome>;
 type FooterCloseDiagnostic={kind:NotesFooterClosePose['kind'];frame:number|null;owner:string;adaptation:true};
-type ScreenPaintResult={cameraText?:Readonly<{stock:CameraTextDiagnostic;coveredByResume:boolean}>;homeWallpaper?:boolean;healthBanner?:boolean;nativeSystem?:true;resume?:{kind:HomeResumePose['kind'];frame:number;owner:string;adaptation:true};entryMotion?:{folder:HomeFolderEntryPose|null;pauseFrame:number|null;pauseLower:HomePauseLowerPresentation|null};manualEntry?:{phase:'out'|'in';frame:number;owner:string};appletEntry?:{kind:AppletEntryPose['kind'];frame:number|null;owner:string};notesClose?:FooterCloseDiagnostic;notificationsClose?:FooterCloseDiagnostic;manualClose?:FooterCloseDiagnostic;friendsClose?:FooterCloseDiagnostic;webClose?:FooterCloseDiagnostic};
+type ScreenPaintResult={cameraText?:Readonly<{stock:CameraTextDiagnostic;coveredByResume:boolean}>;homeWallpaper?:boolean;healthBanner?:boolean;nativeSystem?:true;resume?:{kind:HomeResumePose['kind'];frame:number;upperScaleFrame:number;owner:string;adaptation:true};entryMotion?:{folder:HomeFolderEntryPose|null;pauseFrame:number|null;pauseLower:HomePauseLowerPresentation|null};manualEntry?:{phase:'out'|'in';frame:number;owner:string};appletEntry?:{kind:AppletEntryPose['kind'];frame:number|null;owner:string};notesClose?:FooterCloseDiagnostic;notificationsClose?:FooterCloseDiagnostic;manualClose?:FooterCloseDiagnostic;friendsClose?:FooterCloseDiagnostic;webClose?:FooterCloseDiagnostic};
 const fonts = new WeakMap<Context, BitmapFont>();
 let systemFont: Promise<void> | undefined;
 function loadSystemFont() {
@@ -521,7 +521,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  let layoutCapture:{identity:string;preview:HomeLayoutPreview}|undefined;
  let suspendedMetadata:{owner:string;metadata:SuspendedWindowMetadata}|undefined;
  let pauseLowerHomeCapture:{owner:string;generation:number;pixels:NativePixels}|undefined;
- type ResumeSource={identity:HomeResumeIdentity;origin:string;state:MenuState;upper:NativePixels;capture:Extract<SuspendedCapture,{status:'ready'}>;metadata:SuspendedWindowMetadata;lower:NativePixels;sleepFrame:number;scaleFrame:number;scaleEpoch:number};
+ type ResumeSource={identity:HomeResumeIdentity;origin:string;state:MenuState;upper:NativePixels;upperNeedsProgress:boolean;capture:Extract<SuspendedCapture,{status:'ready'}>;metadata:SuspendedWindowMetadata;lower:NativePixels;sleepFrame:number;scaleFrame:number;scaleEpoch:number};
  const resumeCanvases=[400,320].map(width=>{const canvas=document.createElement('canvas');canvas.width=width;canvas.height=240;return canvas;});
  function drawResumePixels(ctx:Context,pixels:NativePixels,index:number){
   const canvas=resumeCanvases[index],copy=canvas.getContext('2d')!,image=copy.createImageData(pixels.width,pixels.height);
@@ -529,7 +529,8 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  }
  const resumePresentation=createHomeResumePresentation();
  let resumeGeneration=0,resumeSource:ResumeSource|undefined,resumeSourceCandidate:ResumeSource|undefined,resumeCandidate:HomeResumePose|undefined;
- function resetHomeResume(){resumeGeneration++;resumeSource=undefined;resumeSourceCandidate=undefined;resumeCandidate=undefined;resumePresentation.reset();graphics.setResumeCoveredOwner?.(null);}
+ let resumeUpperCandidate:{pose:HomeResumePose;pixels:NativePixels}|undefined;
+ function resetHomeResume(){resumeGeneration++;resumeSource=undefined;resumeSourceCandidate=undefined;resumeCandidate=undefined;resumeUpperCandidate=undefined;resumePresentation.reset();graphics.setResumeCoveredOwner?.(null);}
  function resumeHomeOrigin(state:MenuState):string|null {
   const s=state.system;if(!s)return null;
   const nav=getHomeNavigation(state),view=activeHomeRecord(nav);
@@ -569,6 +570,11 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const capture=graphics.readRetainedApplicationCapture?.(runtime);
   return capture?.status==='ready'&&capture.owner===owner&&capture.generation===resumeSource.identity.captureGeneration?resumeSource.identity:null;
  }
+ function homeResumeUpperActive(state:MenuState):boolean {
+  const identity=resumeIdentity(state),scale=state.system?.homeSuspendedScale;
+  return !!identity&&!!nativeHome&&!disposed&&!panelFailure&&!document.hidden&&graphics.stockFailure()===null
+   &&scale?.kind==='resume'&&scale.owner===identity.owner&&scale.target===15&&resumePresentation.predeparture(identity);
+ }
  let suspendedPresentation=createHomeSuspendedPresentation();
  let folderEntryMotion:HomeEntryMotion|null=null,pauseEntryMotion:HomeEntryMotion|null=null;
  let folderEntryMotionKey:string|null=null;
@@ -576,7 +582,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  let folderEntryNeedsRebase=false,pauseEntryNeedsRebase=false;
  let entryMotionGeneration=0;
  let entryMotionCandidate:{generation:number;folder:HomeEntryMotion|null;folderNavigationRevision:number;pause:HomeEntryMotion|null}|undefined;
- function revokeHomeEntryMotionCandidate(){resumePresentation.revoke();resumeCandidate=undefined;resumeSourceCandidate=undefined;entryMotionGeneration++;pendingFolderEntryMotion=null;pendingPauseEntryMotion=null;entryMotionCandidate=undefined;folderEntryNeedsRebase=true;pauseEntryNeedsRebase=true;folderEntryBanner.revoke();rootFolderBannerCandidate=undefined;folderEntryBannerCandidate=null;folderEntryBannerReleaseCandidate=undefined;}
+ function revokeHomeEntryMotionCandidate(){resumePresentation.revoke();resumeCandidate=undefined;resumeUpperCandidate=undefined;resumeSourceCandidate=undefined;entryMotionGeneration++;pendingFolderEntryMotion=null;pendingPauseEntryMotion=null;entryMotionCandidate=undefined;folderEntryNeedsRebase=true;pauseEntryNeedsRebase=true;folderEntryBanner.revoke();rootFolderBannerCandidate=undefined;folderEntryBannerCandidate=null;folderEntryBannerReleaseCandidate=undefined;}
  function resetHomeEntryMotion(){if(disposed)resetHomeResume();revokeHomeEntryMotionCandidate();folderEntryMotion=null;folderEntryMotionKey=null;pauseEntryMotion=null;pauseLowerHomeCapture=undefined;folderEntryNeedsRebase=false;pauseEntryNeedsRebase=false;folderEntryBannerGeneration++;if(disposed)folderEntryBanner.dispose();else folderEntryBanner.reset();}
  let homeEntryPresentation=createHomeEntryPresentation();
  let homeEntryFooterCandidate:{sample:ReturnType<typeof sampleHomeEntryPresentation>;state:MenuState}|undefined;
@@ -714,8 +720,10 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    if(capture.status==='ready'&&capture.owner===source.identity.owner&&capture.generation===source.identity.captureGeneration){resumeSource=source;resumePresentation.reset();sourcePresented=true;}
   }
   const resume=resumeCandidate;resumeCandidate=undefined;
+  const upper=resumeUpperCandidate;resumeUpperCandidate=undefined;
   const resumePresented=!!resume&&!disposed&&!panelFailure&&graphics.stockFailure()===null&&!document.hidden
    &&resumePresentation.present(resume,resumeIdentity(state),true,graphics.preparedStockPair(state)??null);
+  if(resumePresented&&resumeSource&&upper?.pose===resume)resumeSource={...resumeSource,upper:upper.pixels,scaleFrame:resume.upperScaleFrame};
   const root=rootFolderBannerCandidate;rootFolderBannerCandidate=undefined;
   if(!disposed&&root&&root.generation===entryMotionGeneration&&!state.opened&&folderEntryEligible(state)&&!panelFailure){
    const current=homeEntryBannerIdentity(options.getHomeBanner?.());
@@ -863,21 +871,22 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const launchCandidate=getHomeLaunchPresentation(state,elapsedMs,reduced);
   const time=reduced?0:elapsedMs;if(verification?.homeCursorLoopFrame!==undefined&&(!Number.isInteger(verification.homeCursorLoopFrame)||verification.homeCursorLoopFrame<0||verification.homeCursorLoopFrame>=60))throw new Error('HOME cursor loop frame must be an integer from 0 to 59');const palette=themes[state.theme];background(t,state,time);if(state.theme==='white'){const drawn=options.drawHomeBackground?.(t,time,reduced,verification?.homeWallpaperFrame,verification?.reuseHomeBackgroundMs);if(verificationPaint)verificationPaint.homeWallpaper=drawn===true;if(state.panel==='home-layouts'&&drawn!==true)throw new Error('Native HOME layout preview wallpaper unavailable');}
   const layoutPreview=currentLayoutPreview(state,time);
-  const suspended=retainedSuspendedApplication(state),expanded=!!selectedSuspendedApplication(state);
   if(!diagnosticPaint&&resumeSource&&(state.system?.runtime.application!==resumeSource.identity.owner||resumeSource.origin!==resumeHomeOrigin(state)||resumeSource.scaleEpoch!==state.system?.homeSuspendedScale.epoch
    ||state.system?.phase==='home'&&!state.system.sleeping&&!selectedSuspendedApplication(state)))resetHomeResume();
   const resume=resumeIdentity(state);
+  const resumeUpper=homeResumeUpperActive(state)&&resumeSource?.upperNeedsProgress===true&&!diagnosticPaint;
+  const suspended=resumeUpper&&resume?state.system!.runtime.instances[resume.owner]:retainedSuspendedApplication(state),expanded=resumeUpper||!!selectedSuspendedApplication(state);
   graphics.setResumeCoveredOwner?.(resume&&!resumePresentation.ready(resume)?resume.owner:null);
-  const suspendedCapture:SuspendedCapture=suspended?graphics.readSuspendedCapture(state.system!.runtime):{status:'none'};
+  const suspendedCapture:SuspendedCapture=resumeUpper&&resumeSource?resumeSource.capture:suspended?graphics.readSuspendedCapture(state.system!.runtime):{status:'none'};
   const logicalScale=state.system?.homeSuspendedScale;
-  const scalePose=logicalScale?.kind==='home'&&logicalScale.owner===suspended?.id?logicalScale:undefined;
+  const scalePose=logicalScale&&logicalScale.kind!=='inactive'&&logicalScale.owner===suspended?.id?logicalScale:undefined;
   const scaleFrame=scalePose?.current??(expanded?15:0);
   const pauseOwner=pauseEntryOwner(state);
   const pauseIdentity=pauseOwner&&suspendedCapture.status==='ready'&&suspendedCapture.owner===pauseOwner
    ?{kind:'pause' as const,owner:pauseOwner,captureGeneration:suspendedCapture.generation}
    :pauseOwner&&pauseEntryMotion?.identity.kind==='pause'&&pauseEntryMotion.identity.owner===pauseOwner?pauseEntryMotion.identity:null;
   if(!diagnosticPaint&&!pauseOwner){pauseEntryMotion=null;pendingPauseEntryMotion=null;pauseLowerHomeCapture=undefined;}
-  const pauseEligible=!!suspended&&suspendedCapture.status==='ready'&&!state.system?.dialog&&!applicationTransition;
+  const pauseEligible=!resumeUpper&&!!suspended&&suspendedCapture.status==='ready'&&!state.system?.dialog&&!applicationTransition;
   const pauseMotion=sampleHomeEntryMotionCandidate(pauseEntryMotion,pendingPauseEntryMotion,pauseIdentity,homeUpdate,
    pauseEligible,pauseEntryNeedsRebase,reduced);
   const pauseEntry=homePauseEntryPresentation(pauseMotion,reduced);
@@ -936,7 +945,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    // Pending/hidden native instances are handled without painting the incoming fallback.
    // Keep initial HOME's owner title suppressed, but let an outgoing primary
    // finish its native hide while the suspended window expands.
-   if(hostedBanner.status==='active'&&hostedBanner.primary.motion.visible&&!(hostedBanner.primary.selection.kind==='app'&&hostedBanner.primary.selection.id===suspended?.appId)&&(!state.panel||((state.panel==='folder-settings'||state.panel==='folder-not-empty')&&hostedBanner.primary.selection.kind==='folder'))&&(state.system?.phase==='home'||launchPresentation!==null)){
+   if(hostedBanner.status==='active'&&hostedBanner.primary.motion.visible&&!(hostedBanner.primary.selection.kind==='app'&&hostedBanner.primary.selection.id===suspended?.appId)&&(!state.panel||((state.panel==='folder-settings'||state.panel==='folder-not-empty')&&hostedBanner.primary.selection.kind==='folder'))&&(state.system?.phase==='home'||resumeUpper||launchPresentation!==null)){
     const {selection,motion}=hostedBanner.primary;
     homeEntryDrawnBannerIdentity=homeEntryBannerIdentity(hostedBanner);
     if(selection.kind==='default'){
@@ -1017,7 +1026,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    const closeOpacity=homeSoftwareClosingDialogKey(state)&&applicationTransition?.intent.kind==='close'
     ?homeCloseWindowOpacity(reduced?20:applicationTransition.appQuitFrame):undefined;
    const windowAppearFrame=pauseEligible?homeSuspendedWindowEntryFrame(state,suspendedCapture,pauseMotion):undefined;
-   drawHomeSuspendedWindow(firmwareAssets.renderer,t,suspendedMetadata.metadata,expanded?'expanded':'compact',suspendedSleepFrame,closeOpacity,windowAppearFrame,pauseHudFrame??undefined,undefined,scaleFrame);
+   drawHomeSuspendedWindow(firmwareAssets.renderer,t,suspendedMetadata.metadata,expanded?'expanded':'compact',resumeUpper&&resumeSource?resumeSource.sleepFrame:suspendedSleepFrame,closeOpacity,windowAppearFrame,pauseHudFrame??undefined,undefined,scaleFrame);
   }
   // Native descending layout priority: upperBase499 then HUD100, both
   // after the upper 3D traversal. Camera hints stay inside upperBase.
@@ -1040,7 +1049,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    }
    if(!nativeHome?.pauseLower(b,suspendedCapture.lower,pauseLowerHomeCapture.pixels,pauseLower.fadeFrame))throw Error('Native HOME lower pause transition unavailable');
   }else if(pauseEntryMotion&&homeEntryMotionMatches(pauseEntryMotion,pauseIdentity)&&!homeEntryMotionActive(pauseEntryMotion))pauseLowerHomeCapture=undefined;
-  const resumeLowerWithoutFooter=expanded&&retainedResumeSupported(suspended)&&resumeHomeSourceSettled(state)
+  const resumeLowerWithoutFooter=expanded&&scalePose?.kind==='home'&&retainedResumeSupported(suspended)&&resumeHomeSourceSettled(state)
    ?{width:320,height:240,data:new Uint8ClampedArray(b.getImageData(0,0,320,240).data)}:undefined;
   if(!bootBaseOnly&&state.panel!=='folder-settings'&&state.panel!=='folder-not-empty'){
    const withholdPauseFooter=!!pauseLower&&pauseLower.footerFrame===null;
@@ -1066,6 +1075,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const manualCloseDraw=manualClosePose&&(manualClosePose.kind==='feedback'||manualClosePose.kind==='out')?{frame:manualClosePose.kind==='feedback'?manualClosePose.frame:1}:undefined;
   const webCloseDraw=webClosePose&&(webClosePose.kind==='feedback'||webClosePose.kind==='out')?{frame:webClosePose.kind==='feedback'?webClosePose.frame:5}:undefined;
   const friendsCloseDraw=friendsClosePose&&(friendsClosePose.kind==='feedback'||friendsClosePose.kind==='out')?{kind:friendsClosePose.kind,frame:friendsClosePose.frame}:undefined;
+  const resumeUpperPixels=resumeUpper?{width:400,height:240,data:new Uint8ClampedArray(t.getImageData(0,0,400,240).data)}:undefined;
   const overlayStarted=timing?performance.now():null;graphics.overlay(t,b,state,elapsedMs,reduced,!!firmwareAssets,date,verification,deferManualDestination,notesCloseDraw,notificationsCloseDraw,manualCloseDraw,friendsCloseDraw,webCloseDraw);if(timing&&overlayStarted!==null)timing.overlayMs=performance.now()-overlayStarted;
   const dialogKey=homeSoftwareDialogKey(state),dialogTitles=homeSoftwareDialogTitles(state);
   if(!dialogTitles)softwareDialogIcons=undefined;
@@ -1101,12 +1111,12 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const nativeStatus=graphics.stockStatus(state,t);const notice=options.runtimeNotice?.();if(notice&&nativeStatus!=='loading'&&nativeStatus!=='error'){rounded(b,8,185,304,26,5,'#fff9e8','#a88d53');text(b,notice,160,198,11,'#5d491f','center');}
   let resumePose:HomeResumePose|undefined;
   if(resume&&resumeSource&&!diagnosticPaint&&!document.hidden&&nativeStatus!=='error'&&graphics.stockFailure()===null){
-   resumePose=resumePresentation.sample(resume,elapsedMs,true,graphics.preparedStockPair(state)??null,reduced);
+   resumePose=resumePresentation.sample(resume,elapsedMs,true,graphics.preparedStockPair(state)??null,resumeUpperPixels?scaleFrame:resumeSource.scaleFrame,reduced);
    if(resumePose){
     if(!firmwareAssets||!nativeHome)throw Error('Native retained resume resources unavailable');
     t.resetTransform();t.clearRect(0,0,400,240);b.resetTransform();b.clearRect(0,0,320,240);
     if(resumePose.kind==='footer'){
-     drawResumePixels(t,resumeSource.upper,0);drawResumePixels(b,resumeSource.lower,1);
+     drawResumePixels(t,resumeUpperPixels??resumeSource.upper,0);drawResumePixels(b,resumeSource.lower,1);
      if(!nativeHome.footer(b,resumeSource.state,reduced,undefined,undefined,undefined,undefined,resumePose.frame))throw Error('Native retained Resume footer unavailable');
     }else{
      if(!options.drawSuspendedBackground?.(t,resumeSource.capture,homeResumeBackground(resumePose.frame)))throw Error('Native retained resume upper unavailable');
@@ -1115,8 +1125,9 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
      if(!drawHomeResumeLower(firmwareAssets.renderer,b,resumeSource.capture.lower,resumeSource.lower,resumePose.frame))throw Error('Native retained resume lower unavailable');
     }
     resumeCandidate=resumePose;
+    resumeUpperCandidate=resumePose.kind==='footer'&&resumeUpperPixels?{pose:resumePose,pixels:resumeUpperPixels}:undefined;
    }
-  }else if(!diagnosticPaint){resumePresentation.revoke();resumeCandidate=undefined;}
+  }else if(!diagnosticPaint){resumePresentation.revoke();resumeCandidate=undefined;resumeUpperCandidate=undefined;}
   let manualPose:ManualEntryPose|undefined;
   if(manualIdentity&&manualEntryEligible(state)&&!diagnosticPaint){
    if(!nativeHome)throw Error('Native Manual entry cover unavailable');
@@ -1220,11 +1231,11 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    }
   }
   output.imageSmoothingEnabled=false;output.clearRect(0,0,800,240);output.drawImage(native,0,0,800,240);
-  if(!diagnosticPaint&&!notice&&nativeStatus!=='error'&&nativeStatus!=='loading'&&!state.panel&&expanded&&scalePose?.target===15&&resumeHomeSourceSettled(state)&&suspended&&retainedResumeSupported(suspended)&&suspendedCapture.status==='ready'&&suspendedCapture.owner===suspended.id
+  if(!diagnosticPaint&&!notice&&nativeStatus!=='error'&&nativeStatus!=='loading'&&!state.panel&&expanded&&scalePose?.kind==='home'&&scalePose.target===15&&resumeHomeSourceSettled(state)&&suspended&&retainedResumeSupported(suspended)&&suspendedCapture.status==='ready'&&suspendedCapture.owner===suspended.id
    &&suspendedMetadata?.owner===suspended.id&&!state.system?.dialog&&!applicationTransition&&!homeEntryMotionActive(pauseMotion,reduced)){
    if(!resumeLowerWithoutFooter)throw Error('Native retained Resume footer-free source unavailable');
    resumeSourceCandidate={identity:{owner:suspended.id,captureGeneration:suspendedCapture.generation,resourceGeneration:resumeGeneration},origin:resumeHomeOrigin(state)!,state,
-    upper:{width:400,height:240,data:new Uint8ClampedArray(t.getImageData(0,0,400,240).data)},capture:suspendedCapture,
+    upper:{width:400,height:240,data:new Uint8ClampedArray(t.getImageData(0,0,400,240).data)},upperNeedsProgress:scalePose.current<15||homeEntryDrawnBannerIdentity!==null,capture:suspendedCapture,
     metadata:suspendedMetadata.metadata,lower:resumeLowerWithoutFooter,sleepFrame:suspendedSleepFrame,scaleFrame:scalePose.current,scaleEpoch:scalePose.epoch};
   }
   if(!diagnosticPaint&&state.system?.phase==='home'&&appletEntryEligible(state)&&nativeHome&&nativeStatus!=='error'&&nativeStatus!=='loading')appletSourceCandidate={source:appletEntryHomePair(state,appletGeneration),application:state.system.runtime.application,generation:appletGeneration};
@@ -1253,7 +1264,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const manualClose:FooterCloseDiagnostic|undefined=manualCloseCandidate?{kind:manualCloseCandidate.pose.kind,frame:manualCloseCandidate.pose.kind==='handoff'?null:manualCloseCandidate.pose.frame,owner:manualCloseCandidate.pose.identity.owner,adaptation:true}:undefined;
   const webClose:FooterCloseDiagnostic|undefined=webCloseCandidate?{kind:webCloseCandidate.pose.kind,frame:webCloseCandidate.pose.kind==='handoff'?null:webCloseCandidate.pose.frame,owner:webCloseCandidate.pose.identity.owner,adaptation:true}:undefined;
   const friendsClose:FooterCloseDiagnostic|undefined=friendsCloseCandidate?{kind:friendsCloseCandidate.pose.kind,frame:friendsCloseCandidate.pose.kind==='handoff'?null:friendsCloseCandidate.pose.frame,owner:friendsCloseCandidate.pose.identity.owner,adaptation:true}:undefined;
-  return resumePose?{resume:{kind:resumePose.kind,frame:resumePose.frame,owner:resumePose.identity.owner,adaptation:true}}:nativeSystem||verificationPaint||entryMotion||manualPose||appletPose||notesCloseCandidate||notificationsClose||manualClose||friendsClose||webClose
+  return resumePose?{resume:{kind:resumePose.kind,frame:resumePose.frame,upperScaleFrame:resumePose.upperScaleFrame,owner:resumePose.identity.owner,adaptation:true}}:nativeSystem||verificationPaint||entryMotion||manualPose||appletPose||notesCloseCandidate||notificationsClose||manualClose||friendsClose||webClose
    ?{...(verificationPaint??{}),...(nativeSystem?{nativeSystem:true as const}:{}),...(entryMotion?{entryMotion}:{}),...(manualPose?{manualEntry:{phase:manualPose.phase,frame:manualPose.frame,owner:manualPose.identity.owner}}:{}),...(appletPose?{appletEntry:{kind:appletPose.kind,frame:appletPose.kind!=='handoff'?appletPose.frame:null,owner:appletPose.identity.owner}}:{}),...(notesCloseCandidate?{notesClose:{kind:notesCloseCandidate.pose.kind,frame:notesCloseCandidate.pose.kind==='handoff'?null:notesCloseCandidate.pose.frame,owner:notesCloseCandidate.pose.identity.owner,adaptation:true as const}}:{}),...(notificationsClose?{notificationsClose}:{}),...(manualClose?{manualClose}:{}),...(friendsClose?{friendsClose}:{}),...(webClose?{webClose}:{})}:undefined;
  }
  function presentHomeEntryFooterRelease(){
@@ -1283,6 +1294,6 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  function homeEntryActivationReady(state:MenuState){
   return homeEntryBannerActivationDue(sampleHomeEntryPresentation(homeEntryPresentation,state,reduced));
  }
- return {cancelWebFooterClose,presentWebFooterClose,webFooterCloseActive,cancelFriendsFooterClose,presentFriendsFooterClose,friendsFooterCloseActive,cancelManualFooterClose,presentManualFooterClose,manualFooterCloseActive,cancelNotificationsFooterClose,presentNotificationsFooterClose,notificationsFooterCloseActive,cancelNotesFooterClose,presentNotesFooterClose,notesFooterCloseActive,homeAppletFooterBannerReady,revokeNotesFooterCloseCandidate,top,nativeTop:native,bottom,paint,stockStatus,homeResumeInputSource,retryStockScreen,stockFailure:()=>panelFailure??graphics.stockFailure(),setFirmwareAssets,prepareFolderBannerLabel:(name:string)=>nativeHome?.folderBannerLabel(name),homeEntryFooterReadiness:()=>getHomeEntryFooterReadiness(homeEntryPresentation),homeEntryActivationReady,homeFolderBannerRequestReady,homeFolderBannerActivationReady,presentHomeEntryMotion,homeEntryMotionActive:isHomeEntryMotionActive,homeEntryMotionPublicationPending:()=>!!entryMotionCandidate||!!resumeSourceCandidate,revokeHomeEntryMotionCandidate,presentManualEntry,revokeManualEntryCandidate,manualEntryActive,presentAppletEntry,revokeAppletEntryCandidate,appletEntryActive,skipAppletEntryForAccessibilityShortcut,presentHomeEntryFooterRelease,presentHomeEntryFooterTerminal,presentHomeEntryBanner,presentHomeEntryWithoutNativeBanner,paintTiming:()=>lastPaintTiming?{...lastPaintTiming}:null,
+ return {cancelWebFooterClose,presentWebFooterClose,webFooterCloseActive,cancelFriendsFooterClose,presentFriendsFooterClose,friendsFooterCloseActive,cancelManualFooterClose,presentManualFooterClose,manualFooterCloseActive,cancelNotificationsFooterClose,presentNotificationsFooterClose,notificationsFooterCloseActive,cancelNotesFooterClose,presentNotesFooterClose,notesFooterCloseActive,homeAppletFooterBannerReady,revokeNotesFooterCloseCandidate,top,nativeTop:native,bottom,paint,stockStatus,homeResumeInputSource,homeResumeUpperActive,retryStockScreen,stockFailure:()=>panelFailure??graphics.stockFailure(),setFirmwareAssets,prepareFolderBannerLabel:(name:string)=>nativeHome?.folderBannerLabel(name),homeEntryFooterReadiness:()=>getHomeEntryFooterReadiness(homeEntryPresentation),homeEntryActivationReady,homeFolderBannerRequestReady,homeFolderBannerActivationReady,presentHomeEntryMotion,homeEntryMotionActive:isHomeEntryMotionActive,homeEntryMotionPublicationPending:()=>!!entryMotionCandidate||!!resumeSourceCandidate,revokeHomeEntryMotionCandidate,presentManualEntry,revokeManualEntryCandidate,manualEntryActive,presentAppletEntry,revokeAppletEntryCandidate,appletEntryActive,skipAppletEntryForAccessibilityShortcut,presentHomeEntryFooterRelease,presentHomeEntryFooterTerminal,presentHomeEntryBanner,presentHomeEntryWithoutNativeBanner,paintTiming:()=>lastPaintTiming?{...lastPaintTiming}:null,
   notesBootCoverActive:(state:MenuState)=>{const identity=appletEntryIdentity(state,appletGeneration);return (!identity||appletPresentation.ready(identity))&&graphics.notesBootCoverActive(state);},presentNotesBootCover,revokeNotesBootCoverCandidate:()=>graphics.revokeNotesBootCoverCandidate(),revokeHomeEntryFooterCandidate(){homeEntryFooterCandidate=undefined;homeEntryFooterReleaseCandidate=undefined;},revokeHomeEntryBannerCandidate(){homeEntryBannerCandidate=undefined;},revokeHomeEntryNoBannerCandidate(){homeEntryNoBannerCandidate=undefined;},dispose(){if(disposed)return;disposed=true;lastPaintTiming=null;resetHomeResume();for(const canvas of resumeCanvases)canvas.width=canvas.height=0;resetAppletEntry();webClosePresentation.dispose();friendsClosePresentation.dispose();manualClosePresentation.dispose();appletPresentation.dispose();for(const canvas of appletCanvases)canvas.width=canvas.height=0;resetManualEntry();manualPresentation.dispose();for(const canvas of manualCanvases)canvas.width=canvas.height=0;panelFailure=undefined;panelPublished=null;folderCapture=undefined;layoutCapture=undefined;suspendedMetadata=undefined;resetHomeEntryMotion();homeEntryPresentation=createHomeEntryPresentation();homeEntryFooterCandidate=undefined;homeEntryFooterReleaseCandidate=undefined;homeEntryBannerCandidate=undefined;homeEntryNoBannerCandidate=undefined;applicationTransitionCapture=undefined;softwareDialogIcons=undefined;captureCanvas.width=captureCanvas.height=0;graphics.dispose();firmwareAssets?.dispose();fonts.delete(t);fonts.delete(b);setPortfolioFont(t);setPortfolioFont(b);},setReducedMotion(value:boolean){if(reduced!==value){revokeNotesFooterCloseCandidate();revokeHomeEntryMotionCandidate();revokeManualEntryCandidate();revokeAppletEntryCandidate();}reduced=value;},ready:Promise.allSettled([sprite.decode(),themeSprite.decode(),shopSprite.decode(),fontReady,graphics.ready,chrome.ready])};
 }

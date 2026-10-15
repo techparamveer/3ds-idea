@@ -298,7 +298,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   }
   const soundNames=new Set<string>(['select','open','open-effect','back','home','power','touch','grab','drop','folder-open','folder-close','scroll-invalid','toolbar-select']);
   function observeFolderBanner(clock=bannerClock(),selection?:HomeBannerHostSelection){
-    const system=state.system!,switchPresentation=isHomeSwitchPresentationActive(state),inhibited=!state.powered||system.phase!=='home'||system.sleeping||!!system.dialog&&!switchPresentation||system.preferences||!!state.panel||homeClockSuspended;
+    const system=state.system!,switchPresentation=isHomeSwitchPresentationActive(state),inhibited=!state.powered||system.phase!=='home'&&!screens.homeResumeUpperActive(state)||system.sleeping||!!system.dialog&&!switchPresentation||system.preferences||!!state.panel||homeClockSuspended;
     // A completed Off -> awake boot starts a new native primary request while
     // retaining the session wallpaper controller and global HOME clock. The
     // exact native caller epoch remains untraced; this is the captured entry
@@ -347,7 +347,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     const closeNeedsReadyScreen=applicationCloseNeedsReadyScreen(state.system!.homeApplicationTransition,screens.stockStatus(state));
     if(homeClockSuspended||closeNeedsReadyScreen){const system=state.system!;if(system.homeClock.lastNow!==null||system.homeClock.remainderMs!==0)state={...state,system:{...system,homeClock:{...system.homeClock,lastNow:null,remainderMs:0}}};}
     else {
-      const advanced=tickHomeNavigationClockObserved(state,now,reduced);
+      const advanced=tickHomeNavigationClockObserved(state,now,reduced,screens.homeResumeUpperActive(state));
       for(const pass of advanced.passes){
         state=pass.state;
         let beforeManager:HomeBannerHostSelection|undefined,afterManager:HomeBannerHostSelection|undefined;

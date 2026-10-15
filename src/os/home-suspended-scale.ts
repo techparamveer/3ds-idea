@@ -5,7 +5,7 @@ import { homeSlotAppId } from './home-layout.ts';
 import { activeHomeRecord } from './home-navigation.ts';
 
 export type HomeSuspendedScale = Readonly<{ kind: 'inactive'; epoch: number }> | Readonly<{
-  kind: 'home'; owner: string; epoch: number; current: number; target: 0 | 15; lastUpperUpdate: number | null;
+  kind: 'home' | 'resume'; owner: string; epoch: number; current: number; target: 0 | 15; lastUpperUpdate: number | null;
 }>;
 
 export function createHomeSuspendedScale(): HomeSuspendedScale {
@@ -46,6 +46,12 @@ export function reconcileSystemHomeSuspendedScale(state: MenuState): MenuState {
   const s = state.system;
   if (!s) return state;
   const runtime = s.runtime, application = runtime.application ? runtime.instances[runtime.application] : undefined;
+  const previous = s.homeSuspendedScale;
+  if (state.powered && s.phase === 'app' && application && !application.suspended && !application.closing
+    && runtime.active === application.id && runtime.homeReturn === null && previous.kind !== 'inactive'
+    && previous.owner === application.id && previous.target === 15) {
+    return put(state, previous.kind === 'resume' ? previous : Object.freeze({ ...previous, kind: 'resume' }));
+  }
   const owner = state.powered && s.phase === 'home' && application?.suspended && !application.closing
     && !runtime.active && runtime.homeReturn === application.id ? application.id : null;
   const nav = s.homeNavigation;

@@ -168,13 +168,13 @@ test('Browser/Miiverse Close stages survive actual cadence, state-driven and res
 
 test('same-paint Resume footer and departure survive scene receipt and real recorder serialization', async () => {
   for (const [kind, frame, owner, stateDriven] of [['footer', 14, 'health:1', false], ['departure', 40, 'health:2', true]]) {
-    const resume = { kind, frame, owner, adaptation: true }, expected = { ...resume };
+    const resume = { kind, frame, upperScaleFrame: kind === 'footer' ? 7 : 15, owner, adaptation: true }, expected = { ...resume };
     const result = { resume }, f = fixture(result);
     try {
       f.recorder.start();
       assert.equal(f.scene.paintScreens(1090, stateDriven), result);
       assert.deepEqual(JSON.parse(f.host.dataset.screenPaint).resume, expected);
-      resume.frame = 0; resume.owner = 'later-owner';
+      resume.frame = 0; resume.upperScaleFrame = 0; resume.owner = 'later-owner';
       f.state.system.homeClock.updateCount = 99;
       f.setNow(1110); f.scene.renderFrame();
       f.recorder.stop(); await f.recorder.save();

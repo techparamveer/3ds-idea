@@ -10,24 +10,24 @@ const identity = { owner: 'health-safety:1', captureGeneration: 2, resourceGener
 test('only the current visible footer terminal can begin departure, including reduced motion',()=>{
  for(const reduced of [false,true]){
   const p=createHomeResumePresentation(),destination={};
-  for(let frame=0;frame<14&&!reduced;frame++){const pose=p.sample(identity,frame,true,null);assert.equal(pose.kind,'footer');assert.equal(pose.frame,frame);assert.equal(p.present(pose,identity,true,null),true);}
-  const terminal=p.sample(identity,14,true,null,reduced);assert.equal(terminal.kind,'footer');assert.equal(terminal.frame,14);
+  for(let frame=0;frame<14&&!reduced;frame++){const pose=p.sample(identity,frame,true,null,15);assert.equal(pose.kind,'footer');assert.equal(pose.frame,frame);assert.equal(p.present(pose,identity,true,null),true);}
+  const terminal=p.sample(identity,14,true,null,15,reduced);assert.equal(terminal.kind,'footer');assert.equal(terminal.frame,14);
   assert.equal(p.present(terminal,identity,false,null),false);
-  const retry=p.sample(identity,15,true,destination,reduced);assert.equal(retry.kind,'footer');assert.equal(p.present(terminal,identity,true,null),false);
+  const retry=p.sample(identity,15,true,destination,15,reduced);assert.equal(retry.kind,'footer');assert.equal(p.present(terminal,identity,true,null),false);
   assert.equal(p.present(retry,identity,true,null),false,'changed pair rejects terminal');
-  const current=p.sample(identity,16,true,destination,reduced);assert.equal(p.present(current,identity,true,destination),true);
-  const departure=p.sample(identity,17,true,destination,reduced);assert.equal(departure.kind,'departure');assert.equal(departure.frame,reduced?40:0);
+  const current=p.sample(identity,16,true,destination,15,reduced);assert.equal(p.present(current,identity,true,destination),true);
+  const departure=p.sample(identity,17,true,destination,15,reduced);assert.equal(departure.kind,'departure');assert.equal(departure.frame,reduced?40:0);
  }
 });
 
 test('a destination change between sample and receipt rebases the unpresented source frame', () => {
   const presentation = createHomeResumePresentation(), destination = {};
-  const first = presentation.sample(identity, 100, true, null);
+  const first = presentation.sample(identity, 100, true, null, 15);
   assert.equal(presentation.present(first, identity, true, null), true);
-  const unpresented = presentation.sample(identity, 101, true, null);
+  const unpresented = presentation.sample(identity, 101, true, null, 15);
   assert.equal(unpresented.frame, 1);
   assert.equal(presentation.present(unpresented, identity, true, destination), false);
-  const rebound = presentation.sample(identity, 9000, true, destination);
+  const rebound = presentation.sample(identity, 9000, true, destination, 15);
   assert.notEqual(rebound, unpresented);
   assert.equal(rebound.frame, 1, 'readiness changes cannot spend an unpresented source frame');
   assert.equal(rebound.destination, destination);
@@ -37,19 +37,19 @@ test('a destination change between sample and receipt rebases the unpresented so
 
 test('a late native pair releases reduced terminal only through its own sampled receipt', () => {
   const presentation = createHomeResumePresentation(), destination = {}, replacement = {};
-  const footer=presentation.sample(identity,99,true,null,true);
+  const footer=presentation.sample(identity,99,true,null,15,true);
   assert.equal(footer.kind,'footer');assert.equal(footer.frame,14);
   assert.equal(presentation.present(footer,identity,true,null),true);
   assert.equal(presentation.ready(identity),false,'footer terminal cannot release native input');
-  const pending = presentation.sample(identity, 100, true, null, true);
+  const pending = presentation.sample(identity, 100, true, null, 15, true);
   assert.equal(pending.kind,'departure');
   assert.equal(pending.frame, 40);
   assert.equal(presentation.present(pending, identity, true, destination), false);
   assert.equal(presentation.ready(identity), false);
-  const ready = presentation.sample(identity, 101, true, destination, true);
+  const ready = presentation.sample(identity, 101, true, destination, 15, true);
   assert.equal(presentation.present(ready, identity, true, replacement), false);
   assert.equal(presentation.ready(identity), false);
-  const current = presentation.sample(identity, 102, true, replacement, true);
+  const current = presentation.sample(identity, 102, true, replacement, 15, true);
   assert.equal(current.frame, 40);
   assert.equal(presentation.present(current, identity, true, replacement), true);
   assert.equal(presentation.ready(identity), true);

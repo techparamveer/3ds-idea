@@ -109,17 +109,33 @@ export function invokeSystemApplet(state: MenuState, appId: string, now: number,
 }
 /** One logical update source for navigation and presentation-owned clips. */
 export function tickHomeNavigationClock(state: MenuState, now: number, reduced = false): MenuState {
+ // Only the scene's screen-owned admission can advance or suspend Resume
+ // upper work. Nested action/runtime ticks must not rebase that same clock.
+ if(state.system?.homeSuspendedScale.kind==='resume')return reconcileSystemHomeSuspendedScale(state);
  return tickHomeNavigationClockObserved(state,now,reduced).state;
 }
 /** Scene consumes journals once; nested action reducers see the same timestamp
  * and therefore cannot replay their input, cue or banner observations. */
-export function tickHomeNavigationClockObserved(state: MenuState, now: number, reduced = false): {state:MenuState;passes:readonly HomeControlPass[]} {
+export function tickHomeNavigationClockObserved(state: MenuState, now: number, reduced = false, resumeUpperActive = false): {state:MenuState;passes:readonly HomeControlPass[]} {
  state=reconcileSystemHomeSuspendedScale(reconcileSystemHomeApplicationTransition(reconcileSystemHomeFolderClose(state)));
  const s=state.system;if(!s||!Number.isFinite(now))return {state,passes:[]};
  const applicationTransition=isSystemHomeApplicationTransitionActive(state);
  const applicationTransitionEligible=applicationTransition&&state.powered&&s.phase==='home'&&!s.sleeping&&!s.dialog&&!s.preferences&&!state.panel;
  const active=isHomeControlsActive(state)&&!applicationTransition;
- const stepped=stepHomeUpdateClock(s.homeClock,now,active||isHomeSwitchPresentationActive(state)||applicationTransitionEligible);
+ const resumeUpper=resumeUpperActive&&s.homeSuspendedScale.kind==='resume'&&state.powered&&s.phase==='app'
+  &&!s.sleeping&&!s.dialog&&!s.preferences&&!state.panel;
+ const stepped=stepHomeUpdateClock(s.homeClock,now,active||resumeUpper||isHomeSwitchPresentationActive(state)||applicationTransitionEligible);
+ if(resumeUpper){
+  const passes:HomeControlPass[]=[];
+  if(stepped.updates===0&&stepped.clock!==s.homeClock)state={...state,system:{...s,homeClock:stepped.clock}};
+  for(let i=1;i<=stepped.updates;i++){
+   state={...state,system:{...state.system!,homeClock:{...stepped.clock,updateCount:s.homeClock.updateCount+i}}};
+   state=stepSystemHomeSuspendedScale(state,s.homeClock.updateCount+i,reduced);
+   // Mode8 keeps upper work admitted, without replaying HOME input/lower work.
+   passes.push(Object.freeze({state,updateCount:s.homeClock.updateCount+i,observations:[],sounds:[],unsupportedInput:false,handoff:null,completed:true}));
+  }
+  return {state,passes};
+ }
  if(applicationTransition){
   const advanced=advanceSystemHomeApplicationTransition(state,stepped.updates,applicationTransitionEligible);
   state=advanced.state;

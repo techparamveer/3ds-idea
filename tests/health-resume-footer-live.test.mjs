@@ -225,7 +225,7 @@ test('actual Health Resume withdraws the native footer before retained HOME depa
     assert.equal(f.screens.presentHomeEntryMotion(state),true);
     for(let frame=1;frame<=14;frame++){
       const pair=f.paint(state,false),footer=pair.events.findLast(event=>event.name==='LncBtmBtn_02');
-      assert.deepEqual(pair.result.resume,{kind:'footer',frame,owner,adaptation:true});
+      assert.deepEqual(pair.result.resume,{kind:'footer',frame,upperScaleFrame:15,owner,adaptation:true});
       assert.deepEqual(pair.upper.find(mark=>mark[0]==='pixels'),savedUpper);
       assert.deepEqual(pair.lower.find(mark=>mark[0]==='pixels'),savedLower);
       assert.deepEqual(pair.copies,first.copies,'both complete accepted LCD byte arrays remain unchanged beneath withdrawal');
@@ -244,7 +244,7 @@ test('actual Health Resume withdraws the native footer before retained HOME depa
     f.screens.revokeHomeEntryMotionCandidate();assert.equal(f.screens.presentHomeEntryMotion(state),false);
     assert.equal(f.paint(state).result.resume.kind,'footer');
     const departure=f.paint(state,false);
-    assert.deepEqual(departure.result.resume,{kind:'departure',frame:0,owner,adaptation:true});
+    assert.deepEqual(departure.result.resume,{kind:'departure',frame:0,upperScaleFrame:15,owner,adaptation:true});
     const lower=departure.events.find(event=>event.name==='LncPauseFade_D_00'&&event.options.bindings[0].name.endsWith('SceneOut'));
     assert.equal(lower.options.textures['runtime:pause-lower-home'].data[1],0,'departure cannot restore the old baked footer');
   });

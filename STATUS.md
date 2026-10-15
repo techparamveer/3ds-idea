@@ -1,5 +1,32 @@
 # STATUS: animation fidelity
 
+## Header control closed
+
+Root reconciled HEAD `f922ab456d31f2bbb135ac9c4f2aec0c034ecfb1`; read Git for
+this following documentation checkpoint. The [header control](docs/applet-incoming-raster-2026-10-15.md#evidence-and-remaining-work)
+saved all 123 baseline and 65 candidate pairs. Their first valid ready pairs
+are exact on both LCDs and match the old candidate. Both differ from the old
+baseline only in the same 348 upper-header pixels. Candidate source is not
+necessary for that residual; its cause remains unknown. Audit `4b2653cc`
+validates all 188 pairs and 380 PNGs. Root rehashes all 570 originals unchanged
+and inspects the five-panel sheet. No native acceptance follows.
+
+Root owns incoming-raster, shared documents and both frozen builds. Both muted
+MacBook Guest windows and owned servers are closed, ports 3044/3045 are free,
+and the original regular New tab remains. Both source/build manifests and the
+human edit remain unchanged. All helpers are done. Final wording review
+`ad08a62e` found a stale reservation and ambiguous draw count; root corrected
+both. The read-only diagnosis `6d68cb91` and root probe
+rerun confirm cold title-cache work and Notifications parity invalidation, not
+the exact cause of its recorded spike. No runtime edit is assigned.
+
+Next distinguish first-title upper/lower and cache-population costs and the
+Notifications recomposition reason through existing opt-in measurements before
+changing scheduling or cache policy. Do not repeat the closed header control
+or invent a header workaround. All four whole flows remain fail/unproven.
+Usage is 63% used / 37% remaining; stop at 10% with no bot message or automatic
+resume. This section supersedes older serving, next-action and seat entries.
+
 ## Raster audit closed with a header residual
 
 Root still owns incoming-raster at reconciled HEAD `91f15d0`; read Git for the

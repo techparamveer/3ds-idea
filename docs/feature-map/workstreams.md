@@ -1,5 +1,18 @@
 # Workstream Registry
 
+## Header control closed
+
+Root reconciled `f922ab4`, closed both declared muted Guest/server sessions,
+and inspected sealed audit `4b2653cc`. All 188 ready pairs validate; the fresh
+baseline and candidate match exactly. The historical residual remains, but
+candidate source is unnecessary for it. The auditor's analysis and displayed-
+hash correction are complete, with corrected findings `73af8a80` and seal
+`0bf88e66`. Independent wording review found two documentation issues, now
+corrected: the stale reservation and an ambiguous five-draw count.
+Root owns shared documents and PR7. No source, build,
+original-evidence or GUI reservation belongs to a helper. Runtime `7cadf11`
+and both captured builds remain frozen.
+
 ## Raster image audit closed
 
 The capture auditor is done. Its seal is `33ecb3dd`; root inspects all four

@@ -69,13 +69,67 @@ The two boundary sheets display slightly reduced from 832x2064 to 826x2048;
 both comparison sheets display at original size. The audit separately verifies
 all 96 native-size placements in the encoded sheets.
 
+## Remaining cost diagnosis
+
+The read-only probe exercises the real renderer and stock-presentation paths
+through a Node transport stub. Root reran it successfully. The first frame-0
+title draw populates five cache entries, 852,736 bytes, including one raster
+for each background. An immediate repeat adds no picture rasters. This places
+cold work inside the measured Friends first draw; it does not apportion all
+43.4 ms among validation, rasterization, Canvas setup and other work.
+
+Holding other inputs fixed, Notifications seconds-parity changes cause all
+five native draws across both LCDs to run again. Same-parity samples reuse the
+cached pair. Receipt 1784 does not retain the Date, cache key or repaint reason,
+so the 75.6 ms spike cannot be assigned conclusively to that mechanism. The
+Friends header is outside title drawing and does not explain its cold cost.
+
+The private report is `remaining-cost-diagnosis/report.md`, SHA-256
+`6d68cb911be49924a05418eacc64617c0a0cc744de4c2e188059514da83a75a5`.
+This is source/call-path evidence, not browser or native timing evidence. No
+new optimization, clock change or rendering workaround follows from it alone.
+
 ## Evidence and remaining work
 
-Do not call the background change pixel-neutral until the Friends header
-residual is explained or corrected. Preserve this candidate and baseline
-build for a bounded same-browser control. The separate read-only diagnosis
-examines first-raster cost and the Notifications overlay spike; no new
-implementation is assigned from timing observations alone.
+The declared fresh ready Friends control saved all 123 baseline and 65 candidate
+pairs. Both recordings stopped manually without a cap or retry. The first
+valid ready pair from each is an exact PNG and RGBA match on both LCDs; both
+also match the old candidate incoming20 pair. Each differs from the old
+baseline incoming20 only by the same 348 upper-header pixels, maximum delta 61.
+Thus eight of ten fixed whole-LCD comparisons are exact, with empty masks.
+All pairs within each fresh window are exact repeats on both LCDs.
+
+The unchanged baseline can produce the newer header pixels, so candidate
+source is unnecessary for the historical residual. This does not identify
+the cause or establish native-correct text. Do not rewrite the original
+32-comparison result or claim universal pixel neutrality from this control.
+
+Audit `applet-header-control/audit/run-1/report.json` has SHA-256
+`4b2653cc9723036655d863556ec08d9c084cc7e46b4d3a010ce6f4b65d53cc94`.
+It validates all 188 pairs and all 380 PNGs, including the two historical
+anchors. Root rehashes all 570 originals, 74,925,655 bytes, unchanged and opens
+the five-panel native-size sheet. Its 20 embedded source placements are exact;
+sheet SHA-256 is
+`694c558d8714704543f9a9e4641f9c06ebad73bbcfed2c137198caccc45948d9`.
+The parent `session-closure.md` records both final capture identities. Both
+Guest windows and servers are closed, and both frozen build manifests and the
+separate human edit remain unchanged.
+
+The derivative seal is
+`0bf88e660bc9cf3a0c5c3d10d525374f2f7c08c8095888c1ce2f1721c603f89c`.
+Independent final wording review `ad08a62efe92fc9d8774790239b4df5439ce0fced8ad6e038ed2dd4417d26454`
+found a stale completed-task reservation and ambiguous five-draw wording;
+root corrected both. The review found no other evidence-claim issue. This
+documentation-only checkpoint passes 913 relative file-target checks and
+`git diff --check`; anchors were not checked and no rebuild was needed.
+
+Preserve both builds and all original residuals. The header repeat control is
+closed; no header rendering workaround is justified. Next distinguish the
+first title draw's upper/lower and cache-population costs, and the reason for
+Notifications pair recomposition, before changing scheduling or cache policy.
+Keep those measurements inside the existing opt-in timing path. Recorded pose
+coverage, unrecorded cadence and exact native motion remain open. No new
+runtime change is assigned at this checkpoint.
 
 Private root:
 `/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261015/applet-incoming-raster/`.

@@ -4,13 +4,15 @@
 
 The [reviewed background reuse](applet-incoming-raster-2026-10-15.md) has
 618 audited pairs and four root-inspected sheets. All lower LCDs and opaque
-anchors match, but the upper Friend List header has an unexplained residual.
-Keep empty masks and preserve both captured builds. Next use a bounded
-same-browser control to distinguish repeat variability from a candidate
-regression; do not change native text or dismiss the residual from source tests.
-The cost diagnosis is separate and read-only. No timing or recorder change is
-assigned. All four whole flows remain fail/unproven. This next action supersedes
-the older entries below. Root alone operates muted MacBook GUI.
+anchors match, but the original upper Friend List header residual remains.
+The closed fresh endpoint control matches both builds exactly and shows
+candidate source is unnecessary for the historical difference. Preserve it,
+the empty masks and both builds; neither a header workaround nor native text
+acceptance follows. Next use the existing opt-in timing path to distinguish
+first-title upper/lower costs and Notifications recomposition reason before
+changing scheduling/cache policy. No runtime edit is currently assigned.
+All four whole flows remain fail/unproven. This next action supersedes older
+entries. Root alone operates muted MacBook GUI; all owned sessions are closed.
 
 ## Incoming paint measurement
 
@@ -48,7 +50,7 @@ batch, and at least every 10 minutes of active work. At 90% used / 10% remaining
 or less remaining, interrupt helpers, checkpoint and pause the goal. Do not
 start another project slice. The user cancelled the Grok Bot notification.
 Send no external message; report the pause only in this chat. The ten-minute
-heartbeat has been updated accordingly. Current reading is 62% used / 38%
+heartbeat has been updated accordingly. Current reading is 63% used / 37%
 remaining. No bot message has been sent.
 
 ## Cursor control closed

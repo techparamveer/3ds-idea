@@ -6,6 +6,11 @@ LCDs and opaque anchors do not excuse an unexplained upper-header residual.
 Compare first chronological shared source values with the declared empty
 masks. Report first-raster, remaining nonterminal, terminal and encoding costs
 separately; one recorded improvement does not establish unrecorded cadence.
+The subsequent first-ready-pair repeat control is exact across both fresh
+builds and reproduces the newer header on the unchanged baseline. That rules
+out candidate source as necessary for the historical residual, not its cause.
+Keep the old mismatch and the new control separate. Within-window stability
+and repeat equality do not establish native-correct text or whole-flow parity.
 
 [Incoming paint intervals](../applet-incoming-cost-2026-10-15.md) are opt-in
 CPU measurements within one receipt, not native presentation timing. Check

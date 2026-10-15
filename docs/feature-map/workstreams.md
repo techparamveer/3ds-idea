@@ -1,5 +1,13 @@
 # Workstream Registry
 
+## Alpha retention candidate transferred
+
+Root owns `applet-alpha-retention-20261015` after clean handoff 5ae44bc and
+coordinator merge 0b7681c. Source b83b768, build g-qLVPFQLrJnvHrbuaS0e and
+review e64b0eb0 are fixed. All helper reservations are released. Root alone
+owns the declared muted MacBook capture, shared docs and PR7. The detailed
+measurement checkout/build and original evidence stay frozen.
+
 ## Incoming alpha retention repair
 
 Root at reconciled a7af99a reserves one worker in

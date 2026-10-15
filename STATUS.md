@@ -1,5 +1,26 @@
 # STATUS: animation fidelity
 
+## Alpha retention candidate transferred
+
+Root accepted clean handoff `5ae44bc` and merged coordinator `8fa9dd5` as
+`0b7681c`. Root now owns
+`/Users/paramveer/.codex/worktrees/applet-alpha-retention-20261015/3ds-idea`,
+branch `codex/applet-alpha-retention-20261015`. Reviewed runtime `b83b768`
+and checked production build `g-qLVPFQLrJnvHrbuaS0e` are unchanged by that
+documentation-only merge. All worker/reviewer reservations are released.
+Focused 104, typecheck/build pass. Full suite has 2,992 passes and only the
+unchanged missing Camera PNG failure. Review e64b0eb0 has no findings.
+
+Next root runs the predeclared first Friends/Notifications comparison under
+private `continuation-20261015/applet-alpha-retention`, loopback 3047. One
+blank Guest is prepared on the sole built-in MacBook; no app/server is live.
+Verify mute on the inert capture endpoint before app navigation. Pin source,
+build, policy and analyzer before inputs, save all pairs, close owned sessions
+and rehash. The previous detail source/build remains frozen. No source clocks
+or HUD updates changed; first-cold cost is still open. All four whole flows
+remain fail/unproven. Usage is 33% remaining; stop at 10%, no external message
+or automatic resume. This section supersedes older ownership and next actions.
+
 ## Rendering-cost repair assigned
 
 Root reconciled HEAD `80c2c29` after the reservation checkpoint. Root committed and pushed the closed detail audit

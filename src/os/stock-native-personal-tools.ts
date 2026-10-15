@@ -105,11 +105,11 @@ export function notificationsHudClock(date:Date){
   };
 }
 /** ReceiveBlue is a decoded 120-frame looping BCLAN. Notifications constructs
- * the lamp at 0x139520 and starts state 1 through 0x139434. The exact native
- * start epoch remains untraced, so the host's existing elapsed clock is the
- * explicit phase-origin adaptation; the update rate is the measured LCD VBlank
- * used by the title render loop. Reduced motion and retained feedback snapshots
- * keep the previously shipped settled frame 60. */
+ * the lamp at 0x139520 and passes state 1 to 0x139434. The meaning of that state,
+ * exact native start epoch and title-specific dispatch rate remain untraced, so
+ * the existing measured LCD VBlank and host elapsed origin are explicit timing
+ * adaptations. Reduced motion and retained feedback snapshots keep the
+ * previously shipped settled frame 60. */
 const NOTIFICATION_RECEIVE_LAMP_FRAMES=120;
 const NOTIFICATION_RECEIVE_LAMP_VBLANK_HZ=268111856/4481136;
 export function notificationReceiveLampFrame(elapsedMs:number,reducedMotion=false,snapshot=false):number{

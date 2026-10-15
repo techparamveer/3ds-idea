@@ -1,5 +1,15 @@
 # Workstream Registry
 
+## Alpha retention capture audit
+
+The candidate source b83b768 and production build are frozen after one Friends
+opening, 259 saved pairs, and one Notifications opening, 600 saved pairs with
+a preserved frame-limit stop. Root closed the muted Guest and server. One
+GPT-5.6 Sol high helper owns only new private alpha-retention/capture-audit
+derivatives, validating all originals and the predeclared comparisons against
+the detailed-measurement baseline. No GUI, source, build or original-evidence
+writes are assigned. Root owns shared documents, visual inspection and PR7.
+
 ## Alpha retention candidate transferred
 
 Root owns `applet-alpha-retention-20261015` after clean handoff 5ae44bc and

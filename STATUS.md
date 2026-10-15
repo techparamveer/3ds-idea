@@ -1,8 +1,32 @@
 # STATUS: animation fidelity
 
+## Alpha retention captures saved
+
+Root reconciled HEAD `1ea60b619e1d9ee205a19522a036c28354aa3311` before
+this checkpoint. The first Friends opening saved all 259 pairs, user-stopped.
+The first Notifications opening saved all 600 pairs after reaching the frame
+limit while root's context was compacted. This is a preserved protocol
+deviation, not a successful manual stop. No retry or extra opening occurred.
+Both destinations were visibly ready. The muted MacBook Guest and owned
+3047 server are closed; the original regular New tab remains. Source b83b768,
+build g-qLVPFQLrJnvHrbuaS0e, all 2,425 candidate and 2,417 baseline manifest
+files, and the separate human edit rehash unchanged.
+
+The unchanged detail checker validates final receipt metadata and remains red
+for six/seven missing incoming source values. First title draws remain
+37.4/26.9 ms. No Notifications HUD recomposition occurred during incoming in
+this run, so the recording does not establish that the earlier spike is fixed.
+All-pair PNG and fixed-pose pixel audits are next. One bounded GPT-5.6 Sol high
+helper may write only new private `applet-alpha-retention/capture-audit`
+derivatives. Root owns shared docs, integration and GUI. No source/build edits
+are assigned; root may inspect the remaining cold draw read-only.
+All four whole flows remain fail/unproven. Weekly usage is 32% remaining;
+stop at 10%, with no external message or automatic resume. This section
+supersedes older seats, serving and next actions.
+
 ## Alpha retention candidate transferred
 
-Root accepted clean handoff `5ae44bc` and merged coordinator `8fa9dd5` as
+Root reconciled HEAD `1ea60b6` after the capture checkpoint. Root accepted clean handoff `5ae44bc` and merged coordinator `8fa9dd5` as
 `0b7681c`. Root now owns
 `/Users/paramveer/.codex/worktrees/applet-alpha-retention-20261015/3ds-idea`,
 branch `codex/applet-alpha-retention-20261015`. Reviewed runtime `b83b768`

@@ -116,8 +116,8 @@ do not make separate system APIs atomic or pin the target process indefinitely.
 The coordinator must independently review this commit, then run a fresh silent
 exact-window pilot and inspect its decoded pixels before any animation input.
 
-No Azahar, browser, application build, native comparison, screenshot, capture
-pair, mask or diff report was produced by this worker. Full application tests,
+No Azahar, browser, native comparison, screenshot, capture pair, mask or diff
+report was produced by this worker. Full application tests,
 typecheck and web build had not run at the initial recorder-only source freeze.
 The later coordinator-requested checks are recorded below.
 Runtime `d4c7276` and build `Tc7ZG3LaSUpILEb72xG1X` remain frozen. No profile,
@@ -158,3 +158,53 @@ SHA-256 values `913c6da8062201b03009252856f42c66da0c46cac7a12e3af2fa417b6f4a0690
 The source, focused tests and delivered binary still match their hashes above.
 The worker tree was clean after the supporting checks, before this handoff-only
 update. Weekly usage was 46% used and 54% remaining before this batch.
+
+## Checks with installed dependencies
+
+The coordinator authorized an environment-only retry using the installed
+dependencies at
+`/Users/paramveer/.codex/worktrees/toprow-remaining-reveal-20261015/3ds-idea/node_modules`.
+The worker initially linked that directory through an ignored `node_modules`
+symlink. `git lfs checkout` hydrated the 77 tracked GLBs from existing local
+objects. Every resulting size and SHA-256 matched its tracked LFS record.
+The 54 unrelated Blender source pointers remained untouched. No install,
+download, package update or tracked application edit occurred.
+
+The hydrated full test run has 3,062 tests: 2,958 pass, one fails, 102 skip and
+one TODO. The sole failure is unchanged `tests/camera-date-group.test.mjs:44`,
+which cannot open
+`/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/camera-3d-badge-sdmc-recapture-20261005/browser/lower.png`.
+`npm run typecheck -- --incremental false` passes. Both logs are retained in
+`O/supporting-hydrated`, along with the next build failure and panic log:
+Turbopack refuses a dependency symlink outside its filesystem root.
+
+To run the unchanged production build, the worker replaced only its own symlink
+with an APFS clone of the same dependency directory using `cp -cR`. All 14,826
+file and symlink entries matched before building; both donor and clone remained
+unchanged afterward. Their entry fingerprint is
+`bc22191dd2cb39970aaefec75e8fc88c9585d42ffb532d197836ca0396a031c0`.
+The ignored clone remains local to this worker checkout.
+
+`npm run build` then exits 0. The unserved worker build ID is
+`Yp9THQctqDsZfyvloRNkB`; its log is `O/supporting-cloned/build.log`.
+This supporting build has no browser or native acceptance. The source/test
+implementation remains exactly commit `8631dc4`, with no changes for the
+dependency retry. All finite test/build processes have exited.
+
+The first hydrated batch records worker/root pre/post inventories and clean
+tracked status. The final build batch expands the source scope to include all
+top-level JavaScript, TypeScript and JSON config files, including
+`next.config.ts`. Its 2,198 worker source/config entries and 2,427 root
+source/config/frozen-build entries are each byte-identical before and after.
+Root's frozen `.next` is unchanged. Worker tracked status remains clean;
+only this owned handoff changes after those checks.
+
+`O/supporting-cloned/report.json` has SHA-256
+`063ad23e89763a137a778255f16350dfaeea7f54aa42641a9320b2fcb0823bfd`.
+`O/supporting-evidence.json`, SHA-256
+`9a8ea02089315689934ea6795bcb7a96f11bf54f28563888e221787639a0c752`,
+pins the six gate logs/reports and all final source/dependency inventories.
+The earlier failed environment attempts remain preserved. The latest
+coordinator usage check was 47% used and 53% remaining; the 10%-remaining stop
+condition remains in force. The user cancelled the Grok/My King notification,
+and no external message was sent.

@@ -1,5 +1,35 @@
 # STATUS: animation fidelity
 
+## Incoming detail measurement assigned
+
+Root reconciled HEAD `59303db` after the reservation checkpoint. The earlier
+bae2e9c was pushed and read back from draft PR7. The header control yielded new evidence
+and is closed. Both current and baseline source/builds stay frozen. A blank
+Chromium Guest is open on the sole built-in MacBook display; no app or server
+is live. Usage is 65% used / 35% remaining; pause at 10%, no bot or
+automatic resume.
+
+One worker owns `/Users/paramveer/.codex/worktrees/applet-paint-detail-20261015/3ds-idea`,
+branch `codex/applet-paint-detail-20261015`, based on bae2e9c. Its bounded
+diagnostic adds title upper/lower draw timings and cache
+deltas, plus Notifications pair recomposition timing/reasons, under the
+existing opt-in measurePaint path. It must preserve clocks, rendering, cache
+policy, input, resource/failure handling and publication guards. Focused tests,
+full checks and independent review precede root's two-opening live measurement.
+Root owns shared docs, GUI and PR7. All four whole flows remain fail/unproven.
+One separate read-only helper checks the private capture policy and detail
+analyzer while the source worker proceeds; it owns only a new private
+`applet-paint-detail/analysis-review` report. No GUI or originals are assigned.
+That analyzer review is now closed with two fixes: final stopped-receipt
+binding and the strings-array reason contract. Nine checker tests pass.
+Worker source `4626dc8` preserves the original stock key serialization after
+the first full run exposed a source-contract regression. The hydrated full
+run has 2,990 passes, only the known Camera PNG failure, 102 skips and one
+TODO. Fifty focused checks and nonincremental typecheck pass. The worker
+retains build/handoff. A separate reviewer reads that fixed source, with no
+worker-file or build writes.
+This section supersedes older seats, serving and next actions below.
+
 ## Header control closed
 
 Root reconciled HEAD `f922ab456d31f2bbb135ac9c4f2aec0c034ecfb1`; read Git for

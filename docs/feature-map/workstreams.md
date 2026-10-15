@@ -1,5 +1,23 @@
 # Workstream Registry
 
+## Incoming alpha retention repair
+
+Root at reconciled a7af99a reserves one worker in
+`/Users/paramveer/.codex/worktrees/applet-alpha-retention-20261015/3ds-idea`,
+branch `codex/applet-alpha-retention-20261015`, base a7af99a. Its ownership is
+native-renderer, applet-title-entry-assets, their focused tests and
+`docs/workstream-handoffs/applet-alpha-retention-20261015.md`. First reproduce
+the measured alpha-cache pressure, then repair only the demonstrated cause.
+Preserve source rasters, 8 MiB bound, disposal and unsupported-resource errors.
+No clock, input, HUD-update, asset, recorder, shared-document or GUI change.
+Root retains the frozen detail source/build, shared docs, GUI and PR7.
+
+Source b83b768 is fixed for independent review. Worker retains only full
+checks/build and its handoff; a read-only reviewer owns only the private
+`applet-alpha-retention/review` report. No reviewer repository/build/GUI writes.
+That review is now closed without findings, report e64b0eb0. The worker retains
+only build/handoff; root must accept release before serving the candidate.
+
 ## Detail capture audit closed
 
 Root reconciled `3683d96` and closed the first Friends/Notifications capture,

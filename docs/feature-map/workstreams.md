@@ -2,17 +2,30 @@
 
 ## Incoming detail measurement
 
-Root reconciled bae2e9c and retains the captured incoming-raster checkout/build.
+Root reconciled 59303db and retains the captured incoming-raster checkout/build.
 A GPT-5.6 Sol high worker owns
 `/Users/paramveer/.codex/worktrees/applet-paint-detail-20261015/3ds-idea`, branch
-`codex/applet-paint-detail-20261015`, at that base.
+`codex/applet-paint-detail-20261015`, based on bae2e9c.
 Reservation: optional measured title draw/cache details and Notifications
 recomposition details in applet-title-entry-assets, stock-screen-presentation,
 portfolio-screens and screens; focused diagnostic tests and its handoff.
+Root also reserves the worker one read-only `cacheEntryCount` getter beside
+`cacheBytes` in native-renderer, with focused cache/disposal checks. Accessing
+the existing private cache through casts or reflection is not permitted.
 It must not change rendering, clocks, input, cache policy, assets, recorder
 behavior, publication/failure guards or shared documents. Disabled measurement
 must perform no additional time/cache reads. Root alone owns GUI and will use
 a bounded first Friends/Notifications capture after checks and review.
+One read-only helper may check the private pre-input policy and metadata
+analyzer, writing only under `applet-paint-detail/analysis-review`. It has no
+source, build, original-evidence or GUI reservation.
+The analyzer review is complete; root fixed both issues and has nine passing
+checker tests. Worker source `4626dc8` is now fixed for independent review.
+The worker owns only remaining build/handoff; a separate reviewer may read
+4626dc8 and write only a private `applet-paint-detail/review` report. The
+hydrated full suite has 2,990 passes and the unchanged Camera PNG failure.
+Root has a blank Guest on the MacBook but has not loaded the app or started
+a server. Usage is 35% remaining; pause at 10%, with no external message.
 
 ## Header control closed
 

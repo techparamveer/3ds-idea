@@ -47,7 +47,7 @@ const bindScene = new Function('runtime', 'api', `
   let state=runtime.state,bannerHost=runtime.bannerHost,reduced=runtime.reduced;
   let homeClockSuspended=false,bannerObservedPhase=state.system.phase,lastBannerRestartBootSince=null,
     bannerEntryFooterBootSince=null,bannerLabelFailure=false,closePublicationEffectNow=null,lastInput;
-  const screens={...runtime.readiness,stockStatus:()=> 'ready',homeResumeInputSource:()=>null,homeEntryFooterReadiness:()=>({}),
+  const screens={...runtime.readiness,stockStatus:()=> 'ready',homeResumeInputSource:()=>null,homeResumeUpperActive:()=>false,homeEntryFooterReadiness:()=>({}),
     homeEntryActivationReady:()=>true,homeAppletFooterBannerReady:()=>true,prepareFolderBannerLabel:()=>({})};
   const bannerClock=()=>({generation:runtime.generation,updateCount:state.system.homeClock.updateCount});
   const folderBanner={syncStockTitles(){},status:()=>({ready:true,defaultReady:true})},homeTitleBannerKind=()=>null;

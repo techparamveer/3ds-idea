@@ -138,7 +138,7 @@ export function createAppletEntryPresentation() {
       const incomingKind = appletEntryIncomingKind(next.appId);
       if (presented?.kind === 'incoming' && sameAppletEntryIdentity(identity, next)) return !!pair && (incomingKind !== 'title' || !!incomingResources);
       return !sameAppletEntryIdentity(identity, next) || !!pending || rebase || !presented || presented.frame < 20
-        || !!pair && (incomingKind !== 'title' || !!incomingResources) || destinationCompositionAllowed(next);
+        || !!pair && (incomingKind !== 'title' || !!incomingResources) || !pair && destinationCompositionAllowed(next);
     },
     // Accessibility-only adaptation: the existing nonvisual direct shortcut
     // has no selected, presented HOME pair. Do not fabricate one for its cover.

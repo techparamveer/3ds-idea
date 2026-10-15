@@ -47,8 +47,9 @@ test('outgoing20 must be presented and exact destination plus incoming resource 
     const held = f.sample(22 + index, patch); assert.deepEqual([held.kind, held.frame], ['cover', 20]); f.present(held, 22 + index);
     assert.equal(f.controller.ready(f.identity), false);
   }
-  assert.equal(f.controller.active(f.identity, f.pair), false);
-  assert.equal(f.controller.active(f.identity, undefined, f.resources), false);
+  assert.equal(f.controller.active(f.identity, f.pair), false, 'a prepared destination waits for incoming resources without repainting');
+  assert.equal(f.controller.active(f.identity, undefined, f.resources), true, 'accepted cover20 schedules cold destination composition');
+  assert.equal(f.controller.active(f.identity), true, 'a missing destination pair still needs composition while incoming resources load');
   assert.equal(f.controller.active(f.identity, f.pair, f.resources), true);
   assert.deepEqual([f.sample(25).kind, f.sample(25).frame], ['incoming', 0]);
 });

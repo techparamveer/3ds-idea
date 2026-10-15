@@ -118,10 +118,43 @@ exact-window pilot and inspect its decoded pixels before any animation input.
 
 No Azahar, browser, application build, native comparison, screenshot, capture
 pair, mask or diff report was produced by this worker. Full application tests,
-typecheck and web build were not run under this recorder-only assignment.
+typecheck and web build had not run at the initial recorder-only source freeze.
+The later coordinator-requested checks are recorded below.
 Runtime `d4c7276` and build `Tc7ZG3LaSUpILEb72xG1X` remain frozen. No profile,
 security setting, native asset or audio changed. The fitted selected-only HOME
 reveal and existing footer/banner timing adaptations remain as previously
 recorded; the native partial-neighbour loading schedule is still unimplemented.
 All four whole flows remain fail/unproven, including exact motion, input and
 muted audio acceptance. All worker compile/test processes have exited.
+
+## Supporting checks after source freeze
+
+Source/test/handoff commit `8631dc48b47efdba14e76464b05060f8c7d1e0ca` is the
+focused implementation submitted for independent review. The coordinator then
+requested the repository test, typecheck and build entry points in this worker
+checkout. It has neither `node_modules` nor `.next`. No dependencies were
+installed, copied or linked, and no frozen checkout/build was touched.
+
+`O/supporting-checks.mjs` ran all three entry points sequentially, with test
+scratch redirected beneath `O/supporting`. All processes exited normally:
+
+| Command | Exit | Result |
+| --- | ---: | --- |
+| `npm test` | 1 | 1,832 total; 1,610 pass, 184 fail, 37 skip, 1 TODO |
+| `npm run typecheck -- --incremental false` | 127 | `tsc` not found |
+| `npm run build` | 127 | `next` not found |
+
+The full test log reports missing `sharp`, `fake-indexeddb`, `typescript`,
+`pngjs` and `three`. It does not emit the historical Camera PNG or LFS failures;
+dependency failures prevent a useful full application regression result.
+No unrelated repair or weakened test follows from these results.
+
+`O/supporting/report.json` has SHA-256
+`b6a787047796ee50a84a8145ae28ef2b14192d8299d2c9e6dd813c802ab90203`.
+The logs `npm-test.log`, `typecheck.log` and `build.log` in that directory have
+SHA-256 values `913c6da8062201b03009252856f42c66da0c46cac7a12e3af2fa417b6f4a0690`,
+`3232a107c7131ac91d18f8d6daba8ac8b657e21215db5492c8d866e7534bbd8b` and
+`9ec24555435b81b1f619963297a3fd0274a0f2c462454725ca685f8f7239993c`.
+The source, focused tests and delivered binary still match their hashes above.
+The worker tree was clean after the supporting checks, before this handoff-only
+update. Weekly usage was 46% used and 54% remaining before this batch.

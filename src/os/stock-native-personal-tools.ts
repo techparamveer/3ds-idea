@@ -104,6 +104,23 @@ export function notificationsHudClock(date:Date){
     batteryFrame:notificationsHudBatteryFrame(date),
   };
 }
+/** ReceiveBlue is a decoded 120-frame looping BCLAN. Notifications constructs
+ * the lamp at 0x139520 and starts state 1 through 0x139434. The exact native
+ * start epoch remains untraced, so the host's existing elapsed clock is the
+ * explicit phase-origin adaptation; the update rate is the measured LCD VBlank
+ * used by the title render loop. Reduced motion and retained feedback snapshots
+ * keep the previously shipped settled frame 60. */
+const NOTIFICATION_RECEIVE_LAMP_FRAMES=120;
+const NOTIFICATION_RECEIVE_LAMP_VBLANK_HZ=268111856/4481136;
+export function notificationReceiveLampFrame(elapsedMs:number,reducedMotion=false,snapshot=false):number{
+  if(reducedMotion||snapshot)return 60;
+  const elapsed=Number.isFinite(elapsedMs)?Math.max(0,elapsedMs):0;
+  return Math.floor(elapsed*NOTIFICATION_RECEIVE_LAMP_VBLANK_HZ/1000)%NOTIFICATION_RECEIVE_LAMP_FRAMES;
+}
+export function notificationReceiveLampPaintKey(view:AppView,elapsedMs:number,reducedMotion=false,snapshot=false):number|null{
+  return view.appId==='notifications'&&view.screen==='main'&&view.rows.some(row=>row.value==='New')
+    ?notificationReceiveLampFrame(elapsedMs,reducedMotion,snapshot):null;
+}
 const friendLayouts=['FrdTopBG_U_00','FrdTopBG_D_00','FrdTopUIUp_D_00','FrdTopUIDw_D_00','FrdElemCard_UB_00','FrdElemCard_UF_00','FrdElemCard_DB_00','FrdElemCard_DF_00'];
 export const personalFriendPacks:readonly NativeTitlePackRequest[]=[
   {url:'packs/friends/incoming.json',alias:'friends-incoming',layouts:['FrdCmnFade_U_00','FrdCmnFade_D_00'],animations:['FrdCmnFade_U_00_SceneIn','FrdCmnFade_D_00_SceneIn','FrdCmnFade_U_00_SceneOut','FrdCmnFade_D_00_SceneOut']},
@@ -247,7 +264,10 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
           N_IconNew_00:{visible:row.value==='New'},
         },attachments:{N_IconNew_00:()=>{
           okay=renderer.draw(bottom,'notification-receivelamp','RcvLamp_00',{
-            bindings:[{name:'RcvLamp_00_ReceiveBlue',frame:60},{name:'RcvLamp_00_SceneIn',frame:20}],
+            bindings:[
+              {name:'RcvLamp_00_ReceiveBlue',frame:notificationReceiveLampFrame(options.elapsedMs??0,options.reducedMotion,options.notificationsFooterClose!==undefined)},
+              {name:'RcvLamp_00_SceneIn',frame:20},
+            ],
           })&&okay;
         }}})&&okay;
       }

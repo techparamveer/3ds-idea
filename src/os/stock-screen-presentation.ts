@@ -14,7 +14,7 @@ import { drawNativeSoundFrame, soundHudTimeKey, soundScreenPacks } from './stock
 import { drawNativeCameraFrame, cameraScreenPacks } from './stock-native-camera';
 import { healthEntrySceneInFrame, healthTopLoopFrame } from './stock-health-scroll';
 import { drawNativeHealthFrame, healthScreenPacks } from './stock-native-health';
-import { drawNativePersonalToolFrame, nativePersonalToolView, notificationsHudClock, notesHudClock } from './stock-native-personal-tools';
+import { drawNativePersonalToolFrame, nativePersonalToolView, notificationReceiveLampPaintKey, notificationsHudClock, notesHudClock } from './stock-native-personal-tools';
 import { drawNativeWebFrame, browserHudClock, browserScreenPacks, miiverseScreenPacks } from './stock-native-web';
 import { NATIVE_RECOVERY_TARGETS } from './native-screen-input';
 import { stockScreenTargets } from './stock-screen-layout';
@@ -29,12 +29,12 @@ import { immutableTextDiagnostic, textDestinationDiagnostic, type NativeTextDiag
 
 type CameraTextPair=Readonly<{owner:string;generation:number;pairId:number;stockKey:string|null;source:NativeTextDiagnostic}>;
 export type CameraTextDiagnostic=Readonly<{pair:CameraTextPair;use:'rendered'|'cached-pair';destination:Readonly<{upper:ReturnType<typeof textDestinationDiagnostic>;lower:ReturnType<typeof textDestinationDiagnostic>}>}>;
-export type NotificationsStockPaintKeyComponent='cold'|'owner'|'view'|'revision'|'capture'|'reducedMotion'|'zone'|'eshopPose'|'eshopHud'|'notificationsHud'|'notesHud'|'browserHud'|'settingsHud'|'soundClock'|'intro'|'health'|'notesFooterClose'|'notificationsFooterClose'|'manualFooterClose'|'friendsFooterClose'|'webFooterClose'|'font';
+export type NotificationsStockPaintKeyComponent='cold'|'owner'|'view'|'revision'|'capture'|'reducedMotion'|'zone'|'eshopPose'|'eshopHud'|'notificationsHud'|'notificationsLamp'|'notesHud'|'browserHud'|'settingsHud'|'soundClock'|'intro'|'health'|'notesFooterClose'|'notificationsFooterClose'|'manualFooterClose'|'friendsFooterClose'|'webFooterClose'|'font';
 export type NotificationsStockPaintMeasurement =
   | Readonly<{outcome:'recomposed';compositionMs:number;changedKeyComponents:readonly NotificationsStockPaintKeyComponent[]}>
   | Readonly<{outcome:'cached';compositionMs:null;changedKeyComponents:readonly []}>;
 type NotificationsStockPaintSnapshot=Readonly<{components:readonly (string|undefined)[];font:BitmapFont|undefined}>;
-const notificationKeyComponentNames:readonly Exclude<NotificationsStockPaintKeyComponent,'cold'|'font'>[]=['owner','view','revision','capture','reducedMotion','zone','eshopPose','eshopHud','notificationsHud','notesHud','browserHud','settingsHud','soundClock','intro','health','notesFooterClose','notificationsFooterClose','manualFooterClose','friendsFooterClose','webFooterClose'];
+const notificationKeyComponentNames:readonly Exclude<NotificationsStockPaintKeyComponent,'cold'|'font'>[]=['owner','view','revision','capture','reducedMotion','zone','eshopPose','eshopHud','notificationsHud','notificationsLamp','notesHud','browserHud','settingsHud','soundClock','intro','health','notesFooterClose','notificationsFooterClose','manualFooterClose','friendsFooterClose','webFooterClose'];
 const noChangedNotificationKeyComponents:readonly []=Object.freeze([]);
 
 type Context=CanvasRenderingContext2D;
@@ -418,6 +418,9 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       const eshopHudKey=eshop?eshopHudClock(date):null;
       // notificationsHudClock includes batteryFrame so 0x181018 1 Hz Bat republishes.
       const notificationsHudKey=view.appId==='notifications'?notificationsHudClock(date):null;
+      // Only a visible unread lamp advances this paired composition. Close keeps
+      // its retained caller pixels; reduced motion keeps the prior frame-60 pose.
+      const notificationsLampKey=notificationReceiveLampPaintKey(view,elapsedMs,reducedMotion,notificationsFooterClose!==undefined);
       const notesHudKey=view.appId==='game-notes'?notesHudClock(date):null;
       // browserHudClock includes batteryFrame and colonVisible so Battery_Bat / TimeC 1 Hz republishes.
       const browserHudKey=view.appId==='browser'?browserHudClock(date):null;
@@ -429,9 +432,9 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         ?(reducedMotion||healthEntry!.complete?20:healthEntry!.origin===null?0:healthEntrySceneInFrame(healthElapsed-healthEntry!.origin))
         :undefined;
       const healthPaintKey=view.appId==='health-safety'?[healthTopLoopFrame(healthElapsed,reducedMotion),healthEntryFrame]:null;
-      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,notificationsHudKey,notesHudKey,browserHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey,notesFooterClose,notificationsFooterClose,manualFooterClose,friendsFooterClose,webFooterClose]);
+      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,notificationsHudKey,notificationsLampKey,notesHudKey,browserHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey,notesFooterClose,notificationsFooterClose,manualFooterClose,friendsFooterClose,webFooterClose]);
       const measuredSnapshot=options.measurePaint&&view.appId==='notifications'
-        ?{components:[nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,notificationsHudKey,notesHudKey,browserHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey,notesFooterClose,notificationsFooterClose,manualFooterClose,friendsFooterClose,webFooterClose].map(value=>JSON.stringify(value)),font} satisfies NotificationsStockPaintSnapshot:null;
+        ?{components:[nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,notificationsHudKey,notificationsLampKey,notesHudKey,browserHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey,notesFooterClose,notificationsFooterClose,manualFooterClose,friendsFooterClose,webFooterClose].map(value=>JSON.stringify(value)),font} satisfies NotificationsStockPaintSnapshot:null;
       const recomposed=painted!==key||paintedFont!==font;
       const compositionStarted=measuredSnapshot&&recomposed?performance.now():null;
       let textRendered=false;

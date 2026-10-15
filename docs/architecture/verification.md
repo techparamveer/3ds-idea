@@ -1,5 +1,15 @@
 # Verification and evidence architecture
 
+[Detailed incoming receipts](../applet-paint-detail-2026-10-15.md) keep title
+validation, upper/lower draws and remainder within the existing outer interval.
+Cache entry/byte deltas measure net retention, not allocation volume, and may
+be negative. Notifications recomposition detail reports all changed successful
+key components; cached observations have no composition interval. Reject
+detached final receipts, active recordings, missing required detail and nested
+overlap before interpreting cost. This metadata check is separate from PNG
+integrity and fixed pixel comparison. Never call recorded CPU intervals native
+timing or infer unrecorded cadence from them.
+
 [Title-background reuse](../applet-incoming-raster-2026-10-15.md) retains
 exact source-raster tests separately from full-LCD comparisons. Exact lower
 LCDs and opaque anchors do not excuse an unexplained upper-header residual.

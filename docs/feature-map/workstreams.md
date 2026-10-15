@@ -1,13 +1,14 @@
 # Workstream Registry
 
-## Detail capture audit
+## Detail capture audit closed
 
-Root reconciled `b803b8e` and closed the first Friends/Notifications capture,
+Root reconciled `3683d96` and closed the first Friends/Notifications capture,
 with all 529 pairs saved. Source `4626dc8` and build `3O1VJY2p2mFLyJ__sHpJn`
-are frozen. A bounded read-only helper may audit originals and fixed
-comparisons only into new private `applet-paint-detail/capture-audit` files.
-No source, build, original-evidence, native-session or GUI write is assigned.
-Root owns shared documents, image inspection, PR7 and the next implementation.
+are frozen. Audit `40ddc71e` verifies all originals and fixed comparisons;
+root inspects all sheets and rehashes originals and sealed derivatives.
+The helper is done and all reservations are released. Root owns shared
+documents, GUI, PR7 and the next measured rendering-cost repair in a new
+worktree. No whole-flow or native acceptance follows.
 
 ## Detail candidate transferred
 

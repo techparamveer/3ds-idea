@@ -1,8 +1,8 @@
 # STATUS: animation fidelity
 
-## Detail measurement saved
+## Detail audit closed
 
-Root reconciled HEAD `b803b8e`. The declared first Friends and Notifications
+Root reconciled HEAD `3683d96` after capture checkpoint `b803b8e`. The declared first Friends and Notifications
 openings saved all 221 and 308 pairs through normal touchscreen input. Both
 stopped by user input without cap or retry. The muted MacBook Guest and owned
 3046 server are closed; the original regular New tab remains. Runtime
@@ -16,12 +16,20 @@ paint is 88.5 ms. This identifies the measured branch, not individual raster
 operations or native cadence. The all-pose check remains red with six/eight
 source values absent.
 
-Next audit every original and the predeclared empty-mask fixed comparisons.
-One helper may write only new private `applet-paint-detail/capture-audit`
-derivatives. Root retains shared docs, source/build, GUI and integration.
-No optimization is assigned until this capture is checked. All four whole
-flows remain fail/unproven. Usage is 35% remaining; pause at 10%, with no bot
-message or automatic resume. This entry supersedes older live state.
+Audit `40ddc71e` validates all 529 pairs and 1,058 complete PNG decodes.
+Of 46 fixed empty-mask LCD comparisons, 38 are exact. The eight Notifications
+upper residuals total 1,926 pixels in the clock/battery and remain unmasked.
+All Friends and lower comparisons are exact. Root inspected all four sheets
+in nine native-size pages and rehashed all 1,587 originals and 28 sealed
+derivatives unchanged. Audit run-3 distinguishes capture HEAD b803b8e from
+the later audit checkout 3683d96; earlier derivatives remain preserved.
+
+All helper reservations are released. Root retains shared docs, source/build,
+GUI and integration. Next reduce measured title-draw and Notifications
+recomposition work without changing source poses, clocks, HUD updates or
+cache bounds. The captured source/build stays frozen; use a new worktree.
+All four whole flows remain fail/unproven. Usage is 34% remaining; pause at
+10%, with no bot message or automatic resume. This entry supersedes older live state.
 
 ## Reviewed detail candidate transferred
 

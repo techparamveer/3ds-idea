@@ -1,5 +1,19 @@
 # Animation fidelity workflow
 
+## Incoming detail measurement
+
+The [detailed receipt record](applet-paint-detail-2026-10-15.md) has two closed
+first-opening windows and 529 saved pairs. Preserve its reviewed source/build,
+originals and pre-input policy. Nested timing distinguishes validation,
+upper/lower drawing and retained cache deltas. Notifications reasons compare
+successful screen keys and retain simultaneous changes; they do not rule out
+host stalls. The measured 75.6 ms HUD-key recomposition is a concrete target,
+not permission to freeze the HUD. First-title cost must not be hidden by
+changing incoming source clocks. The fixed image audit is closed and root
+has inspected all sheets. Preserve the eight unmasked Notifications upper
+clock/battery residuals and the missing source values when testing the repair.
+All four whole flows remain fail/unproven. This next action supersedes history.
+
 ## Incoming raster regression
 
 The [reviewed background reuse](applet-incoming-raster-2026-10-15.md) has
@@ -50,7 +64,7 @@ batch, and at least every 10 minutes of active work. At 90% used / 10% remaining
 or less remaining, interrupt helpers, checkpoint and pause the goal. Do not
 start another project slice. The user cancelled the Grok Bot notification.
 Send no external message; report the pause only in this chat. The ten-minute
-heartbeat has been updated accordingly. Current reading is 63% used / 37%
+heartbeat has been updated accordingly. Current reading is 66% used / 34%
 remaining. No bot message has been sent.
 
 ## Cursor control closed

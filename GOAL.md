@@ -1,5 +1,14 @@
 # Goal: finish the four remaining native animation flows
 
+15 October AN-01: the [detailed paint measurement](docs/applet-paint-detail-2026-10-15.md)
+is reviewed, tested and recorded in 529 paired frames. First title drawing
+takes 35.9/29.9 ms; a Notifications incoming18 HUD-key recomposition takes
+75.6 ms. The fixed image audit is closed: 38 of 46 LCD comparisons are exact;
+eight Notifications upper clock/battery residuals remain unmasked. Next reduce those measured costs
+without changing poses, clocks or native HUD updates. The diagnostic itself
+is not a visual repair or native acceptance. All four whole flows remain
+fail/unproven. STATUS owns active seats and next actions.
+
 15 October AN-01: the [incoming raster candidate](docs/applet-incoming-raster-2026-10-15.md)
 is reviewed, tested and captured in 618 pairs. Its observed sustained title
 draw cost is lower, but 7/10 source values remain missing. A fresh 188-pair
@@ -33,7 +42,7 @@ change the running coordinator model. Both capture and final wording review
 are closed; the latter used the newly requested helper settings.
 
 Stop and pause this goal at 10% or less weekly usage remaining, interrupting helpers and
-preserving the checkpoint. The latest reading is 63% used / 37% remaining in
+preserving the checkpoint. The latest reading is 66% used / 34% remaining in
 the 10080-minute account window. Follow STATUS for usage
 checks. The user cancelled the Grok Bot notification. Send no external message;
 report the threshold pause only in this chat.

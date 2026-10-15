@@ -1,5 +1,15 @@
 # Feature map — 1:1 queue
 
+15 October AN-01: [detailed incoming measurements](applet-paint-detail-2026-10-15.md)
+add reviewed opt-in upper/lower draw and Notifications recomposition detail.
+Root saves all 529 pairs and closes the muted MacBook Guest/server. First
+title draws take 35.9/29.9 ms; one incoming HUD-key recomposition takes 75.6 ms.
+Six/eight source values remain absent. Fixed image audit verifies all originals;
+38 of 46 LCD comparisons are exact, with eight unmasked Notifications upper
+clock/battery residuals. There is no new native comparison. Next reduce measured rendering work while preserving
+poses, clocks, cache bounds and HUD updates. AN-01 through AN-04 remain fail.
+This next action supersedes the older entries below.
+
 15 October AN-01: [incoming background reuse](applet-incoming-raster-2026-10-15.md)
 is reviewed, tested and captured in 618 pairs. Twenty of 32 original fixed LCD
 comparisons are exact. The closed 188-pair ready-endpoint control now matches

@@ -2,11 +2,11 @@
 
 Current checkpoint, 15 October: this checkout is
 `/Users/paramveer/.codex/worktrees/resume-expansion-verified-20261015/3ds-idea`,
-branch `codex/resume-expansion-verified-20261015`, verified HEAD `649389b`,
+branch `codex/resume-expansion-verified-20261015`, verified HEAD `ff5ae95`,
 base `be33b26b75d75851c0185c615692f2f9a9eb3d4e`. Root owns this checkout and STATUS.
 Runtime `d40d8e1` integrates reviewed worker `70d1911`; test fixture `06bec2a`
 exposes the Resume query to the non-Resume folder scene mock. Both commits are
-pushed to draft PR 7 with documentation through `649389b`. This continuation reconciles
+pushed to draft PR 7 with documentation through `ff5ae95`. This continuation reconciles
 that Git HEAD before further capture or workers. Independent Astra extra-high
 Standards and Spec reviews have no
 findings. Final full tests report 2,866 passes, the one unchanged missing
@@ -52,10 +52,19 @@ unimplemented. The source worker identified record selection, service-queue
 progression and one restart caller, not Manual's live invalidation edge.
 That bounded source pass is closed; no guessed timer or runtime change follows.
 
-Next AN-01: compare ordinary first/repeated top-row opening and actual Close
-in validated Chromium against the named native evidence, keeping fixed inputs
-and boundaries. Do not repeat repaired exit-source work without a new visible
-defect. Manual's live loader-state gap stays open; existing screenshots cannot
+AN-01 now has 2,031 frozen-build Chromium pairs across Notes/Notifications
+first selection, first/repeated focused opening and actual Close. Root inspected
+18 targeted browser sheets, eight opaque comparisons and six native references.
+Audit `799a2af2`, manifest `5cd0b81d` and integrity review `cdde7128` are sealed.
+Browser
+reveals the entire ordinary grid through incoming, whereas native retains
+the selected ordinary tile before neighbours. The bounded correction is assigned
+to `toprow-home-reveal-20261015/3ds-idea`, branch
+`codex/toprow-home-reveal-20261015`, base `ff5ae95`. Reuse the existing fitted
+selected-only native empty-slot rendering, preserving handoff and banner guards.
+Partial neighbour scheduling remains open; do not guess a timer. Review,
+test/build and recapture the candidate before delivery. Then continue Friends,
+Browser and Miiverse. Manual's live loader-state gap stays open; screenshots cannot
 resolve it, and the pinned wildcard RPC/GDB servers must stay disabled.
 Native epochs/cadence, the third Resume predicate and all four whole-flow
 checks remain open. No privacy changes, recoloring, relaxed tolerance or

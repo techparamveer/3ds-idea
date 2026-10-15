@@ -1,5 +1,13 @@
 # Feature map — 1:1 queue
 
+15 October AN-01 [Notes/Notifications baseline](toprow-chromium-2026-10-15.md)
+retains 2,031 raw pairs across ten windows covering first selection and
+first/repeated focused opening and Close. Both apps expose all ordinary neighbours throughout incoming; native
+first retains the selected ordinary tile. Reuse the existing fitted native
+empty-slot path for these two returns, then review, test and recapture. Preserve
+the later banner step. Partial-neighbour loading, exact motion/input and muted
+audio remain open; this bounded repair cannot pass a whole flow.
+
 15 October AN-02 [Chromium recapture and loader trace](manual-chromium-reveal-2026-10-15.md)
 preserve selected-first return but confirm the remaining simultaneous-neighbour
 gap in all four Close routes. All 2,922 pairs validate; the 16 fixed earlier

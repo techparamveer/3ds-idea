@@ -1,5 +1,14 @@
 # Goal: finish the four remaining native animation flows
 
+15 October AN-01: [Notes/Notifications Chromium comparison](docs/toprow-chromium-2026-10-15.md)
+captures 2,031 pairs and exposes a return-grid defect. Both apps reveal all
+ordinary icons during the incoming cover; native initially retains only the
+selected ordinary tile. A bounded correction is assigned to its own worktree.
+Review, test and recapture it before delivery. Native partial-neighbour loading,
+exact input/cadence and all four whole-flow checks remain open. All helpers use
+GPT-6 Astra extra-high; tools cannot switch this chat's model. Test muted on the
+MacBook, preserve earlier work and keep the goal active.
+
 15 October Manual follow-up: [eight Chromium recordings](docs/manual-chromium-reveal-2026-10-15.md)
 retain 2,922 pairs on the unchanged build. Selected-first return is preserved;
 simultaneous neighbour population still differs from native partial groups.

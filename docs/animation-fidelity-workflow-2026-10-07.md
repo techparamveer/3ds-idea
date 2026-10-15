@@ -1,5 +1,21 @@
 # Animation fidelity workflow
 
+## Top-row grid defect captured
+
+[The Notes/Notifications baseline](toprow-chromium-2026-10-15.md) exposes all
+ordinary neighbours during the incoming cover. Named native windows retain
+only the selected ordinary tile. The worker in `toprow-home-reveal-20261015`
+owns the bounded selected-only correction, its renderer regressions and handoff.
+Do not expand it to other apps or guess a native queue timer. Review the commit,
+integrate into a fresh verification worktree, run tests/typecheck/build, then
+recapture first/repeated opening and Close with the validated muted Chromium
+on the MacBook. Preserve this frozen baseline and its raw captures.
+
+Manual's source pass remains closed. Wildcard RPC/GDB stays disabled; a separate
+read-only capability check established no verified guest-memory observer.
+Only root drives GUI. Helpers remain Astra extra-high. All four whole flows
+remain fail/unproven. This section supersedes older next actions below.
+
 ## Manual baseline closed; top-row comparison next
 
 [The unchanged-build recapture](manual-chromium-reveal-2026-10-15.md) preserves

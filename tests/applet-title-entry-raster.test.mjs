@@ -192,8 +192,9 @@ test('the generic opt-in reaches only cached title bases while the animated belt
       assert.ok(belts.length > 1, `${spec.appId} belt is not opted in`);
       assert.ok(belts.every(value => value.path === 'default'), `${spec.appId} belt retains compiled-eligible default selection`);
       const beforeRasters = pictureRasters.length, beforeEntries = renderer.cacheEntryCount;
-      const compiledOptions = expectedOptions(spec, 20)[0].options;
-      assert.equal(renderer.draw(canvas().getContext('2d'), spec.alias, spec.upper, { ...compiledOptions, opaquePictureAlphaBaseRaster: undefined }), true);
+      const compiledOptions = expectedOptions(spec, 0)[0].options, upper = canvas();
+      assert.equal(renderer.draw(upper.getContext('2d'), spec.alias, spec.upper, { ...compiledOptions, opaquePictureAlphaBaseRaster: undefined }), true);
+      assert.ok(upper.draws.some(draw => draw.width === 400 && draw.height === 240), 'visible upper background reaches destination composition');
       assert.equal(pictureRasters.length, beforeRasters, 'raster choice reuses the same cached base instead of retaining a duplicate');
       assert.equal(renderer.cacheEntryCount, beforeEntries);
       assert.ok(renderer.cacheBytes <= 8 * 1024 * 1024);

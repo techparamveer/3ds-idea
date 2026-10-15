@@ -9,6 +9,12 @@ comparison, GUI inspection, build, full suite, audio check or scenario-matrix
 change was performed in this worktree. The Friends and Notifications whole
 native flows remain fail/unproven.
 
+Independent source review `cf22e0da5ce9bcd2c956d04140aef595afc75fe4fa69912fc0fa03af14c8a697`
+found no production source bug. Its one P3 test finding is corrected: the
+cache-identity check now redraws visible upper frame 0, asserts that its full
+background reaches destination composition, and then proves that switching to
+the compiled-eligible request adds neither a raster nor a cache entry.
+
 The candidate follows the reviewed browser probe at
 `applet-cold-browser-probe/review/review.md` (SHA-256 `272dad8a922d7f82dd99876b67f186d85edb4b753f379409e3261b75149b6d76`).
 That probe's lower cold first-draw samples justify only a production A/B. Its
@@ -59,8 +65,8 @@ Fixtures decode the selected firmware textures through
 
 ## Remaining gate
 
-An independent source review is required before full tests or a build. After
-review and integration, the coordinator must run the declared isolated
+The independent reviewer must verify the focused test correction before full
+tests or a build. After review and integration, the coordinator must run the declared isolated
 production A/B with separate cold renderers/pages. Reject this candidate if the
 complete opening or later frame cost is worse or inconclusive. Source-byte
 equality does not establish cadence, input timing, native fidelity or a

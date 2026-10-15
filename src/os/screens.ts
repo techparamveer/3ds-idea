@@ -198,7 +198,7 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
     artwork(()=>{const inset=size*.34;rounded(c,x+inset,tile.y+inset,size-inset*2,size-inset*2,2,'#d3d4d766','#c8c9cc');});
    }
   }else if(returnSelectedOnly&&appId&&folderLabel===null&&tile.index!==(state.opened?state.folderSelected:state.selected)){
-   // Fitted Manual, Notes and Notifications return: retain selection through
+   // Fitted Manual and top-row returns: retain selection through
    // incoming20, then restore neighbours at handoff, not on a native loader clock.
    if(!nativeHome?.empty(c,x,y,size,view.density))throw Error('Native HOME return empty slot unavailable');
   }else if(occupied){
@@ -819,7 +819,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    !diagnosticPaint&&!document.hidden&&notesFooterCloseEligible(state)&&!panelFailure&&graphics.stockFailure()===null,reduced);
   const manualClosePose=manualClosePresentation.sample(state,manualCloseGeneration,notesCloseNow,
    !diagnosticPaint&&!document.hidden&&notesFooterCloseEligible(state)&&!panelFailure&&graphics.stockFailure()===null,reduced);
-  const returnSelectedOnly=manualClosePose?.kind==='in'||notesClosePose?.kind==='in'||notificationsClosePose?.kind==='in';
+  const returnSelectedOnly=manualClosePose?.kind==='in'||notesClosePose?.kind==='in'||notificationsClosePose?.kind==='in'||friendsClosePose?.kind==='in'||webClosePose?.kind==='in';
   if(diagnosticPaint||!appletIdentity||!appletEntryEligible(state))revokeAppletEntryCandidate();
   const appletOwner=state.system?.runtime.systemApplet;
   if(!appletIdentity&&(!appletOwner||!state.system?.runtime.instances[appletOwner])){appletPresentation.reset();appletBackingIdentity=null;}

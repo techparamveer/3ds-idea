@@ -23,17 +23,17 @@ for (const appId of ['friends', 'notifications']) {
   const source = packs[appId], selection = appletTitleEntrySelection(appId);
   test(appId + ' helper draws every original title SceneIn over the complete pair with plain native text only', () => {
     const before = JSON.stringify(source), draws = [];
-    const renderer = { packs: { [selection.alias]: source }, draw(ctx, alias, name, options) {
+    const renderer = { packs: { [selection.alias]: source }, cacheEntryCount: 0, cacheBytes: 0, draw(ctx, alias, name, options) {
       draws.push({ ctx, alias, name, options, posed: poseNativeLayout(source.layouts[name], source.animations, options.bindings, options.overrides) }); return true;
     } };
     validateAppletTitleEntryAssets(source, appId);
     for (let frame = 0; frame <= 20; frame++) {
       assert.equal(drawAppletTitleEntry(renderer, 'upper', 'lower', { appId, frame }), true);
       const [upper, lower] = draws.slice(-2);
-      assert.deepEqual([upper.ctx, upper.alias, upper.name, upper.options], ['upper', selection.alias, selection.upper, { bindings: [{ name: selection.upper + '_SceneIn', frame }], opaquePictureAlphaPanes: ['P_Bg_U_00'] }]);
+      assert.deepEqual([upper.ctx, upper.alias, upper.name, upper.options], ['upper', selection.alias, selection.upper, { bindings: [{ name: selection.upper + '_SceneIn', frame }], opaquePictureAlphaPanes: ['P_Bg_U_00'], opaquePictureAlphaBaseRaster: 'generic' }]);
       assert.deepEqual([lower.ctx, lower.alias, lower.name, lower.options], ['lower', selection.alias, selection.lower, {
         bindings: [{ name: selection.lower + '_SceneIn', frame }], overrides: { T_Aplt_00: { text: appId === 'friends' ? 'Friend List' : 'Notifications' }, T_Home_00: { text: appId === 'friends' ? 'Friend List' : 'Notifications' } },
-        opaquePictureAlphaPanes: ['P_Bg_D_00'],
+        opaquePictureAlphaPanes: ['P_Bg_D_00'], opaquePictureAlphaBaseRaster: 'generic',
       }]);
       assert.equal(pane(upper.posed, 'P_Bg_U_00').alpha, pane(lower.posed, 'P_Bg_D_00').alpha, 'shared browser pose, not proved native LCD phase-lock');
       for (const name of ['T_Aplt_00', 'T_Home_00']) {
@@ -47,6 +47,11 @@ for (const appId of ['friends', 'notifications']) {
         assert.equal(pane(lower.posed, 'P_Belt_00').translation[0], frame === 0 ? 0 : -80);
       }
     }
+    const ordinaryOptions = draws.slice(-2).map(draw => draw.options);
+    let measurement;
+    assert.equal(drawAppletTitleEntry(renderer, 'upper', 'lower', { appId, frame: 20 }, value => { measurement = value; }), true);
+    assert.deepEqual(draws.slice(-2).map(draw => draw.options), ordinaryOptions, 'measured and ordinary routes use the same raster choice');
+    assert.ok(Object.values(measurement).every(Number.isFinite));
     assert.equal(JSON.stringify(source), before, 'helper never modifies the source pack or quarantined style record');
   });
 

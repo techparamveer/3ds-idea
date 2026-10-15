@@ -1,7 +1,7 @@
 import { BitmapFont, nativeTextWriterFlags, type FontManifest } from './bitmap-font';
 import { createNativeTextDiagnostic, type TextInkRun } from './native-text-diagnostics';
 import { blendNativePixel, evaluateNativeMaterial, interpolateNativeQuad, instantiateNativePart, nativeAnimationDiagnostics, nativeMultiplyBlend, nativeOpaquePictureAlphaByte, nativePaneParentPath, nativeTextMetrics, nativeWindowPatches, nativeVisibleRasterRect, poseNativeLayout, rasterNativePicture,
- type AnimationBinding, type NativeLayout, type NativeText, type NativeMaterial, type NativePack, type NativePane, type NativePicture, type NativePixels, type NativeRasterRegion, type PaneOverrides } from './native-layout';
+ type AnimationBinding, type NativeLayout, type NativeText, type NativeMaterial, type NativePack, type NativePane, type NativePicture, type NativePixels, type NativeRasterPath, type NativeRasterRegion, type PaneOverrides } from './native-layout';
 
 type Context=CanvasRenderingContext2D;
 export type NativeDrawOptions={
@@ -13,6 +13,8 @@ export type NativeDrawOptions={
  pictureSampling?:'lcd';
  /** Source-validated common-cover backgrounds reuse their opaque RGB samples. */
  opaquePictureAlphaPanes?:readonly string[];
+ /** Raster path for the alpha-1 base of explicitly allowlisted opaque pictures. */
+ opaquePictureAlphaBaseRaster?:'generic';
  /** Capture-fitted Health Back/Other title coverage; GPU precision remains unverified. */
  textCoverageAdaptation?:'azahar-12p4-fit';
  /** Explicit source layout links; each prt1 retains its own pane/material scope. */
@@ -96,7 +98,7 @@ export class NativeLayoutRenderer {
   while(this.bytes+size>this.cacheLimit&&this.cache.size){const first=this.cache.entries().next().value!;this.bytes-=first[1].width*first[1].height*4;first[1].width=first[1].height=0;this.cache.delete(first[0]);}
   if(size<=this.cacheLimit){this.cache.set(key,canvas);this.bytes+=size;}return canvas;
  }
- private picture(pack:string,layout:NativeLayout,picture:NativePicture,width:number,height:number,alpha:number,textures:ReadonlyMap<string,NativePixels>,override?:NativeMaterial,sampling?:NativeRasterRegion,reuseOpaqueAlpha=false):HTMLCanvasElement {
+ private picture(pack:string,layout:NativeLayout,picture:NativePicture,width:number,height:number,alpha:number,textures:ReadonlyMap<string,NativePixels>,override?:NativeMaterial,sampling?:NativeRasterRegion,reuseOpaqueAlpha=false,opaqueAlphaBaseRaster:NativeRasterPath='default'):HTMLCanvasElement {
   const w=Math.max(1,Math.ceil(width)),h=Math.max(1,Math.ceil(height));
   if(w*h>1024*1024)throw new Error('Native pane exceeds raster budget');
   const material=override??layout.materials[picture.material];
@@ -107,7 +109,7 @@ export class NativeLayoutRenderer {
   const key=JSON.stringify([pack,material,picture.colors,picture.uvSets,w,h,alpha,layout.textures,textureIds,sampling]);
   if(reuseOpaqueAlpha){
    const byte=nativeOpaquePictureAlphaByte(layout,picture,textures,alpha,material);
-   const source=this.picture(pack,layout,picture,width,height,1,textures,override,sampling);
+   const source=this.picture(pack,layout,picture,width,height,1,textures,override,sampling,false,opaqueAlphaBaseRaster);
    if(!this.opaque.has(source))throw new Error('Unsupported nonopaque native picture alpha source');
    if(alpha===1)return source;
    const data=source.getContext('2d')!.getImageData(0,0,w,h);
@@ -118,7 +120,7 @@ export class NativeLayoutRenderer {
    canvas.getContext('2d')!.putImageData(data,0,0);return canvas;
   }
   return this.cached(key,()=>{
-   const pixels=rasterNativePicture(layout,picture,w,h,textures,alpha,material,sampling),canvas=surface(w,h),ctx=canvas.getContext('2d')!;
+   const pixels=rasterNativePicture(layout,picture,w,h,textures,alpha,material,sampling,opaqueAlphaBaseRaster),canvas=surface(w,h),ctx=canvas.getContext('2d')!;
    const data=ctx.createImageData(w,h);data.data.set(pixels.data);
    if(nativeDarkenBlend(material))for(let i=0;i<data.data.length;i+=4)data.data[i]=data.data[i+1]=data.data[i+2]=0;
    // Project native LCD RGB to opaque Canvas for no-blend and multiplicative
@@ -360,6 +362,7 @@ export class NativeLayoutRenderer {
   ctx.save();
   try{
    if(options.opaquePictureAlphaPanes&&(options.opaquePictureAlphaPanes.some(name=>typeof name!=='string'||!name)||opaquePictureAlphaPanes!.size!==options.opaquePictureAlphaPanes.length))throw new Error('Invalid native opaque picture alpha pane allowlist');
+   if(options.opaquePictureAlphaBaseRaster!==undefined&&(options.opaquePictureAlphaBaseRaster!=='generic'||!opaquePictureAlphaPanes?.size))throw new Error('Invalid native opaque picture alpha base raster');
    if(opaquePictureAlphaPanes){const available=new Set<string>();const scan=(panes:NativePane[])=>panes.forEach(pane=>{if(pane.picture)available.add(pane.name);scan(pane.children);});scan(layout.roots);
     for(const name of opaquePictureAlphaPanes)if(!available.has(name))throw new Error(`Missing native opaque picture alpha pane ${name}`);
    }
@@ -384,7 +387,7 @@ export class NativeLayoutRenderer {
      if(w>0&&h>0&&alpha>0){
       ctx.save();ctx.translate(x,y);
       try{
-       if(pane.picture&&!this.projectedPicture(ctx,layout,pane.picture,w,h,alpha,textures,options.pictureSampling==='lcd')){this.composite(ctx,this.picture(packName,layout,pane.picture,w,h,alpha,textures,undefined,undefined,opaquePictureAlphaPanes?.has(pane.name)),0,0,w,h,layout,pane.picture.material,undefined,allowOpaqueDarken);}
+       if(pane.picture&&!this.projectedPicture(ctx,layout,pane.picture,w,h,alpha,textures,options.pictureSampling==='lcd')){const reuseOpaqueAlpha=opaquePictureAlphaPanes?.has(pane.name)??false;this.composite(ctx,this.picture(packName,layout,pane.picture,w,h,alpha,textures,undefined,undefined,reuseOpaqueAlpha,reuseOpaqueAlpha?options.opaquePictureAlphaBaseRaster:'default'),0,0,w,h,layout,pane.picture.material,undefined,allowOpaqueDarken);}
        if(pane.text){const textSampling=!textSamplingPanes||textSamplingPanes.has(pane.name)?options.textSampling:undefined;
         const raster=this.text(layout,pane,alpha,textSampling?ctx.getTransform?.():undefined,options.textCoverageAdaptation,textSampling==='lcd-source-size'||textSampling==='lcd-source-size-left',textSampling==='lcd-source-size-left',!!textSampling&&!!textSamplingPanes?.has(pane.name)),textCanvas=raster.canvas;
         const diagnostic=this.textDiagnostic?.active?()=>this.textDiagnostic!.draw(textCanvas,raster.key,packName,layoutName,pane.name,ctx,{bindings:options.bindings??null,overrides:options.overrides??null,textSampling:textSampling??null,textCoverageAdaptation:options.textCoverageAdaptation??null,direct:raster.direct,phase:raster.phase,scale:options.scale??null,center:options.center??null}):undefined;

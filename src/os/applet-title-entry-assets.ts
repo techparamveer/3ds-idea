@@ -1,5 +1,5 @@
 import { nativePaneParentPath, poseNativeLayout, type NativeAnimation, type NativeLayout, type NativeMessageStyle, type NativePack, type PaneOverrides } from './native-layout.ts';
-import type { NativeLayoutRenderer } from './native-renderer.ts';
+import type { NativeDrawOptions, NativeLayoutRenderer } from './native-renderer.ts';
 
 export type AppletTitleEntryAppId = 'friends' | 'notifications';
 export type AppletTitleEntrySelection = Readonly<{
@@ -266,18 +266,18 @@ export function drawAppletTitleEntry(renderer: NativeLayoutRenderer, top: Canvas
   const validationStarted = measured ? performance.now() : null;
   validateAppletTitleEntryAssets(pack, selection.appId);
   if (!measured || validationStarted === null) {
-    const upper = renderer.draw(top, selection.alias, selection.upper, { bindings: [{ name: selection.upper + '_SceneIn', frame: pose.frame }], opaquePictureAlphaPanes: ['P_Bg_U_00'] });
-    const lower = renderer.draw(bottom, selection.alias, selection.lower, { bindings: [{ name: selection.lower + '_SceneIn', frame: pose.frame }], overrides: overrides(pack, selection), opaquePictureAlphaPanes: ['P_Bg_D_00'] });
+    const upper = renderer.draw(top, selection.alias, selection.upper, { bindings: [{ name: selection.upper + '_SceneIn', frame: pose.frame }], opaquePictureAlphaPanes: ['P_Bg_U_00'], opaquePictureAlphaBaseRaster: 'generic' });
+    const lower = renderer.draw(bottom, selection.alias, selection.lower, { bindings: [{ name: selection.lower + '_SceneIn', frame: pose.frame }], overrides: overrides(pack, selection), opaquePictureAlphaPanes: ['P_Bg_D_00'], opaquePictureAlphaBaseRaster: 'generic' });
     return upper && lower;
   }
   const validationEnded = performance.now();
-  const upperOptions = { bindings: [{ name: selection.upper + '_SceneIn', frame: pose.frame }], opaquePictureAlphaPanes: ['P_Bg_U_00'] };
+  const upperOptions: NativeDrawOptions = { bindings: [{ name: selection.upper + '_SceneIn', frame: pose.frame }], opaquePictureAlphaPanes: ['P_Bg_U_00'], opaquePictureAlphaBaseRaster: 'generic' };
   const upperEntries = renderer.cacheEntryCount, upperBytes = renderer.cacheBytes, upperStarted = performance.now();
   const upper = renderer.draw(top, selection.alias, selection.upper, upperOptions);
   const upperEnded = performance.now(), lowerOverrides = overrides(pack, selection);
   const lowerEntries = renderer.cacheEntryCount, lowerBytes = renderer.cacheBytes;
   const lowerStarted = performance.now();
-  const lower = renderer.draw(bottom, selection.alias, selection.lower, { bindings: [{ name: selection.lower + '_SceneIn', frame: pose.frame }], overrides: lowerOverrides, opaquePictureAlphaPanes: ['P_Bg_D_00'] });
+  const lower = renderer.draw(bottom, selection.alias, selection.lower, { bindings: [{ name: selection.lower + '_SceneIn', frame: pose.frame }], overrides: lowerOverrides, opaquePictureAlphaPanes: ['P_Bg_D_00'], opaquePictureAlphaBaseRaster: 'generic' });
   const lowerEnded = performance.now();
   measured(Object.freeze({
     validationMs: validationEnded - validationStarted,

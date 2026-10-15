@@ -476,6 +476,7 @@ export type NativeRasterRegion={x:number;y:number;fullWidth:number;fullHeight:nu
  /** Inverse destination-to-pane affine transform, applied to raster pixel centres.
   * When supplied, pixels outside the pane have no fragment coverage. */
  localTransform?:readonly [number,number,number,number,number,number]};
+export type NativeRasterPath='default'|'generic';
 /** Keep the original sampling grid when an axis-aligned pane extends beyond the LCD.
  * One neighboring raster pixel preserves Canvas filtering at the visible boundary.
  * Rotated panes retain the existing full-surface path and its raster budget.
@@ -677,7 +678,8 @@ export function runCompiledRaster(input: KernelInput): boolean {
  * leaves only scalar arithmetic and reusable scratch in the pixel loop. The
  * exported scalar helpers above remain independent reference implementations.
  */
-export function rasterNativePicture(layout:NativeLayout,picture:NativePicture,width:number,height:number,textures:ReadonlyMap<string,NativePixels>,alpha=1,material=layout.materials[picture.material],sampling?:NativeRasterRegion):NativePixels {
+export function rasterNativePicture(layout:NativeLayout,picture:NativePicture,width:number,height:number,textures:ReadonlyMap<string,NativePixels>,alpha=1,material=layout.materials[picture.material],sampling?:NativeRasterRegion,rasterPath:NativeRasterPath='default'):NativePixels {
+ if(rasterPath!=='default'&&rasterPath!=='generic')throw new Error(`Unsupported native raster path ${rasterPath}`);
  if(!material)throw new Error(`Missing material ${picture.material}`);
  if(material.sourceFormat==='FLYT'&&material.unsupported.length)throw new Error('Unsupported FLYT material fields');
  const sources=material.textureMaps.map(map=>{const name=layout.textures[map.texture],pixels=textures.get(name);if(!pixels)throw new Error(`Missing native texture ${name}`);return pixels;});
@@ -699,7 +701,7 @@ export function rasterNativePicture(layout:NativeLayout,picture:NativePicture,wi
  const output=stages.length?stages[stages.length-1].output:24;
  const offsetX=sampling?.x??0,offsetY=sampling?.y??0,fullWidth=sampling?.fullWidth??width,fullHeight=sampling?.fullHeight??height;
  const transform=sampling?.localTransform;
- if(runCompiledRaster({data,width,height,offsetX,offsetY,fullWidth,fullHeight,transform,colors,alpha,samplers,stages,bank,base,implicit,output,compare,wrapPixel}))return {width,height,data};
+ if(rasterPath==='default'&&runCompiledRaster({data,width,height,offsetX,offsetY,fullWidth,fullHeight,transform,colors,alpha,samplers,stages,bank,base,implicit,output,compare,wrapPixel}))return {width,height,data};
  for(let y=0;y<height;y++){
   for(let x=0;x<width;x++){
    const px=x+offsetX+.5,py=y+offsetY+.5;

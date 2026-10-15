@@ -275,7 +275,8 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   let lastLaunchPaintIdentity:LaunchTerminalIdentity|null=null,lastLaunchPresentedIdentity:LaunchTerminalIdentity|null=null;
   let lastShutdownPaintIdentity:ShutdownTerminalIdentity|null=null,lastShutdownPresentedIdentity:ShutdownTerminalIdentity|null=null;
   let entryPublicationRepaintPending=false;
-  const revokeTerminalPublications=()=>{entryPublicationRepaintPending=true;lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastLaunchPaintIdentity=null;lastLaunchPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;screens.revokeHomeEntryFooterCandidate();screens.revokeHomeEntryBannerCandidate();screens.revokeHomeEntryNoBannerCandidate();screens.revokeHomeEntryMotionCandidate();screens.revokeNotesBootCoverCandidate();screens.revokeManualEntryCandidate();screens.revokeAppletEntryCandidate();screens.revokeNotesFooterCloseCandidate();};
+  const nativeScreenInput=createNativeScreenInputGate();
+  const revokeTerminalPublications=()=>{nativeScreenInput.cancelHomeResume();entryPublicationRepaintPending=true;lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastLaunchPaintIdentity=null;lastLaunchPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;screens.revokeHomeEntryFooterCandidate();screens.revokeHomeEntryBannerCandidate();screens.revokeHomeEntryNoBannerCandidate();screens.revokeHomeEntryMotionCandidate();screens.revokeNotesBootCoverCandidate();screens.revokeManualEntryCandidate();screens.revokeAppletEntryCandidate();screens.revokeNotesFooterCloseCandidate();};
   function recordScreenPaint(elapsedMs:number,nativeSystem=false,entryMotion?:NonNullable<ReturnType<typeof screens.paint>>['entryMotion'],manualEntry?:NonNullable<ReturnType<typeof screens.paint>>['manualEntry'],appletEntry?:NonNullable<ReturnType<typeof screens.paint>>['appletEntry'],notesClose?:NonNullable<ReturnType<typeof screens.paint>>['notesClose'],notificationsClose?:NonNullable<ReturnType<typeof screens.paint>>['notificationsClose'],resume?:NonNullable<ReturnType<typeof screens.paint>>['resume'],manualClose?:NonNullable<ReturnType<typeof screens.paint>>['manualClose'],cameraText?:NonNullable<ReturnType<typeof screens.paint>>['cameraText'],friendsClose?:NonNullable<ReturnType<typeof screens.paint>>['friendsClose'],webClose?:NonNullable<ReturnType<typeof screens.paint>>['webClose']){
     const system=state.system!;lastBootPaintFrame=system.phase==='boot'?bootRevealFrame(elapsedMs-system.since,reduced):null;
     lastBootPaintIdentity=nativeSystem?bootTerminalIdentity(system,elapsedMs,reduced,contextGeneration):null;
@@ -385,7 +386,6 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     onLink:url=>{window.open(url,'_blank','noopener,noreferrer');},
   });
   function reducedBannerKey(){const view=getHomeBannerHostView(bannerHost);return view.status==='active'?JSON.stringify([view.status,view.primary.generation,view.primary.activationEpoch,view.primary.selection.kind,view.primary.selection.kind==='folder'?view.primary.selection.label:null,view.primary.motion.visible]):view.status;}
-  const nativeScreenInput=createNativeScreenInputGate();
   function commit(reduce:(current:MenuState,now:number)=>MenuState,input:string,userGesture=false,now=performance.now()-start){
     const previous=state,previousBanner=reduced?reducedBannerKey():undefined;
     const allowInput=applicationCloseAllowsInput(previous.system!.homeApplicationTransition,input,screens.stockStatus(previous));
@@ -418,7 +418,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     if(mustPaintApplicationClose&&started&&!document.hidden&&!after.sleeping)renderFrame();
   }
   function dispatch(event:AppEvent,userGesture=false){if(userGesture)void audio.unlock();const label=event.type==='button'||event.type==='command'?event.command:event.type;commit((current,now)=>{
-    const decision=nativeScreenInput(event,screens.stockStatus(current));
+    const decision=nativeScreenInput(event,screens.stockStatus(current),screens.homeResumeInputSource(current));
     if(decision==='home'){
       const cancelled=screens.cancelWebFooterClose(current)||screens.cancelFriendsFooterClose(current)||screens.cancelManualFooterClose(current)||screens.cancelNotesFooterClose(current)||screens.cancelNotificationsFooterClose(current),escaped=escapeUnreadyNativeScreen(current,now);
       return cancelled?releaseSystemInputs(escaped,now):escaped;
@@ -527,7 +527,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     if(['mute','volume-up','volume-down'].includes(action))send(action);else{heldKeys.set(e.code,action as AppCommand);button(action as AppCommand,'down',`key:${e.code}`,true);}
   }
   function keyup(e:KeyboardEvent){release(`key:${e.code}`);const command=heldKeys.get(e.code);heldKeys.delete(e.code);if(command)button(command,'up',`key:${e.code}`,true);}
-  function blur(){touches.clear();pinchDistance=0;pointerCancel();releaseAll();heldKeys.clear();commit((current,now)=>releaseSystemInputs(current,now),'blur');}
+  function blur(){nativeScreenInput.cancelHomeResume();touches.clear();pinchDistance=0;pointerCancel();releaseAll();heldKeys.clear();commit((current,now)=>releaseSystemInputs(current,now),'blur');}
   function visibilityChanged(){if(document.hidden){homeClockSuspended=true;blur();revokeTerminalPublications();observeFolderBanner();}else{homeClockSuspended=false;commit(current=>current,'visibility');}}
   function motionChanged(e:MediaQueryListEvent){advanceBeforeMutation(performance.now()-start);reduced=e.matches;screens.setReducedMotion(reduced);observeFolderBanner();lastHudParity=null;if(reduced){interruptIntro();angle=targetAngle;yaw=targetYaw;pitch=targetPitch;scale=targetScale;}paint();}
   function wheel(e:WheelEvent){e.preventDefault();interruptIntro();viewZoom=THREE.MathUtils.clamp(viewZoom-e.deltaY*.001,1,3);}
@@ -582,7 +582,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     const sample=poseSample(),plan=schedule.plan(sample);
     if(plan.shadows)renderer.shadowMap.needsUpdate=true;
     scene.updateMatrixWorld(true);fitConsole();camera.updateProjectionMatrix();publishProjectedTargets(plan.shadows);
-    try{renderer.render(scene,camera);}catch(error){liveLcdRecorder?.unavailable('render-error');entryPublicationRepaintPending=true;screens.revokeHomeEntryMotionCandidate();screens.revokeNotesBootCoverCandidate();screens.revokeManualEntryCandidate();screens.revokeAppletEntryCandidate();screens.revokeNotesFooterCloseCandidate();throw error;}
+    try{renderer.render(scene,camera);}catch(error){nativeScreenInput.cancelHomeResume();liveLcdRecorder?.unavailable('render-error');entryPublicationRepaintPending=true;screens.revokeHomeEntryMotionCandidate();screens.revokeNotesBootCoverCandidate();screens.revokeManualEntryCandidate();screens.revokeAppletEntryCandidate();screens.revokeNotesFooterCloseCandidate();throw error;}
     frame++;schedule.presented(sample);lastBootPresentedFrame=lastBootPaintFrame;
     const validPublication=!document.hidden&&state.powered&&!state.system!.sleeping&&angle>12&&topScreen.visible&&touchScreen.visible&&!renderer.getContext().isContextLost();
     if(validPublication){screens.presentHomeEntryFooterTerminal();screens.presentHomeEntryFooterRelease();screens.presentHomeEntryBanner();screens.presentHomeEntryWithoutNativeBanner();screens.presentHomeEntryMotion(state);screens.presentAppletEntry(state,performance.now()-start);screens.presentNotesBootCover(state);screens.presentManualEntry(state,performance.now()-start);}
@@ -625,6 +625,10 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
         if(next!==state){state=next;bannerHost=resetHomeBannerPrimary(bannerHost);observeFolderBanner();effects.drain(false);paint();}
         else screens.revokeNotesFooterCloseCandidate();
       }
+      // The input waits for this same owner's accepted pair, never a timer or paint alone.
+      if(nativeScreenInput.takeHomeResume(screens.stockStatus(state),screens.homeResumeInputSource(state)))dispatch({type:'command',command:'home'});
+    }else{
+      nativeScreenInput.cancelHomeResume();
     }
   }
   function animate(now:number){

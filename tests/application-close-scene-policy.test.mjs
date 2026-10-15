@@ -31,7 +31,7 @@ test('actual scene recovery keeps the ordinary HOME escape and releases input af
     const run = load({
       commit(mutate) { next = mutate({ phase: 'unavailable' }, 42); },
       nativeScreenInput: () => 'home',
-      screens: { stockStatus: () => 'error', cancelManualFooterClose: () => false, cancelNotesFooterClose: () => false, cancelNotificationsFooterClose: () => false, cancelFriendsFooterClose: () => false, cancelWebFooterClose: () => false, [method]: () => cancelled },
+      screens: { stockStatus: () => 'error', homeResumeInputSource: () => null, cancelManualFooterClose: () => false, cancelNotesFooterClose: () => false, cancelNotificationsFooterClose: () => false, cancelFriendsFooterClose: () => false, cancelWebFooterClose: () => false, [method]: () => cancelled },
       escapeUnreadyNativeScreen: (_state, now) => ({ phase: 'home', escapedAt: now }),
       releaseSystemInputs: (state, now) => ({ ...state, releasedAt: now }),
     });
@@ -84,7 +84,7 @@ test('shutdown publication is revoked across hidden and sleeping suspension boun
   const observe = source.indexOf('observeFolderBanner();', revoke);
   assert.ok(hidden >= 0 && blur > hidden && revoke > blur && observe > revoke,
     'hide must finish input cancellation, then revoke both paint and presentation receipts');
-  assert.match(source, /const revokeTerminalPublications=\(\)=>\{entryPublicationRepaintPending=true;lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastLaunchPaintIdentity=null;lastLaunchPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;screens\.revokeHomeEntryFooterCandidate\(\);screens\.revokeHomeEntryBannerCandidate\(\);screens\.revokeHomeEntryNoBannerCandidate\(\);screens\.revokeHomeEntryMotionCandidate\(\);screens\.revokeNotesBootCoverCandidate\(\);screens\.revokeManualEntryCandidate\(\);screens\.revokeAppletEntryCandidate\(\);screens\.revokeNotesFooterCloseCandidate\(\);\};/);
+  assert.match(source, /const revokeTerminalPublications=\(\)=>\{nativeScreenInput\.cancelHomeResume\(\);entryPublicationRepaintPending=true;lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastLaunchPaintIdentity=null;lastLaunchPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;screens\.revokeHomeEntryFooterCandidate\(\);screens\.revokeHomeEntryBannerCandidate\(\);screens\.revokeHomeEntryNoBannerCandidate\(\);screens\.revokeHomeEntryMotionCandidate\(\);screens\.revokeNotesBootCoverCandidate\(\);screens\.revokeManualEntryCandidate\(\);screens\.revokeAppletEntryCandidate\(\);screens\.revokeNotesFooterCloseCandidate\(\);\};/);
 });
 
 test('boot, launch, power and shutdown paint success requires the selected native system overlay', () => {

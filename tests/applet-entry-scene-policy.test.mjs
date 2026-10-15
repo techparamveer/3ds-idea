@@ -17,7 +17,9 @@ function visit(node){if(ts.isFunctionDeclaration(node)&&node.name)functions.set(
 visit(ast);
 const render=ts.transpileModule(functions.get('renderFrame').getText(ast),{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
 const loadScene=new Function('runtime','banner',`
- const {document,angle,topScreen,touchScreen,renderer,screens,performance}=runtime;
+ const {document,angle,topScreen,touchScreen,renderer,performance}=runtime;
+ const screens=new Proxy(runtime.screens,{get:(target,key)=>key==='stockStatus'?()=> 'ready':key==='homeResumeInputSource'?()=>null:Reflect.get(target,key)});
+ const nativeScreenInput={takeHomeResume:()=>false,cancelHomeResume(){}};
  const liveLcdRecorder=runtime.liveLcdRecorder??{observe(){},unavailable(){}},host=runtime.host??{dataset:{}};
  let state=runtime.state;
  let bannerHost=runtime.bannerHost??banner.createHomeBannerHost({generation:'test',updateCount:0},{managerInhibited:false,sceneInhibited:false,loadInhibited:false,nativeWorkerReady:true,resourceReady:null});

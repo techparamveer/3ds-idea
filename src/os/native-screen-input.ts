@@ -9,17 +9,27 @@ export const NATIVE_RECOVERY_TARGETS=[
   {action:'retry',x:170,y:170,width:130,height:38},
 ] as const;
 type Decision='pass'|'block'|'home'|'retry';
+export type HomeResumeInputSource=Readonly<{key:string;ready:boolean}>;
 function target(x:number,y:number){return NATIVE_RECOVERY_TARGETS.find(r=>x>=r.x&&x<r.x+r.width&&y>=r.y&&y<r.y+r.height)?.action;}
 /** Controls started against an unavailable frame cannot activate a later frame.
  * This gate owns only browser input eligibility; reducers remain resource-free. */
 export function createNativeScreenInputGate(){
   const buttons=new Set<string>(),analogs=new Set<string>();
   let homeAxisInhibited=false;
+  let deferredHomeResume:string|null=null;
   const touches=new Map<number,'home'|'retry'|undefined>();
-  function decide(event:AppEvent,status:NativeScreenStatus):Decision{
+  function reconcileHomeResume(status:NativeScreenStatus,source:HomeResumeInputSource|null){
+    if(status==='error'||deferredHomeResume!==source?.key)deferredHomeResume=null;
+  }
+  function decide(event:AppEvent,status:NativeScreenStatus,source:HomeResumeInputSource|null=null):Decision{
+    reconcileHomeResume(status,source);
     const blocked=status==='loading'||status==='error';
     if(event.type==='button'){
       if(buttons.has(event.source)){if(event.phase==='up')buttons.delete(event.source);return 'block';}
+      // Unpublished HOME backing is a render barrier, not a failed-screen escape.
+      if(event.command==='home'&&event.phase==='down'&&status!=='error'&&source&&!source.ready){
+        deferredHomeResume=source.key;buttons.add(event.source);return 'block';
+      }
       if(!blocked||event.command==='power')return 'pass';
       if(event.phase!=='down')return 'block';
       buttons.add(event.source);
@@ -43,6 +53,7 @@ export function createNativeScreenInputGate(){
       if(event.phase==='down')touches.set(id,status==='error'?target(event.x,event.y):undefined);
       return 'block';
     }
+    if(event.type==='command'&&event.command==='home'&&status!=='error'&&source&&!source.ready){deferredHomeResume=source.key;return 'block';}
     if(!blocked)return 'pass';
     if(event.type==='command')return event.command==='power'?'pass':event.command==='back'||event.command==='home'?'home':event.command==='open'&&status==='error'?'retry':'block';
     return 'block';
@@ -54,5 +65,11 @@ export function createNativeScreenInputGate(){
     for(const [source,held]of Object.entries(homeInput?.sources??{}))if(!held.pendingRelease)buttons.add(source);
     if(homeInput&&Math.hypot(homeInput.sampler.primaryAxis.x,homeInput.sampler.primaryAxis.y)>=.28)homeAxisInhibited=true;
   };
+  decide.takeHomeResume=(status:NativeScreenStatus,source:HomeResumeInputSource|null)=>{
+    reconcileHomeResume(status,source);
+    if(!deferredHomeResume||status!=='ready'||!source?.ready)return false;
+    deferredHomeResume=null;return true;
+  };
+  decide.cancelHomeResume=()=>{deferredHomeResume=null;};
   return decide;
 }

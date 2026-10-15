@@ -10,6 +10,8 @@ import { homeTitles } from '../src/os/app-registry.ts';
 import { nativePaneParentPath, poseNativeLayout } from '../src/os/native-layout.ts';
 import { enableHomeControls } from '../src/os/home-controls.ts';
 import { tickHomeNavigationClockObserved } from '../src/os/system.ts';
+import { createNativeScreenInputGate } from '../src/os/native-screen-input.ts';
+import { escapeUnreadyNativeScreen, releaseUnreadyNativeInput } from '../src/os/native-screen-system.ts';
 import { createHomeBannerHost, crossHomeBannerBoundary, stepHomeBannerHost, skipHomeBannerHostPass,
   getHomeBannerHostView, resolveHomeBannerHostSelection, resolveHomeBannerHostObservation,
   homeApplicationBannerBoundary } from '../src/os/home-banner-host.ts';
@@ -242,6 +244,7 @@ test('public HOME reselection retains outgoing Camera through hiding without exp
 
 function controls(f, initial) {
   let state = initial, now = 7101;
+  const gate = createNativeScreenInputGate();
   state = tickHomeNavigationClockObserved(state, now).state;
   return {
     get state() { return state; },
@@ -255,6 +258,22 @@ function controls(f, initial) {
       return pair;
     },
     event(event) { state = dispatchSystemEvent(state, event, ++now); },
+    sceneEvent(event) {
+      state = tickHomeNavigationClockObserved(state, ++now).state;
+      const status = f.screens.stockStatus(state);
+      if (status === 'loading' || status === 'error') gate.cancelHeld(state.system.input, state.system.homeControls?.input);
+      state = releaseUnreadyNativeInput(state, status, now);
+      const decision = gate(event, f.screens.stockStatus(state), f.screens.homeResumeInputSource(state));
+      if (decision === 'home') state = escapeUnreadyNativeScreen(state, now);
+      else if (decision === 'pass') state = dispatchSystemEvent(state, event, now);
+      return decision;
+    },
+    consumeHomeResume(sourceState = state) {
+      if (!gate.takeHomeResume(f.screens.stockStatus(sourceState), f.screens.homeResumeInputSource(sourceState))) return false;
+      this.sceneEvent({ type: 'command', command: 'home' });
+      return true;
+    },
+    cancelHomeResume() { gate.cancelHomeResume(); },
     key(command) {
       this.event({ type: 'button', command, phase: 'down', source: 'keyboard:' + command });
       this.advance(2, false);
@@ -387,6 +406,58 @@ test('quick footer and physical HOME Resume preserve accepted intermediate Healt
     assert.deepEqual(pane(pair, 'N_WndwScale_00').translation, pane(accepted, 'N_WndwScale_00').translation);
     assert.deepEqual(pane(pair, 'W_Wndw_00').size, pane(accepted, 'W_Wndw_00').size);
     assert.equal(f.screens.stockFailure(), null);
+  });
+});
+
+test('rapid HOME after unpublished Health or Camera reselection cannot expose two black LCDs', async () => {
+  for (const appId of ['health-safety', 'camera']) for (const releaseBeforeReceipt of [false, true]) await fixture(async f => {
+    const { d, selected } = await compact(f, appId);
+    d.key('left'); d.advance(3, false);
+    assert.equal(d.state.selected, selected);
+    assert.equal(f.screens.stockStatus(d.state), 'loading', 'the selected HOME pair has not been painted or accepted');
+    assert.equal(d.sceneEvent({ type: 'button', command: 'home', phase: 'down', source: 'keyboard:KeyH' }), 'block');
+    const pair = f.paint(d.state, false);
+    assert.notDeepEqual([pair.upper, pair.lower], [[['fill', '#000']], [['fill', '#000']]],
+      `early HOME must retain a complete visible pair: ${JSON.stringify({ phase: d.state.system.phase, result: pair.result, status: f.screens.stockStatus(d.state) })}`);
+    assert.equal(d.state.system.phase, 'home', 'the request waits for paired publication');
+    assert.equal(d.consumeHomeResume(), false, 'a paint alone cannot release the request');
+    if (releaseBeforeReceipt) assert.equal(d.sceneEvent({ type: 'button', command: 'home', phase: 'up', source: 'keyboard:KeyH' }), 'block');
+    assert.equal(f.screens.presentHomeEntryMotion(d.state), true);
+    assert.equal(d.consumeHomeResume(), true, 'the accepted source releases the same pending request');
+    assert.equal(d.state.system.phase, 'app');
+    assert.equal(d.consumeHomeResume(), false, 'the input is consumed once');
+    const resumed = f.paint(d.state, false);
+    assert.equal(resumed.result?.resume?.kind, 'footer');
+    assert.notDeepEqual([resumed.upper, resumed.lower], [[['fill', '#000']], [['fill', '#000']]]);
+    if (!releaseBeforeReceipt) {
+      assert.equal(d.sceneEvent({ type: 'button', command: 'home', phase: 'up', source: 'keyboard:KeyH' }), 'block');
+      assert.equal(d.state.system.phase, 'app', 'the physical release cannot suspend the resumed owner');
+    }
+  });
+});
+
+test('deferred HOME cannot reuse backing across owner context, resource, visibility or input cancellation', async () => {
+  for (const reject of ['origin', 'hidden', 'sleep', 'notice', 'resources', 'sequence', 'cancel', 'draw']) await fixture(async f => {
+    const { d, selected } = await compact(f); startExpansion(d, selected);
+    d.sceneEvent({ type: 'button', command: 'home', phase: 'down', source: 'keyboard:KeyH' });
+    f.paint(d.state, false);
+    let receiptState = d.state;
+    if (reject === 'origin') { d.key('right'); d.advance(30, false); startExpansion(d, selected); receiptState = d.state; }
+    if (reject === 'hidden') document.hidden = true;
+    if (reject === 'sleep') receiptState = setSystemSleeping(receiptState, true, 15000);
+    if (reject === 'notice') f.notice('Test runtime notice');
+    if (reject === 'resources') f.screens.setFirmwareAssets({ ...f.assets });
+    if (reject === 'sequence') receiptState = { ...receiptState, system: { ...receiptState.system,
+      runtime: { ...receiptState.system.runtime, sequence: receiptState.system.runtime.sequence + 1 } } };
+    if (reject === 'cancel') d.cancelHomeResume();
+    if (reject === 'draw') { f.fail('LncBase_U_00'); f.paint(d.state, false); }
+    f.screens.presentHomeEntryMotion(receiptState);
+    assert.equal(d.consumeHomeResume(receiptState), false, reject);
+    document.hidden = false; f.notice(null); f.fail(null);
+    if (reject === 'draw') f.screens.retryStockScreen();
+    f.paint(d.state);
+    assert.equal(d.consumeHomeResume(), false, `${reject}: later valid backing cannot restore the cancelled request`);
+    assert.equal(d.state.system.phase, 'home');
   });
 });
 

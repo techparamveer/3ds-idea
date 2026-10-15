@@ -25,6 +25,32 @@ test('controls started during loading must be released before the ready UI accep
  gate(touch('down'),'loading');assert.equal(gate(touch('up'),'error'),'block');
  gate(touch('down'),'loading');assert.equal(gate(touch('up'),'ready'),'block');assert.equal(gate(touch('down'),'ready'),'pass');
 });
+test('early HOME waits for its accepted source and a later physical release cannot fire again',()=>{
+ const gate=createNativeScreenInputGate(),source={key:'health-owner/origin/capture/resource/epoch',ready:false};
+ assert.equal(gate(button('home'),'loading',source),'block');
+ assert.equal(gate.takeHomeResume('ready',source),false,'paint readiness alone cannot supply backing');
+ assert.equal(gate.takeHomeResume('loading',{...source,ready:true}),false,'backing does not bypass screen readiness');
+ assert.equal(gate.takeHomeResume('ready',{...source,ready:true}),true);
+ assert.equal(gate.takeHomeResume('ready',{...source,ready:true}),false);
+ assert.equal(gate(button('home','repeat'),'ready',{...source,ready:true}),'block');
+ assert.equal(gate(button('home','up'),'ready',{...source,ready:true}),'block');
+ assert.equal(gate(button('home'),'ready',{...source,ready:true}),'pass');
+});
+test('a released early HOME command survives until publication but changed or revoked ownership cancels it',()=>{
+ const source={key:'health-owner/origin/capture/resource/epoch',ready:false};
+ for(const cancel of ['source','error','explicit']){
+  const gate=createNativeScreenInputGate();
+  gate(button('home'),'loading',source);
+  assert.equal(gate(button('home','up'),'ready',source),'block');
+  if(cancel==='source')assert.equal(gate.takeHomeResume('ready',{key:'replacement',ready:true}),false);
+  if(cancel==='error')assert.equal(gate.takeHomeResume('error',{...source,ready:true}),false);
+  if(cancel==='explicit')gate.cancelHomeResume();
+  assert.equal(gate.takeHomeResume('ready',{...source,ready:true}),false,cancel);
+ }
+ const gate=createNativeScreenInputGate();
+ assert.equal(gate({type:'command',command:'home'},'ready',source),'block');
+ assert.equal(gate.takeHomeResume('ready',{...source,ready:true}),true);
+});
 test('recovery touch requires matching down/up inside the same visible button',()=>{
  const gate=createNativeScreenInputGate();assert.equal(gate(touch('up'),'error'),'block');
  gate(touch('down'),'error');assert.equal(gate(touch('up',40,190),'error'),'block');

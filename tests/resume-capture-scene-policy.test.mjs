@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import ts from 'typescript';
+import { createNativeScreenInputGate } from '../src/os/native-screen-input.ts';
 
 const sceneSource = readFileSync(new URL('../src/scene/console-scene.ts', import.meta.url), 'utf8');
 const ast = ts.createSourceFile('console-scene.ts', sceneSource, ts.ScriptTarget.Latest, true);
@@ -20,13 +21,13 @@ const captureUrl = `data:text/javascript,${encodeURIComponent(compile(readFileSy
 const recorderSource = compile(readFileSync(new URL('../src/scene/live-lcd-recorder.ts', import.meta.url), 'utf8')).replace("'./lcd-capture'", JSON.stringify(captureUrl));
 const { createLiveLcdRecorder } = await import(`data:text/javascript,${encodeURIComponent(recorderSource)}`);
 const load = new Function('runtime', `
-  const {screens,state,host,performance,document,renderer,liveLcdRecorder,diagnostics,cameraTextProbe}=runtime;
+  const {screens,state,host,performance,document,renderer,liveLcdRecorder,diagnostics,cameraTextProbe,nativeScreenInput,dispatch}=runtime;
   const start=1000,reduced=false,contextGeneration=0,quality={screenFps:20};
   const topTexture={},bottomTexture={},topScreen={visible:true},touchScreen={visible:true};
   const schedule={invalidate(){},plan(){return {};},presented(){}},scene={updateMatrixWorld(){}},camera={updateProjectionMatrix(){}};
   const poseSample=()=>({}),fitConsole=()=>{},publishProjectedTargets=()=>{},cursorDiagnostic=()=>({});
   const bootRevealFrame=()=>null,bootTerminalIdentity=()=>null,launchTerminalIdentity=()=>null,shutdownTerminalIdentity=()=>null;
-  const sampleSystemHomeFolderClose=()=>null,revokeTerminalPublications=()=>{};
+  const sampleSystemHomeFolderClose=()=>null,revokeTerminalPublications=()=>nativeScreenInput.cancelHomeResume();
   let lastScreenPaint=0,lastBootPaintFrame=null,lastBootPresentedFrame=null,frame=0,angle=90,entryPublicationRepaintPending=false;
   let verificationBannerFrame,verificationBannerSkeletalFrame,verificationHealthBannerFrame;
   const canvas={width:400,height:240};
@@ -36,7 +37,8 @@ const load = new Function('runtime', `
   return {paintScreens,renderFrame,restore:index=>restorations[index](),textures:()=>[topTexture.needsUpdate,bottomTexture.needsUpdate]};
 `);
 
-function fixture(result, { hidden = false, contextLost = false, diagnostics = true, cameraTextProbe = false } = {}) {
+function fixture(result, { hidden = false, contextLost = false, diagnostics = true, cameraTextProbe = false,
+  resumeSource = () => null, presentHome = () => {}, dispatch = () => { throw Error('Unexpected scene dispatch'); }, renderError = false } = {}) {
   let now = 1100, paintCalls = 0, pairReads = 0;
   const bodies = [], host = { dataset: {} }, document = { hidden };
   const state = { powered: true, system: { phase: 'home', since: 50, sleeping: false, homeClock: { updateCount: 10 }, homeApplicationTransition: null } };
@@ -49,11 +51,47 @@ function fixture(result, { hidden = false, contextLost = false, diagnostics = tr
   const screens = new Proxy({
     paint() { paintCalls++; return result; }, paintTiming: () => ({ elapsedMs: 2 }),
     presentNotesFooterClose: () => null, presentNotificationsFooterClose: () => null,
+    stockStatus: () => 'ready', homeResumeInputSource: resumeSource, presentHomeEntryMotion: presentHome,
   }, { get: (target, key) => target[key] ?? (() => {}) });
+  const nativeScreenInput = createNativeScreenInputGate();
   const scene = load({ screens, state, host, performance: { now: () => now }, document, diagnostics, cameraTextProbe, liveLcdRecorder: recorder,
-    renderer: { getContext: () => ({ isContextLost: () => contextLost }), shadowMap: {}, render() {} } });
-  return { scene, state, host, recorder, bodies, setNow: value => { now = value; }, setResult: value => { result = value; }, paintCalls: () => paintCalls, pairReads: () => pairReads };
+    nativeScreenInput, dispatch, renderer: { getContext: () => ({ isContextLost: () => contextLost }), shadowMap: {}, render() { if (renderError) throw Error('Renderer failed'); } } });
+  return { scene, state, host, recorder, bodies, nativeScreenInput, setNow: value => { now = value; }, setResult: value => { result = value; }, paintCalls: () => paintCalls, pairReads: () => pairReads };
 }
+
+test('the actual renderer dispatches deferred HOME after recording the accepted source pair', () => {
+  let ready = false, calls = 0;
+  const source = () => ({ key: 'health-owner/origin/capture/resource/epoch', ready });
+  const f = fixture(undefined, { resumeSource: source, presentHome: () => { ready = true; }, dispatch(event) {
+    assert.equal(JSON.parse(f.host.dataset.screenPresented).validPublication, true);
+    assert.equal(JSON.parse(f.host.dataset.screenPresented).paint.phase, 'home');
+    assert.deepEqual(event, { type: 'command', command: 'home' });
+    calls++;
+  } });
+  try {
+    assert.equal(f.nativeScreenInput({ type: 'button', command: 'home', phase: 'down', source: 'key:KeyH' }, 'loading', source()), 'block');
+    f.scene.paintScreens(1090);
+    assert.equal(calls, 0);
+    f.scene.renderFrame();
+    assert.equal(calls, 1);
+    f.scene.renderFrame();
+    assert.equal(calls, 1, 'duplicate renders cannot consume the input twice');
+  } finally { f.recorder.dispose(); }
+});
+
+test('hidden, context-lost and failed renderer paths cancel a deferred HOME request', () => {
+  for (const reason of ['hidden', 'contextLost', 'renderError']) {
+    const source = { key: 'health-owner/origin/capture/resource/epoch', ready: false };
+    const f = fixture(undefined, { [reason]: true, resumeSource: () => source });
+    try {
+      f.nativeScreenInput({ type: 'command', command: 'home' }, 'loading', source);
+      f.scene.paintScreens(1090);
+      if (reason === 'renderError') assert.throws(() => f.scene.renderFrame(), /Renderer failed/);
+      else f.scene.renderFrame();
+      assert.equal(f.nativeScreenInput.takeHomeResume('ready', { ...source, ready: true }), false, reason);
+    } finally { f.recorder.dispose(); }
+  }
+});
 
 test('opt-in Camera trace is immutable in the actual same-paint scene receipt and clears on unrelated paint',async()=>{
  for(const route of ['cadence','state-driven','restore0','restore1']){

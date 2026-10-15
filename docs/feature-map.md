@@ -1,5 +1,13 @@
 # Feature map — 1:1 queue
 
+15 October AN-01: [native opening audits](applet-native-opening-2026-10-15.md)
+are closed and root-inspected. No broad-order or Notifications belt-direction
+defect was found. Friends has a different first-use/error destination; the
+Notifications ready pair retains unread fixture, HUD and marker differences.
+These are not whole-flow passes. First-cold title work and sampled-pose gaps
+remain open. STATUS owns the bounded cost diagnosis; do not repeat the completed
+broad-order investigation or fit movie timing to manufacture a match.
+
 15 October AN-01: [alpha retention](applet-alpha-retention-2026-10-15.md)
 prevents reproduced stock-raster eviction within the unchanged cache bound.
 Runtime b83b768 is reviewed and checked. The 859-pair browser audit is closed

@@ -1,5 +1,22 @@
 # Animation fidelity workflow
 
+## Native opening comparison closed
+
+The [Friends and Notifications audits](applet-native-opening-2026-10-15.md)
+are closed. Root inspected all four authoritative sheets and rehashed originals
+and sealed derivatives. Native broad order agrees, including Notifications
+belt directions. Preserve Friends first-use/error and Notifications unread
+fixture differences. Fixed ready pixels still differ; root's first-row read
+state observation explains only part of the lower marker strip. Do not fit a
+pulse phase or alter clocks to erase it. No new runtime change follows from
+this comparison alone. Exact motion/input/cadence and muted audio remain open.
+
+Next distinguish the measured cold title draw's raster/kernel work from Canvas
+cost with one bounded offline diagnosis. A justified correction needs a new
+source worktree, independent review and production recapture. Preserve the
+captured source/build. STATUS is the live checkout, seat, serving and next-action
+record; historical entries below do not supersede it.
+
 ## Alpha retention comparison
 
 The [bounded cache repair](applet-alpha-retention-2026-10-15.md) has a closed

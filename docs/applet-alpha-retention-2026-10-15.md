@@ -41,6 +41,8 @@ and selected-baseline originals. Seal SHA-256 is
 `ca195942413c824e8e58fa281f28eaec64c28eab37eef60b5953a7808aa23224`.
 Root opened all nine native-pixel sheets and rehashed all 2,577 candidate
 originals plus 18 sealed derivatives; root-inspection.json records this scope.
+The subsequent root-all-original-rehash.json checks all 2,649 candidate and
+selected-baseline originals unchanged.
 
 Fixed first outgoing20 and first shared incoming values use whole LCDs and
 empty masks. All 26 Friends LCD comparisons are byte/pixel exact. Notifications
@@ -67,6 +69,7 @@ The subsequent isolated native-opening movie reaches Friends first-use help
 then error002-0121. Root does not dismiss it or change network/account settings.
 Normal Close and Notifications inputs were not issued. The silent 90.21-second
 movie and two own-PNG anchors are preserved under sibling applet-native-opening.
-Azahar exited0 and its temporary screenshot path was restored; recorder scope
-and motion audit are separate pending work. Do not count that run as a matched
-Friends destination or as Notifications evidence.
+Azahar exited successfully and its temporary screenshot path was restored.
+The [native opening record](applet-native-opening-2026-10-15.md) closes its
+broad-order audit and separately records the first Notifications opening.
+Do not count the Friends run as a matched destination or as Notifications evidence.

@@ -1,5 +1,15 @@
 # Workstream Registry
 
+## Native audits released; cold diagnosis reserved
+
+Both native opening auditors are complete and released. Root inspected all
+four authoritative sheets, rehashed both original/derivative sets, and owns
+their evidence checkpoint. No broad-order correction is justified. Only the
+GPT-5.6 Sol high cold-draw worker remains active, writing private
+`applet-cold-draw-diagnosis` output. It has no source/build/shared-doc/GUI scope.
+Source b83b768 and build g-qLVPFQLrJnvHrbuaS0e remain frozen. Root owns the
+compact STATUS, shared documents and draft PR #7.
+
 ## Alpha audit closed; native movie audit reserved
 
 Root closed audit 11d5d1dd and inspected all nine sheets. The image helper is

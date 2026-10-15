@@ -1,5 +1,15 @@
 # Goal: finish the four remaining native animation flows
 
+15 October AN-01: the [native opening comparison](docs/applet-native-opening-2026-10-15.md)
+is audited and root-inspected. Friends and Notifications agree in broad opening
+order; no new belt-direction correction follows. Friends ends in first-use
+help/error, not the browser own card. Notifications ready pixels retain unread
+fixture, clock and marker differences. Exact moving pixels, input/cadence and
+muted audio remain unproven. Next isolate the measured first-cold title cost,
+not repeat this broad-order check. STATUS is now a concise live checkpoint;
+its previous text is preserved privately and in Git. The 10% weekly stop rule,
+no external message and no automatic resume remain in force.
+
 15 October AN-01: [alpha retention b83b768](docs/applet-alpha-retention-2026-10-15.md)
 fixes reproduced stock-raster eviction without changing source pixels or clocks.
 The 859-pair regression is audited and nine sheets inspected. All Friends and

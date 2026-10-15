@@ -227,13 +227,39 @@ advances the native-session/image revision, before calling `onChange`.
 Both current outward LCD copies must succeed before a replacement pair is
 available. Failed copying cannot expose an old prepared receipt. The shared
 applet incoming-resource consumers use the same revision-current contract.
-Other stock apps and diagnostic paints are not deferred. Failure/retry,
+Before the applet extension below, other stock apps and diagnostic paints were
+not deferred. Failure/retry,
 owner/generation validation and disposal remain in the existing owners.
 This is a browser scheduling adaptation with no new native assets, input or
 curve and no raster-cost reduction claim. Final source/test approval, offline
 Canvas limits, preview identity and incomplete recapture are recorded in the
 [Manual scheduling handoff](../manual-destination-scheduling-2026-10-09.md).
 Production motion and native ordering remain unproven.
+
+### Applet destination scheduling
+
+Runtime `dcb6fb3` extends that composition boundary to Game Notes, Friend List,
+Notifications, Internet Browser and Miiverse. `createAppletEntryPresentation`
+authorizes composition for the complete current identity after an accepted
+opaque cover20 without rebase. Pending or revoked outgoing20 does not qualify.
+An accepted incoming pose or handed-off owner keeps permission across rebases;
+the existing accessibility shortcut remains an explicit adaptation.
+
+The outgoing terminal requests another paint while its destination pair is
+absent. A prepared pair waiting only for title-specific incoming resources keeps
+the previous idle policy. Incoming missing-pair scheduling is unchanged.
+`screens.ts` samples the prepared pair before `graphics.overlay`, so a first
+cold draw stays behind cover20 and cannot start incoming in the same paint.
+The bounded `deferNativeDestination` flag still acquires resources and allows
+paired failure recovery. It does not publish a prepared pair for a skipped draw.
+Diagnostics and unrelated stock apps retain their previous behavior.
+
+This is a browser scheduling adaptation, not recovered native caller order,
+reduced raster cost or an animation-clock change. The source contract and
+failing-before/passing-after tests are in the
+[opening handoff](../workstream-handoffs/applet-opening-cadence-20261015.md).
+The coordinator's captured candidate must be evaluated separately from these
+source checks. Native motion, exact input and audio remain unaccepted.
 
 ## Shutdown and disposal
 

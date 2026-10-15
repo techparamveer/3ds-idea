@@ -1,9 +1,31 @@
 # STATUS: animation fidelity
 
+## Candidate capture closed
+
+Root reconciled Git at `cdffbbe9a49079e0090f111ff8cd3f3986e57d74` before
+this audit handoff. The current checkout and frozen runtime/build below remain
+unchanged. Root saved nine opening recordings, 2,521 paired LCD frames, through
+the normal HOME touchscreen controls. Order: Friends first/repeat 600/207,
+Browser first/repeat 251/147, Miiverse first/repeat 248/171, Notes 261,
+Notifications 299, and Browser Manual 337. The first Friends recording reached
+the 600-frame cap during context recovery; preserve it without retry. All nine
+ready endpoints were observed and every export finished before another input.
+
+The owned muted Chromium Guest and loopback3043 server are closed. The original
+New tab remains. All 2,425 candidate source/build files, 159,547,430 bytes, and
+the separate human system.ts edit rehash unchanged. Root owns shared documents.
+Next the existing Astra extra-high worker audits the closed private recordings
+only, followed by independent claims/integrity review. No source or build edits,
+GUI, native acceptance or additional recording is authorized by that handoff.
+The private policy and closure ledger live under
+`continuation-20261015/applet-opening-cadence/`. Weekly usage is 57% used,
+43% remaining. Stop at 10% remaining, without external notification.
+All four whole animation flows remain fail/unproven.
+
 ## Current coordinator and candidate
 
 Root now owns `/Users/paramveer/.codex/worktrees/applet-opening-cadence-20261015/3ds-idea`
-on `codex/applet-opening-cadence-20261015`, reconciled at7b1b868 after the
+on `codex/applet-opening-cadence-20261015`, reconciled at cdffbbe after the
 worker's explicit clean transfer4fa5fe1 and two docs-only coordinator commits.
 Runtime dcb6fb3 and buildKlvHppEeEH9Xi0W9-2Eux are frozen for capture.
 Independent review3a0c9175 has no actionable findings and199 focused passes.
@@ -13,12 +35,11 @@ The old top-row checkout at236d118 retains unchanged runtime d4c7276 and its
 frozen build. All2425 baseline files and the separate human edit rehash unchanged.
 The worker and reviewer are done, with no source/build reservation.
 
-Next root serves only the reviewed candidate on loopback3043, following private
-`continuation-20261015/applet-opening-cadence/candidate-policy.md`. A fresh
-Chromium153 Guest is blank; verify mute on an inert manifest before app input.
-Only built-in MacBook display1 is connected. Root alone drives GUI. No candidate
-capture or native acceptance exists yet. All four whole flows remain fail.
-Weekly usage is56%used/44%remaining; stop at10%, no external notification.
+Root completed the candidate capture under the private policy named above.
+Only built-in MacBook display1 was connected. The owned muted Chromium153 Guest
+and loopback3043 server are closed. Candidate capture analysis is pending;
+no new native acceptance exists. All four whole flows remain fail.
+Weekly usage is57% used/43% remaining; stop at10%, no external notification.
 This section supersedes older ownership, serving and next-action entries.
 
 ## Opening-pose cadence continuation

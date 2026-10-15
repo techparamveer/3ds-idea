@@ -1,5 +1,15 @@
 # Workstream Registry
 
+## Closed capture audit, 15 October 2026
+
+Root reconciled the current applet checkout at cdffbbe and closed all nine
+candidate recordings and owned GUI/server sessions. The existing worker may
+write only private derivatives under `applet-opening-cadence/candidate-audit`.
+Its task is receipt chronology, cover20 scheduling and fixed opaque-pair
+comparison. No source, build, original-evidence or GUI reservation exists.
+The existing independent reviewer follows with integrity and claims checks.
+Root owns shared documents, sequential commits and draft PR7 publication.
+
 ## Applet candidate transfer, 15 October2026
 
 Root owns the former `applet-opening-cadence-20261015/3ds-idea` worker checkout

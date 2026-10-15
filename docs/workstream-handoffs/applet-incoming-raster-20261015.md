@@ -108,10 +108,25 @@ Source/test commit:
 
 Private logs:
 
+- `applet-incoming-raster/base-red.log`, SHA-256
+  `b0b661f2c86632880206280057dcec99e05ecc0db381054df08139feed9f5bfa`.
+  An extracted base `5e51e22` produced the intended 3 failures and 1 passing
+  cache/disposal control; neither managed worktree was changed.
 - `applet-incoming-raster/npm-test.log`, SHA-256
   `a549d7f8410019af2b7ef4dc13b4c741b70f1c4e00b41868bbaa5ab1d632d049`
 - `applet-incoming-raster/npm-build.log`, SHA-256
   `347f74dc0435a408edcade532060ae179e33d3127416e660dfe65b8935dab11c`
 
-Independent source review is pending at this checkpoint. Root owns integration
-and the intentionally small Friends/Notifications production recapture.
+Independent review of source/test commit `7cadf11` found no actionable issues
+and independently reproduced the intended 3-fail/1-pass base result plus the
+34/34 focused pass. The review report is
+`applet-incoming-raster/review/source-review-7cadf117.md`, SHA-256
+`16515c64c9993b6e3222528b8051dfc5d17f08bb96bd725c612e99fb6da33223`.
+The later handoff-only commit retains identical reviewed source/test blobs.
+
+The frozen build is `0gMCf5YkNIK5fheLAfL7o` from reviewed source/test commit
+`7cadf117733f4c0ad74505011e6345a6ae0af8e6`. At transfer, the worker releases
+the `applet-incoming-raster-20261015` worktree, source, test, handoff, and build
+reservation to root. Root owns integration and the intentionally small
+Friends/Notifications production recapture; the worker will make no further
+source or build changes.

@@ -1,5 +1,14 @@
 # Feature map — 1:1 queue
 
+15 October AN-04 native follow-up: [continuous rapid Resume and the pixel control](home-resume-motion-control-2026-10-15.md)
+cover native early growth, expanded cover, footer retirement and departure.
+Root inspected all 15 sheets; no new broad-order defect is established. Native
+Health lower endpoints are exact before/after. Fixed browser pixels still fail,
+and the known-byte Helium export control exposes a measurement confounder outside
+app code. Next compare a default Chromium control and fixed same-build Health
+endpoints. No native tolerance change or inferred Health correction. Exact
+input, moving pixels and cadence remain open; AN-01 through AN-04 stay fail.
+
 15 October AN-04 expansion: [the bounded upper-work repair](home-resume-expansion-2026-10-15.md)
 is delivered as `d40d8e1`, with independent reviews, tests and production build.
 Six muted MacBook windows save 1,678 pairs. Rapid Health and Camera visibly

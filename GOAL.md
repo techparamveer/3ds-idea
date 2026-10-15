@@ -1,5 +1,16 @@
 # Goal: finish the four remaining native animation flows
 
+15 October follow-up: [two uninterrupted native Resume recordings and a browser
+pixel control](docs/home-resume-motion-control-2026-10-15.md) are complete.
+Native early growth through departure follows the repaired broad order. Native
+Health lower endpoints match exactly before/after; the fixed browser residual
+remains. Browser-produced control PNGs differ from known input pixels without app code,
+not a proven explanation of all Health differences. Next use an isolated default
+Chromium control and fixed same-build Health capture before changing rendering.
+Exact moving pixels, native input/cadence and all four whole-flow checks stay
+open. Preserve the existing repairs, muted MacBook testing and Astra extra-high
+helpers. No change to the running main model is verified by helper tools.
+
 15 October expansion: [continued upper Resume work](docs/home-resume-expansion-2026-10-15.md)
 is reviewed, integrated as `d40d8e1`, tested and pushed to draft PR 7. Six muted
 MacBook sessions save 1,678 pairs; root inspected all 25 sheets. Rapid Health

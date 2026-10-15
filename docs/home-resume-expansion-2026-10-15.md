@@ -6,6 +6,12 @@ accepted-backing readiness fix. That fix remains intact. This note supersedes
 only the frozen intermediate upper assumption in the earlier Resume handoffs
 and [scale design](home-suspended-scale-2026-10-14.md).
 
+The subsequent [native motion and pixel control](home-resume-motion-control-2026-10-15.md)
+fills native early-growth and continuous-departure coverage with two
+uninterrupted recordings. It preserves this source/build and all capture
+identities. Matching native input/cadence and Health pixel acceptance remain
+open; browser-produced control PNGs differ from known input pixels without app code.
+
 ## Integrated capture checkpoint
 
 Worker `70d1911f57a16e404604d498fd28a623975a05db` is integrated as

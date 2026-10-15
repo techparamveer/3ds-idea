@@ -1,5 +1,26 @@
 # Animation fidelity workflow
 
+## Native broad motion covered; isolate pixel export next
+
+[The closed follow-up](home-resume-motion-control-2026-10-15.md) adds continuous
+native early growth through departure. Do not repeat the broad-order capture
+or the repaired late-footer freeze. Input epochs, exact pixels and native
+cadence remain unmatched; window movies are not raw LCD motion acceptance.
+
+Independently decoded browser PNGs differ from known opaque input bytes in the
+same dedicated Helium process without app code. This does not locate the stage
+within the canvas write/storage/export pipeline. Preserve the control and PNGs.
+Next run the same control in an isolated default Chromium test browser without
+disabling privacy/security features, then fixed Health endpoints on the frozen
+build. Separate independent PNG decoding from browser-reported metrics. Do not
+blame all historical Health differences on this control, recolor screenshots,
+increase tolerance or choose nearest frames. Preserve failed evidence.
+
+Source/build are frozen, app/control servers are closed and isolated Azahar's
+config is restored exactly. A blank Helium New tab remains. Only root drives
+muted MacBook GUI; helpers use Astra extra-high. All four whole flows remain
+fail/unproven. This section supersedes older next-action instructions below.
+
 ## Expansion captured; matched native motion next
 
 [The upper-work repair](home-resume-expansion-2026-10-15.md) is reviewed,

@@ -2,12 +2,13 @@
 
 Current checkpoint, 15 October: this checkout is
 `/Users/paramveer/.codex/worktrees/resume-expansion-verified-20261015/3ds-idea`,
-branch `codex/resume-expansion-verified-20261015`, verified HEAD `06bec2a`,
+branch `codex/resume-expansion-verified-20261015`, verified HEAD `2081c89`,
 base `be33b26b75d75851c0185c615692f2f9a9eb3d4e`. Root owns this checkout and STATUS.
 Runtime `d40d8e1` integrates reviewed worker `70d1911`; test fixture `06bec2a`
 exposes the Resume query to the non-Resume folder scene mock. Both commits are
-pushed to draft PR 7. Documentation may follow; reconcile actual Git HEAD on
-restart. Independent Astra extra-high Standards and Spec reviews have no
+pushed to draft PR 7 with documentation `2081c89`. This continuation reconciles
+that Git HEAD before further capture or workers. Independent Astra extra-high
+Standards and Spec reviews have no
 findings. Final full tests report 2,866 passes, the one unchanged missing
 historical Camera PNG failure, 102 skips and one TODO. Typecheck and production
 build `u777TCZvyAq0o5fDm5U3g` pass. Source/build are frozen.
@@ -22,16 +23,31 @@ the later windows are separate recordings, not continuous coverage.
 Audit `683d1ded`, manifest `e84f62fa` and the full evidence are in
 [the expansion record](docs/home-resume-expansion-2026-10-15.md).
 
-Next: preserve this bounded late-growth repair and capture earlier rapid upper
-poses against matched ordinary native inputs. No guessed timer or scale-15
-input gate. Native input epochs, continuous departure/cadence, the third native
-controller predicate, Health lower pixels and Manual neighbour loading remain
-open. Follow the four-flow queue after that comparison; do not reopen excluded
-moving/pickup work. All four whole flows remain fail/unproven; the goal is active.
+New [native motion and pixel control](docs/home-resume-motion-control-2026-10-15.md)
+fill the native earlier-growth and continuous-departure coverage gap. Two silent
+movies contain 2,311 decoded window frames; root inspected all 15 audit sheets.
+Both show growth, expanded cover, footer retirement, departure and Health.
+Native lower endpoints are exact before/after both attempts. The fixed browser
+lower still differs at 1,776 pixels above delta 2, maximum 6. No matched input
+epoch, exact moving-pixel or cadence pass follows.
 
-Only root operates GUI, muted on the MacBook. The candidate tab and port-3041
-server are closed; Azahar is not running. Helium's dedicated muted process
-has no owned test window. Recheck display and process identity before reuse.
+The standalone control establishes a discrepancy in Helium's canvas
+write/storage/export pipeline, outside app code, without locating its stage.
+Independent decoding confirms all 24 retained
+PNGs differ from known bytes at 47,921 pixels, maximum delta 2.
+Do not attribute all Health maximum deltas 7/8 to that result or patch around
+it. Next repeat the control in an isolated default Chromium browser, then
+capture fixed Health lower endpoints from this frozen build. Do not disable
+privacy/security features, recolor captures or loosen native tolerances.
+Preserve the closed growth/readiness fixes. Native epochs/cadence, the third
+controller predicate and Manual neighbour loading remain open. Follow the
+four-flow queue after this bounded check. All four flows remain fail/unproven;
+moving/pickup remains excluded and the goal is active.
+
+Only root operates GUI, muted on the MacBook. The candidate/control tabs and
+port-3041 server are closed; Azahar is not running and its isolated config is
+restored byte-for-byte. Dedicated muted Helium remains on a blank New tab;
+its exit was not verified. Recheck display and process identity before reuse.
 Earlier sources/builds/capture roots remain frozen, including the 614-pair
 lower-pixel control. Root inspected all seven control sheets. Its within-run
 lower endpoints are exact, while across-run differences remain unexplained.

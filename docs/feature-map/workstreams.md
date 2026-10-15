@@ -11,6 +11,11 @@ optional timing fields in `src/os/screens.ts`, focused screen timing tests and
 animation clocks, resources, draw order, pixels, recorder behavior or input.
 Root alone owns GUI, shared documents and integration. Review precedes a small
 production-browser measurement; this is not authorization for a broad capture.
+A second read-only helper checks the existing opaque-alpha guard against both
+title packs and original source raster bytes. It writes only new private
+`applet-incoming-cost/alpha-feasibility` derivatives, with no repository/build/
+GUI/original-evidence reservation. No optimization is authorized before root's
+live cost measurement. Both bounded helpers use GPT-5.6 Sol high.
 
 ## Closed capture audit, 15 October 2026
 

@@ -2,7 +2,7 @@
 
 ## Current checkpoint
 
-Root reconciled Git at `a0836737823b9cb060bc5b03ac4ab9329feb869e` on restart.
+Root reconciled Git at `6c78f26` after the measurement reservation checkpoint.
 The previous turn completed the independently reviewed capture record and
 pushed it to draft PR7, so it counts as progress. Root owns
 `/Users/paramveer/.codex/worktrees/applet-opening-cadence-20261015/3ds-idea`
@@ -51,6 +51,10 @@ One bounded measurement worker will add optional pre-overlay/title-incoming
 timings to the existing measured-paint receipt. No timing, raster, input or
 resource behavior may change. Its worktree is applet-incoming-cost-20261015,
 based at a083673; root preserves this captured build. Root alone owns GUI.
+A second bounded helper may read the existing title-cover opaque-alpha guard
+and compare original source raster bytes under a new private alpha-feasibility
+directory. It has no repository, build, GUI or original-evidence write scope.
+No optimization is authorized before the live cost measurement.
 
 The owned muted Chromium 153 Guest and loopback server on port 3043 are closed.
 The original New tab remains. GUI testing uses the built-in MacBook display;

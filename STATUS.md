@@ -1,5 +1,49 @@
 # STATUS: animation fidelity
 
+## Incoming regression audit closed
+
+Root reconciled Git at `b6cc578`; read Git for this following docs checkpoint.
+The two-opening cost measurement is now audited. All 462 pairs, 1,386 originals
+and all 924 PNG CRC/decode checks pass. Root opened four sheets. Of 26 fixed
+empty-mask LCD comparisons, 24 are exact. Two Notifications upper residuals
+are confined to clock digits, visibly 20:19 versus 20:56, and remain reported.
+Audit report is `2bd93577`, seal `926e8cbd`, root complete PNG check `e57eabee`.
+No new native comparison or acceptance exists. The diagnostic build is frozen.
+
+The separate raster candidate source is `7cadf11`, checks handoff `61bce0d`,
+build `0gMCf5YkNIK5fheLAfL7o`. Focused checks pass 34; full checks pass 2,987 with
+only the unchanged Camera PNG failure, 102 skips and one TODO. Typecheck/build
+pass. Independent source review is running. Root must accept a clean ownership
+handoff before merging shared docs or running its declared port 3045 capture.
+No GUI/server is live. Weekly usage is 61% used / 39% remaining; stop at 10% remaining.
+This entry supersedes older audit, reservation and serving state.
+
+## Incoming cost isolated
+
+Root reconciled Git at `5e51e22043912b0cdeb2a40733bf91ffa796f0f2` in
+`/Users/paramveer/.codex/worktrees/applet-incoming-cost-20261015/3ds-idea`,
+branch `codex/applet-incoming-cost-20261015`. Runtime `ce402ac` and build
+`xzX--oY_BchQrfOIYENUa` remain frozen. Root completed the declared first Friends
+and Notifications openings on the muted MacBook Guest, saving all 253 and 209
+pairs. Both recordings stopped by user input, without a cap or retry. The
+owned Guest/server are closed and port 3044 is free. The original New tab remains.
+
+Same-receipt timing identifies title incoming drawing as the dominant paint
+interval: medians 17.8/21.8 ms against whole paint 20.5/25.3 ms. Pre-overlay
+medians are 1.4/2.5 ms; pair encoding is separate at 9.3/9.8 ms. Recorded pose
+coverage still misses 10/12 source values. These are CPU measurements during
+recording, not unrecorded cadence or native acceptance. Private evidence is
+`continuation-20261015/applet-incoming-cost/measured-timings.json`.
+
+Next audit those originals and their fixed regression pairs, while a bounded
+worker opts only the validated Friends/Notifications SceneIn backgrounds into
+the existing guarded opaque-alpha raster reuse. Preserve clocks, source poses,
+resources, composition order, cache bounds and disposal. The candidate must
+have focused/full checks, independent source review and root live recapture.
+Root owns shared docs and GUI. All four whole flows remain fail/unproven.
+Weekly usage is 60% used / 40% remaining; pause at 10% remaining without an
+external message or automatic resume. This entry supersedes older live state.
+
 ## Incoming measurement candidate
 
 Root accepted the clean worker handoff at `5c3005a2112bdb0e79fa66a3e4cd50b2983d6ec1`.

@@ -1,5 +1,13 @@
 # Feature map — 1:1 queue
 
+15 October AN-01: [bounded incoming timing](applet-incoming-cost-2026-10-15.md)
+locates most measured paint work in title incoming drawing. Both first openings
+are saved in 462 audited raw pairs. Fixed comparisons retain only two upper
+clock-digit residuals; all other 24 LCD pairs are exact. A narrowly scoped
+background-raster reuse candidate
+is assigned to its own worktree; review and live regression are still required.
+No timing or asset change is authorized. AN-01 through AN-04 remain fail/unproven.
+
 15 October AN-01: [destination scheduling](applet-destination-scheduling-2026-10-15.md)
 now defers hidden destination composition until the opaque cover is accepted.
 The reviewed runtime is dcb6fb3. Nine production recordings contain 2,521 pairs;

@@ -1,5 +1,11 @@
 # Verification and evidence architecture
 
+[Incoming paint intervals](../applet-incoming-cost-2026-10-15.md) are opt-in
+CPU measurements within one receipt, not native presentation timing. Check
+whole paint against pre-overlay, overlay, title incoming and the remainder;
+encoding is separate. Null title incoming outside its branch is valid. Fixed
+source-frame browser comparisons are regressions, not native acceptance.
+
 [Compact pause appearance](../home-pause-compact-entry-2026-10-08.md) separates
 the source reset/request from its visibility-latch-controlled start. Browser
 entry counters do not establish native compact activation. The compact capture

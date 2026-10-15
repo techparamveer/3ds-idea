@@ -1,5 +1,20 @@
 # Workstream Registry
 
+## Incoming raster candidate
+
+Root reconciled at `5e51e22` and closed the two-opening live cost measurement.
+Root owns applet-incoming-cost-20261015 and freezes runtime ce402ac/build
+xzX--oY_BchQrfOIYENUa. One GPT-5.6 Sol high worker owns the new
+`/Users/paramveer/.codex/worktrees/applet-incoming-raster-20261015/3ds-idea`,
+branch `codex/applet-incoming-raster-20261015`, based at 5e51e22. Its reservation
+is `src/os/applet-title-entry-assets.ts`, focused title-raster tests, the two
+existing expected draw-option assertions in `tests/applet-title-entry-assets.test.mjs`,
+and its handoff. It may opt only validated title SceneIn background panes into existing
+opaque-alpha reuse. No renderer guard, clocks, poses, cache policy or assets may
+change. A separate helper audits immutable captures into new private
+`applet-incoming-cost/capture-audit` files only. Review precedes root recapture.
+Root alone owns GUI, shared docs, integration and PR7 publication.
+
 ## Incoming candidate transferred
 
 Root owns applet-incoming-cost-20261015 after clean worker handoff 5c3005a.

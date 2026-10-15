@@ -1,5 +1,17 @@
 # Workstream Registry
 
+## Incoming cost measurement, 15 October 2026
+
+Root owns applet-opening-cadence-20261015 at a083673 and preserves its captured
+runtime/build. One GPT-5.6 Sol high worker owns the new
+`/Users/paramveer/.codex/worktrees/applet-incoming-cost-20261015/3ds-idea`, branch
+`codex/applet-incoming-cost-20261015`, based at a083673. Its reservation is
+optional timing fields in `src/os/screens.ts`, focused screen timing tests and
+`docs/workstream-handoffs/applet-incoming-cost-20261015.md`. It may not change
+animation clocks, resources, draw order, pixels, recorder behavior or input.
+Root alone owns GUI, shared documents and integration. Review precedes a small
+production-browser measurement; this is not authorization for a broad capture.
+
 ## Closed capture audit, 15 October 2026
 
 Root reconciled the current applet checkout at c7c09ef and closed all nine

@@ -1,5 +1,13 @@
 # Workstream Registry
 
+## Incoming candidate transferred
+
+Root owns applet-incoming-cost-20261015 after clean worker handoff 5c3005a.
+Runtime diagnostic ce402ac/build xzX--oY_BchQrfOIYENUa are reviewed and checked.
+The measurement worker, independent source reviewer and source-alpha helper are
+done. All their reservations are closed. Root alone operates the small two-app
+browser measurement. Prior applet-opening-cadence source/build remain frozen.
+
 ## Incoming cost measurement, 15 October 2026
 
 Root owns applet-opening-cadence-20261015 at a083673 and preserves its captured
@@ -11,6 +19,11 @@ optional timing fields in `src/os/screens.ts`, focused screen timing tests and
 animation clocks, resources, draw order, pixels, recorder behavior or input.
 Root alone owns GUI, shared documents and integration. Review precedes a small
 production-browser measurement; this is not authorization for a broad capture.
+A second read-only helper checks the existing opaque-alpha guard against both
+title packs and original source raster bytes. It writes only new private
+`applet-incoming-cost/alpha-feasibility` derivatives, with no repository/build/
+GUI/original-evidence reservation. No optimization is authorized before root's
+live cost measurement. Both bounded helpers use GPT-5.6 Sol high.
 
 ## Closed capture audit, 15 October 2026
 

@@ -1,8 +1,34 @@
 # STATUS: animation fidelity
 
-## Current checkpoint
+## Incoming measurement candidate
 
-Root reconciled Git at `a0836737823b9cb060bc5b03ac4ab9329feb869e` on restart.
+Root accepted the clean worker handoff at `5c3005a2112bdb0e79fa66a3e4cd50b2983d6ec1`.
+It now owns `/Users/paramveer/.codex/worktrees/applet-incoming-cost-20261015/3ds-idea`
+on `codex/applet-incoming-cost-20261015`. At `012bfc4`, root reconciled the
+coordinator documentation with `c48814c`; read Git for the merge checkpoint.
+Runtime diagnostic `ce402ac` and build `xzX--oY_BchQrfOIYENUa` are unchanged.
+Independent review `bee62cc6` has no findings and reproduces base-red/new-green.
+Focused tests pass 88; full checks have 2,983 passes, the unchanged missing Camera
+PNG failure, 102 skips and one TODO. Nonincremental typecheck/build pass.
+
+Next run the declared two-opening measurement policy under private
+`continuation-20261015/applet-incoming-cost/`. Root has one blank Chromium Guest
+on the built-in MacBook; no app or server is started. Verify mute before opening
+the app. Use loopback 3044, then close the owned Guest/server. The original New
+tab remains. The prior applet-opening-cadence checkout and captured build are
+frozen. Workers and reviewer have no remaining source/build reservation.
+
+The read-only alpha feasibility check found 84 eligible source-background
+cases, 29,030,400 identical RGBA bytes and 16 rejected invalid controls. It does
+not establish Canvas composition, performance or native acceptance. Do not
+optimize until live timing identifies the cost. All four whole flows remain
+fail/unproven; audio remains muted and unaccepted. Usage is 60% used / 40%
+remaining. Stop at 10% remaining, without external notification or auto-resume.
+This section supersedes older ownership, serving and next-action entries.
+
+## Scheduling capture checkpoint
+
+Root reconciled Git at `6c78f26` after the measurement reservation checkpoint.
 The previous turn completed the independently reviewed capture record and
 pushed it to draft PR7, so it counts as progress. Root owns
 `/Users/paramveer/.codex/worktrees/applet-opening-cadence-20261015/3ds-idea`
@@ -51,6 +77,10 @@ One bounded measurement worker will add optional pre-overlay/title-incoming
 timings to the existing measured-paint receipt. No timing, raster, input or
 resource behavior may change. Its worktree is applet-incoming-cost-20261015,
 based at a083673; root preserves this captured build. Root alone owns GUI.
+A second bounded helper may read the existing title-cover opaque-alpha guard
+and compare original source raster bytes under a new private alpha-feasibility
+directory. It has no repository, build, GUI or original-evidence write scope.
+No optimization is authorized before the live cost measurement.
 
 The owned muted Chromium 153 Guest and loopback server on port 3043 are closed.
 The original New tab remains. GUI testing uses the built-in MacBook display;

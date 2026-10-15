@@ -55,8 +55,21 @@ node --test --test-reporter=spec \
 ```
 
 Result: 88 passed, 0 failed. `npm run typecheck -- --incremental false` also
-passes. Full `npm test` and `npm run build` are pending at the source-review
-checkpoint.
+passes.
+
+Full `npm test` completed with 2,983 passes, the unchanged missing historical
+Camera PNG failure, 102 skips and one TODO. Its private log is
+`applet-incoming-cost/npm-test.log` under the continuation artifact root,
+SHA-256 `46a1ee3b87ae91723c6bedca1d7d9cec4cab764d1665752d51165bee5566668a`.
+`npm run build` passes with worker build ID `xzX--oY_BchQrfOIYENUa`. This is a
+worker verification build, not a replacement for the coordinator's frozen
+captured build.
+
+Independent review of exact source commit `ce402ac` found no actionable issue,
+reproduced the 88-test focused pass and reproduced the new test's receipt
+failure against base `a083673`. The review is
+`applet-incoming-cost/review/source-review-ce402ac.md` under the private root,
+SHA-256 `bee62cc6eb4408da8089eff51a7c03dd4074078470d27e024ea8208653f1925d`.
 
 ## Evidence and limits
 
@@ -79,3 +92,11 @@ No GUI, browser, server or Azahar session was run. Root owns the two-opening
 Friends/Notifications post-review capture policy. No native comparison, audio
 acceptance, cadence improvement or whole-flow pass is claimed. The coordinator
 runtime `dcb6fb3` and build `KlvHppEeEH9Xi0W9-2Eux` remain frozen.
+
+This checkout initially had no dependencies. `node_modules` was cloned
+copy-on-write from the coordinator checkout as setup only; no package install,
+lockfile change or LFS hydration occurred. The historical Camera PNG remains
+absent and unchanged. The worker instruction selected GPT-5.6 Sol with high
+reasoning at normal speed; the tools expose no service-tier setting, so no tier
+is claimed. The final usage check was 60% used / 40% remaining, above the
+10%-remaining stop threshold.

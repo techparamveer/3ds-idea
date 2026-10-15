@@ -1,5 +1,14 @@
 # Goal: finish the four remaining native animation flows
 
+15 October Manual follow-up: [eight Chromium recordings](docs/manual-chromium-reveal-2026-10-15.md)
+retain 2,922 pairs on the unchanged build. Selected-first return is preserved;
+simultaneous neighbour population still differs from native partial groups.
+The bounded loader trace identifies priority selection and queued work, not
+Manual's live invalidation or timing. Do not invent a frame delay or repeat
+that static pass. Keep the gap explicit and continue AN-01 top-row open/Close
+comparison in validated Chromium. All four whole flows remain fail/unproven.
+Astra extra-high helpers, muted MacBook testing and the active goal remain.
+
 15 October Chromium follow-up: the [fixed Health endpoint control](docs/home-resume-motion-control-2026-10-15.md#chromium-control-and-fixed-health-endpoints)
 meets the existing native lower-pixel delta-2 threshold on the unchanged build.
 The two entry and two Resume lower endpoints are exact to each other. No app

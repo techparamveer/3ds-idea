@@ -2,11 +2,11 @@
 
 Current checkpoint, 15 October: this checkout is
 `/Users/paramveer/.codex/worktrees/resume-expansion-verified-20261015/3ds-idea`,
-branch `codex/resume-expansion-verified-20261015`, verified HEAD `cf7d720`,
+branch `codex/resume-expansion-verified-20261015`, verified HEAD `649389b`,
 base `be33b26b75d75851c0185c615692f2f9a9eb3d4e`. Root owns this checkout and STATUS.
 Runtime `d40d8e1` integrates reviewed worker `70d1911`; test fixture `06bec2a`
 exposes the Resume query to the non-Resume folder scene mock. Both commits are
-pushed to draft PR 7 with documentation through `cf7d720`. This continuation reconciles
+pushed to draft PR 7 with documentation through `649389b`. This continuation reconciles
 that Git HEAD before further capture or workers. Independent Astra extra-high
 Standards and Spec reviews have no
 findings. Final full tests report 2,866 passes, the one unchanged missing
@@ -43,14 +43,23 @@ No app compensation follows. Browser environment differs in version, profile
 and distribution; a specific feature or all historical max7/8 causes remain
 unproved. Preserve those failures without further speculative rendering fixes.
 
-Next return to AN-02 Manual neighbour reveal, using the validated Chromium
-capture environment and the existing native Settings/Camera evidence. Capture
-first/repeated ordinary Manual Close on this frozen build before any new source
-slice. Preserve the selected-first repair; do not invent a generic stagger from
-the different native loading groups. Native epochs/cadence, the third Resume
-controller predicate and all four whole-flow checks remain open. No privacy
-feature changes, recoloring, relaxed tolerance or nearest-frame selection.
-Moving/pickup remains excluded and the goal stays active.
+The [Manual recapture](docs/manual-chromium-reveal-2026-10-15.md) now saves
+2,922 pairs across first/repeated Camera and Settings entry/Close. All four
+Close routes retain incoming0..20, selected-only at incoming20, simultaneous
+neighbours at handoff and banner in the next clear receipt. Root inspected
+twelve browser and four native sheets. The native partial groups remain
+unimplemented. The source worker identified record selection, service-queue
+progression and one restart caller, not Manual's live invalidation edge.
+That bounded source pass is closed; no guessed timer or runtime change follows.
+
+Next AN-01: compare ordinary first/repeated top-row opening and actual Close
+in validated Chromium against the named native evidence, keeping fixed inputs
+and boundaries. Do not repeat repaired exit-source work without a new visible
+defect. Manual's live loader-state gap stays open; existing screenshots cannot
+resolve it, and the pinned wildcard RPC/GDB servers must stay disabled.
+Native epochs/cadence, the third Resume predicate and all four whole-flow
+checks remain open. No privacy changes, recoloring, relaxed tolerance or
+nearest-frame selection. Moving/pickup stays excluded and the goal active.
 
 Only root operates GUI, muted on the MacBook. Guest test tabs/window and the
 port-3041 server are closed. The original Chromium empty-profile New tab remains;
@@ -58,7 +67,9 @@ browser exit is not claimed. Azahar was not launched in this continuation.
 Its prior isolated config restoration remains recorded. Dedicated muted Helium
 also remains on a blank New tab. Recheck display/process identity before reuse.
 All 2,417 scoped source/asset/build/config files rehash unchanged. No new app
-tests or build were needed for this evidence-only continuation.
+tests or build were needed for these evidence-only continuations. The Manual
+source worker's assigned worktree is `manual-return-loader-20261015/3ds-idea`,
+branch `codex/manual-return-loader-20261015`, base649389b, with no runtime edits.
 Earlier sources/builds/capture roots remain frozen, including the 614-pair
 lower-pixel control. Root inspected all seven control sheets. Its within-run
 lower endpoints are exact, while across-run differences remain unexplained.

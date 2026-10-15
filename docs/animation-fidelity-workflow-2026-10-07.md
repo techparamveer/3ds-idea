@@ -1,5 +1,23 @@
 # Animation fidelity workflow
 
+## Manual baseline closed; top-row comparison next
+
+[The unchanged-build recapture](manual-chromium-reveal-2026-10-15.md) preserves
+all four Manual incoming ranges and the 16 fixed Camera regression gates.
+Selected-only return is retained, but neighbours still populate together.
+The bounded source pass identifies a priority selector and service queue,
+not Manual's live invalidation edge or completion timing. Keep that gap and
+the existing visibility adaptation explicit. Do not repeat this static pass,
+fit a universal stagger or enable the unsafe wildcard RPC/GDB servers.
+
+Continue AN-01 first/repeated ordinary top-row opening and actual Close in
+validated Chromium against named native references. Choose fixed boundaries
+before comparison, retain actual input timing and inspect both LCDs. A new
+runtime edit must answer a visible mismatch, not repeat repaired exit logic.
+Root alone operates muted MacBook GUI; helpers use Astra extra-high. Guest
+test window and server are closed. All four whole flows remain fail/unproven.
+This section supersedes older next-action sections below.
+
 ## Chromium endpoint control closed; Manual reveal next
 
 [The unchanged-build control](home-resume-motion-control-2026-10-15.md#chromium-control-and-fixed-health-endpoints)

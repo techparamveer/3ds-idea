@@ -4,6 +4,11 @@ AN-02 remains fail/unproven. This is the selected-icon versus populated-grid
 residual after the [Manual feedback repair](manual-feedback-2026-10-12.md).
 It does not reopen the repaired Close cover or held/released footer feedback.
 
+15 October: [the Chromium recapture and new bounded caller trace](manual-chromium-reveal-2026-10-15.md)
+preserve this repair and identify the remaining source gap. The loader ranks
+eligible records and queues work; the live Manual invalidation edge and
+completion timing remain unproved. No fixed browser-frame stagger is added.
+
 ## Captured defect
 
 At runtime2b08f0a, the production browser paints all occupied HOME tiles beneath

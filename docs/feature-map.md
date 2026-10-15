@@ -1,5 +1,13 @@
 # Feature map — 1:1 queue
 
+15 October AN-02 [Chromium recapture and loader trace](manual-chromium-reveal-2026-10-15.md)
+preserve selected-first return but confirm the remaining simultaneous-neighbour
+gap in all four Close routes. All 2,922 pairs validate; the 16 fixed earlier
+Camera gates remain exact. Native record priority and queued work are traced,
+but Manual's invalidated records and timing are not. No runtime change or
+guessed stagger. This source-only pass is closed. Continue AN-01 ordinary
+top-row open/Close comparison in the validated browser. All four flows fail.
+
 15 October AN-04 endpoint control: [Chromium and fixed Health](home-resume-motion-control-2026-10-15.md#chromium-control-and-fixed-health-endpoints)
 save 1,549 pairs on the frozen build. Four fixed lower endpoints are exact to
 each other and meet the existing native delta-2 threshold. No Health workaround

@@ -2,7 +2,7 @@
 
 ## Checkout
 
-Reconciled HEAD: `8eb24f9` plus this evidence commit (git wins).
+Reconciled HEAD: `e508125` plus this evidence commit (git wins).
 Git wins if this differs from HEAD. Reconcile before another slice or worker.
 Keep this file current, not append-only.
 
@@ -302,10 +302,16 @@ Notifications Close audit is closed with no broad-order defect.
    incoming frame 0 (receipt spacing ~45 ms). Private
    `notifications-lamp-epoch/report.md` `496dbea4`, `browser-run.md` `80b4eb4f`.
    Native feedback-freeze and suspend-return lamp semantics remain untraced.
-2. Next leftover in the four flows: pick the next captured visible defect from
-   the [feature map](docs/feature-map.md) (Friends first-use/error destination
-   and first-cold title draw cost are the open AN-01 items). PR #7 stays a
-   draft unless the user asks to merge.
+2. HOME neighbour reveal after toolbar-applet Close (AN-01/AN-02 partial
+   loading): a second native Notifications Close (private
+   `notifications-native-close-2/`, full-display 29 fps because the pinned
+   window recorder needs Screen Recording for this host) repeats run 1's
+   schedule within one frame. From the empty slot settling: Health +0.09-0.12 s,
+   then Camera/Sound/Mii together +0.31-0.38 s, banner with the last group.
+   The browser restores all neighbours at handoff. Next: worker candidate for a
+   measured two-group reveal on toolbar-applet returns only (other routes keep
+   the current fit until measured), review, checks, browser recapture against
+   both native runs. PR #7 stays a draft unless the user asks to merge.
 3. Keep the generic production experiment closed and PR #8 unmerged. No retry,
    replacement tuning campaign or rebuild of either frozen build. Keep Manual
    loader and folder cursor source-only investigations closed until a new

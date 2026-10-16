@@ -11,6 +11,9 @@ news.db (nine unread, 05dc0d1). Ready recapture upper 2,427 -> 1,623, lower
 2,608 confined to lamp pulse phase. The lamp loop now starts with the
 incoming list like native (8eb24f9): browser period/epoch 2.0035 s / -22.6 ms
 versus native 2.0059 s / -11.9 ms. Whole flows remain fail/unproven.
+Two native Notifications Close runs now give a repeatable HOME neighbour
+reveal (Health, then Camera/Sound/Mii + banner ~0.21 s later); the browser
+restores all neighbours together. Next: measured two-group candidate.
 
 16 October AN-01: [Notifications marker pulse](workstream-handoffs/notifications-marker-pulse-20261016.md)
 is integrated through ab73c31 and pushed to draft PR #7. Native idle capture

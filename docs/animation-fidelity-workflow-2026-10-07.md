@@ -49,6 +49,18 @@ lists with no unread rows at first paint anchor there; screens wiring is
 checked by source text only; suspend-return and second-incoming paths are
 untested.
 
+## Native neighbour reveal repeats, 16 October
+
+A second ordinary native Notifications Close (private
+`notifications-native-close-2/`) was recorded by cua-driver full-display
+ScreenCaptureKit at ~29 fps, because the pinned window recorder requires a
+Screen Recording grant this host lacks. Per-frame LCD-space region means in
+both native runs give the same schedule within about one frame: relative to
+the empty slot settling, Health settles +0.094-0.124 s, Camera, Sound and Mii
++0.309-0.375 s together, and the banner with that last group. This is
+measured repeatable timing for this route, not a traced loader schedule; do not
+generalise it to Manual or grid-title returns without their own native runs.
+
 ## Generic experiment closed without adoption
 
 The [candidate](applet-generic-candidate-2026-10-15.md) remains separate and

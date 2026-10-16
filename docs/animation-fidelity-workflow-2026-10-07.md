@@ -33,6 +33,10 @@ Source pose, native marker-freeze semantics, input epoch and cadence remain open
 The unread fixture now follows the live reference news.db (nine unread), so
 the ready pair is like-for-like: upper 1,623 glyph AA/clock, lower 2,608 only at
 the lamp discs. The remaining lower residual is lamp phase; do not fit it.
+The native opening movie measures it instead: ten glow peaks give period
+2.0059 s and loop frame 0 within 12 ms of the first incoming destination
+pixels (private `notifications-lamp-epoch`). Anchor the browser loop to that
+incoming start rather than a global clock.
 
 ## Generic experiment closed without adoption
 

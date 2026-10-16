@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import ts from 'typescript';
-import { createPortfolioState, reduceSystem, tickSystem } from '../src/os/system.ts';
+import { createPortfolioState, reduceSystem, tickSystem, dispatchSystemEvent } from '../src/os/system.ts';
+import { enableHomeControls } from '../src/os/home-controls.ts';
 import { enterHomeFolder, selectHomeSlot, getHomeNavigation } from '../src/os/home-navigation.ts';
 import { createHomeBannerHost, crossHomeBannerBoundary, stepHomeBannerHost, getHomeBannerHostView, resolveHomeBannerHostSelection } from '../src/os/home-banner-host.ts';
 import { escapeUnreadyNativeScreen } from '../src/os/native-screen-system.ts';
@@ -64,6 +65,28 @@ function finishHide(state,paint,update){
  do{pair=paint(state,++update);}while(banner(pair.events)?.args[0].visible);
  return update;
 }
+
+test('ordinary Health pickup and hover enters folder 28 from its presented held root pair',async()=>{
+ await fixture(({screens,paint,setHost})=>{
+  let state=enableHomeControls(tickSystem(createPortfolioState(),3001)),now=4000,update=100;
+  const touch=(phase,x,y)=>{state=dispatchSystemEvent(state,{type:'touch',phase,x,y,pointerId:1},now++);};
+  const settle=()=>{now+=700;state=tickSystem(state,now);};
+  const tap=(x,y)=>{touch('down',x,y);touch('up',x,y);settle();};
+  for(let count=0;count<4;count++)tap(307,16);
+  tap(136,160);tap(210,226);
+  assert.ok(Object.hasOwn(state.folders,28));
+  setHost(activeView(resolveHomeBannerHostSelection(state)));paint(state,update);
+  touch('down',62,110);settle();
+  assert.equal(state.selected,8);assert.deepEqual(state.system.homeControls.tilePickup.source,{folder:null,slot:8});
+  setHost(activeView(resolveHomeBannerHostSelection(state)));paint(state,++update);
+  touch('move',146,166);paint(state,++update);settle();
+  assert.equal(state.opened,true);assert.equal(state.selected,28);
+  assert.deepEqual(state.system.homeControls.tilePickup.source,{folder:null,slot:8});
+  const pair=paint(state,++update,false);
+  assert.equal(screens.stockFailure()?.message??null,null,'held root entry must not demand a folder banner that was not presented');
+  assert.equal(lower(pair.events).folderFrame,0);
+ });
+});
 
 test('actual folder painter retains its source upper through FadeIn16, then hides it with native manager poses before the child',async()=>{
  await fixture(({screens,paint,setHost})=>{

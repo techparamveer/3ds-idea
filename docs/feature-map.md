@@ -1,5 +1,11 @@
 # Feature map — 1:1 queue
 
+16 October AN-01: the native Notifications Close audit `a36ed9f0` is closed.
+Frozen selectors match the browser's broad Close order; no source change is
+justified. Endpoint totals are fixture-dominated (unread 9 versus 8, HOME
+icons). Claude Opus 5.5 now coordinates after the Codex plan ended. All four
+whole flows remain fail/unproven. STATUS owns the next action.
+
 16 October AN-01: [Notifications marker pulse](workstream-handoffs/notifications-marker-pulse-20261016.md)
 is integrated through ab73c31 and pushed to draft PR #7. Native idle capture
 demonstrated a pulse while the old browser was static. The reviewed candidate

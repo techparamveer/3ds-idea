@@ -23,9 +23,13 @@ MacBook GUI, integration and shared docs. STATUS owns the next action.
 The subsequent isolated native Close run has one decoded pilot, one own ready
 PNG, one silent 30.198333-second scoped movie and one own HOME PNG. Inputs and
 visible return are recorded in private `notifications-native-close/run.md`.
-Compare broad order, not compressed movie pixels as raw LCD proof. Source pose,
-native marker-freeze semantics, input epoch and cadence remain open pending its
-chronological audit.
+Compare broad order, not compressed movie pixels as raw LCD proof. Its closed
+chronological audit (private `notifications-native-close/audit/report.md`,
+SHA-256 `a36ed9f0`) uses frozen semantic selectors and finds the browser's
+broad order: ready, feedback, white outgoing footer, full cover with HOME belt,
+HOME population, banner. It justifies no source change. Endpoint totals are
+fixture-dominated (unread 9 versus 8, ordinary versus portfolio HOME icons).
+Source pose, native marker-freeze semantics, input epoch and cadence remain open.
 
 ## Generic experiment closed without adoption
 

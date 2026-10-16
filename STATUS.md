@@ -2,7 +2,7 @@
 
 ## Checkout
 
-Reconciled HEAD: `ab73c3188602cb55f4c6de34fca52e3687f13a7c`.
+Reconciled HEAD: `7e4c3371f1ae194153a1e4832f3ae50cbce42428`.
 Git wins if this differs from HEAD. Reconcile before another slice or worker.
 Keep this file current, not append-only.
 
@@ -14,7 +14,7 @@ checkout. Create new source worktrees from this coordinator HEAD.
 
 Draft [PR #7](https://github.com/techparamveer/3ds-idea/pull/7) uses remote
 branch `codex/animation-fidelity-20261007`. Latest verified pushed SHA is
-`ab73c3188602cb55f4c6de34fca52e3687f13a7c`. Review coherent changes, stage
+`7e4c3371f1ae194153a1e4832f3ae50cbce42428`. Review coherent changes, stage
 explicit paths and push normally. Do not merge, deploy, reset or clean.
 
 Preserve the human edit in
@@ -50,9 +50,16 @@ remain adaptations or gaps. Muted audio acceptance is unverified.
 
 ## Seats and usage
 
-Latest user-supplied AGENTS instructions select GPT-5.6 Sol high for new helpers,
-normal speed. A different-model independent reviewer uses GPT-6.1 Sol high.
-Tools cannot change or verify the in-flight coordinator model or service tier.
+16 October handover: the Codex plan ended and the Codex coordinator thread
+`01a0f8e9` can no longer run. Claude Opus 5.5 in Claude Code is now the sole
+coordinator, continuing from this file. Codex helpers (GPT-5.6/6.1 Sol) are
+unavailable; use Claude subagents for workers and a different-model reviewer
+where available. The Codex weekly-usage heartbeat no longer applies.
+On handover, root reran the PR head 7e4c337: 2,996 pass, the one known Camera
+fixture failure, 103 skips, one TODO; typecheck and build pass. Ten local-only
+worker branches and one uncommitted folder-hover WIP (commit 7626654) are
+pushed unmerged as `preserve/codex/*` on origin; none is integrated.
+
 One coordinator, at most two workers and one reviewer. Root alone owns shared
 docs, integration, Azahar and the production browser.
 
@@ -111,14 +118,9 @@ are explicit adaptations; feedback continues that same curve.
 Typecheck and candidate build pass. Root alone owns shared docs and GUI.
 The baseline build stays frozen.
 
-The latest usage endpoint reports 51% used in a 43,200-minute (30-day) window.
-It did not return a 10,080-minute weekly window, so weekly remaining cannot be
-calculated from this response. Recheck before further heavy work and every ten
-minutes. At **10% weekly remaining or less**, stop
-new work, interrupt helpers, close owned sessions, preserve a minimal checkpoint
-and pause the goal. The user cancelled the Grok/My King bot message. Send no
-external message and do not resume automatically after reset. Existing heartbeat
-`3ds-weekly-usage-stop-guard` enforces the same rule; do not duplicate it.
+The Codex weekly 10% stop rule and its `3ds-weekly-usage-stop-guard` heartbeat
+belonged to the ended Codex account. The user cancelled the Grok/My King bot
+message; send no external message.
 
 ## Serving and display
 
@@ -190,7 +192,20 @@ Audit report 0b125779 and seal 2e90176a live under
 `notifications-marker-pulse/audit`. Close audit bafcc8d7 under
 `notifications-marker-close/audit` verifies all 511 pairs, complete source-frame
 coverage and no forced-60 jump at first feedback. Root inspected its sheet and
-rehashed 1,533 originals and seven derivatives. Native Close remains separate.
+rehashed 1,533 originals and seven derivatives.
+
+The native Notifications Close audit is closed: private
+`notifications-native-close/audit/report.md`, SHA-256
+`a36ed9f01629e49145d417d16bcd2666dbb8af9afed4539146f18195909738b5`.
+Frozen semantic selectors find the same broad order as the 511-pair browser
+recording: ready, footer feedback, white outgoing footer, full cover with HOME
+belt, HOME population, then banner. No broad-order Close defect is shown and
+no source change follows. Native 13 and browser 1,533 originals rehash
+unchanged; all 1,678 movie frames decode and frames 394-639 were reviewed on
+ten pages. Static anchors, empty mask, delta 2: ready 2,427 / 1,371, settled
+HOME 55,048 / 25,135. Those totals are fixture-dominated: native unread 9 versus
+browser 8, ordinary versus portfolio HOME icons. The H264 movie cannot prove
+moving LCD pixels, native input epoch, cadence or marker-freeze semantics.
 
 The completed Notifications idle audit is private
 `notifications-marker-idle/audit/report.md`, SHA-256
@@ -262,14 +277,15 @@ See [reference isolation](docs/native-reference-profile-isolation.md).
 
 ## Next
 
-The user explicitly resumed work. Power is now connected. The latest goal-tool
-readback reports active. No replacement goal was created.
-The separate 10% weekly usage stop rule remains active.
+The four-flow goal stays active under the Claude coordinator. The native
+Notifications Close audit is closed with no broad-order defect.
 
-1. Finish the read-only native Close audit against the fixed ordinary 511-pair
-   browser Close recording. Inspect chronological sheets and report broad-order
-   mismatches. Compression cannot prove moving pixels. Preserve unknown feedback
-   freeze, native epoch and cadence semantics.
+1. Select the next captured visible defect in the four flows from the
+   [workflow](docs/animation-fidelity-workflow-2026-10-07.md) and
+   [feature map](docs/feature-map.md). The Notifications endpoint comparison
+   is fixture-limited (native unread 9 versus browser 8); a like-for-like
+   unread fixture would make that pair meaningful before any marker or Close
+   source change. Confirm the user still wants PR #7 kept unmerged.
 2. Keep the generic production experiment closed and PR #8 unmerged. No retry,
    replacement tuning campaign or rebuild of either frozen build. Keep Manual
    loader and folder cursor source-only investigations closed until a new
@@ -277,7 +293,7 @@ The separate 10% weekly usage stop rule remains active.
 3. Integrate reviewed fixes in separate source worktrees. Run focused/full
    checks, typecheck and build, then perform the matched muted verification loop.
    Update evidence, commit explicit paths and push to draft PR #7. Continue the
-   four-flow goal until complete, genuinely blocked or the 10% stop threshold.
+   four-flow goal until complete or genuinely blocked.
 
 ## Storage and history
 

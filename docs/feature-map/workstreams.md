@@ -2,7 +2,18 @@
 
 ## Current reservations
 
-All helpers are released. Candidate 5e1dec9 and handoff 74db674 are preserved
+The GPT-5.6 Sol high auditor completed and released
+`notifications-marker-close/audit` for the saved 511-pair browser regression.
+Root inspected its sheet and rehashed its originals and sealed derivatives. The
+pulse source worker and independent GPT-6.1 Sol high reviewer are released.
+Candidate dbefd3a is integrated through ab73c31. Full checks retain only the
+known Camera PNG failure; typecheck/build pass. The 295-pair pulse idle audit
+is closed, root inspected all six pages and rehashed its originals/derivatives.
+Root owns the evidence checkpoint. The native Close recording is complete and
+only its read-only audit remains. No test session is active. All whole flows
+remain fail/unproven.
+
+Earlier assignment history: candidate 5e1dec9 and handoff 74db674 are preserved
 in closed, unmerged PR #8. The fixed production experiment ended after A1
 Friends when power and Energy Saver changed; audit1980935a verifies253 pairs
 but rejects the incomplete campaign. No candidate production run or retry.

@@ -1,5 +1,32 @@
 # Animation fidelity workflow
 
+## Notifications pulse comparison
+
+The [pulse repair](workstream-handoffs/notifications-marker-pulse-20261016.md)
+has independent source review, full checks and a closed native/browser idle
+comparison. Compare every native sample to the fixed first-ready browser pair;
+never select a best phase. Parse Qt screenshot fractions as decimal seconds.
+Rehash native originals against their pre-browser seal as well as browser
+originals. A variable browser marker and local delta-2 matches prove the bounded
+repair, not native cadence, epoch, exact RGB or whole-flow fidelity.
+
+The candidate source/public/build inventory stays frozen. Its global elapsed
+origin and LCD rate remain explicit adaptations. Close feedback must not force
+the marker to a different fixed pose; native feedback-freeze semantics remain
+unknown. The separate ordinary Close browser regression saves all 511 pairs
+and returns to HOME. Its closed audit preserves both feedback frames, every
+outgoing/incoming source pose and the identical full-cover bridge. The observed
+lamp 64-to-65 progression proves no forced-60 jump at first feedback, not its
+state between receipts or native freeze semantics. Root alone owns muted
+MacBook GUI, integration and shared docs. STATUS owns the next action.
+
+The subsequent isolated native Close run has one decoded pilot, one own ready
+PNG, one silent 30.198333-second scoped movie and one own HOME PNG. Inputs and
+visible return are recorded in private `notifications-native-close/run.md`.
+Compare broad order, not compressed movie pixels as raw LCD proof. Source pose,
+native marker-freeze semantics, input epoch and cadence remain open pending its
+chronological audit.
+
 ## Generic experiment closed without adoption
 
 The [candidate](applet-generic-candidate-2026-10-15.md) remains separate and

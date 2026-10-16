@@ -2,7 +2,7 @@
 
 ## Checkout
 
-Reconciled HEAD: `6da2f83b5f8596bbd20a4419c76496aaa5bbe01f`.
+Reconciled HEAD: `ab73c3188602cb55f4c6de34fca52e3687f13a7c`.
 Git wins if this differs from HEAD. Reconcile before another slice or worker.
 Keep this file current, not append-only.
 
@@ -14,7 +14,7 @@ checkout. Create new source worktrees from this coordinator HEAD.
 
 Draft [PR #7](https://github.com/techparamveer/3ds-idea/pull/7) uses remote
 branch `codex/animation-fidelity-20261007`. Latest verified pushed SHA is
-`6da2f83b5f8596bbd20a4419c76496aaa5bbe01f`. Review coherent changes, stage
+`ab73c3188602cb55f4c6de34fca52e3687f13a7c`. Review coherent changes, stage
 explicit paths and push normally. Do not merge, deploy, reset or clean.
 
 Preserve the human edit in
@@ -56,7 +56,8 @@ Tools cannot change or verify the in-flight coordinator model or service tier.
 One coordinator, at most two workers and one reviewer. Root alone owns shared
 docs, integration, Azahar and the production browser.
 
-Both native auditors are done and their reservations released. Root inspected
+The historical assignments below are closed. Both native auditors are done
+and their reservations released. Root inspected
 all four sheets and rehashed each audit's originals and derivatives unchanged.
 The bounded cold-draw diagnosis is complete at private report `a36272ee`.
 It identifies local Node raster first-execution cost; its Canvas transport is
@@ -95,15 +96,25 @@ is private `applet-native-opening/checkpoint-review/report.md`.
 Independent review b70fc11c is complete at f68f3fd in the separate
 notifications-marker-pulse-20261016/3ds-idea worktree. Both findings are fixed:
 Close no longer jumps to frame 60, and only rendered unread rows key redraws.
-The GPT-5.6 Sol high source worker owns candidate-only full checks and build;
-the GPT-5.6 Sol high auditor owns private notifications-marker-pulse/audit.
-Focused 66 checks and nonincremental typecheck pass. Native title-specific
+The GPT-5.6 Sol high source worker completed candidate checks/build and is
+released. The GPT-5.6 Sol high auditor completed the pulse audit and now owns
+only private notifications-marker-close/audit, now completed and released.
+No source edits are assigned.
+Focused 66 checks pass. The initial full run exposed 40 unhydrated LFS model
+failures and two missing test-stub exports; all are corrected without changing
+assertions. The hydrated rerun has 2,996 passes, one known Camera PNG failure,
+103 skips and one TODO. Source dbefd3a is integrated through ab73c31; src,
+public, tests and package/build config exactly match the candidate commit.
+Native title-specific
 clock and start epoch remain unknown. Host elapsed phase and LCD VBlank rate
 are explicit adaptations; feedback continues that same curve.
-Root alone owns shared docs and GUI. The baseline build stays frozen.
+Typecheck and candidate build pass. Root alone owns shared docs and GUI.
+The baseline build stays frozen.
 
-Latest account reading is 76% used / 24% weekly remaining. Check before new
-heavy work and at least every ten minutes. At **10% remaining or less**, stop
+The latest usage endpoint reports 51% used in a 43,200-minute (30-day) window.
+It did not return a 10,080-minute weekly window, so weekly remaining cannot be
+calculated from this response. Recheck before further heavy work and every ten
+minutes. At **10% weekly remaining or less**, stop
 new work, interrupt helpers, close owned sessions, preserve a minimal checkpoint
 and pause the goal. The user cancelled the Grok/My King bot message. Send no
 external message and do not resume automatically after reset. Existing heartbeat
@@ -111,15 +122,23 @@ external message and do not resume automatically after reset. Existing heartbeat
 
 ## Serving and display
 
-No owned test server, recorder or Azahar session is active. A fresh Chrome for
-Testing Guest is open on New tab pending the candidate build; no app loaded.
-Latest native follow-up closed Azahar6247/session15662, exit0; restored config
-d460f825. Browser Guest5671 and server26263 are closed, exit130, port3047 free.
-Latest power readback reports AC attached, 23% battery and charging. The earlier
+No owned test server, Guest window, recorder or Azahar process is active.
+The native Close run finalized a silent 30.198333-second movie and two own PNGs.
+Root inspected the scoped pilot and both anchors. One ordinary Close reached
+HOME; PID 20838/session 93351 exited 0 and is absent. screenshotPath is restored.
+Final config is 031bc53517a1557c1b6fab2d341a2b9b10a304eb79665decaeccdb89a05ed1ad;
+only Qt gameListHeaderState differs from pre-config. The audited native run is
+preserved under private `notifications-native-close`; see `run.md`. No source,
+server, Guest window or further native inputs remain active.
+The idle candidate run saved all 295 pairs, then closed Guest 5787 and server
+13235. The separate Close regression saved all 511 pairs, then closed Guest
+5839 and server 12327, exit 130; port 3047 has no listener. Native follow-up
+closed Azahar 6247/session 15662, exit 0, and restored config d460f825.
+Latest power readback reports AC attached, 40% battery and charging. The earlier
 low-power hold is resolved. Recheck power before capture; battery percentage
 is separate from the weekly account stop rule.
 
-No app, test server or recorder is active. Root completed all eight private
+Earlier closed probe: root completed all eight private
 probe runs on the built-in MacBook, then closed owned Guest window 5092 and
 stopped server 3048 (session 56904, exit 130); the port has no listener. The
 browser was Chrome for Testing 153.0.8010.12, V8 15.3.76.4, PID 55412, at
@@ -138,16 +157,40 @@ volume 0, Null output 1 and Static input 2. Never change system or Spotify audio
 Use CuaREPL for GUI. The approved silent exact-window recorder requires a
 decoded scope pilot before each new native motion run.
 
-Frozen production runtime is `b83b7683aaba2f50ce9a7724e1a7e370deac19bd`, build
+The preserved baseline production runtime is `b83b7683aaba2f50ce9a7724e1a7e370deac19bd`, build
 `g-qLVPFQLrJnvHrbuaS0e`, in the coordinator checkout. Capture HEAD was
 `1ea60b619e1d9ee205a19522a036c28354aa3311`; later documentation commits do not
 change that identity. Keep this build and earlier captured builds frozen.
-The separate candidate build is `qrqJDhOcclmu2RuyNXUMi`, source 5e1dec9,
-checkout HEAD 74db674. Private `applet-generic-production` contains authoritative
-`baseline-before-v2.json` and `candidate-before.json` inventories, plus the
-fixed capture-policy.md. Both builds must rehash unchanged before inputs.
+Coordinator source now includes the pulse fix, so its old build is not current
+source. Serve the matching reviewed candidate from its separate worktree only.
+The current matching candidate is
+`/Users/paramveer/.codex/worktrees/notifications-marker-pulse-20261016/3ds-idea`,
+branch `codex/notifications-marker-pulse-20261016`, HEAD
+`dbefd3a37510f70a13174c1354157b07f51001df`, build `SlhhiQG_tCeNraLO8aw43`.
+Its source/public/tests/config exactly match integrated ab73c31. All 2,425
+files in private `notifications-marker-pulse/candidate-before.json` rehash
+unchanged before/after both browser runs. Do not rebuild this captured candidate.
+The older generic experiment build `qrqJDhOcclmu2RuyNXUMi`, checkout 74db674,
+also stays frozen and is not adopted. The coordinator's old baseline `.next`
+has 231 unchanged files; its full old source inventory no longer matches
+because reviewed source was integrated. Keep build and source claims separate.
 
 ## Evidence
+
+The [pulse fix](docs/workstream-handoffs/notifications-marker-pulse-20261016.md)
+is integrated and pushed through ab73c31. Native follow-up has 43 own PNGs;
+the candidate browser has 295 pairs and 254 ready frames. Fixed first-ready
+comparison, empty masks, no phase fitting. Browser rows 2-4 now have 57 raw
+states, with 224 ready frames changing above delta 2. No lower changes above
+that threshold occur outside all four marker regions. Four chronological native
+samples locally match common marker rows at delta 2, not exact RGB. Native
+phase/cadence, first-row read fixture, upper residuals and all whole flows remain
+open. Root inspected six pages and rehashed 928 originals and 19 derivatives.
+Audit report 0b125779 and seal 2e90176a live under
+`notifications-marker-pulse/audit`. Close audit bafcc8d7 under
+`notifications-marker-close/audit` verifies all 511 pairs, complete source-frame
+coverage and no forced-60 jump at first feedback. Root inspected its sheet and
+rehashed 1,533 originals and seven derivatives. Native Close remains separate.
 
 The completed Notifications idle audit is private
 `notifications-marker-idle/audit/report.md`, SHA-256
@@ -219,15 +262,14 @@ See [reference isolation](docs/native-reference-profile-isolation.md).
 
 ## Next
 
-The user explicitly resumed work. Power is now connected. The goal tool still
-reports blocked and exposes no resume operation; do not claim its state changed.
+The user explicitly resumed work. Power is now connected. The latest goal-tool
+readback reports active. No replacement goal was created.
 The separate 10% weekly usage stop rule remains active.
 
-1. Review the missing-pulse candidate, resolve findings, then run candidate-only
-   full checks and build. Root will capture one longer native idle sample and
-   the candidate production browser under the predeclared private
-   notifications-marker-pulse/policy.md. Compare chronologically, not best-of.
-   Keep artwork/geometry unchanged and exact native clock/phase unverified.
+1. Finish the read-only native Close audit against the fixed ordinary 511-pair
+   browser Close recording. Inspect chronological sheets and report broad-order
+   mismatches. Compression cannot prove moving pixels. Preserve unknown feedback
+   freeze, native epoch and cadence semantics.
 2. Keep the generic production experiment closed and PR #8 unmerged. No retry,
    replacement tuning campaign or rebuild of either frozen build. Keep Manual
    loader and folder cursor source-only investigations closed until a new

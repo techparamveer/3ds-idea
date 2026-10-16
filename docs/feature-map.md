@@ -1,5 +1,17 @@
 # Feature map — 1:1 queue
 
+16 October AN-01: [Notifications marker pulse](workstream-handoffs/notifications-marker-pulse-20261016.md)
+is integrated through ab73c31 and pushed to draft PR #7. Native idle capture
+demonstrated a pulse while the old browser was static. The reviewed candidate
+now varies across 57 raw marker states in 254 ready frames. No lower change
+above delta 2 occurs outside the four marker regions. Root inspected all six
+comparison pages. Full tests retain only the known Camera PNG failure;
+typecheck/build pass. The audited 511-pair Close browser regression preserves
+both feedback frames and complete outgoing/incoming source-frame coverage.
+First observed feedback advances lamp 64 to 65, without a forced frame-60 jump.
+Exact native phase, cadence, feedback and all four whole
+flows remain fail/unproven. STATUS owns the next action.
+
 16 October AN-01: [generic background experiment](applet-generic-candidate-2026-10-15.md)
 is closed without adoption. The first baseline recording preserves253 pairs;
 changed power/Energy Saver invalidates the planned timing control. No retry or

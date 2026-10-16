@@ -37,6 +37,17 @@ The native opening movie measures it instead: ten glow peaks give period
 2.0059 s and loop frame 0 within 12 ms of the first incoming destination
 pixels (private `notifications-lamp-epoch`). Anchor the browser loop to that
 incoming start rather than a global clock.
+Integrated as 8eb24f9: the stock presentation keeps `notificationsLamp`
+{owner, origin}, anchored at the draw under Notifications incoming frame 0 and
+committed only after a complete published pair. Shortcut, reduced-motion or
+failed incoming entries anchor at the first complete pair; return from HOME
+keeps the origin; a new owner resets it. These fallbacks are adaptations. A
+208-pair ordinary browser opening gives period 2.0035 s and loop frame 0 at
+-22.6 ms from incoming frame 0, against native 2.0059 s and -11.9 ms. Review
+nits kept open: verification-driven manual elapsed is not used for the origin;
+lists with no unread rows at first paint anchor there; screens wiring is
+checked by source text only; suspend-return and second-incoming paths are
+untested.
 
 ## Generic experiment closed without adoption
 

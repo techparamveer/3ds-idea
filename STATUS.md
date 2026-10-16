@@ -2,7 +2,7 @@
 
 ## Checkout
 
-Reconciled HEAD: `3a57a0a` plus this evidence commit (git wins).
+Reconciled HEAD: `8eb24f9` plus this evidence commit (git wins).
 Git wins if this differs from HEAD. Reconcile before another slice or worker.
 Keep this file current, not append-only.
 
@@ -14,7 +14,7 @@ checkout. Create new source worktrees from this coordinator HEAD.
 
 Draft [PR #7](https://github.com/techparamveer/3ds-idea/pull/7) uses remote
 branch `codex/animation-fidelity-20261007`. Latest verified pushed SHA is
-`3a57a0a` (nine-unread fixture `05dc0d1` integrated). Review coherent changes, stage
+`8eb24f9` (nine-unread fixture `05dc0d1` and lamp epoch `8eb24f9` integrated). Review coherent changes, stage
 explicit paths and push normally. Do not merge, deploy, reset or clean.
 
 Preserve the human edit in
@@ -294,20 +294,23 @@ See [reference isolation](docs/native-reference-profile-isolation.md).
 The four-flow goal stays active under the Claude coordinator. The native
 Notifications Close audit is closed with no broad-order defect.
 
-1. Notifications lamp epoch: the native opening movie (all 1,690 frames,
-   row-2 lamp) gives ten glow peaks, period 2.0059 s (source 120 frames at LCD
-   VBlank = 2.0058 s) and loop frame 0 at 9.0098 s, 11.9 ms before the first
-   destination pixels (9.0217 s). Private `notifications-lamp-epoch/report.md`
-   `496dbea4`. Natively ReceiveBlue starts at frame 0 with the incoming list;
-   the browser uses a global host elapsed origin. Next: a worker anchors the
-   loop origin to Notifications incoming frame 0 in a separate worktree,
-   independent review, full checks, then muted recapture of the ready pair and
-   an idle series. PR #7 stays a draft unless the user asks to merge.
-2. Keep the generic production experiment closed and PR #8 unmerged. No retry,
+1. Notifications lamp epoch is integrated (`8eb24f9`, worker candidate
+   c9159f3, Sonnet review APPROVE-WITH-NITS, nits logged in the workflow).
+   Native movie: period 2.0059 s, loop frame 0 at -11.9 ms from the first
+   destination pixels. Browser 208-pair ordinary opening on build
+   `SMk_vghgoea7lOUb0Z2Fo`: period 2.0035 s, loop frame 0 at -22.6 ms from
+   incoming frame 0 (receipt spacing ~45 ms). Private
+   `notifications-lamp-epoch/report.md` `496dbea4`, `browser-run.md` `80b4eb4f`.
+   Native feedback-freeze and suspend-return lamp semantics remain untraced.
+2. Next leftover in the four flows: pick the next captured visible defect from
+   the [feature map](docs/feature-map.md) (Friends first-use/error destination
+   and first-cold title draw cost are the open AN-01 items). PR #7 stays a
+   draft unless the user asks to merge.
+3. Keep the generic production experiment closed and PR #8 unmerged. No retry,
    replacement tuning campaign or rebuild of either frozen build. Keep Manual
    loader and folder cursor source-only investigations closed until a new
    captured defect supports a change.
-3. Integrate reviewed fixes in separate source worktrees. Run focused/full
+4. Integrate reviewed fixes in separate source worktrees. Run focused/full
    checks, typecheck and build, then perform the matched muted verification loop.
    Update evidence, commit explicit paths and push to draft PR #7. Continue the
    four-flow goal until complete or genuinely blocked.

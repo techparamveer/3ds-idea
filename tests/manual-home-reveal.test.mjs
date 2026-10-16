@@ -99,8 +99,9 @@ async function fixture(run){
  };
  const close=state=>{
   const held=touch(state,'down');paint(held);const released=touch(held,'up');
-  for(let count=0;count<30;count++){const sample=paint(released);if(sample.identity)return completeManualFooterClose(released,sample.identity,ms(step));}
-  assert.fail('Manual Close did not accept outgoing20');
+  // Manual Close also holds out20 for 120 measured LCD frames ('hold') before retiring the owner.
+  for(let count=0;count<200;count++){const sample=paint(released);if(sample.identity)return completeManualFooterClose(released,sample.identity,ms(step));}
+  assert.fail('Manual Close did not accept the held out20 cover');
  };
  const openToolbar=(state,route)=>{
   const selected=selectHomeToolbarControlTouch(enableHomeControls(state),route.focus);paint(selected);
@@ -186,10 +187,13 @@ for(const reduced of [false,true])test(`Manual incoming retains actual selection
   const entered=open(state);assert.equal(entered.system.runtime.instances[entered.system.runtime.active].appId,'manual');assertPopulated({calls},entered);
   const held=touch(entered,'down');assert.equal(held.system.runtime.instances[held.system.runtime.active].state.manualClosePress,true);assertPopulated(paint(held),held);
   const released=touch(held,'up');let accepted;
-  for(let frame=0;frame<30;frame++){
+  let heldFrames=0;
+  for(let frame=0;frame<200;frame++){
    const sample=paint(released);assertPopulated(sample,released);
+   if(sample.result.manualClose?.kind==='hold')heldFrames++;
    if(sample.identity){accepted=sample.identity;break;}
   }
+  assert.equal(heldFrames,reduced?0:120,'measured 120-frame covered hold; none under reduced motion');
   assert.ok(accepted);state=completeManualFooterClose(released,accepted,ms(100));
   for(const frame of reduced?[20]:Array.from({length:21},(_,i)=>i)){
    const sample=paint(state);assert.deepEqual([sample.result.manualClose.kind,sample.result.manualClose.frame],['in',frame]);

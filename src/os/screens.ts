@@ -1105,13 +1105,14 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   // A first cold composition stays under out20 for this paired receipt. Only
   // a destination already published at paint start can begin the reveal.
   const manualDestinationReadyAtPaintStart=!!manualIdentity&&graphics.stockStatus(state,t)==='ready'&&!!graphics.preparedStockPair(state);
-  // Toolbar hold poses draw the out20 full cover exactly (measured adaptation).
+  // Toolbar and Manual hold poses draw the out20 full cover exactly (measured adaptation).
   const notesCloseDrawPose=footerCloseDrawPose(notesClosePose),notificationsCloseDrawPose=footerCloseDrawPose(notificationsClosePose);
   const webCloseDrawPose=footerCloseDrawPose(webClosePose),friendsCloseDrawPose=footerCloseDrawPose(friendsClosePose);
   const notesCloseDraw=notesCloseDrawPose&&(notesCloseDrawPose.kind==='feedback'||notesCloseDrawPose.kind==='out')
    ?{kind:notesCloseDrawPose.kind,frame:notesCloseDrawPose.frame,homeLabel:nativeHome!.notesFooterReturnLabel()}:undefined;
   const notificationsCloseDraw=notificationsCloseDrawPose&&(notificationsCloseDrawPose.kind==='feedback'||notificationsCloseDrawPose.kind==='out')?{frame:notificationsCloseDrawPose.frame}:undefined;
-  const manualCloseDraw=manualClosePose&&(manualClosePose.kind==='feedback'||manualClosePose.kind==='out')?{frame:manualClosePose.kind==='feedback'?manualClosePose.frame:1}:undefined;
+  const manualCloseDrawPose=footerCloseDrawPose(manualClosePose);
+  const manualCloseDraw=manualCloseDrawPose&&(manualCloseDrawPose.kind==='feedback'||manualCloseDrawPose.kind==='out')?{frame:manualCloseDrawPose.kind==='feedback'?manualCloseDrawPose.frame:1}:undefined;
   const webCloseDraw=webCloseDrawPose&&(webCloseDrawPose.kind==='feedback'||webCloseDrawPose.kind==='out')?{frame:webCloseDrawPose.kind==='feedback'?webCloseDrawPose.frame:5}:undefined;
   const friendsCloseDraw=friendsCloseDrawPose&&(friendsCloseDrawPose.kind==='feedback'||friendsCloseDrawPose.kind==='out')?{kind:friendsCloseDrawPose.kind,frame:friendsCloseDrawPose.frame}:undefined;
   const resumeUpperPixels=resumeUpper?{width:400,height:240,data:new Uint8ClampedArray(t.getImageData(0,0,400,240).data)}:undefined;
@@ -1273,11 +1274,11 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    }
   }
   if(manualClosePose){
-   const outgoing=manualClosePose.kind==='feedback'||manualClosePose.kind==='out';
+   const outgoing=footerCloseOutgoing(manualClosePose);
    if(graphics.stockFailure()!==null||nativeStatus==='error'||nativeStatus==='loading')revokeManualFooterCloseCandidate();
    else{
-    if((manualClosePose.kind==='out'||manualClosePose.kind==='in')
-     &&(!nativeHome||!nativeHome.manualFooterCover(t,b,manualClosePose.kind,manualClosePose.frame)))throw Error('Native Manual HOME cover unavailable');
+    if((manualCloseDrawPose!.kind==='out'||manualCloseDrawPose!.kind==='in')
+     &&(!nativeHome||!nativeHome.manualFooterCover(t,b,manualCloseDrawPose!.kind,manualCloseDrawPose!.frame)))throw Error('Native Manual HOME cover unavailable');
     const pair=outgoing?graphics.preparedStockPair(state):(manualCloseHomePair=Object.freeze({state,generation:manualCloseGeneration}));
     const resources=outgoing?manualOutgoingResources(state):firmwareAssets;
     if(pair&&resources&&manualClosePresentation.bind(manualClosePose,pair,resources))manualCloseCandidate={pose:manualClosePose,pair,resources};

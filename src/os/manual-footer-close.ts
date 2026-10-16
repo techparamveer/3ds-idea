@@ -1,6 +1,6 @@
 import type { MenuState } from './state.ts';
 import { manualFooterCloseRequestEligible } from './app-host.ts';
-import { createAppletFooterClosePresentation, type AppletFooterClosePose, type NotesFooterCloseIdentity } from './notes-footer-close.ts';
+import { createAppletFooterClosePresentation, TOOLBAR_CLOSE_COVER_HOLD_FRAMES, type AppletFooterClosePose, type NotesFooterCloseIdentity } from './notes-footer-close.ts';
 
 export type ManualFooterCloseIdentity = NotesFooterCloseIdentity & Readonly<{ manualTitleId: string; screen: 'main'; requestId: string | null }>;
 export type ManualFooterClosePose = AppletFooterClosePose<ManualFooterCloseIdentity>;
@@ -15,7 +15,9 @@ export function sameManualFooterCloseIdentity(a:ManualFooterCloseIdentity|null,b
   return !!a&&!!b&&a.owner===b.owner&&a.application===b.application&&a.sequence===b.sequence&&a.generation===b.generation
     &&a.manualTitleId===b.manualTitleId&&a.screen===b.screen&&a.requestId===b.requestId;
 }
-/** Source4/5 feedback and accepted-pair 60Hz scheduling are host adaptations. */
+/** Source4/5 feedback and accepted-pair 60Hz scheduling are host adaptations.
+ * The out20 cover holds TOOLBAR_CLOSE_COVER_HOLD_FRAMES (measured adaptation,
+ * private `manual-native-close/run.md`: Camera Manual 2.115 s). */
 export function createManualFooterClosePresentation(){
-  return createAppletFooterClosePresentation(manualFooterCloseIdentity,sameManualFooterCloseIdentity,true);
+  return createAppletFooterClosePresentation(manualFooterCloseIdentity,sameManualFooterCloseIdentity,true,1,TOOLBAR_CLOSE_COVER_HOLD_FRAMES);
 }

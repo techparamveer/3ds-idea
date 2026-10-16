@@ -38,7 +38,12 @@ for(const reduced of[false,true])test(`actual paired painter holds Manual and HO
   for(const f of reduced?[]:Array.from({length:20},(_,i)=>i)){const{result,identity}=paint(state,step++);assert.equal(identity,null);assert.equal(result.manualClose.frame,f);assert.deepEqual(events.find(e=>e[0]==='cover'),['cover','out',f]);assert.ok(state.system.runtime.instances[owner]);}
   const candidate=paint(state,step++,false);assert.equal(candidate.result.manualClose.frame,20);assert.ok(state.system.runtime.instances[owner]);assert.equal(screens.homeAppletFooterBannerReady(state),false);
   screens.revokeNotesFooterCloseCandidate();assert.equal(screens.presentManualFooterClose(state,ms(step)),null,'context/render invalidation revokes an unpresented terminal');
-  paint(state,step++);const accepted=paint(state,step++);assert.equal(accepted.identity.owner,owner);state=completeManualFooterClose(state,accepted.identity,ms(step));assert.equal(state.system.runtime.instances[owner],undefined);assert.equal(state.system.phase,'home');
+  let accepted;paint(state,step++);
+  // Measured 120-frame covered hold: each held paint redraws the out20 cover and reports kind 'hold'.
+  if(reduced)accepted=paint(state,step++);
+  else{const out20=paint(state,step++);assert.deepEqual([out20.result.manualClose.kind,out20.result.manualClose.frame,out20.identity],['out',20,null]);}
+  if(!reduced)for(let f=0;f<120;f++){const held=paint(state,step++);assert.deepEqual(held.result.manualClose,{kind:'hold',frame:f,owner,adaptation:true});assert.deepEqual(events.filter(e=>e[0]==='cover'),[['cover','out',20]]);if(f<119){assert.equal(held.identity,null);assert.ok(state.system.runtime.instances[owner]);}else accepted=held;}
+  assert.equal(accepted.identity.owner,owner);state=completeManualFooterClose(state,accepted.identity,ms(step));assert.equal(state.system.runtime.instances[owner],undefined);assert.equal(state.system.phase,'home');
   for(const f of reduced?[20]:Array.from({length:21},(_,i)=>i)){const{result,identity}=paint(state,step++);assert.equal(identity,null);assert.equal(result.manualClose.kind,'in');assert.equal(result.manualClose.frame,f);assert.equal(screens.homeAppletFooterBannerReady(state),false);assert.equal(screens.stockStatus(state),'loading');}
   const handoff=paint(state,step++,false);assert.equal(handoff.result.manualClose.kind,'handoff');assert.equal(screens.homeAppletFooterBannerReady(state),false);assert.equal(screens.presentManualFooterClose(state,ms(step)),null);assert.equal(screens.homeAppletFooterBannerReady(state),true);previous=state;
  }

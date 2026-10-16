@@ -12,7 +12,10 @@ export type AppletFooterClosePose<Identity extends NotesFooterCloseIdentity> = R
  * Close runs reach the full static cover +0.342 / +0.425 s after release, then
  * stay static 1.992 / 2.050 s (120 frames at 268111856/4481136 Hz = 2.006 s)
  * before HOME population. Notes, Friend List, Internet Browser and Miiverse use
- * it by extension; only Notifications was measured. Manual Close has no hold. */
+ * it by extension. Manual Close uses the same hold: private
+ * `manual-native-close/run.md` measures a native Camera Manual Close holding
+ * the full cover with the lower "HOME Menu" belt static for 2.115 s before
+ * HOME fades in (its selected-first reveal is separate and unchanged). */
 export const TOOLBAR_CLOSE_COVER_HOLD_FRAMES = 120;
 /** Hold poses paint the out20 full cover exactly; nothing new is drawn. */
 export function footerCloseDrawPose<Pose extends AppletFooterClosePose<NotesFooterCloseIdentity>>(pose: Pose): Pose;

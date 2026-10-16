@@ -39,15 +39,18 @@ test('semantic Close, root Back, physical and keyboard X share one idempotent re
 });
 
 const ms=n=>5000+n*1000/60+.01;
-test('first/repeat owner survives every accepted outgoing partial and retires once at out20; HOME requires in20 plus handoff',()=>{
+test('first/repeat owner survives every accepted outgoing partial and the out20 cover hold, retiring once at hold119 (reduced: out20); HOME requires in20 plus handoff',()=>{
  for(const reduced of[false,true]){
   const p=createManualFooterClosePresentation();let prior;
   for(let cycle=0;cycle<2;cycle++){
    let state=request(invokeSystemApplet(prior??home(),'manual',4000+cycle*2000,{manualTitleId:camera})),step=cycle*100;const owner=state.system.runtime.active,resources={},firmware={};
-   const publish=(kind,frame)=>{const pose=p.sample(state,2,ms(step),true,reduced),pair={};assert.equal(pose.kind,kind);if(frame!==null)assert.equal(pose.frame,frame);const r=kind==='out'||kind==='feedback'?resources:firmware;assert.equal(p.bind(pose,pair,r),true);return[p.present(pose,state,2,ms(step++),true,pair,r),pose.identity];};
+   const publish=(kind,frame)=>{const pose=p.sample(state,2,ms(step),true,reduced),pair={};assert.equal(pose.kind,kind);if(frame!==null)assert.equal(pose.frame,frame);const r=kind==='out'||kind==='feedback'||kind==='hold'?resources:firmware;assert.equal(p.bind(pose,pair,r),true);return[p.present(pose,state,2,ms(step++),true,pair,r),pose.identity];};
    for(const frame of reduced?[1]:[0,1])assert.equal(publish('feedback',frame)[0],null);
    for(const frame of reduced?[]:Array.from({length:20},(_,i)=>i)){assert.equal(publish('out',frame)[0],null);assert.ok(state.system.runtime.instances[owner]);}
-   const [result,identity]=publish('out',20);assert.equal(result,owner);state=completeManualFooterClose(state,identity,ms(step));assert.equal(state.system.runtime.instances[owner],undefined);assert.equal(state.system.phase,'home');assert.equal(completeManualFooterClose(state,identity,ms(step)),state);
+   // Measured 120-frame covered hold (Camera Manual 2.115 s); reduced motion retires at out20.
+   let [result,identity]=publish('out',20);
+   if(!reduced){assert.equal(result,null);for(let frame=0;frame<120;frame++){[result,identity]=publish('hold',frame);if(frame<119){assert.equal(result,null);assert.ok(state.system.runtime.instances[owner]);}}}
+   assert.equal(result,owner);state=completeManualFooterClose(state,identity,ms(step));assert.equal(state.system.runtime.instances[owner],undefined);assert.equal(state.system.phase,'home');assert.equal(completeManualFooterClose(state,identity,ms(step)),state);
    for(const frame of reduced?[20]:Array.from({length:21},(_,i)=>i))assert.equal(publish('in',frame)[0],null);
    assert.equal(p.active(state,2),true);publish('handoff',null);assert.equal(p.active(state,2),false);prior=state;
   }p.dispose();

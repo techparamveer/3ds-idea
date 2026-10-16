@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { createPortfolioState, tickSystem, invokeSystemApplet, touchSystem, reduceSystem, completeNotificationsFooterClose } from '../src/os/system.ts';
+import { createPortfolioState, tickSystem, invokeSystemApplet, touchSystem, reduceSystem, dispatchSystemEvent, completeNotificationsFooterClose } from '../src/os/system.ts';
 import { createNotificationsFooterClosePresentation } from '../src/os/notifications-footer-close.ts';
 import { createNotesFooterClosePresentation, footerCloseDrawPose, footerCloseOutgoing, TOOLBAR_CLOSE_COVER_HOLD_FRAMES } from '../src/os/notes-footer-close.ts';
 import { createFriendsFooterClosePresentation } from '../src/os/friends-footer-close.ts';
@@ -80,17 +80,48 @@ test('every held pose paints exactly the out20 full-cover pose and keeps outgoin
     assert.match(screens, new RegExp(`${name}CloseDrawPose=footerCloseDrawPose\\(${name}ClosePose\\)`));
     if (name !== 'notes') assert.match(screens, new RegExp(`${name}Close:FooterCloseDiagnostic\\|undefined=${name}CloseCandidate\\?\\{kind:${name}CloseCandidate\\.pose\\.kind`));
   }
-  assert.doesNotMatch(screens, /footerCloseDrawPose\(manualClosePose\)/);
+  // Manual draws its hold through the same out20 mapping and reports pose.kind ('hold') in telemetry.
+  assert.match(screens, /manualCloseDrawPose=footerCloseDrawPose\(manualClosePose\)/);
+  assert.match(screens, /manualFooterCover\(t,b,manualCloseDrawPose!\.kind,manualCloseDrawPose!\.frame\)/);
+  assert.match(screens, /manualClose:FooterCloseDiagnostic\|undefined=manualCloseCandidate\?\{kind:manualCloseCandidate\.pose\.kind/);
+  // Manual is excluded from the toolbar two-group reveal base; its selected-first reveal is unchanged.
+  assert.match(screens, /toolbarHandoff=!reduced&&\[notesClosePose,notificationsClosePose,friendsClosePose,webClosePose\]\.some/);
 });
 
-test('Manual Close and hold-free presentations still retire on out20', () => {
+const manualCamera = '0004001000022400';
+const manualRequested = () => {
+  let state = invokeSystemApplet(home(), 'manual', 4000, { manualTitleId: manualCamera });
+  for (const phase of ['down', 'up']) state = dispatchSystemEvent(state, { type: 'touch', phase, x: 80, y: 226 }, 4100);
+  return state;
+};
+
+test('Manual Close holds the same out20 cover for 120 LCD frames; reduced motion has no hold', () => {
+  const state = manualRequested(), owner = state.system.runtime.active;
+  assert.equal(state.system.runtime.instances[owner].state.manualFooterClose, true);
+  const { log, owner: retired } = drive(createManualFooterClosePresentation(), state);
+  assert.equal(retired, owner);
+  const outEnd = log.findIndex(entry => entry.kind === 'out' && entry.frame === 20);
+  assert.ok(outEnd > 0);
+  const held = log.slice(outEnd + 1);
+  assert.deepEqual(held.map(entry => entry.kind), Array(120).fill('hold'));
+  assert.deepEqual(held.map(entry => entry.frame), Array.from({ length: 120 }, (_, i) => i));
+  const out20 = log[outEnd].pose;
+  for (const { pose } of held) {
+    const drawn = footerCloseDrawPose(pose);
+    assert.equal(drawn.kind, 'out'); assert.equal(drawn.frame, 20); assert.equal(drawn.identity, out20.identity);
+    assert.equal(footerCloseOutgoing(pose), true);
+  }
+  const reduced = drive(createManualFooterClosePresentation(), manualRequested(), { reduced: true });
+  assert.equal(reduced.owner, owner);
+  assert.equal(reduced.log.at(-1).kind, 'out'); assert.equal(reduced.log.at(-1).frame, 20);
+  assert.equal(reduced.log.some(entry => entry.kind === 'hold'), false);
+});
+
+test('hold-free presentations still retire on out20', () => {
   const state = requested(), owner = state.system.runtime.active;
   const plain = drive(createAppletFooterClosePresentation(() => ({ owner, application: null, sequence: 0, generation: 2 })), state);
   assert.equal(plain.log.at(-1).kind, 'out'); assert.equal(plain.log.at(-1).frame, 20);
   assert.equal(plain.log.some(entry => entry.kind === 'hold'), false);
-  const manualSource = readFileSync(new URL('../src/os/manual-footer-close.ts', import.meta.url), 'utf8');
-  assert.doesNotMatch(manualSource, /COVER_HOLD/);
-  assert.equal(typeof createManualFooterClosePresentation, 'function');
 });
 
 test('reduced motion has no hold, and turning reduced on mid-hold ends it at hold:119', () => {

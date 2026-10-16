@@ -15,8 +15,9 @@ Two native Notifications Close runs now give a repeatable HOME neighbour
 reveal (Health, then Camera/Sound/Mii + banner ~0.21 s later); the browser
 restores all neighbours together. The measured two-group reveal is integrated
 (5afea42) and matches native group timing within one receipt. The native
-~2 s covered hold is integrated (991a908); the browser HOME incoming phase
-(0.47 s vs native ~0.1 s) remains open.
+~2 s covered hold is integrated for toolbar apps (991a908) and Manual
+(216e964; native 2.115 s, browser 1.984 s). The apparent browser HOME
+incoming gap is recorder paint cadence.
 
 16 October AN-01: [Notifications marker pulse](workstream-handoffs/notifications-marker-pulse-20261016.md)
 is integrated through ab73c31 and pushed to draft PR #7. Native idle capture

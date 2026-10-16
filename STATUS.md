@@ -2,7 +2,7 @@
 
 ## Checkout
 
-Reconciled HEAD: `991a908` plus this evidence commit (git wins).
+Reconciled HEAD: `216e964` plus this evidence commit (git wins).
 Git wins if this differs from HEAD. Reconcile before another slice or worker.
 Keep this file current, not append-only.
 
@@ -326,13 +326,17 @@ Notifications Close audit is closed with no broad-order defect.
 4. Native Manual Close (Camera; private `manual-native-close/`): same white
    cover + "HOME Menu" belt, static hold 2.115 s, then selected Camera first and
    all neighbours together ~0.4 s later, banner after. The reveal already matches
-   the selected-first Manual fit; the hold is missing in the browser. Next:
-   extend the 120-frame hold to Manual Close, review, checks, recapture.
-5. Keep the generic production experiment closed and PR #8 unmerged. No retry,
+   the selected-first Manual fit. The 120-frame hold now covers Manual Close
+   (`216e964`, worker 9bece56, Sonnet review APPROVE). Browser 456-pair Camera
+   Manual Close (build `w4AEwZuz3KgwEnPEpGUv-`): hold 1.984 s versus native
+   2.115 s. Private `manual-cover-hold/`.
+5. Next leftover: native grid-title Close (e.g. Health or Camera app) and
+   HOME suspend/Resume timing, measured the same way.
+6. Keep the generic production experiment closed and PR #8 unmerged. No retry,
    replacement tuning campaign or rebuild of either frozen build. Keep Manual
    loader and folder cursor source-only investigations closed until a new
    captured defect supports a change.
-6. Integrate reviewed fixes in separate source worktrees. Run focused/full
+7. Integrate reviewed fixes in separate source worktrees. Run focused/full
    checks, typecheck and build, then perform the matched muted verification loop.
    Update evidence, commit explicit paths and push to draft PR #7. Continue the
    four-flow goal until complete or genuinely blocked.

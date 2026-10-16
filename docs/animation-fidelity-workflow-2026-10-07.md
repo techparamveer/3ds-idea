@@ -70,7 +70,10 @@ Investigated: both native runs hold a static full cover ~2.0 s (~120 frames).
 Integrated as 991a908 (toolbar Close only; reduced motion and Manual
 unchanged): browser hold 1.978 s, HOME start +2.489 s after release versus
 native +2.334/+2.475. The browser HOME incoming (0.47 s) is now the main
-remaining Close timing gap.
+remaining Close timing gap; native frames show it is mostly recorder paint
+cadence (one source frame per paint at ~44 fps), not a source-track error.
+A native Camera Manual Close shows the same cover and a 2.115 s hold; the hold
+now also covers Manual Close (216e964), browser 1.984 s.
 
 ## Generic experiment closed without adoption
 

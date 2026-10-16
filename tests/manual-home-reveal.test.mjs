@@ -10,6 +10,7 @@ import {getHomePresentation} from '../src/os/home-presentation.ts';
 import {decodeNativePng} from '../src/os/native-png.ts';
 import {nativeTextureSamplePixels} from '../src/os/native-layout.ts';
 import {getTitle} from '../src/os/app-registry.ts';
+import {homeReturnFirstGroupIndex,homeToolbarReturnRevealFrame,homeToolbarReturnRevealStage} from '../src/os/home-return-reveal.ts';
 
 const data=source=>'data:text/javascript;base64,'+Buffer.from(source).toString('base64');
 function moduleSource(name,overrides={}){
@@ -88,6 +89,7 @@ async function fixture(run){
   screens.presentManualEntry(state,now);
   screens.presentAppletEntry(state,now);
   const identity=receipt?screens[present](state,now):null;
+  if(receipt)screens.presentToolbarReturnReveal(state);
   return {result,identity,now,calls:structuredClone(calls)};
  };
  const open=state=>{
@@ -135,6 +137,41 @@ function assertSelectedOnly(sample,state,home){
   assert.ok(blank.pictures.length>0);
  }
 }
+function assertFirstGroup(sample,state,home){
+ const view=getHomePresentation(state),selected=state.opened?state.folderSelected:state.selected,first=homeReturnFirstGroupIndex(view.tiles,selected);
+ assert.notEqual(first,null,'fixture has a visible first-group neighbour');
+ const drawn=[...sample.calls.filter(call=>call.name==='ordinaryTitleIcon'),...sample.calls.filter(call=>call.name==='portfolio')].map(call=>call.args[0]);
+ const shown=view.tiles.filter(tile=>tile.index===selected||tile.index===first);
+ assert.equal(drawn.length,shown.length);
+ for(const tile of shown)assert.ok(drawn.includes(getTitle(tile.appId)?.titleId)||drawn.includes(tile.appId),`slot ${tile.index} is restored`);
+ for(const tile of view.tiles.filter(tile=>tile.appId&&!tile.folderLabel&&tile.index!==selected&&tile.index!==first)){
+  const blank=sample.calls.find(call=>call.name==='empty'&&call.args[0]===tile.x&&call.args[1]===tile.y);
+  assert.ok(blank,`group-2 slot ${tile.index} remains the decoded empty source`);
+  const expected=canvas();assert.equal(home.empty(expected.getContext('2d'),tile.x,tile.y,tile.size,view.density),true);assert.deepEqual(blank.pictures,expected.draws);
+ }
+}
+// Measured toolbar adaptation: handoff is the base, group 1 at LCD frame 6,
+// group 2 with banner admission at frame 19 (home-return-reveal.ts).
+function assertToolbarReveal({screens,paint,home},state,route,handoff){
+ assertSelectedOnly(handoff,state,home);
+ assert.equal(screens.homeAppletFooterBannerReady(state),false,'a painted but unaccepted handoff cannot admit the banner');
+ screens[route.present](state,handoff.now);
+ assert.equal(screens.homeAppletFooterBannerReady(state),false,'accepted handoff starts the measured reveal');
+ assert.equal(screens.toolbarReturnRevealActive(state),true);
+ const firsts=new Map();
+ for(let count=0;count<40;count++){
+  const sample=paint(state,{present:route.present}),reveal=sample.result?.toolbarReturnReveal;
+  assert.equal(sample.result?.[route.key],undefined);assert.ok(reveal);assert.equal(reveal.adaptation,true);
+  assert.equal(reveal.frame,homeToolbarReturnRevealFrame(sample.now-handoff.now));assert.equal(reveal.stage,homeToolbarReturnRevealStage(reveal.frame));
+  if(!firsts.has(reveal.stage))firsts.set(reveal.stage,reveal.frame);
+  if(reveal.stage===0)assertSelectedOnly(sample,state,home);else if(reveal.stage===1)assertFirstGroup(sample,state,home);else assertPopulated(sample,state);
+  assert.equal(screens.homeAppletFooterBannerReady(state),reveal.stage===2,'banner admission follows the accepted group-2 receipt');
+  if(reveal.stage===2)break;
+ }
+ assert.deepEqual([...firsts],[[0,0],[1,6],[2,19]]);
+ assert.equal(screens.toolbarReturnRevealActive(state),false);
+ const clear=paint(state,{present:route.present});assert.equal(clear.result?.toolbarReturnReveal,undefined);assertPopulated(clear,state);
+}
 function assertPopulated(sample,state){
  const tiles=getHomePresentation(state).tiles.filter(tile=>tile.appId),native=tiles.map(tile=>getTitle(tile.appId)?.titleId).filter(Boolean);
  assert.deepEqual(sample.calls.filter(call=>call.name==='ordinaryTitleIcon').map(call=>call.args[0]),native);
@@ -160,7 +197,8 @@ for(const reduced of [false,true])test(`Manual incoming retains actual selection
   const handoff=paint(state,{receipt:false});assert.equal(handoff.result.manualClose.kind,'handoff');assertPopulated(handoff,state);
   assert.equal(screens.homeAppletFooterBannerReady(state),false,'painting handoff is not acceptance');
   screens.presentManualFooterClose(state,handoff.now);assert.equal(screens.homeAppletFooterBannerReady(state),true);
-  assertPopulated(paint(state),state);
+  assert.equal(screens.toolbarReturnRevealActive(state),false,'Manual keeps all-at-handoff');
+  const clear=paint(state);assert.equal(clear.result?.toolbarReturnReveal,undefined);assertPopulated(clear,state);
   if(!cycle)state=settleHomeNavigation(selectHomeSlot(state,Number(Object.entries(state.system.layout).find(([,id])=>id==='system-settings')[0])));
  }
 }));
@@ -209,10 +247,13 @@ for(const route of routes){
     const sample=paint(state,{present:route.present});assert.deepEqual([sample.result?.[route.key]?.kind,sample.result?.[route.key]?.frame],['in',frame]);
     assertSelectedOnly(sample,state,home);assert.equal(screens.homeAppletFooterBannerReady(state),false);assert.equal(screens.stockStatus(state),'loading');
    }
-   const handoff=paint(state,{receipt:false,present:route.present});assert.equal(handoff.result?.[route.key]?.kind,'handoff');assertPopulated(handoff,state);
-   assert.equal(screens.homeAppletFooterBannerReady(state),false,'a painted but unaccepted handoff cannot admit the banner');
-   screens[route.present](state,handoff.now);assert.equal(screens.homeAppletFooterBannerReady(state),true);
-   const clear=paint(state,{present:route.present});assert.equal(clear.result?.[route.key],undefined);assertPopulated(clear,state);
+   const handoff=paint(state,{receipt:false,present:route.present});assert.equal(handoff.result?.[route.key]?.kind,'handoff');
+   if(reduced){
+    assertPopulated(handoff,state);
+    assert.equal(screens.homeAppletFooterBannerReady(state),false,'a painted but unaccepted handoff cannot admit the banner');
+    screens[route.present](state,handoff.now);assert.equal(screens.homeAppletFooterBannerReady(state),true);assert.equal(screens.toolbarReturnRevealActive(state),false);
+    const clear=paint(state,{present:route.present});assert.equal(clear.result?.[route.key],undefined);assert.equal(clear.result?.toolbarReturnReveal,undefined);assertPopulated(clear,state);
+   }else assertToolbarReveal({screens,paint,home},state,route,handoff);
    if(!cycle)state=settleHomeNavigation(selectHomeSlot(state,Number(Object.entries(state.system.layout).find(([,id])=>id==='camera')[0])));
   }
  }));
@@ -245,6 +286,7 @@ for(const route of routes.slice(0,2))test(`${route.appId} firmware replacement k
 }));
 
 for(const route of routes.slice(2))test(`${route.appId} firmware replacement preserves selected-only return and requires fresh handoff`,async()=>fixture(({screens,paint,openToolbar,closeToolbar,home,replaceFirmware})=>{
+ screens.setReducedMotion(false);
  const state=closeToolbar(openToolbar(boot('camera'),route),route),options={present:route.present};
  for(let frame=0;frame<=7;frame++){
   const sample=paint(state,options);assert.equal(sample.result?.[route.key]?.frame,frame);assertSelectedOnly(sample,state,home);
@@ -258,9 +300,8 @@ for(const route of routes.slice(2))test(`${route.appId} firmware replacement pre
   const sample=paint(state,options);assert.deepEqual([sample.result?.[route.key]?.kind,sample.result?.[route.key]?.frame],['in',frame]);assertSelectedOnly(sample,state,home);
   assert.equal(screens.homeAppletFooterBannerReady(state),false);
  }
- const handoff=paint(state,{...options,receipt:false});assert.equal(handoff.result?.[route.key]?.kind,'handoff');assertPopulated(handoff,state);
- assert.equal(screens.homeAppletFooterBannerReady(state),false);screens[route.present](state,handoff.now);
- assert.equal(screens.homeAppletFooterBannerReady(state),true);assertPopulated(paint(state,options),state);
+ const handoff=paint(state,{...options,receipt:false});assert.equal(handoff.result?.[route.key]?.kind,'handoff');
+ assertToolbarReveal({screens,paint,home},state,route,handoff);
 }));
 
 for(const route of routes.slice(2))test(`${route.appId} replaced outgoing resources reject the stale terminal before selected-only return`,async()=>fixture(({screens,paint,openToolbar,home,replaceResources})=>{
@@ -280,4 +321,23 @@ for(const route of routes.slice(2))test(`${route.appId} replaced outgoing resour
  assert.equal(screens.homeAppletFooterBannerReady(state),false);
  const handoff=paint(state,{...options,receipt:false});assert.equal(handoff.result?.[route.key]?.kind,'handoff');assertPopulated(handoff,state);
  assert.equal(screens.homeAppletFooterBannerReady(state),false);screens[route.present](state,handoff.now);assert.equal(screens.homeAppletFooterBannerReady(state),true);
+}));
+
+for(const route of routes)test(`${route.appId} measured reveal is cancelled by new input, reduced motion or firmware replacement`,async()=>fixture(({screens,paint,openToolbar,closeToolbar,home,replaceFirmware})=>{
+ screens.setReducedMotion(false);const options={present:route.present};
+ const returned=()=>{
+  let state=closeToolbar(openToolbar(boot('health-safety'),route),route),sample;
+  for(let count=0;count<30;count++){sample=paint(state,{...options,receipt:false});if(sample.result?.[route.key]?.kind==='handoff')break;screens[route.present](state,sample.now);}
+  assert.equal(sample.result?.[route.key]?.kind,'handoff');screens[route.present](state,sample.now);
+  const first=paint(state,options);assert.equal(first.result?.toolbarReturnReveal?.stage,0);assertSelectedOnly(first,state,home);
+  assert.equal(screens.homeAppletFooterBannerReady(state),false);return state;
+ };
+ let state=returned();
+ const moved=settleHomeNavigation(selectHomeSlot(state,Number(Object.entries(state.system.layout).find(([,id])=>id==='camera')[0])));
+ const input=paint(moved,options);assert.equal(input.result?.toolbarReturnReveal,undefined);assertPopulated(input,moved);
+ assert.equal(screens.homeAppletFooterBannerReady(moved),true);assert.equal(screens.toolbarReturnRevealActive(moved),false);
+ state=returned();screens.setReducedMotion(true);
+ const reduced=paint(state,options);assert.equal(reduced.result?.toolbarReturnReveal,undefined);assertPopulated(reduced,state);assert.equal(screens.homeAppletFooterBannerReady(state),true);
+ screens.setReducedMotion(false);state=returned();replaceFirmware();
+ assert.equal(screens.homeAppletFooterBannerReady(state),true);assertPopulated(paint(state,options),state);
 }));

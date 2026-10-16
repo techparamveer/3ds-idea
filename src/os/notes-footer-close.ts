@@ -89,6 +89,8 @@ export function createAppletFooterClosePresentation<Identity extends NotesFooter
     active(state: MenuState, generation: number) {
       return !disposed && (!!identityOf(state, generation) || !done && matches(state, generation));
     },
+    /** True once this owner's handoff receipt has been accepted. */
+    handoffAccepted() { return !disposed && done; },
     revoke, reset,
     dispose() { reset(); disposed = true; },
   };

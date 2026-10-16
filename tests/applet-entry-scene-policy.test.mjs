@@ -45,8 +45,10 @@ const screensSource=readFileSync(new URL('../src/os/screens.ts',import.meta.url)
 const screensAst=ts.createSourceFile('screens.ts',screensSource,ts.ScriptTarget.Latest,true);let readyFunction;
 function findReady(node){if(ts.isFunctionDeclaration(node)&&node.name?.text==='homeAppletFooterBannerReady')readyFunction=node;ts.forEachChild(node,findReady);}
 findReady(screensAst);
+// The measured toolbar reveal starts only inside screens' present wrappers; this
+// primary-retirement test drives the close controller directly, so none is begun.
 const readyCode=ts.transpileModule(readyFunction.getText(screensAst),{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
-const bindReady=new Function('notesClosePresentation','notificationsClosePresentation','friendsClosePresentation','webClosePresentation',`${readyCode};const appletGeneration=2,friendsCloseGeneration=2,webCloseGeneration=2,manualCloseGeneration=0,manualClosePresentation={active:()=>false};return homeAppletFooterBannerReady;`);
+const bindReady=new Function('notesClosePresentation','notificationsClosePresentation','friendsClosePresentation','webClosePresentation',`${readyCode};const appletGeneration=2,friendsCloseGeneration=2,webCloseGeneration=2,manualCloseGeneration=0,manualClosePresentation={active:()=>false},toolbarReturnReveal={active:()=>false};return homeAppletFooterBannerReady;`);
 const bindObserver=new Function('runtime','banner',`
  const {crossHomeBannerBoundary,getHomeBannerHostView,resolveHomeBannerHostSelection,resetHomeBannerPrimary}=banner;
  const {screens}=runtime;

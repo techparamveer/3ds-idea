@@ -45,6 +45,20 @@ const bindDispatch=new Function('state','screens','onPaint','createNativeScreenI
  return {dispatch,state:()=>state};
 `);
 
+// Measured toolbar adaptation (home-return-reveal.ts): the accepted handoff
+// starts a two-group reveal; banner admission waits for the group-2 receipt.
+function finishToolbarReveal(screens,paint,state,step){
+ assert.equal(screens.homeAppletFooterBannerReady(state),false,'accepted toolbar handoff holds the banner until group 2');
+ assert.equal(screens.toolbarReturnRevealActive(state),true);
+ let last;
+ for(let count=0;count<40&&!screens.homeAppletFooterBannerReady(state);count++){
+  last=paint(state,step++,false)?.toolbarReturnReveal;assert.ok(last);
+  assert.equal(screens.presentToolbarReturnReveal(state),true);
+  assert.equal(screens.homeAppletFooterBannerReady(state),last.stage===2);
+ }
+ assert.deepEqual([last.stage,last.frame],[2,19]);assert.equal(screens.toolbarReturnRevealActive(state),false);
+ return step;
+}
 async function fixture(run,withFirmware=true,{publicationGate=false}={}){
  const saved=new Map(['document','Image','FontFace','__appletGraphics'].map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
  const events=[],canvases=[];let status='ready',coverFailure=false,pair,covered=null,notesStep=0,copyReady=true,incomingResources={},incomingAvailable=true,incomingFailure=false,preparedOwner;
@@ -109,7 +123,7 @@ test(appId+': actual Web compositor retains first/repeat Close through paired co
    state=completeWebFooterClose(state,owner,ms(step));
    for(let frame=0;frame<=20;frame++){assert.equal(receipt('in',frame),null);assert.equal(screens.homeAppletFooterBannerReady(state),false);}
    assert.equal(screens.stockStatus(state),'loading');receipt('handoff',null);
-   assert.equal(screens.homeAppletFooterBannerReady(state),true);assert.equal(screens.webFooterCloseActive(state),false);
+   step=finishToolbarReveal(screens,paint,state,step);assert.equal(screens.webFooterCloseActive(state),false);
    homeState=state;
   }
  });
@@ -133,7 +147,7 @@ test(appId+': Web accepted HOME return survives firmware replacement and still r
   receipt('in',7);
   for(let frame=8;frame<=20;frame++)receipt('in',frame);
   assert.equal(screens.homeAppletFooterBannerReady(state),false);receipt('handoff',null);
-  assert.equal(screens.homeAppletFooterBannerReady(state),true);
+  step=finishToolbarReveal(screens,paint,state,step);
  });
 });
 
@@ -188,7 +202,7 @@ test('actual Friends compositor retains first/repeat Close through paired title 
    state=completeFriendsFooterClose(state,owner,ms(step));
    for(let frame=0;frame<=20;frame++){assert.equal(receipt('in',frame),null);assert.equal(screens.homeAppletFooterBannerReady(state),false);}
    assert.equal(screens.stockStatus(state),'loading');receipt('handoff',null);
-   assert.equal(screens.homeAppletFooterBannerReady(state),true);assert.equal(screens.friendsFooterCloseActive(state),false);
+   step=finishToolbarReveal(screens,paint,state,step);assert.equal(screens.friendsFooterCloseActive(state),false);
    homeState=state;
   }
  });
@@ -212,7 +226,7 @@ test('Friends accepted HOME return survives firmware replacement and still requi
   receipt('in',7);
   for(let frame=8;frame<=20;frame++)receipt('in',frame);
   assert.equal(screens.homeAppletFooterBannerReady(state),false);receipt('handoff',null);
-  assert.equal(screens.homeAppletFooterBannerReady(state),true);
+  step=finishToolbarReveal(screens,paint,state,step);
  });
 });
 
@@ -270,7 +284,7 @@ test('actual Notifications first/repeat footer retains both list LCDs under the 
    state=completeNotificationsFooterClose(state,owner,ms(step));assert.equal(state.system.runtime.instances[owner],undefined);
    for(let frame=0;frame<=20;frame++){assert.equal(receipt('in',frame),null);assert.equal(screens.homeAppletFooterBannerReady(state),false);}
    assert.equal(screens.stockStatus(state),'loading');receipt('handoff',null);
-   assert.equal(screens.homeAppletFooterBannerReady(state),true);
+   step=finishToolbarReveal(screens,paint,state,step);
    assert.equal(screens.notificationsFooterCloseActive(state),false);
    assert.equal(paint(state,step++)?.notificationsClose,undefined);assert.equal(screens.stockStatus(state),'ready');
    homeState=state;previousOwner=owner;
@@ -373,7 +387,7 @@ test('actual Notes footer compositor retains the owner through out20 and accepts
   for(let frame=0;frame<=20;frame++){assert.equal(receipt('in',frame),null);assert.equal(screens.homeAppletFooterBannerReady(state),false);}
   assert.equal(screens.stockStatus(state),'loading','covered HOME cannot accept ordinary input');
   receipt('handoff',null);
-  assert.equal(screens.homeAppletFooterBannerReady(state),true);
+  step=finishToolbarReveal(screens,paint,state,step);
   assert.equal(screens.notesFooterCloseActive(state),false);
   assert.equal(paint(state,step)?.notesClose,undefined);
   assert.equal(screens.stockStatus(state),'ready');

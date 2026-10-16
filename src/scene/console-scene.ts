@@ -625,6 +625,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
         if(next!==state){state=next;bannerHost=resetHomeBannerPrimary(bannerHost);observeFolderBanner();effects.drain(false);paint();}
         else screens.revokeNotesFooterCloseCandidate();
       }
+      screens.presentToolbarReturnReveal(state);
       // The input waits for this same owner's accepted pair, never a timer or paint alone.
       if(nativeScreenInput.takeHomeResume(screens.stockStatus(state),screens.homeResumeInputSource(state)))dispatch({type:'command',command:'home'});
     }else{
@@ -688,7 +689,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     // cadence, and a high-refresh monitor cannot paint extra close updates.
     const closeAdvanced=(!!applicationCloseBeforeTick||!!closeBeforeTick&&closeBeforeTick.controller.phase!=='complete')&&state.system!.homeClock.updateCount!==updatesBeforeTick;
     const entryActive=state.powered&&angle>12&&!homeClockSuspended&&!document.hidden&&!state.system!.sleeping&&topScreen.visible&&touchScreen.visible&&!renderer.getContext().isContextLost()
-     &&(screens.homeEntryMotionActive(state)||screens.notesBootCoverActive(state)||screens.manualEntryActive(state)||screens.notesFooterCloseActive(state)||screens.notificationsFooterCloseActive(state)||screens.manualFooterCloseActive(state)||screens.friendsFooterCloseActive(state)||screens.webFooterCloseActive(state)||screens.appletEntryActive(state));
+     &&(screens.homeEntryMotionActive(state)||screens.notesBootCoverActive(state)||screens.manualEntryActive(state)||screens.notesFooterCloseActive(state)||screens.notificationsFooterCloseActive(state)||screens.manualFooterCloseActive(state)||screens.friendsFooterCloseActive(state)||screens.webFooterCloseActive(state)||screens.toolbarReturnRevealActive(state)||screens.appletEntryActive(state));
     const lcdFps=screenPaintFps(quality,closeAdvanced||entryActive);
     const bootFrame=state.system!.phase==='boot'?bootRevealFrame(now-start-state.system!.since,reduced):null;
     const bootPaintDue=state.powered&&angle>12&&!document.hidden&&!state.system!.sleeping&&bootRevealNeedsPaint(bootFrame,lastBootPaintFrame,reduced);

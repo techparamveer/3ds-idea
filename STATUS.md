@@ -330,8 +330,13 @@ Notifications Close audit is closed with no broad-order defect.
    (`216e964`, worker 9bece56, Sonnet review APPROVE). Browser 456-pair Camera
    Manual Close (build `w4AEwZuz3KgwEnPEpGUv-`): hold 1.984 s versus native
    2.115 s. Private `manual-cover-hold/`.
-5. Next leftover: native grid-title Close (e.g. Health or Camera app) and
-   HOME suspend/Resume timing, measured the same way.
+5. Native Health suspend + Close from suspended HOME (private
+   `health-suspend-close-native/`, `health-suspend-close-browser/`): suspend
+   0.90 s; Close shows "Closing software..." ~1.0-1.4 s after the touch, holds it
+   ~1.37 s, HOME back ~3.9 s after touch. Browser (HEAD da3814a): dialog at
+   +0.04 s, no hold, HOME back +1.25 s. Next: second native run for
+   repeatability, then a worker candidate fitting the dialog delay/hold if it
+   repeats (Codex left this host timing as an open adaptation).
 6. Keep the generic production experiment closed and PR #8 unmerged. No retry,
    replacement tuning campaign or rebuild of either frozen build. Keep Manual
    loader and folder cursor source-only investigations closed until a new

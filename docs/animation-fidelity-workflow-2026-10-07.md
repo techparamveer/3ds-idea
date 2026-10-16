@@ -60,6 +60,12 @@ the empty slot settling, Health settles +0.094-0.124 s, Camera, Sound and Mii
 +0.309-0.375 s together, and the banner with that last group. This is
 measured repeatable timing for this route, not a traced loader schedule; do not
 generalise it to Manual or grid-title returns without their own native runs.
+Integrated as 5afea42 for toolbar-applet returns only: group 1 (first
+reading-order visible tile, excluding the retained selection) at source frame 6
+and the rest plus banner at frame 19 after the handoff; reduced motion and
+Manual/grid returns unchanged. Browser recapture: +105 / +322 / banner +368 ms
+versus native +94..124 / +309..375. Native feedback-to-base (~3 s) is much
+longer than the browser's ~1 s; investigate before fitting.
 
 ## Generic experiment closed without adoption
 

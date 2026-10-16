@@ -13,7 +13,9 @@ incoming list like native (8eb24f9): browser period/epoch 2.0035 s / -22.6 ms
 versus native 2.0059 s / -11.9 ms. Whole flows remain fail/unproven.
 Two native Notifications Close runs now give a repeatable HOME neighbour
 reveal (Health, then Camera/Sound/Mii + banner ~0.21 s later); the browser
-restores all neighbours together. Next: measured two-group candidate.
+restores all neighbours together. The measured two-group reveal is integrated
+(5afea42) and matches native group timing within one receipt; the much longer
+native Close cover (~3 s vs ~1 s) remains open.
 
 16 October AN-01: [Notifications marker pulse](workstream-handoffs/notifications-marker-pulse-20261016.md)
 is integrated through ab73c31 and pushed to draft PR #7. Native idle capture

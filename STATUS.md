@@ -2,7 +2,7 @@
 
 ## Checkout
 
-Reconciled HEAD: `e508125` plus this evidence commit (git wins).
+Reconciled HEAD: `5afea42` plus this evidence commit (git wins).
 Git wins if this differs from HEAD. Reconcile before another slice or worker.
 Keep this file current, not append-only.
 
@@ -302,16 +302,18 @@ Notifications Close audit is closed with no broad-order defect.
    incoming frame 0 (receipt spacing ~45 ms). Private
    `notifications-lamp-epoch/report.md` `496dbea4`, `browser-run.md` `80b4eb4f`.
    Native feedback-freeze and suspend-return lamp semantics remain untraced.
-2. HOME neighbour reveal after toolbar-applet Close (AN-01/AN-02 partial
-   loading): a second native Notifications Close (private
-   `notifications-native-close-2/`, full-display 29 fps because the pinned
-   window recorder needs Screen Recording for this host) repeats run 1's
-   schedule within one frame. From the empty slot settling: Health +0.09-0.12 s,
-   then Camera/Sound/Mii together +0.31-0.38 s, banner with the last group.
-   The browser restores all neighbours at handoff. Next: worker candidate for a
-   measured two-group reveal on toolbar-applet returns only (other routes keep
-   the current fit until measured), review, checks, browser recapture against
-   both native runs. PR #7 stays a draft unless the user asks to merge.
+2. HOME neighbour reveal after toolbar-applet Close is integrated (`5afea42`,
+   worker b22e57d, Sonnet review APPROVE-WITH-NITS). Browser 268-pair ordinary
+   Notifications Close (build `bGhH0zgNObb_zhiBrYC_S`): first group +105 ms,
+   remaining +322 ms, banner +368 ms after handoff, against native +94..124 /
+   +309..375 / with last group. Open: native footer-to-HOME-base takes
+   2.95-3.08 s versus browser 0.98 s (long native white cover, possibly
+   emulator reload time); group 1 differs because the browser retains a grid
+   selection; other toolbar apps use the Notifications schedule by extension.
+   Private `home-reveal-groups/browser-run.md`. Next: measure one native
+   Manual Close and one grid-title Close the same way before extending the
+   reveal, and check the long native cover on a second toolbar app.
+   PR #7 stays a draft unless the user asks to merge.
 3. Keep the generic production experiment closed and PR #8 unmerged. No retry,
    replacement tuning campaign or rebuild of either frozen build. Keep Manual
    loader and folder cursor source-only investigations closed until a new

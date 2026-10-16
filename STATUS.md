@@ -317,13 +317,20 @@ Notifications Close audit is closed with no broad-order defect.
    (build `CSwmV7jBter1bceL0yJMM`): hold 1.978 s, HOME starts +2.489 s after
    release versus native +2.334/+2.475. Remaining: browser HOME incoming
    (in:0..20, 0.47 s) versus native population-to-base ~0.07-0.11 s, so the
-   browser finishes ~0.4-0.5 s later. Next: inspect native frames from
-   population start to grid base, then decide. Private `close-cover-hold/`.
-4. Keep the generic production experiment closed and PR #8 unmerged. No retry,
+   browser finishes ~0.4-0.5 s later. Native frames 556-600 show HOME fading in
+   while the belt exits over ~0.28-0.33 s, close to the 20-frame source track;
+   the browser's 0.47 s comes from ~44 fps paints under synchronous recording
+   (one source frame per paint, an existing adaptation). No source change.
+   Native also shows Camera a few frames before Sound/Mii and the banner
+   scaling in. Private `close-cover-hold/`.
+4. Next leftover: native Manual Close neighbour reveal and grid-title Close,
+   measured the same way, before extending the reveal or hold beyond toolbar
+   apps.
+5. Keep the generic production experiment closed and PR #8 unmerged. No retry,
    replacement tuning campaign or rebuild of either frozen build. Keep Manual
    loader and folder cursor source-only investigations closed until a new
    captured defect supports a change.
-5. Integrate reviewed fixes in separate source worktrees. Run focused/full
+6. Integrate reviewed fixes in separate source worktrees. Run focused/full
    checks, typecheck and build, then perform the matched muted verification loop.
    Update evidence, commit explicit paths and push to draft PR #7. Continue the
    four-flow goal until complete or genuinely blocked.

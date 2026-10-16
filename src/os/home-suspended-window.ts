@@ -1,8 +1,10 @@
 import { homeSlotAppId } from './system.ts';
 import type { MenuState } from './state';
-import { nativeMessageOverride, nativePaneParentPath, type NativePixels } from './native-layout.ts';
+import { boundAnimationTracks, nativeMessageOverride, nativePaneParentPath, type AnimationBinding, type NativePixels } from './native-layout.ts';
 import type { NativeLayoutRenderer } from './native-renderer';
 import { sampleSystemHomeApplicationTransition } from './system-home-application-transition.ts';
+import { homePauseWindowAppearFrame, type HomeEntryMotion } from './home-entry-motion.ts';
+import type { SuspendedCapture } from './notes-suspended-capture.ts';
 
 export function homeSuspendedApplication(state: MenuState) {
  const s=state.system;
@@ -17,6 +19,20 @@ export function retainedSuspendedApplication(state: MenuState) {
 export function selectedSuspendedApplication(state: MenuState) {
  const application=retainedSuspendedApplication(state);
  return application&&homeSlotAppId(state,state.opened?state.folderSelected:state.selected)===application.appId?application:null;
+}
+
+/** The original G_Wndw Appear request is independent of ScaleUpDown's target.
+ * Its source phase follows the guarded pause candidate; native epochs remain
+ * untraced and the source-phase alignment is an adaptation. */
+export function homeSuspendedWindowEntryFrame(state:MenuState,capture:SuspendedCapture,motion:HomeEntryMotion|null):number|undefined {
+ const application=retainedSuspendedApplication(state);
+ if(!application||state.system?.dialog||sampleSystemHomeApplicationTransition(state)
+  ||capture.status!=='ready'||motion?.identity.kind!=='pause'
+  ||capture.owner!==application.id||motion.identity.owner!==application.id
+  ||motion.identity.captureGeneration!==capture.generation)return undefined;
+ if(!Number.isSafeInteger(capture.generation)||capture.generation<0
+  ||!Number.isSafeInteger(motion.elapsedUpdates)||motion.elapsedUpdates<0)throw new RangeError('Invalid suspended window entry pose');
+ return homePauseWindowAppearFrame(motion)??undefined;
 }
 
 /** Capture-fitted exit policy; the native disappearance start epoch is untraced. */
@@ -45,33 +61,110 @@ export function drawHomeSuspendedIcon(renderer:NativeLayoutRenderer,ctx:CanvasRe
 }
 
 /** Source geometry and Sleep loop. Close opacity is an explicit capture-fit input. */
-export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,metadata:SuspendedWindowMetadata,mode:'expanded'|'compact'='expanded',sleepFrame=0,closeOpacity?:number){
+export function drawHomeSuspendedWindow(renderer:NativeLayoutRenderer,ctx:CanvasRenderingContext2D,metadata:SuspendedWindowMetadata,mode:'expanded'|'compact'='expanded',sleepFrame=0,closeOpacity?:number,windowAppearFrame?:number,sceneInFrame?:number,sceneOutFrame?:number,scaleFrame=mode==='expanded'?15:0){
  const pack=renderer.packs.launcher,bank=renderer.packs.messages?.messages.menu_msbt_LZ;
  validateSleepFrame(sleepFrame);
  if(closeOpacity!==undefined&&(!Number.isFinite(closeOpacity)||closeOpacity<0||closeOpacity>1))throw new RangeError('Invalid suspended close opacity');
- const bindings=[
-  {name:'LncBase_U_00_SceneIn',frame:40},
+ if(windowAppearFrame!==undefined&&(!Number.isSafeInteger(windowAppearFrame)||windowAppearFrame<0||windowAppearFrame>10))throw new RangeError('Invalid suspended window appearance frame');
+ if(sceneInFrame!==undefined&&(!Number.isSafeInteger(sceneInFrame)||sceneInFrame<0||sceneInFrame>40))throw new RangeError('Invalid suspended window scene-in frame');
+ if(sceneOutFrame!==undefined&&(!Number.isSafeInteger(sceneOutFrame)||sceneOutFrame<0||sceneOutFrame>40))throw new RangeError('Invalid suspended window scene-out frame');
+ if(!Number.isSafeInteger(scaleFrame)||scaleFrame<0||scaleFrame>15)throw new RangeError('Invalid suspended window scale frame');
+ const bindings:AnimationBinding[]=[
+  {name:'LncBase_U_00_SceneIn',frame:sceneInFrame??40},
   {name:'LncBase_U_00_Appear',frame:10},
-  {name:'LncBase_U_00_ScaleUpDown',frame:mode==='expanded'?15:0},
+  // Native upper +0x290 binds Appear only to G_Wndw_00, separate from HUD/bottom.
+  ...(windowAppearFrame===undefined?[]:[{name:'LncBase_U_00_Appear',frame:windowAppearFrame,groups:['G_Wndw_00']}]),
+  {name:'LncBase_U_00_ScaleUpDown',frame:scaleFrame},
   {name:'LncBase_U_00_Sleep',frame:sleepFrame},
   {name:'LncBase_U_00_WhiteBlack',frame:closeOpacity===undefined?1:0},
+  // SceneOut includes static descendant keys for the expanded endpoint.
+  // Restore the accepted scale pose after applying its root departure tracks.
+  ...(sceneOutFrame===undefined?[]:[{name:'LncBase_U_00_SceneOut',frame:sceneOutFrame},{name:'LncBase_U_00_ScaleUpDown',frame:scaleFrame}]),
  ];
  if(!pack?.layouts.LncBase_U_00)throw Error('Native suspended window layout unavailable');
  for(const binding of bindings)if(!pack.animations[binding.name])throw Error(`Native suspended window animation unavailable: ${binding.name}`);
+ const scale=pack.animations.LncBase_U_00_ScaleUpDown,source=pack.resourceSources?.animations?.LncBase_U_00_ScaleUpDown;
+ const scaleTracks=boundAnimationTracks(pack.layouts.LncBase_U_00,scale);
+ const scaleTrack=(target:string,property:string,from:number,to:number,start=0)=>{
+  const tracks=scaleTracks.filter(track=>track.target===target&&track.property===property);
+  return tracks.length===1&&tracks[0].binding==='pane'&&tracks[0].interpolation==='hermite'&&tracks[0].keys.length===2
+   &&tracks[0].keys.every((key,index)=>key.frame===(index?15:start)&&key.value===(index?to:from)&&key.slope===0);
+ };
+ const scaleVisibility=(target:string)=>{
+  const tracks=scaleTracks.filter(track=>track.target===target&&track.property==='visible');
+  return tracks.length===1&&tracks[0].binding==='pane'&&tracks[0].interpolation==='step'&&tracks[0].keys.length===2
+   &&tracks[0].keys.every((key,index)=>key.frame===index&&key.value===index);
+ };
+ const sleep=scaleTracks.filter(track=>track.target==='P_Sleep_00'&&track.property==='alpha');
+ const scaleGroup=pack.layouts.LncBase_U_00.groups.flatMap(group=>group.children).find(group=>group.name==='G_WndwScale_00');
+ if(source?.titleId!=='0004003000009802'||source.path!=='launcher_LZ.bin/anim/LncBase_U_00_ScaleUpDown.bclan'||source.sha256!=='e1669ce6c081b61200d24d99cd4f61fd24b8c4967fef9b4a99728c29ee10f8d8'
+  ||scale.frames!==16||scale.loop||!scale.childBinding||JSON.stringify(scale.groups)!=='["G_WndwScale_00"]'
+  ||scaleTracks.length!==23
+  ||'unsupported' in scale&&(!Array.isArray(scale.unsupported)||scale.unsupported.length>0)
+  ||JSON.stringify(scaleGroup?.panes)!=='["N_WndwScale_00","T_TextTop_00","T_AppTitle_00","T_TextBtmR_00","N_TextBtm_00","W_Wndw_00","N_IconWrp_00"]'
+  ||!scaleTrack('N_WndwScale_00','translation.x',-176,0)||!scaleTrack('N_WndwScale_00','translation.y',78,2)
+  ||!scaleTrack('N_WndwScale_00','translation.z',0,3)||!scaleTrack('W_Wndw_00','size.width',48,296)
+  ||!scaleTrack('W_Wndw_00','size.height',48,132)||!scaleTrack('W_Wndw_00','alpha',0,180)
+  ||!scaleVisibility('W_Wndw_00')||!scaleVisibility('T_TextTop_00')||!scaleVisibility('T_TextBtmR_00')
+  ||!scaleTrack('N_IconWrp_00','scale.x',Math.fround(.67),1)||!scaleTrack('N_IconWrp_00','scale.y',Math.fround(.67),1)
+  ||!scaleTrack('N_IconWrp_00','translation.y',0,18)||!scaleTrack('N_TextBtm_00','translation.x',0,-126)||!scaleTrack('N_TextBtm_00','translation.y',-27,-56)
+  ||!scaleTrack('T_AppTitle_00','translation.y',-33,-82.5)||!scaleTrack('T_TextTop_00','translation.y',26,56.5)
+  ||!scaleTrack('T_TextTop_00','scale.x',.75,1)||!scaleTrack('T_TextTop_00','scale.y',.75,1)
+  ||!scaleTrack('T_TextBtmR_00','scale.x',.75,1)||!scaleTrack('T_TextBtmR_00','scale.y',.75,1)
+  ||!scaleTrack('T_TextTop_00','alpha',0,255,5)||!scaleTrack('T_TextBtmR_00','alpha',0,255,5)
+  ||sleep.length!==1||sleep[0].binding!=='pane'||sleep[0].interpolation!=='hermite'||sleep[0].keys.length!==1
+  ||sleep[0].keys[0].frame!==-100||sleep[0].keys[0].value!==140||sleep[0].keys[0].slope!==0)throw Error('Native suspended window scale source unavailable');
+ if(sceneOutFrame!==undefined){
+  const clip=pack.animations.LncBase_U_00_SceneOut,source=pack.resourceSources?.animations?.LncBase_U_00_SceneOut;
+  const track=(property:string,from:number,to:number)=>{const tracks=clip.tracks.filter(track=>track.target==='N_Root_00'&&track.property===property);return tracks.length===1&&tracks[0].interpolation==='hermite'&&tracks[0].keys.length===2&&tracks[0].keys.every((key,index)=>key.frame===index*20&&key.value===(index?to:from)&&key.slope===0);};
+  if(source?.titleId!=='0004003000009802'||source.path!=='launcher_LZ.bin/anim/LncBase_U_00_SceneOut.bclan'||source.sha256!=='ba54b2de5825ab966a6bfd1e480d84c4479510688b1e36a20336493afdb174e9'
+   ||clip.frames!==41||clip.loop||!clip.childBinding||JSON.stringify(clip.groups)!=='["G_Scene_00"]'
+   ||!track('alpha',255,0)||!track('scale.x',1,1.100000023841858)||!track('scale.y',1,1.100000023841858))throw Error('Native suspended window scene-out source unavailable');
+ }
+ if(sceneInFrame!==undefined){
+  const sceneIn=pack.animations.LncBase_U_00_SceneIn;
+  const group=pack.layouts.LncBase_U_00.groups.flatMap(root=>root.children).find(group=>group.name==='G_Scene_00');
+  const alpha=sceneIn.tracks.filter(track=>track.target==='N_Root_00'&&track.property==='alpha');
+  const scale=['scale.x','scale.y'].every(property=>{
+   const tracks=sceneIn.tracks.filter(track=>track.target==='N_Root_00'&&track.property===property);
+   return tracks.length===1&&tracks[0].interpolation==='hermite'&&tracks[0].keys.length===2
+    &&tracks[0].keys.every((key,index)=>key.frame===(index?39:20)&&key.value===(index?1:1.100000023841858)&&key.slope===0);
+  });
+  if(sceneIn.frames!==41||sceneIn.loop||sceneIn.childBinding!==true||!sceneIn.groups.includes('G_Scene_00')
+   ||group?.panes.length!==1||group.panes[0]!=='N_Root_00'||!scale||alpha.length!==1
+   ||alpha[0].interpolation!=='hermite'||alpha[0].keys.length!==2
+   ||!alpha[0].keys.every((key,index)=>key.frame===(index?40:20)&&key.value===(index?255:0)&&key.slope===0))throw Error('Native suspended window scene-in source unavailable');
+ }
+ if(windowAppearFrame!==undefined){
+  const appear=pack.animations.LncBase_U_00_Appear;
+  const group=pack.layouts.LncBase_U_00.groups.flatMap(root=>root.children).find(group=>group.name==='G_Wndw_00');
+  const alpha=appear.tracks.filter(track=>track.target==='N_Wndw_00'&&track.property==='alpha');
+  const unitScale=['scale.x','scale.y'].every(property=>{
+   const tracks=appear.tracks.filter(track=>track.target==='N_Wndw_00'&&track.property===property);
+   const key=tracks[0]?.keys[0];
+   return tracks.length===1&&tracks[0].interpolation==='hermite'&&tracks[0].keys.length===1
+    &&key.frame===0&&key.value===1&&key.slope===0;
+  });
+  if(appear.frames!==11||appear.loop||appear.childBinding!==true||!appear.groups.includes('G_Wndw_00')
+   ||group?.panes.length!==1||group.panes[0]!=='N_Wndw_00'||!nativePaneParentPath(pack.layouts.LncBase_U_00,'N_Wndw_00')
+   ||!unitScale||alpha.length!==1||alpha[0].interpolation!=='hermite'||alpha[0].keys.length!==2
+   ||!alpha[0].keys.every((key,index)=>key.frame===index*10&&key.value===(index?255:0)&&key.slope===0))throw Error('Native suspended window appearance source unavailable');
+ }
  for(const key of ['lau_pose_title_u','lau_rest_comm_u'])if(bank?.labels[key]===undefined)throw Error(`Native suspended window message unavailable: ${key}`);
  if(!metadata.description.trim()||metadata.icon.width!==64||metadata.icon.height!==64||metadata.icon.data.length!==64*64*4)throw Error('Native suspended window metadata unavailable');
  const message=(key:string)=>nativeMessageOverride(renderer.packs.messages,'menu_msbt_LZ',key,'');
  const resume=message('lau_rest_comm_u'),layout=pack.layouts.LncBase_U_00;
- const text=nativePaneParentPath(layout,'T_TextBtmR_00')?.at(-1)?.text;
- if(!text)throw Error('Native suspended window resume pane unavailable');
+ const captionPane=nativePaneParentPath(layout,'T_TextBtmR_00')?.at(-1);
+ if(!captionPane?.text)throw Error('Native suspended window resume pane unavailable');
+ const text=captionPane.text;
  const width=renderer.measureSingleLineText(layout.fonts[text.font],{...text,value:resume.text!,messageStyle:resume.messageStyle});
- // Capture-fitted assembly: center the source glyph + gap + measured caption.
- // The original host's N_TestCenter writer has not yet been traced.
- const centerOffset=mode==='expanded'?125-width/2:0;
+ // EUR HOME 0x2867ec measures the remaining pane width; 0x285b28 applies
+ // the linear scale fraction independently of the authored text motion.
+ const centerOffset=(captionPane.size[0]-width)*.5*scaleFrame/(scale.frames-1);
  if(!renderer.draw(ctx,'launcher','LncBase_U_00',{bindings,textSampling:'lcd',pictureSampling:'lcd',
   textures:{'runtime:suspended-icon':metadata.icon},overrides:{
    ...(closeOpacity===undefined?{}:{N_Wndw_00:{alpha:Math.round(255*closeOpacity)}}),
-   T_TextTop_00:message('lau_pose_title_u'),T_AppTitle_00:{text:metadata.description,visible:mode==='expanded'},
+   T_TextTop_00:message('lau_pose_title_u'),T_AppTitle_00:{text:metadata.description,visible:scaleFrame>0},
    T_TextBtmR_00:resume,N_TestCenter_00:{translation:[centerOffset,0,0]},P_Icon_00:{textureBindings:{0:'runtime:suspended-icon'}},
   },
  }))throw Error('Native suspended window draw failed');

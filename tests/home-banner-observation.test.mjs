@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createPortfolioState } from '../src/os/system.ts';
+import { createPortfolioState, tickSystem, launchHomeShortcut, reduceSystem } from '../src/os/system.ts';
 import { createHomeNavigation, activeHomeRecord } from '../src/os/home-navigation.ts';
 import { createHomeCursorLoop } from '../src/os/home-cursor-loop.ts';
 import { consumeHomeGridKeyEvent, advanceHomeScroll } from '../src/os/home-scroll-consumer.ts';
@@ -60,4 +60,25 @@ test('the eight native toolbar categories never resolve the selected grid app',(
   for(const patch of [{focus:-1,toolbarActive:true},{focus:8},{slot:300},{context:40,slot:60},{context:-1}]){
     assert.throws(()=>resolveHomeBannerHostObservation(state,observation(patch)),RangeError);
   }
+});
+
+test('suspended-owner clear follows the observed content, not current selection or toolbar focus',()=>{
+  let state=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'health-safety',3010),6200),'home',6300);
+  const health=Number(Object.entries(state.system.layout).find(([,id])=>id==='health-safety')[0]);
+  const camera=Number(Object.entries(state.system.layout).find(([,id])=>id==='camera')[0]);
+  const clear={kind:'clear',nativeType:6};
+  assert.deepEqual(resolveHomeBannerHostSelection(state),clear);
+  state={...state,selected:camera,system:{...state.system,homeNavigation:{...state.system.homeNavigation,
+    focus:{...state.system.homeNavigation.focus,toolbarActive:true,currentFocus:1}},folderLayouts:{40:{2:'health-safety',3:'camera'}}}};
+  assert.deepEqual(resolveHomeBannerHostObservation(state,observation({slot:health})),clear);
+  assert.deepEqual(resolveHomeBannerHostObservation(state,observation({slot:camera})),{kind:'app',id:'camera'});
+  assert.deepEqual(resolveHomeBannerHostObservation(state,observation({context:40,slot:2})),clear);
+  assert.deepEqual(resolveHomeBannerHostObservation(state,observation({context:40,slot:3})),{kind:'app',id:'camera'});
+  assert.deepEqual(resolveHomeBannerHostObservation(state,observation({slot:health,focus:1,toolbarActive:true})),{kind:'toolbar',focus:1,category:5});
+  const owner=state.system.runtime.application;
+  for(const runtime of [
+    {...state.system.runtime,active:owner},
+    {...state.system.runtime,homeReturn:null},
+    {...state.system.runtime,instances:{...state.system.runtime.instances,[owner]:{...state.system.runtime.instances[owner],suspended:false}}},
+  ])assert.deepEqual(resolveHomeBannerHostObservation({...state,system:{...state.system,runtime}},observation({slot:health})),{kind:'app',id:'health-safety'});
 });

@@ -24,7 +24,7 @@ test('hidden, sleeping, closed-lid and lost-context launch endpoints cannot publ
  assert.match(scene,/const validPublication=!document\.hidden&&state\.powered&&!state\.system!\.sleeping&&angle>12&&topScreen\.visible&&touchScreen\.visible&&!renderer\.getContext\(\)\.isContextLost\(\)/);
  assert.match(scene,/if\(!homeClockSuspended&&terminalPublicationPending&&state\.powered&&angle>12&&!document\.hidden&&!systemBeforeTick\.sleeping&&!renderer\.getContext\(\)\.isContextLost\(\)\)/);
  assert.match(scene,/if\(!before\.sleeping&&after\.sleeping\)revokeTerminalPublications\(\);/);
- assert.match(scene,/const contextLost=\(event:Event\)=>\{event\.preventDefault\(\);resetTerminalPublications\(\);schedule\.invalidate\(\);\}/);
+ assert.match(scene,/const contextLost=\(event:Event\)=>\{liveLcdRecorder\?\.unavailable\('context-lost'\);event\.preventDefault\(\);resetTerminalPublications\(\);schedule\.invalidate\(\);\}/);
  assert.match(scene,/const contextRestored=\(\)=>\{resetTerminalPublications\(\);schedule\.invalidate\(\);renderer\.shadowMap\.needsUpdate=true;\}/);
  const hidden=scene.indexOf('if(document.hidden){homeClockSuspended=true;');
  const revoke=scene.indexOf('revokeTerminalPublications();',hidden);

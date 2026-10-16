@@ -2,7 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createNativeScreenInputGate} from '../src/os/native-screen-input.ts';
 import {releaseUnreadyNativeInput,escapeUnreadyNativeScreen} from '../src/os/native-screen-system.ts';
-import {createPortfolioState,tickSystem,launch,dispatchSystemEvent,reduceSystem,getActiveAppView} from '../src/os/system.ts';
+import {createPortfolioState,tickSystem,launch,dispatchSystemEvent,reduceSystem,getActiveAppView,sampleSystemHomeFolderClose} from '../src/os/system.ts';
+import {reduceMenu} from '../src/os/state.ts';
+import {enterHomeFolder,selectHomeSlot,getHomeNavigation,settleHomeNavigation} from '../src/os/home-navigation.ts';
+import {moveHomeItem} from '../src/os/home-layout.ts';
+import {selectedSuspendedApplication} from '../src/os/home-suspended-window.ts';
 const button=(command,phase='down',source=command)=>({type:'button',command,phase,source});
 const touch=(phase,x=200,y=190,pointerId=1)=>({type:'touch',phase,x,y,pointerId});
 function settings(){return tickSystem(launch(tickSystem(createPortfolioState(),3001),'system-settings',3010),6200);}
@@ -20,6 +24,32 @@ test('controls started during loading must be released before the ready UI accep
  assert.equal(gate({type:'analog',x:0,y:0,source:'pad'},'ready'),'block');assert.equal(gate({type:'analog',x:1,y:0,source:'pad'},'ready'),'pass');
  gate(touch('down'),'loading');assert.equal(gate(touch('up'),'error'),'block');
  gate(touch('down'),'loading');assert.equal(gate(touch('up'),'ready'),'block');assert.equal(gate(touch('down'),'ready'),'pass');
+});
+test('early HOME waits for its accepted source and a later physical release cannot fire again',()=>{
+ const gate=createNativeScreenInputGate(),source={key:'health-owner/origin/capture/resource/epoch',ready:false};
+ assert.equal(gate(button('home'),'loading',source),'block');
+ assert.equal(gate.takeHomeResume('ready',source),false,'paint readiness alone cannot supply backing');
+ assert.equal(gate.takeHomeResume('loading',{...source,ready:true}),false,'backing does not bypass screen readiness');
+ assert.equal(gate.takeHomeResume('ready',{...source,ready:true}),true);
+ assert.equal(gate.takeHomeResume('ready',{...source,ready:true}),false);
+ assert.equal(gate(button('home','repeat'),'ready',{...source,ready:true}),'block');
+ assert.equal(gate(button('home','up'),'ready',{...source,ready:true}),'block');
+ assert.equal(gate(button('home'),'ready',{...source,ready:true}),'pass');
+});
+test('a released early HOME command survives until publication but changed or revoked ownership cancels it',()=>{
+ const source={key:'health-owner/origin/capture/resource/epoch',ready:false};
+ for(const cancel of ['source','error','explicit']){
+  const gate=createNativeScreenInputGate();
+  gate(button('home'),'loading',source);
+  assert.equal(gate(button('home','up'),'ready',source),'block');
+  if(cancel==='source')assert.equal(gate.takeHomeResume('ready',{key:'replacement',ready:true}),false);
+  if(cancel==='error')assert.equal(gate.takeHomeResume('error',{...source,ready:true}),false);
+  if(cancel==='explicit')gate.cancelHomeResume();
+  assert.equal(gate.takeHomeResume('ready',{...source,ready:true}),false,cancel);
+ }
+ const gate=createNativeScreenInputGate();
+ assert.equal(gate({type:'command',command:'home'},'ready',source),'block');
+ assert.equal(gate.takeHomeResume('ready',{...source,ready:true}),true);
 });
 test('recovery touch requires matching down/up inside the same visible button',()=>{
  const gate=createNativeScreenInputGate();assert.equal(gate(touch('up'),'error'),'block');
@@ -55,4 +85,59 @@ test('HOME panel recovery blocks destructive input and escapes without resuming 
  assert.equal(escaped.panel,null);
  assert.equal(escaped.system.phase,'home');
  assert.equal(escaped.system.runtime,runtime);
+});
+
+function suspendedFolder(){
+ let state=tickSystem(launch(tickSystem(createPortfolioState(),3001),'work',3010),6200);
+ state=reduceSystem(state,'home',6300);
+ state=reduceMenu(selectHomeSlot(state,40),'open');
+ const source=Number(Object.entries(state.system.layout).find(([,id])=>id==='work')[0]);
+ state=moveHomeItem(state,{folder:null,slot:source},{folder:40,slot:5});
+ return settleHomeNavigation(selectHomeSlot(enterHomeFolder(state,40),5));
+}
+function assertFolderRecovered(before,after){
+ assert.equal(after.opened,false);assert.equal(after.system.phase,'home');
+ assert.equal(after.selected,40);assert.equal(getHomeNavigation(after).activeFolderSlot,null);
+ assert.deepEqual(getHomeNavigation(after).rootView,getHomeNavigation(before).rootView);
+ assert.deepEqual(getHomeNavigation(after).folderViews,getHomeNavigation(before).folderViews);
+ assert.equal(after.system.runtime,before.system.runtime,'folder escape cannot resume or retire the selected suspended owner');
+ assert.equal(after.system.runtime.active,null);
+ assert.equal(after.system.runtime.instances[after.system.runtime.application].suspended,true);
+ assert.equal(after.system.runtime.homeReturn,before.system.runtime.homeReturn);
+ assert.equal(after.folders,before.folders);assert.equal(after.system.folderLayouts,before.system.folderLayouts);
+ assert.equal(sampleSystemHomeFolderClose(after),null);
+}
+for(const command of ['back','home'])for(const status of ['loading','error'])test(`folder ${status} recovery ${command} leaves through pure folder close without resuming suspended software`,()=>{
+ const state=suspendedFolder(),gate=createNativeScreenInputGate();
+ assert.ok(selectedSuspendedApplication(state),'fixture selects the retained application inside the failed folder');
+ assert.equal(gate(button(command),status),'home');
+ const escaped=escapeUnreadyNativeScreen(state,6400);assertFolderRecovered(state,escaped);
+ assert.equal(gate(button(command,'up'),'ready'),'block');
+ assert.equal(tickSystem(escaped,7400).opened,false);
+});
+test('folder error recovery touch leaves only after a matching visible HOME-button stroke',()=>{
+ const state=suspendedFolder(),gate=createNativeScreenInputGate();
+ assert.equal(gate(touch('down',40,190,9),'error'),'block');
+ assert.equal(gate(touch('up',40,190,9),'error'),'home');
+ assertFolderRecovered(state,escapeUnreadyNativeScreen(state,6400));
+ const mismatch=createNativeScreenInputGate();mismatch(touch('down',40,190,9),'error');
+ assert.equal(mismatch(touch('up',200,190,9),'error'),'block');
+});
+test('folder recovery cancels an already-started native close rather than retaining a stale controller',()=>{
+ const state=reduceSystem(suspendedFolder(),'back',6400);
+ assert.ok(sampleSystemHomeFolderClose(state));assert.equal(state.opened,true);
+ const escaped=escapeUnreadyNativeScreen(state,6500);assertFolderRecovered(state,escaped);
+ assert.equal(escaped.system.homeFolderClose.current,null);
+ assert.equal(tickSystem(escaped,8500).opened,false);
+});
+test('folder recovery does not bypass sleep, preferences or power, and preserves dialog Back routing',()=>{
+ const state=suspendedFolder();
+ for(const blocked of [{...state,powered:false},{...state,system:{...state.system,sleeping:true}},
+  {...state,system:{...state.system,preferences:true}}]){
+  assert.equal(escapeUnreadyNativeScreen(blocked,6400),blocked);
+ }
+ const dialog={...state,system:{...state.system,dialog:'switch'}},cancelled=escapeUnreadyNativeScreen(dialog,6400);
+ assert.equal(cancelled.system.dialog,null);assert.equal(cancelled.opened,true);
+ assert.equal(getHomeNavigation(cancelled).activeFolderSlot,40);
+ assert.equal(cancelled.system.runtime,state.system.runtime);
 });

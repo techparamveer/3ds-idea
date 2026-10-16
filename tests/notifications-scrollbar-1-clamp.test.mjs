@@ -16,7 +16,7 @@ const sha=path=>createHash('sha256').update(readFileSync(path)).digest('hex');
 const moduleFrom=source=>`data:text/javascript;base64,${Buffer.from(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText).toString('base64')}`;
 const layoutUrl=moduleFrom(layoutSource);
 const {poseNativeLayout, nativeWindowPatches}=await import(layoutUrl);
-const {NativeLayoutRenderer}=await import(moduleFrom(rendererSource.replace("'./native-layout'", JSON.stringify(layoutUrl)).replace("'./bitmap-font'", JSON.stringify(new URL('../src/os/bitmap-font.ts', import.meta.url).href))));
+const {NativeLayoutRenderer}=await import(moduleFrom(rendererSource.replace("'./native-text-diagnostics'",JSON.stringify(new URL("../src/os/native-text-diagnostics.ts",import.meta.url).href)).replace("'./native-layout'", JSON.stringify(layoutUrl)).replace("'./bitmap-font'", JSON.stringify(new URL('../src/os/bitmap-font.ts', import.meta.url).href))));
 const f32=Math.fround;
 const stripH=119.60000610351562-11;
 
@@ -176,6 +176,7 @@ test('Health integer size still skips projectedPicture; extra-6, Close, list, an
     renderer.dispose();
   }finally{globalThis.document=prior;}
   const compiled=ts.transpileModule(painter,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText
+    .replaceAll("'./friends-footer-close-assets.ts'", JSON.stringify(new URL('../src/os/friends-footer-close-assets.ts', import.meta.url).href))
     .replaceAll("'./native-layout'", JSON.stringify(new URL('../src/os/native-layout.ts', import.meta.url).href))
     .replaceAll("'./stock-screen-layout'", JSON.stringify(new URL('../src/os/stock-screen-layout.ts', import.meta.url).href))
     .replaceAll("'./device-status-profile'", JSON.stringify(new URL('../src/os/device-status-profile.ts', import.meta.url).href));

@@ -6,13 +6,83 @@ import {beginSystemHomeApplicationTransition} from '../src/os/system-home-applic
 import {createPortfolioState,tickSystem,reduceSystem} from '../src/os/system.ts';
 import {escapeUnreadyNativeScreen,releaseUnreadyNativeInput} from '../src/os/native-screen-system.ts';
 import {selectHomeSlot,settleHomeNavigation} from '../src/os/home-navigation.ts';
-import {poseNativeLayout,nativePaneParentPath} from '../src/os/native-layout.ts';
+import {boundAnimationTracks,poseNativeLayout,nativePaneParentPath,sampleNativeTrack} from '../src/os/native-layout.ts';
 const root=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
 const manifest=JSON.parse(readFileSync(new URL('manifest.json',root)));
 const packs=Object.fromEntries(['launcher','messages'].map(key=>[key,JSON.parse(readFileSync(new URL(manifest.home[key],root)))]));
 const suspended=()=>reduceSystem(tickSystem(reduceSystem(tickSystem(createPortfolioState(),3001),'open',3001),6300),'home',6301);
 const metadata=()=>({description:'Health and Safety Information',icon:{width:64,height:64,data:new Uint8ClampedArray(64*64*4)}});
 const finishClose=(state,now)=>{for(let i=0;i<6;i++)state=tickSystem(state,now+i*1000);return tickSystem(state,state.system.homeClock.lastNow+1000/60);};
+
+test('every ScaleUpDown frame poses authored geometry and caption fading without overriding the source alpha',()=>{
+ const before=JSON.stringify(packs),clip=packs.launcher.animations.LncBase_U_00_ScaleUpDown;
+ for(let frame=0;frame<=15;frame++)for(const mode of ['compact','expanded']){
+  let options;
+  drawHomeSuspendedWindow({packs,measureSingleLineText:()=>222,draw(_ctx,_pack,_name,value){options=value;return true;}},{},metadata(),mode,0,undefined,undefined,undefined,undefined,frame);
+  const pose=poseNativeLayout(packs.launcher.layouts.LncBase_U_00,packs.launcher.animations,options.bindings,options.overrides);
+  const pane=name=>nativePaneParentPath(pose,name).at(-1);
+  const sample=(target,property)=>sampleNativeTrack(clip.tracks.find(track=>track.target===target&&track.property===property),frame);
+  assert.equal(pane('N_WndwScale_00').translation[0],sample('N_WndwScale_00','translation.x'));
+  assert.equal(pane('W_Wndw_00').size[0],sample('W_Wndw_00','size.width'));
+  assert.equal(pane('T_TextTop_00').alpha,Math.round(sample('T_TextTop_00','alpha')));
+  assert.equal(pane('T_TextBtmR_00').alpha,Math.round(sample('T_TextBtmR_00','alpha')));
+  assert.equal(pane('T_AppTitle_00').flags&1,frame>0?1:0);
+  assert.ok(pane('T_TextTop_00').flags&2,'source parent alpha propagates to application title');
+  assert.equal(options.overrides.T_AppTitle_00.alpha,undefined);
+  assert.ok(Math.abs(pane('N_TestCenter_00').translation[0]-15*frame/15)<1e-12);
+ }
+ assert.equal(JSON.stringify(packs),before);
+});
+
+test('suspended caption uses the native linear centring writer for different measured widths',()=>{
+ const layout=packs.launcher.layouts.LncBase_U_00;
+ const paneWidth=nativePaneParentPath(layout,'T_TextBtmR_00').at(-1).size[0];
+ assert.equal(paneWidth,252);
+ for(const width of [144,222,300])for(const frame of [0,1,4,7,11,14,15]){
+  let options;
+  drawHomeSuspendedWindow({packs,measureSingleLineText:()=>width,draw(_ctx,_pack,_name,value){options=value;return true;}},{},metadata(),'expanded',0,undefined,undefined,undefined,undefined,frame);
+  assert.deepEqual(options.overrides.N_TestCenter_00.translation,[(paneWidth-width)*.5*frame/15,0,0]);
+ }
+});
+
+test('malformed or unsupported ScaleUpDown resources fail before drawing',()=>{
+ for(const mutate of [
+  p=>delete p.launcher.animations.LncBase_U_00_ScaleUpDown,
+  p=>p.launcher.resourceSources.animations.LncBase_U_00_ScaleUpDown.sha256='stale',
+  p=>p.launcher.animations.LncBase_U_00_ScaleUpDown.frames=15,
+  p=>p.launcher.animations.LncBase_U_00_ScaleUpDown.groups=[],
+  p=>p.launcher.animations.LncBase_U_00_ScaleUpDown.unsupported=['unknown'],
+  p=>p.launcher.animations.LncBase_U_00_ScaleUpDown.tracks.find(t=>t.target==='W_Wndw_00'&&t.property==='size.width').keys[1].value=0,
+  p=>p.launcher.animations.LncBase_U_00_ScaleUpDown.tracks.find(t=>t.target==='T_TextTop_00'&&t.property==='alpha').keys[0].frame=0,
+  p=>p.launcher.animations.LncBase_U_00_ScaleUpDown.tracks.push({...p.launcher.animations.LncBase_U_00_ScaleUpDown.tracks[0],property:'rotation.z'}),
+  p=>p.launcher.layouts.LncBase_U_00.groups.flatMap(g=>g.children).find(g=>g.name==='G_WndwScale_00').panes.pop(),
+ ]){
+  const source=structuredClone(packs);mutate(source);let called=false;
+  assert.throws(()=>drawHomeSuspendedWindow({packs:source,draw(){called=true;}},{},metadata(),'expanded',0,undefined,undefined,undefined,undefined,7),/unavailable/);
+  assert.equal(called,false);
+ }
+ for(const frame of [-1,16,.5,NaN,Infinity])assert.throws(()=>drawHomeSuspendedWindow({packs},{},metadata(),'expanded',0,undefined,undefined,undefined,undefined,frame),RangeError);
+});
+
+test('every bound ScaleUpDown channel must retain its decrypted source keys',()=>{
+ const channels=boundAnimationTracks(packs.launcher.layouts.LncBase_U_00,packs.launcher.animations.LncBase_U_00_ScaleUpDown);
+ for(const channel of channels){
+  const source=structuredClone(packs),clip=source.launcher.animations.LncBase_U_00_ScaleUpDown;
+  clip.tracks.find(track=>track.target===channel.target&&track.property===channel.property).keys[0].value++;
+  assert.throws(()=>drawHomeSuspendedWindow({packs:source},{},metadata(),'compact'),/scale source unavailable/,`${channel.target}/${channel.property}`);
+ }
+});
+
+test('restoring the accepted scale after SceneOut preserves the previous settled expanded departure pose',()=>{
+ for(const frame of [0,1,10,20,40])for(const sleepFrame of [0,60,119]){
+  let options;
+  drawHomeSuspendedWindow({packs,measureSingleLineText:()=>222,draw(_ctx,_pack,_name,value){options=value;return true;}},{},metadata(),'expanded',sleepFrame,undefined,undefined,undefined,frame,15);
+  assert.deepEqual(options.bindings.at(-1),{name:'LncBase_U_00_ScaleUpDown',frame:15});
+  const pose=poseNativeLayout(packs.launcher.layouts.LncBase_U_00,packs.launcher.animations,options.bindings,options.overrides);
+  const before=poseNativeLayout(packs.launcher.layouts.LncBase_U_00,packs.launcher.animations,options.bindings.slice(0,-1),options.overrides);
+  assert.deepEqual(pose,before);
+ }
+});
 
 test('lower highlight retains its application owner across selection and toolbar focus, never foreground or retired owners',()=>{
  const state=suspended(),owner=state.system.runtime.application;
@@ -143,7 +213,7 @@ test('source expanded window keeps native frame geometry, message styles and ico
  assert.equal(pane('T_TextTop_00').text.value,'Suspended software');
  assert.equal(pane('T_AppTitle_00').text.value,meta.description);
  assert.equal(pane('T_TextBtmR_00').text.value,'HOME: Resume suspended software');
- assert.deepEqual(pane('N_TestCenter_00').translation,[14,0,0]);
+ assert.deepEqual(pane('N_TestCenter_00').translation,[15,0,0]);
  assert.ok(pane('T_TextTop_00').text.messageStyle);
  const material=pose.materials[pane('P_Icon_00').picture.material];
  assert.equal(pose.textures[material.textureMaps[0].texture],'runtime:suspended-icon');

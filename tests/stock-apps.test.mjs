@@ -26,15 +26,15 @@ test('dated Camera fixture keeps the native date cell before two selectable phot
  assert.equal(action(module,second,'photo:HNI_0002').state.photoId,'HNI_0002');
 });
 
-test('isolated Notifications profile opens with the source order and eight unread rows',()=>{
+test('isolated Notifications profile opens with the source order and nine unread rows',()=>{
  const shared=initialSharedData(),before=structuredClone(shared.notifications);
  assert.deepEqual(shared.notifications,sourceNotificationProfile);
  const module=createStockModule(getTitle('notifications')),state=module.create({},null,{now:0,shared});
  const view=module.view(state,{now:0,shared});
  assert.deepEqual(view.rows.slice(0,4).map(({label,value})=>[label,value]),[
-  ['HOME Menu Settings',''],['Touching and Sliding','New'],['Sleep Mode','New'],['HOME Menu Functionality','New'],
+  ['HOME Menu Settings','New'],['Touching and Sliding','New'],['Sleep Mode','New'],['HOME Menu Functionality','New'],
  ]);
- assert.equal(view.rows.filter(row=>row.value==='New').length,8);
+ assert.equal(view.rows.filter(row=>row.value==='New').length,9);
  assert.equal(view.footer.right,undefined);
  assert.equal(view.data.selectionActive,false,'settled native list enters without a tinted row');
  const focused=module.reduce(state,{type:'command',command:'down'},{now:0,shared}).state;

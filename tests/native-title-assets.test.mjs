@@ -28,6 +28,7 @@ const json = path => JSON.parse(read(path));
 const pickup = { url: 'packs/home/launcher.json', alias: 'pickup', layouts: ['LncIconPickUp_00'], animations: ['LncIconPickUp_00_Scale'] };
 const blank = { ...pickup, alias: 'blank', layouts: ['LncIconPickUpBlank_00'], animations: ['LncIconPickUpBlank_00_Scale'] };
 const banner = { url: 'packs/home/banner.json', alias: 'banner', layouts: ['BnrDsTitle_00'], animations: [] };
+const emptyNotes = { url: 'packs/game-notes/contents/0000-00000007/memo-MemoListDown-empty-thumbnail.json', alias: 'notes-list', layouts: ['MemoListDown'], animations: ['MemoListDown_Base', 'MemoListDown_SceneIn'], textures: ['runtime-empty-note-thumbnail'] };
 const deferred = () => { let resolve, reject; const promise = new Promise((a, b) => { resolve = a; reject = b; }); return { promise, resolve, reject }; };
 function font() { return { disposals: 0, dispose() { this.disposals++; } }; }
 async function fixture(run) {
@@ -50,6 +51,27 @@ async function fixture(run) {
   };
   try { await run(context); } finally { globalThis.fetch = oldFetch; }
 }
+
+test('Notes derived empty thumbnail is loaded before readiness and missing selected bytes fail', async () => {
+  await fixture(async f => {
+    const resources = await f.load([emptyNotes], undefined, '0004003000009c02');
+    const name = emptyNotes.textures[0], record = f.pack(emptyNotes.url).textures[name];
+    assert.ok(f.fetched.some(entry => entry.path === record.url));
+    assert.deepEqual([...resources.renderer.textures['notes-list'].get(name).data.slice(0, 4)], [231, 231, 231, 255]);
+    resources.dispose();
+  });
+  await fixture(async f => {
+    delete f.pack(emptyNotes.url).textures[emptyNotes.textures[0]];
+    await assert.rejects(f.load([emptyNotes], undefined, '0004003000009c02'), /Missing native title texture notes-list\/runtime-empty-note-thumbnail/);
+    assert.ok(!f.fetched.some(entry => entry.path.startsWith('textures/')));
+  });
+  await fixture(async f => {
+    const record = f.pack(emptyNotes.url).textures[emptyNotes.textures[0]];
+    f.hook = (entry, fallback) => entry.path === record.url ? new Response(null, { status: 404 }) : fallback();
+    await assert.rejects(f.load([emptyNotes], undefined, '0004003000009c02'), /Native title texture HTTP 404/);
+    assert.ok(f.fetched.every(entry => entry.signal.aborted));
+  });
+});
 
 test('real resources load only explicit views/animations, deduplicate packs and all14 pickup textures, and dispose idempotently', async () => {
   await fixture(async f => {
@@ -164,6 +186,26 @@ test('multi-content owned fonts use pack identity namespaces while layouts retai
     assert.equal(resources.renderer.fonts.get('cbf_std.bcfnt'), f.fonts[0].value);
     assert.deepEqual(resources.renderer.packs.content0.layouts.BnrDsTitle_00.fonts, ['cbf_std.bcfnt']);
     resources.dispose(); assert.equal(f.fonts[0].value.disposals, 1); assert.equal(f.shared.disposals, 0);
+  });
+});
+
+for (const [slug, title, content, incoming, endpoint, layout] of [
+  ['friends', '0004003000009f02', '00000017', 'FrdCmnFade_D_00', 'friend', 'FrdTopUIUp_D_00'],
+  ['notifications', '000400300000a002', '00000012', 'CmnFade_D_00', 'news', 'NewsTopBtn_D_00'],
+]) test(`${slug} incoming and legacy endpoint packs resolve one original shared-font binding`, async () => {
+  for (const reverse of [false, true]) await fixture(async f => {
+    const requests = [
+      {url: `packs/${slug}/incoming.json`, alias: 'incoming', layouts: [incoming], animations: [incoming+'_SceneIn']},
+      {url: `packs/${slug}/${endpoint}.json`, alias: 'endpoint', layouts: [layout], animations: []},
+    ];
+    const resources = await f.load(reverse ? requests.toReversed() : requests, undefined, title);
+    assert.equal(f.manifest.titles[title].fonts['cbf_std.bcfnt'], f.manifest.titles[title].fonts[`contents/0000-${content}/cbf_std.bcfnt`]);
+    assert.equal(f.fonts.length, 1);
+    assert.equal(f.fonts[0].url, base+'fonts/shared/font.json');
+    assert.equal(resources.renderer.fonts.get('cbf_std.bcfnt'), f.fonts[0].value);
+    resources.dispose();
+    assert.equal(f.fonts[0].value.disposals, 1);
+    assert.equal(f.shared.disposals, 0);
   });
 });
 

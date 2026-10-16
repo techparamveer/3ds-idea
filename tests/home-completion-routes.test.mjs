@@ -5,7 +5,8 @@ import { getTitle, initialAppLayout } from '../src/os/app-registry.ts';
 import { getHomeFooter } from '../src/os/home-presentation.ts';
 import { escapeUnreadyNativeScreen } from '../src/os/native-screen-system.ts';
 import { enterHomeFolder, selectHomeSlot, settleHomeNavigation } from '../src/os/home-navigation.ts';
-import { createPortfolioState, reduceSystem, tickSystem, touchSystem } from '../src/os/system.ts';
+import { createPortfolioState, reduceSystem, tickSystem, touchSystem, completeManualFooterClose } from '../src/os/system.ts';
+import { manualFooterCloseIdentity } from '../src/os/manual-footer-close.ts';
 
 const titleSlot = id => Number(Object.entries(initialAppLayout()).find(([, title]) => title === id)[0]);
 const booted = () => tickSystem(createPortfolioState(), 3001);
@@ -151,7 +152,9 @@ test('suspended Camera exposes Close, Manual and Resume while its Manual round t
   assert.equal(runtime.instances[owner].appId, 'camera');
   assert.equal(runtime.instances[owner].suspended, true);
 
-  const returned = reduceSystem(manual, 'back', 6700);
+  const pending = reduceSystem(manual, 'back', 6700);
+  assert.equal(pending.system.runtime.active, runtime.active, 'Contents Close retains Manual until its paired terminal');
+  const returned = completeManualFooterClose(pending, manualFooterCloseIdentity(pending, 0), 7100);
   assertSuspendedOwner(returned, owner, 'camera');
   assert.equal(Object.values(returned.system.runtime.instances).some(instance => instance.appId === 'manual'), false);
 

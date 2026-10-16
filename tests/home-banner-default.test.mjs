@@ -52,7 +52,8 @@ test('default shares source visibility/yaw but has independent 300-loop and 60-n
 });
 
 test('default and clear enforce canonical identity and clear completes without an instance or activation increment', () => {
-  for (const target of [{ ...defaultTarget, key: 'slot:4' }, { ...clearTarget, nativeType: 7 }]) {
+  for (const target of [{ ...defaultTarget, key: 'slot:4' }, { ...clearTarget, nativeType: 7 },
+    { ...clearTarget, nativeType: 6, key: 'slot:4' }, { ...clearTarget, nativeType: 0 }, { ...clearTarget, nativeType: 14 }]) {
     assert.throws(() => requestHomeBanner(createHomeBannerLifecycle(), target), /identity/);
   }
   let state = beginHomeBannerReplacement(requestHomeBanner(createHomeBannerLifecycle(), clearTarget));
@@ -61,6 +62,25 @@ test('default and clear enforce canonical identity and clear completes without a
   assert.equal(state.requestPending, false);
   state = beginHomeBannerReplacement(requestHomeBanner(state, defaultTarget));
   assert.equal(state.phase, 'hiding'); assert.equal(state.active, null);
+});
+
+test('suspended type6 and close type13 clears keep distinct request identities without resource tickets', () => {
+  let lifecycle = requestHomeBanner(createHomeBannerLifecycle(), { ...clearTarget, nativeType: 6 });
+  assert.equal(requestHomeBanner(lifecycle, { ...clearTarget, nativeType: 6 }), lifecycle);
+  const first = lifecycle.requested.epoch;
+  lifecycle = requestHomeBanner(lifecycle, clearTarget);
+  assert.equal(lifecycle.requested.epoch, first + 1);
+  assert.equal(requestHomeBanner(lifecycle, clearTarget), lifecycle);
+  lifecycle = requestHomeBanner(lifecycle, { ...clearTarget, nativeType: 6 });
+  assert.equal(lifecycle.requested.epoch, first + 2);
+  let h = host({ kind: 'clear', nativeType: 6 });
+  const pending = h.pending;
+  assert.equal(view(h).resourceTicket, null);
+  h = select(h, { kind: 'clear', nativeType: 6 }); assert.equal(h.pending, pending);
+  h = select(h, { kind: 'clear' });
+  assert.equal(h.service.lifecycle.requested.target.nativeType, 13);
+  assert.equal(h.pending.requestEpoch, pending.requestEpoch + 1); assert.equal(view(h).resourceTicket, null);
+  assert.throws(() => select(h, { kind: 'clear', nativeType: 7 }), RangeError);
 });
 
 test('service initial and null-primary replacement passes match executed original ARM fixture', () => {
@@ -81,9 +101,9 @@ test('service initial and null-primary replacement passes match executed origina
   assert.equal(s.lifecycle.activationEpoch, 1); assert.equal(motion(s).yawCounter, 1);
 });
 
-test('clear bypasses load inhibition/counter but waits for actual hide, manager and worker readiness', () => {
+for (const nativeType of [6, 13]) test(`clear type${nativeType} bypasses load inhibition/counter but waits for actual hide, manager and worker readiness`, () => {
   let s = advance(request(service(), defaultTarget), 13), epoch = s.lifecycle.activationEpoch;
-  s = request(s, clearTarget);
+  s = request(s, { ...clearTarget, nativeType });
   s = advance(s, 4, { managerInhibited: true, loadInhibited: true, resourceReady: null });
   assert.equal(s.stage, 'active'); assert.equal(motion(s).visible, true);
   s = advance(s, 5, { loadInhibited: true, nativeWorkerReady: false, resourceReady: null });

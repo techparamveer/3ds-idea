@@ -21,12 +21,13 @@ const settingsDefaults: AppState = { nickname: 'Player', language: 'English', so
 /**
  * Read-only system notification profile captured from the isolated EUR 10.7.0-32E
  * NAND. The order is the source timestamp order. `read` is the inverse of
- * news.db record byte 1;
- * opening the native list cleared it only for record 53, leaving eight unread.
+ * news.db record byte 1. The native-folder-slow reference news.db (SHA-256
+ * 4b35c1b2…) has all nine records unread, and native list opens leave it
+ * unwritten; the older 4b9ed183… profile had record 53 read.
  * Body/detail presentation stays unsupported until that separate native slice.
  */
 export const sourceNotificationProfile = [
-  { id: 'news053', title: 'HOME Menu Settings', read: true },
+  { id: 'news053', title: 'HOME Menu Settings', read: false },
   { id: 'news007', title: 'Touching and Sliding', read: false },
   { id: 'news005', title: 'Sleep Mode', read: false },
   { id: 'news052', title: 'HOME Menu Functionality', read: false },
@@ -188,9 +189,12 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
   function activate(state: AppState, action: string, context: AppContext, value?: JsonValue): AppReduction {
     const screen = str(state.screen, 'main');
     if(id==='manual'&&state.manualTitleId){
-      if(action==='manual-close')return {state,effects:[{type:'close'}]};
+      const {manualClosePress:_press,...released}=state;
+      const unpressed=_press===undefined?state:released;
+      if(action==='manual-close')return {state:unpressed,effects:[{type:'close'}]};
       if(action==='manual-page-0')return manualPageZeroAvailable(state.manualTitleId)&&screen==='main'
-        ?{state:withScreen(state,'document',{page:0})}:{state};
+        ?{state:withScreen(unpressed,'document',{page:0})}:{state};
+      if(action==='back')state=unpressed;
     }
     if (action === 'back') {
       if ((id === 'sound'||id === 'camera') && screen === 'guide') return { state: { ...state, guidePage: Math.max(0, num(state.guidePage) - 1) } };
@@ -337,6 +341,50 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
         ...(id === 'system-settings' ? { settingsHudElapsedMs: 0 } : {}), ...(id === 'eshop' ? { welcomeElapsed: 0 } : {}), ...(id === 'health-safety' ? { healthElapsedMs: 0 } : {}) };
     },
     reduce(state, event, context) {
+      if(id==='manual'&&state.manualFooterClose===true){
+        if(event.type==='lifecycle'&&event.phase==='suspend'){
+          const {manualFooterClose:_close,...rest}=state;return {state:rest};
+        }
+        if(event.type!=='tick'&&event.type!=='lifecycle')return {state};
+      }
+      if(id==='manual'&&state.manualTitleId&&state.screen==='main'){
+        const {manualClosePress:_press,...released}=state;
+        if(event.type==='lifecycle')return {state:_press===undefined?state:released};
+        if(event.type==='touch'){
+          if(event.phase==='cancel')return {state:_press===undefined?state:released};
+          const action=Number.isFinite(event.x)&&Number.isFinite(event.y)?stockScreenActionAt(view(state,context),event.x,event.y):null;
+          if(event.phase==='down')return {state:{...state,manualClosePress:action==='back'}};
+          // False records a disarmed contact, so sliding back cannot close.
+          if(event.phase==='move')return {state:_press===true&&action!=='back'?{...state,manualClosePress:false}:state};
+          if((_press===true&&action!=='back')||(_press===false&&action==='back'))return {state:released};
+          // A release without a contact retains the public one-shot tap API.
+          return action?activate(released,action,context):{state:released};
+        }
+      }
+      // Retain the captured outgoing list. Recovery B/HOME/power still use
+      // their existing routes; only a footer request owns this presentation.
+      if(id==='game-notes'&&state.notesFooterClose===true&&event.type!=='tick'&&event.type!=='lifecycle'
+        &&!(event.type==='command'&&event.command==='back')
+        &&!(event.type==='button'&&event.command==='back'))return {state};
+      if(id==='notifications'&&state.notificationsFooterClose===true){
+        if(event.type==='lifecycle'&&event.phase==='suspend'){
+          const {notificationsFooterClose:_close,...rest}=state;return {state:rest};
+        }
+        if(event.type!=='tick'&&event.type!=='lifecycle'&&!(event.type==='command'&&event.command==='back')
+          &&!(event.type==='button'&&event.command==='back'))return {state};
+      }
+      if(id==='friends'&&state.friendsFooterClose===true){
+        if(event.type==='lifecycle'&&event.phase==='suspend'){
+          const {friendsFooterClose:_close,...rest}=state;return {state:rest};
+        }
+        if(event.type!=='tick'&&event.type!=='lifecycle')return {state};
+      }
+      if((id==='browser'||id==='miiverse')&&state.webFooterClose===true){
+        if(event.type==='lifecycle'&&event.phase==='suspend'){
+          const {webFooterClose:_close,...rest}=state;return {state:rest};
+        }
+        if(event.type!=='tick'&&event.type!=='lifecycle')return {state};
+      }
       if(cameraTitles.has(id)&&state.screen==='gallery'){
         const count=folder(state)?.photos.length??0,step=cameraStep(state);
         if(event.type==='tick')return {state:cameraPut(state,cameraBrowseTick(step,event.elapsedMs,count))};
@@ -364,6 +412,9 @@ export function createStockModule(descriptor: AppDescriptor, media: PortfolioMed
         }
       }
       if (id === 'game-notes') {
+        if(event.type==='lifecycle'&&event.phase==='suspend'&&state.notesFooterClose===true){
+          const {notesFooterClose:_close,...rest}=state;return {state:rest};
+        }
         if (event.type === 'tick' && Number.isFinite(event.elapsedMs) && event.elapsedMs > 0) {
           let next: AppState = { ...state, notesHostMs: num(state.notesHostMs) + event.elapsedMs };
           if (state.screen === 'drawing' && notesSwitchFrame(state) < NOTES_SWITCH_LAST_FRAME)

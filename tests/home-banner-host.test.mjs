@@ -90,7 +90,8 @@ test('software close requests selected content once, at departure frame 4', () =
     'return0 must not create a duplicate request epoch');
 
   const cancelled = { ...exit4, system: { ...exit4.system, homeApplicationTransition: null } };
-  assert.deepEqual(homeApplicationBannerBoundary(exit4, cancelled), { kind: 'app', id: 'health-safety' });
+  assert.deepEqual(homeApplicationBannerBoundary(exit4, cancelled), { kind: 'clear', nativeType: 6 },
+    'cancelled Close restores the still-suspended owner selection, not its ordinary title banner');
   const changed = structuredClone(exit4);
   changed.system.homeFolderClose.generation += 1;
   changed.system.homeApplicationTransition.identity.generation = `home-application:${changed.system.homeFolderClose.generation}`;

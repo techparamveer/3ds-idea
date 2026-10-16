@@ -62,6 +62,25 @@ test('original shared font follows traced BnrDsTitle and folder-initial centred 
  assert.deepEqual([q.x,q.y,q.width,q.height],[9,0,8,30],'the already matched 32px folder initial keeps its source position');
 });
 
+test('Manual centered numbers have identical source-size output with the left-capable mode',()=>{
+ const manifest=JSON.parse(fs.readFileSync(new URL('../public/os/firmware/10.7.0-32E/fonts/shared/font.json',import.meta.url),'utf8'));
+ const font=new BitmapFont(manifest,manifest.sheets.map(()=>({naturalWidth:4096,naturalHeight:4096})));
+ // Synthetic coverage isolates mode equivalence; this is not native pixel acceptance.
+ font.glyphMask=glyph=>{
+  const width=glyph.width+2,height=glyph.height+2,data=new Uint8ClampedArray(width*height*4);
+  for(let y=1;y<height-1;y++)for(let x=1;x<width-1;x++)data.set([255,255,255,(x*17+y*29)%256],(y*width+x)*4);
+  return {width,height,data};
+ };
+ const render=(value,leftCapable)=>{
+  let result,draws=0;
+  const context={createImageData:(width,height)=>({width,height,data:new Uint8ClampedArray(width*height*4)}),putImageData:image=>{result=image;},drawImage(){draws++;}};
+  font.drawNative(context,value,90,90,[15.75,19.5],4,0,0,2,[.25,.8],true,undefined,undefined,[],true,leftCapable);
+  assert.equal(draws,0);assert.ok(result.data.some((value,index)=>index%4===3&&value>0));
+  return result;
+ };
+ for(const value of ['1','2','12'])assert.deepEqual(render(value,true),render(value,false));
+});
+
 test('Settings single-line MSBT spacing retains the native centered alpha raster',()=>{
  const root=new URL('../public/os/firmware/10.7.0-32E/',import.meta.url);
  const manifest=JSON.parse(fs.readFileSync(new URL('fonts/shared/font.json',root),'utf8'));

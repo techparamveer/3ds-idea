@@ -32,7 +32,7 @@ import type { SuspendedCapture } from './notes-suspended-capture';
 import type { AppInstance } from './app-host';
 import { createHomeResumePresentation, homeResumeBackground, type HomeResumeIdentity, type HomeResumePose } from './home-resume-presentation';
 import { drawHomeResumeLower } from './home-pause-lower';
-import { createNotesFooterClosePresentation, notesFooterCloseEligible, type NotesFooterClosePose } from './notes-footer-close';
+import { createNotesFooterClosePresentation, footerCloseDrawPose, footerCloseOutgoing, notesFooterCloseEligible, type NotesFooterClosePose } from './notes-footer-close';
 import { createHomeToolbarReturnReveal, homeReturnFirstGroupIndex, type HomeReturnRevealPose } from './home-return-reveal';
 import { createNotificationsFooterClosePresentation, type NotificationsFooterClosePose } from './notifications-footer-close';
 import { createWebFooterClosePresentation, type WebFooterClosePose } from './web-footer-close';
@@ -396,7 +396,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  function presentManualFooterClose(state:MenuState,elapsedMs:number){
   const candidate=manualCloseCandidate;manualCloseCandidate=undefined;
   if(!candidate)return null;
-  const outgoing=candidate.pose.kind==='feedback'||candidate.pose.kind==='out';
+  const outgoing=footerCloseOutgoing(candidate.pose);
   const owner=manualClosePresentation.present(candidate.pose,state,manualCloseGeneration,elapsedMs,
    !disposed&&!panelFailure&&!document.hidden&&notesFooterCloseEligible(state)&&graphics.stockFailure()===null,
    outgoing?graphics.preparedStockPair(state):manualCloseHomePair,
@@ -422,7 +422,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  function presentNotificationsFooterClose(state:MenuState,elapsedMs:number):string|null{
   const candidate=notificationsCloseCandidate;notificationsCloseCandidate=undefined;
   if(!candidate)return null;
-  const outgoing=candidate.pose.kind==='feedback'||candidate.pose.kind==='out';
+  const outgoing=footerCloseOutgoing(candidate.pose);
   const owner=notificationsClosePresentation.present(candidate.pose,state,appletGeneration,elapsedMs,
    !disposed&&!panelFailure&&!document.hidden&&notesFooterCloseEligible(state)&&graphics.stockFailure()===null,
    outgoing?graphics.preparedStockPair(state):notificationsCloseHomePair,
@@ -449,7 +449,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  function presentWebFooterClose(state:MenuState,elapsedMs:number):string|null{
   const candidate=webCloseCandidate;webCloseCandidate=undefined;
   if(!candidate)return null;
-  const outgoing=candidate.pose.kind==='feedback'||candidate.pose.kind==='out';
+  const outgoing=footerCloseOutgoing(candidate.pose);
   const owner=webClosePresentation.present(candidate.pose,state,webCloseGeneration,elapsedMs,
    !disposed&&!panelFailure&&!document.hidden&&notesFooterCloseEligible(state)&&graphics.stockFailure()===null,
    outgoing?graphics.preparedStockPair(state):webCloseHomePair,
@@ -469,7 +469,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  function presentFriendsFooterClose(state:MenuState,elapsedMs:number):string|null{
   const candidate=friendsCloseCandidate;friendsCloseCandidate=undefined;
   if(!candidate)return null;
-  const outgoing=candidate.pose.kind==='feedback'||candidate.pose.kind==='out';
+  const outgoing=footerCloseOutgoing(candidate.pose);
   const owner=friendsClosePresentation.present(candidate.pose,state,friendsCloseGeneration,elapsedMs,
    !disposed&&!panelFailure&&!document.hidden&&notesFooterCloseEligible(state)&&graphics.stockFailure()===null,
    outgoing?graphics.preparedStockPair(state):friendsCloseHomePair,
@@ -490,7 +490,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
  function presentNotesFooterClose(state:MenuState,elapsedMs:number):string|null{
   const candidate=notesCloseCandidate;notesCloseCandidate=undefined;
   if(!candidate)return null;
-  const outgoing=candidate.pose.kind==='feedback'||candidate.pose.kind==='out';
+  const outgoing=footerCloseOutgoing(candidate.pose);
   const owner=notesClosePresentation.present(candidate.pose,state,appletGeneration,elapsedMs,
    !disposed&&!panelFailure&&!document.hidden&&notesFooterCloseEligible(state)&&graphics.stockFailure()===null,
    outgoing?graphics.preparedStockPair(state):notesCloseHomePair,
@@ -1105,12 +1105,15 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   // A first cold composition stays under out20 for this paired receipt. Only
   // a destination already published at paint start can begin the reveal.
   const manualDestinationReadyAtPaintStart=!!manualIdentity&&graphics.stockStatus(state,t)==='ready'&&!!graphics.preparedStockPair(state);
-  const notesCloseDraw=notesClosePose&&(notesClosePose.kind==='feedback'||notesClosePose.kind==='out')
-   ?{kind:notesClosePose.kind,frame:notesClosePose.frame,homeLabel:nativeHome!.notesFooterReturnLabel()}:undefined;
-  const notificationsCloseDraw=notificationsClosePose&&(notificationsClosePose.kind==='feedback'||notificationsClosePose.kind==='out')?{frame:notificationsClosePose.frame}:undefined;
+  // Toolbar hold poses draw the out20 full cover exactly (measured adaptation).
+  const notesCloseDrawPose=footerCloseDrawPose(notesClosePose),notificationsCloseDrawPose=footerCloseDrawPose(notificationsClosePose);
+  const webCloseDrawPose=footerCloseDrawPose(webClosePose),friendsCloseDrawPose=footerCloseDrawPose(friendsClosePose);
+  const notesCloseDraw=notesCloseDrawPose&&(notesCloseDrawPose.kind==='feedback'||notesCloseDrawPose.kind==='out')
+   ?{kind:notesCloseDrawPose.kind,frame:notesCloseDrawPose.frame,homeLabel:nativeHome!.notesFooterReturnLabel()}:undefined;
+  const notificationsCloseDraw=notificationsCloseDrawPose&&(notificationsCloseDrawPose.kind==='feedback'||notificationsCloseDrawPose.kind==='out')?{frame:notificationsCloseDrawPose.frame}:undefined;
   const manualCloseDraw=manualClosePose&&(manualClosePose.kind==='feedback'||manualClosePose.kind==='out')?{frame:manualClosePose.kind==='feedback'?manualClosePose.frame:1}:undefined;
-  const webCloseDraw=webClosePose&&(webClosePose.kind==='feedback'||webClosePose.kind==='out')?{frame:webClosePose.kind==='feedback'?webClosePose.frame:5}:undefined;
-  const friendsCloseDraw=friendsClosePose&&(friendsClosePose.kind==='feedback'||friendsClosePose.kind==='out')?{kind:friendsClosePose.kind,frame:friendsClosePose.frame}:undefined;
+  const webCloseDraw=webCloseDrawPose&&(webCloseDrawPose.kind==='feedback'||webCloseDrawPose.kind==='out')?{frame:webCloseDrawPose.kind==='feedback'?webCloseDrawPose.frame:5}:undefined;
+  const friendsCloseDraw=friendsCloseDrawPose&&(friendsCloseDrawPose.kind==='feedback'||friendsCloseDrawPose.kind==='out')?{kind:friendsCloseDrawPose.kind,frame:friendsCloseDrawPose.frame}:undefined;
   const resumeUpperPixels=resumeUpper?{width:400,height:240,data:new Uint8ClampedArray(t.getImageData(0,0,400,240).data)}:undefined;
   const overlayStarted=timing?performance.now():null;
   if(timing&&overlayStarted!==null)timing.preOverlayMs=overlayStarted-timing.startedAt;
@@ -1224,7 +1227,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    }
   }
   if(notesClosePose){
-   const outgoing=notesClosePose.kind==='feedback'||notesClosePose.kind==='out';
+   const outgoing=footerCloseOutgoing(notesClosePose);
    if(graphics.stockFailure()!==null||nativeStatus==='error'||nativeStatus==='loading')revokeNotesFooterCloseCandidate();
    else{
     if(notesClosePose.kind==='in'&&(!nativeHome||!nativeHome.notesFooterReturn(t,b,notesClosePose.frame)))throw Error('Native Notes HOME return paired cover unavailable');
@@ -1235,11 +1238,11 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    }
   }
   if(webClosePose){
-   const outgoing=webClosePose.kind==='feedback'||webClosePose.kind==='out';
+   const outgoing=footerCloseOutgoing(webClosePose);
    if(graphics.stockFailure()!==null||nativeStatus==='error'||nativeStatus==='loading')revokeWebFooterCloseCandidate();
    else{
-    if((webClosePose.kind==='out'||webClosePose.kind==='in')
-     &&(!nativeHome||!nativeHome.webFooterCover(t,b,webClosePose.kind,webClosePose.frame)))throw Error('Native web HOME cover unavailable');
+    if((webCloseDrawPose!.kind==='out'||webCloseDrawPose!.kind==='in')
+     &&(!nativeHome||!nativeHome.webFooterCover(t,b,webCloseDrawPose!.kind,webCloseDrawPose!.frame)))throw Error('Native web HOME cover unavailable');
     const pair=outgoing?graphics.preparedStockPair(state):(webCloseHomePair=Object.freeze({state,generation:webCloseGeneration}));
     const resources=outgoing?webOutgoingResources(state):firmwareAssets;
     if(pair&&resources&&webClosePresentation.bind(webClosePose,pair,resources))webCloseCandidate={pose:webClosePose,pair,resources};
@@ -1247,7 +1250,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    }
   }
   if(friendsClosePose){
-   const outgoing=friendsClosePose.kind==='feedback'||friendsClosePose.kind==='out';
+   const outgoing=footerCloseOutgoing(friendsClosePose);
    if(graphics.stockFailure()!==null||nativeStatus==='error'||nativeStatus==='loading')revokeFriendsFooterCloseCandidate();
    else{
     if(friendsClosePose.kind==='in'&&(!nativeHome||!nativeHome.notesFooterReturn(t,b,friendsClosePose.frame)))throw Error('Native Friends HOME return paired cover unavailable');
@@ -1258,11 +1261,11 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    }
   }
   if(notificationsClosePose){
-   const outgoing=notificationsClosePose.kind==='feedback'||notificationsClosePose.kind==='out';
+   const outgoing=footerCloseOutgoing(notificationsClosePose);
    if(graphics.stockFailure()!==null||nativeStatus==='error'||nativeStatus==='loading')revokeNotificationsFooterCloseCandidate();
    else{
-    if((notificationsClosePose.kind==='out'||notificationsClosePose.kind==='in')
-     &&(!nativeHome||!nativeHome.notificationsFooterCover(t,b,notificationsClosePose.kind,notificationsClosePose.frame)))throw Error('Native Notifications HOME cover unavailable');
+    if((notificationsCloseDrawPose!.kind==='out'||notificationsCloseDrawPose!.kind==='in')
+     &&(!nativeHome||!nativeHome.notificationsFooterCover(t,b,notificationsCloseDrawPose!.kind,notificationsCloseDrawPose!.frame)))throw Error('Native Notifications HOME cover unavailable');
     const pair=outgoing?graphics.preparedStockPair(state):(notificationsCloseHomePair=Object.freeze({state,generation:appletGeneration}));
     const resources=outgoing?notificationOutgoingResources(state):firmwareAssets;
     if(pair&&resources&&notificationsClosePresentation.bind(notificationsClosePose,pair,resources))notificationsCloseCandidate={pose:notificationsClosePose,pair,resources};

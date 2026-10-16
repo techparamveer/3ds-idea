@@ -1,5 +1,5 @@
 import type { MenuState } from './state.ts';
-import { createAppletFooterClosePresentation, type NotesFooterCloseIdentity, type NotesFooterClosePose } from './notes-footer-close.ts';
+import { TOOLBAR_CLOSE_COVER_HOLD_FRAMES, createAppletFooterClosePresentation, type NotesFooterCloseIdentity, type NotesFooterClosePose } from './notes-footer-close.ts';
 export type NotificationsFooterClosePose = NotesFooterClosePose;
 export function notificationsFooterCloseIdentity(state: MenuState, generation: number): NotesFooterCloseIdentity | null {
   const s = state.system, owner = s?.runtime.active, instance = owner ? s?.runtime.instances[owner] : undefined;
@@ -8,5 +8,5 @@ export function notificationsFooterCloseIdentity(state: MenuState, generation: n
     && instance.state.notificationsFooterClose === true ? { owner, application: s.runtime.application, sequence: s.runtime.sequence, generation } : null;
 }
 export function createNotificationsFooterClosePresentation() {
-  return createAppletFooterClosePresentation(notificationsFooterCloseIdentity);
+  return createAppletFooterClosePresentation(notificationsFooterCloseIdentity, undefined, false, 1, TOOLBAR_CLOSE_COVER_HOLD_FRAMES);
 }

@@ -1,6 +1,6 @@
 import type { MenuState } from './state.ts';
 import { webFooterCloseRequestEligible } from './app-host.ts';
-import { createAppletFooterClosePresentation, type NotesFooterCloseIdentity, type NotesFooterClosePose } from './notes-footer-close.ts';
+import { TOOLBAR_CLOSE_COVER_HOLD_FRAMES, createAppletFooterClosePresentation, type NotesFooterCloseIdentity, type NotesFooterClosePose } from './notes-footer-close.ts';
 
 export type WebFooterClosePose = NotesFooterClosePose;
 export function webFooterCloseIdentity(state: MenuState, generation: number): NotesFooterCloseIdentity | null {
@@ -11,5 +11,5 @@ export function webFooterCloseIdentity(state: MenuState, generation: number): No
 /** Delivered six-frame feedback followed by HOME common cover/reveal.
  * Footer dispatch, hold duration and the 60 Hz clock are portfolio adaptations. */
 export function createWebFooterClosePresentation() {
-  return createAppletFooterClosePresentation(webFooterCloseIdentity, undefined, true, 5);
+  return createAppletFooterClosePresentation(webFooterCloseIdentity, undefined, true, 5, TOOLBAR_CLOSE_COVER_HOLD_FRAMES);
 }

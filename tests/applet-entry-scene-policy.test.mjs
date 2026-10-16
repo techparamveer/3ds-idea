@@ -80,15 +80,18 @@ for(const [appId,focus,createPresentation,complete] of [
  for(let cycle=0;cycle<2;cycle++){
   let state=touchSystem(invokeSystemApplet(home,appId,6400+cycle*1000),appId==='browser'?53:appId==='miiverse'?288:160,226,6401+cycle*1000);
   const owner=state.system.runtime.active,resources={},firmware={};
-  function candidate(){const time=now(),pose=presentation.sample(state,2,time,true,reduced),pair={};assert.equal(presentation.bind(pose,pair,pose.kind==='feedback'||pose.kind==='out'?resources:firmware),true);return {time,pose,pair};}
-  function accept(value){return presentation.present(value.pose,state,2,value.time,true,value.pair,value.pose.kind==='feedback'||value.pose.kind==='out'?resources:firmware);}
+  const outgoing=pose=>pose.kind==='feedback'||pose.kind==='out'||pose.kind==='hold';
+  function candidate(){const time=now(),pose=presentation.sample(state,2,time,true,reduced),pair={};assert.equal(presentation.bind(pose,pair,outgoing(pose)?resources:firmware),true);return {time,pose,pair};}
+  function accept(value){return presentation.present(value.pose,state,2,value.time,true,value.pair,outgoing(value.pose)?resources:firmware);}
+  // Toolbar cover hold: the owner-retiring endpoint is hold:119 (reduced motion: out20).
+  const terminal=pose=>reduced?pose.kind==='out'&&pose.frame===20:pose.kind==='hold'&&pose.frame===119;
   let endpoint;
-  for(let i=0;i<30;i++){
+  for(let i=0;i<200;i++){
    const value=candidate();
-   if(value.pose.kind==='out'&&value.pose.frame===20){endpoint=value;break;}
+   if(terminal(value.pose)){endpoint=value;break;}
    assert.equal(accept(value),null);
   }
-  assert.equal(endpoint.pose.frame,20);
+  assert.ok(endpoint);assert.equal(endpoint.pose.frame,reduced?20:119);
   const original=host,background=getHomeBannerHostBackgroundFrame(host),clock={...host.clock},scope=host.scope;
   const screens=new Proxy({
    presentNotesFooterClose:current=>appId==='game-notes'?presentation.present(endpoint.pose,current,2,endpoint.time,true,endpoint.pair,resources):null,

@@ -1,6 +1,6 @@
 import type { MenuState } from './state.ts';
 import { friendsFooterCloseRequestEligible } from './app-host.ts';
-import { createAppletFooterClosePresentation, type NotesFooterCloseIdentity, type NotesFooterClosePose } from './notes-footer-close.ts';
+import { TOOLBAR_CLOSE_COVER_HOLD_FRAMES, createAppletFooterClosePresentation, type NotesFooterCloseIdentity, type NotesFooterClosePose } from './notes-footer-close.ts';
 
 export type FriendsFooterClosePose = NotesFooterClosePose;
 export function friendsFooterCloseIdentity(state: MenuState, generation: number): NotesFooterCloseIdentity | null {
@@ -10,5 +10,5 @@ export function friendsFooterCloseIdentity(state: MenuState, generation: number)
 }
 export function createFriendsFooterClosePresentation() {
   // Decide has six source frames. The browser clock and trigger remain adaptations.
-  return createAppletFooterClosePresentation(friendsFooterCloseIdentity, undefined, true, 5);
+  return createAppletFooterClosePresentation(friendsFooterCloseIdentity, undefined, true, 5, TOOLBAR_CLOSE_COVER_HOLD_FRAMES);
 }

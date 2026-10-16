@@ -48,24 +48,27 @@ test('owned release shares the footer path and invalid completion identities can
   assert.equal(completeNotificationsFooterClose(state, state.system.runtime.active, NaN), state);
 });
 
-test('first and repeated close retain both outgoing identity and owner through accepted out20, then require HOME handoff', () => {
+test('first and repeated close retain both outgoing identity and owner through accepted out20 and the held cover, then require HOME handoff', () => {
   let homeState = home(), previousOwner;
   const session = createNotificationsFooterClosePresentation();
   for (let cycle = 0; cycle < 2; cycle++) {
-    let state = request(open(homeState)), step = cycle * 100;
+    let state = request(open(homeState)), step = cycle * 300;
     const owner = state.system.runtime.active, resources = {}, firmware = {};
     assert.notEqual(owner, previousOwner);
     function publish(kind, frame) {
       const pose = session.sample(state, 2, ms(step), true, false), pair = {};
       assert.equal(pose.kind, kind); if (frame !== null) assert.equal(pose.frame, frame);
-      const current = kind === 'feedback' || kind === 'out' ? resources : firmware;
+      const current = kind === 'feedback' || kind === 'out' || kind === 'hold' ? resources : firmware;
       assert.equal(session.bind(pose, pair, current), true);
       const result = session.present(pose, state, 2, ms(step++), true, pair, current);
       return result;
     }
     publish('feedback', 0); publish('feedback', 1);
     for (let frame = 0; frame < 20; frame++) { assert.equal(publish('out', frame), null); assert.ok(state.system.runtime.instances[owner]); }
-    assert.equal(publish('out', 20), owner);
+    // Toolbar cover hold: out20 no longer retires the owner; the 120th held out20 frame does.
+    assert.equal(publish('out', 20), null);
+    for (let frame = 0; frame < 119; frame++) { assert.equal(publish('hold', frame), null); assert.ok(state.system.runtime.instances[owner]); }
+    assert.equal(publish('hold', 119), owner);
     state = completeNotificationsFooterClose(state, owner, ms(step));
     assert.equal(state.system.runtime.instances[owner], undefined); assert.equal(state.system.phase, 'home');
     for (let frame = 0; frame <= 20; frame++) assert.equal(publish('in', frame), null);

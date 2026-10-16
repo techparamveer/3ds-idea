@@ -50,28 +50,31 @@ test('accepted outgoing endpoint alone permits teardown; recovery has its own cu
   let state = requested();
   const session = createNotesFooterClosePresentation(), owner = state.system.runtime.active, resources = {};
   let step = 0;
+  const homeResources = {};
   function publish(kind, frame, token = {}) {
     const pose = session.sample(state, 3, ms(step), notesFooterCloseEligible(state), false);
     assert.equal(pose.kind, kind); if (frame !== null) assert.equal(pose.frame, frame);
-    assert.equal(session.bind(pose, token, kind === 'feedback' || kind === 'out' ? resources : homeResources), true);
-    const result = session.present(pose, state, 3, ms(step), true, token, kind === 'feedback' || kind === 'out' ? resources : homeResources);
+    const current = kind === 'feedback' || kind === 'out' || kind === 'hold' ? resources : homeResources;
+    assert.equal(session.bind(pose, token, current), true);
+    const result = session.present(pose, state, 3, ms(step), true, token, current);
     step++; return result;
   }
   publish('feedback', 0); publish('feedback', 1);
-  for (let frame = 0; frame < 20; frame++) {
+  for (let frame = 0; frame <= 20; frame++) {
     assert.equal(publish('out', frame), null);
     assert.ok(state.system.runtime.instances[owner]);
   }
+  // Toolbar cover hold: the accepted 120th held out20 frame, not out20, is the endpoint.
+  for (let frame = 0; frame < 119; frame++) assert.equal(publish('hold', frame), null);
   const terminal = session.sample(state, 3, ms(step), true, false), token = {};
   session.bind(terminal, token, resources);
-  assert.equal(terminal.frame, 20);
+  assert.equal(terminal.kind, 'hold'); assert.equal(terminal.frame, 119);
   assert.equal(session.present(terminal, state, 3, ms(step), false, token, resources), null);
   assert.ok(state.system.runtime.instances[owner], 'an offscreen endpoint cannot delete the owner');
   assert.equal(session.present(terminal, state, 3, ms(step), true, {}, resources), null);
   assert.equal(session.present(terminal, state, 3, ms(step), true, token, resources), owner);
   state = completeNotesFooterClose(state, owner, ms(step++));
   assert.equal(state.system.phase, 'home'); assert.equal(state.system.runtime.instances[owner], undefined);
-  const homeResources = {};
   for (let frame = 0; frame <= 20; frame++) assert.equal(publish('in', frame), null);
   assert.equal(session.active(state, 3), true);
   assert.equal(publish('handoff', null), null);

@@ -110,12 +110,13 @@ async function fixture(run){
  };
  const closeToolbar=(state,route)=>{
   const held=touch(state,'down',route.x);paint(held,{present:route.present});const released=touch(held,'up',route.x);
-  for(let count=0;count<40;count++){
+  // Toolbar Close now holds out20 for 120 measured LCD frames ('hold') before retiring the owner.
+  for(let count=0;count<200;count++){
    const sample=paint(released,{present:route.present});
-   assert.equal(screens.stockFailure(),null);assert.ok(['feedback','out'].includes(sample.result?.[route.key]?.kind));
+   assert.equal(screens.stockFailure(),null);assert.ok(['feedback','out','hold'].includes(sample.result?.[route.key]?.kind));
    if(sample.identity)return route.complete(released,sample.identity,ms(step));
   }
-  assert.fail(`${route.appId} Close did not accept outgoing20: ${screens.stockFailure()}`);
+  assert.fail(`${route.appId} Close did not accept the held out20 cover: ${screens.stockFailure()}`);
  };
  try{await screens.ready;await run({screens,paint,open,close,openToolbar,closeToolbar,calls,home,renderer,pixels,
   failEmpty:value=>{emptyFailure=value;},setStatus:value=>{status=value;},replaceResources:()=>{resources={};},replaceFirmware:()=>screens.setFirmwareAssets(assets())});}

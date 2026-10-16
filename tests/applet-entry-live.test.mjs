@@ -95,17 +95,18 @@ test(appId+': actual Web compositor retains first/repeat Close through paired co
  await fixture(({screens,paint,events,setCopyReady,setIncomingAvailable,replaceIncomingResources})=>{
   let homeState=home(appId);
   for(let cycle=0;cycle<2;cycle++){
-   let state=open(homeState,appId),step=cycle*200;
+   let state=open(homeState,appId),step=cycle*400;
    screens.skipAppletEntryForAccessibilityShortcut(state);paint(state,step++);
    const owner=state.system.runtime.active;state=touchSystem(state,appId==='browser'?53:288,226,6401);
    const receipt=(kind,frame)=>{
     const result=paint(state,step,false);
     assert.deepEqual(result?.webClose,{kind,frame,owner,adaptation:true},String(screens.stockFailure()));
     assert.equal(result.appletEntry,undefined);
-    if(kind==='feedback'||kind==='out')assert.deepEqual(events.find(e=>e.name==='web-close').args,[{frame:kind==='feedback'?frame:5}]);
-    if(kind==='out'||kind==='in'){
-     const upper=events.findIndex(e=>e.name==='web-'+kind+'-upper'),lower=events.findIndex(e=>e.name==='web-'+kind+'-lower');
-     assert.ok(upper>events.findIndex(e=>e.name==='destination-lower'));assert.ok(lower>upper);assert.deepEqual(events[upper].args,[frame]);
+    const drawKind=kind==='hold'?'out':kind,drawFrame=kind==='hold'?20:frame;
+    if(drawKind==='feedback'||drawKind==='out')assert.deepEqual(events.find(e=>e.name==='web-close').args,[{frame:drawKind==='feedback'?drawFrame:5}]);
+    if(drawKind==='out'||drawKind==='in'){
+     const upper=events.findIndex(e=>e.name==='web-'+drawKind+'-upper'),lower=events.findIndex(e=>e.name==='web-'+drawKind+'-lower');
+     assert.ok(upper>events.findIndex(e=>e.name==='destination-lower'));assert.ok(lower>upper);assert.deepEqual(events[upper].args,[drawFrame]);
     }
     return screens.presentWebFooterClose(state,ms(step++));
    };
@@ -119,7 +120,8 @@ test(appId+': actual Web compositor retains first/repeat Close through paired co
    for(let frame=0;frame<20;frame++){assert.equal(receipt('out',frame),null);assert.ok(state.system.runtime.instances[owner]);}
    const terminal=paint(state,step,false);assert.equal(terminal.webClose.frame,20);
    screens.revokeNotesFooterCloseCandidate();assert.equal(screens.presentWebFooterClose(state,ms(step++)),null);
-   receipt('out',19);assert.equal(receipt('out',20),owner);
+   // Toolbar cover hold: out20 is followed by 120 held out20 paints; hold:119 retires the owner.
+   receipt('out',19);assert.equal(receipt('out',20),null);for(let frame=0;frame<119;frame++)assert.equal(receipt('hold',frame),null);assert.equal(receipt('hold',119),owner);
    state=completeWebFooterClose(state,owner,ms(step));
    for(let frame=0;frame<=20;frame++){assert.equal(receipt('in',frame),null);assert.equal(screens.homeAppletFooterBannerReady(state),false);}
    assert.equal(screens.stockStatus(state),'loading');receipt('handoff',null);
@@ -137,7 +139,7 @@ test(appId+': Web accepted HOME return survives firmware replacement and still r
   const receipt=(kind,frame)=>{const result=paint(state,step,false);assert.deepEqual(result?.webClose,{kind,frame,owner,adaptation:true});return screens.presentWebFooterClose(state,ms(step++));};
   for(let frame=0;frame<6;frame++)receipt('feedback',frame);
   for(let frame=0;frame<20;frame++)receipt('out',frame);
-  assert.equal(receipt('out',20),owner);state=completeWebFooterClose(state,owner,ms(step));
+  receipt('out',20);for(let frame=0;frame<119;frame++)assert.equal(receipt('hold',frame),null);assert.equal(receipt('hold',119),owner);state=completeWebFooterClose(state,owner,ms(step));
   for(let frame=0;frame<=7;frame++)receipt('in',frame);
   assert.equal(paint(state,step++,false).webClose.frame,8);
   screens.setFirmwareAssets(assets());assert.equal(screens.presentWebFooterClose(state,ms(step)),null);
@@ -177,14 +179,14 @@ test('actual Friends compositor retains first/repeat Close through paired title 
  await fixture(({screens,paint,events,setCopyReady,setIncomingAvailable,replaceIncomingResources})=>{
   let homeState=home('friends');
   for(let cycle=0;cycle<2;cycle++){
-   let state=open(homeState,'friends'),step=cycle*200;
+   let state=open(homeState,'friends'),step=cycle*400;
    screens.skipAppletEntryForAccessibilityShortcut(state);paint(state,step++);
    const owner=state.system.runtime.active;state=touchSystem(state,160,226,6401);
    const receipt=(kind,frame)=>{
     const result=paint(state,step,false);
     assert.deepEqual(result?.friendsClose,{kind,frame,owner,adaptation:true},String(screens.stockFailure()));
     assert.equal(result.appletEntry,undefined);
-    if(kind==='feedback'||kind==='out')assert.deepEqual(events.find(e=>e.name==='friends-close').args,[{kind,frame}]);
+    if(kind==='feedback'||kind==='out'||kind==='hold')assert.deepEqual(events.find(e=>e.name==='friends-close').args,[kind==='hold'?{kind:'out',frame:20}:{kind,frame}]);
     if(kind==='in')assert.deepEqual(events.find(e=>e.name==='notes-return-upper').args,[frame]);
     return screens.presentFriendsFooterClose(state,ms(step++));
    };
@@ -198,7 +200,8 @@ test('actual Friends compositor retains first/repeat Close through paired title 
    for(let frame=0;frame<20;frame++){assert.equal(receipt('out',frame),null);assert.ok(state.system.runtime.instances[owner]);}
    const terminal=paint(state,step,false);assert.equal(terminal.friendsClose.frame,20);
    screens.revokeNotesFooterCloseCandidate();assert.equal(screens.presentFriendsFooterClose(state,ms(step++)),null);
-   receipt('out',19);assert.equal(receipt('out',20),owner);
+   // Toolbar cover hold: out20 is followed by 120 held out20 paints; hold:119 retires the owner.
+   receipt('out',19);assert.equal(receipt('out',20),null);for(let frame=0;frame<119;frame++)assert.equal(receipt('hold',frame),null);assert.equal(receipt('hold',119),owner);
    state=completeFriendsFooterClose(state,owner,ms(step));
    for(let frame=0;frame<=20;frame++){assert.equal(receipt('in',frame),null);assert.equal(screens.homeAppletFooterBannerReady(state),false);}
    assert.equal(screens.stockStatus(state),'loading');receipt('handoff',null);
@@ -216,7 +219,7 @@ test('Friends accepted HOME return survives firmware replacement and still requi
   const receipt=(kind,frame)=>{const result=paint(state,step,false);assert.deepEqual(result?.friendsClose,{kind,frame,owner,adaptation:true});return screens.presentFriendsFooterClose(state,ms(step++));};
   for(let frame=0;frame<6;frame++)receipt('feedback',frame);
   for(let frame=0;frame<20;frame++)receipt('out',frame);
-  assert.equal(receipt('out',20),owner);state=completeFriendsFooterClose(state,owner,ms(step));
+  receipt('out',20);for(let frame=0;frame<119;frame++)assert.equal(receipt('hold',frame),null);assert.equal(receipt('hold',119),owner);state=completeFriendsFooterClose(state,owner,ms(step));
   for(let frame=0;frame<=7;frame++)receipt('in',frame);
   assert.equal(paint(state,step++,false).friendsClose.frame,8);
   screens.setFirmwareAssets(assets());assert.equal(screens.presentFriendsFooterClose(state,ms(step)),null);
@@ -254,7 +257,7 @@ test('actual Notifications first/repeat footer retains both list LCDs under the 
  await fixture(({screens,paint,events,setCopyReady,setIncomingAvailable,replaceIncomingResources})=>{
   let homeState=home('notifications'),previousOwner;
   for(let cycle=0;cycle<2;cycle++){
-   let state=open(homeState,'notifications'),step=cycle*200;
+   let state=open(homeState,'notifications'),step=cycle*400;
    screens.skipAppletEntryForAccessibilityShortcut(state);paint(state,step++);
    const owner=state.system.runtime.active;assert.notEqual(owner,previousOwner);
    state=touchSystem(state,160,226,6401);
@@ -262,10 +265,11 @@ test('actual Notifications first/repeat footer retains both list LCDs under the 
     const result=paint(state,step,false);
     assert.deepEqual(result?.notificationsClose,{kind,frame,owner,adaptation:true},String(screens.stockFailure()));
     assert.equal(result.notesClose,undefined);
-    if(kind==='out'||kind==='in'){
-     const upper=events.findIndex(e=>e.name==='notifications-'+kind+'-upper'),lower=events.findIndex(e=>e.name==='notifications-'+kind+'-lower');
+    const drawKind=kind==='hold'?'out':kind,drawFrame=kind==='hold'?20:frame;
+    if(drawKind==='out'||drawKind==='in'){
+     const upper=events.findIndex(e=>e.name==='notifications-'+drawKind+'-upper'),lower=events.findIndex(e=>e.name==='notifications-'+drawKind+'-lower');
      assert.ok(upper>events.findIndex(e=>e.name==='destination-lower'));assert.ok(lower>upper);
-     assert.deepEqual(events[upper].args,[frame]);
+     assert.deepEqual(events[upper].args,[drawFrame]);
     }
     return screens.presentNotificationsFooterClose(state,ms(step++));
    };
@@ -280,7 +284,8 @@ test('actual Notifications first/repeat footer retains both list LCDs under the 
    for(let frame=0;frame<20;frame++){assert.equal(receipt('out',frame),null);assert.ok(state.system.runtime.instances[owner]);}
    const terminal=paint(state,step,false);assert.equal(terminal.notificationsClose.frame,20);
    screens.revokeNotesFooterCloseCandidate();assert.equal(screens.presentNotificationsFooterClose(state,ms(step++)),null);
-   receipt('out',19);assert.equal(receipt('out',20),owner);
+   // Toolbar cover hold: out20 is followed by 120 held out20 paints; hold:119 retires the owner.
+   receipt('out',19);assert.equal(receipt('out',20),null);for(let frame=0;frame<119;frame++)assert.equal(receipt('hold',frame),null);assert.equal(receipt('hold',119),owner);
    state=completeNotificationsFooterClose(state,owner,ms(step));assert.equal(state.system.runtime.instances[owner],undefined);
    for(let frame=0;frame<=20;frame++){assert.equal(receipt('in',frame),null);assert.equal(screens.homeAppletFooterBannerReady(state),false);}
    assert.equal(screens.stockStatus(state),'loading');receipt('handoff',null);
@@ -365,6 +370,7 @@ test('actual Notes footer compositor retains the owner through out20 and accepts
    assert.deepEqual(result?.notesClose,{kind:expectedKind,frame,owner,adaptation:true},String(screens.stockFailure()));
    assert.equal(screens.notesFooterCloseActive(state),true);
    if(expectedKind==='in')assert.equal(events.filter(e=>e.name.startsWith('notes-return-')).length,2);
+   if(expectedKind==='hold'){const drawn=events.find(e=>e.name==='notes-close').args[0];assert.deepEqual([drawn.kind,drawn.frame],['out',20]);}
    const completed=screens.presentNotesFooterClose(state,ms(step++));
    return completed;
   };
@@ -381,7 +387,8 @@ test('actual Notes footer compositor retains the owner through out20 and accepts
   screens.revokeNotesFooterCloseCandidate();
   assert.equal(screens.presentNotesFooterClose(state,ms(step++)),null);
   assert.equal(receipt('out',19),null);
-  assert.equal(receipt('out',20),owner);
+  // Toolbar cover hold: out20 is followed by 120 held out20 paints; hold:119 retires the owner.
+  assert.equal(receipt('out',20),null);for(let frame=0;frame<119;frame++)assert.equal(receipt('hold',frame),null);assert.equal(receipt('hold',119),owner);
   state=completeNotesFooterClose(state,owner,ms(step));
   assert.equal(state.system.runtime.instances[owner],undefined);
   for(let frame=0;frame<=20;frame++){assert.equal(receipt('in',frame),null);assert.equal(screens.homeAppletFooterBannerReady(state),false);}

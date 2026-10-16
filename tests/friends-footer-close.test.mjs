@@ -58,17 +58,17 @@ test('caller-owned return, HOME suspension, power and explicit unready escape do
 });
 
 const ms = step => 5000 + step * 1000 / 60 + .01;
-test('first/repeat Close publishes all six Decide frames, original cover 0..20, then HOME 0..20 and a fresh handoff', () => {
+test('first/repeat Close publishes all six Decide frames, original cover 0..20, held cover 0..119, then HOME 0..20 and a fresh handoff', () => {
   for (const reduced of [false, true]) {
     const session = createFriendsFooterClosePresentation(); let prior, previousOwner;
     for (let cycle = 0; cycle < 2; cycle++) {
-      let state = request(open(prior)), step = cycle * 100;
+      let state = request(open(prior)), step = cycle * 300;
       const owner = state.system.runtime.active, resources = {}, firmware = {};
       assert.notEqual(owner, previousOwner);
       const publish = (kind, frame) => {
         const pose = session.sample(state, 2, ms(step), true, reduced), pair = {};
         assert.equal(pose.kind, kind); if (frame !== null) assert.equal(pose.frame, frame);
-        const current = kind === 'feedback' || kind === 'out' ? resources : firmware;
+        const current = kind === 'feedback' || kind === 'out' || kind === 'hold' ? resources : firmware;
         assert.equal(session.bind(pose, pair, current), true);
         return session.present(pose, state, 2, ms(step++), true, pair, current);
       };
@@ -76,7 +76,13 @@ test('first/repeat Close publishes all six Decide frames, original cover 0..20, 
       for (const frame of reduced ? [] : Array.from({length:20}, (_,i)=>i)) {
         assert.equal(publish('out', frame), null); assert.ok(state.system.runtime.instances[owner]);
       }
-      assert.equal(publish('out', 20), owner);
+      // Toolbar cover hold: out20 no longer retires the owner; 120 held out20 frames do.
+      if (reduced) assert.equal(publish('out', 20), owner);
+      else {
+        assert.equal(publish('out', 20), null);
+        for (let frame = 0; frame < 119; frame++) { assert.equal(publish('hold', frame), null); assert.ok(state.system.runtime.instances[owner]); }
+        assert.equal(publish('hold', 119), owner);
+      }
       state = completeFriendsFooterClose(state, owner, ms(step));
       assert.equal(state.system.phase, 'home'); assert.equal(state.system.runtime.instances[owner], undefined);
       assert.equal(completeFriendsFooterClose(state, owner, ms(step)), state);

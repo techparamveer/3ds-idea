@@ -66,6 +66,11 @@ and the rest plus banner at frame 19 after the handoff; reduced motion and
 Manual/grid returns unchanged. Browser recapture: +105 / +322 / banner +368 ms
 versus native +94..124 / +309..375. Native feedback-to-base (~3 s) is much
 longer than the browser's ~1 s; investigate before fitting.
+Investigated: both native runs hold a static full cover ~2.0 s (~120 frames).
+Integrated as 991a908 (toolbar Close only; reduced motion and Manual
+unchanged): browser hold 1.978 s, HOME start +2.489 s after release versus
+native +2.334/+2.475. The browser HOME incoming (0.47 s) is now the main
+remaining Close timing gap.
 
 ## Generic experiment closed without adoption
 

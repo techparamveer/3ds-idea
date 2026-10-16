@@ -2,7 +2,7 @@
 
 ## Checkout
 
-Reconciled HEAD: `5afea42` plus this evidence commit (git wins).
+Reconciled HEAD: `991a908` plus this evidence commit (git wins).
 Git wins if this differs from HEAD. Reconcile before another slice or worker.
 Keep this file current, not append-only.
 
@@ -311,12 +311,14 @@ Notifications Close audit is closed with no broad-order defect.
    emulator reload time); group 1 differs because the browser retains a grid
    selection; other toolbar apps use the Notifications schedule by extension.
    Private `home-reveal-groups/browser-run.md`.
-3. Native covered hold: both native Notifications Close runs hold a static
-   full cover for 1.992 / 2.050 s (~120 LCD frames) before HOME population,
-   starting +0.34 / +0.43 s after touch release; the browser has no hold
-   (incoming starts at +0.52 s). Next: worker candidate adding a measured
-   120-frame covered hold to toolbar-applet Close, review, checks, recapture.
-   PR #7 stays a draft unless the user asks to merge.
+3. Native covered hold integrated (`991a908`, worker 09fe41f, Sonnet review
+   APPROVE-WITH-NITS: `back` during Notes/Notifications close can still end it
+   early; close cue timing unverified while muted). Browser 390-pair Close
+   (build `CSwmV7jBter1bceL0yJMM`): hold 1.978 s, HOME starts +2.489 s after
+   release versus native +2.334/+2.475. Remaining: browser HOME incoming
+   (in:0..20, 0.47 s) versus native population-to-base ~0.07-0.11 s, so the
+   browser finishes ~0.4-0.5 s later. Next: inspect native frames from
+   population start to grid base, then decide. Private `close-cover-hold/`.
 4. Keep the generic production experiment closed and PR #8 unmerged. No retry,
    replacement tuning campaign or rebuild of either frozen build. Keep Manual
    loader and folder cursor source-only investigations closed until a new

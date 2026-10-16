@@ -323,9 +323,11 @@ Notifications Close audit is closed with no broad-order defect.
    (one source frame per paint, an existing adaptation). No source change.
    Native also shows Camera a few frames before Sound/Mii and the banner
    scaling in. Private `close-cover-hold/`.
-4. Next leftover: native Manual Close neighbour reveal and grid-title Close,
-   measured the same way, before extending the reveal or hold beyond toolbar
-   apps.
+4. Native Manual Close (Camera; private `manual-native-close/`): same white
+   cover + "HOME Menu" belt, static hold 2.115 s, then selected Camera first and
+   all neighbours together ~0.4 s later, banner after. The reveal already matches
+   the selected-first Manual fit; the hold is missing in the browser. Next:
+   extend the 120-frame hold to Manual Close, review, checks, recapture.
 5. Keep the generic production experiment closed and PR #8 unmerged. No retry,
    replacement tuning campaign or rebuild of either frozen build. Keep Manual
    loader and folder cursor source-only investigations closed until a new

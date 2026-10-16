@@ -30,6 +30,9 @@ broad order: ready, feedback, white outgoing footer, full cover with HOME belt,
 HOME population, banner. It justifies no source change. Endpoint totals are
 fixture-dominated (unread 9 versus 8, ordinary versus portfolio HOME icons).
 Source pose, native marker-freeze semantics, input epoch and cadence remain open.
+The unread fixture now follows the live reference news.db (nine unread), so
+the ready pair is like-for-like: upper 1,623 glyph AA/clock, lower 2,608 only at
+the lamp discs. The remaining lower residual is lamp phase; do not fit it.
 
 ## Generic experiment closed without adoption
 

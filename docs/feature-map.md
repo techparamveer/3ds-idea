@@ -6,6 +6,10 @@ justified. Endpoint totals are fixture-dominated (unread 9 versus 8, HOME
 icons). Claude Opus 5.5 now coordinates after the Codex plan ended. All four
 whole flows remain fail/unproven. STATUS owns the next action.
 
+16 October AN-01: the Notifications fixture now matches the native-folder-slow
+news.db (nine unread, 05dc0d1). Ready recapture upper 2,427 -> 1,623, lower
+2,608 confined to lamp pulse phase. Next: trace the native lamp loop start.
+
 16 October AN-01: [Notifications marker pulse](workstream-handoffs/notifications-marker-pulse-20261016.md)
 is integrated through ab73c31 and pushed to draft PR #7. Native idle capture
 demonstrated a pulse while the old browser was static. The reviewed candidate

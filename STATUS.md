@@ -2,7 +2,7 @@
 
 ## Checkout
 
-Reconciled HEAD: `7e4c3371f1ae194153a1e4832f3ae50cbce42428`.
+Reconciled HEAD: `3a57a0a` plus this evidence commit (git wins).
 Git wins if this differs from HEAD. Reconcile before another slice or worker.
 Keep this file current, not append-only.
 
@@ -14,7 +14,7 @@ checkout. Create new source worktrees from this coordinator HEAD.
 
 Draft [PR #7](https://github.com/techparamveer/3ds-idea/pull/7) uses remote
 branch `codex/animation-fidelity-20261007`. Latest verified pushed SHA is
-`7e4c3371f1ae194153a1e4832f3ae50cbce42428`. Review coherent changes, stage
+`3a57a0a` (nine-unread fixture `05dc0d1` integrated). Review coherent changes, stage
 explicit paths and push normally. Do not merge, deploy, reset or clean.
 
 Preserve the human edit in
@@ -207,6 +207,20 @@ HOME 55,048 / 25,135. Those totals are fixture-dominated: native unread 9 versus
 browser 8, ordinary versus portfolio HOME icons. The H264 movie cannot prove
 moving LCD pixels, native input epoch, cadence or marker-freeze semantics.
 
+Nine-unread fixture, 16 October: the live `native-folder-slow` news.db
+(`4b35c1b2`) has all nine records unread; the browser fixture still followed
+the older `4b9ed183` profile (record 53 read). Candidate 343df3d flips news053
+to unread (Sonnet review APPROVE-WITH-NITS, nits fixed in 3a57a0a); full
+checks 2,996 pass plus the known Camera failure; typecheck/build pass, build
+`JxxeiXraVDydQH_b7bWFg`. Integrated as 05dc0d1. Muted Playwright recapture
+of the ready list against native `_16.10.26_00.52.39.526.png` (`eced67c9`),
+lcdDate = native time, empty mask, delta 2: upper **2,427 -> 1,623** (count 9
+and Unread 9 now match; glyph-edge AA and clock remain), lower 2,608 confined
+to the four lamp discs x0..28 (pulse phase differs; row-1 lamp now present).
+No phase fitted. Private `notifications-unread-fixture/run.md`, metrics
+`88dc6e62`, sheet `8ad25b38`. The held `f073581` unread-dot pair predates the
+fixture and needs recapture before reuse. Static still only; not a pass.
+
 The completed Notifications idle audit is private
 `notifications-marker-idle/audit/report.md`, SHA-256
 `dc5b612ad13388ff67066d60ff189dcbd2a3165a57ac101f323483a4e641af17`.
@@ -280,12 +294,13 @@ See [reference isolation](docs/native-reference-profile-isolation.md).
 The four-flow goal stays active under the Claude coordinator. The native
 Notifications Close audit is closed with no broad-order defect.
 
-1. Select the next captured visible defect in the four flows from the
-   [workflow](docs/animation-fidelity-workflow-2026-10-07.md) and
-   [feature map](docs/feature-map.md). The Notifications endpoint comparison
-   is fixture-limited (native unread 9 versus browser 8); a like-for-like
-   unread fixture would make that pair meaningful before any marker or Close
-   source change. Confirm the user still wants PR #7 kept unmerged.
+1. Notifications lamp phase: the like-for-like ready pair now differs only
+   at the four lamp discs plus upper glyph AA. Do one bounded source-only trace
+   of when the native ReceiveBlue loop starts (list SceneIn end, title start or
+   global) in the pinned HOME/Notifications code, then test it against the
+   43-PNG native idle series and the native opening movie without fitting a
+   phase. Change source only if the trace supports a start epoch. PR #7 stays
+   a draft unless the user asks to merge.
 2. Keep the generic production experiment closed and PR #8 unmerged. No retry,
    replacement tuning campaign or rebuild of either frozen build. Keep Manual
    loader and folder cursor source-only investigations closed until a new

@@ -99,7 +99,7 @@ test('C-NTF defaults are nine inert source rows while empty/custom fixtures reta
   assert.deepEqual(defaults.notifications, sourceNotificationProfile);
   assert.equal(defaultView.rows.length, 9);
   assert.ok(defaultView.rows.every(row => row.disabled === true));
-  assert.equal(defaultView.rows.filter(row => row.value === 'New').length, 8);
+  assert.equal(defaultView.rows.filter(row => row.value === 'New').length, 9);
   assert.equal(defaultView.footer.right, undefined);
   assert.equal(action(module, defaultState, sourceNotificationProfile[0].id, defaultCtx).state, defaultState);
 

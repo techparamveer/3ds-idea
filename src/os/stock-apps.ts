@@ -21,12 +21,13 @@ const settingsDefaults: AppState = { nickname: 'Player', language: 'English', so
 /**
  * Read-only system notification profile captured from the isolated EUR 10.7.0-32E
  * NAND. The order is the source timestamp order. `read` is the inverse of
- * news.db record byte 1;
- * opening the native list cleared it only for record 53, leaving eight unread.
+ * news.db record byte 1. The native-folder-slow reference news.db (SHA-256
+ * 4b35c1b2…) has all nine records unread, and native list opens leave it
+ * unwritten; the older 4b9ed183… profile had record 53 read.
  * Body/detail presentation stays unsupported until that separate native slice.
  */
 export const sourceNotificationProfile = [
-  { id: 'news053', title: 'HOME Menu Settings', read: true },
+  { id: 'news053', title: 'HOME Menu Settings', read: false },
   { id: 'news007', title: 'Touching and Sliding', read: false },
   { id: 'news005', title: 'Sleep Mode', read: false },
   { id: 'news052', title: 'HOME Menu Functionality', read: false },

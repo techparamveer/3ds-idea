@@ -21,13 +21,17 @@ const {poseNativeLayout,rasterNativePicture}=await import(layoutUrl);
 const lamp=JSON.parse(readFileSync(new URL('packs/notifications/contents/0000-00000012/receivelamp.json',firmware),'utf8'));
 const view=(rows=[{id:'n1',label:'Unread',value:'New'}])=>({appId:'notifications',screen:'main',heading:'',rows,selection:0,footer:{}});
 
-test('decoded receive-lamp loop uses the existing elapsed clock and snapshot endpoints',()=>{
+test('decoded receive-lamp loop samples time since its origin and snapshot endpoints',()=>{
   assert.equal(tools.notificationReceiveLampFrame(0),0);
   assert.equal(tools.notificationReceiveLampFrame(1003),60);
   assert.equal(tools.notificationReceiveLampFrame(2007),0);
   assert.equal(tools.notificationReceiveLampFrame(Number.NaN),0);
   assert.equal(tools.notificationReceiveLampFrame(-100),0);
   assert.equal(tools.notificationReceiveLampFrame(0,true),60);
+  // Measured native epoch: 120 frames span 2.0059 s and frame 0 is the origin.
+  assert.equal(tools.notificationReceiveLampFrame(2005),119);
+  assert.equal(tools.notificationReceiveLampFrame(2006),0);
+  assert.equal(tools.notificationReceiveLampFrame(1003,true),60);
 });
 
 test('paired paint key advances only for one of the five rendered unread rows',()=>{
@@ -55,13 +59,23 @@ test('painter keeps the same non-settled loop pose through footer feedback',()=>
   renderer.packs.notifications.messages=messages.messages;
   const paint=options=>{
     calls.length=0;
-    assert.equal(tools.drawNativePersonalToolFrame(renderer,{}, {},view(),{elapsedMs:500,date:new Date(0),...options}),true);
+    assert.equal(tools.drawNativePersonalToolFrame(renderer,{}, {},view(),{elapsedMs:900000,notificationsLampElapsedMs:500,date:new Date(0),...options}),true);
     return calls.find(call=>call.alias==='notification-receivelamp').options.bindings;
   };
   const expected=[{name:'RcvLamp_00_ReceiveBlue',frame:29},{name:'RcvLamp_00_SceneIn',frame:20}];
   assert.deepEqual(paint({}),expected);
   assert.deepEqual(paint({notificationsFooterClose:{frame:5}}),expected);
   assert.deepEqual(paint({reducedMotion:true}),[{name:'RcvLamp_00_ReceiveBlue',frame:60},{name:'RcvLamp_00_SceneIn',frame:20}]);
+  // The global page clock no longer selects the loop pose; only origin-relative time does.
+  assert.deepEqual(paint({notificationsLampElapsedMs:undefined}),[{name:'RcvLamp_00_ReceiveBlue',frame:0},{name:'RcvLamp_00_SceneIn',frame:20}]);
+  assert.deepEqual(paint({elapsedMs:1003}),expected);
+});
+
+test('screens anchor the loop only from the Notifications title incoming frame-0 destination paint',()=>{
+  const screens=readFileSync(new URL('../src/os/screens.ts',import.meta.url),'utf8');
+  assert.match(screens,/const notificationsIncomingStart=appletPose\?\.kind==='incoming'&&appletPose\.frame===0&&appletPose\.identity\.appId==='notifications';\n\s*graphics\.overlay\([^;]*,notificationsIncomingStart\);/);
+  const graphics=readFileSync(new URL('../src/os/portfolio-screens.ts',import.meta.url),'utf8');
+  assert.match(graphics,/stockScreens\.draw\([^;]*,notificationsIncomingStart\);/);
 });
 
 test('real native raster changes marker pixels across decoded ReceiveBlue poses',async()=>{

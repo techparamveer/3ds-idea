@@ -343,6 +343,52 @@ test('opt-in Notifications paint detail distinguishes cached, parity, revision a
  }finally{f.dispose();if(saved)Object.defineProperty(globalThis,'performance',saved);else delete globalThis.performance;}
 });
 
+test('Notifications ReceiveBlue origin is the title incoming frame 0, continues through handoff and Close, and resets per owner',async()=>{
+ let reduced=false;const f=paintFixture({reducedMotion:()=>reduced});
+ const v={...view('notifications'),rows:[{id:'n1',label:'Unread',value:'New'}]};
+ const news=JSON.parse(readFileSync(new URL('../public/os/firmware/10.7.0-32E/packs/notifications/news.json',import.meta.url),'utf8'));
+ const lamps=[];let draws=0;
+ const resolve=index=>{
+  const assets=incomingAssets('notifications'),original=assets.renderer.draw;
+  assets.renderer.packs.notifications=news;
+  assets.renderer.draw=(ctx,alias,name,options)=>{
+   if(alias==='notification-receivelamp')lamps.push(options.bindings.find(binding=>binding.name==='RcvLamp_00_ReceiveBlue').frame);
+   if(alias==='notifications'&&name==='NewsTopUI_U_00')draws++;
+   for(const attachment of Object.values(options?.attachments??{}))attachment();
+   return original(ctx,alias,name,options);
+  };
+  calls[index].resolve(assets);
+ };
+ const draw=(ms,{owner='notifications:lamp',incoming=false,close}={})=>f.screen.draw(f.top,f.bottom,v,owner,f.font,undefined,new Date(2026,9,15,12,0,0),ms,undefined,undefined,undefined,close,undefined,undefined,undefined,incoming);
+ try{
+  assert.equal(draw(1000),false);await flush();resolve(0);await flush();
+  // Adaptation: before (or without) a title incoming, the first complete pair anchors frame 0.
+  assert.equal(draw(5000),true);assert.equal(lamps.at(-1),0,'loading never consumes the loop');
+  assert.equal(draw(5500),true);assert.equal(lamps.at(-1),29);
+  // Incoming frame 0 re-anchors; an unpresented frame-0 resample re-anchors again.
+  assert.equal(draw(9000,{incoming:true}),true);assert.equal(lamps.at(-1),0);
+  const before=draws;assert.equal(draw(9100,{incoming:true}),true);
+  assert.equal(draws,before,'frame 0 at the resampled incoming start reuses the composed pair');
+  const atStart=f.screen.preparedPair('notifications:lamp');assert.ok(atStart);
+  // Later incoming frames and the ordinary pair after handoff share one origin.
+  assert.equal(draw(9100+500),true);assert.equal(lamps.at(-1),29);
+  assert.equal(draw(9100+1003),true);assert.equal(lamps.at(-1),60,'glow peak one half-period after incoming start');
+  assert.equal(draw(9100+2006),true);assert.equal(lamps.at(-1),0,'2.0059 s period');
+  const steady=draws;assert.equal(draw(9100+2010),true);assert.equal(draws,steady,'same lamp frame keeps the cached pair');
+  // Close feedback continues the same curve rather than forcing a frame.
+  assert.equal(draw(9100+2500,{close:{frame:3}}),true);assert.equal(lamps.at(-1),29);
+  assert.equal(draw(9100+3009,{close:{frame:5}}),true);assert.equal(lamps.at(-1),60);
+  // Reduced motion keeps the settled frame 60 without moving the origin.
+  reduced=true;assert.equal(draw(9100+3500),true);assert.equal(lamps.at(-1),60);
+  assert.equal(draw(9100+3800),true);assert.equal(lamps.at(-1),60);
+  reduced=false;assert.equal(draw(9100+4012+500),true);assert.equal(lamps.at(-1),29,'origin survives reduced-motion paints');
+  // A replacement owner starts its own origin at its own first complete pair.
+  assert.equal(draw(20000,{owner:'notifications:replacement'}),false);await flush();resolve(1);await flush();
+  assert.equal(draw(21234,{owner:'notifications:replacement'}),true);assert.equal(lamps.at(-1),0);
+  assert.equal(draw(21234+1003,{owner:'notifications:replacement'}),true);assert.equal(lamps.at(-1),60);
+ }finally{f.dispose();}
+});
+
 test('disabled Notifications paint detail adds no clock reads or reason work and preserves draw output',async()=>{
  const saved=Object.getOwnPropertyDescriptor(globalThis,'performance');let nowCalls=0;
  Object.defineProperty(globalThis,'performance',{configurable:true,value:{now(){nowCalls++;return 0;}}});

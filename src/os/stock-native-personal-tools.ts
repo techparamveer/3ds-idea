@@ -105,26 +105,33 @@ export function notificationsHudClock(date:Date){
   };
 }
 /** ReceiveBlue is a decoded 120-frame looping BCLAN. Notifications constructs
- * the lamp at 0x139520 and passes state 1 to 0x139434. The meaning of that state,
- * exact native start epoch and title-specific dispatch rate remain untraced, so
- * the existing measured LCD VBlank and host elapsed origin are explicit timing
- * adaptations. Reduced motion keeps the previously shipped settled frame 60;
- * footer feedback follows the same elapsed curve because native freeze behavior
- * is untraced and the ordinary stock pair is recomposed for that feedback. */
+ * the lamp at 0x139520 and passes state 1 to 0x139434; the meaning of that
+ * state and the title-specific dispatch rate remain untraced. Loop epoch is
+ * measured: the isolated-emulator opening movie (private artifact
+ * `notifications-lamp-epoch/report.md`, SHA-256 496dbea4...) shows ten row-2
+ * glow peaks with a 2.0059 s period (120 frames at the rate below) and loop
+ * frame 0 within 12 ms of the first pixel of the incoming Notifications
+ * destination. Callers therefore pass elapsed time since the owner's lamp
+ * origin (the title incoming's frame 0; see `stock-screen-presentation.ts`),
+ * never a global page clock. The measured LCD VBlank rate stays an explicit
+ * timing adaptation. Reduced motion keeps the previously shipped settled
+ * frame 60; footer feedback follows the same origin-relative curve because
+ * native freeze behavior is untraced and the ordinary stock pair is
+ * recomposed for that feedback. */
 const NOTIFICATION_RECEIVE_LAMP_FRAMES=120;
 const NOTIFICATION_RECEIVE_LAMP_VBLANK_HZ=268111856/4481136;
-export function notificationReceiveLampFrame(elapsedMs:number,reducedMotion=false):number{
+export function notificationReceiveLampFrame(sinceOriginMs:number,reducedMotion=false):number{
   if(reducedMotion)return 60;
-  const elapsed=Number.isFinite(elapsedMs)?Math.max(0,elapsedMs):0;
+  const elapsed=Number.isFinite(sinceOriginMs)?Math.max(0,sinceOriginMs):0;
   return Math.floor(elapsed*NOTIFICATION_RECEIVE_LAMP_VBLANK_HZ/1000)%NOTIFICATION_RECEIVE_LAMP_FRAMES;
 }
 function notificationVisibleRowStart(view:AppView):number{
   return Math.max(0,Math.min(view.rows.length-1,view.selection)-Math.min(3,Math.max(0,view.selection)));
 }
-export function notificationReceiveLampPaintKey(view:AppView,elapsedMs:number,reducedMotion=false):number|null{
+export function notificationReceiveLampPaintKey(view:AppView,sinceOriginMs:number,reducedMotion=false):number|null{
   if(view.appId!=='notifications'||view.screen!=='main')return null;
   const start=notificationVisibleRowStart(view);
-  return view.rows.slice(start,start+5).some(row=>row.value==='New')?notificationReceiveLampFrame(elapsedMs,reducedMotion):null;
+  return view.rows.slice(start,start+5).some(row=>row.value==='New')?notificationReceiveLampFrame(sinceOriginMs,reducedMotion):null;
 }
 const friendLayouts=['FrdTopBG_U_00','FrdTopBG_D_00','FrdTopUIUp_D_00','FrdTopUIDw_D_00','FrdElemCard_UB_00','FrdElemCard_UF_00','FrdElemCard_DB_00','FrdElemCard_DF_00'];
 export const personalFriendPacks:readonly NativeTitlePackRequest[]=[
@@ -270,7 +277,7 @@ export function drawNativePersonalToolFrame(renderer:NativeLayoutRenderer,top:Ca
         },attachments:{N_IconNew_00:()=>{
           okay=renderer.draw(bottom,'notification-receivelamp','RcvLamp_00',{
             bindings:[
-              {name:'RcvLamp_00_ReceiveBlue',frame:notificationReceiveLampFrame(options.elapsedMs??0,options.reducedMotion)},
+              {name:'RcvLamp_00_ReceiveBlue',frame:notificationReceiveLampFrame(options.notificationsLampElapsedMs??0,options.reducedMotion)},
               {name:'RcvLamp_00_SceneIn',frame:20},
             ],
           })&&okay;

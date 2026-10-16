@@ -57,7 +57,7 @@ export type NotesIntroPaint =
     };
 export type CameraStereoFit={kind:'camera-stereo';originalWidth:number;originalHeight:number;parallaxPixels:number};
 type MediaFit='contain'|'camera-mono'|CameraStereoFit;
-export type StockScreenPaintOptions={settingsHud?:SettingsHudPose;soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground;font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number,fit?:MediaFit)=>boolean;nativeImage?:(url:string)=>NativePixels|undefined;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number;notesIntro?:NotesIntroPaint;healthEntryFrame?:number;notesFooterClose?:NotesFooterClosePaint;notificationsFooterClose?:{frame:number};manualFooterClose?:{frame:number};friendsFooterClose?:FriendsFooterClosePaint;webFooterClose?:{frame:number}};
+export type StockScreenPaintOptions={settingsHud?:SettingsHudPose;soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground;font?:BitmapFont;native?:NativeLayoutRenderer;nativeRequired?:boolean;image?:(ctx:Context,url:string,x:number,y:number,width:number,height:number,fit?:MediaFit)=>boolean;nativeImage?:(url:string)=>NativePixels|undefined;suspendedCapture?:SuspendedCapture;reducedMotion?:boolean;date?:Date;elapsedMs?:number;notesIntro?:NotesIntroPaint;healthEntryFrame?:number;notesFooterClose?:NotesFooterClosePaint;notificationsFooterClose?:{frame:number};manualFooterClose?:{frame:number};friendsFooterClose?:FriendsFooterClosePaint;webFooterClose?:{frame:number};notificationsLampElapsedMs?:number};
 /** Portfolio media placement; native UI graphics continue through the layout renderer. */
 export function drawStockMediaImage(ctx:Context,image:CanvasImageSource,sourceWidth:number,sourceHeight:number,x:number,y:number,w:number,h:number,fit:MediaFit='contain'){
   if(typeof fit==='object'&&fit.kind==='camera-stereo'&&w===400&&h===240&&sourceWidth>=480&&sourceHeight>=240&&sourceWidth<=2*sourceHeight&&fit.originalWidth>=480&&fit.originalHeight>=240&&Number.isFinite(fit.parallaxPixels)){
@@ -242,6 +242,10 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
   // application owner can leave for HOME/an applet and resume without replaying
   // its first-entry fade; a replacement owner still receives a fresh frame 0.
   let healthEntry:{owner:string;origin:number|null;complete:boolean}|null=null;
+  // ReceiveBlue loop origin, independent of asset-session teardown like the
+  // Health receipt. Measured native frame 0 is the title incoming's frame 0
+  // (see stock-native-personal-tools.ts). A replacement owner starts unset.
+  let notificationsLamp:{owner:string;origin:number|null}|null=null;
   const deadlineMs=options.deadlineMs??NATIVE_SCREEN_DEADLINE_MS;
   if(!Number.isFinite(deadlineMs)||deadlineMs<=0)throw new Error('Invalid native preparation deadline');
   const upper=document.createElement('canvas'),lower=document.createElement('canvas');upper.width=400;upper.height=240;lower.width=320;lower.height=240;
@@ -381,7 +385,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     revokeNotesBootCoverCandidate(){notesBootCandidate=undefined;notesBootGate.revoke();},
     retry(){if(!disposed&&failure){reset();changed();return true;}return false;},
     /** True only when the published pair is this owner's complete application frame. */
-    draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont,suspendedCapture?:SuspendedCapture,date=new Date(),elapsedMs=0,notesIntro?:NotesIntroPaint,verification?:{sampleCalendar?:boolean},notesFooterClose?:NotesFooterClosePaint,notificationsFooterClose?:{frame:number},manualFooterClose?:{frame:number},friendsFooterClose?:FriendsFooterClosePaint,webFooterClose?:{frame:number}):boolean{
+    draw(top:Context,bottom:Context,view:AppView,nextOwner:string,font?:BitmapFont,suspendedCapture?:SuspendedCapture,date=new Date(),elapsedMs=0,notesIntro?:NotesIntroPaint,verification?:{sampleCalendar?:boolean},notesFooterClose?:NotesFooterClosePaint,notificationsFooterClose?:{frame:number},manualFooterClose?:{frame:number},friendsFooterClose?:FriendsFooterClosePaint,webFooterClose?:{frame:number},notificationsIncomingStart=false):boolean{
       cameraTextSample=null;notificationsPaintMeasurement=null;
       if(disposed)return false;
       preparedPair=undefined;notesBootCandidate=undefined;
@@ -418,10 +422,22 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       const eshopHudKey=eshop?eshopHudClock(date):null;
       // notificationsHudClock includes batteryFrame so 0x181018 1 Hz Bat republishes.
       const notificationsHudKey=view.appId==='notifications'?notificationsHudClock(date):null;
-      // Only a rendered unread lamp advances this paired composition. Footer
-      // feedback is an ordinary redraw at the same elapsed pose; reduced motion
-      // keeps the prior frame-60 pose.
-      const notificationsLampKey=notificationReceiveLampPaintKey(view,elapsedMs,reducedMotion);
+      // ReceiveBlue frame 0 is the paint that composes the destination beneath
+      // the Notifications title incoming's frame 0; that paint (re)anchors the
+      // origin, so the incoming and the ordinary stock pair share one curve and
+      // the handoff has no phase jump. Adaptation for entries without a title
+      // incoming (accessibility shortcut, reduced motion, failed/retried
+      // incoming): the first complete pair for this owner anchors frame 0.
+      // Composition beneath the opaque outgoing cover also anchors early, but
+      // the incoming start re-anchors before any destination pixel is visible.
+      // Same-owner HOME resume keeps its origin (native suspend phase is
+      // untraced); a later incoming for that owner re-anchors. Only a rendered
+      // unread lamp keys this pair; Close feedback reuses the origin, reduced
+      // motion keeps frame 60.
+      if(view.appId==='notifications'&&notificationsLamp?.owner!==nextOwner)notificationsLamp={owner:nextOwner,origin:null};
+      const lampOrigin=view.appId==='notifications'?(notificationsIncomingStart||notificationsLamp!.origin===null?elapsedMs:notificationsLamp!.origin):null;
+      const notificationsLampElapsedMs=lampOrigin===null?undefined:elapsedMs-lampOrigin;
+      const notificationsLampKey=notificationReceiveLampPaintKey(view,notificationsLampElapsedMs??0,reducedMotion);
       const notesHudKey=view.appId==='game-notes'?notesHudClock(date):null;
       // browserHudClock includes batteryFrame and colonVisible so Battery_Bat / TimeC 1 Hz republishes.
       const browserHudKey=view.appId==='browser'?browserHudClock(date):null;
@@ -452,7 +468,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
             if(notesFooterClose&&state.status==='ready')validateNotesFooterCloseAssets(state.assets.renderer.packs);
             if(notificationsFooterClose&&state.status==='ready')validateNotificationsFooterFeedbackAssets(state.assets.renderer.packs.notifications);
             if(manualFooterClose&&state.status==='ready')validateManualFooterFeedbackAssets(state.assets.renderer.packs['manual-footer-close']);
-            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,nativeImage,soundRoom:options.soundRoom,cameraShoot:options.cameraShoot,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs,notesIntro,settingsHud:hud??undefined,healthEntryFrame,notesFooterClose,notificationsFooterClose,manualFooterClose,friendsFooterClose,webFooterClose});
+            drawStockScreenFrame(upperContext,lowerContext,view,{font,image,nativeImage,soundRoom:options.soundRoom,cameraShoot:options.cameraShoot,native:state.status==='ready'?state.assets.renderer:undefined,nativeRequired:!!identity,suspendedCapture,reducedMotion,date,elapsedMs,notesIntro,settingsHud:hud??undefined,healthEntryFrame,notesFooterClose,notificationsFooterClose,manualFooterClose,friendsFooterClose,webFooterClose,notificationsLampElapsedMs});
             const source=probe?.endTextDiagnostic();
             if(source){cameraTextPair=immutableTextDiagnostic({owner:nextOwner,generation:textGeneration,pairId:++textPairId,stockKey:key.length<=65536?key:null,source});textRendered=true;}
             published=state.status==='ready'?state.assets.renderer:undefined;complete=true;
@@ -471,6 +487,8 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       top.drawImage(upper,0,0);bottom.drawImage(lower,0,0);
       if(cameraTextPair&&destination&&complete&&!failure)cameraTextSample=immutableTextDiagnostic({pair:cameraTextPair,use:textRendered?'rendered':'cached-pair',destination});
       if(complete&&!failure&&state.status==='ready')preparedPair=Object.freeze({owner:nextOwner,appId:view.appId,renderer:state.assets.renderer,key:painted});
+      // Commit only a published complete pair, so loading or failure never consumes the loop.
+      if(lampOrigin!==null&&complete&&!failure&&state.status==='ready')notificationsLamp!.origin=lampOrigin;
       if(failure)recoveryPublished=true;
       else if(complete&&state.status==='ready'&&view.appId==='game-notes'&&notesIntro?.status==='boot-cover')notesBootCandidate={owner:nextOwner,pair:notesIntro,renderer:state.assets.renderer};
       if(measuredSnapshot&&complete&&!failure&&state.status==='ready'){
@@ -493,6 +511,6 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
     clearTextDiagnostic(){cameraTextSample=null;},
     textDiagnostic:()=>cameraTextSample,
     getFailure:()=>failure,
-    dispose(){if(disposed)return;disposed=true;cameraTextPair=null;cameraTextSample=null;titleIncomingMeasurement=null;notificationsPaintMeasurement=null;notificationsPaintSnapshot=null;preparedPair=undefined;clearDeadline();session.dispose();options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);releaseImages();owner=null;healthEntry=null;notesBootCandidate=undefined;notesBootGate.reset();published=undefined;upper.width=upper.height=lower.width=lower.height=0;},
+    dispose(){if(disposed)return;disposed=true;cameraTextPair=null;cameraTextSample=null;titleIncomingMeasurement=null;notificationsPaintMeasurement=null;notificationsPaintSnapshot=null;preparedPair=undefined;clearDeadline();session.dispose();options.soundRoom?.prepare(null,changed);options.cameraShoot?.prepare(null,changed);releaseImages();owner=null;healthEntry=null;notificationsLamp=null;notesBootCandidate=undefined;notesBootGate.reset();published=undefined;upper.width=upper.height=lower.width=lower.height=0;},
   };
 }

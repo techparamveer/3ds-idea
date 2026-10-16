@@ -1084,7 +1084,11 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const resumeUpperPixels=resumeUpper?{width:400,height:240,data:new Uint8ClampedArray(t.getImageData(0,0,400,240).data)}:undefined;
   const overlayStarted=timing?performance.now():null;
   if(timing&&overlayStarted!==null)timing.preOverlayMs=overlayStarted-timing.startedAt;
-  graphics.overlay(t,b,state,elapsedMs,reduced,!!firmwareAssets,date,verification,deferNativeDestination,notesCloseDraw,notificationsCloseDraw,manualCloseDraw,friendsCloseDraw,webCloseDraw);
+  // The destination composed beneath title incoming frame 0 anchors the
+  // ReceiveBlue loop (measured native epoch). An unpresented frame-0 pose is
+  // resampled and re-anchors on its next paint.
+  const notificationsIncomingStart=appletPose?.kind==='incoming'&&appletPose.frame===0&&appletPose.identity.appId==='notifications';
+  graphics.overlay(t,b,state,elapsedMs,reduced,!!firmwareAssets,date,verification,deferNativeDestination,notesCloseDraw,notificationsCloseDraw,manualCloseDraw,friendsCloseDraw,webCloseDraw,notificationsIncomingStart);
   if(timing&&overlayStarted!==null){timing.overlayMs=performance.now()-overlayStarted;timing.notificationsStockDetail=graphics.paintMeasurement?.()??null;}
   const dialogKey=homeSoftwareDialogKey(state),dialogTitles=homeSoftwareDialogTitles(state);
   if(!dialogTitles)softwareDialogIcons=undefined;

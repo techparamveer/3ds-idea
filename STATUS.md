@@ -310,15 +310,18 @@ Notifications Close audit is closed with no broad-order defect.
    2.95-3.08 s versus browser 0.98 s (long native white cover, possibly
    emulator reload time); group 1 differs because the browser retains a grid
    selection; other toolbar apps use the Notifications schedule by extension.
-   Private `home-reveal-groups/browser-run.md`. Next: measure one native
-   Manual Close and one grid-title Close the same way before extending the
-   reveal, and check the long native cover on a second toolbar app.
+   Private `home-reveal-groups/browser-run.md`.
+3. Native covered hold: both native Notifications Close runs hold a static
+   full cover for 1.992 / 2.050 s (~120 LCD frames) before HOME population,
+   starting +0.34 / +0.43 s after touch release; the browser has no hold
+   (incoming starts at +0.52 s). Next: worker candidate adding a measured
+   120-frame covered hold to toolbar-applet Close, review, checks, recapture.
    PR #7 stays a draft unless the user asks to merge.
-3. Keep the generic production experiment closed and PR #8 unmerged. No retry,
+4. Keep the generic production experiment closed and PR #8 unmerged. No retry,
    replacement tuning campaign or rebuild of either frozen build. Keep Manual
    loader and folder cursor source-only investigations closed until a new
    captured defect supports a change.
-4. Integrate reviewed fixes in separate source worktrees. Run focused/full
+5. Integrate reviewed fixes in separate source worktrees. Run focused/full
    checks, typecheck and build, then perform the matched muted verification loop.
    Update evidence, commit explicit paths and push to draft PR #7. Continue the
    four-flow goal until complete or genuinely blocked.

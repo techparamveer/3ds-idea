@@ -349,12 +349,19 @@ Notifications Close audit is closed with no broad-order defect.
    suspended-HOME Close waits 60 frames, holds the dialog 83 frames. Browser
    recapture: wait 1.01 s, hold 1.35 s (match). Remaining: dialog fade-in
    0.35 s vs native ~0.88 s; exit+return 0.85 s vs native 0.59 s. Private
-   `closing-dialog-hold-browser/`.
-6. Keep the generic production experiment closed and PR #8 unmerged. No retry,
+   `closing-dialog-hold-browser/`. Per-region native frames show the dialog
+   fade itself is ~0.3 s (matches); the 0.88 s included footer/mask change.
+   Exit gap (0.26 s) is minor and partly recorder cadence; logged, not fitted.
+6. AN-01 opening covered hold: native Notifications opening holds a static
+   white cover + lower belt 1.235 s (run 1) / 1.192 s (run 2, private
+   `notifications-native-open-2/`) before the list; browser cover:20 ->
+   incoming:0 is 0.10 s. Next: DeepSeek (opencode) worker adds a 72-frame
+   opening covered hold for toolbar applets, GLM review, checks, recapture.
+7. Keep the generic production experiment closed and PR #8 unmerged. No retry,
    replacement tuning campaign or rebuild of either frozen build. Keep Manual
    loader and folder cursor source-only investigations closed until a new
    captured defect supports a change.
-7. Integrate reviewed fixes in separate source worktrees. Run focused/full
+8. Integrate reviewed fixes in separate source worktrees. Run focused/full
    checks, typecheck and build, then perform the matched muted verification loop.
    Update evidence, commit explicit paths and push to draft PR #7. Continue the
    four-flow goal until complete or genuinely blocked.

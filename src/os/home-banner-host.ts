@@ -2,7 +2,7 @@ import { hasHomeTitleBanner } from './home-title-banner.ts';
 import { SLOT_COUNT, type MenuState } from './state.ts';
 import type { HomeScrollObservation } from './home-scroll-consumer.ts';
 import { isSystemHomeFolderClosing, sampleSystemHomeFolderClose } from './home-folder-close-system.ts';
-import { sampleSystemHomeApplicationTransition } from './system-home-application-transition.ts';
+import { samplePresentedSystemHomeApplicationTransition } from './system-home-application-transition.ts';
 import { FOLDER_SLOT_COUNT, folderHasItems, homeSlotAppId } from './home-layout.ts';
 import { getHomeFolderIdentity, type HomeFolderIdentity } from './home-folder-identity.ts';
 import {
@@ -107,7 +107,7 @@ export type HomeBannerHostView =
  * departure frame 4 activates at return6. Capture fit, not a recovered
  * native request call. */
 export const HOME_CLOSE_BANNER_REQUEST_EXIT_FRAME = 4;
-type SampledApplicationTransition = ReturnType<typeof sampleSystemHomeApplicationTransition>;
+type SampledApplicationTransition = ReturnType<typeof samplePresentedSystemHomeApplicationTransition>;
 function closeBannerRequested(transition: SampledApplicationTransition): boolean {
   return !!transition && transition.intent.kind === 'close' && (transition.footerReturnFrame !== null
     || (transition.footerExitFrame ?? -1) >= HOME_CLOSE_BANNER_REQUEST_EXIT_FRAME);
@@ -121,7 +121,7 @@ function resolveSelectedHomeBannerContent(state: MenuState): HomeBannerHostSelec
 /** Resolve content only. Overlays, power and pass eligibility are host inputs. */
 export function resolveHomeBannerHostSelection(state: MenuState): HomeBannerHostSelection {
   if (isSystemHomeFolderClosing(state)) return { kind: 'clear' };
-  const applicationClose=sampleSystemHomeApplicationTransition(state);
+  const applicationClose=samplePresentedSystemHomeApplicationTransition(state);
   // The capture-fitted request begins at compact footer departure frame 4. In
   // no-controls mode this resolver runs every update, so it must retain that
   // request instead of restoring the earlier clear selection before return0.
@@ -141,7 +141,7 @@ export function resolveHomeBannerHostObservation(state: MenuState,
     || !Number.isInteger(focus) || focus < -1 || focus > 7 || typeof toolbarActive !== 'boolean'
     || toolbarActive && focus < 0) throw new RangeError('Invalid HOME banner resolver snapshot');
   if (isSystemHomeFolderClosing(state)) return { kind: 'clear' };
-  const applicationClose = sampleSystemHomeApplicationTransition(state);
+  const applicationClose = samplePresentedSystemHomeApplicationTransition(state);
   if (applicationClose?.intent.kind === 'close' && !closeBannerRequested(applicationClose)) return { kind: 'clear' };
   if (toolbarActive) {
     // Category2 follows the existing default-banner path. Categories4..8 use
@@ -167,7 +167,7 @@ function resolveContentAt(state: MenuState, context: number | null, slot: number
     // primary remains attached until its manager-owned hide completes.
     if (application?.appId === app && application.suspended && !application.closing
       && runtime?.active === null && runtime.homeReturn === owner
-      && !closeBannerRequested(sampleSystemHomeApplicationTransition(state))) return { kind: 'clear', nativeType: 6 };
+      && !closeBannerRequested(samplePresentedSystemHomeApplicationTransition(state))) return { kind: 'clear', nativeType: 6 };
     return { kind: 'app', id: app };
   }
   if (context === null) {
@@ -194,7 +194,7 @@ export function getHomeBannerCloseReadyUpdate(before: MenuState, after: MenuStat
  * Called after elapsed passes, at the current counter; never replays a pass.
  */
 export function homeApplicationBannerBoundary(before: MenuState, after: MenuState): HomeBannerHostSelection | undefined {
-  const previous=sampleSystemHomeApplicationTransition(before),next=sampleSystemHomeApplicationTransition(after);
+  const previous=samplePresentedSystemHomeApplicationTransition(before),next=samplePresentedSystemHomeApplicationTransition(after);
   const same=!!previous&&!!next&&previous.identity.generation===next.identity.generation
     &&previous.identity.transitionId===next.identity.transitionId&&previous.identity.owner===next.identity.owner;
   if(next?.intent.kind==='close'&&!same&&next.footerReturnFrame===null)return {kind:'clear'};

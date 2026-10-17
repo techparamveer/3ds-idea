@@ -261,7 +261,7 @@ test('public HOME reselection retains outgoing Camera through hiding without exp
         assert.equal(rows.at(-1).frame, 15); assert.deepEqual(rows.at(-1).banners, []);
       }
       touch(52, 226); assert.equal(state.system.homeApplicationTransition?.intent.kind, 'close');
-      wait(100);
+      wait(100 + 60 + 83); // measured pre-dialog wait and dialog hold
       assert.equal(state.system.runtime.application, null);
       assert.equal(state.system.homeApplicationTransition, null);
       assert.deepEqual(getHomeBannerHostView(host).selection, { kind: 'app', id: 'health-safety' });

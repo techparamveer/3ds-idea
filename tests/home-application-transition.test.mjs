@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 import {
+  HOME_APPLICATION_CLOSE_MEASURED_TIMING,
   HOME_APPLICATION_TRANSITION_SOURCE,
   advanceHomeApplicationTransition,
   beginHomeApplicationTransition,
@@ -12,6 +13,8 @@ import {
   homeApplicationTransitionPresentation,
   sampleHomeApplicationTransition,
 } from '../src/os/home-application-transition.ts';
+
+import { HEALTH_VBLANK_HZ } from '../src/os/stock-health-scroll.ts';
 
 const identity = (transitionId = 1, owner = 'health-safety:1', generation = 'system:1') => ({
   generation, transitionId, owner,
@@ -84,7 +87,8 @@ test('begin is immutable, idempotent for one identity, and replaces only on an e
   assert.equal(first.processedUpdates, 0);
   assert.deepEqual(first.observations.map(item => item.kind), ['started']);
   assert.deepEqual(first.state, {
-    identity: identity(), intent: { kind: 'close' }, phase: 'closing', appQuitFrame: 0,
+    identity: identity(), intent: { kind: 'close' }, phase: 'closing',
+    measuredTiming: false, waitFrame: null, holdFrame: null, appQuitFrame: 0,
     dialogExitFrame: null, footerExitFrame: null, footerReturnFrame: null,
   });
   assert.equal(Object.isFrozen(first.state), true);
@@ -274,4 +278,110 @@ test('invalid identities, intents, update counts and eligibility fail explicitly
   const state = beginHomeApplicationTransition(null, identity(), { kind: 'close' }).state;
   assert.throws(() => advanceHomeApplicationTransition(state, identity(), -1, { eligible: true }), RangeError);
   assert.throws(() => advanceHomeApplicationTransition(state, identity(), 1, {}), RangeError);
+});
+
+const eligible = { eligible: true };
+const step = (state, updates, input = eligible) => advanceHomeApplicationTransition(state, identity(), updates, input);
+
+test('measured close timing matches the private native Health Close runs at the LCD rate', () => {
+  assert.deepEqual(HOME_APPLICATION_CLOSE_MEASURED_TIMING, { preDialogWaitFrames: 60, dialogHoldFrames: 83 });
+  assert.equal(Object.isFrozen(HOME_APPLICATION_CLOSE_MEASURED_TIMING), true);
+  // run.md: wait 1.035 / 0.956 s, hold 1.37 / 1.388 s.
+  assert.ok(Math.abs(60 / HEALTH_VBLANK_HZ - 1.003) < 0.001);
+  assert.ok(Math.abs(83 / HEALTH_VBLANK_HZ - 1.387) < 0.001);
+});
+
+test('measured close waits 60 static frames, then holds the FadeIn terminal pose 83 frames', () => {
+  const begun = beginHomeApplicationTransition(null, identity(), { kind: 'close' }, { measuredTiming: true });
+  assert.deepEqual(begun.state, {
+    identity: identity(), intent: { kind: 'close' }, phase: 'waiting', measuredTiming: true,
+    waitFrame: 0, holdFrame: null, appQuitFrame: 0, dialogExitFrame: null, footerExitFrame: null, footerReturnFrame: null,
+  });
+  assert.deepEqual(begun.observations.map(item => item.kind), ['started']);
+  for (const reduced of [false, true]) assert.equal(homeApplicationTransitionPresentation(begun.state, reduced), null,
+    'the wait presents the suspended HOME unchanged');
+
+  const waiting = step(begun.state, 59);
+  assert.equal(waiting.state.phase, 'waiting');
+  assert.equal(waiting.state.waitFrame, 59);
+  assert.equal(waiting.state.appQuitFrame, 0);
+  assert.equal(waiting.processedUpdates, 59);
+  assert.deepEqual(waiting.observations, []);
+  assert.equal(homeApplicationTransitionPresentation(waiting.state), null);
+
+  const closing = step(begun.state, 500);
+  assert.equal(closing.state.phase, 'closing');
+  assert.equal(closing.state.waitFrame, 60);
+  assert.equal(closing.state.appQuitFrame, 0);
+  assert.equal(closing.processedUpdates, 60, 'closing frame 0 is a paint barrier');
+  assert.deepEqual(closing.observations.map(item => [item.kind, item.stepOffset]), [['closingStarted', 59]]);
+
+  const terminal = step(step(closing.state, 19).state, 50);
+  assert.equal(terminal.state.phase, 'terminal');
+  assert.equal(terminal.processedUpdates, 1, 'fade-in clip length is unchanged');
+  const terminalPose = homeApplicationTransitionPresentation(terminal.state);
+
+  const holdStart = step(terminal.state, 1);
+  assert.equal(holdStart.state.phase, 'held');
+  assert.equal(holdStart.state.holdFrame, 1);
+  const held = step(terminal.state, 500);
+  assert.equal(held.state.phase, 'held');
+  assert.equal(held.state.holdFrame, 83);
+  assert.equal(held.processedUpdates, 83);
+  assert.deepEqual(held.observations.map(item => [item.kind, item.stepOffset]), [['holdTerminalPresented', 82]]);
+  let pose = terminal.state;
+  for (let frame = 1; frame <= 83; frame += 1) {
+    pose = step(pose, 1).state;
+    assert.equal(pose.holdFrame, frame);
+    assert.equal(pose.appQuitFrame, 20);
+    assert.equal(pose.dialogExitFrame, null);
+    for (const reduced of [false, true]) assert.deepEqual(homeApplicationTransitionPresentation(pose, reduced),
+      homeApplicationTransitionPresentation(terminal.state, reduced), 'held pose is the terminal pose exactly');
+  }
+  assert.deepEqual(homeApplicationTransitionPresentation(pose), terminalPose);
+  assert.equal(homeApplicationTransitionFooterExit(pose), null);
+
+  const exitStart = step(held.state, 50);
+  assert.equal(exitStart.state.phase, 'exiting');
+  assert.equal(exitStart.state.dialogExitFrame, 0);
+  assert.equal(exitStart.processedUpdates, 1);
+  assert.deepEqual(exitStart.observations.map(item => item.kind), ['exitStarted']);
+  const exitTerminal = step(exitStart.state, 50);
+  assert.equal(exitTerminal.state.phase, 'exit-terminal');
+  assert.equal(exitTerminal.processedUpdates, 20, 'fade-out clip length is unchanged');
+
+  const telemetry = JSON.parse(JSON.stringify(held.state));
+  assert.deepEqual([telemetry.phase, telemetry.measuredTiming, telemetry.waitFrame, telemetry.holdFrame], ['held', true, 60, 83]);
+});
+
+test('measured wait and hold follow eligibility, identity and cancellation rules', () => {
+  const begun = beginHomeApplicationTransition(null, identity(), { kind: 'close' }, { measuredTiming: true }).state;
+  const inhibited = step(begun, 12, { eligible: false });
+  assert.equal(inhibited.state, begun);
+  assert.equal(inhibited.processedUpdates, 12);
+  assert.equal(advanceHomeApplicationTransition(begun, identity(2), 12, eligible).state, begun, 'stale identity cannot advance');
+  assert.equal(cancelHomeApplicationTransition(begun, identity()).state, null);
+  assert.equal(cancelHomeApplicationTransition(begun, identity(2)).state, begun);
+  assert.equal(beginHomeApplicationTransition(begun, identity(), { kind: 'close' }).state, begun, 'same identity stays idempotent');
+
+  let held = step(step(step(begun, 60).state, 20).state, 30).state;
+  assert.equal(held.phase, 'held');
+  assert.equal(step(held, 5, { eligible: false }).state, held);
+  assert.equal(cancelHomeApplicationTransition(held, identity()).state, null);
+});
+
+test('measured timing is close-only and leaves source-timed close and switch unchanged', () => {
+  assert.throws(() => beginHomeApplicationTransition(null, identity(), { kind: 'switch', appId: 'camera' }, { measuredTiming: true }), RangeError);
+  for (const intent of [{ kind: 'close' }, { kind: 'switch', appId: 'camera' }]) {
+    const begun = beginHomeApplicationTransition(null, identity(), intent).state;
+    assert.equal(begun.phase, 'closing');
+    assert.equal(begun.measuredTiming, false);
+    assert.equal(begun.waitFrame, null);
+    const terminal = step(begun, 50).state;
+    assert.equal(terminal.phase, 'terminal');
+    const after = step(terminal, 50);
+    assert.equal(after.processedUpdates, 1);
+    assert.equal(after.state.phase, intent.kind === 'close' ? 'exiting' : 'complete');
+    assert.equal(after.state.holdFrame, null);
+  }
 });

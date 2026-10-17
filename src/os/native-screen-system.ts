@@ -4,7 +4,7 @@ import { releaseSystemInputs, reduceSystem, cancelManualForRecovery } from './sy
 import { reduceMenu } from './state.ts';
 import { selectedSuspendedApplication } from './home-suspended-window.ts';
 import {homeSoftwareDialogKey,homeSoftwareClosingDialogKey} from './home-software-dialog.ts';
-import {cancelSystemHomeApplicationTransition} from './system-home-application-transition.ts';
+import {cancelSystemHomeApplicationTransition,sampleSystemHomeApplicationTransition} from './system-home-application-transition.ts';
 import {cancelSystemHomeFolderClose} from './home-folder-close-system.ts';
 
 /** Cancel held repeats/touches before the host ticks an unseen application.
@@ -24,7 +24,8 @@ export function releaseUnreadyNativeInput(state:MenuState,status:NativeScreenSta
  * Launch normally ignores HOME; this explicit browser escape also works there. */
 export function escapeUnreadyNativeScreen(state:MenuState,now:number):MenuState{
  const s=state.system;
- if(homeSoftwareClosingDialogKey(state))return cancelSystemHomeApplicationTransition(releaseSystemInputs(state,now));
+ // The measured pre-dialog wait shares the closing dialog's recovery cancel.
+ if(homeSoftwareClosingDialogKey(state)||sampleSystemHomeApplicationTransition(state)?.phase==='waiting')return cancelSystemHomeApplicationTransition(releaseSystemInputs(state,now));
  if(homeSoftwareDialogKey(state))return reduceSystem(releaseSystemInputs(state,now),'back',now);
  if(s?.phase==='home'&&state.powered&&state.opened&&!state.panel&&!s.sleeping&&!s.preferences&&!s.dialog){
   // Recovery cannot wait for the unavailable folder's native close resources.

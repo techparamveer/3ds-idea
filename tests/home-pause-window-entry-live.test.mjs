@@ -469,7 +469,11 @@ test('compact keeps pause appearance while dialog, close, stale capture and disp
     let pair = paint(compact, 101); assert.equal(appear(pair.events), 3); assert.equal(pane(window(pair.events), 'N_Wndw_00').alpha, 55);
     assert.equal(launcherSceneFrame(pair.events), 3); assert.equal(pane(window(pair.events), 'N_Root_00').alpha, 0);
     assert.equal(hudFrame(pair.events), 3);
-    const dialog = reduceSystem(state, 'back', 6700); pair = paint(dialog, 102); assert.equal(appear(pair.events), undefined); assert.equal(pair.events.some(event => event.name === 'pause-lower'), false);
+    // Health footer Close now starts the measured static wait: paint keeps the suspended HOME as presented.
+    const waiting = reduceSystem(state, 'back', 6700); assert.equal(waiting.system.homeApplicationTransition.phase, 'waiting');
+    pair = paint(waiting, 102); assert.notEqual(appear(pair.events), undefined, 'measured wait keeps the pause presentation');
+    const dialog = tickSystem(tickSystem(waiting, 6700), 7700); assert.equal(dialog.system.homeApplicationTransition.phase, 'closing');
+    pair = paint(dialog, 102); assert.equal(appear(pair.events), undefined); assert.equal(pair.events.some(event => event.name === 'pause-lower'), false);
     assert.equal(hudFrame(pair.events), 41, 'dialog retains its settled HUD');
     const close = reduceSystem(dialog, 'open', 6800); pair = paint(close, 103); assert.equal(appear(pair.events), undefined); assert.equal(pair.events.some(event => event.name === 'pause-lower'), false);
     assert.equal(hudFrame(pair.events), 41, 'close retains its settled HUD');

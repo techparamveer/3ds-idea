@@ -95,7 +95,9 @@ function requestApplicationClose(state:MenuState,now:number):MenuState {
  const owner=s.runtime.application?s.runtime.instances[s.runtime.application]:undefined;
  // Observed Health HOME Close returns directly; do not generalize its policy to other titles or switching.
  if(s.phase==='home'&&s.app==='health-safety'&&owner?.appId===s.app&&selectedTitle(state)?.id===owner.appId&&owner.suspended&&!owner.closing&&s.runtime.active===null&&s.runtime.homeReturn===owner.id){
-  return beginSystemHomeApplicationTransition({...state,system:{...s,dialog:null,pending:null,input:createInputLatch()}},{kind:'close'});
+  // Measured adaptation: this direct footer Close uses the native-measured
+  // pre-dialog wait and dialog hold (HOME_APPLICATION_CLOSE_MEASURED_TIMING).
+  return beginSystemHomeApplicationTransition({...state,system:{...s,dialog:null,pending:null,input:createInputLatch()}},{kind:'close'},{measuredTiming:true});
  }
  return {...state,system:{...s,dialog:'close',input:createInputLatch()}};
 }

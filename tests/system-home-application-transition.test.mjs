@@ -40,7 +40,8 @@ test('folder Health Close release retires software without departing its folder'
     state = dispatchSystemEvent(state, { type: 'touch', phase: 'down', pointerId: 7, x: 52, y: 226 }, 6400);
     state = dispatchSystemEvent(state, { type: 'touch', phase: 'up', pointerId: 7, x: 52, y: 226 }, 6500);
     assert.equal(state.system.dialog, null);
-    assert.equal(sampleSystemHomeApplicationTransition(state)?.phase, 'closing');
+    assert.equal(sampleSystemHomeApplicationTransition(state)?.phase, 'waiting');
+    assert.equal(sampleSystemHomeApplicationTransition(state)?.measuredTiming, true);
     assert.equal(sampleSystemHomeFolderClose(state), null);
     assert.equal(state.system.runtime.application, owner);
     state = closeFooterReturnStart(state);
@@ -100,6 +101,7 @@ function confirmClose(state, now = 6500) {
   state = reduceSystem(state, 'open', now);
   assert.equal(state.system.dialog, null);
   assert.ok(sampleSystemHomeApplicationTransition(state));
+  assert.equal(sampleSystemHomeApplicationTransition(state).measuredTiming, false, 'confirmed close keeps source timing');
   return state;
 }
 
@@ -114,7 +116,38 @@ function confirmSwitch(state, target = 'about', now = 6500) {
   return state;
 }
 
+// Measured adaptation (direct Health footer Close): 60 static frames precede
+// AppQuit/FadeIn frame 0, and the FadeIn terminal pose is held 83 frames.
+function measuredWait(state, now) {
+  assert.equal(sampleSystemHomeApplicationTransition(state)?.phase, 'waiting');
+  state = tickSystem(state, now);
+  const startCount = state.system.homeClock.updateCount;
+  state = tickSystem(state, now + 100 * FRAME);
+  const transition = sampleSystemHomeApplicationTransition(state);
+  assert.equal(transition?.phase, 'closing');
+  assert.equal(transition?.appQuitFrame, 0);
+  assert.equal(transition?.waitFrame, 60);
+  assert.equal(state.system.homeClock.updateCount, startCount + 60, 'outer batch stops at closing frame 0');
+  return state;
+}
+
+function measuredHold(state) {
+  const startCount = state.system.homeClock.updateCount;
+  state = tickSystem(state, state.system.homeClock.lastNow + 100 * FRAME);
+  const transition = sampleSystemHomeApplicationTransition(state);
+  assert.equal(transition?.phase, 'held');
+  assert.equal(transition?.holdFrame, 83);
+  assert.equal(transition?.appQuitFrame, 20);
+  assert.equal(transition?.dialogExitFrame, null);
+  assert.equal(state.system.homeClock.updateCount, startCount + 83, 'outer batch stops at the hold terminal frame');
+  return state;
+}
+
 function terminal(state, now = 6500) {
+  if (sampleSystemHomeApplicationTransition(state)?.phase === 'waiting') {
+    state = measuredWait(state, now);
+    now = state.system.homeClock.lastNow;
+  }
   state = tickSystem(state, now);
   const startCount = state.system.homeClock.updateCount;
   state = tickSystem(state, now + 40 * FRAME);
@@ -132,6 +165,7 @@ function commitTerminal(state, now = 6500) {
 
 function closeExitTerminal(state, now = 6500) {
   state = terminal(state, now);
+  if (sampleSystemHomeApplicationTransition(state)?.measuredTiming) state = measuredHold(state);
   state = tickSystem(state, state.system.homeClock.lastNow + FRAME);
   assert.equal(sampleSystemHomeApplicationTransition(state)?.phase, 'exiting');
   assert.equal(sampleSystemHomeApplicationTransition(state)?.dialogExitFrame, 0,

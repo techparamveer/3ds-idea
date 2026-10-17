@@ -34,7 +34,7 @@ function healthCloseAtFooterExitStart() {
   const launched = tickSystem(launchHomeShortcut(home, 'health-safety', 3010), 6200);
   const suspended = reduceSystem(launched, 'home', 6300);
   let state = reduceSystem(suspended, 'back', 6400), before = suspended;
-  for (let i = 0; i < 8 && state.system.homeApplicationTransition?.phase !== 'footer-exiting'; i += 1) {
+  for (let i = 0; i < 12 && state.system.homeApplicationTransition?.phase !== 'footer-exiting'; i += 1) {
     before = state;
     state = tickSystem(state, state.system.homeClock.lastNow + 1000);
   }
@@ -59,7 +59,16 @@ test('first selection establishes a current-count baseline without replay or imp
 
 test('software close requests selected content once, at departure frame 4', () => {
   const { suspended, before, state } = healthCloseAtFooterExitStart();
-  assert.deepEqual(homeApplicationBannerBoundary(suspended, reduceSystem(suspended, 'back', 6400)), { kind: 'clear' });
+  // Measured adaptation: the static pre-dialog wait keeps the suspended
+  // selection; the upper banner clears with AppQuit/FadeIn frame 0.
+  const waiting = reduceSystem(suspended, 'back', 6400);
+  assert.equal(waiting.system.homeApplicationTransition?.phase, 'waiting');
+  assert.equal(homeApplicationBannerBoundary(suspended, waiting), undefined);
+  assert.deepEqual(resolveHomeBannerHostSelection(waiting), resolveHomeBannerHostSelection(suspended));
+  const closing = tickSystem(tickSystem(waiting, 6400), 7400);
+  assert.equal(closing.system.homeApplicationTransition?.phase, 'closing');
+  assert.equal(closing.system.homeApplicationTransition?.appQuitFrame, 0);
+  assert.deepEqual(homeApplicationBannerBoundary(waiting, closing), { kind: 'clear' });
   assert.deepEqual(resolveHomeBannerHostSelection(before), { kind: 'clear' });
   assert.equal(homeApplicationBannerBoundary(before, state), undefined, 'departure frame 0 no longer requests');
   assert.deepEqual(resolveHomeBannerHostSelection(state), { kind: 'clear' });

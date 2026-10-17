@@ -193,3 +193,19 @@ test('dialog readiness applies to unselected retained owners and recovery only c
  for(const overlay of ['sleeping','preferences']){const hidden=structuredClone(state);hidden.system[overlay]=true;assert.equal(homeSoftwareDialogKey(hidden),null);const r=renderer();assert.equal(drawHomeSoftwareDialog(r,{}, {},hidden),false);assert.equal(r.calls.length,0);}
  assert.equal(homeSoftwareDialogKey(suspended()),null);
 });
+
+test('measured Health Close wait shows no closing dialog and shares its recovery cancel',()=>{
+ const launched=reduceSystem(tickSystem(launchHomeShortcut(tickSystem(createPortfolioState(),3001),'health-safety',3010),6200),'home',6300);
+ const waiting=reduceSystem(launched,'back',6400);
+ assert.equal(waiting.system.homeApplicationTransition.phase,'waiting');
+ assert.equal(homeSoftwareClosingDialogKey(waiting),null,'HOME stays as presented during the wait');
+ assert.equal(homeSoftwareDialogKey(waiting),null);
+ const escaped=escapeUnreadyNativeScreen(waiting,6450);
+ assert.equal(escaped.system.homeApplicationTransition,null);
+ assert.equal(escaped.system.runtime.application,launched.system.runtime.application);
+ const closing=tickSystem(tickSystem(waiting,6400),7400);
+ assert.equal(closing.system.homeApplicationTransition.phase,'closing');
+ assert.ok(homeSoftwareClosingDialogKey(closing));
+ const held=structuredClone(closing);Object.assign(held.system.homeApplicationTransition,{phase:'held',appQuitFrame:20,holdFrame:40});
+ assert.equal(homeSoftwareClosingDialogKey(held),homeSoftwareClosingDialogKey(closing),'hold keeps the dialog identity');
+});

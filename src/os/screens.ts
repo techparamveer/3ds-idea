@@ -20,7 +20,7 @@ import {homeSoftwareDialogKey,homeSoftwareClosingDialogKey,homeSoftwareDialogTit
 import {drawHomeSoftwareClosingDialog} from './home-software-closing-dialog';
 import { homeSuspendedApplication, homeSuspendedIconDisappeared, homeSuspendedWindowEntryFrame, retainedSuspendedApplication, selectedSuspendedApplication, drawHomeSuspendedWindow, type SuspendedWindowMetadata } from './home-suspended-window';
 import { homeCloseWindowOpacity } from './home-close-window-fit';
-import { sampleSystemHomeApplicationTransition } from './system-home-application-transition';
+import { presentedSystemHomeApplicationState, sampleSystemHomeApplicationTransition } from './system-home-application-transition';
 import { createHomeSuspendedPresentation, getHomeSuspendedSleepFrame, syncHomeSuspendedPresentation } from './home-suspended-presentation';
 import { sampleHomeEntryMotionCandidate, acknowledgeHomeEntryMotionCandidate, homeEntryMotionMatches, homeEntryMotionActive, homeFolderEntryPose, homePauseEntryPresentation, homePauseHudSceneInFrame, homePauseLowerPresentation, HOME_FOLDER_ENTRY_LAST_FRAME, type HomeEntryMotion, type HomeEntryMotionIdentity, type HomeFolderEntryPose, type HomePauseLowerPresentation, type HomeSuspendedBackgroundPresentation } from './home-entry-motion';
 import { acknowledgeHomeEntryBannerPresentation, acknowledgeHomeEntryFooterRelease, acknowledgeHomeEntryFooterTerminal, bypassHomeEntryBannerPresentation, createHomeEntryPresentation, getHomeEntryFooterReadiness, homeEntryBannerActivationDue,
@@ -806,6 +806,8 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   * Manual and outgoing applet entry consume it without making the paint diagnostic. */
  function paint(state:MenuState,date=new Date(),elapsedMs=0,verification?:{sampleCalendar?:boolean;homeHudSample?:DiagnosticHomeHudSample;homeWallpaperFrame?:number;homeCursorLoopFrame?:number;reuseHomeBackgroundMs?:number;manualEntryObservedElapsedMs?:number}):ScreenPaintResult|undefined{
   if(disposed)return;
+  // Measured close wait: paint the suspended HOME exactly as presented.
+  state=presentedSystemHomeApplicationState(state);
   if(options.measurePaint)graphics.clearPaintMeasurements?.();
   lastPaintTiming=options.measurePaint?{startedAt:performance.now(),preOverlayMs:null,overlayMs:null,titleIncomingMs:null,titleIncomingDetail:null,notificationsStockDetail:null}:null;
   if(options.cameraTextProbe)graphics.clearTextDiagnostic();

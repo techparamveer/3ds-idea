@@ -71,6 +71,14 @@ test('application close publishes terminal and retirement pairs independent of c
   assert.equal(applicationCloseNeedsPaint(returnMiddle,returnTerminal,false),true);
   assert.equal(applicationCloseNeedsPaint(returnTerminal,null,false),true);
   assert.equal(applicationCloseNeedsPaint(returnStart,returnStart,false,true),true);
+  // Measured close wait: closing frame 0 is an endpoint; static wait/hold steps are not.
+  const waiting={phase:'waiting',waitFrame:30,appQuitFrame:0,dialogExitFrame:null};
+  const closingStart={phase:'closing',waitFrame:60,appQuitFrame:0,dialogExitFrame:null};
+  const held={...terminal,phase:'held',holdFrame:40};
+  assert.equal(applicationCloseNeedsPaint(waiting,{...waiting,waitFrame:31},false),false);
+  assert.equal(applicationCloseNeedsPaint(waiting,closingStart,false),true);
+  assert.equal(applicationCloseNeedsPaint(held,{...held,holdFrame:41},false),false);
+  assert.equal(applicationCloseNeedsPaint(held,{...exitStart,phase:'exiting'},false),true);
   assert.equal(applicationCloseNeedsPaint(returnTerminal,returnTerminal,false,true),true);
   assert.equal(applicationCloseNeedsPaint(returnMiddle,returnMiddle,false,true),false);
   assert.equal(applicationCloseNeedsPaint(footerStart,footerStart,false,true),true);

@@ -60,6 +60,13 @@ fixture failure, 103 skips, one TODO; typecheck and build pass. Ten local-only
 worker branches and one uncommitted folder-hover WIP (commit 7626654) are
 pushed unmerged as `preserve/codex/*` on origin; none is integrated.
 
+17 October: per the user, subagents now run free models through the opencode
+CLI (`~/.opencode/bin/opencode`): workers `opencode run -m
+opencode/deepseek-v4.1-flash-free`, independent reviewer `opencode run -m
+opencode/glm-5.3-flash-free` (different model from the worker). Run them from
+the worker's own worktree with self-contained briefs; the coordinator verifies
+their commits and check results before integrating.
+
 One coordinator, at most two workers and one reviewer. Root alone owns shared
 docs, integration, Azahar and the production browser.
 

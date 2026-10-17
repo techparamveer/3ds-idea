@@ -2,7 +2,7 @@
 
 ## Checkout
 
-Reconciled HEAD: `216e964` plus this evidence commit (git wins).
+Reconciled HEAD: `137a8d4` plus this evidence commit (git wins).
 Git wins if this differs from HEAD. Reconcile before another slice or worker.
 Keep this file current, not append-only.
 
@@ -338,9 +338,11 @@ Notifications Close audit is closed with no broad-order defect.
    accepted; spend-limit stall). Run 3 (private `health-suspend-close-native-3/`)
    repeats run 1: suspend 0.882 s; touch->fade 0.956 s (run 1 1.035); fade
    0.889 s; "Closing software..." static 1.388 s (run 1 1.37); exit 0.588 s.
-   Next: worker candidate adding the measured ~1.0 s pre-dialog wait and
-   ~1.38 s dialog hold to grid-title Close from suspended HOME, review, checks,
-   browser recapture.
+   Integrated as 137a8d4 (worker 2a5eeef, Sonnet APPROVE-WITH-NITS): direct
+   suspended-HOME Close waits 60 frames, holds the dialog 83 frames. Browser
+   recapture: wait 1.01 s, hold 1.35 s (match). Remaining: dialog fade-in
+   0.35 s vs native ~0.88 s; exit+return 0.85 s vs native 0.59 s. Private
+   `closing-dialog-hold-browser/`.
 6. Keep the generic production experiment closed and PR #8 unmerged. No retry,
    replacement tuning campaign or rebuild of either frozen build. Keep Manual
    loader and folder cursor source-only investigations closed until a new

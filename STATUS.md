@@ -334,9 +334,12 @@ Notifications Close audit is closed with no broad-order defect.
    `health-suspend-close-native/`, `health-suspend-close-browser/`): suspend
    0.90 s; Close shows "Closing software..." ~1.0-1.4 s after the touch, holds it
    ~1.37 s, HOME back ~3.9 s after touch. Browser (HEAD da3814a): dialog at
-   +0.04 s, no hold, HOME back +1.25 s. Next: second native run for
-   repeatability, then a worker candidate fitting the dialog delay/hold if it
-   repeats (Codex left this host timing as an open adaptation).
+   +0.04 s, no hold, HOME back +1.25 s. A second native run (private
+   `health-suspend-close-native-2/`) aborted: HOME key presses were not
+   accepted, then the coordinator hit the monthly spend limit and Azahar idled
+   overnight; it was terminated in read-only Health and config restored to
+   031bc535. Next: repeat run 2 (press HOME with the window verified focused),
+   then fit the dialog delay/hold only if it repeats.
 6. Keep the generic production experiment closed and PR #8 unmerged. No retry,
    replacement tuning campaign or rebuild of either frozen build. Keep Manual
    loader and folder cursor source-only investigations closed until a new

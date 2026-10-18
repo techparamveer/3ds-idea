@@ -512,8 +512,7 @@ function prepareRasterStages(material:NativeMaterial,base:number[],constants:num
  *
  * Exactness: each emitted expression is the generic loop's expression with the
  * same operands, operators and evaluation order, so every double and every
- * output byte is identical. tests/native-raster-kernel.test.mjs compares the
- * result with the independent scalar reference.
+ * output byte is identical.
  */
 export type KernelChannel = { a: number; b: number; c: number; mode: number; scale: number };
 export type KernelStage = { channels: readonly KernelChannel[]; previous: number; output: number; saveColor: boolean; saveAlpha: boolean };

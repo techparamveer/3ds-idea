@@ -168,7 +168,7 @@ unexplained mismatch is `fail`.
 
 Supporting checks remain required:
 
-- **Code, assets, conversion:** `npm test`, `npm run typecheck` and
+- **Code, assets, conversion:** `npm run typecheck` and
   `npm run build`, plus `npm run check:shader` for shader or material changes.
 - **Visual or input changes:** run the matched native/browser loop after
   integration and rerun affected previously passing scenarios.

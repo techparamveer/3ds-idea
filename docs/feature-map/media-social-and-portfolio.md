@@ -170,7 +170,7 @@ and delivered Notifications/receive-lamp/slidebar packs. Tests:
 
 | ID | Reachable screen or route | Implemented behavior | Gap or adaptation |
 | --- | --- | --- | --- |
-| C-NTF-01 | populated `notifications/main` | Nine source-profile titles in timestamp order, eight unread flags, neutral entry, four full rows plus clipped fifth, decoded information badges and source blue lamps | Default source rows are deliberately disabled because bodies are unverified; opening does not mark read; title-local `HudMenu_00` is bound (SceneIn 40, no WalkCoin). The 3347 HUD source-gap claim was **REJECTED**. Matched-clock recapture leaves HUD `[0,0,400,28]` **182**, all in battery; [charging Bat](../notifications-hud-battery-2026-10-04.md) now follows shared `chargingBatteryFrame` / `0x181018` (odd → 4, even → 5; this atlas `HudBatPlg` is even 5). After pixels await recapture. Colon stays a visible even-path adaptation |
+| C-NTF-01 | populated `notifications/main` | Nine source-profile titles in timestamp order, nine unread flags (eight before the 16 October native-folder-slow fixture), neutral entry, four full rows plus clipped fifth, decoded information badges and source blue lamps | Default source rows are deliberately disabled because bodies are unverified; opening does not mark read; title-local `HudMenu_00` is bound (SceneIn 40, no WalkCoin). The 3347 HUD source-gap claim was **REJECTED**. Matched-clock recapture leaves HUD `[0,0,400,28]` **182**, all in battery; [charging Bat](../notifications-hud-battery-2026-10-04.md) now follows shared `chargingBatteryFrame` / `0x181018` (odd → 4, even → 5; this atlas `HudBatPlg` is even 5). After pixels await recapture. Colon stays a visible even-path adaptation |
 | C-NTF-02 | directional list movement | Activates focus, advances the selected row and windows later rows into view | Settled-entry scrollbar `[291,0,320,210]` **2479** is a labelled [source gap](../notifications-scrollbar-2479-2026-10-04.md) on already-bound `SlideBar` Select 0 plus unsupported `N_Slide_00` `[0,55,0]` (unused Invalid hides the thumb; Select 1 only darkens 22×22 chrome; dump has no second pre-sized thumb); native count rule, motion and lamp pulse remain unverified |
 | C-NTF-03 | empty `notifications/main` | Explicit saved empty array remains empty and shows the no-notifications state | Earlier empty-state assumption is superseded for new profiles, which seed the nine-row fixture |
 | C-NTF-04 | custom saved row -> `notifications/notification` | Non-source custom rows can open stored message text and B returns | Generic fallback only: no native detail painter, title/body provenance, read transition or detail scroll; not acceptance-ready |
@@ -178,7 +178,7 @@ and delivered Notifications/receive-lamp/slidebar packs. Tests:
 Persistence preserves explicit empty/custom arrays and never ships `news.db`.
 Default and custom rows remain read-only.
 
-Evidence: matrix v99 / unread-dot `f073581` compared the source-profile list
+Evidence (predates the 16 October nine-unread fixture; recapture before reuse): matrix v99 / unread-dot `f073581` compared the source-profile list
 at 6,239 upper / 3,876 lower pixels over 2/255. Badge and three unread-marker
 crops each have zero pixels above 2/255, and the unread balloon
 `[100,40,300,160]` is **0**, but the full scenario fails. The HUD 3347

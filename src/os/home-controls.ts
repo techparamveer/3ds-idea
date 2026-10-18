@@ -7,6 +7,7 @@ import { createHomePrimaryCursor, setHomePrimaryCursorRequest, updateHomePrimary
 import { createHomeCursorPresentation, consumeHomeCursorObservation, advanceHomeCursorPresentation,
   updateHomeCursorEffectPositions, type HomeCursorPresentation } from './home-cursor-presentation.ts';
 import { advanceHomeCursorLoop } from './home-cursor-loop.ts';
+import { observeSystemHomeSuspendedScale } from './home-suspended-scale.ts';
 import { activeHomeRecord, getHomeExposedExtent, sampleHomeGrid, writeHomeNavigation, type HomeNavigation } from './home-navigation.ts';
 import { consumeHomeGridKeyEvent, selectHomeToolbarTouch, selectHomeTouchSlot, type HomeScrollObservation, type HomeScrollState } from './home-scroll-consumer.ts';
 import { advanceSystemHomeFolderCloseNative, consumeSystemHomeFolderCloseInput,
@@ -222,7 +223,7 @@ export function selectHomeControlTouch(state: MenuState, slot: number): MenuStat
   if (!controls || !isHomeControlsActive(state)) return null;
   const result = selectHomeTouchSlot(homeScrollState(state), slot);
   if (result.disposition === 'unsupported') return null;
-  return put(writeScroll(state, result.state), observe({ ...controls, tileCandidate: null }, result.observations));
+  return observeSystemHomeSuspendedScale(put(writeScroll(state, result.state), observe({ ...controls, tileCandidate: null }, result.observations)), result.observations);
 }
 /** Accepted toolbar touch selection enters the same focus/cursor model as
  * directional navigation. A repeated same-focus release is activated by the
@@ -232,7 +233,7 @@ export function selectHomeToolbarControlTouch(state: MenuState, focus: number): 
   if (!controls || !isHomeControlsActive(state)) return null;
   const result = selectHomeToolbarTouch(homeScrollState(state), focus);
   if (result.disposition === 'unsupported') return null;
-  return put(writeScroll(state, result.state), observe({ ...controls, tileCandidate: null }, result.observations));
+  return observeSystemHomeSuspendedScale(put(writeScroll(state, result.state), observe({ ...controls, tileCandidate: null }, result.observations)), result.observations);
 }
 /** Adapter boundaries for app/overlay/context changes. Ordinary direction passes
  * never use this path; their retained state advances only in stepHomeControls. */

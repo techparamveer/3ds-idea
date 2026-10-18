@@ -1,169 +1,381 @@
-# STATUS — 1:1 firmware UI
-
-Rewrite this file whenever `HEAD` moves or localhost starts or stops.
-If this SHA disagrees with `git rev-parse HEAD`, git wins; rewrite this file before any worker.
-
-Updated: 8 October 2026.
-
-## Hack LDN 2025 branch
-
-Active checkout: `/Users/paramveer/.codex/worktrees/hack-ldn-2025/3ds-idea`.
-Branch: `codex/hack-ldn-2025`, checked base `c9a5da54fd2dc3cf330e889fbcfcde96ab1a8c00`.
-User requests a new application cloned from NVIDIA, with a Blender-authored
-animation of their supplied HACK > LDN logo. This explicitly adds a ninth
-portfolio app. Reuse the existing CogniLink content, native AppModule path and
-play-once banner behavior. NVIDIA remains intact on its own branch and here.
-Artifacts: `/Users/paramveer/.codex/3ds-artifact-overflow/hack-ldn-2025-20261008/`.
-User correction: no cube. The pixel chevron leads a unique two-row lettering
-reveal, turns the corner, then settles into the logo.
-Preview starts on `http://127.0.0.1:3049/?lcdCapture=1` with muted local preferences.
-The inherited NVIDIA preview remains on port3048.
-Implementation: `36aefe8efb1478a15a8a1cd84d71a189b1a073ee`; Git supplies the documentation HEAD.
-Implemented and browser-inspected; 34 focused checks pass. Typecheck/build/shader
-pass; full suite has 2,168 passes and one existing Camera fixture failure.
-See [Hack LDN notes](docs/hack-ldn-2025-animation.md).
-Native UI and firmware acceptance are outside this portfolio adaptation.
-
-## Nvidia animation branch (inherited history)
-
-This isolated user-requested portfolio branch is `codex/nvidia-transform` at
-`/Users/paramveer/.codex/worktrees/nvidia-transform/3ds-idea`, based on
-`5ee6fd7a42b0239c5f55f375f85593289a0ff532` from current clean `main`.
-The historical fidelity checkout below no longer exists. Git inventory wins.
-Scope: Blender-authored transparent Nvidia box-to-logo banner, a labelled
-portfolio adaptation. No native firmware scenario is changed.
-Private scratch uses `/Users/paramveer/.codex/3ds-artifact-overflow/nvidia-transform-20261008/`
-because the repository instructions prohibit new artifacts on DeveloperStorage.
-Preview: `http://127.0.0.1:3048/?lcdCapture=1`, production build from this branch.
-The isolated browser session has app mute enabled and volume zero.
-Delivered and browser-inspected; see [Nvidia notes](docs/nvidia-transform-2026-10-08.md).
-Implementation commit: `efe4e8da743a90ed67e817c7bd0b0da4d7d87e7f`.
-This checkpoint records that implementation; use Git for the current documentation HEAD.
-Revision 2 starts from checked HEAD `7f06ecf3a60894d5682817c05a5e3e7f2951227f`.
-User correction: follow reference proportions and reveal, add opening cube spin,
-play once and hold logo; remove reverse and loop.
-Revision 2 implementation: `a524cee`. Implemented and browser-verified: full opening spin, closer reference
-reveal, visibly extruded white lettering with dark sides, one-shot playback and
-indefinite logo hold. This earlier preview is superseded by revision 3.
-Revision 3 starts from checked HEAD `4409fb4eddead4a86141f278c5b92bed56bef565`.
-User rejected the eye motion. Scope: cube/eye only; preserve wordmark, opening
-spin and one-shot hold. Compare every source frame and inspect other banners.
-Revision 3 implementation: `26148697835b5c6920caf21f03d18b9682fb61f9`.
-This documentation checkpoint records that implementation; Git supplies its own HEAD.
-Revision 3 implemented: video-derived extruded pixel poses replace the eye wipe;
-source timing is 30000/1001 fps. Wordmark is unchanged. Muted preview at port
-3048 serves revision 3. Full video silhouette comparison and one-shot browser
-checks pass with documented raster-edge residuals; exact 1:1 remains unclaimed.
-Revision 4 starts from checked HEAD `605858d2cce583fe862f43f61a943527384ceacd`.
-User asks for flat lettering again; remove wordmark depth, bevel and tilt.
-Revision 4 rendered and served on the isolated muted port 3048 preview.
-Revision 4 implementation: `9ef09d407c34b999b6d7b114a4182643eec89215` (Git supplies the documentation checkpoint HEAD).
-Revision 4 browser-inspected: flat graphite text on the NVIDIA HOME banner.
-Typecheck, build and shader pass; full suite retains the known missing Camera
-fixture failure (2,167 pass, one fail). Next: user visual review. Native queue remains unrelated.
-Revision 5 starts from checked HEAD `92d542413ca5bd210ce5dd1941081ab62cfdb25c`.
-User confirmed the first version appearance; fix only the cube spin and eye
-carving into the box, using the supplied reference. Reuse original geometry and
-materials; replace pixel reliefs with an ordered carve of the original eye.
-Revision 5 implementation: `be53cd3071ce589d96f3e41fc2fe08f324ec677d`. Git supplies the documentation checkpoint HEAD.
-Revision 5 renders 80 frames, one full spin and an outer-to-inner spiral carve.
-The muted isolated preview at port3048 now serves this restored version.
-Typecheck/build/shader pass; full suite retains its known Camera fixture failure.
-Next for this branch: user visual review.
-Revision 6 starts from checked HEAD `04c05b16e9b1f63689266d247a0b6c35ba5dede4`.
-Scope: opening spin only. Keep a stable upright axis, ease speed and flattening;
-preserve the restored logo/carve sequence from frame 41 onward.
-Revision 6 implementation: `10f1f475b59f62c12cfa363b15494dd58dd9caa9`; Git supplies documentation HEAD.
-Revision 6 browser-inspected on the muted isolated preview; actual renderer playback checks pass.
-Revision 6 rendered: upright YXZ turn, smoothstep yaw and gradual size/depth
-settling through frame 40. Final poster unchanged. Typecheck/build/shader pass;
-full tests retain the known Camera fixture failure. Port3048 serves this revision.
-Revision 7 starts from checked HEAD `9bbfada6643e6dc39476d0bd8c347b16d505c639`.
-User localized the glitch to the spin-to-square transition. Reproduced depth
-collapse while still tilted in frames 33–39. Keep the cube solid until aligned
-and anchor its front face when switching to the carving slab.
-The rebuilt isolated preview now serves revision 7 and the completion-only
-“Hack for Impact” caption centered beneath the logo.
-Revision 7 implementation: `169ae59bc51871149b842799f555eaa00d1baa00`; Git supplies documentation HEAD.
-Revision 7 browser-inspected and timing-checked. Typecheck/build/shader pass;
-full tests retain one known missing Camera fixture failure (2,167 pass).
-Revision 8 starts from checked HEAD `029aafa71ccca7761fd077e2d01e70dfc655c46a`.
-User asks for a larger, bold completion caption. Use 18px NVIDIA-NALA at weight 700,
-following the supplied font-identification screenshot.
-Revision 8 implementation: `f0e4f1a27c60181e4dcbad31a8b7eed947c59992`; Git supplies documentation HEAD.
-Port3048 serves revision 8, browser-inspected with NVIDIA-NALA loaded.
-Caption timing/reset checks, typecheck and build pass. Full tests retain the known
-Camera HNI fixture failure (2,167 pass).
-The historical serving/seats/evidence below are preserved, not verified live.
-
-
-## Product
-
-The page shows only an original **2012 Silver + Black Nintendo 3DS XL (SPR-001)** and its background. Firmware on the two LCDs is **EUR 10.7.0-32E**, English. Eight portfolio apps sit on HOME (Work, Side Projects, Hobbies, Life, HackUK, NVIDIA/Renu, About, Contact). In-scope stock UI: HOME, Settings and helpers, Health, Camera (gallery), Sound, eShop, Zone, Notes, Friends, Notifications, local Browser and Miiverse, amiibo opening, power and launch. Software Keyboard and the six plaza-style titles stay out.
-
-**Done-means:** same inputs in isolated Azahar and the production browser; Azahar 400×480 PNG versus raw LCDs 400×240 / 320×240. Tests, source renders, and a browser look never pass a scenario. Whole-scenario 1:1 is unproven.
-
-**This run:** reconcile (git wins on SHA) then continue from **Next**. Scope fights: [docs/portfolio-ui-scope.md](docs/portfolio-ui-scope.md). Hardware photographs: [GOAL.md](GOAL.md).
+# STATUS: animation fidelity
 
 ## Checkout
 
-| Field | Value |
-| --- | --- |
-| Path | `/Users/paramveer/.codex/worktrees/3ds-home-fidelity-20261001` |
-| Branch | `codex/home-fidelity-20261001` |
-| HEAD | `3b2655a15fd791402bfd40a172bd828b11fc2242` (Settings pairs re-dated). U23 title sampling `73db7a2b` + U23R `30ca4634` on top of Grok native-pair docs `35171903`. `:3000` rebuilt at `a1ee775a` after the Grok coordinator stopped; integration preview at `:3001` from `/Users/paramveer/.codex/worktrees/3ds-integration-preview` |
+Reconciled HEAD: `137a8d4` plus this evidence commit (git wins).
+Git wins if this differs from HEAD. Reconcile before another slice or worker.
+Keep this file current, not append-only.
 
-Runtime clamp `c8a56cba`. Recapture note `eb501e00`. Camera HNI badge bind `d9ddf309`. Date-group bind `5c0199f4` recaptured (fill `(255,161,0)`). Slider source-gap `e6bcca9f` (Grok 4.6 **APPROVE** `90be3135`). Photo-crop source-gap `b75f275d` (Grok 4.6 **APPROVE** `9d3237b6`). Date-text source-gap `82a16d1c` (Grok 4.6 **APPROVE** `62457c68`). Selection source-gap `9c431d1d` (Grok 4.6 **APPROVE** `43173720`). Settings-footer X-scale `99a4362e` (Grok 4.6 **APPROVE**; recapture `d6ce9913` Settings **954→630**). Remaining Settings third then `TxtSet` source-size `9580641b` (Grok 4.6 **APPROVE** `3e9c5170`; recapture `3bdc3192` Settings **630→0**). Welcome p5 live-feed source-gap `679db045` (Grok 4.6 **APPROVE** `f14c2241`). Sound Next `Guid1TxtW` source-size `269e8757` (Grok 4.6 **APPROVE**; recapture `a5b8aa9e` interior **195→0**). Sound volume live-slider source-gap `11f3cb3c` (Grok 4.6 **APPROVE** `c4f0fb90`). Sound Span live-spectrum source-gap `57b04572` (Grok 4.6 **APPROVE** `7614c291`). Sound birds held-offset source-gap `9e335f3a` (Grok 4.6 **APPROVE** `f67628f3`). Sound battery underbar-partition source-gap `76a3635a` (Grok 4.6 **APPROVE** `684a3418`). Sound UnderBar Line01 partition source-gap `6db7e7ef` (Grok 4.6 **APPROVE** `d0d96201`). Sound empty-entry row 1916 source-gap (Grok 4.6 **APPROVE** `2807aeb5`). Sound first-run guide perimeter compositor source-gap `02a60c52` (Grok 4.6 **APPROVE** `6cc31903`). Sound empty-entry mid `S_BG` constant source-gap `636976ad` **REJECTED** by Grok 4.6 (native is dump `S_BG_Grid` ETC1 checker `(223,215,206)`/`(231,223,215)`, bound on library path only); grid bind `603c5388` (Opus 5.5) recaptured: empty-entry lower **16021→7216**, mid **2255→0** / **1024→0**; Grok 4.6 **APPROVE-WITH-NITS** `de5c6445`. Leftover queue `cccf162e`. Camera Welcome p3 `TxtDlg` **1079** source-gap `57af95dd` (Grok 4.6 **APPROVE-WITH-NITS** `7e8e13a1`; host-gate probe `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`). Sound upper 316 labelled `14533857` (volume overhang **42** + `S_Back_U` **274**; Grok 4.6 **APPROVE** `daa93bca`). Camera large thumbs `PicL_SD` bind `89efb7a3` (recapture `6499f0af` lower **10158→8958**). Camera Slideshow header source-size `04f3d6bf` (recapture `5d25e2a5` header **837→0**). Camera thumb interiors 56×42 sample source-gap `84d636e3` (Grok 4.6 **APPROVE** `2258268a`). Product `acabb7af` kept. y=177 `22e8b0a4` (Grok 4.6 **APPROVE** `9fe268f8`). Slider 57 (Grok 4.7 **APPROVE-WITH-NITS** `444ba8e0`). GitHub `/Volumes/DeveloperStorage/GitHub/3ds-idea` on `dev-size-opt` is not this site.
+Coordinator checkout:
+`/Users/paramveer/.codex/worktrees/applet-alpha-retention-20261015/3ds-idea`
+on `codex/applet-alpha-retention-20261015`. Its Git object database is
+`/Volumes/DeveloperStorage/GitHub/3ds-idea/.git`. Do not work in the original
+checkout. Create new source worktrees from this coordinator HEAD.
 
-Dead T3 parents `4a686b7b` / `d4492840` / `d1bc835d` / `580fab2c` / `42eb773b` / `f3c9a760` / `1b455c11` / `3144c062` / `bdb9a612` are not this Coordinator. Do not reconstruct them. The 2485-item orchestration thread `bdb9a612-2378-4e0c-b7e1-6ca2c022ef42` died; this thread is the living coordinator.
+Draft [PR #7](https://github.com/techparamveer/3ds-idea/pull/7) uses remote
+branch `codex/animation-fidelity-20261007`. Latest verified pushed SHA is
+`8eb24f9` (nine-unread fixture `05dc0d1` and lamp epoch `8eb24f9` integrated). Review coherent changes, stage
+explicit paths and push normally. Do not merge, deploy, reset or clean.
 
-## Serving
+Preserve the human edit in
+`/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea/src/os/system.ts`.
+Its last verified SHA-256 is
+`c627fd3fc6e02e06267390fc2e23b9e9223255a0a4bad73f18b2d2d5a8936c82`.
+Do not stage it or edit another worktree.
 
-`127.0.0.1:3000` `LCD_CAPTURE_OUTPUT_ROOT=/Volumes/Sandisk1/3ds-fidelity-artifacts/lcd-export-20261006 npm run start:verify` listen 98253 from this checkout at `a1ee775a` build. Playwright reinstalled at `/Users/paramveer/.codex/3ds-artifact-overflow/claude-browser`. No Sidecar attached (built-in display only). Isolated Azahar **not running** since ~17:05 BST (was pid 1137; `./Azahar.app/Contents/MacOS/azahar` from `/Volumes/Sandisk1/3ds-portfolio-azahar-isolated-20260926`). SHA `3dfdfbed…`. Never `/Applications/Azahar.app`. One isolated NAND only. Volume 0. Nintendo Zone skipped. Pixel acceptance remains Azahar own 400×480 vs raw browser 400×240 / 320×240.
+## Product
 
-## Seats
+Show only the sourced 2012 Silver + Black Nintendo 3DS XL, SPR-001, and its
+background. Preserve its leftward spin, lid, physical controls, touchscreen
+and existing portfolio apps, including the merged Hack LDN 2025 addition.
+Native target is EUR 10.7.0-32E, original hardware mode, English. Follow
+[UI scope](docs/portfolio-ui-scope.md).
 
-| Seat | Who | Cap |
-| --- | --- | --- |
-| Coordinator | Claude Opus 5.5, T3 `mcp:2b23e5fb` (sole live coordinator). Grok 4.6 Cursor session `agent-36cc596c` stopped ~17:05 BST (Cursor app closed; last edit committed in `6d89c7d6`). Subagents via `cursor-agent -p` CLI (T3 delegate_task returns `parent_not_active`) | one |
-| Worker | none running. Next U25 Settings Manual p0 (`ScrollIndicator` bind + text raster) waits on an official native Manual p0 | two |
-| Reviewer | U20R–U23R Claude Opus 5.5 **APPROVE-WITH-NITS**; U24R2 Grok 4.7 xhigh **APPROVE-WITH-NITS** `8dc8c1c6` (Claude rate-limited; T3 delegate_task `parent_not_active` → subagents via `cursor-agent -p` CLI, outputs in `/Volumes/Sandisk1/3ds-fidelity-artifacts/agent-runs-20261006/`). Nits logged, not fixed | one, different model from the worker |
+The active goal covers HOME top-row opening/Close/return, Manual entry/Close,
+folder entry/exit, and HOME suspend/Resume. Moving/reordering/pickup animation
+work is excluded. All four whole flows remain **fail/unproven**.
 
-## Evidence on this tree (static stills; input, motion and audio not compared)
+Done means matched ordinary inputs, pinned decrypted firmware sources,
+isolated Azahar own 400x480 PNGs versus raw browser 400x240 / 320x240 LCDs,
+named hashed pairs, justified masks, inspected diffs and recapture of fixes.
+Tests, source renders, browser regression matches or scaled H264 movies alone
+cannot establish whole native motion, input or cadence. Follow
+[verification](docs/architecture/verification.md).
 
-| Scenario | Upper | Lower | Artifacts |
-| --- | ---: | ---: | --- |
-| `home-idle` Health 1-row left-anchor vs official Azahar `_06.10.26_13.55.03.154.png` `ebbc2743…` at `9f14e0cc` (empty mask `dc4b320b…`) | **23182** | **14754** | `/Volumes/Sandisk1/3ds-fidelity-artifacts/home-idle-20261006/` report `f5d9435f…`; browser `441d366d…` / `656f808f…`; lcdDate `2026-09-25T10:52:00Z`; native vacant neighbor vs browser Settings; HUD clock/battery live. Not pass |
-| `home-compact-health-camera` vs official `_06.10.26_14.40.41.189.png` `93058283…` at `8c612e04` (empty mask `dc4b320b…`) | **30032** | **47436** | `/Volumes/Sandisk1/3ds-fidelity-artifacts/home-compact-20261006/` report `f2fceb55…`; Camera browser `b368f61d…` / `ac6485d2…`; Settings browser half kept `8d1b17ab…` / `50d721ec…`. Native: Health compact sleep + Camera + 2-row + Mii/StreetPass. Browser: Camera banner + 1-row Health\|Settings\|Camera. U19 STOP `2b384723`. Not pass |
-| `settings-internet-connections-roundtrip` vs official `f0c5d093…` after U21+U22+U23 (preview `:3001` build `3186f1ec`; browser lcdDate = native screenshot time; empty mask) | **169** | **1008** | `/Volumes/Sandisk1/3ds-fidelity-artifacts/settings-title-sampling-20261006/internet-dated/` report `1f258627…`; browser `8bd51bb6…` / `7db2f398…`. Upper = HUD clock/battery `[339,5,394,14]` (same 169 class as Other p3/p4). Lower = native first-run helper face + AA. Not pass |
-| `settings-data-software-empty` root vs official `686d3dfb…` after U21+U22+U23 (preview `:3001` build `3186f1ec`; browser lcdDate = native screenshot time; empty mask) | **14** | **177** | `/Volumes/Sandisk1/3ds-fidelity-artifacts/settings-title-sampling-20261006/data-dated/` report `0f8c7442…`; browser `c55280db…` / `d99efd12…`. Upper **14** = one title stem column x=248. Lower AA max Δ41. D-pad focus uncaptured. Not pass |
-| `settings-data-software-empty` list vs official `9c5cb75c…` after U20+U22+U23+U24 `SD Card` lcd sampling `22490950` (U24R2 Grok 4.7 **APPROVE-WITH-NITS** `8dc8c1c6`) (preview `:3001` build `70c4b070`; lcdDate = native time; empty mask) | **6** | **22** | `/Volumes/Sandisk1/3ds-fidelity-artifacts/settings-sdcard-label-20261006/software/` report `74ee4570…`; browser `928fe9e8…` / `379919e6…`. Upper 6 = description-edge px in `TextBox_00` (319,195-196; 179,212-219). Lower 22 hairline. Not pass |
-| `settings-data-extra-empty` vs official `_06.10.26_15.10.40.169.png` `7c7f2f93…` at `8c612e04` (empty mask `dc4b320b…`) | **6989** | **51927** | `/Volumes/Sandisk1/3ds-fidelity-artifacts/settings-data-parental-20261006/extra/` report `df368b47…`; browser `24d456d5…` / `f5b70337…`. Native ? row vs browser empty copy. Same 65536 blocks gap. Not pass |
-| `settings-parental-pin-boundary` vs official `98fb3d62…` after U22+U23 (preview `:3001` build `3186f1ec`; browser lcdDate = native screenshot time; empty mask) | **169** | **0** | `/Volumes/Sandisk1/3ds-fidelity-artifacts/settings-title-sampling-20261006/parental-dated/` report `74ecb2b3…`; browser `57362ce8…` / `b571493f…`. Upper = HUD `[339,5,394,14]` 169 class. No PIN. Not pass |
-| `health-general` vs official `_06.10.26_15.17.30.791.png` `c63b1153…` at preview `:3001` `70c4b070` (empty mask `dc4b320b…`) | **0** | **0** | `/Volumes/Sandisk1/3ds-fidelity-artifacts/health-general-frame-sweep-20261006/` report `f6d1afbb…` **pixel-threshold-pass** max Δ2; browser `bfdf9da2…` / `1d829435…` at `lcdHealthFrame=252` (sweep; was frame 15 → 23993), lcdDate = native time. Static still only; TopLoop launch timing, input, audio not compared. Not whole-scenario pass |
-| `health-general-held-down` vs official `_06.10.26_16.05.17.323.png` `5593d9d3…` at `7b47bd57` (empty mask `dc4b320b…`) | **24904** | **19206** | `/Volumes/Sandisk1/3ds-fidelity-artifacts/health-held-down-20261006/` report `abb7e07a…`; browser `a0e63170…` / `cc80acbe…`. General after 18 Down taps. Upper TopLoop. Lower paneY: native half-clipped WARNING vs browser full bullet. Thumb-drag still owed. Not pass |
-| `camera-sixcell-browse` vs official `_06.10.26_16.19.55.191.png` `7f67f64b…` at `7b47bd57` (empty mask `dc4b320b…`) | **94661** | **16898** | `/Volumes/Sandisk1/3ds-fidelity-artifacts/camera-folder-20261006/` report `7194813a…`; browser `d6086990…` / `1649ce00…`. Renu View Photos. Native date-group + 3 thumbs vs browser 6-photo grid. Folder native still owed. Did not Shoot. Not pass |
-| `settings-nnid-unsigned` vs official `_06.10.26_15.02.14.961.png` `cc610faa…` at `4bb5d136` (empty mask `dc4b320b…`) | **82096** | **74907** | `/Volumes/Sandisk1/3ds-fidelity-artifacts/settings-nnid-20261006/` report `6ca33395…`; browser `6ea86f3a…` / `c1a5b348…`. Native Sign in chrome vs portfolio Account-services-unavailable. Labelled adaptation. Did not Sign in. Not pass |
-| `settings-system-transfer` vs official `_06.10.26_15.45.04.222.png` `01ff4af3…` at `8c612e04` (empty mask `dc4b320b…`) | **22816** | **76797** | `/Volumes/Sandisk1/3ds-fidelity-artifacts/settings-transfer-20261006/` report `dd2ae5b0…`; browser `0e531310…` / `b1d9a863…`. Native eShop-required dialog vs portfolio 3DS/DSi choices. Labelled adaptation. Did not launch eShop. Not pass |
-| `settings-other-page1-home-a-touch` vs official `98d0fc9d…` at U23 (preview `:3001` build `3186f1ec`; browser lcdDate = native screenshot time; empty mask) | **117** | **0** | `/Volumes/Sandisk1/3ds-fidelity-artifacts/settings-title-sampling-20261006/other-dated/` report `e5f37367…`; browser `8ed59bee…` / `809e0f98…`. Upper 117 = HUD `[353,2,363,16]` only (was 217). Held 0/0 vs `424ffb45…` remains. Not pass |
-| `browser-start-menu-local` vs official `_06.10.26_15.37.10.852.png` `e8562da9…` at `8c612e04` | — | — | `/Volumes/Sandisk1/3ds-fidelity-artifacts/browser-start-20261006/` native-only. HOME toolbar → Open is System Update required, not start menu. Update excluded. **blocked**. Welcome pair still mismatch. Not pass |
-| `settings-other-page1` vs native `424ffb45…` at runtime `5c3903da` (Mac built-in, date `2026-09-26T03:31:10Z`, HEAD `22b13f20`) | **0** | **0** | `regression-recapture-20261005/settings-other-page1/` report `c3481bf7…` max Δ2; held |
-| `settings-other-page3` / `page4` vs natives `76ff0914…` / `32509749…` at `603c5388` | **169** | **8** / **35** | `regression-recapture-20261005/settings-other-p34/` reports `d7fe7218…` / `5b9a9133…`; counts held; upper **169** dump-bound Bat 4/5 + `T_TimeC_00` `a74309f6` **APPROVE** `1cb78f2f` |
-| `notifications-list-unread-dot` vs native `58fff714…` at `c8a56cba` (Mac built-in) | **0** | **0** | `home-fidelity-20261001/notifications-scrollbar-1-clamp-recapture-20261005/` report `34eb7d08…` lower `8a624950…` |
-| `camera-readonly-view-photos-page1` HNI vs native `cae793c3…` at `3bdc3192` (Mac built-in, SDMC) | **33522** | **7491** | `home-fidelity-20261001/camera-settings-txtset-recapture-20261005/` report `b7da8109…` lower `2657bb85…`; header y<32 **0**; Settings third **630→0** **APPROVE**; date pane **1006**; slider **1992**; photo crop labelled; selection labelled **APPROVE**; thumbs interiors **846/918** labelled **APPROVE** `2258268a` |
-| Camera Welcome p3/p4 vs natives `3ad989b5…` / `38c19ca0…` at `1863c4e4` | — | **2479** / **2093** | interiors **1078** / **692**; p3 **1079→1078** (one pixel); p4 held; host-gate `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`; recapture `camera-welcome-gate-recapture-20261005/` reports `039e9887…` / `7d33cdf2…`; colour spans still keep the direct sampler off |
-| Sound first-run vs native `9dea0cc2…` at `a5b8aa9e` (Mac built-in) | **6094** | **6072** | `home-fidelity-20261001/sound-guide-next-recapture-20261005/` report `3aeaf442…` lower `d78f43b6…`; interior **0**; Next **0**; perimeter **6072** = **860** dimmed grid + **4416** half + **728** (**144** row + **53** footer + **531** within 2) + **68** fringe; veil **REJECT** `be862ce6`; subsets **APPROVE-WITH-NITS** `d72ab4b1`; volume **130** labelled **APPROVE**; Span **2314** labelled **APPROVE**; birds **1558** labelled **APPROVE**; battery ROI **1** labelled **APPROVE**; Line01 `(92,220)` labelled **APPROVE** |
-| Sound empty-entry vs native `65fc5f88…` at `603c5388` (Mac built-in) | **6222** | **7216** | battery **183→1** labelled **APPROVE**; Line01 labelled **APPROVE**; row **1916** labelled **APPROVE** `2807aeb5`; mid-body `[41,96,47,48]` **2255** / under-lip `[136,116,48,28]` **1024** `S_BG` constant gap `636976ad` **REJECTED**; `S_BG_D-Grid` bind `603c5388` **APPROVE-WITH-NITS** `de5c6445` recaptured lower **16021→7216**, mid **0**/**0** (`sound-grid-recapture-20261005/`, lower `860b3222…`); slider ROI **4271→377** (checker **0**; **57** `C_SldH_L` **APPROVE-WITH-NITS** `444ba8e0`); y=177 **320** **APPROVE** `9fe268f8`; volume **130** labelled **APPROVE**; Span **2442** labelled **APPROVE**; birds **1558** labelled **APPROVE** |
-| Camera Welcome p1 vs native `52a6dcf7…` at `1863c4e4` (Mac built-in) | **0** | **1401** | interior **0** / perimeter **1401** held (`camera-welcome-gate-recapture-20261005/page1/`, report `04aa56e1…`) |
-| Camera Welcome p5 vs native `616fbeae…` at `1863c4e4` (Mac built-in) | **7615** | **1401** | interior lower **0**; illustration centre **0**; live-feed gap **APPROVE** `f14c2241` held (report `21cbb596…`) |
+No guessed native graphics, community fonts or audio. Keep element-to-manifest
+provenance; unsupported selected resources fail explicitly. Portfolio content,
+read-only Camera fixtures, first-use differences, font-resolution uncertainty,
+selected-first return population and other documented compositor/timing fits
+remain adaptations or gaps. Muted audio acceptance is unverified.
 
-Unread-dot empty mask, max RGB 2, compare status 0. Sound Next interior 0. Camera Slideshow header 0. Camera Settings third 0. Welcome p5 **7615** live-feed source-gap **APPROVE**. Volume **130** live-slider source-gap **APPROVE**. Span **2314**/**2442** live-spectrum source-gap **APPROVE**. Birds **1558** held-offset source-gap **APPROVE**. Battery `[45,216,85,240]` **1** underbar-partition source-gap **APPROVE**. Line01 `(92,220)` partition source-gap **APPROVE**. Empty-entry row **1916** **APPROVE**. Thumb interiors **846/918** **APPROVE**. Guide perimeter **6072** = **860** dimmed grid + **4416** half + **728** (**144** row + **53** footer + **531** within 2) + **68** fringe; veil **REJECT** `be862ce6`; subsets **APPROVE-WITH-NITS** `d72ab4b1`. Empty-mid **2255**/**1024** → **0**/**0** by grid bind `603c5388` **APPROVE-WITH-NITS** `de5c6445`. p3 `TxtDlg` **1079→1078** after host-gate `1863c4e4` **APPROVE-WITH-NITS** `42d62c69`. Sound upper 316 labelled `14533857` **APPROVE** `daa93bca`. y=177 **320** labelled `22e8b0a4` **APPROVE** `9fe268f8`. Slider **57** **APPROVE-WITH-NITS** `444ba8e0`. Plus-tint strip **1992** kept `ed55865e` **APPROVE** `b6620fa4`. HOME 1-row tail **291** **APPROVE** `f72296ff`. HOME idle Health 1-row left-anchor **23182 / 14754** empty mask (title/wallpaper **12255**, vacant-vs-Settings **7045**, HUD **2328**). **Static still only.** Whole scenarios still fail.
+## Seats and usage
+
+16 October handover: the Codex plan ended and the Codex coordinator thread
+`01a0f8e9` can no longer run. Claude Opus 5.5 in Claude Code is now the sole
+coordinator, continuing from this file. Codex helpers (GPT-5.6/6.1 Sol) are
+unavailable; use Claude subagents for workers and a different-model reviewer
+where available. The Codex weekly-usage heartbeat no longer applies.
+On handover, root reran the PR head 7e4c337: 2,996 pass, the one known Camera
+fixture failure, 103 skips, one TODO; typecheck and build pass. Ten local-only
+worker branches and one uncommitted folder-hover WIP (commit 7626654) are
+pushed unmerged as `preserve/codex/*` on origin; none is integrated.
+
+17 October: per the user, subagents now run free models through the opencode
+CLI (`~/.opencode/bin/opencode`): workers `opencode run -m
+opencode/deepseek-v4.1-flash-free`, independent reviewer `opencode run -m
+opencode/glm-5.3-flash-free` (different model from the worker). Run them from
+the worker's own worktree with self-contained briefs; the coordinator verifies
+their commits and check results before integrating.
+
+One coordinator, at most two workers and one reviewer. Root alone owns shared
+docs, integration, Azahar and the production browser.
+
+The historical assignments below are closed. Both native auditors are done
+and their reservations released. Root inspected
+all four sheets and rehashed each audit's originals and derivatives unchanged.
+The bounded cold-draw diagnosis is complete at private report `a36272ee`.
+It identifies local Node raster first-execution cost; its Canvas transport is
+an emulator, so it does not rule out real browser Canvas cost. Root reran one
+Friends child without overwriting the results. No production change follows.
+The private headed probe is complete: eight first-page runs, two per app/mode,
+all 21 paired source poses equal across modes and repeats. First-draw samples
+favor generic title backgrounds; later-frame medians are higher in that mode.
+This small standalone sample is not a production performance verdict. The
+GPT-6.1 Sol high review is complete at private `applet-cold-browser-probe/review`,
+report 272dad8a. It supports one scoped production experiment only, with later
+cost as an explicit rejection gate. Its PICA-normalization fixture finding has
+no effect on the 160 visible rasters but must be corrected in future probes.
+All workers and reviewers are released. Experimental source a3094c2, test
+correction 5e1dec9 and handoff 74db674 are frozen in the separate
+`applet-generic-background-20261015/3ds-idea` worktree, branch
+`codex/applet-generic-background-20261015`. Source review cf22e0da and follow-up
+077fb86e are complete with no remaining finding. Full suite has 2,993 passes,
+one known Camera PNG failure, 103 skips and one TODO. Nonincremental typecheck
+and build pass. The candidate is preserved in separate closed, unmerged
+[PR #8](https://github.com/techparamveer/3ds-idea/pull/8), based on PR #7; it is
+not integrated or adopted. See [candidate](docs/applet-generic-candidate-2026-10-15.md).
+Root corrected private `applet-generic-production/audit-tools` pair selection
+and requested/observed hold labels. Tool dc346145 passes syntax and 14 in-memory
+checks. The sole real campaign audit, 1980935a, validates 253 A1 pairs but
+rejects the incomplete experiment. AC power and Energy Saver changed during
+A1, so root stopped without retry. No candidate production run occurred and
+PR #8 is closed without adoption. All helpers are released. The read-only
+next-defect review selects Notifications unread-marker appearance for one
+bounded native idle series before any source change.
+See [registry](docs/feature-map/workstreams.md).
+Independent GPT-6.1 Sol high checkpoint review is complete. Its one stale
+RESTART serving sentence was corrected; its reservation is released. Report
+is private `applet-native-opening/checkpoint-review/report.md`.
+
+Independent review b70fc11c is complete at f68f3fd in the separate
+notifications-marker-pulse-20261016/3ds-idea worktree. Both findings are fixed:
+Close no longer jumps to frame 60, and only rendered unread rows key redraws.
+The GPT-5.6 Sol high source worker completed candidate checks/build and is
+released. The GPT-5.6 Sol high auditor completed the pulse audit and now owns
+only private notifications-marker-close/audit, now completed and released.
+No source edits are assigned.
+Focused 66 checks pass. The initial full run exposed 40 unhydrated LFS model
+failures and two missing test-stub exports; all are corrected without changing
+assertions. The hydrated rerun has 2,996 passes, one known Camera PNG failure,
+103 skips and one TODO. Source dbefd3a is integrated through ab73c31; src,
+public, tests and package/build config exactly match the candidate commit.
+Native title-specific
+clock and start epoch remain unknown. Host elapsed phase and LCD VBlank rate
+are explicit adaptations; feedback continues that same curve.
+Typecheck and candidate build pass. Root alone owns shared docs and GUI.
+The baseline build stays frozen.
+
+The Codex weekly 10% stop rule and its `3ds-weekly-usage-stop-guard` heartbeat
+belonged to the ended Codex account. The user cancelled the Grok/My King bot
+message; send no external message.
+
+## Serving and display
+
+No owned test server, Guest window, recorder or Azahar process is active.
+The native Close run finalized a silent 30.198333-second movie and two own PNGs.
+Root inspected the scoped pilot and both anchors. One ordinary Close reached
+HOME; PID 20838/session 93351 exited 0 and is absent. screenshotPath is restored.
+Final config is 031bc53517a1557c1b6fab2d341a2b9b10a304eb79665decaeccdb89a05ed1ad;
+only Qt gameListHeaderState differs from pre-config. The audited native run is
+preserved under private `notifications-native-close`; see `run.md`. No source,
+server, Guest window or further native inputs remain active.
+The idle candidate run saved all 295 pairs, then closed Guest 5787 and server
+13235. The separate Close regression saved all 511 pairs, then closed Guest
+5839 and server 12327, exit 130; port 3047 has no listener. Native follow-up
+closed Azahar 6247/session 15662, exit 0, and restored config d460f825.
+Latest power readback reports AC attached, 40% battery and charging. The earlier
+low-power hold is resolved. Recheck power before capture; battery percentage
+is separate from the weekly account stop rule.
+
+Earlier closed probe: root completed all eight private
+probe runs on the built-in MacBook, then closed owned Guest window 5092 and
+stopped server 3048 (session 56904, exit 130); the port has no listener. The
+browser was Chrome for Testing 153.0.8010.12, V8 15.3.76.4, PID 55412, at
+88,61,1200,1028. Executable is under Library/Caches/ms-playwright/chromium-1243.
+Root verified "Unmute Site" on inert /health before loading any probe. There
+was one rejected navigation before slot 3; state was refreshed, and no Run was
+retried. Eight unique receipts exist, in policy order, with distinct page IDs.
+Root inspected Friends and Notifications final paired LCDs. Other regular New
+tabs and unrelated applications remain untouched. The earlier attempted
+agent-browser binding timed out and may have opened a regular New tab.
+
+Test only on the MacBook built-in display. Last verified geometry is display 1,
+1800x1169 logical, 3600x2338 backing pixels. Recheck display/window bounds
+before inputs. Keep dedicated test browsers muted and isolated Azahar at
+volume 0, Null output 1 and Static input 2. Never change system or Spotify audio.
+Use CuaREPL for GUI. The approved silent exact-window recorder requires a
+decoded scope pilot before each new native motion run.
+
+The preserved baseline production runtime is `b83b7683aaba2f50ce9a7724e1a7e370deac19bd`, build
+`g-qLVPFQLrJnvHrbuaS0e`, in the coordinator checkout. Capture HEAD was
+`1ea60b619e1d9ee205a19522a036c28354aa3311`; later documentation commits do not
+change that identity. Keep this build and earlier captured builds frozen.
+Coordinator source now includes the pulse fix, so its old build is not current
+source. Serve the matching reviewed candidate from its separate worktree only.
+The current matching candidate is
+`/Users/paramveer/.codex/worktrees/notifications-marker-pulse-20261016/3ds-idea`,
+branch `codex/notifications-marker-pulse-20261016`, HEAD
+`dbefd3a37510f70a13174c1354157b07f51001df`, build `SlhhiQG_tCeNraLO8aw43`.
+Its source/public/tests/config exactly match integrated ab73c31. All 2,425
+files in private `notifications-marker-pulse/candidate-before.json` rehash
+unchanged before/after both browser runs. Do not rebuild this captured candidate.
+The older generic experiment build `qrqJDhOcclmu2RuyNXUMi`, checkout 74db674,
+also stays frozen and is not adopted. The coordinator's old baseline `.next`
+has 231 unchanged files; its full old source inventory no longer matches
+because reviewed source was integrated. Keep build and source claims separate.
+
+## Evidence
+
+The [pulse fix](docs/workstream-handoffs/notifications-marker-pulse-20261016.md)
+is integrated and pushed through ab73c31. Native follow-up has 43 own PNGs;
+the candidate browser has 295 pairs and 254 ready frames. Fixed first-ready
+comparison, empty masks, no phase fitting. Browser rows 2-4 now have 57 raw
+states, with 224 ready frames changing above delta 2. No lower changes above
+that threshold occur outside all four marker regions. Four chronological native
+samples locally match common marker rows at delta 2, not exact RGB. Native
+phase/cadence, first-row read fixture, upper residuals and all whole flows remain
+open. Root inspected six pages and rehashed 928 originals and 19 derivatives.
+Audit report 0b125779 and seal 2e90176a live under
+`notifications-marker-pulse/audit`. Close audit bafcc8d7 under
+`notifications-marker-close/audit` verifies all 511 pairs, complete source-frame
+coverage and no forced-60 jump at first feedback. Root inspected its sheet and
+rehashed 1,533 originals and seven derivatives.
+
+The native Notifications Close audit is closed: private
+`notifications-native-close/audit/report.md`, SHA-256
+`a36ed9f01629e49145d417d16bcd2666dbb8af9afed4539146f18195909738b5`.
+Frozen semantic selectors find the same broad order as the 511-pair browser
+recording: ready, footer feedback, white outgoing footer, full cover with HOME
+belt, HOME population, then banner. No broad-order Close defect is shown and
+no source change follows. Native 13 and browser 1,533 originals rehash
+unchanged; all 1,678 movie frames decode and frames 394-639 were reviewed on
+ten pages. Static anchors, empty mask, delta 2: ready 2,427 / 1,371, settled
+HOME 55,048 / 25,135. Those totals are fixture-dominated: native unread 9 versus
+browser 8, ordinary versus portfolio HOME icons. The H264 movie cannot prove
+moving LCD pixels, native input epoch, cadence or marker-freeze semantics.
+
+Nine-unread fixture, 16 October: the live `native-folder-slow` news.db
+(`4b35c1b2`) has all nine records unread; the browser fixture still followed
+the older `4b9ed183` profile (record 53 read). Candidate 343df3d flips news053
+to unread (Sonnet review APPROVE-WITH-NITS, nits fixed in 3a57a0a); full
+checks 2,996 pass plus the known Camera failure; typecheck/build pass, build
+`JxxeiXraVDydQH_b7bWFg`. Integrated as 05dc0d1. Muted Playwright recapture
+of the ready list against native `_16.10.26_00.52.39.526.png` (`eced67c9`),
+lcdDate = native time, empty mask, delta 2: upper **2,427 -> 1,623** (count 9
+and Unread 9 now match; glyph-edge AA and clock remain), lower 2,608 confined
+to the four lamp discs x0..28 (pulse phase differs; row-1 lamp now present).
+No phase fitted. Private `notifications-unread-fixture/run.md`, metrics
+`88dc6e62`, sheet `8ad25b38`. The held `f073581` unread-dot pair predates the
+fixture and needs recapture before reuse. Static still only; not a pass.
+
+The completed Notifications idle audit is private
+`notifications-marker-idle/audit/report.md`, SHA-256
+`dc5b612ad13388ff67066d60ff189dcbd2a3165a57ac101f323483a4e641af17`.
+All 985 originals rehash unchanged; 660 PNGs fully decode. Native markers have
+five raw states in 0.775 seconds, while all 263 ready browser pairs over
+13.0394 seconds retain one state. Root inspected both all-ten comparison
+sheets. Common rows 2-4 differ at 1,866-1,977 pixels above RGB delta 2.
+The other 189 persistent lower pixels are precisely the row-1 read fixture;
+none persist outside all four marker regions. Supplemental localization code
+and seal preserve that calculation without changing the original audit.
+This proves a missing pulse, not a geometry error, native cadence or phase.
+
+[Alpha retention](docs/applet-alpha-retention-2026-10-15.md) bounds opaque-alpha
+scratch canvases inside the existing 8 MiB LRU. Source review `e64b0eb0` has
+no findings. Focused 104 checks, nonincremental typecheck and build pass.
+Full suite: 2,992 pass, 103 skip, one TODO and one known failure, the missing
+historical Camera PNG in `tests/camera-date-group.test.mjs:44`.
+Do not weaken it or call the suite green. No shader/material change occurred.
+
+Browser audit `11d5d1dd` validates 859 pairs and 1,718 complete PNG decodes.
+All 2,649 candidate/selected-baseline originals rehash unchanged. Root inspected
+all nine sheets. Every Friends comparison and lower LCD is exact. Nine
+Notifications upper clock/battery residuals remain unmasked. The 600-pair
+Notifications frame-limit is a preserved protocol deviation. Missing source
+values, first-cold title costs and native motion/cadence remain open.
+
+The closed native Friends run saves a silent 90.21-second movie and two
+own 400x480 PNGs. It reaches first-use help then error 002-0121. No normal
+Close, Notifications input, error dismissal or account/network changes followed.
+Root inspected the pilot and anchors. Process 4443 exited and is absent.
+
+A separate first native Notifications opening saves a silent 30.051667-second
+movie and two own 400x480 PNGs. It reaches the list, unread 9 versus browser 8.
+There was no further in-title input, Close or retry. Root inspected its pilot
+and anchors. Process 23650 exited and is absent. Both
+[native audits](docs/applet-native-opening-2026-10-15.md) are closed with root
+inspection. No broad-order or Notifications belt-direction defect was found.
+Notifications ready endpoints differ at 2,407 upper and 2,237 lower pixels
+above RGB delta 2, empty masks. Read-state/clock differences and remaining
+unread-marker pixels stay explicit. Neither movie supplies raw moving LCD PNGs
+or native input epochs.
+
+After both runs, the temporary screenshot path was restored. Final isolated
+config SHA-256 is
+`d460f825fc8e490e6e59648f40dd426b8807bcacc71a7872bf671817ce0c8750`.
+Only Qt game-list header state changed across the last run.
+
+Earlier repairs and remaining defects are in the
+[progress record](docs/progress-2026-09-24.md),
+[feature map](docs/feature-map.md) and
+[workflow](docs/animation-fidelity-workflow-2026-10-07.md). Do not repeat closed
+Manual feedback, folder tray-path, HOME scale interpolation, retained Resume,
+missing Close-cover or selected-first return repairs without a new defect.
+
+## Native reference
+
+Use only
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/native-folder-slow/Azahar.app`.
+Executable SHA-256:
+`3dfdfbed147cfb420f224385e832191833d07b0951d4b86326ab193e2deb3b21`.
+Pinned HOME `00040030/00009802/content/00000082.app` SHA-256:
+`c622d1c5584d7fae6622b6c20b258e93f7924b294651d669a539da2955d9521d`.
+Recheck process absence, mute, private storage, no escaping symlinks, original
+hardware, region 2, en_GB, normal 100% and disabled RPC/GDB before launch.
+Never launch generic Azahar or mutate original firmware/profile files. Restore
+only approved temporary HOME/screenshot fields after GUI Quit and PID absence.
+See [reference isolation](docs/native-reference-profile-isolation.md).
 
 ## Next
 
-Queue: [feature map](docs/feature-map.md). Health General **23993 / 0**. Health held-down **0 / 19206** (frame 292; lower = held-key scroll distance). Settings Internet **4899 / 1008**, Data root **4956 / 177**, Software empty **6011 / 22**, Extra Data **6989 / 51927**, Parental intro **4595 / 0**, Transfer **22816 / 76797**, exact Other p1 **217 / 0**, NNID unsigned-in **82096 / 74907**. Browser start menu **blocked** (update gate `e8562da9…`). Coordinator Next: recover isolated Azahar AX (window 7112 unresolved inside Camera shoot; did not Shoot) then Camera folder native / Notifications scroll native / Sound p2/p3 native. Notes editor browser `50cb7097…` / `33daea28…` and Friends card `04afa1ba…` / `4c78b5cb…` kept. N057 owed. Do not A excluded. No PIN. Zone skipped. Do not stop. Not 1:1.
+The four-flow goal stays active under the Claude coordinator. The native
+Notifications Close audit is closed with no broad-order defect.
 
-## History
+1. Notifications lamp epoch is integrated (`8eb24f9`, worker candidate
+   c9159f3, Sonnet review APPROVE-WITH-NITS, nits logged in the workflow).
+   Native movie: period 2.0059 s, loop frame 0 at -11.9 ms from the first
+   destination pixels. Browser 208-pair ordinary opening on build
+   `SMk_vghgoea7lOUb0Z2Fo`: period 2.0035 s, loop frame 0 at -22.6 ms from
+   incoming frame 0 (receipt spacing ~45 ms). Private
+   `notifications-lamp-epoch/report.md` `496dbea4`, `browser-run.md` `80b4eb4f`.
+   Native feedback-freeze and suspend-return lamp semantics remain untraced.
+2. HOME neighbour reveal after toolbar-applet Close is integrated (`5afea42`,
+   worker b22e57d, Sonnet review APPROVE-WITH-NITS). Browser 268-pair ordinary
+   Notifications Close (build `bGhH0zgNObb_zhiBrYC_S`): first group +105 ms,
+   remaining +322 ms, banner +368 ms after handoff, against native +94..124 /
+   +309..375 / with last group. Open: native footer-to-HOME-base takes
+   2.95-3.08 s versus browser 0.98 s (long native white cover, possibly
+   emulator reload time); group 1 differs because the browser retains a grid
+   selection; other toolbar apps use the Notifications schedule by extension.
+   Private `home-reveal-groups/browser-run.md`.
+3. Native covered hold integrated (`991a908`, worker 09fe41f, Sonnet review
+   APPROVE-WITH-NITS: `back` during Notes/Notifications close can still end it
+   early; close cue timing unverified while muted). Browser 390-pair Close
+   (build `CSwmV7jBter1bceL0yJMM`): hold 1.978 s, HOME starts +2.489 s after
+   release versus native +2.334/+2.475. Remaining: browser HOME incoming
+   (in:0..20, 0.47 s) versus native population-to-base ~0.07-0.11 s, so the
+   browser finishes ~0.4-0.5 s later. Native frames 556-600 show HOME fading in
+   while the belt exits over ~0.28-0.33 s, close to the 20-frame source track;
+   the browser's 0.47 s comes from ~44 fps paints under synchronous recording
+   (one source frame per paint, an existing adaptation). No source change.
+   Native also shows Camera a few frames before Sound/Mii and the banner
+   scaling in. Private `close-cover-hold/`.
+4. Native Manual Close (Camera; private `manual-native-close/`): same white
+   cover + "HOME Menu" belt, static hold 2.115 s, then selected Camera first and
+   all neighbours together ~0.4 s later, banner after. The reveal already matches
+   the selected-first Manual fit. The 120-frame hold now covers Manual Close
+   (`216e964`, worker 9bece56, Sonnet review APPROVE). Browser 456-pair Camera
+   Manual Close (build `w4AEwZuz3KgwEnPEpGUv-`): hold 1.984 s versus native
+   2.115 s. Private `manual-cover-hold/`.
+5. Native Health suspend + Close from suspended HOME (private
+   `health-suspend-close-native/`, `health-suspend-close-browser/`): suspend
+   0.90 s; Close shows "Closing software..." ~1.0-1.4 s after the touch, holds it
+   ~1.37 s, HOME back ~3.9 s after touch. Browser (HEAD da3814a): dialog at
+   +0.04 s, no hold, HOME back +1.25 s. Run 2 aborted (HOME key not
+   accepted; spend-limit stall). Run 3 (private `health-suspend-close-native-3/`)
+   repeats run 1: suspend 0.882 s; touch->fade 0.956 s (run 1 1.035); fade
+   0.889 s; "Closing software..." static 1.388 s (run 1 1.37); exit 0.588 s.
+   Integrated as 137a8d4 (worker 2a5eeef, Sonnet APPROVE-WITH-NITS): direct
+   suspended-HOME Close waits 60 frames, holds the dialog 83 frames. Browser
+   recapture: wait 1.01 s, hold 1.35 s (match). Remaining: dialog fade-in
+   0.35 s vs native ~0.88 s; exit+return 0.85 s vs native 0.59 s. Private
+   `closing-dialog-hold-browser/`. Per-region native frames show the dialog
+   fade itself is ~0.3 s (matches); the 0.88 s included footer/mask change.
+   Exit gap (0.26 s) is minor and partly recorder cadence; logged, not fitted.
+6. AN-01 opening covered hold: native Notifications opening holds a static
+   white cover + lower belt 1.235 s (run 1) / 1.192 s (run 2, private
+   `notifications-native-open-2/`) before the list; browser cover:20 ->
+   incoming:0 is 0.10 s. Next: DeepSeek (opencode) worker adds a 72-frame
+   opening covered hold for toolbar applets, GLM review, checks, recapture.
+7. Keep the generic production experiment closed and PR #8 unmerged. No retry,
+   replacement tuning campaign or rebuild of either frozen build. Keep Manual
+   loader and folder cursor source-only investigations closed until a new
+   captured defect supports a change.
+8. Integrate reviewed fixes in separate source worktrees. Run focused/full
+   checks, typecheck and build, then perform the matched muted verification loop.
+   Update evidence, commit explicit paths and push to draft PR #7. Continue the
+   four-flow goal until complete or genuinely blocked.
 
-Append-only log: `/Volumes/Sandisk1/3ds-claude-codex-handoff/LOG.md`.
-It is not the restart prompt.
+## Storage and history
+
+Write new private artifacts only under
+`/Volumes/Sandisk1/3ds-fidelity-artifacts/animation-20261007/continuation-20261015/`.
+Do not write new artifacts to the full DeveloperStorage sparsebundle. Preserve
+originals and closed evidence. Append handoffs to
+`/Volumes/Sandisk1/3ds-claude-codex-handoff/LOG.md`.
+
+The previous 1,358-line STATUS is preserved byte-for-byte at private
+`status-before-native-opening-audit-20261015.md`, SHA-256
+`6349eef3236497206fe4c552cdf1224338f973679d0d23e0664688bb8977b6c9`.
+Git also retains earlier checkpoints. Historical seats, servers, models and
+next steps are not current instructions.

@@ -38,7 +38,7 @@ export function screenPaintFps(quality: RenderQuality, transitionAdvanced: boole
 export function applicationCloseNeedsPaint(before: HomeApplicationTransition | null,
   after: HomeApplicationTransition | null, reduced: boolean, resumed = false): boolean {
   if (!after) return before !== after;
-  const endpoint = reduced || after.phase === 'terminal'
+  const endpoint = reduced || (after.phase === 'closing' && after.appQuitFrame === 0) || after.phase === 'terminal'
     || (after.phase === 'exiting' && after.dialogExitFrame === 0)
     || after.phase === 'exit-terminal'
     || (after.phase === 'footer-exiting' && after.footerExitFrame === 0)

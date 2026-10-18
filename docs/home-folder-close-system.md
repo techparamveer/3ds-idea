@@ -99,6 +99,24 @@ completion callback is accepted by the adapter.
 
 ## Additional source evidence for painting
 
+### Folder layout translation
+
+Integrated5884417 adds the [ordinary entry/Back caller translation](workstream-handoffs/folder-origin-transition-20261012.md).
+Setup saves the selected root grid position before loading child history.
+Each lower task computes float32 `u = 1 - current / 16` and multiplies both
+saved coordinates by `u` twice. Its receiver is `LncFolder_00.RootPane`.
+The layout pass then applies that same current frame before advancing the
+controller. Presentation uses the exposed `appliedFrame`, not the next frame.
+
+`getNativeFolderTranslation` derives the coordinates from the retained root
+selection, density and viewport. Both `folderChrome` and `folderChild` pass
+the same override to the existing renderer. Empty and occupied children inherit
+it through their authored parent bindings. Frame16/reduced endpoints retain
+zero offset. The authored scale, alpha, animation clock, state ownership and
+resource identities are unchanged; moving/pickup routes remain excluded.
+
+### Child parent bindings
+
 The close setup does not establish a blanket hide-all-child-icons rule.
 `0x1de558` calls `0x2a6cf4`, which iterates ordinary slot layouts at scene+0x830.
 At `0x2a6d38–0x2a6d4c`, category5 chooses `N_BlankAnime_00`; other categories

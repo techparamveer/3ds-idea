@@ -59,6 +59,22 @@ evidence is retained in the
 Their precise activation/clip phases, native displacement and capture epochs
 remain unproved.
 
+## Footer return adaptation, 10 October
+
+Reviewed integration `31fe8c0` retires only the selected primary after accepted
+Notes/Notifications main-list footer outgoing completion. The two existing
+close controllers gate replacement activation until their accepted uncovered
+HOME handoff. Their raw active queries remain authoritative through rendering
+ineligibility; hidden, failed or revoked publication does not release the hold.
+Wallpaper, global HOME clock, selection and scope allocator survive. Loading
+may proceed while activation is held. No timer or new counter is introduced.
+
+This caller reset and handoff gate are capture-fitted adaptations, not recovered
+native dispatch. Generic source mechanics above remain distinct evidence.
+Opening, B/HOME, callers, subscreens, folders and other applets are unchanged.
+See [implementation and provenance](workstream-handoffs/applet-return-banner-20261010.md)
+and [production evidence](applet-return-banner-delivery-2026-10-10.md).
+
 ## Host integration
 
 Create one lifecycle with `createHomeBannerLifecycle()`. Its manager and scene

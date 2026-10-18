@@ -1,4 +1,777 @@
-# Goal: a faithful silver Nintendo 3DS XL portfolio
+# Goal: finish the four remaining native animation flows
+
+16 October AN-01: the [generic experiment](docs/applet-generic-candidate-2026-10-15.md)
+is closed unadopted in PR #8. A1 Friends saved253 pairs, but power/Energy Saver
+changed during the run. The fixed campaign stopped without retry. All originals
+validate; no candidate performance result or native pass follows. Preserve both
+builds and continue actual visual defects, not another timing-tuning campaign.
+
+15 October AN-01: the [generic-background candidate](docs/applet-generic-candidate-2026-10-15.md)
+is reviewed, checked and preserved separately in draft PR #8. It is not adopted.
+The fixed production comparison has not started: low MacBook battery and
+Energy Saver were found during preflight. Resume capture only after power and
+both frozen builds are rechecked. All workers are released. STATUS owns Next.
+
+15 October AN-01: the [private browser comparison](docs/applet-cold-browser-probe-2026-10-15.md)
+preserves exact selected pixels across eight runs. Generic backgrounds have
+lower first-draw samples but higher later and aggregate costs. One scoped
+production candidate may be tested after review; no production improvement
+or native pass is claimed. Keep the frozen build and reject the candidate if
+the complete opening regresses. STATUS owns the active assignment.
+
+15 October AN-01: the [native opening comparison](docs/applet-native-opening-2026-10-15.md)
+is audited and root-inspected. Friends and Notifications agree in broad opening
+order; no new belt-direction correction follows. Friends ends in first-use
+help/error, not the browser own card. Notifications ready pixels retain unread
+fixture, clock and marker differences. Exact moving pixels, input/cadence and
+muted audio remain unproven. Next isolate the measured first-cold title cost,
+not repeat this broad-order check. STATUS is now a concise live checkpoint;
+its previous text is preserved privately and in Git. The 10% weekly stop rule,
+no external message and no automatic resume remain in force.
+
+15 October AN-01: [alpha retention b83b768](docs/applet-alpha-retention-2026-10-15.md)
+fixes reproduced stock-raster eviction without changing source pixels or clocks.
+The 859-pair regression is audited and nine sheets inspected. All Friends and
+lower LCD comparisons match; Notifications clock/battery differences remain
+unmasked. Cold first draws and missing pose coverage remain open. Native Friends
+reaches service error002-0121; normal Close and Notifications were not issued.
+All four whole flows remain fail/unproven. STATUS owns active work; the latest
+AGENTS preference is GPT-5.6 Sol high helpers, normal speed. Stop at 10% weekly
+remaining, no external message and no automatic resume.
+
+15 October AN-01: the [detailed paint measurement](docs/applet-paint-detail-2026-10-15.md)
+is reviewed, tested and recorded in 529 paired frames. First title drawing
+takes 35.9/29.9 ms; a Notifications incoming18 HUD-key recomposition takes
+75.6 ms. The fixed image audit is closed: 38 of 46 LCD comparisons are exact;
+eight Notifications upper clock/battery residuals remain unmasked. Next reduce those measured costs
+without changing poses, clocks or native HUD updates. The diagnostic itself
+is not a visual repair or native acceptance. All four whole flows remain
+fail/unproven. STATUS owns active seats and next actions.
+
+15 October AN-01: the [incoming raster candidate](docs/applet-incoming-raster-2026-10-15.md)
+is reviewed, tested and captured in 618 pairs. Its observed sustained title
+draw cost is lower, but 7/10 source values remain missing. A fresh 188-pair
+endpoint control matches baseline and candidate exactly on both LCDs and shows
+candidate source is unnecessary for the historical Friends header residual.
+That residual's cause remains unknown; no header workaround or native pass
+follows. The control is closed. Next measure the first title draw's upper/lower
+costs and Notifications recomposition reason before another scheduling/cache
+change. Preserve both builds. All four whole flows remain fail/unproven. This
+next action supersedes history; STATUS records active seats and usage.
+
+15 October AN-01: the [incoming paint measurement](docs/applet-incoming-cost-2026-10-15.md)
+identifies title drawing as the dominant paint interval in both first openings.
+The diagnostic is reviewed, tested and captured in 462 paired frames. Next
+reuse the already-validated opaque title backgrounds without changing source
+poses or clocks, then review and recapture. All four whole flows remain
+fail/unproven. This next action supersedes the history below.
+
+15 October AN-01: the [destination scheduling correction](docs/applet-destination-scheduling-2026-10-15.md)
+is implemented, reviewed, tested and browser-inspected in 2,521 paired frames.
+Six comparable openings support relocation of expensive destination composition
+beneath an accepted opaque cover. Their fixed opaque pixels remain exact to the baseline.
+This does not establish smoother cadence or native parity. Next isolate
+sustained Friends/Notifications incoming paint work and recorder overhead,
+preserving both capture sets and the frozen build. This next action supersedes
+the history below. All four whole flows remain fail/unproven.
+
+The latest user-supplied AGENTS instructions select GPT-5.6 Sol high for newly
+dispatched helpers, at normal speed. Tooling cannot verify a service tier or
+change the running coordinator model. Both capture and final wording review
+are closed; the latter used the newly requested helper settings.
+
+Stop and pause this goal at 10% or less weekly usage remaining, interrupting helpers and
+preserving the checkpoint. Follow STATUS for readings from the 10080-minute
+account window and usage checks. The user cancelled the Grok Bot notification. Send no external message;
+report the threshold pause only in this chat.
+
+15 October AN-03: the [cursor transport control](docs/folder-cursor-transport-2026-10-15.md)
+is closed with 244 independently verified static browser outputs. Source assets
+and geometry match; sampling routes differ without changing outside pixels.
+No native-correct route is established and no runtime change is justified.
+Keep cursor phase/precision open. Next distinguish AN-01 recorder sampling gaps
+from production publication cadence before another opening-pose capture.
+All four whole flows remain fail/unproven; this next action supersedes history.
+
+15 October AN-03: [normal-speed folder comparison](docs/folder-normal-speed-2026-10-15.md)
+is captured and inspected on the unchanged runtime d4c7276. The recorder-only
+identity repair is integrated and pushed. Native broad order agrees with the
+browser, but fixed endpoints retain pixel residuals and exact motion remains
+unproven. Both settled browser runs animate through all 60 cursor phases; no
+frozen-clock fix is needed. Next inspect the fixed child-cursor resource and
+sampling residual without guessing phase alignment or a Back delay. All four
+whole flows remain fail/unproven. This next action supersedes the history below.
+
+15 October continuation: [Friends/Browser/Miiverse selected-first return](docs/toprow-remaining-return-2026-10-15.md)
+is implemented as `d4c7276` and recaptured in 3,545 raw pairs. Root inspected
+31 sheets; all six Close paths retain Work alone through incoming, restore
+neighbours at handoff and show the banner afterward. Six fixed opaque opening
+pairs are exact to earlier browser captures. Partial native loading, opening
+pose gaps and exact native acceptance remain open. Reviews and checks retain
+only the known missing Camera PNG test failure. Next verify normal-speed
+aligned empty-folder Open/held Back first/repeat. All four flows remain
+fail/unproven; this fitted visibility correction is not whole-flow parity.
+Use Astra extra-high helpers; tools cannot change the main chat model.
+
+15 October AN-01 repair: [selected-first Notes/Notifications return](docs/toprow-selected-return-2026-10-15.md)
+is reviewed, integrated as `bda07ff`, tested and captured. Root inspected 23
+sheets from 2,575 paired frames. All four target returns keep the selected tile
+through incoming, restore neighbours at handoff and admit the banner afterward.
+This is a fitted visibility adaptation; partial native loading remains open.
+The audit is sealed, independent claims review is complete and runtime bda07ff
+is pushed to draft PR7. Continue Browser/Miiverse and remaining Friend List
+comparison. Fixed handoff residuals and opening coverage gaps remain
+explicit. All four whole flows remain fail/unproven. Use Astra
+extra-high helpers, muted MacBook testing and reviewed commits to draft PR7.
+
+15 October AN-01: [Notes/Notifications Chromium comparison](docs/toprow-chromium-2026-10-15.md)
+captures 2,031 pairs and exposes a return-grid defect. Both apps reveal all
+ordinary icons during the incoming cover; native initially retains only the
+selected ordinary tile. A bounded correction is assigned to its own worktree.
+Review, test and recapture it before delivery. Native partial-neighbour loading,
+exact input/cadence and all four whole-flow checks remain open. All helpers use
+GPT-6 Astra extra-high; tools cannot switch this chat's model. Test muted on the
+MacBook, preserve earlier work and keep the goal active.
+
+15 October Manual follow-up: [eight Chromium recordings](docs/manual-chromium-reveal-2026-10-15.md)
+retain 2,922 pairs on the unchanged build. Selected-first return is preserved;
+simultaneous neighbour population still differs from native partial groups.
+The bounded loader trace identifies priority selection and queued work, not
+Manual's live invalidation or timing. Do not invent a frame delay or repeat
+that static pass. Keep the gap explicit and continue AN-01 top-row open/Close
+comparison in validated Chromium. All four whole flows remain fail/unproven.
+Astra extra-high helpers, muted MacBook testing and the active goal remain.
+
+15 October Chromium follow-up: the [fixed Health endpoint control](docs/home-resume-motion-control-2026-10-15.md#chromium-control-and-fixed-health-endpoints)
+meets the existing native lower-pixel delta-2 threshold on the unchanged build.
+The two entry and two Resume lower endpoints are exact to each other. No app
+compensation, privacy change or native tolerance change was needed. This does not establish
+exact native bytes, motion or cadence. Next recapture first/repeated Manual
+Close in validated Chromium, then address the documented partial-neighbour
+reveal gap from native evidence. Preserve all closed repairs. All four whole
+flows remain fail/unproven; Astra extra-high helpers and muted MacBook testing
+remain current. The goal is active.
+
+15 October follow-up: [two uninterrupted native Resume recordings and a browser
+pixel control](docs/home-resume-motion-control-2026-10-15.md) are complete.
+Native early growth through departure follows the repaired broad order. Native
+Health lower endpoints match exactly before/after; the fixed browser residual
+remains. Browser-produced control PNGs differ from known input pixels without app code,
+not a proven explanation of all Health differences. Next use an isolated default
+Chromium control and fixed same-build Health capture before changing rendering.
+Exact moving pixels, native input/cadence and all four whole-flow checks stay
+open. Preserve the existing repairs, muted MacBook testing and Astra extra-high
+helpers. No change to the running main model is verified by helper tools.
+
+15 October expansion: [continued upper Resume work](docs/home-resume-expansion-2026-10-15.md)
+is reviewed, integrated as `d40d8e1`, tested and pushed to draft PR 7. Six muted
+MacBook sessions save 1,678 pairs; root inspected all 25 sheets. Rapid Health
+and Camera now visibly expand during the late footer and depart expanded.
+Camera's fixed endpoints match on both LCDs. Health lower pixel differences
+remain unexplained. Earlier compact-to-intermediate growth, matched native
+input epochs and continuous departure/cadence remain unverified. Capture those
+next, preserving the bounded fix and all four whole-flow fail/unproven states.
+All helpers use GPT-6 Astra extra-high; tools cannot change or verify the main
+model. The goal stays active, with no new asset, audio or pickup work.
+
+15 October rapid Resume: [the publication barrier](docs/home-rapid-resume-readiness-2026-10-15.md)
+is reviewed, integrated as `7650caa`, tested and pushed to draft PR 7. New muted
+MacBook captures save 872 valid pairs with no paired black flash. Both rapid
+runs retain the transition, but freeze compact Health/outgoing Camera during
+the footer. Correct that source-backed ordering defect next, without delaying
+HOME admission until full scale. Investigate the separate lower-Health pixel
+residual before claiming ordinary regression closure. All four whole flows
+remain fail/unproven. All helpers use Astra extra-high; the main model cannot
+be changed or verified through helper tools.
+
+15 October: [live HOME scale and Resume capture](docs/home-scale-live-2026-10-15.md)
+recovered on the muted MacBook. The frozen candidate now shows intermediate
+shrink/grow poses and retained ordinary footer Resume. Rapid Left then HOME
+still produces two near-black pairs without a Resume descriptor. A bounded
+readiness fix is in progress in its own worktree, with a failing regression.
+The closed audits validate 1,468 browser pairs and 33 native own PNGs.
+Native rapid samples retain their cover, but moving epochs are unmatched and
+both fixed unmasked pixel diagnostics fail. All four whole flows remain
+fail/unproven. Continue with Astra extra-high helpers, review, tests and fresh
+recapture; the main chat model cannot be changed or verified through helper tools.
+
+14 October checkpoint: [logical ScaleUpDown and retained Resume](docs/home-suspended-scale-2026-10-14.md)
+are reviewed and pushed through `fd1561f`. Ordinary upper HOME passes now advance
+scale independently of rendering; Resume retains the actual accepted displayed
+pose. Native banner and linear caption fixes remain included. Full checks report
+2,855 passes and the unchanged missing Camera PNG failure; typecheck and build
+pass. Independent reviews pass 32 and 183 focused tests with no findings.
+Live verification is blocked by the repeated unavailable MacBook window capture
+and accessibility state. No new LCD recording or whole-flow 1:1 claim exists.
+Resume with first/repeated and rapid Resume captures when the display is usable.
+Use GPT-6 Astra extra-high helpers and muted MacBook testing. Tools cannot switch
+or verify the main chat model. The latest clean build is in the separate
+`home-scale-clock-20261014` worktree; the old coordinator's human edit is untouched.
+
+12 October Manual HOME reveal: exact reviewed/captured commit `0b890db` now
+keeps the selected title visible before restoring surrounding icons. The
+[1,218-pair production audit](docs/manual-home-reveal-2026-10-12.md) confirms
+the bounded ordering fix and 16 exact paired browser regressions. Full tests
+retain the known missing Camera PNG failure; both typechecks and build pass.
+Native partial-neighbour stagger, moving pixels, input epochs, cadence and
+muted audio remain open. This fitted handoff is not the recovered native
+loader schedule. All four flows remain fail/unproven. Use Astra extra-high
+helpers and muted MacBook testing; tools cannot switch the running main model.
+
+12 October Manual feedback: reviewed source is integrated at the exact tested
+commit `2b08f0a`. [Held Close and released entry](docs/manual-feedback-2026-10-12.md)
+now use the delivered feedback poses. Four production routes retain1,512 raw
+LCD pairs; all16 fixed browser regression pairs are exact on both LCDs.
+Focused153 tests, both typechecks and build pass. Full tests retain the one
+known missing Camera PNG failure. Native broad feedback order is supported,
+not whole-motion parity. Next inspect the selected-icon-versus-grid HOME
+reveal residual, separating fixture and sampling differences first.
+All four whole flows stay fail/unproven. Astra extra-high helpers and muted
+MacBook testing remain current; the running coordinator model is not changed
+or verified by a helper override.
+
+12 October folder repair: `5884417` is integrated and pushed to draft PR7.
+The [source-controlled tray translation](docs/folder-held-back-2026-10-12.md#folder-translation-repair)
+passes its bounded source, review and captured-geometry checks. Four ordinary
+first/repeated Open/Back recordings retain632 raw LCD pairs. All11 eligible
+tray measurements agree with the traced formula within the declared edge
+uncertainty; the old fixed-centre path defect is closed. Native timing, exact
+moving pixels, matched input and muted audio remain open. Continue the goal,
+using Astra extra-high helpers and muted MacBook testing. Next comparison is
+Manual Contents held-Close feedback, not another missing-cover repair.
+
+12 October aligned-folder update: [the corrected fixture](docs/folder-held-back-2026-10-12.md#aligned-folder-origin)
+now starts at the same visible position as the browser. Its 121 raw native
+PNGs expose a real tray-path defect: the browser scales around the LCD centre,
+while native applies an additional position change. The phase-independent
+geometry check separates the paths beyond its declared uncertainty in all four
+routes. A source-backed correction is in progress in a separate worktree.
+It is not yet delivered, tested or browser-verified. Normal cadence, matched
+input, moving pixels and muted audio remain open; the whole-flow goal is active.
+
+12 October raw-folder continuation: [fixed endpoint comparisons and moving PNGs](docs/folder-held-back-2026-10-12.md#raw-endpoint-diagnostic)
+retain both whole-screen failures. Toolbar and empty interior meet the regional
+delta-2 threshold only. A separate121-PNG slowed run includes tray motion and
+all four saved endpoints. Its root-folder origin is one column left of the
+browser fixture; align that visible starting position before a moving-geometry
+comparison. No runtime correction or native timing claim follows. All four
+flows remain fail/unproven, with Astra extra-high helpers and muted MacBook testing.
+
+12 October folder checkpoint: [first/repeated empty-folder entry and held Back](docs/folder-held-back-2026-10-12.md)
+now have fresh browser and isolated native captures. The observed tray, cursor,
+orbit and banner order broadly agrees; no new ordering correction is justified.
+Exact moving pixels, release-boundary timing and whole-flow fidelity remain
+unproven. All helpers and reviews use GPT-6 Astra extra-high. This does not
+change or verify the running coordinator model. The four-flow goal stays active.
+
+12 October update: [the combined lower-context candidate](docs/camera-lower-readback-2026-10-12.md)
+now passes fixed first and repeated Camera browser closure on both LCDs.
+Independent review confirms the result. Both historical Settings/Health lower
+guards pass, and the reviewed bundle is integrated as 7ff67b3. Clean integrated
+checks/build are complete, with the unchanged missing-PNG test failure reported.
+Do not repeat the resolved pixel-stability investigation. The four native animation flows
+remain the goal; exact native pixels, matched inputs, cadence and audio are open.
+
+The rejected intermediate experiment below is preserved history.
+
+12 October: the [readback-context experiment](docs/camera-text-readback-2026-10-12.md)
+reduces first Camera Resume's captured difference from 252/623 to 0/225 pixels,
+but fails its exact-closure gate. Candidate f43f640 is not integrated. Repeated
+closure is exact. The remaining four regions cover photo-count labels despite
+matching recorded text-ink fingerprints. Complete the bounded composition
+diagnosis; preserve the fixed baseline and reject guessed offsets or masks.
+The four animation flows and their native verification remain the goal.
+New helpers and independent reviews use GPT-6 Astra extra-high, superseding
+older model preferences below. The running coordinator model cannot be changed
+or verified by these tools. All GUI testing stays on the muted MacBook.
+
+The reviewed [browser text diagnostic](docs/workstream-handoffs/camera-browser-text-probe-20261011.md)
+is integrated and pushed asbf47af0. Six muted MacBook windows save1573 paired
+frames through Camera HOME, Manual entry/Close and first/repeated Resume.
+The candidate tab/server are stopped and its build is unchanged. Audit5e0a411c
+reproduces first252/623 pixels and exact repeated closure. Seven pre-color
+draw records differ; source triage narrows them to generic atlas rendering.
+Test the bounded ink-context hypothesis next. This diagnostic does not fix
+or pass the remaining animation flows.
+
+11 October: [Camera retained Resume](docs/camera-resume-native-2026-10-11.md)
+is integrated and pushed as2e76dfc after independent review21fa3211. It extends
+the existing guarded compositor to Camera main/gallery. Focused50 and
+independent58 tests, typecheck and build pass. Full2743 pass with the unchanged
+missing Camera PNG failure. Ten muted MacBook production windows save3554 raw
+LCD pairs. The raw audit finds no fully black pairs and all four Resume windows
+contain footer0..14 then departure0..40. Repeated main and gallery endpoints
+match their baselines exactly; the first main endpoint still differs252 upper
+and623 lower pixels. Independent evidence review follows. No whole-flow
+acceptance follows these checks or observations. All helpers and
+reviews use GPT-6.1 Sol high. Earlier checkpoints below remain historical.
+
+11 October: [Manual Close correction dbe6355](docs/manual-close-transition-2026-10-11.md)
+is reviewed, integrated and pushed to draft PR7. The selected-Camera Manual
+route now shows the missing Close cover and no longer hits the captured
+renderer error. First/repeat production capture saves1551 pairs, audited and
+independently reviewed. Two fixed opaque-cover pairs meet delta2 on both LCDs;
+this is static evidence only. Shared Notes/Notifications and suspended-Camera
+regressions have separate closed captures. Native moving poses, exact inputs
+and cadence remain open. All four whole flows remain fail/unproven. Earlier
+capture checkpoints below retain their original limits.
+
+Latest [top-row checkpoint](docs/toprow-capture-2026-10-10.md) recovers native
+window recording through reviewed recorder87a5168 and gate handoffdbd0836.
+Both decoded scope pilots show Azahar. Two new60-second silent movies capture
+first/repeat Notes and Notifications open/ready/footer Close/return observations.
+Movie auditda1aca45/review7f01ad83 are closed. A separate slowed Notifications
+trial saves81 own PNGs, audited8ce19f0d and inspected in nine1x sheets. Two
+predeclared opaque-cover pairs match both LCDs at delta2 with empty masks,
+independently reviewedf3e5ef2d. The longer v2 run now saves 141 own PNGs and
+includes selected HOME at Close41 through Close80. Audit93f2ea99 verifies every
+original; the coordinator inspects all 15 chronological 1x sheets. The gap
+before Close41 leaves exact banner onset, growth and icon-loading order unknown.
+Moving phases and matched input/cadence remain open. All four whole flows
+remain fail/unproven. Independent review09ae47b6 approves bounded v2 reporting.
+Use GPT-6.1 Sol high, muted MacBook testing and reviewed commits pushed to
+draft PR7. The12 earlier wrong-scope movies remain excluded.
+
+Updated 10 October 2026. Fetched GitHub version `c767757` is integrated through
+reviewed merge `b84e1b2`. Primary local main remains untouched at `5ee6fd7`.
+
+Latest delivery through `8700945` adds reviewed same-paint Resume capture
+diagnostics, not animation timing changes. Full checks have 2,696 passes and
+one unchanged missing Camera fixture failure; typecheck and build pass. Two
+new real HOME/touch-Resume recordings save 600 pairs each. Closed auditfb075b04
+verifies both inputs, same-paint source poses and ready endpoints in both raw
+windows; all four fixed comparisons still fail whole pairs. Independent final
+evidence review6821fc77 approves these bounds. The separate old-build touch audit closes 584 first and 497
+partial-repeat pairs. All three fixed endpoint diagnostics still fail whole
+pairs; no repeat-ready evidence exists. See [current identities and limits](docs/animation-verification-checkpoint-2026-10-10.md#same-paint-resume-diagnostics-and-touch-capture).
+Do not claim native cadence or a whole-flow pass from these diagnostics.
+
+The latest [native motion recapture](docs/animation-verification-checkpoint-2026-10-10.md#native-motion-recapture)
+visibly completes Health suspension and touchscreen Resume twice on the muted
+MacBook. Both videos decode and show Azahar; five own PNGs decode at 400x480.
+Earlier wrong-scope video is excluded. These observations do not establish raw
+phase pixels or exact input/cadence. The four-flow goal remains incomplete.
+Fixed endpoint comparisons still fail the upper LCDs and paused lower LCDs;
+ready lower alone is within delta 2. No runtime ordering fix is justified.
+
+Latest [dialog-order correction](docs/animation-verification-checkpoint-2026-10-10.md#additive-dialog-order-correction)
+retracts the established coincidence defect claimed in older entries below.
+The real-pixel baseline and fresh repeat already show dialog before lower HOME;
+a deliberate window-only mutation is rejected. No runtime change is justified.
+Preserve sealed evidence and failed fixed comparisons. Whole-flow1:1 remains
+unproven; proceed only from a demonstrated remaining defect.
+
+Latest human model instruction selects GPT-6.1 Sol high for this chat, workers,
+reviews and audits, superseding all older model preferences below. Tools cannot
+change or verify the running coordinator model or service tier. Keep independent
+review, separate worktrees and reviewed commits pushed to draft PR7. Every
+GUI test uses the MacBook screen and every 3DS session stays muted.
+
+Footer runtime aacd774 and source handoff22c1581 are independently reviewed
+and integrated. Original footer SceneOut now precedes retained HOME departure
+through a separate accepted absent-terminal pair. ChangeDw is ruled out by
+the pinned caller trace. Focused54 pass; full suite2,692pass/1known missing
+Camera PNG failure/101skip/1TODO; typecheck/shader/build pass. Frozen-check
+handoff ddfe288 is integrated. Independent review df4d3f36 and the coordinator
+verify freeze55898feb, all223 build files, logs, manifests and production GLBs.
+Browser recapture is closed below. Held HOME pixels, settled Decide5, direct
+binding and receipt cadence are adaptations. No new whole-flow pass is claimed.
+
+The frozen footer candidate now serves port3029 on the muted MacBook. First
+and repeat keyboard HOME/Resume each save600 pairs. All1,200 pairs,3,600
+originals and2,400 CRC/independent full PNG decodes verify. Chronological raw
+inspection shows footer-only withdrawal334/365, fully absent footer343/374,
+then HOME departure348/379. This delivers separate browser ordering, not
+native cadence or a pixel-tier match for those stages. Sealed selection0977210c
+precedes four fixed native comparisons. Complete-footer130/158 differ by
+13,810/33,300 and17,095/33,300 upper/lower pixels; ready389/420 differ by
+24,170/0 and18,433/0 at empty-mask delta2. Ready lower is static-only.
+Dialog/lower HOME still coincide. Touch delivery, pressed Resume samples,
+native post-HOME raw phases and exact input/motion remain open. All four whole
+flows remain fail. See [current capture evidence](docs/animation-verification-checkpoint-2026-10-10.md).
+
+Final browser audit `181440a5` closes all1,632 pairs,4,896 unchanged originals
+and3,264 independently decoded PNGs. Coordinator inspects12 raw boundary/
+endpoint sheets and four fixed native comparison sheets. First/repeat Resume
+retains Health through HOME, then expands/brightens; no fully black saved LCD
+occurs. This does not prove absence between captures. Native footer withdrawal
+remains missing, dialog still coincides with lower HOME, and fixed whole-screen
+comparisons fail. Ready lower LCDs only meet static delta2. Exact native input,
+cadence and audio remain unaccepted. This closes the pending audit below, not
+the four-flow goal. Next bounded defect is the native Resume footer departure.
+
+Current delivery through `b64e797` includes reviewed retained Health Resume
+runtime `dbfcb45`, provenance `ad143a9`, test-only policy repair `cd23059` and
+frozen verification handoff `b64e797`. The actual-compositor black Resume,
+stale-origin and transient-source regressions pass. Authored departure retains
+an accepted same-owner LCD pair until terminal paired native publication.
+Accepted-receipt cadence is an adaptation, not recovered native timing. Scope
+is unchanged-origin expanded Health; other app/compact Resume is unaccepted.
+Focused178 and supplemental124 tests pass with one absent private fixture skip.
+Full suite2,687pass/1known missing Camera PNG failure/101skip/1TODO; typecheck,
+shader validation,77 GLB checks and build pass. Frozen worker `ed40f3b`, build
+`itZdGEQJDzlDwPZnssuUe`, serves3029. Actual first/repeat HOME/Resume visibly
+return ready. First600 and complete repeat519 pairs save; incomplete byte-limited
+repeat513 remains preserved without Resume. Five raw boundary sheets are
+inspected; final audit, sealed selection and fixed comparisons are pending.
+Native12-PNG audit `57ae4729` shows early footer withdrawal still absent from
+the candidate. All four whole flows remain fail; audio is unverified while muted.
+
+Earlier 10 October delivery: reviewed HOME reveal-order source/tests `2ea5068`,
+handoff `cf91eb9` and production-check checkpoint `407055f` are pushed to
+draft PR7. Independent reviews `5ef3143c` and `e1e8f521` approve source and
+checks separately. Full suite has2,667 passes and the unchanged missing private
+Camera PNG failure; typecheck, shader validation and build pass. Frozen build
+`MHwPOu1oLhQcWrZ9Ke1TE` serves3029 on the muted MacBook. Ordinary first/repeat
+HOME/Resume visibly return to ready Health. All600 frame-limited pairs save;
+offline audit must establish exact repeat coverage and reveal ordering.
+Existing decoded upper SceneIn/HUD/window phases now follow the lower reveal
+boundary. This is a captured-order/source-phase adaptation, not native cadence.
+
+Final candidate audit `2a7c4044` supersedes the pending audit above. All600 pairs
+close without structural issues. Upper status136/417 precedes lower137/418,
+but dialog137/418 coincides with lower HOME, unlike the native partial. First
+Resume311-312 is black before ready313; repeat Resume is outside the export.
+The fixed first-complete empty-mask delta-2 diagnostic still fails13,091 upper
+and33,877 lower pixels with different populations/clocks/phases. Coordinator
+inspects every boundary and both comparison sheets. No whole-flow pass follows.
+
+Native audit `112531b9` closes10 unchanged originals: seven own PNGs and two
+fully decoded zero-audio movies plus log. Raw PNGs confirm upper-first
+suspension. Coordinator-inspected Resume samples show retained Health through
+departing HOME, then expansion/brightening. Missing raw departure, two lost
+overwritten PNG versions and movie sample-count anomalies stay explicit.
+No exact native input, motion, pixel or audio acceptance follows.
+
+Earlier 10 October checkpoint: reviewed dimming source/tests `e7ac460` and
+`115696e`, handoff `b14d3de` and verification `8b36555` are pushed to draft PR7.
+Frozen production `na-t0YK-P1Kxs8zcVSbX_` serves loopback 3029 on the muted
+MacBook. The saved 456-pair ordinary Health/HOME/Resume capture shows both
+retained LCDs dim before HOME. Audit `8241e7ba` closes unchanged originals and
+the coordinator has inspected its sheets. Lower HOME still appears before
+upper status/dialog, unlike the raw native partial. A separate bounded worker
+tree now owns this reveal-order defect; any unrecovered source-phase mapping
+is an explicit adaptation, not recovered native cadence.
+
+A new isolated muted native run records suspension and actual footer Resume.
+Seven surviving own PNGs include another upper-first partial. Two same-path
+overwrites are explicit. The two bounded movies have no requested audio; their
+offline integrity and motion audit is underway. Native exits 0 and only the
+temporary HOME/screenshot fields are restored. All testing uses the MacBook.
+The active objective requests GPT-6.1 Sol extra-high workers with independent
+review. This slice uses that worker setting and a different-model reviewer;
+neither coordinator model nor Fast mode is changed or verified by these tools.
+
+The full scope stays top-row tap/open/close, Manual opening, ordinary folder
+entry/Back and HOME suspension/Resume. Manual's 60/9 endpoint residuals,
+populated/held folder cases, native applet motion/input matching and the failed
+shortcut Resume remain open. Moving/pickup/hover/drop stays excluded. Audio
+acceptance remains unverified while muted. All four whole flows remain fail;
+the older checkpoint paragraphs below are history.
+
+10 October return-banner update: reviewed worker a4802b8 integrates31fe8c0.
+Notes/Notifications footer closes now retire the retained primary and gate its
+replacement until accepted uncovered HOME handoff, preserving wallpaper and
+global clock. This is a capture-fitted boundary, not recovered native dispatch.
+Clean equivalent c85b9b6 passes build/typechecks with2,627 full-test passes and
+the unchanged missing historical Camera PNG failure. First/repeat footer closes
+and separate B/HOME recover visibly. Four chronological overview sheets show
+HOME without its selected graphic/label before the later return; exact growth
+cadence is not established. Latest muted Helium preview is3028 on MacBook.
+See [return-banner evidence](docs/applet-return-banner-delivery-2026-10-10.md).
+All four whole flows remain fail/unproven. Earlier preview/gap entries are history.
+
+Latest human report also requires top-row exit animations and consistent
+tap/pre-open responses for Notes, Friends, Notifications, Browser and Miiverse.
+Opening coverage alone does not close this work. Capture each complete
+tap/open/close/HOME sequence on muted Sidecar and compare the corresponding
+native sequence. Do not infer an exit by reversing the opening clip.
+
+10 October display reply authorizes the MacBook screen instead of disconnected
+Sidecar. Current native/production tests stay muted; do not change system audio.
+Reviewed Notifications footer Close is integrated `0196913`; Notes `85b0ab9`
+remains unchanged. Clean equivalent `18137f4` passes build/typechecks and2622
+full tests, with one unchanged missing historical Camera PNG failure. Ordinary
+first/repeat opening/closing and B/HOME/Notes recovery are visibly inspected.
+No raw matched motion receipts or exact native timing acceptance follows.
+Completed recording audit and coordinator sheet inspection retain the observed
+HOME banner return-order difference. Latest reviewed build is visible in muted
+Helium on MacBook at3027. [Delivery evidence](docs/notifications-footer-close-delivery-2026-10-10.md).
+All four whole flows remain fail/unproven. Continue the full scope.
+
+Earlier human model reply selected GPT-6.1 Sol extra-high for this chat and
+GPT-6.1 Sol high for all new subagents, including reviewers. This supersedes
+the older worker/model preferences below. Tools cannot change or verify the
+running coordinator model or Fast mode. Keep review independent of implementation.
+The coordinator model has not changed through worker settings. The latest
+goal API read reports active with this four-flow objective. Earlier paused
+observations below are history; completion remains unproven.
+
+Earlier human request resumed completion of all four animation flows with
+Opus 5.5 High Fast. Installed Claude Code 2.1.294 delivers Opus 5.5, but its
+preflight rejects Fast because the account's usage-credit limit is reached.
+Those Opus attempts used the observed standard fallback without changing billing.
+Keep independent different-model review and record actual models/speed.
+The coordinator model was unchanged; that earlier goal API read said paused.
+No whole flow is verified 1:1. Finish concrete defects and matched comparison,
+not more capture-tool development unless required by a demonstrated failure.
+
+The human resumed on8 October with "continue disregard that", revoking the
+75%-remaining stop condition. The latest human request authorizes continuing
+without that usage cutoff. Continue the full animation goal. Earlier quota
+checkpoints remain history; do not stop again at that removed threshold.
+
+Latest scope instruction, 9 October: skip icon-moving and drag animations.
+Do not spend more implementation or verification work on pickup/hover/drop.
+Keep the goal on top-row app opening, Manual opening, ordinary folder entry,
+and HOME suspension. The unmerged held-hover fix is preserved in its worktree.
+The latest Sol6.1 reply above supersedes the earlier Opus worker preference.
+Keep review independent; the latest human model assignments above apply.
+
+Earlier runtime checkpoint: reviewed `e96e76a`, `cc8cc0b` and `a5e4e44` deliver
+Manual destination scheduling and revision-current paired readiness. Final
+source review closes both findings. Clean equivalent `76813d8` passes build
+and typechecks; full tests have2598 passes and the unchanged missing historical
+Camera PNG failure. Muted Helium on Sidecar serves buildzxL2Hk7fZpwT2O-Sayh4t
+on3025. The separate interrupted Camera collector is not accepted regression
+evidence. Top-row exit/Decide implementation remains missing. Continue from
+[the final scheduling handoff](docs/manual-destination-scheduling-2026-10-09.md)
+and the completed top-row source map, then matched native/browser observation.
+All four whole flows remain fail/unproven; no native timing or audio acceptance.
+
+Earlier runtime checkpoint: reviewed `fbbd63b` delivers native44px relative row
+spacing. Independent380-pair/760-PNG production review confirms Browser Manual
+lower3026 to16, with Camera60/9 unchanged. Build/typechecks and supporting
+source/Canvas tests pass; the historical missing Camera PNG is the sole full
+suite failure. Settings recapture remains owed after an aborted pre-input setup.
+Continue one outgoing-render cost fix and one ordinary-folder residual in
+separate worktrees. Follow the [current evidence](docs/manual-source-runtime-2026-10-09.md).
+All four whole flows remain fail/unproven; no native timing or audio acceptance.
+
+Earlier runtime checkpoint: reviewed `67c5156` and `486232b` deliver the native
+partial-row cutoff and source-program validation. All562 new paired captures
+are audited; Browser Manual lower mismatch improves3492 to3026, while Camera
+and Settings controls hold. The source-proved44px consecutive-row correction
+is next. Build/typecheck pass;2589 full tests pass with the unchanged historical
+Camera PNG failure. Follow the [current evidence](docs/manual-source-runtime-2026-10-09.md).
+All four whole flows remain fail/unproven; no native timing or audio acceptance.
+
+Earlier runtime checkpoint: reviewed `2a983ed` derives the Manual scrollbar from
+the pinned executable; `cbc07d7` reduces implicit-text preparation work. Frozen
+production first/repeat captures contain1542 checked pairs/3084 PNGs in fitted
+Sidecar windows. Camera's static residual improves106/9 to60/9. Browser Manual
+still omits a partial row; a bounded fix and independent review are underway.
+Build/typecheck pass;2580 full tests pass with the unchanged missing historical
+Camera PNG failure. Follow the [current evidence](docs/manual-source-runtime-2026-10-09.md).
+Native epochs, exact input, live pose gaps and muted audio remain open.
+All four whole flows stay fail/unproven.
+
+Earlier runtime checkpoint: reviewed `5dc7b83` reuses exact opaque native cover
+samples in the existing bounded cache. Build/typecheck and2570 tests pass with
+one unchanged historical Camera PNG failure. Seven muted Sidecar first/repeat
+regressions contain1341 checked pairs/2682 raw PNGs. Camera ready remains106/9;
+Manual destination CPU cost and missing live poses remain open. Continue from
+the [cover reuse record](docs/manual-cover-raster-reuse-2026-10-09.md).
+All four whole flows remain fail/unproven. Two bounded Sol6.1 extra-high
+workers target destination preparation and the exact ready residual separately.
+
+Earlier runtime checkpoint: reviewed `d5c1c5a` fixes the captured HOME pause
+seven-update receipt-gap stall. Muted iPad Health baseline/corrected and compact
+Camera first/repeat captures are complete. Independent audit checks all486
+pairs/972 PNGs and inspects30 sheets/six console views. Fresh baseline does not reproduce the original stall, so these host
+durations do not prove a causal speedup. Continue the four-flow goal from the
+[receipt-gap record](docs/home-pause-receipt-gap-2026-10-09.md). All four whole
+flows remain fail; native timing/pixels and muted audio remain unaccepted.
+
+Earlier checkpoint, 9 October: reviewed populated-folder collector `068c131`
+reproduces a real Health pickup/hover readiness failure in the production
+browser: no matching presented root folder banner. Fix that source-identity
+boundary without weakening paired publication, then capture matched first/repeat
+populated entry. Native setup remains unaccepted after an omitted startup
+warning. See the [capture record](docs/populated-folder-capture-2026-10-09.md).
+All four whole flows remain open. The proposed drag fix below is superseded
+by the latest scope instruction above.
+
+Earlier checkpoint, 9 October: reviewed merge `b84e1b2` incorporates GitHub
+`c767757`, including NVIDIA and the ninth portfolio app, Hack LDN 2025.
+Collector `e0aa927` preserves its slot and locates a vacant folder fixture
+through normal HOME input. The [integration record](docs/animation-upstream-sync-2026-10-09.md)
+tracks tests and the muted iPad regression. Populated-folder entry is the next
+missing first/repeat native/browser comparison. All four whole flows remain open.
+
+Earlier checkpoint, 9 October: reviewed HOME lower release `44a060c` and
+terminal evidence `77de274` preserve two terminal fade receipts before the
+footer. Three iPad first/repeat runs capture 326 pairs; two fresh muted Azahar
+movies and own PNGs are saved on iPad. Build/typecheck pass; full tests retain
+only the historical missing Camera PNG failure. Variable timing and native
+pixels remain unresolved. Continue from the [release record](docs/home-pause-release-2026-10-09.md).
+
+Earlier checkpoint, 9 October: Browser/Miiverse `5c5c5bb` restores the missing
+firmware common incoming. Seven muted iPad first/repeat runs complete with
+1143 checked pairs and 2286 raw PNGs. Build/typecheck pass; 2529 full-suite passes
+retain the historical missing Camera PNG failure. Native movie chronology
+supports the leftward clearing, not exact timing or pixel acceptance.
+All four whole flows remain fail. Continue from the [incoming record](docs/browser-miiverse-incoming-2026-10-09.md).
+
+Earlier checkpoint, 9 October: Notes `855c079` restores the source fade and
+moving title belt. All 343 paired observations, 686 PNGs, ten sheets and four
+console views are audited and inspected. Shared Camera/Sound diagnostic
+baselines are preserved; the live Camera image-loading residual is retained.
+Browser/Miiverse common SceneIn is committed in its worker and under review.
+All four whole flows remain fail; continue the full
+goal. See [Notes evidence](docs/notes-supplied-pose-2026-10-09.md).
+
+Earlier checkpoint: Manual elapsed timing `a264973` is integrated and visibly
+recaptured. All497 accepted pairs/994PNGs and16 sheets are independently
+audited; Camera incoming improves to266.5/285.2ms. Fixed ready residual106/9
+and a Settings terminal timing gap remain. Reviewed Notes cache fix `855c079`
+is integrated, built and under production regression. The full goal remains
+active; all four whole flows still fail. See [Manual cadence](docs/manual-elapsed-cadence-2026-10-08.md).
+
+Earlier checkpoint: reviewed incoming corrections `c73f9fb` and `a057600`
+remove repeated poses and discarded rendering time. Friends incoming is now
+299.3/315.7ms and Notifications312.9/329.1ms in first/repeat browser captures.
+All511 pairs/1022 raw PNGs pass the independent audit; all23 final sheets and
+six console views are inspected. These intervals are not native epochs.
+The Notes renderer cache still suppresses its existing source reveal poses;
+that bounded fix and Manual elapsed timing are the next worktree assignments.
+All four whole flows remain fail. See the [incoming checkpoint](docs/applet-incoming-cadence-2026-10-08.md).
+
+Earlier checkpoint: reviewed common-cover clock `cbbee26` retains elapsed
+rendering time without bypassing paired publication. Friends first/repeat
+changes from830.7/764.7ms to321.0/332.7ms, consistent with sample-bounded native
+visible fade observations. All six Friends/Notifications capture cycles finish
+without errors. All 572 pairs / 1,144 PNGs pass the independent raw/receipt audit;
+all 13 final sheets are inspected. Native epochs and whole-flow acceptance
+remain open. See the [cover checkpoint](docs/applet-cover-cadence-2026-10-08.md).
+
+Earlier checkpoint: HUD entry `f2c09f4`, card/camera-hint entry `caeff9b` and
+retained-upper direction `8abfd42` are integrated and independently reviewed.
+Corrected Mac normal 81/82 and reduced 5/5 first/repeat pairs show full-to-small
+app motion and delayed card/hints. Compact Camera also completes 86/86 pairs.
+Root 114 focused checks, typecheck, build and shader check pass; full 2517
+passes retain one historical missing Camera PNG failure. Whole-flow timing,
+input and pixel acceptance remain open. Continue the full animation scope.
+See the [upper checkpoint](docs/animation-fidelity-workflow-2026-10-07.md#home-upper-suspension-8-october).
+
+Earlier checkpoint: the goal is active at runtime `a52bdfe`. The lower HOME
+pause compositor and snapshot-lifetime correction are integrated and visibly
+recaptured. Normal first/repeat has 151 pairs; reduced has nine pairs. Lower
+app shrink/darken, HOME crossfade and delayed footer now appear in order.
+Upper HUD timing and exact native epochs remain open. A normal Camera Manual
+capture exposed an outgoing clock-boundary stall. Reviewed fix `a52bdfe` now
+completes Camera normal/reduced and Settings normal first/repeat captures.
+Preserve the failed run; successful browser behavior is not native acceptance.
+See the
+[combined checkpoint](docs/animation-fidelity-workflow-2026-10-07.md#home-lower-delivery-and-manual-stall-8-october).
+
+Earlier checkpoint: the goal is active. Folder cursor ordering and cadence are
+corrected through runtime `25e7520` and recaptured on muted Sidecar. Native
+Health HOME recordings now expose the missing outgoing lower transition:
+browser shows the HOME grid/footer immediately, while native retains and
+transitions the outgoing app first. Evidence is committed in `6ff0a73`;
+the isolated worker is implementing decoded pause-fade and footer clips.
+All four whole scenarios remain fail. Exact native timing, input parity,
+pixel residuals and muted audio acceptance remain open. Continue from
+[STATUS Next](STATUS.md#next) and the
+[HOME capture checkpoint](docs/animation-fidelity-workflow-2026-10-07.md#home-lower-transition-capture-8-october).
+
+Earlier checkpoint: the human approved decoded applet publication and short
+silent Sidecar recordings. Commits `2c40164` and `62bd428` deliver the
+Friends/Notifications incoming packs and connect their source tracks. A real
+Sidecar failure exposed mixed legacy/content-scoped font bindings; `dc4094f`
+fixes the title aliases and `a8b06ca` adds real mixed-pack loader regressions.
+Both titles now complete first/repeat normal and reduced-motion browser runs
+without page errors. Typecheck and production build pass. Full tests report
+2,499 passes, one missing historical Camera fixture failure, 98 skips and one
+TODO. New silent native movies show Manual opening through Contents and Friends
+opening through its first-use service boundary. They are supplementary motion
+evidence, not frame-exact acceptance. All four whole animation scenarios fail.
+The old blocked goal checkpoint is superseded by the human resume. The
+[approved incoming checkpoint](docs/animation-fidelity-workflow-2026-10-07.md#approved-incoming-delivery-8-october)
+preserves that delivery's evidence.
+The latest human instruction requires browser/Azahar visual testing on the
+iPad Sidecar, leaving Codex on the Dell. Confirm actual window placement before
+inputs; no new headless visual runs.
+The goal is incomplete.
+
+Finish the opening animations for the HOME top-row apps, opening Manual,
+entering folders, and suspending a game or app with HOME. Preserve the user's
+latest design and the original silver 2012 Nintendo 3DS XL. Target EUR
+10.7.0-32E in original-hardware mode with English UI.
+
+Use the decrypted pinned firmware for native layouts, textures, animation
+tracks and sounds. Record each element's manifest and dump-source identity.
+Use isolated, muted Azahar to establish the visible sequence and verify the
+integrated production browser through the same inputs. Compare complete raw
+LCD frame sequences, including pressed feedback, intermediate poses, ordering,
+duration and the final screen. A matching endpoint or passing tests does not
+establish matching motion.
+
+Work in separate branches and worktrees with at most two workers. The earlier
+direct human preference selected GPT-6.1 Sol, extra-high reasoning, for new
+subagents. Record actual worker models rather than claiming existing agents
+changed. Keep implementation and review independent. Speed selection is not
+tool-verifiable.
+Do not claim that a helper override changes the running coordinator model.
+The coordinator alone controls Azahar and the shared browser, integrates
+reviewed commits, and repeats capture, diff and correction. Keep the reviewer
+independent of implementation. Run focused tests, the integrated full test
+suite, typecheck and production build. Preserve failure evidence and rerun
+affected flows after every integration. Follow the
+[animation workflow](docs/animation-fidelity-workflow-2026-10-07.md).
+
+Completion requires matched native/browser input and frame-sequence evidence
+for every listed flow, with no unexplained animation differences. Native
+service gates and portfolio content differences remain explicit adaptations
+or blockers. Keep every 3DS session muted; audio acceptance remains open.
+Do not claim global 1:1 or audio verification from this animation work.
+
+Earlier checkpoint after the 8 October human resume: goal active. Reviewed
+runtime fixes through `c658382` correct same-folder recovery lifetime and compact
+suspended-window appearance. Clean preview3023 serves `5386572`;3022 preserves
+the previous build. Normal and reduced mobile folder/pause regressions are
+captured. The first compact before run exposed a stuck directional tap after
+HOME; preserve its invalid ledger and fix the release path before recapture.
+Follow STATUS Next. Pending decoded exports and missing native timing do not
+block independent implementation. All four whole flows still fail. Weekly
+remaining78%; pause at75%.
+
+Earlier checkpoint: separate-window Azahar touch and held HOME input work.
+Normal-speed Manual, Notifications, folder entry/Back/re-entry and repeated
+Health suspend/resume captures now exist. Corrupt and nonmonotonic readbacks,
+unmatched native/browser input epochs and unexplained animation differences
+still prevent completion. The decoded Friends/Notifications public-asset
+decision remains pending. Continue from
+[the held-HOME checkpoint](docs/animation-fidelity-workflow-2026-10-07.md#held-home-recovery-and-fixed-pause-diagnostics).
+The reviewed held-HOME collector is now integrated through `2431ed5`.
+Physical, keyboard and reduced-mobile repeated captures record matching DOM
+down/up events while raw LCD paints continue. Fixed pause diagnostics still
+differ, and the shorter native attempt still captured only settled frames.
+Continue from [the recorded holds](docs/animation-fidelity-workflow-2026-10-07.md#recorded-browser-home-holds).
+The reviewed Manual Contents row correction is integrated as `6f022e3` and
+`3c83fcd`; caller-validating capture checks are committed as `6a58c50`.
+The subsequent number, header and footer corrections integrate through
+`0a6e205`. The isolated served-base branch runs reviewed source `43b0780` on
+port 3022, with unchanged existing model LFS bytes and no incoming caller WIP.
+Nine entry cycles and both Page/Contents round-trips pass browser checks.
+Both fixed Camera ready diagnostics improve from 446/368 to 106/23 pixels
+above delta 2, with an empty mask. Complete cover 0/0 holds; incoming
+11,520/74,829 remains mismatched and unaligned. No timing, private caller,
+native input, audio or whole-animation acceptance follows. Continue from
+[the combined Manual checkpoint](docs/animation-fidelity-workflow-2026-10-07.md#manual-number-header-and-footer-corrections).
+The subsequent Contents-only `PageTitleNumB02` visibility correction is
+integrated as `dcdefc9` and served from reviewed `16e2067` on port 3022.
+Fresh entry and Page round-trips retain paired readiness and exact Page hash
+closure. Fixed ready diagnostics now differ by 106 upper / 9 lower pixels;
+cover and incoming results are unchanged. All four whole animation flows
+still fail. Continue from
+[the visibility checkpoint](docs/animation-fidelity-workflow-2026-10-07.md#manual-contents-decoration-visibility).
+Unresolved native capture latency and incoming dependencies remain open;
+do not repeat late entry bursts or fit a source clock from stale readbacks.
+
+The hardware requirements below remain unchanged. The current animation goal
+supersedes older execution queues and checkout references in this document.
 
 > Current scope: [portfolio UI scope](docs/portfolio-ui-scope.md) supersedes
 > earlier broad firmware behaviour and historical empty-content rules.
@@ -48,7 +821,7 @@ Use Nintendo's original product pages, operations manual and official front/rear
 - Show only the console against a simple background. No headings, explanatory copy, floating navigation, decorative cards or unrelated UI outside the device.
 - Animate the leftward spin and opening cleanly. Support rotation and inspection of the back. Keep the console usable and fully framed on desktop and mobile, with reduced-motion support.
 - Make physical button clicks, keyboard equivalents and bottom-screen touch input operate the same menu state. Keep screen graphics correctly aligned with the display openings throughout hinge movement.
-- Recreate the 3DS HOME Menu's layout, typography, icons, selection states and transitions. Preserve the eight existing portfolio apps and their plain content. Native assets, authored adaptations and fallback graphics must be distinguished in evidence; generic fonts and approximate folders are not original OS assets.
+- Recreate the 3DS HOME Menu's layout, typography, icons, selection states and transitions. Preserve the nine portfolio apps, including the merged Hack LDN 2025 addition, and their content. Native assets, authored adaptations and fallback graphics must be distinguished in evidence; generic fonts and approximate folders are not original OS assets.
 - Firmware UI work is integrated on `codex/firmware-os-10-7` from separate worker worktrees. Decrypted resources now supply native fonts, layouts, textures, messages, model banners and audio with recorded provenance. Keep raw firmware and executables private, preserve earlier OS worktrees, and record unsupported features and missing source content explicitly. See the [asset architecture](docs/architecture/assets-and-materials.md).
 - Keep VGPU integrated and verify `npx vgpu`, the material shader and its visible output. Preserve a working texture fallback.
 

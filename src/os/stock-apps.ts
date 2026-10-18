@@ -46,7 +46,7 @@ const serviceRows: Record<string, readonly [string, string][]> = {
   'system-transfer': [['3ds', 'Transfer from a Nintendo 3DS System'], ['dsi', 'Transfer from a Nintendo DSi System']],
   'system-updater': [],
   eshop: [['ok', 'OK']], mint: [['information', 'Nintendo eShop']],
-  'nintendo-zone': [['scan', 'Search for Nintendo Zone'], ['information', 'What is Nintendo Zone?']], miiverse: [['communities', 'Communities'], ['activity', 'Activity Feed'], ['profile', 'My Menu'], ['notifications', 'Notifications']],
+  miiverse: [['communities', 'Communities'], ['activity', 'Activity Feed'], ['profile', 'My Menu'], ['notifications', 'Notifications']],
   'miiverse-post': [['information', 'Post to Miiverse']], extrapad: [['information', 'Circle Pad Pro']],
 };
 const withScreen = (state: AppState, screen: string, patch: AppState = {}): AppState => ({ ...state, screen, selection: 0, ...patch });

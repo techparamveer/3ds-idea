@@ -51,6 +51,7 @@ EXCLUDED = {
     '0004001000022800',  # StreetPass Mii Plaza
     '0004001000022d00',  # Face Raiders
     '0004001000022e00',  # AR Games
+    '0004001000022b00',  # Nintendo Zone Viewer
 }
 TITLES = {
     HOME: ('home', 'HOME Menu', 'system'),
@@ -60,7 +61,6 @@ TITLES = {
     '0004001000022500': ('sound', 'Nintendo 3DS Sound', 'app'),
     '0004001000022900': ('eshop', 'Nintendo eShop', 'app'),
     '0004001000022a00': ('system-transfer', 'System Transfer', 'app'),
-    '0004001000022b00': ('nintendo-zone', 'Nintendo Zone Viewer', 'app'),
     '0004001000022f00': ('system-updater', 'System Update', 'app'),
     '000400100002c100': ('nnid-settings', 'Nintendo Network ID Settings', 'app'),
     '0004003000009902': ('camera-applet', 'Camera', 'applet'),

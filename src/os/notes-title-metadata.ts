@@ -11,10 +11,10 @@ export type NotesMetadataResult = { status: 'ready'; metadata: NotesTitleMetadat
 const record = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
 const hash = (v: unknown): v is string => typeof v === 'string' && /^[a-f0-9]{64}$/.test(v);
 const own = (v: Record<string, unknown>, k: string) => Object.hasOwn(v, k) ? v[k] : undefined;
-const supported = new Set(['0004001000022000','0004001000022300','0004001000022400','0004001000022500','0004001000022900','0004001000022a00','0004001000022b00','000400100002c100']);
+const supported = new Set(['0004001000022000','0004001000022300','0004001000022400','0004001000022500','0004001000022900','0004001000022a00','000400100002c100']);
 const notesCode = '8a2feea02c2a6ef62c8a8d3e4cc20faa5639fe5af47d3876f8a5d3ea43064cc6';
 
-/** Only the eight audited SMDH conversions are accepted. A HOME label is never
+/** Only the seven audited SMDH conversions are accepted. A HOME label is never
  * substituted for an absent/placeholder long description. No request is made
  * for firmware packages, executables or the original SMDH. */
 export function selectNotesMetadata(raw: unknown, titleId: string): NotesMetadataSelection | Exclude<NotesMetadataResult, { status: 'ready' }> {

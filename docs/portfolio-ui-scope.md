@@ -6,12 +6,13 @@ Also recreate **power-on, power-off and opening an app**. Preserve the existing
 console model, physical opening, background-only page and eight portfolio apps.
 
 Activity Log, Download Play, Mii Maker, StreetPass Mii Plaza, AR Games and Face
-Raiders remain excluded. Software Keyboard is now excluded too. Keep the other
+Raiders remain excluded. Software Keyboard is now excluded too, and Nintendo
+Zone Viewer was removed on 18 October 2026. Keep the other
 existing title identities; internal helpers need no invented HOME entrypoints.
 
 The complete in-scope set is HOME; Settings and internal helpers; Health and
-Safety; read-only Camera; Sound UI and supplied-song playback; eShop; Nintendo
-Zone; Game Notes; Friends; Notifications; local Internet Browser and Miiverse;
+Safety; read-only Camera; Sound UI and supplied-song playback; eShop; Game
+Notes; Friends; Notifications; local Internet Browser and Miiverse;
 the amiibo helper; power and app transitions; and the eight portfolio apps.
 Remote browsing, account/network/PIN operations and capture stay excluded.
 
@@ -62,7 +63,7 @@ coordinator integrate sequentially. Preserved keyboard work is not merged.
 
 ## Declared device-status adaptation
 
-Live HOME, Settings, eShop and Zone HUDs share one declared
+Live HOME, Settings and eShop HUDs share one declared
 reference-session profile: Internet (`lau_connect0`, NetMode 0, NetAtn 3),
 42 Play Coins, and a charging battery. Those values were chosen to match
 the isolated Azahar reference used for HOME comparison; they are not
@@ -75,8 +76,7 @@ title-local map: `C_HudBut_B_Pattern` odd seconds → frame 5 (`HudBatPlg`),
 even → frame 4 (`0x17adfc` / init table `0x33d148` state 0). Do not reuse
 `chargingBatteryFrame` on Sound. eShop welcome freezes `HudMenu_00_Bat` at
 ctor `+0x43e` frame 4 with a static colon (`0x36a7fc` still has a 4/5 tick,
-but no HUD elapsed owner exists yet). Zone drives `Hud_00_Charge_anim`
-from its 119-step clip clock. Capture may override HOME through
+but no HUD elapsed owner exists yet). Capture may override HOME through
 `lcdHomeHudSample`. The HUD charging icon does not match the 3D console:
 the model shows no charger or charging LED. See
 [HOME HUD battery](home-hud-battery-2026-10-04.md),

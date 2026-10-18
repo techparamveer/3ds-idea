@@ -2,7 +2,7 @@
 
 [Browser Manual page-0 footer](../browser-manual-page0-footer-2026-10-04.md): Close/Enlarge idle `lcd-source-size` bind. Offline footer **1934** → **1684**. Header origin38/centre20 and Enlarge stay as labelled leftovers. Coordinator recapture `browser-manual-browser-v2.mjs`.
 
-Checkpoint: integration base `f5ed204c`, 1 October 2026. Scope: System Settings, Health and Safety, system helpers, Manual, amiibo Settings, eShop, Nintendo Zone, local Internet Browser and local Miiverse. The coordinator maps shared launch/suspend/close/HOME behavior; this map includes local return paths where they change a screen.
+Checkpoint: integration base `f5ed204c`, 1 October 2026. Scope: System Settings, Health and Safety, system helpers, Manual, amiibo Settings, eShop, local Internet Browser and local Miiverse. The coordinator maps shared launch/suspend/close/HOME behavior; this map includes local return paths where they change a screen.
 
 Every acceptance scenario named below remains **fail/unaccepted as a whole**. Tests, source renders, browser inspection and static pixel tiers are separate evidence. Other Settings page 1 and Health Usage initial/8 px-scrolled reach two-LCD static maximum delta 2, but exact input, motion and audio acceptance remain open. "Implemented" means a code path exists; "adaptation" is intentional local behavior; "source gap" means native content or behavior is unestablished. Network, account, PIN, destructive storage and device operations remain inert under [scope](../portfolio-ui-scope.md).
 
@@ -132,7 +132,9 @@ recovery. [Source and comparison limits](../home-camera-manual-footer-2026-10-03
 
 **Flow/status:** Registered internal applet with one Information row, no native presentation dispatch and no established caller. It is a source/route gap, not another eShop screen. Capture a caller before `eshop-mint-information-back`.
 
-### O-03 - Nintendo Zone offline and Info
+### O-03 - Nintendo Zone offline and Info (removed 18 October 2026)
+
+**Removed:** the title, its runtime, served packs and HOME tile were deleted at the user's request. Older saved layouts drop the `nintendo-zone` id. The notes below are history.
 
 **Flow:** Main shows bundled offline lower bitmap with Search and What is Nintendo Zone, source upper EU banner and HUD. Detail shows bundled no-content/info imagery; B returns main then HOME. No `nzv:` routing or remote service runs.
 
@@ -162,7 +164,7 @@ recovery. [Source and comparison limits](../home-camera-manual-footer-2026-10-03
 
 ## Registry boundary
 
-- HOME apps here: `system-settings`, `health-safety`, `eshop`, `nintendo-zone`. Browser and Miiverse are toolbar applets, not tiles.
+- HOME apps here: `system-settings`, `health-safety`, `eshop`. Browser and Miiverse are toolbar applets, not tiles.
 - Supported internal/no-HOME-entry titles: `manual`, `amiibo-settings`, `extrapad`, `mii-selector`, `nnid-settings`, `system-transfer`, `system-updater`.
 - Explicit source/route gaps: `error`, `mint`, `miiverse-post`.
 - Delegated internal titles: `camera-applet`, `photo-selector`, `sound-selector`, `memo`. They remain registered but belong to the media/personal map. No internal helper gets an invented HOME entry.

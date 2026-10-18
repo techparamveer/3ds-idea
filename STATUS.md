@@ -2,26 +2,18 @@
 
 ## Checkout
 
-Reconciled HEAD: `137a8d4` plus this evidence commit (git wins).
 Git wins if this differs from HEAD. Reconcile before another slice or worker.
 Keep this file current, not append-only.
 
-Coordinator checkout:
-`/Users/paramveer/.codex/worktrees/applet-alpha-retention-20261015/3ds-idea`
-on `codex/applet-alpha-retention-20261015`. Its Git object database is
-`/Volumes/DeveloperStorage/GitHub/3ds-idea/.git`. Do not work in the original
-checkout. Create new source worktrees from this coordinator HEAD.
+On 18 October 2026 [PR #19](https://github.com/techparamveer/3ds-idea/pull/19)
+merged the animation-fidelity work (draft PR #7, `codex/animation-fidelity-20261007`
+at `958f9b1`) into `main`. It also landed the held-stroke folder-entry WIP, the
+measured 72-update applet opening-cover hold, the first-gesture audio fix
+(was #10), the toolbar banner fix (was #18) and the Hack LDN 25 animation
+commits. Start new worktrees from `origin/main`. The test suite stays removed
+(PR #9) and Nintendo Zone stays retired (PR #13).
 
-Draft [PR #7](https://github.com/techparamveer/3ds-idea/pull/7) uses remote
-branch `codex/animation-fidelity-20261007`. Latest verified pushed SHA is
-`8eb24f9` (nine-unread fixture `05dc0d1` and lamp epoch `8eb24f9` integrated). Review coherent changes, stage
-explicit paths and push normally. Do not merge, deploy, reset or clean.
-
-Preserve the human edit in
-`/Users/paramveer/.codex/worktrees/3ds-animation-fidelity-20261007/3ds-idea/src/os/system.ts`.
-Its last verified SHA-256 is
-`c627fd3fc6e02e06267390fc2e23b9e9223255a0a4bad73f18b2d2d5a8936c82`.
-Do not stage it or edit another worktree.
+The evidence below predates that merge and was recorded on the PR #7 branch.
 
 ## Product
 

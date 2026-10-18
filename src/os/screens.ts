@@ -995,7 +995,10 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    if(visible&&!label||options.drawFolderBannerFrame?.(t,retainedFolderBanner.primary.motion,label)!==true)throw Error('Native retained folder-entry banner unavailable');
    folderEntryBannerCandidate=retainedFolderBanner;
   }else{
-  const app=graphics.selectedApp(state);if(app&&app.id!==suspended?.appId&&!state.panel&&state.system?.phase!=='app'&&!hostedToolbar&&!(hasHomeTitleBanner(app.id)&&hostedBanner?.selection?.kind==='app'&&hostedBanner.selection.id===app.id))graphics.banner(t,app,time,reduced);
+  // Toolbar focus owns the upper banner (applet or default), so the grid
+  // selection's portfolio banner must not paint beneath it.
+  const toolbarFocused=!!state.system?.homeNavigation.focus.toolbarActive;
+  const app=graphics.selectedApp(state);if(app&&app.id!==suspended?.appId&&!state.panel&&state.system?.phase!=='app'&&!hostedToolbar&&!toolbarFocused&&!(hasHomeTitleBanner(app.id)&&hostedBanner?.selection?.kind==='app'&&hostedBanner.selection.id===app.id))graphics.banner(t,app,time,reduced);
   if(hostedBanner&&hostedBanner.status!=='unsupported'){
    // Pending/hidden native instances are handled without painting the incoming fallback.
    // Keep initial HOME's owner title suppressed, but let an outgoing primary

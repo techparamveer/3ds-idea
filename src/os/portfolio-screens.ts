@@ -139,7 +139,7 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
   t.fillStyle='#edf0f4';t.fillRect(0,24,400,216);
   const photo=app.id==='nvidia'&&!s.detail?undefined:entry.images?.[s.photo];
   if(photo){t.fillStyle='#25282d';t.fillRect(0,24,400,188);if(!fit(t,photo,0,24,400,188)){icon(t,app,158,65,84);if(images.get(photo)?.complete!==false)label(t,'Image unavailable',200,175,12,'#e0e4eb','center');}label(t,entry.title,200,226,14,'#454952','center');}
-  else {banner(t,app,time,reduced);box(t,28,185,344,51,9,'#f9fafc');label(t,entry.title,200,200,17,'#454952','center');label(t,entry.subtitle,200,222,11,'#777e88','center');}
+  else banner(t,app,time,reduced);
   b.fillStyle='#edf0f4';b.fillRect(0,0,320,240);const g=b.createLinearGradient(0,0,0,31);g.addColorStop(0,'#fff');g.addColorStop(1,'#d7dce3');b.fillStyle=g;b.fillRect(0,0,320,31);
   label(b,s.detail?entry.title:app.title,160,16,15,'#454952','center');
   if(s.detail){

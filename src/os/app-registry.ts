@@ -21,7 +21,7 @@ export const stockTitles: readonly AppDescriptor[] = [
   firmware('game-notes', 'Game Notes', '0004003000009C02', 'system-applet'),
   firmware('browser', 'Internet Browser', '0004003000009D02', 'system-applet'),
   firmware('friends', 'Friend List', '0004003000009F02', 'system-applet'),
-  firmware('notifications', 'Notifications', '000400300000A002', 'system-applet'),
+  firmware('notifications', 'Thoughts', '000400300000A002', 'system-applet'),
   firmware('amiibo-settings', 'amiibo Settings', '000400300000B902', 'system-applet'),
   firmware('miiverse-post', 'Post to Miiverse', '000400300000BA02', 'system-applet'),
   firmware('miiverse', 'Miiverse', '000400300000BE02', 'system-applet'),

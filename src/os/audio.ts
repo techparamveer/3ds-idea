@@ -16,12 +16,18 @@ export type MenuAudioEnvironment = {
 
 /** Short cues share one gesture-unlocked context with persistent native music.
  * The worker owns synthesis; HOME updates own the provisional native fade clock. */
+type WebAudioGlobal = typeof globalThis & { webkitAudioContext?: typeof AudioContext };
+
 export function createMenuAudio(manifestUrl = '/os/firmware/10.7.0-32E/audio/audio.json', environment: MenuAudioEnvironment = {}) {
   const fetchAsset = environment.fetch ?? globalThis.fetch;
   let context: AudioContext | undefined, master: GainNode | undefined, disposed = false;
   // Constructed ahead of the first gesture by prepare(); adopted only by unlock().
   let preparedContext: AudioContext | undefined;
   let lastPlayed: Sound | undefined, musicGain: GainNode | undefined;
+  const queuedCues: Array<{ name: Sound; token: number }> = [];
+  function audioContextConstructor() {
+    return environment.AudioContext ?? globalThis.AudioContext ?? (globalThis as WebAudioGlobal).webkitAudioContext;
+  }
   let transport: ReturnType<typeof createNativeMusicTransport> | undefined;
   let musicFailure: string | undefined, musicRevision = 0, activeRevision = -1, gainRevision = -1;
   let musicEntry: MusicEntry = 'music', enteredHome = false, fadeStart = 0, musicDueUpdate = 0;
@@ -94,7 +100,7 @@ export function createMenuAudio(manifestUrl = '/os/firmware/10.7.0-32E/audio/aud
     const fade = stopRequested() && stopGain !== undefined ? Math.max(0, stopGain - state.musicStopUpdates! / 30) : entryFade();
     musicGain?.gain.setValueAtTime(musicEnabled() && gainRevision === musicRevision && !musicFailure ? Math.fround(fade) : 0, context.currentTime);
   }
-  function stopEffects() { effectGeneration++; for (const source of active) stopSource(source); }
+  function stopEffects() { effectGeneration++; queuedCues.length = 0; for (const source of active) stopSource(source); }
   function stopMusic() {
     const token = ++musicRevision; activeRevision = -1; gainRevision = -1;
     fetchMusicAbort?.abort();
@@ -158,35 +164,60 @@ export function createMenuAudio(manifestUrl = '/os/firmware/10.7.0-32E/audio/aud
       } finally { musicWork = false; }
     })();
   }
+  function adoptContext() {
+    if (disposed || context) return;
+    const Context = audioContextConstructor();
+    if (!Context) throw new Error('Web Audio is unavailable');
+    context = preparedContext ?? new Context(); preparedContext = undefined;
+    master = context.createGain(); master.connect(context.destination);
+    musicGain = context.createGain(); musicGain.gain.value = 0; musicGain.connect(master);
+    context.onstatechange = () => {
+      if (disposed || context?.state !== 'running') return;
+      applyGain(); updateMusic(); flushPending();
+    };
+  }
+  function flushPending() {
+    if (!context || !master || context.state !== 'running') return;
+    const items = queuedCues.splice(0);
+    for (const item of items) startCue(item.name, item.token, performance.now());
+  }
+  function startCue(name: Sound, token: number, requested: number) {
+    if (disposed || state.muted || !state.powered || state.sleeping || !context || !master) return;
+    const ctx = context;
+    function start(buffer: AudioBuffer | undefined) {
+      if (!buffer || disposed || token !== effectGeneration || state.muted || !state.powered || state.sleeping || context !== ctx || ctx.state !== 'running' || !master) return;
+      // Keep a bounded late-decode window so the first gesture is not dropped on
+      // a cold WAV, without letting a superseded cue fire after a long stall.
+      if (performance.now() - requested > 2000) return;
+      const source = ctx.createBufferSource(); source.buffer = buffer; source.connect(master);
+      active.add(source); source.onended = () => { active.delete(source); source.disconnect(); };
+      source.start(); lastPlayed = name;
+    }
+    const buffer = buffers.get(name); if (buffer) start(buffer); else void load(name).then(start);
+  }
   /** Construct the AudioContext while the page is idle. Creating the first
    * context starts the audio device (~90 ms on the main thread in Chromium);
-   * doing it here keeps that out of the first key press. Nothing is audible or
-   * scheduled until unlock() adopts it inside a gesture, so playback still
-   * begins only after user input, as before. */
+   * doing it here keeps that out of the first key press. Gain stays at zero
+   * until unlock() adopts the context inside a gesture, so playback still
+   * begins only after user input. Do not suspend a running prepared context:
+   * that races the first resume and drops the opening cue. */
   function prepare() {
     if (disposed || context || preparedContext) return;
     try {
-      const Context = environment.AudioContext ?? globalThis.AudioContext;
+      const Context = audioContextConstructor();
+      if (!Context) return;
       preparedContext = new Context();
-      // Where autoplay is already allowed the context starts running; hold it
-      // suspended until the gesture, like a context created in unlock().
-      if (preparedContext.state === 'running') void preparedContext.suspend?.().catch(() => undefined);
     } catch { preparedContext = undefined; }
   }
   async function unlock() {
     if (disposed) return;
     try {
-      if (!context) {
-        const Context = environment.AudioContext ?? globalThis.AudioContext;
-        context = preparedContext ?? new Context(); preparedContext = undefined;
-        master = context.createGain(); master.connect(context.destination);
-        musicGain = context.createGain(); musicGain.gain.value = 0; musicGain.connect(master);
-      }
-      if (context.state === 'suspended') await context.resume();
+      adoptContext();
+      if (context && (context.state === 'suspended' || context.state === 'interrupted')) await context.resume();
       if (disposed) return;
       // Failed native music retries only on a new gesture, never every paint.
       if (musicFailure) { musicRevision++; fetchMusicAbort?.abort(); transport?.dispose(); transport = undefined; musicFailure = undefined; activeRevision = -1; }
-      applyGain(); updateMusic();
+      applyGain(); updateMusic(); flushPending();
       const assets = await pack;
       if (disposed) return;
       if (assets) for (const name of Object.keys(assets.cues)) if (!name.startsWith('music')) void load(name);
@@ -208,24 +239,18 @@ export function createMenuAudio(manifestUrl = '/os/firmware/10.7.0-32E/audio/aud
     // browser retains synthesis; hardware DSP sleep continuity is unverified.
     applyGain(); updateMusic();
   }
-  function play(name: Sound, muted: boolean, volume: number) {
-    if (disposed || muted || !state.powered || state.sleeping || !context || !master) return;
-    const token = effectGeneration, requested = performance.now(), ctx = context;
-    function start(buffer: AudioBuffer | undefined) {
-      if (!buffer || disposed || token !== effectGeneration || state.muted || !state.powered || state.sleeping || context !== ctx || ctx.state !== 'running' || !master) return;
-      // A cold decode may finish just after the unlock gesture. Drop old effects
-      // instead of playing a delayed burst after a slow asset or decoder.
-      if (performance.now() - requested > 250) return;
-      // The current OS state owns master volume; a late cue cannot unmute it.
-      const source = ctx.createBufferSource(); source.buffer = buffer; source.connect(master);
-      active.add(source); source.onended = () => { active.delete(source); source.disconnect(); };
-      source.start(); lastPlayed = name;
+  function play(name: Sound, muted: boolean, _volume: number) {
+    if (disposed || muted || !state.powered || state.sleeping) return;
+    if (!context || !master || context.state !== 'running') {
+      if (queuedCues.length >= 8) queuedCues.shift();
+      queuedCues.push({ name, token: effectGeneration });
+      return;
     }
-    const buffer = buffers.get(name); if (buffer) start(buffer); else void load(name).then(start);
+    startCue(name, effectGeneration, performance.now());
   }
   return {
     prepare, unlock, play, update, stop,
     status() { const native = transport?.status(); return { state: context?.state ?? 'locked', decoded: buffers.size, lastPlayed, music: native?.state === 'playing', active: active.size, failure: failure ?? musicFailure, musicFailure, musicEntry, musicTransport: native }; },
-    dispose() { if (disposed) return; disposed = true; abort.abort(); fetchMusicAbort?.abort(); stopEffects(); transport?.dispose(); buffers.clear(); bytes.clear(); musicGain?.disconnect(); master?.disconnect(); void context?.close(); void preparedContext?.close(); preparedContext = undefined; },
+    dispose() { if (disposed) return; disposed = true; abort.abort(); fetchMusicAbort?.abort(); if (context) context.onstatechange = null; stopEffects(); transport?.dispose(); buffers.clear(); bytes.clear(); queuedCues.length = 0; musicGain?.disconnect(); master?.disconnect(); void context?.close(); void preparedContext?.close(); preparedContext = undefined; },
   };
 }

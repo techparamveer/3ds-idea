@@ -8,7 +8,10 @@ from pathlib import Path
 from mathutils import Vector
 root,output=Path(ROOT),Path(OUTPUT)
 output.mkdir(parents=True,exist_ok=True)
-FRAMES=112
+INTRO=112
+# A seamless idle sway follows, like the other portfolio banners.
+IDLE=160
+FRAMES=INTRO+IDLE
 scene=bpy.data.scenes.new('Hack LDN 2025 chevron writer')
 if bpy.context.window:bpy.context.window.scene=scene
 scene.render.engine='BLENDER_EEVEE'
@@ -46,7 +49,7 @@ objects={}
 for part in source['parts']:
     name=part['name'];x,y,pw,ph=part['bounds'];cx,cy=point(x+pw/2,y+ph/2)
     curve=bpy.data.curves.new('Traced '+name,'CURVE');curve.dimensions='2D';curve.fill_mode='BOTH'
-    curve.resolution_u=1;curve.extrude=.045;curve.bevel_depth=.006;curve.bevel_resolution=1
+    curve.resolution_u=1;curve.extrude=.12;curve.bevel_depth=.028;curve.bevel_resolution=3
     for contour in part['paths']:
         spline=curve.splines.new('POLY');spline.points.add(len(contour)-1)
         for p,(px,py) in zip(spline.points,contour):
@@ -90,11 +93,11 @@ for part in source['parts']:
               (65,*dash_from,.52,-math.pi/2),(DASH[0],*dash_from,.52,0),
               (DASH[1],*dash_to,.52,0),(DASH[1]+1,-3.1,cy,.52,0),
               (94,cx,cy,.78,-math.pi),(102,cx,cy,1.04,-2*math.pi),
-              (106,cx,cy,1,-2*math.pi),(FRAMES,cx,cy,1,-2*math.pi)]
+              (106,cx,cy,1,-2*math.pi),(INTRO,cx,cy,1,-2*math.pi)]
         visibility(objects[name],1)
         obj=objects[name]
         for f,px,py,size,angle in keys:
-            obj.location=(px,py,.10);obj.scale=(size,)*3;obj.rotation_euler=(0,0,angle)
+            obj.location=(px,py,.30);obj.scale=(size,)*3;obj.rotation_euler=(0,0,angle)
             for path in ('location','scale','rotation_euler'):obj.keyframe_insert(path,frame=f)
     else:
         write_in(objects[name],cx,cy,{'H':8,'A':14,'C':20,'K':25,'N':46,'D':51,'L':56}[name],-1 if name in ['N','D','L'] else 1)
@@ -102,7 +105,7 @@ for i,(glyph,gx) in enumerate(glyphs):
     cx,cy=point(gx,row3)
     for k,solid in enumerate(glyph['solids']):
         curve=bpy.data.curves.new(f"Digit {i} {glyph['char']} {k}",'CURVE');curve.dimensions='2D';curve.fill_mode='BOTH'
-        curve.resolution_u=1;curve.extrude=.045;curve.bevel_depth=.006;curve.bevel_resolution=1
+        curve.resolution_u=1;curve.extrude=.12;curve.bevel_depth=.028;curve.bevel_resolution=3
         for contour in solid:
             spline=curve.splines.new('POLY');spline.points.add(len(contour)-1)
             for p,(px,py) in zip(spline.points,contour):
@@ -111,6 +114,15 @@ for i,(glyph,gx) in enumerate(glyphs):
         obj=bpy.data.objects.new(f"Hack LDN 25 digit {glyph['char']}"+(f' part {k}' if k else ''),curve)
         scene.collection.objects.link(obj);obj.data.materials.append(mat)
         write_in(obj,cx,cy,passes(gx),1)
+# After the intro the whole logo sways in place, like the other portfolio
+# banners (yaw .32, pitch .06, small bob), so the extruded depth reads as 3D.
+# The loop starts and ends on the rest pose, so frames INTRO+1..FRAMES repeat.
+pivot=bpy.data.objects.new('Hack LDN idle pivot',None);scene.collection.objects.link(pivot)
+for obj in [o for o in scene.collection.objects if o.name.startswith('Hack LDN ') and o.type=='CURVE']:obj.parent=pivot
+for f in [1,INTRO,*range(INTRO+1,FRAMES+1)]:
+    a=2*math.pi*max(0,f-INTRO)/IDLE
+    pivot.rotation_euler=(.06*math.sin(2*a),.32*math.sin(a),0);pivot.location=(0,.035*math.sin(a),0)
+    for path in ('rotation_euler','location'):pivot.keyframe_insert(path,frame=f)
 # Orthographic, low resolution and light positions match the NVIDIA asset.
 cd=bpy.data.cameras.new('Hack LDN banner camera');camera=bpy.data.objects.new(cd.name,cd)
 scene.collection.objects.link(camera);camera.location=(0,0,8);cd.type='ORTHO';cd.ortho_scale=5;scene.camera=camera
@@ -118,10 +130,10 @@ for name,loc,energy,size in [('Hack LDN soft key',(-3,4,6),280,4),('Hack LDN fil
     data=bpy.data.lights.new(name,'AREA');data.energy=energy;data.shape='DISK';data.size=size
     obj=bpy.data.objects.new(name,data);scene.collection.objects.link(obj);obj.location=loc
     obj.rotation_euler=(Vector((0,0,0))-obj.location).to_track_quat('-Z','Y').to_euler()
-for frame,name in [(1,'Chevron cursor'),(8,'Write HACK'),(35,'Turn the corner'),(46,'Write LDN backwards'),(58,'Drop to 25'),(68,'Dash through 25'),(94,'Chevron lands'),(106,'Final logo hold')]:scene.timeline_markers.new(name,frame=frame)
+for frame,name in [(1,'Chevron cursor'),(8,'Write HACK'),(35,'Turn the corner'),(46,'Write LDN backwards'),(58,'Drop to 25'),(68,'Dash through 25'),(94,'Chevron lands'),(106,'Final logo hold'),(INTRO+1,'Idle sway loop')]:scene.timeline_markers.new(name,frame=frame)
 scene['adaptation']='User-requested ninth portfolio app. Screenshot traced into shallow graphite lettering for the light LCD. Not native firmware.'
 scene['source_sha256']=source['sourceSha256']
-scene['delivery']=f'{FRAMES} transparent 180x148 frames at 30000/1001fps; one-shot chevron-led reveal of HACK, LDN and 25, then logo hold.'
+scene['delivery']=f'{FRAMES} transparent 180x148 frames at 30000/1001fps; chevron-led reveal of HACK, LDN and 25 in frames 1-{INTRO}, then a {IDLE}-frame idle sway loop.'
 scene.render.filepath=str(output/'frame-')
 scene.frame_set(FRAMES)
 for area in (bpy.context.screen.areas if bpy.context.screen else ()):

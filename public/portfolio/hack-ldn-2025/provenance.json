@@ -5,26 +5,26 @@
     "file": "Screenshot 2026-10-08 at 16.59.22.png",
     "sha256": "c364caa9abb4b642bd37db8998170a8fa5495ecd27ca8eb09e8d9bebd4472733"
   },
-  "blender": "5.2.1 LTS, headless build of the same scene script (Blender MCP not connected)",
-  "artwork": "Threshold white screenshot lettering at 170; trace eight connected shapes and holes with OpenCV at 0.65px contour tolerance; shallow extrusions in graphite enamel for the light LCD. Screenshot background discarded.",
+  "blender": "5.2.1 LTS, headless build and render of the same scene script (Blender MCP not connected)",
+  "artwork": "Threshold white screenshot lettering at 170; trace eight connected shapes and holes with OpenCV at 0.65px contour tolerance; 0.12 extrusions with 0.028 rounded bevels in graphite enamel for the light LCD. Screenshot background discarded.",
   "delivery": {
     "width": 180,
     "height": 148,
-    "frames": 112,
+    "frames": 272,
     "fps": 29.97002997002997,
     "atlasColumns": 8,
     "color": "RGB555-style quantization; binary alpha; nearest-neighbour display",
-    "playback": "Once per selection, indefinite final hold; final frame immediately for reduced motion",
-    "motion": "Pixel chevron writes HACK left-to-right, turns downward, writes LDN right-to-left, drops to a third row and dashes left-to-right through 25 (each digit pops in like the letters) and off screen, then slides back in from the left and rotates into its final position. No cube."
+    "playback": "Intro frames 1-112 once per selection, then frames 113-272 loop as an idle sway; frame 112 immediately for reduced motion. Drawn at LCD (110,43) so the logo centres between the status bar and the HOME toolbar.",
+    "motion": "Pixel chevron writes HACK left-to-right, turns downward, writes LDN right-to-left, drops to a third row and dashes left-to-right through 25 (each digit pops in like the letters) and off screen, then slides back in from the left and rotates into its final position. No cube. Then the whole logo sways in place (yaw 0.32 rad, pitch 0.06 rad, 0.035 bob) over a seamless 160-frame loop, like the other portfolio banners."
   },
   "sha256": {
-    "assets/blender/hack-ldn-2025.blend": "52e6c4add7c89a4b195e32700ee2366c1d16c122d7aa91a0b558a82a6c7cf24f",
-    "scripts/blender/build-hack-ldn-transform.py": "a0b4d735fb5388d55a4cb67d2131a2212b3485679a78d76d3002b5bcc6584c52",
+    "assets/blender/hack-ldn-2025.blend": "e7d95f11eff3bfaa1849f85e64a1682c7c9c4a3ed64cbf1509a087116932e90f",
+    "scripts/blender/build-hack-ldn-transform.py": "dcc4183795a05133a1bd0a5a3548b2a3d2e37788a04eb751d37b61136b9c0787",
     "scripts/blender/trace-hack-ldn-logo.py": "f4771c6565163606990e5e4a483833f775759eccaff77666a4a33fd9c6c8290f",
     "scripts/blender/hack-ldn-logo-contours.json": "4723651a323e62caa4329a910c9c3e23abd5663b2f5a1f9beb73343d60409c26",
     "public/portfolio/hack-ldn-2025.svg": "f777251085419dd380c68cf3517440551aa69e0a88caff8a170f4419876e3caf",
-    "public/portfolio/hack-ldn-2025/atlas.png": "4edb004be7b6c83d5c88e936399f97fe22a80b5365dd9f2efb501031ef2cefe1",
-    "public/portfolio/hack-ldn-2025/poster.png": "4ea396e31c5937b92e4b6878a76b9eeb1ebea7065dbebe9a1a64b7827b54a047",
+    "public/portfolio/hack-ldn-2025/atlas.png": "6f565898e33739cb3d4aa3e4408de6c580905c13d7124fa8546bec26c745b4c2",
+    "public/portfolio/hack-ldn-2025/poster.png": "f6ca6ec0548e4312c32902e4f9fb17a5a8fd7e131ee8693d1ea5d1fac7d266a7",
     "scripts/blender/build-hack-ldn-2025-digits.py": "3e4d26dbb099770c5070a1966fc2455c86af09d9e9717b53be0fb8fcad5a72b6",
     "scripts/blender/hack-ldn-2025-digits.json": "1b06b606d73375097883265ee5cfd4e4da1e60074e06a8e40c4f622c0baaab48"
   },

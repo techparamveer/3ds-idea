@@ -13,14 +13,14 @@ export async function verifyNativeServices(options){
   const source=readFileSync(join(repo,'src/os',name+'.ts'),'utf8');
   writeFileSync(join(compiled,name+'.mjs'),ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText.replace(/from ['"](\.\/[^'"]+?)(?:\.ts)?['"]/g,(_,name)=>`from '${name}.mjs'`));
  }
- const [{createCanvas,loadImage,Image:CanvasImage},{BitmapFont},{loadNativeTitleAssets},{nativeServiceView,drawNativeServiceFrame,zoneHudBindings,zoneClock},{nativeHelperView,drawNativeHelperFrame},{poseNativeLayout}]=await Promise.all([import(pathToFileURL(options.canvasModule)),...['bitmap-font','native-title-assets','stock-native-services','stock-native-helpers','native-layout'].map(name=>import(pathToFileURL(join(compiled,name+'.mjs'))))]);
+ const [{createCanvas,loadImage,Image:CanvasImage},{BitmapFont},{loadNativeTitleAssets},{nativeServiceView,drawNativeServiceFrame},{nativeHelperView,drawNativeHelperFrame},{poseNativeLayout}]=await Promise.all([import(pathToFileURL(options.canvasModule)),...['bitmap-font','native-title-assets','stock-native-services','stock-native-helpers','native-layout'].map(name=>import(pathToFileURL(join(compiled,name+'.mjs'))))]);
  const oldGlobals=Object.fromEntries(['document','window','Image'].map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)])),oldFetch=globalThis.fetch,oldObjectURL=URL.createObjectURL,oldRevokeURL=URL.revokeObjectURL,blobBytes=new WeakMap();let font,assets;
  try{
   globalThis.document={createElement:()=>createCanvas(1,1)};globalThis.window={location:{href:'https://service-ui.invalid/manifest.json'}};globalThis.Image=CanvasImage;URL.createObjectURL=blob=>'data:image/png;base64,'+blobBytes.get(blob).toString('base64');URL.revokeObjectURL=()=>{};
   globalThis.fetch=async value=>{const u=new URL(value);assert.equal(u.origin,'https://service-ui.invalid');const file=resolve(options.assetRoot,u.pathname.slice(1));assert.ok(file.startsWith(options.assetRoot+'/'));const bytes=readFileSync(file),response=new Response(bytes);response.blob=async()=>{const blob=new Blob([bytes]);blobBytes.set(blob,bytes);return blob;};return response;};
   const manifest=JSON.parse(readFileSync(join(options.assetRoot,'manifest.json'))),fontPath=join(options.assetRoot,manifest.fonts.shared),fontData=JSON.parse(readFileSync(fontPath));
   font=new BitmapFont(fontData,await Promise.all(fontData.sheets.map(name=>loadImage(join(dirname(fontPath),name)))));
-  const views=[...['nnid-settings','system-updater'].map(appId=>({appId,screen:'main',heading:appId,rows:[],selection:0,footer:{left:{action:'back',label:'Back'}}})),...['main','detail'].map(screen=>({appId:'nintendo-zone',screen,heading:'Nintendo Zone',rows:[],selection:0,footer:{left:{action:'back',label:'Back'}}})),{appId:'eshop',screen:'main',heading:'Nintendo eShop',rows:[{id:'back',label:'OK'}],selection:0,footer:{left:{action:'back',label:'Back'}}},{appId:'manual',screen:'main',heading:'System Settings',rows:[],selection:0,footer:{left:{action:'back',label:'Back'}},data:{manualTitleId:'0004001000022000'}}];
+  const views=[...['nnid-settings','system-updater'].map(appId=>({appId,screen:'main',heading:appId,rows:[],selection:0,footer:{left:{action:'back',label:'Back'}}})),{appId:'eshop',screen:'main',heading:'Nintendo eShop',rows:[{id:'back',label:'OK'}],selection:0,footer:{left:{action:'back',label:'Back'}}},{appId:'manual',screen:'main',heading:'System Settings',rows:[],selection:0,footer:{left:{action:'back',label:'Back'}},data:{manualTitleId:'0004001000022000'}}];
   const reports=[];
   for(const view of views){
    const request=nativeServiceView(view)??nativeHelperView(view);assert.ok(request);assert.equal(nativeServiceView({...view,appId:'work'}),null);
@@ -30,33 +30,13 @@ export async function verifyNativeServices(options){
    assert.equal((nativeHelperView(view)?drawNativeHelperFrame:drawNativeServiceFrame)(assets.renderer,top.getContext('2d'),bottom.getContext('2d'),view,{font,date:sampleDate,elapsedMs:0}),true,JSON.stringify(assets.renderer.diagnostics));
    if(view.appId!=='manual')assert.equal(JSON.stringify(assets.renderer.packs),source);
    else assert.equal(JSON.stringify(assets.renderer.packs['manual-index']),JSON.stringify(JSON.parse(source)['manual-index']),'the application-owned Index remains immutable while applet layouts gain derived paint variants');
-   assert.deepEqual(assets.renderer.diagnostics,view.appId==='nintendo-zone'?[...(view.screen==='main'?['Unverified 3D pane projection: U_top/BG_grid']:[]),'Unverified 3D pane projection: Hud_00/P_Bat_00']:[]);
+   assert.deepEqual(assets.renderer.diagnostics,[]);
    assert.deepEqual(assets.diagnostics.filter(d=>!d.includes('unrequested converter omissions')&&!assets.renderer.diagnostics.includes(d)),[]);
-   let hud;
-   if(view.appId==='nintendo-zone'){
-    assert.deepEqual(zoneClock(sampleDate,0),{hour:'09',minute:'05',frame:0,batteryFrame:0});
-    assert.deepEqual(zoneClock(sampleDate,1000),{hour:'09',minute:'05',frame:60,batteryFrame:1});
-    assert.equal(zoneClock(sampleDate,119000/60).frame,0);
-    // The same bindings as the painter: Charge_anim + Signal on the clip clock.
-    const zoneStatus=zoneHudBindings(sampleDate,0);
-    const pack=assets.renderer.packs['zone-chrome'],posed=poseNativeLayout(pack.layouts.Hud_00,pack.animations,[...zoneStatus,{name:'Hud_00_time_Blinking',frame:0}]);
-    const pane=(items,name)=>{for(const item of items){const found=item.name===name?item:pane(item.children,name);if(found)return found;}},texture=(layout,name)=>layout.textures[layout.materials.find(m=>m.name===name).textureMaps[0].texture];
-    const colonAt=frame=>Boolean(pane(poseNativeLayout(pack.layouts.Hud_00,pack.animations,[...zoneHudBindings(sampleDate,frame<60?0:1000),{name:'Hud_00_time_Blinking',frame}]).roots,'T_TimeC_00').flags&1);
-    assert.equal(colonAt(0),true);assert.equal(colonAt(59),true);assert.equal(colonAt(60),false);
-    hud={battery:texture(posed,'P_Bat_00'),wireless:texture(posed,'P_NetAtn_00'),barTop:120-pane(posed.roots,'N_Base_00').translation[1]};
-    assert.deepEqual(hud,{battery:'HudBat_04.bclim',wireless:'HudNetAtnInt_03.bclim',barTop:0});
-    const posed60=poseNativeLayout(pack.layouts.Hud_00,pack.animations,[...zoneHudBindings(sampleDate,1000),{name:'Hud_00_time_Blinking',frame:60}]);
-    assert.equal(texture(posed60,'P_Bat_00'),'HudBat_05.bclim');
-    assert.equal(texture(posed60,'P_NetAtn_00'),'HudNetAtnInt_03.bclim');
-    // The renderer flags P_Bat_00's X rotation, but whole turns without depth are an exact identity.
-    const battery=pane(posed.roots,'P_Bat_00');assert.deepEqual([battery.rotation[0]%360,battery.rotation[1],battery.rotation[2]%360,battery.translation[2]],[0,0,0,0]);
-    hud.identityProjection=[`Hud_00/P_Bat_00 rotation ${JSON.stringify(battery.rotation)}`];
-   }
    for(const [name,canvas]of [['top',top],['bottom',bottom]])writeFileSync(join(out,view.appId+'-'+view.screen+'-'+name+'.png'),canvas.toBuffer('image/png'));
    const pair=createCanvas(400,480),ctx=pair.getContext('2d');ctx.drawImage(top,0,0);ctx.drawImage(bottom,40,240);writeFileSync(join(out,view.appId+'-'+view.screen+'.png'),pair.toBuffer('image/png'));
-   reports.push({appId:view.appId,screen:view.screen,diagnostics:[...new Set([...assets.diagnostics,...assets.renderer.diagnostics])],...(hud?{hud}:{})});assets.dispose();assets=undefined;
+   reports.push({appId:view.appId,screen:view.screen,diagnostics:[...new Set([...assets.diagnostics,...assets.renderer.diagnostics])]});assets.dispose();assets=undefined;
   }
-  const result={passed:true,reports,gaps:['Source component composition is not matched native LCD verification.','Only bundled local service UI is displayed; remote accounts and catalogs are absent.','U_top depth panes need the Zone executable projection; the renderer flattens them orthographically.','Zone clock phase follows the host elapsed-time clock; its original activation epoch is unverified.']};writeFileSync(join(out,'verification.json'),JSON.stringify(result,null,2)+'\n');return result;
+  const result={passed:true,reports,gaps:['Source component composition is not matched native LCD verification.','Only bundled local service UI is displayed; remote accounts and catalogs are absent.']};writeFileSync(join(out,'verification.json'),JSON.stringify(result,null,2)+'\n');return result;
  }finally{assets?.dispose();font?.dispose();globalThis.fetch=oldFetch;URL.createObjectURL=oldObjectURL;URL.revokeObjectURL=oldRevokeURL;for(const[key,value]of Object.entries(oldGlobals)){if(value)Object.defineProperty(globalThis,key,value);else delete globalThis[key];}}
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){

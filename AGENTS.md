@@ -46,9 +46,9 @@ claim that an in-flight coordinator model changed through a worker override.
   opening, physical controls, lower touchscreen and eight portfolio apps.
 - Target **EUR 10.7.0-32E**, original hardware mode, English locale. In scope:
   HOME; Settings and helpers; Health; read-only Camera; Sound UI and supplied-song
-  playback; eShop; Zone; Notes; Friends; Notifications; local Browser and
+  playback; eShop; Notes; Friends; Notifications; local Browser and
   Miiverse; the amiibo helper; power/app transitions; and eight portfolio apps.
-- Excluded: Software Keyboard, Activity Log, Download Play, Mii Maker,
+- Excluded: Nintendo Zone Viewer, Software Keyboard, Activity Log, Download Play, Mii Maker,
   StreetPass Mii Plaza, AR Games, Face Raiders; capture, remote web, network,
   account and PIN operations. Internal helpers need no invented HOME entry.
   Label every intentional portfolio difference from native as an adaptation.

@@ -14,7 +14,6 @@ export const stockTitles: readonly AppDescriptor[] = [
   firmware('sound', 'Nintendo 3DS Sound', '0004001000022500'),
   firmware('eshop', 'Nintendo eShop', '0004001000022900'),
   firmware('system-transfer', 'System Transfer', '0004001000022A00', 'application', false),
-  firmware('nintendo-zone', 'Nintendo Zone Viewer', '0004001000022B00'),
   firmware('system-updater', 'System Update', '0004001000022F00', 'application', false),
   firmware('nnid-settings', 'Nintendo Network ID Settings', '000400100002C100', 'application', false),
   firmware('camera-applet', 'Camera', '0004003000009902', 'system-applet'),
@@ -36,7 +35,7 @@ export const stockTitles: readonly AppDescriptor[] = [
 ];
 /** Removed from the portfolio scope on2026-09-23. Keep only their IDs so older
  * saved layouts can omit them without losing the user's other placements. */
-export const retiredHomeTitleIds: ReadonlySet<string> = new Set(['activity-log', 'download-play', 'mii-maker', 'streetpass', 'keyboard']);
+export const retiredHomeTitleIds: ReadonlySet<string> = new Set(['activity-log', 'download-play', 'mii-maker', 'streetpass', 'keyboard', 'nintendo-zone']);
 const modules = new Map<string, AppModule>();
 for (const app of apps) modules.set(app.id, createPortfolioModule(app));
 const cameraFixture = cameraVerificationMedia(typeof window === 'undefined' ? undefined : window.location);

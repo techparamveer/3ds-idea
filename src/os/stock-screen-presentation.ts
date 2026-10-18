@@ -2,7 +2,7 @@ import { sampleSettingsHud, type SettingsHudPose, type SettingsHudSample } from 
 import type { StockModelBackground } from './stock-model-background';
 import { drawNativeSelectorFrame, nativeSelectorView } from './stock-native-selectors';
 import { drawNativeHelperFrame, nativeHelperView } from './stock-native-helpers';
-import { drawNativeServiceFrame, eshopHudClock, eshopWelcomePose, nativeServiceView, zoneClock } from './stock-native-services';
+import { drawNativeServiceFrame, eshopHudClock, eshopWelcomePose, nativeServiceView } from './stock-native-services';
 import type { AppView, JsonValue } from './app-types';
 import type { BitmapFont } from './bitmap-font';
 import type { NativeLayout, NativePixels } from './native-layout';
@@ -296,8 +296,6 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
       const capture=suspendedCapture?.status==='ready'?[suspendedCapture.owner,suspendedCapture.generation]:suspendedCapture?.status??null;
       const reducedMotion=options.reducedMotion?.()??false;
       // Native status clocks and animation poses key paired-screen publication.
-      const zoneTime=view.appId==='nintendo-zone'?zoneClock(date,elapsedMs):null;
-      const zonePaintKey=zoneTime?[zoneTime.hour,zoneTime.minute,zoneTime.frame<60,zoneTime.batteryFrame]:null;
       // Local host time drives Notes/Health; only the selected pose keys paint.
       const data=view.data&&typeof view.data==='object'&&!Array.isArray(view.data)?view.data:{};
       const clockField=view.appId==='game-notes'?'notesHostMs':view.appId==='health-safety'?'healthElapsedMs':view.appId==='system-settings'?'settingsHudElapsedMs':null;
@@ -334,7 +332,7 @@ export function createStockScreenPresentation(options:{manifestUrl?:string;onCha
         ?(reducedMotion||healthEntry!.complete?20:healthEntry!.origin===null?0:healthEntrySceneInFrame(healthElapsed-healthEntry!.origin))
         :undefined;
       const healthPaintKey=view.appId==='health-safety'?[healthTopLoopFrame(healthElapsed,reducedMotion),healthEntryFrame]:null;
-      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,zonePaintKey,eshopPaintKey,eshopHudKey,notificationsHudKey,browserHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey]);
+      const key=JSON.stringify([nextOwner,keyView,revision,capture,reducedMotion,eshopPaintKey,eshopHudKey,notificationsHudKey,browserHudKey,settingsPaintKey,soundClockKey,introKey,healthPaintKey]);
       if(painted!==key||paintedFont!==font){
         complete=false;
         black();

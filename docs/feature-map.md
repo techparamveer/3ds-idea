@@ -54,7 +54,7 @@ Pick the first unmatched **Next** row, then any in-scope surface whose gap is `f
 | Sound guide p2 / p3 | no | none | fail | fail | fail | fail | leftover §4 pair |
 | Sound supplied-song playback | no | none | — | — | — | blocked | no user songs |
 | eShop | yes | 44880 / 76486 | fail | fail | fail | fail | leftover + review **APPROVE-WITH-NITS**: NNID vs welcome scene-mismatch; HUD 194 phase; welcome source-gap (account). Do not paint |
-| Nintendo Zone | browser only | none | fail | fail | fail | fail | **skipped** (user). Browser half `0697ac09…` / `76af1ed7…`; `semanticRouteMatched=false`. Native `0000000d.app` not this leftover |
+| Nintendo Zone | — | — | — | — | — | — | **removed** 18 Oct 2026 (user). Browser half `0697ac09…` / `76af1ed7…`; `semanticRouteMatched=false`. Native `0000000d.app` not this leftover |
 | Game Notes | yes | 89343 / 76679 | fail | fail | fail | fail | leftover U13B + U13R2 **APPROVE**: tutorial vs Note 1 **89343 / 76679** and empty-grid `0f1f7eb5…` **90386 / 46427**. Scene-mismatch. Do not paint |
 | Friends | yes | 95998 / 40951 | fail | fail | fail | fail | leftover U12 + U12R **APPROVE-WITH-NITS**: scene-mismatch Error 002-0121 vs Friend List card. Post-OK no-Mii `0dbe3669…` is excluded Mii Maker, not an empty own-card. Do not paint |
 | Notifications unread-dot | yes | 0 / 0 | fail | fail | fail | fail | held; not pass |
@@ -73,7 +73,7 @@ Pick the first unmatched **Next** row, then any in-scope surface whose gap is `f
 | About | no native interior | — | fail | fail | fail | adaptation | HOME / launch chrome only |
 | Contact | no native interior | — | fail | fail | fail | adaptation | HOME / launch chrome only |
 
-HUD charging (HOME / Settings / Notifications / eShop / Zone / Sound) is a declared reference-session **adaptation**, not a live telemetry pass. See [scope](portfolio-ui-scope.md).
+HUD charging (HOME / Settings / Notifications / eShop / Sound) is a declared reference-session **adaptation**, not a live telemetry pass. See [scope](portfolio-ui-scope.md).
 
 ## Excluded (not backlog)
 

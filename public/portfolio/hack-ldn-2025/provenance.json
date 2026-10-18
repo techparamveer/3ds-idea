@@ -10,23 +10,23 @@
   "delivery": {
     "width": 180,
     "height": 148,
-    "frames": 104,
+    "frames": 112,
     "fps": 29.97002997002997,
     "atlasColumns": 8,
     "color": "RGB555-style quantization; binary alpha; nearest-neighbour display",
     "playback": "Once per selection, indefinite final hold; final frame immediately for reduced motion",
-    "motion": "Pixel chevron writes HACK left-to-right, turns downward, writes LDN right-to-left, rotates into its final position; 2025 then tips up from the baseline digit by digit (frames 64-95) with a soft overshoot. No cube."
+    "motion": "Pixel chevron writes HACK left-to-right, turns downward, writes LDN right-to-left, drops to a third row and dashes left-to-right through 25 (each digit pops in like the letters) and off screen, then slides back in from the left and rotates into its final position. No cube."
   },
   "sha256": {
-    "assets/blender/hack-ldn-2025.blend": "69da6fd40ef6cdb24fe2c879504fc4f79b0bd3f2e1cdf8587cd20b629625bcb4",
-    "scripts/blender/build-hack-ldn-transform.py": "b0c6c913b6c42f9ff5f03e55877fad3aaa2e8c9dfea1c40499ded27acd3f665f",
+    "assets/blender/hack-ldn-2025.blend": "52e6c4add7c89a4b195e32700ee2366c1d16c122d7aa91a0b558a82a6c7cf24f",
+    "scripts/blender/build-hack-ldn-transform.py": "a0b4d735fb5388d55a4cb67d2131a2212b3485679a78d76d3002b5bcc6584c52",
     "scripts/blender/trace-hack-ldn-logo.py": "f4771c6565163606990e5e4a483833f775759eccaff77666a4a33fd9c6c8290f",
     "scripts/blender/hack-ldn-logo-contours.json": "4723651a323e62caa4329a910c9c3e23abd5663b2f5a1f9beb73343d60409c26",
     "public/portfolio/hack-ldn-2025.svg": "f777251085419dd380c68cf3517440551aa69e0a88caff8a170f4419876e3caf",
-    "public/portfolio/hack-ldn-2025/atlas.png": "7992a6d4534d5e9356d6e1ef4958ea2ebfc409b369b4459660ea0ff6ba04abd7",
-    "public/portfolio/hack-ldn-2025/poster.png": "6dc92b5b9f4a3cb1d62ac3bd6ad5e2f9c7f31c3ac21608d49d3370425e53d34e",
-    "scripts/blender/build-hack-ldn-2025-digits.py": "72f3c8da90a0c25f4869e4e4d8ad21bf8da7afa2958a582dcd0ab17ecb0fbf00",
-    "scripts/blender/hack-ldn-2025-digits.json": "0e81a37f383f8d19529beb9c2dc97125dc4f62fdb231275d3b46b4af1b0fcfcb"
+    "public/portfolio/hack-ldn-2025/atlas.png": "4edb004be7b6c83d5c88e936399f97fe22a80b5365dd9f2efb501031ef2cefe1",
+    "public/portfolio/hack-ldn-2025/poster.png": "4ea396e31c5937b92e4b6878a76b9eeb1ebea7065dbebe9a1a64b7827b54a047",
+    "scripts/blender/build-hack-ldn-2025-digits.py": "3e4d26dbb099770c5070a1966fc2455c86af09d9e9717b53be0fb8fcad5a72b6",
+    "scripts/blender/hack-ldn-2025-digits.json": "1b06b606d73375097883265ee5cfd4e4da1e60074e06a8e40c4f622c0baaab48"
   },
-  "digits": "2025 drawn by scripts/blender/build-hack-ldn-2025-digits.py at the traced lettering's 330px cap height, 73px stems and 62px bars; extruded with the same graphite enamel."
+  "digits": "25 drawn by scripts/blender/build-hack-ldn-2025-digits.py at the traced lettering's 330px cap height, 73px stems and 62px bars; extruded with the same graphite enamel."
 }

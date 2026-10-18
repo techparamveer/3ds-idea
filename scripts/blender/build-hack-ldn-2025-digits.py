@@ -1,4 +1,4 @@
-"""Draw 2025 in the traced HACK LDN lettering's weight. Output path must be absolute.
+"""Draw 25 in the traced HACK LDN lettering's weight. Output path must be absolute.
 Stems match H/L/D/N (73px) and bars match their horizontals (62px) at the
 same 330px cap height, so the third row reads as one face with the logo.
 Overlapping strokes stay separate solids; Blender fills each curve even-odd.
@@ -70,10 +70,10 @@ TOP=786
 LOGO_LEFT,LOGO_WIDTH=87,1224
 if __name__=='__main__':
     output=Path(sys.argv[1]);assert output.is_absolute()
-    glyphs=[two(0),zero(ADV),two(2*ADV),five(3*ADV)]
+    glyphs=[two(0),five(ADV)]
     xs=[x for g in glyphs for solid in g for ring in solid for x,_ in ring]
     dx=LOGO_LEFT+(LOGO_WIDTH-(max(xs)-min(xs)))/2-min(xs)
-    out=[{'char':c,'solids':[[[[round(x+dx,1),round(y+TOP,1)] for x,y in ring] for ring in solid] for solid in g]} for c,g in zip('2025',glyphs)]
+    out=[{'char':c,'solids':[[[[round(x+dx,1),round(y+TOP,1)] for x,y in ring] for ring in solid] for solid in g]} for c,g in zip('25',glyphs)]
     ys=[y for g in out for solid in g['solids'] for ring in solid for _,y in ring]
     output.write_text(json.dumps({'cap':CAP,'stem':V,'bar':T,'bounds':[LOGO_LEFT,round(min(ys)),LOGO_WIDTH,round(max(ys)-min(ys))],'glyphs':out})+'\n')
-    print('2025 glyph solids:',[len(g['solids']) for g in out])
+    print('25 glyph solids:',[len(g['solids']) for g in out])

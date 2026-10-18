@@ -133,7 +133,6 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    group.rotation.set(reduced?-.06:Math.sin(time/1800)*.06,reduced?-.12:Math.sin(time/2100)*.32,0);group.position.y=reduced?0:Math.sin(time/900)*.035;renderer.render(scene,camera);c.drawImage(renderer.domElement,110,35,180,148);
   }else icon(c,app,151,62,98);
   }
-  box(c,55,183,290,33,12,'#ffffffcb');label(c,app.title,200,199,19,'#454952','center');label(c,app.subtitle,200,229,11,'#686b79','center');
  }
  function application(t:C,b:C,state:MenuState,time:number,reduced:boolean,nativeSystem=false){
   const s=state.system!;const app=getApp(s.app)!;const entry=currentEntry(state)!;

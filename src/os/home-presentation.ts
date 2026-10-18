@@ -3,6 +3,7 @@ import { getHomeCursorSlot } from './home-cursor-visibility.ts';
 import { hasEmptyHomeFolderSelection, isFolder, menuTiles, rowCount, type MenuState } from './state.ts';
 import { getHomeExposedExtent, getHomeNavigationView, homeGridMetrics, type HomeDensity } from './home-navigation.ts';
 import { getTitle } from './app-registry.ts';
+import { getApp } from './apps.ts';
 import { LAUNCH_FADE_START_MS, systemTransitionFrame } from './system-transitions.ts';
 
 /** CLYT Scale clips consume density, which is distinct from folder row count. */
@@ -184,4 +185,18 @@ export function getHomeFooter(state:MenuState,retainLaunchApplication=false):Hom
   left,
   right:appId?(applicationApp===appId?'resume':'open'):state.opened?'close-folder':folder?'open':'create-folder'
  } as const;
+}
+
+/** Adaptation: titles without a verified SMDH balloon still get the one-row
+ * HOME balloon. Portfolio apps show title and subtitle; firmware titles show
+ * their registry title and publisher. Same density-zero predicate as above. */
+export function getHomeAppTitleBalloon(state:MenuState,view:HomePresentation){
+ if(state.opened||state.panel||view.gesture||view.currentDensity!==0||view.targetDensity!==0||[2,4,14].includes(view.mode)
+   ||state.system?.phase!=='home'||state.system.homeNavigation.focus.toolbarActive)return null;
+ const tile=view.tiles.find(tile=>tile.index===state.selected);
+ const title=getTitle(tile?.appId);
+ if(!tile||!title)return null;
+ const app=getApp(title.id);
+ const label=app?`${app.title}\n${app.subtitle}`:`${title.title}\nNintendo`;
+ return {label,...nativeFolderBalloonPosition(tile.x+tile.size/2-160)};
 }

@@ -1,5 +1,10 @@
 # Suspended HOME Background
 
+8 October continuation: [source SceneIn playback](home-pause-backdrop-direction-2026-10-08.md)
+now advances geometry with AppPause during entry. The settled binding described
+below is unchanged. [Combined production recapture](animation-fidelity-workflow-2026-10-07.md#home-upper-suspension-8-october)
+shows the corrected shrinking direction; whole motion acceptance remains open.
+
 Runtime `fc6e5983b442ff95aa703f449e4ad79a13336c4c` replaces the flat expanded
 capture and compact-mode white wallpaper with the firmware BannerBG mesh,
 capture mask, combiners and settled AppPause pose. This is visible progress,

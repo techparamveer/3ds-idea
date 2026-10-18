@@ -20,7 +20,7 @@ export type HomeBannerTarget = Readonly<{
   | Readonly<{ kind: 'news'; key: typeof HOME_BANNER_EMPTY_KEY; nativeType: 16 }>
   | Readonly<{ kind: 'web'; key: typeof HOME_BANNER_EMPTY_KEY; nativeType: 17 }>
   | Readonly<{ kind: 'miiverse'; key: typeof HOME_BANNER_EMPTY_KEY; nativeType: 18 }>
-  | Readonly<{ kind: 'clear'; key: typeof HOME_BANNER_EMPTY_KEY; nativeType: 13 }>;
+  | Readonly<{ kind: 'clear'; key: typeof HOME_BANNER_EMPTY_KEY; nativeType: 6 | 13 }>;
 
 export type HomeBannerRequest = Readonly<{
   target: HomeBannerTarget;
@@ -140,7 +140,7 @@ function sameTarget(a: HomeBannerTarget, b: HomeBannerTarget): boolean {
 export function requestHomeBanner(state: HomeBannerLifecycle, target: HomeBannerTarget,
   options: { optionA?: number; optionB?: number; forceReload?: boolean } = {}): HomeBannerLifecycle {
   if ((target.kind === 'default' || target.kind === 'clear') &&
-    (target.key !== HOME_BANNER_EMPTY_KEY || target.nativeType !== (target.kind === 'default' ? 7 : 13))) {
+    (target.key !== HOME_BANNER_EMPTY_KEY || (target.kind === 'default' ? target.nativeType !== 7 : target.nativeType !== 6 && target.nativeType !== 13))) {
     throw new RangeError('Invalid default/clear banner identity');
   }
   if (target.kind === 'friend' && (target.key !== HOME_BANNER_EMPTY_KEY || target.nativeType !== 14)) {

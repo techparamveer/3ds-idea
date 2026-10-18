@@ -17,7 +17,7 @@ routes:
 - Friend own-profile data and B return, plus reachability and B return for a
   populated local friend ID. It deliberately does not assert generic detail
   pixels or text as correct.
-- Notifications' nine disabled source-profile rows (eight unread), explicit
+- Notifications' nine disabled source-profile rows (nine unread since 16 October; eight before), explicit
   empty state, enabled custom records, movement to row 6, the four actionable
   rows in that list window, custom detail/B, and main B/close. It deliberately
   does not assert the current fixed scrollbar thumb.
@@ -99,7 +99,7 @@ shared presentation changes also require a coordinator reservation.
 
 ### Notifications — `notifications-list-scroll-and-readonly-detail`
 
-1. Start at the neutral nine-row source profile (row 0 read, rows 1-8 unread).
+1. Start at the neutral nine-row source profile (all nine unread since 16 October; earlier evidence used row 0 read).
    From settled entry, issue six discrete Down presses with recorded down/up
    timing, capturing neutral entry, each window shift, and selection 6. Attempt
    Open on source row 6 and confirm it remains inert/read flags unchanged.

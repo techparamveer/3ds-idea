@@ -6,8 +6,8 @@
  * a frame-6 ChangeDw departure and frame-8 ChangeUp return after that dialog
  * is gone. The
  * host maps one eligible HOME update to one source frame as an explicit
- * scheduling adaptation; no millisecond, native APT epoch or native phase gap
- * is inferred.
+ * scheduling adaptation; no millisecond or native APT epoch is inferred. The
+ * only phase gaps are the measured direct-Close wait/hold adaptations below.
  */
 export const HOME_APPLICATION_TRANSITION_SOURCE = Object.freeze({
   sceneIn: Object.freeze({ clip: 'BannerBG_SceneIn', settledFrame: 20 }),
@@ -22,6 +22,25 @@ export const HOME_APPLICATION_TRANSITION_SOURCE = Object.freeze({
   sceneOut: Object.freeze({ clip: 'BannerBG_SceneOut', lastFrame: 40 }),
 } as const);
 
+/**
+ * Measured adaptation for the direct suspended-HOME footer Close only. Private
+ * evidence `health-suspend-close-native/run.md` and
+ * `health-suspend-close-native-3/run.md` (two native Health Close runs,
+ * per-frame region change) keep the suspended HOME unchanged 1.035 / 0.956 s
+ * after the Close touch, fade the dialog/mask in over 0.867 / 0.889 s, hold
+ * "Closing software..." static 1.37 / 1.388 s, then fade out and return HOME
+ * in 0.585 / 0.588 s. At the 268111856/4481136 Hz LCD rate (HEALTH_VBLANK_HZ)
+ * 60 frames = 1.003 s and 83 frames = 1.387 s. The host still counts one
+ * eligible HOME update per frame; no native wait/hold predicate is traced and
+ * the source fade clip lengths are unchanged.
+ */
+export const HOME_APPLICATION_CLOSE_MEASURED_TIMING = Object.freeze({
+  /** Static pre-dialog wait before AppQuit/FadeIn frame 0. */
+  preDialogWaitFrames: 60,
+  /** Static hold of the fully shown dialog between FadeIn terminal and FadeOut00 frame 0. */
+  dialogHoldFrames: 83,
+} as const);
+
 export type HomeApplicationTransitionIdentity = Readonly<{
   generation: string;
   transitionId: number;
@@ -34,8 +53,14 @@ export type HomeApplicationTransitionIntent = Readonly<{ kind: 'close' }>
 export type HomeApplicationTransition = Readonly<{
   identity: HomeApplicationTransitionIdentity;
   intent: HomeApplicationTransitionIntent;
-  phase: 'closing' | 'terminal' | 'exiting' | 'exit-terminal'
+  phase: 'waiting' | 'closing' | 'terminal' | 'held' | 'exiting' | 'exit-terminal'
     | 'footer-exiting' | 'footer-terminal' | 'footer-returning' | 'return-terminal' | 'complete';
+  /** True only for the direct suspended-HOME Close with measured wait/hold. */
+  measuredTiming: boolean;
+  /** Elapsed pre-dialog wait frames (0..60); null without measured timing. */
+  waitFrame: number | null;
+  /** Elapsed dialog hold frames (1..83); null until the hold begins. */
+  holdFrame: number | null;
   appQuitFrame: number;
   dialogExitFrame: number | null;
   footerExitFrame: number | null;
@@ -67,7 +92,7 @@ export type HomeApplicationTransitionObservation = Readonly<{
   kind: 'started';
   stepOffset: null;
 }> | Readonly<{
-  kind: 'terminalPresented' | 'exitStarted' | 'exitTerminalPresented'
+  kind: 'closingStarted' | 'terminalPresented' | 'holdTerminalPresented' | 'exitStarted' | 'exitTerminalPresented'
     | 'footerExitStarted' | 'footerExitTerminalPresented' | 'commitOwnerClose'
     | 'footerReturnStarted' | 'footerReturnTerminalPresented';
   stepOffset: number;
@@ -121,20 +146,29 @@ function freezeIntent(intent: HomeApplicationTransitionIntent): HomeApplicationT
     : Object.freeze({ kind: 'close' });
 }
 
+export type HomeApplicationTransitionOptions = Readonly<{ measuredTiming?: boolean }>;
+
 /**
  * Starts at source frame 0 without consuming a HOME update. Repeating the same
  * identity is idempotent and preserves the first intent. A fresh identity is an
  * explicit owner/generation replacement; stale callers cannot advance it.
+ * Measured timing (close only) starts in the static 'waiting' phase instead.
  */
 export function beginHomeApplicationTransition(current: HomeApplicationTransition | null,
-  identity: HomeApplicationTransitionIdentity, intent: HomeApplicationTransitionIntent): HomeApplicationTransitionResult {
+  identity: HomeApplicationTransitionIdentity, intent: HomeApplicationTransitionIntent,
+  options: HomeApplicationTransitionOptions = {}): HomeApplicationTransitionResult {
   assertIdentity(identity);
   assertIntent(intent);
+  const measuredTiming = options.measuredTiming === true;
+  if (measuredTiming && intent.kind !== 'close') throw new RangeError('Measured HOME close timing requires a close intent');
   if (sameIdentity(current, identity)) return result(current);
   const state: HomeApplicationTransition = Object.freeze({
     identity: freezeIdentity(identity),
     intent: freezeIntent(intent),
-    phase: 'closing',
+    phase: measuredTiming ? 'waiting' : 'closing',
+    measuredTiming,
+    waitFrame: measuredTiming ? 0 : null,
+    holdFrame: null,
     appQuitFrame: 0,
     dialogExitFrame: null,
     footerExitFrame: null,
@@ -221,7 +255,37 @@ export function advanceHomeApplicationTransition(state: HomeApplicationTransitio
     return result(next, [], updates);
   }
 
-  if (state.phase === 'terminal') {
+  if (state.phase === 'waiting') {
+    // Measured adaptation: HOME stays exactly as presented; AppQuit/FadeIn
+    // frame 0 is published on the update that completes the wait.
+    let next = state;
+    for (let stepOffset = 0; stepOffset < updates; stepOffset += 1) {
+      const waitFrame = next.waitFrame! + 1;
+      const done = waitFrame === HOME_APPLICATION_CLOSE_MEASURED_TIMING.preDialogWaitFrames;
+      next = Object.freeze({ ...next, waitFrame, phase: done ? 'closing' as const : 'waiting' as const });
+      if (done) return result(next, [Object.freeze({
+        kind: 'closingStarted', identity: next.identity, intent: next.intent, stepOffset,
+      })], stepOffset + 1);
+    }
+    return result(next, [], updates);
+  }
+
+  if ((state.phase === 'terminal' && state.measuredTiming && state.intent.kind === 'close')
+    || (state.phase === 'held' && state.holdFrame! < HOME_APPLICATION_CLOSE_MEASURED_TIMING.dialogHoldFrames)) {
+    // Measured adaptation: the terminal FadeIn pose is held unchanged; only
+    // the hold counter advances. FadeOut00 frame 0 follows on a later update.
+    let next = state;
+    for (let stepOffset = 0; stepOffset < updates; stepOffset += 1) {
+      const holdFrame = (next.holdFrame ?? 0) + 1;
+      next = Object.freeze({ ...next, holdFrame, phase: 'held' as const });
+      if (holdFrame === HOME_APPLICATION_CLOSE_MEASURED_TIMING.dialogHoldFrames) return result(next, [Object.freeze({
+        kind: 'holdTerminalPresented', identity: next.identity, intent: next.intent, stepOffset,
+      })], stepOffset + 1);
+    }
+    return result(next, [], updates);
+  }
+
+  if (state.phase === 'terminal' || state.phase === 'held') {
     const exiting = Object.freeze({ ...state, phase: 'exiting' as const, dialogExitFrame: 0 });
     return result(exiting, [Object.freeze({
       kind: 'exitStarted', identity: exiting.identity, intent: exiting.intent, stepOffset: 0,
@@ -295,11 +359,12 @@ export function homeApplicationTransitionFooterReturn(state: HomeApplicationTran
  * Renderer contract for the one mapped ordinary-close clip. A software switch
  * retains the settled AppPause backing while its independent close barrier
  * advances. Reduced motion selects the same close endpoint while leaving
- * logical ownership/timing to the host.
+ * logical ownership/timing to the host, including the measured wait/hold.
+ * The measured 'waiting' phase presents nothing; 'held' keeps the terminal pose.
  */
 export function homeApplicationTransitionPresentation(state: HomeApplicationTransition | null,
   reduced = false): HomeApplicationTransitionPresentation | null {
-  if (!state || state.intent.kind !== 'close' || state.phase === 'footer-returning'
+  if (!state || state.intent.kind !== 'close' || state.phase === 'waiting' || state.phase === 'footer-returning'
     || state.phase === 'return-terminal' || state.phase === 'complete') return null;
   const quitFrame = reduced ? HOME_APPLICATION_TRANSITION_SOURCE.appQuit.lastFrame : state.appQuitFrame;
   const skeletal = Object.freeze([

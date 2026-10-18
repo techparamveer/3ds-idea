@@ -2,11 +2,12 @@
 const FRAME_WIDTH = 180;
 const FRAME_HEIGHT = 148;
 const COLUMNS = 8;
-const FRAME_COUNT = 80;
+const FRAME_COUNT = 104;
 const FPS = 30000 / 1001;
 const LOGO_HOLD_FRAME = FRAME_COUNT - 1;
 
-export function createHackLdnBanner(drawCaption: (context: CanvasRenderingContext2D) => void) {
+/** 2025 is part of the render, in the logo's own lettering. */
+export function createHackLdnBanner() {
   let image: HTMLImageElement | undefined;
   let ready = false;
   let disposed = false;
@@ -37,7 +38,6 @@ export function createHackLdnBanner(drawCaption: (context: CanvasRenderingContex
       context.imageSmoothingEnabled = false;
       context.drawImage(image, (frame % COLUMNS) * FRAME_WIDTH, Math.floor(frame / COLUMNS) * FRAME_HEIGHT,
         FRAME_WIDTH, FRAME_HEIGHT, 110, 35, FRAME_WIDTH, FRAME_HEIGHT);
-      if (reduced || elapsedFrames >= FRAME_COUNT) drawCaption(context);
       context.restore();
       return true;
     },

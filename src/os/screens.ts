@@ -19,6 +19,7 @@ import {drawHomeSoftwareClosingDialog} from './home-software-closing-dialog';
 import { homeSuspendedApplication, homeSuspendedIconDisappeared, retainedSuspendedApplication, selectedSuspendedApplication, drawHomeSuspendedWindow, type SuspendedWindowMetadata } from './home-suspended-window';
 import { homeCloseWindowOpacity } from './home-close-window-fit';
 import { sampleSystemHomeApplicationTransition } from './system-home-application-transition';
+import { isAppletOpen } from './system-transitions';
 import { createHomeSuspendedPresentation, getHomeSuspendedSleepFrame, syncHomeSuspendedPresentation } from './home-suspended-presentation';
 import { acknowledgeHomeEntryBannerPresentation, acknowledgeHomeEntryFooterRelease, acknowledgeHomeEntryFooterTerminal, bypassHomeEntryBannerPresentation, createHomeEntryPresentation, getHomeEntryFooterReadiness, homeEntryBannerActivationDue,
  sampleHomeEntryPresentation, HOME_ENTRY_BANNER_RELEASE_FOOTER_FRAME, HOME_ENTRY_FOOTER_LAST_FRAME } from './home-entry-presentation';
@@ -206,7 +207,7 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
  // Only authored grid scroll/drag suppress this group; ordinary press does not.
  // An eligible retained launch keeps the selected cursor beneath the source
  // fade: native shows its brackets until HOME reaches black.
- if(nativeHome&&controls&&!capture&&state.powered&&(system?.phase==='home'||(!!launchRetained&&system?.phase==='launch'))
+ if(nativeHome&&controls&&!capture&&state.powered&&(system?.phase==='home'||(!!launchRetained&&system?.phase==='launch')||(!!system&&isAppletOpen(system)))
   &&!system.sleeping&&!system.dialog&&!system.preferences&&!state.panel
   &&!(system.homeNavigation.gesture?.area==='grid'&&system.homeNavigation.gesture.mode!=='press')){
   const {primary,presentation}=controls;
@@ -458,7 +459,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   const app=graphics.selectedApp(state);if(app&&!state.panel&&state.system?.phase!=='app'&&!hostedToolbar&&!(hasHomeTitleBanner(app.id)&&hostedBanner?.selection?.kind==='app'&&hostedBanner.selection.id===app.id))graphics.banner(t,app,time,reduced);
   if(hostedBanner&&hostedBanner.status!=='unsupported'){
    // Pending/hidden native instances are handled without painting the incoming fallback.
-   if(hostedBanner.status==='active'&&hostedBanner.primary.motion.visible&&(!state.panel||((state.panel==='folder-settings'||state.panel==='folder-not-empty')&&hostedBanner.primary.selection.kind==='folder'))&&(state.system?.phase==='home'||launchPresentation!==null)){
+   if(hostedBanner.status==='active'&&hostedBanner.primary.motion.visible&&(!state.panel||((state.panel==='folder-settings'||state.panel==='folder-not-empty')&&hostedBanner.primary.selection.kind==='folder'))&&(state.system?.phase==='home'||launchPresentation!==null||(!!state.system&&isAppletOpen(state.system)))){
     const {selection,motion}=hostedBanner.primary;
     homeEntryDrawnBannerIdentity=homeEntryBannerIdentity(hostedBanner);
     if(selection.kind==='default'){

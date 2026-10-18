@@ -1,4 +1,4 @@
-import {systemTransitionDuration} from './system-transitions.ts';
+import {appletOpenDuration,isAppletOpen,systemTransitionDuration,type AppletTransition} from './system-transitions.ts';
 import type { HomeApplicationTransition, HomeApplicationTransitionIntent } from './home-application-transition.ts';
 import { advanceSystemHomeApplicationTransition, beginSystemHomeApplicationTransition, cancelSystemHomeApplicationTransition, isSystemHomeApplicationTransitionActive, reconcileSystemHomeApplicationTransition, sampleSystemHomeApplicationTransition } from './system-home-application-transition.ts';
 import { createSystemHomeFolderClose, beginSystemHomeFolderClose, advanceSystemHomeFolderClose, cancelSystemHomeFolderClose, reconcileSystemHomeFolderClose, isSystemHomeFolderClosing, sampleSystemHomeFolderClose, type SystemHomeFolderCloseSession } from './home-folder-close-system.ts';
@@ -30,6 +30,8 @@ export type System = {
  layout:Record<number,string>; muted:boolean; volume:number; dialog:'switch'|'close'|null;
  returnPhase:'home'|'app'; link:string|null; preferences:boolean; preferenceChoice:number;
  runtime: AppRuntime; input: InputLatch; folderLayouts: FolderLayouts; homeNavigation: HomeNavigation; homeClock: HomeUpdateClock; homeFolderIdentities: HomeFolderIdentities; homeFolderClose: SystemHomeFolderCloseSession; homeApplicationTransition: HomeApplicationTransition | null; homeCursorLoop: HomeCursorLoop; homeControls: HomeControls | null;
+ /** Adapted HOME toolbar-applet fade; see `appletOpenFadeFrame`. */
+ appletTransition?: AppletTransition | null;
 };
 export function createPortfolioState():MenuState {return {...initialState,folders:{},system:{phase:'boot',since:0,sleeping:false,app:null,pending:null,item:0,detail:false,page:0,photo:0,layout:initialAppLayout(),muted:false,volume:.35,dialog:null,returnPhase:'home',link:null,preferences:false,preferenceChoice:0,runtime:createAppRuntime(),input:createInputLatch(),folderLayouts:{},homeNavigation:createHomeNavigation(),homeClock:createHomeUpdateClock(),homeFolderIdentities:createHomeFolderIdentities(),homeFolderClose:createSystemHomeFolderClose(),homeApplicationTransition:null,homeCursorLoop:createHomeCursorLoop(),homeControls:null}};}
 /** Kept for portfolio artwork compatibility; use selectedTitle for every installed title. */
@@ -41,7 +43,10 @@ function syncRuntime(state: MenuState, runtime: AppRuntime, phase?: System['phas
  if(runtime.active!==state.system?.runtime.active)state=resetHomeNavigation(cancelSystemHomeFolderClose(state));
  const s=state.system!, application=runtime.application?runtime.instances[runtime.application]:undefined;
  const portfolio=application&&getApp(application.appId)?application.state:null;
- return {...state,system:{...s,runtime,input:runtime.active===s.runtime.active?s.input:createInputLatch(),app:application?.appId??null,phase:phase??(runtime.active?'app':'home'),link:runtime.link,
+ // Leaving a toolbar applet straight to HOME fades HOME back in.
+ const leaving=s.phase==='app'&&s.runtime.active?s.runtime.instances[s.runtime.active]:undefined;
+ const appletReturn=!runtime.active&&!!leaving&&getTitle(leaving.appId)?.kind==='system-applet';
+ return {...state,system:{...s,runtime,...(appletReturn?{appletTransition:{kind:'return' as const,since:runtime.lastTick}}:{}),input:runtime.active===s.runtime.active?s.input:createInputLatch(),app:application?.appId??null,phase:phase??(runtime.active?'app':'home'),link:runtime.link,
   ...(portfolio?{item:Number(portfolio.item),detail:portfolio.detail===true,page:Number(portfolio.page),photo:Number(portfolio.photo)}:{item:0,detail:false,page:0,photo:0})}};
 }
 function commitRuntime(state: MenuState, runtime: AppRuntime, now: number): MenuState {
@@ -94,8 +99,12 @@ export function invokeSystemApplet(state: MenuState, appId: string, now: number,
  if(isSystemHomeApplicationTransitionActive(state))return state;
  state=resetHomeNavigation(cancelSystemHomeFolderClose(state));
  const s=state.system;if(!s||getTitle(appId)?.kind==='application')return state;
- const next=syncRuntime(state,openApplet(s.runtime,appId,`home:${appId}`,args,now));
- return {...next,panel:null,system:{...next.system!,input:createInputLatch()}};
+ const opened=openApplet(s.runtime,appId,`home:${appId}`,args,now);
+ // From HOME, the applet opens behind an adapted fade (no application logo).
+ const fromHome=s.phase==='home'&&!!opened.active&&opened.active!==s.runtime.active&&getTitle(appId)?.kind==='system-applet';
+ const next=syncRuntime(state,opened,fromHome?'launch':undefined);
+ return {...next,panel:null,system:{...next.system!,input:createInputLatch(),
+  ...(fromHome?{since:now,appletTransition:{kind:'open' as const,since:now}}:{})}};
 }
 /** One logical update source for navigation and presentation-owned clips. */
 export function tickHomeNavigationClock(state: MenuState, now: number, reduced = false): MenuState {
@@ -199,7 +208,7 @@ export function tickSystem(state:MenuState,now:number,reduced=false):MenuState {
  // terminal frame cannot fall through to repeats/runtime work before painting.
  if(applicationTransition)return state;
  state=isSystemHomeFolderClosing(state)?cancelHomeGesture(state):tickHomeGesture(state,now);s=state.system!;
- const duration=systemTransitionDuration(s.phase,reduced);
+ const duration=isAppletOpen(s)?appletOpenDuration(reduced):systemTransitionDuration(s.phase,reduced);
  if(s.phase==='shutdown'&&now-s.since>=duration)return {...state,powered:false,panel:null,system:{...s,phase:'off',since:now}};
  if(now-s.since>=duration)return {...state,system:{...s,phase:s.phase==='boot'?'home':'app',runtime:{...s.runtime,lastTick:now}}};
  if(s.phase!=='home'&&s.phase!=='app')return state;

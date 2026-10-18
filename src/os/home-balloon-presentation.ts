@@ -1,5 +1,5 @@
 import type { MenuState } from './state.ts';
-import { getHomePresentation, getNativeFolderBalloon, getNativeSettingsTitleBalloon, getNativeHealthTitleBalloon, getNativeSoundTitleBalloon, getNativeCameraTitleBalloon } from './home-presentation.ts';
+import { getHomePresentation, getNativeFolderBalloon, getNativeSettingsTitleBalloon, getNativeHealthTitleBalloon, getNativeSoundTitleBalloon, getNativeCameraTitleBalloon, getHomeAppTitleBalloon } from './home-presentation.ts';
 
 export type HomeBalloonPresentation = Readonly<{
   visible: boolean;
@@ -23,7 +23,9 @@ const selectedBalloon=(state:MenuState)=>{
  const sound=getNativeSoundTitleBalloon(state,view);
  if(sound)return {...sound,titleId:'0004001000022500'};
  const camera=getNativeCameraTitleBalloon(state,view);
- return camera?{...camera,titleId:'0004001000022400'}:null;
+ if(camera)return {...camera,titleId:'0004001000022400'};
+ const app=getHomeAppTitleBalloon(state,view);
+ return app?{...app,titleId:null}:null;
 };
 
 const object=(value:unknown):value is Record<string,unknown>=>!!value&&typeof value==='object'&&!Array.isArray(value);

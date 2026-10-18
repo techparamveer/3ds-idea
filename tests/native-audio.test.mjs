@@ -3,15 +3,16 @@ import assert from 'node:assert/strict';
 import { createMenuAudio } from '../src/os/audio.ts';
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b});return {promise,resolve,reject};};
-function fixture({cues={},loadMusic,prepareMusic,startMusic}={}){
+function fixture({cues={},loadMusic,prepareMusic,startMusic,contextState='running',resumeDelay=false}={}){
  const sources=[],contexts=[],requests=[],transports=[],packs=[];
  class Context {
-  state='running';currentTime=0;destination={};gains=[];
+  state=contextState;currentTime=0;destination={};gains=[];
   constructor(){contexts.push(this);}
   createGain(){const gain={gain:{value:0,setValueAtTime(value){this.value=value;}},connect(to){this.destination=to;},disconnect(){this.disconnected=true;}};this.gains.push(gain);return gain;}
   createBufferSource(){const source={starts:[],stopped:false,connect(to){this.destination=to;},disconnect(){this.disconnected=true;},start(...args){this.starts.push(args);},stop(){this.stopped=true;}};sources.push(source);return source;}
   async decodeAudioData(){return {duration:10};}
-  async resume(){this.state='running';}
+  async resume(){if(resumeDelay)await new Promise(resolve=>setImmediate(resolve));this.state='running';this.onstatechange?.();}
+  async suspend(){this.state='suspended';this.onstatechange?.();}
   async close(){this.state='closed';}
  }
  const cue=name=>({name,url:`${name}.wav`,sampleRate:100,samples:1000,loopStart:null,loopEnd:null});
@@ -110,6 +111,39 @@ test('launch stop30 ramps the playing music gain to zero over 30 updates, then d
  f.audio.update({...home,musicStopUpdates:30});await flush();assert.equal(music.value,0);assert.equal(f.transports[0].operations.filter(x=>x[0]==='stop').length,1);
  f.audio.update({...home,musicStopUpdates:40});f.audio.update({...home,home:false});await flush();assert.equal(starts(f).length,1);
  f.audio.update({...home,homeUpdates:10});f.audio.update({...home,homeUpdates:13});await flush();assert.deepEqual(starts(f).at(-1),{entry:'music-resume'});f.audio.dispose();
+});
+test('a cue played during the first gesture still starts after a pending resume',async()=>{
+ const f=fixture({contextState:'suspended',resumeDelay:true});
+ f.audio.update(home);
+ const unlocking=f.audio.unlock();
+ f.audio.play('select',false,.35);
+ assert.equal(f.audio.status().active,0);
+ await unlocking;await flush();
+ assert.equal(f.audio.status().state,'running');
+ assert.equal(f.audio.status().active,1);
+ assert.equal(f.sources[0].starts.length,1);
+ f.audio.dispose();
+});
+test('cues issued before unlock start once the gesture resumes the context',async()=>{
+ const f=fixture({contextState:'suspended'});
+ f.audio.update(home);
+ f.audio.play('select',false,.35);
+ assert.equal(f.contexts.length,0);
+ await f.audio.unlock();await flush();
+ assert.equal(f.audio.status().active,1);
+ f.audio.dispose();
+});
+test('idle prepare keeps an already-running context from being suspended',async()=>{
+ const f=fixture();
+ f.audio.prepare();
+ assert.equal(f.contexts.length,1);
+ assert.equal(f.contexts[0].state,'running');
+ f.audio.update(home);
+ const unlocking=f.audio.unlock();
+ f.audio.play('select',false,.35);
+ await unlocking;await flush();
+ assert.equal(f.audio.status().active,1);
+ f.audio.dispose();
 });
 test('launch stop30 starts from a partial resume fade gain and tears down music that never started',async()=>{
  const f=fixture();f.audio.update(home);await f.audio.unlock();await flush();

@@ -5,12 +5,19 @@ import type { AppletEntryAppId } from './applet-entry-assets.ts';
 
 export type AppletEntryIdentity = Readonly<{ owner: string; appId: AppletEntryAppId; caller: string | null; requestId: string | null; application: string | null; generation: number }>;
 export type AppletEntryPose = Readonly<{ identity: AppletEntryIdentity; ticket: number }> &
-  ({ kind: 'cover'; frame: number } | { kind: 'incoming'; frame: number; pair: object; resources?: object }
+  ({ kind: 'cover'; frame: number; hold?: number } | { kind: 'incoming'; frame: number; pair: object; resources?: object }
     | { kind: 'handoff'; pair: object; resources?: object });
 export type AppletEntryHomePair = Readonly<{ application: string | null; appId: AppletEntryAppId; generation: number; selectionRevision: number }>;
 const appletIds = ['game-notes', 'friends', 'notifications', 'browser', 'miiverse'] satisfies AppletEntryAppId[];
 // The existing Manual browser policy treats gaps above 100ms as stalls.
 const MAX_OBSERVED_UPDATE_GAP = 6;
+/** Measured adaptation: two native Notifications openings hold the full white
+ * cover with the lower title belt static for 1.235 s and 1.192 s before the
+ * destination appears (private notifications-native-open-2/run.md and
+ * applet-native-opening/notifications-audit). 72 updates is ~1.2 s at the
+ * 268111856/4481136 Hz LCD rate. Notes, Friend List, Browser and Miiverse use
+ * it by extension; only Notifications was measured. Reduced motion skips it. */
+export const APPLET_ENTRY_COVER_HOLD_UPDATES = 72;
 const appletId = (id: string): AppletEntryAppId | null => appletIds.find(value => value === id) ?? null;
 export const appletEntryEligible = manualEntryEligible;
 export function appletEntryIdentity(state: MenuState, generation: number): AppletEntryIdentity | null {
@@ -45,6 +52,7 @@ type PresentedAppletEntry = { kind: 'cover'; frame: number; update: number; samp
  * handoff require a current valid paired-render receipt. */
 export function createAppletEntryPresentation() {
   let identity: AppletEntryIdentity | null = null, ticket = 0, disposed = false, rebase = true, handedOff = false;
+  let coverHoldStart: number | undefined;
   let presented: PresentedAppletEntry | undefined, pending: { pose: AppletEntryPose; update: number } | undefined;
   const revoke = () => { ticket++; pending = undefined; rebase = true; };
   const ready = (next: AppletEntryIdentity | null) => !disposed && handedOff && sameAppletEntryIdentity(identity, next);
@@ -56,7 +64,7 @@ export function createAppletEntryPresentation() {
     sample(input: Readonly<{ identity: AppletEntryIdentity | null; elapsedMs: number; eligible: boolean; pair?: object; incomingResources?: object; reducedMotion: boolean }>): AppletEntryPose | undefined {
       if (disposed) return undefined;
       const update = manualEntryUpdate(input.elapsedMs);
-      if (!sameAppletEntryIdentity(identity, input.identity)) { revoke(); identity = input.identity; presented = undefined; handedOff = false; }
+      if (!sameAppletEntryIdentity(identity, input.identity)) { revoke(); identity = input.identity; presented = undefined; coverHoldStart = undefined; handedOff = false; }
       if (!identity || !input.eligible) { revoke(); return undefined; }
       if (!identity.owner || !Number.isSafeInteger(identity.generation) || identity.generation < 0) throw Error('Invalid applet entry identity');
       if (ready(identity)) return undefined;
@@ -93,6 +101,7 @@ export function createAppletEntryPresentation() {
           ? Object.freeze({ ...base, kind: 'handoff', pair: input.pair, resources: presented.resources })
           : Object.freeze({ ...base, kind: 'incoming', frame: input.reducedMotion ? 20 : Math.min(20, presented.frame + incomingProgress), pair: input.pair, resources: presented.resources });
       } else if (advanceCover && presented?.frame === 20 && input.pair
+        && (input.reducedMotion || coverHoldStart !== undefined && update - coverHoldStart >= APPLET_ENTRY_COVER_HOLD_UPDATES)
         && (appletEntryIncomingKind(identity.appId) !== 'title' || input.incomingResources)) {
         const incomingKind = appletEntryIncomingKind(identity.appId);
         if (incomingKind === 'title') {
@@ -102,7 +111,11 @@ export function createAppletEntryPresentation() {
           pose = Object.freeze({ ...base, kind: 'incoming', frame: input.reducedMotion ? 20 : 0, pair: input.pair });
         } else pose = Object.freeze({ ...base, kind: 'handoff', pair: input.pair });
       } else {
-        pose = Object.freeze({ ...base, kind: 'cover', frame: input.reducedMotion ? 20 : Math.min(20, (presented?.frame ?? 0) + coverProgress) });
+        const frame = input.reducedMotion ? 20 : Math.min(20, (presented?.frame ?? 0) + coverProgress);
+        // A held cover repeats the exact terminal pose; hold only labels telemetry.
+        const hold = !input.reducedMotion && presented?.kind === 'cover' && presented.frame === 20 && coverHoldStart !== undefined
+          ? Math.min(APPLET_ENTRY_COVER_HOLD_UPDATES - 1, Math.max(0, update - coverHoldStart)) : undefined;
+        pose = Object.freeze({ ...base, kind: 'cover', frame, ...(hold === undefined ? {} : { hold }) });
       }
       pending = { pose, update };
       return pose;
@@ -131,6 +144,7 @@ export function createAppletEntryPresentation() {
       else presented = pose.kind === 'incoming'
         ? { kind: 'incoming', frame: pose.frame, update, sampledUpdate: pending.update, resources: pose.resources }
         : { kind: 'cover', frame: pose.frame, update, sampledUpdate: pending.update };
+      if (pose.kind === 'cover' && pose.frame === 20 && coverHoldStart === undefined) coverHoldStart = update;
       pending = undefined; rebase = false; return true;
     },
     active(next: AppletEntryIdentity | null, pair?: object, incomingResources?: object): boolean {
@@ -142,9 +156,9 @@ export function createAppletEntryPresentation() {
     },
     // Accessibility-only adaptation: the existing nonvisual direct shortcut
     // has no selected, presented HOME pair. Do not fabricate one for its cover.
-    skipAccessibilityShortcut(next: AppletEntryIdentity) { if(disposed)return;revoke(); identity = Object.freeze({ ...next }); presented = undefined; handedOff = true; },
+    skipAccessibilityShortcut(next: AppletEntryIdentity) { if(disposed)return;revoke(); identity = Object.freeze({ ...next }); presented = undefined; coverHoldStart = undefined; handedOff = true; },
     ready, destinationCompositionAllowed, revoke,
-    reset() { revoke(); identity = null; presented = undefined; handedOff = false; },
-    dispose() { disposed = true; revoke(); identity = null; presented = undefined; handedOff = false; },
+    reset() { revoke(); identity = null; presented = undefined; coverHoldStart = undefined; handedOff = false; },
+    dispose() { disposed = true; revoke(); identity = null; presented = undefined; coverHoldStart = undefined; handedOff = false; },
   };
 }

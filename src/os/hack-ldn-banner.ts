@@ -2,11 +2,11 @@
 const FRAME_WIDTH = 180;
 const FRAME_HEIGHT = 148;
 const COLUMNS = 8;
-const FRAME_COUNT = 104;
+const FRAME_COUNT = 112;
 const FPS = 30000 / 1001;
 const LOGO_HOLD_FRAME = FRAME_COUNT - 1;
 
-/** 2025 is part of the render, in the logo's own lettering. */
+/** 25 is part of the render, written by the chevron in the logo's own lettering. */
 export function createHackLdnBanner() {
   let image: HTMLImageElement | undefined;
   let ready = false;

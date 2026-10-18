@@ -51,7 +51,6 @@ The closed model measures **156 × 93 × 22 mm**. Display diagonals are **4.88 i
 `npx vgpu` was run. VGPU 0.4.1 is installed and the Next.js WGSL loader is configured. `src/shaders/silver.wgsl` generates the paint's grain and micro-scratch roughness once on WebGPU, then Three.js uses it as a material texture. Browsers without WebGPU keep the packed Blender texture.
 
 ```sh
-npm test
 npm run typecheck
 npm run check:shader
 node scripts/check-surface.mjs

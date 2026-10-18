@@ -14,7 +14,7 @@ vtable `0x16c754` maps that slot to `0x155c74`, which calls `0x14a7b8` with its
 embedded layout. That function checks the root's visibility and enters pane
 traversal `0x158fac`.
 
-[replay_health_draw.py](../scripts/replay_health_draw.py) executes **all of
+replay_health_draw.py executes **all of
 `0x13978c`**, intercepting only command submission `0x138164`. It captures a
 40-byte command packet followed by a 72-byte packet. The first packet starts
 with a consecutive-register command for `0x65`, `0x66`, `0x67`:

@@ -4,7 +4,7 @@ Bounded task for O-01–O-07. Base: `f5ed204c7955880d59b097a632d48deaa7d80252`.
 Branch: `codex/complete-services-20261001`; worktree:
 `/Users/paramveer/.codex/worktrees/3ds-complete-services-20261001`.
 Delivery is the commit containing this handoff (exact SHA in the chat report).
-Only this file and [services-completion-routes.test.mjs](../../tests/services-completion-routes.test.mjs)
+Only this file and services-completion-routes.test.mjs
 changed. No runtime, asset, shared coordinator document or private matrix change.
 
 ## Delivered and tested
@@ -27,9 +27,9 @@ Six additional module/input contract tests cover:
 - Pure local navigation emits no effects and does not mutate input/shared data.
   Saved-page submit/edit/text/applet-result events remain inert; no page loads.
 
-Existing [stock-app tests](../../tests/stock-apps.test.mjs) already cover read-only
+Existing stock-app tests already cover read-only
 Browser fields, settings details and constructed History state; existing
-[eShop lifecycle tests](../../tests/eshop-welcome-lifecycle.test.mjs) cover the
+eShop lifecycle tests cover the
 pass-12 OK gate, welcome/exit timing, owner suspension and paired repainting.
 Those cases were reused rather than copied. eShop has no touch Back target;
 its immediate return route uses B, and its touch OK follows the existing gate.

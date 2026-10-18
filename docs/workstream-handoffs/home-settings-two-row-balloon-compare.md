@@ -118,12 +118,12 @@ bounded browser removal result and do not close a scenario.
 
 ## Reproducible artifacts
 
-[`scripts/compare-home-settings-two-row.mjs`](../../scripts/compare-home-settings-two-row.mjs)
+`scripts/compare-home-settings-two-row.mjs`
 reuses the established balloon arithmetic, validates all input dimensions,
 hashes the measured regions, checks before/after state metadata, produces the
 empty-mask diagnostics and writes a five-column sheet: native, browser before,
 browser after, 4× browser delta and 4× native/after context. Its focused test is
-[`tests/compare-home-settings-two-row.test.mjs`](../../tests/compare-home-settings-two-row.test.mjs).
+`tests/compare-home-settings-two-row.test.mjs`.
 
 - report:
   `/Users/paramveer/.codex/3ds-artifact-overflow/home-fidelity-20261001/home-balloon-baseline/compare/settings-two-row/settings-two-row-removal.json`,

@@ -5,7 +5,7 @@ import type { JsonValue } from './app-types.ts';
  * The live read-only gallery uses this controller for selection, nominal
  * update ticks and horizontal cell placement. This does not port SceneBrowse's
  * ring allocator, readiness publication or drag/capture ownership.
- * Replayed by scripts/replay_camera_strip.py; see docs/camera-browse-strip-port.md.
+ * See docs/camera-browse-strip-port.md for the source replay.
  *
  * One `cameraBrowseUpdate` is one native application update (child slider
  * smoothing, then after-child key handling). Millisecond conversion is a

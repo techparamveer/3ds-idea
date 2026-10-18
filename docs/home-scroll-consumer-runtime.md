@@ -48,7 +48,7 @@ a pending event6 can change selection.
 The host owns service readiness, classification and accepted-key/type/options
 deduplication; navigation does not infer these from a slot. Consecutive
 unchanged idle attempts use one positive safe-integer `updateCount` span over
-`[updateOffset, updateOffset + updateCount)`. Entry observations have count1.
+`updateOffset, updateOffset + updateCount)`. Entry observations have count1.
 The optional `idleOverlayActive` gate applies S+3fd0 to ordinary idle-update
 attempts; it defaults to the bounded no-overlay path. Idle-entry attempts still
 occur with that overlay present. These lower calls are independent of whether
@@ -162,7 +162,7 @@ Source notes are `CURSOR_ACCELERATION_EVIDENCE.md`,
 `HOME_HOST_ORDER_EVIDENCE.md` under
 `scripts/firmware/`.
 
-[The committed numeric oracle](../tests/fixtures/home-scroll-consumer.json)
+[The committed numeric oracle
 pins private original-ARM checks/results and the exporter. Expected values are
 copied observations, not TypeScript-generated predictions. It covers all
 2,206 direction/focus scenarios (1,980 direct,144 round trips,12 remembered
@@ -170,7 +170,7 @@ overrides,70 gates), both78-poll schedules, entry/release/busy/replay cases,
 36 touch corrections,94 page boundaries,3 touch-effect order cases and native
 Loop step3/fractional observations.
 
-[The observation oracle](../tests/fixtures/home-scroll-observations.json) also
+The observation oracle also
 copies34 original dispatcher effect departures and the supported accepted
 grid-touch case from the presentation audit. It pins final cursor fixture
 `00af50c4d548f39e5878f208298dcc48f98110f72652fe559852525316b46e0e`
@@ -260,7 +260,7 @@ retain Loop phase; existing mode3 entry may change its step. The extension
 does not clear either old effect: the retained presentation consumer selects
 one of its two instances and preserves current/applied separation as before.
 
-[The focused numeric fixture](../tests/fixtures/home-accepted-toolbar-touch.json)
+The focused numeric fixture
 copies all five accepted cases from the existing toolbar audit: grid departure
 and toolbar focus0/3/6/7, root density2, selected3, tapped8. Its provenance pins
 the same original fixture/results SHA above and excerpt text SHA
@@ -270,7 +270,7 @@ The original trace stops before viewport correction and supplies selection
 flags, bindings and other service endpoints as documented in
 [toolbar evidence](../scripts/firmware/TOOLBAR_CURSOR_EVIDENCE.md).
 
-[Five focused tests](../tests/home-accepted-toolbar-touch.test.mjs) compare all
+Five focused tests compare all
 five recorded anchors/Scale/effects, observation order, retained controllers,
 exact modeled focus writes, immutable inputs and rejection boundaries. Their
 144 root/folder/density/viewport/acceleration combinations are implementation

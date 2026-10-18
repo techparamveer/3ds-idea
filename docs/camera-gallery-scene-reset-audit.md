@@ -43,7 +43,7 @@ readiness exists only in `createStockScreenPresentation`
   HOME sets `active` to `null`. Resume reuses the ID, but the presentation has
   already seen `null`. Relaunch changes the ID directly.
 
-[camera-gallery-lifecycle.test.mjs](../tests/camera-gallery-lifecycle.test.mjs)
+camera-gallery-lifecycle.test.mjs
 drives the real Camera reducer, runtime, presentation and native Camera painter
 over the real portfolio folders. Only the asset loader, `Image` and canvas are
 faked, and nothing is fetched.
@@ -61,7 +61,7 @@ scenarios fail. The within-owner scenario does not depend on it.
 
 ## Native evidence and its limit
 
-The [root-owner replay](../scripts/replay_camera_rebind_order.py) fixes the
+The root-owner replay fixes the
 renderer at synthetic address `0x1001000` and seeds consumer-ready `+0x80` bit 2
 with a direct write. Original code clears and republishes that bit, but no
 original constructor or destructor touches the object. Its only owner change is

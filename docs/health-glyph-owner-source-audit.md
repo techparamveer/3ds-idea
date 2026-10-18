@@ -9,7 +9,7 @@ cancellation are not established by these fixtures.
 
 ## Original text loop writes geometry, not merely measured widths
 
-[replay_health_glyph_cache.py](../scripts/replay_health_glyph_cache.py) executes
+replay_health_glyph_cache.py executes
 `0x1629fc`→`0x162a58`, original UTF-16 iteration, default tag processing,
 `0x1524b0` and the cache-writing branch of `0x15207c`. Font virtual methods
 supply decoded source font metrics. This extends the earlier dispatch replay:

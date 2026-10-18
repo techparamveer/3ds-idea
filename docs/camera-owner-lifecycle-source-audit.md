@@ -12,7 +12,7 @@ precisely. Live horizontal paging remains unchanged because rebinding and combin
 touch ownership are not yet verified end-to-end.
 
 The source is the same EUR Camera executable pinned by
-[audit_camera_grid.py](../scripts/audit_camera_grid.py), SHA256
+audit_camera_grid.py, SHA256
 `3a3c4152ebcc74443ed245a0e9840d31219bbd2559295364cc8dab9497e4492c`, base `0x100000`.
 No firmware bytes are published.
 
@@ -131,7 +131,7 @@ adapter must stage them per Camera owner without altering HOME repeats.
 
 ## Verification and remaining boundary
 
-New [replay_camera_owner_lifecycle.py](../scripts/replay_camera_owner_lifecycle.py)
+New replay_camera_owner_lifecycle.py
 requires `unicorn==2.1.4` and absolute `--code`/`--output` paths. Private report:
 `reference/camera-paging-owner-source/replay.json` under the firmware artifact
 root. Mode switching/restoration runs original instructions without stubs.

@@ -7,7 +7,7 @@ HOME 10.7.0-32E `code.bin` (SHA-256
 and selected Settings `banner.bin` (SHA-256
 `5804ba5a7768d2ae9b7487e4d277923502646d89768668b19d666e3e4d30fbac`).
 Addresses are virtual, with base `0x100000`. The parameterized
-[`audit-settings-banner-pose.py`](../scripts/audit-settings-banner-pose.py)
+`audit-settings-banner-pose.py`
 checks the private source and public converted pack; its committed
 [anchor result](evidence/settings-banner-pose-anchors.json) exposes only hashes,
 metadata, instructions and bounded predicate results. The source branch audit
@@ -81,7 +81,7 @@ Settings banner is enabled by this audit.
 
 ## Follow-up worker branch replay
 
-The parameterized [`replay-settings-banner-workers.py`](../scripts/replay-settings-banner-workers.py)
+The parameterized `replay-settings-banner-workers.py`
 executes bounded original ARM paths from the same hash-pinned HOME binary. Its
 committed [result](evidence/settings-banner-worker-replay.json) and focused
 test cover these synthetic conditions:

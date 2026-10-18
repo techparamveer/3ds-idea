@@ -14,7 +14,7 @@ changed models.
 
 ## Delivered route coverage
 
-[`tests/sound-completion-routes.test.mjs`](../../tests/sound-completion-routes.test.mjs)
+`tests/sound-completion-routes.test.mjs`
 uses the registered Sound module and real application host. Its supplied-song
 case temporarily replaces only that module with three frozen metadata records.
 The fake effect sink records and acknowledges owner-scoped effects; it never

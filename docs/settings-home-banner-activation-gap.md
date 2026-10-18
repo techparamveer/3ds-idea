@@ -78,7 +78,7 @@ evidence.
 
 ## Bounded controller-clock replay (25 September 2026)
 
-[`replay-settings-banner-controller.py`](../scripts/replay-settings-banner-controller.py)
+`replay-settings-banner-controller.py`
 executes original HOME `code.bin` SHA-256
 `243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9`
 through the native scene-list walker `0x10b3d0`, skeletal-controller virtual
@@ -171,7 +171,7 @@ before a browser Settings primary can be enabled.
 
 ## Real Settings title-worker resource replay (25 September 2026)
 
-[`replay-settings-banner-real-worker.py`](../scripts/replay-settings-banner-real-worker.py)
+`replay-settings-banner-real-worker.py`
 executes original title worker `0x24c930` with the SHA-pinned Settings
 `banner.bin` and checks the published selected `COMMON` model. The committed
 [fixture](evidence/settings-banner-real-resource-worker.json) has SHA-256
@@ -196,7 +196,7 @@ execution and matched native/browser pixels.
 
 ## Graphics-object allocation and initialization probe (25 September 2026)
 
-The follow-up [replay](../scripts/probe-settings-banner-graphics-bind.py) and
+The follow-up replay and
 [fixture](evidence/settings-banner-graphics-bind-probe.json) start with the
 same hash-pinned HOME code, Settings CBMD and delivered model. The title worker
 still executes its original archive decode and candidate construction. This

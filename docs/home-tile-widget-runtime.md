@@ -111,7 +111,7 @@ The frozen final report SHA is
 All40 existing excerpt text hashes were verified. No firmware execution was
 added or repeated.
 
-[`home-tile-widget.json`](../tests/fixtures/home-tile-widget.json) projects all43
+`home-tile-widget.json` projects all43
 cases and305 passes into input/2D snapshots, ordered events, capture, binding
 state and actual native pose writes. It includes producer-paused input and
 opening passes stopped before2D. Artificial selection/mapping/record/context
@@ -138,7 +138,7 @@ Source fixture SHA:
 `47c32cb2d07a1bd368a7f1d16565707838d389dad390a27b842359ca089d4be4`.
 All18 excerpt text hashes were verified without executing firmware.
 
-[`home-tile-widget-long-press.json`](../tests/fixtures/home-tile-widget-long-press.json)
+`home-tile-widget-long-press.json`
 projects all16 sequences and384 pass boundaries: eight holds across root/child,
 same/different target and occupied/vacant records, plus eight occupied ordinary
 releases after H19/H20. Four occupied holds stop at input H21; four vacant

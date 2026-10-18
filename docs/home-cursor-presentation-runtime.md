@@ -90,7 +90,7 @@ The implementation follows the integration contract and
 `0004003000009802` version24576 has SHA-256
 `243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9`.
 
-[The committed numeric fixture](../tests/fixtures/home-cursor-presentation.json)
+The committed numeric fixture
 copies original-ARM observations; TypeScript does not generate its expectations.
 It pins toolbar fixture
 `00af50c4d548f39e5878f208298dcc48f98110f72652fe559852525316b46e0e`

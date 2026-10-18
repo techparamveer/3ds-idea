@@ -37,9 +37,9 @@ closed, so it contributed no PNG intermediate and is not treated as evidence.
 ## Reproducible evidence
 
 The deterministic analyzer is
-[`scripts/fit-home-closing-fade.mjs`](../../scripts/fit-home-closing-fade.mjs),
+`scripts/fit-home-closing-fade.mjs`,
 with pure geometry, projection, edge and Hermite coverage in
-[`tests/fit-home-closing-fade.test.mjs`](../../tests/fit-home-closing-fade.test.mjs).
+`tests/fit-home-closing-fade.test.mjs`.
 It requires absolute paths, verifies each of the seven fresh, 37 historical
 and 81 gap-sequence PNG hashes, and writes only to the internal
 artifact-overflow tree.

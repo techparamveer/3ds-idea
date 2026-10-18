@@ -202,7 +202,7 @@ For suspended Game Notes, a second HOME press closes that applet through the
 normal lifecycle and keeps its application caller suspended at HOME; see the
 [owner correction](../notes-home-owner-exit.md). Other titles retain HOME resume.
 This is bounded portfolio navigation, not a complete native APT implementation.
-See [helper return tests](../../tests/settings-helper-return.test.mjs).
+See helper return tests.
 
 Other Settings' four numbered lower-screen tabs accept direct touch at source
 centres `(100,20)`, `(140,20)`, `(180,20)` and `(220,20)`. The hit layout emits
@@ -217,17 +217,13 @@ checks input reachability, not motion/audio equivalence.
 | `apps.ts` | Portfolio application and entry data |
 | `state.ts` | HOME Menu layout, folders, themes and low-level menu types |
 | `system.ts` | Boot, HOME, launch, suspend, app, dialog, power and persistence transitions |
-| `layout.ts` | Native screen geometry and hit regions |
 | `screens.ts` | HOME Menu and system-panel canvas painting |
 | `portfolio-screens.ts` | App icons, banners and application interiors |
 | `notes-suspended-capture.ts` | In-memory last complete LCD pair of the application slot, shared by Game Notes and HOME's suspended upper window |
 | `bitmap-font.ts` | Parsed HOME font metrics and glyph drawing |
-| `resources.ts` | Validated optional firmware-derived resource loading |
 | `native-chrome.ts` | Authored/cropped native chrome asset loading |
 | `audio.ts` | Gesture-unlocked sound decoding and playback |
 | `system-transitions.ts`, `native-system-presentation.ts` | Browser boot/launch/shutdown timing and source HOME power/fade rendering |
-| `native-keyboard-audio/sequence.ts` | Isolated `common_back` sequence controls, counted native updates and release-tail ownership; transport integration pending |
-| `animation.ts` | Layout animation sampling utilities |
 | `app-types.ts`, `app-registry.ts`, `app-host.ts` | Firmware contracts, installed titles and applet lifecycle |
 | `app-input.ts` | Phase-aware input normalization and shared-clock repeats |
 | `home-input-producer.ts` | Native poll/event arithmetic used by the live HOME host |

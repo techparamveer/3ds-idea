@@ -73,7 +73,7 @@ Source: owner-supplied EUR HOME title `0004003000009802`, version24576;
 executable SHA-256
 `243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9`.
 
-[The committed fixture](../tests/fixtures/home-input-producer.json) contains only
+The committed fixture contains only
 numeric input/state/event observations. Its provenance pins the existing
 `native-input-events` and `native-cursor-acceleration` checks/results and the
 additional producer check. No executable bytes or disassembly are copied.

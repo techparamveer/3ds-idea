@@ -39,7 +39,7 @@ generalised.
 | Work closed | Work | none | Open |
 | About suspended after confirmed switch | About | Close software | Resume |
 
-The new [route regressions](../../tests/home-completion-routes.test.mjs) assert
+The new route regressions assert
 the exact owner survives Resume and switch cancellation, is removed by Close or
 confirmed switch, and is never reused after closing. They also assert the five
 footer identities above. They do not test pixels or native timing.

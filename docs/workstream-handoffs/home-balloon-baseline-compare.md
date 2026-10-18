@@ -158,12 +158,12 @@ Artifacts under the internal overflow root:
 
 ## Reproduction and boundary
 
-[`scripts/compare-home-balloon.mjs`](../../scripts/compare-home-balloon.mjs)
+`scripts/compare-home-balloon.mjs`
 verifies dimensions, hashes all input/canonical regions, detects selected
 one-row anchors, searches body/text/tail translations independently, produces
 empty-mask metrics and writes the comparison images. Pure arithmetic and
 geometry coverage is in
-[`tests/compare-home-balloon.test.mjs`](../../tests/compare-home-balloon.test.mjs).
+`tests/compare-home-balloon.test.mjs`.
 
 - focused tests: 5/5 pass;
 - native/browser inputs and the generated sheet were inspected at original

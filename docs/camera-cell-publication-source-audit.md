@@ -17,7 +17,7 @@ Capture and editing remain absent.
 
 ## Source and scope
 
-[replay_camera_cell_publication.py](../scripts/replay_camera_cell_publication.py)
+replay_camera_cell_publication.py
 uses EUR Camera `0004001000022400`, content `0000-0000001a`, SHA-256
 `3a3c4152ebcc74443ed245a0e9840d31219bbd2559295364cc8dab9497e4492c`.
 Input bytes must match before Unicorn loads. No executable bytes or new assets

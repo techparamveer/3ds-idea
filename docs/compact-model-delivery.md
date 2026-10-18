@@ -2,9 +2,8 @@
 
 The homepage serves `public/models/candidates/joshua-xl.glb`, mirrored from
 `model/candidates/joshua-xl/silver-audio-contacts-compact.glb`. Edit the
-**silver-audio-contacts.blend** checkpoint for the current live model; the
-earlier `silver-audio-finish.blend`, full-resolution authoring GLBs and WebP
-packs remain preserved.
+**silver-audio-contacts.blend** checkpoint for the current live model; earlier
+checkpoints are in Git history only.
 
 ## Measured size
 

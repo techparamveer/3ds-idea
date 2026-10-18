@@ -6,7 +6,7 @@ and release, plus an isolated touch-ancestry gate. **It does not establish the
 complete thumbnail completion writer or owner/frame sequence. Live gallery
 paging remains unchanged.**
 
-[replay_camera_rebind.py](../scripts/replay_camera_rebind.py) runs the Camera ARM
+replay_camera_rebind.py runs the Camera ARM
 instructions from the same SHA256-pinned EUR executable as the previous audit.
 No firmware bytes are committed. Worker status and release services are explicit
 fixtures, not actual decoder work.

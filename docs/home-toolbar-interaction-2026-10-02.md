@@ -179,7 +179,7 @@ evidence for toolbar keyboard behavior or a scenario pass.
 
 The native executable fixtures already cover 144 three-action root/folder
 round trips and 12 remembered-focus overrides; the repository
-[numeric fixture](../tests/fixtures/home-scroll-consumer.json) preserves the
+numeric fixture preserves the
 portable observations. See the
 [cursor anchor/resource audit](../scripts/firmware/TOOLBAR_CURSOR_EVIDENCE.md),
 [direction and cue ordering](../scripts/firmware/HOME_DIRECTION_MASK_EVIDENCE.md),

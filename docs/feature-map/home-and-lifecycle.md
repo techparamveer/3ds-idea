@@ -46,44 +46,44 @@ Current source matches the verified material-binding stage; shell/footer,
 other densities and exact motion/input/audio still need native comparison.
 
 ### H-01 - HOME two-LCD composition and wallpaper
-**Code/tests/evidence:** [screens.ts](../../src/os/screens.ts), [home-presentation.ts](../../src/os/home-presentation.ts), [home-banner-host.ts](../../src/os/home-banner-host.ts), [host tests](../../tests/home-banner-host.test.mjs), [background owner note](../home-background-host-2026-10-01.md).
+**Code/tests/evidence:** [screens.ts](../../src/os/screens.ts), [home-presentation.ts](../../src/os/home-presentation.ts), [home-banner-host.ts](../../src/os/home-banner-host.ts), host tests, [background owner note](../home-background-host-2026-10-01.md).
 **Now/gap/dependency:** Native packs paint the white HOME chrome, grid, footer, hosted wallpaper, and selected banners. The background is now System-generation-owned and advances on eligible scene passes. [Live evidence](../home-live-verification-2026-10-02.md) verifies same-frame paint stability, selection-independent epoch and visible frame210 ->240 progression; retained-native margins match within1/255, while the whole pair fails4940/19125. Exact native epoch, HUD/battery/clock phase, non-white themes, and suspend/restart event mapping remain unproved. Depends on firmware presentation assets and the shared 60 Hz HOME clock.
 **Next/acceptance:** Capture Notifications selected at two known host background frames before and after a pause/resume, then replay the same sequence natively. Accept only when raw 400x240/320x240 pairs, phase progression, and repeat-at-same-frame checks pass; audio remains separately open.
 
 ### H-02 - Installed grid, empty slots, and scoped population
-**Code/tests/evidence:** [app-registry.ts](../../src/os/app-registry.ts), [home-layout.ts](../../src/os/home-layout.ts), [state.ts](../../src/os/state.ts), [runtime tests](../../tests/app-runtime.test.mjs), [scope](../portfolio-ui-scope.md).
+**Code/tests/evidence:** [app-registry.ts](../../src/os/app-registry.ts), [home-layout.ts](../../src/os/home-layout.ts), [state.ts](../../src/os/state.ts), runtime tests, [scope](../portfolio-ui-scope.md).
 **Now/gap/dependency:** Root capacity is 300 and folders 60, but only in-scope stock titles plus eight portfolio apps are installed. SMDH art is used when delivered; portfolio tiles/content are adaptations. Excluded native titles must not be added merely to match a screenshot.
 **Next/acceptance:** From the clean saved layout, traverse every occupied and adjacent empty root slot at each visible edge. Compare the same scoped native arrangement or record population masks as adaptations; require stable identities through reload and no excluded launch routes.
 
 ### H-03 - D-pad navigation and grid/toolbar focus transfer
-**Code/tests/evidence:** [home-scroll-consumer.ts](../../src/os/home-scroll-consumer.ts), [home-controls.ts](../../src/os/home-controls.ts), [control tests](../../tests/home-controls.test.mjs), [accepted toolbar touch tests](../../tests/home-accepted-toolbar-touch.test.mjs), [runtime note](../home-controls-runtime.md).
+**Code/tests/evidence:** [home-scroll-consumer.ts](../../src/os/home-scroll-consumer.ts), [home-controls.ts](../../src/os/home-controls.ts), control tests, accepted toolbar touch tests, [runtime note](../home-controls-runtime.md).
 **Now/gap/dependency:** Source masks, 20/5 repeats, diagonal rejection, toolbar focus tables, departed cursor effects, and mode-3 pending replay are implemented. Native HID sample alignment and real key-hold timing are not accepted. Depends on the input sampler/producer and lower-pass ordering.
 **Next/acceptance:** Replay root Right-hold through one viewport edge, Up into toolbar, Left/Right across all eight focus positions, then Down to the remembered column. Require identical selections/focus per sampled update and matched settled/moving LCD pairs.
 
 ### H-04 - Density, paging, and viewport motion
-**Code/tests/evidence:** [home-navigation.ts](../../src/os/home-navigation.ts), [home-density-controls.ts](../../src/os/home-density-controls.ts), [home-navigation-motion tests](../../tests/home-navigation-motion.test.mjs), [density tests](../../tests/home-density-controls.test.mjs), [navigation note](../home-navigation-runtime.md).
+**Code/tests/evidence:** [home-navigation.ts](../../src/os/home-navigation.ts), [home-density-controls.ts](../../src/os/home-density-controls.ts), home-navigation-motion tests, density tests, [navigation note](../home-navigation-runtime.md).
 **Now/gap/dependency:** Six native density indices, root/folder geometry, 15-update density interpolation, 16-update page motion, arrow eligibility, and independent histories exist. Selection-status 0, mode 14, and some overlay/motion branches are explicit unsupported subsets.
 **Next/acceptance:** At root and inside one folder, press both density controls to each boundary, page left/right, interrupt one density change, and reload. Compare every motion endpoint and retained viewport; unsupported native branches stay source-gap rather than guessed.
 
 ### H-05 - Tile touch, press, selection, and activation
-**Code/tests/evidence:** [home-tile-touch.ts](../../src/os/home-tile-touch.ts), [home-tile-widget.ts](../../src/os/home-tile-widget.ts), [tile system tests](../../tests/home-tile-touch-system.test.mjs), [integration note](../home-tile-touch-integration.md).
+**Code/tests/evidence:** [home-tile-touch.ts](../../src/os/home-tile-touch.ts), [home-tile-widget.ts](../../src/os/home-tile-widget.ts), tile system tests, [integration note](../home-tile-touch-integration.md).
 **Now/gap/dependency:** One stylus stream, native widget states, Select/Decide clips, 20/21-poll long-press threshold, gap rejection, one-tap select, and second-tap activation share the normal HOME path. Exact physical touch sampling versus browser pointer timestamps remains open.
 **Next/acceptance:** On an unselected occupied tile perform down/up, then a second down/up; repeat on a vacant slot and cancel outside the LCD. Require the same callback/order, visible poses, launch/create result, and paired raw frames in native and browser.
 
 ### H-06 - Long-press pickup, reorder, folder hover, and edge scroll
-**Code/tests/evidence:** [home-tile-pickup.ts](../../src/os/home-tile-pickup.ts), [home-gestures.ts](../../src/os/home-gestures.ts), [home-layout.ts](../../src/os/home-layout.ts), [gesture tests](../../tests/home-gestures.test.mjs), [pickup contract](../home-pickup-entry-contract.md).
+**Code/tests/evidence:** [home-tile-pickup.ts](../../src/os/home-tile-pickup.ts), [home-gestures.ts](../../src/os/home-gestures.ts), [home-layout.ts](../../src/os/home-layout.ts), gesture tests, [pickup contract](../home-pickup-entry-contract.md).
 **Now/gap/dependency:** The callback-3 stationary mode-14 pickup and atomic swaps are source-backed. Movement, drop, folder hover, drag-out, and edge timings are working browser adaptations explicitly marked authored; folder-icon/toolbar pickup remains untraced.
 **2 October endpoint evidence:** [Fresh folder replay](../home-pickup-endpoints-2026-10-02.md) matches Health child2 ->1 ->2 with desktop/mobile/reduced production. Artwork and vacated blank cores meet delta2; native held poses, precise input/release motion/audio remain open. Stable divider/footer shade fails separately; do not change pickup semantics to address it.
 **2 October drag-out correction:** [Back-hover exit](../home-folder-drag-out-2026-10-02.md), `dd73c4ee` plus production-wrapper/scope fixes `35846d2e`/`1089c78c`, fixes the native-captured folder-to-root placement failure. Desktop/mobile/reduced verify swap without item loss, reverse restoration and outside-LCD cancel. The retained pickup owner follows the same original source; 500ms remains adapted. Final full1,832 tests/build/typecheck pass, not whole-scenario acceptance.
 **Next/acceptance:** Hold one portfolio tile, drag across a vacant slot, into/out of a folder, and against each edge, including cancel. Record callback frame and authored deadlines, compare visible ghost/source blanking and final layout, and classify each differing continuation as adaptation or source-gap.
 
 ### H-07 - Folder create, enter, close, and retained histories
-**Code/tests/evidence:** [state.ts](../../src/os/state.ts), [home-folder-close-system.ts](../../src/os/home-folder-close-system.ts), [folder close tests](../../tests/home-folder-close-system.test.mjs), [folder input tests](../../tests/home-folder-input.test.mjs), [system contract](../home-folder-close-system.md).
+**Code/tests/evidence:** [state.ts](../../src/os/state.ts), [home-folder-close-system.ts](../../src/os/home-folder-close-system.ts), folder close tests, folder input tests, [system contract](../home-folder-close-system.md).
 **Now/gap/dependency:** Vacant-slot creation, 1..99 fullwidth naming, independent child histories, native Back target, deferred close/restoration, cursor resumption, and offscreen root repair are implemented. New folder default naming is supported without opening Software Keyboard.
 **Next/acceptance:** Create/open a folder, change child density/viewport, close via B and touch, reopen, then close with the root selection offscreen. Match C+18/C+23-or-28 boundaries, selection/footer visibility, and both LCDs.
 
 ### H-08 - Folder settings, rename exclusion, and delete confirmation
-**Code/tests/evidence:** [state.ts](../../src/os/state.ts), [screens.ts](../../src/os/screens.ts), [menu tests](../../tests/menu.test.mjs), [folder naming note](../folder-naming-runtime.md).
+**Code/tests/evidence:** [state.ts](../../src/os/state.ts), [screens.ts](../../src/os/screens.ts), menu tests, [folder naming note](../folder-naming-runtime.md).
 **Now/gap/dependency:** Settings and delete-confirm panels exist; nonempty deletion is refused and empty deletion clears identity/history. Rename is intentionally inert because Software Keyboard is excluded, but the visible Rename choice is an authored UI ambiguity rather than accepted native behavior.
 **Next/acceptance:** Open settings for empty and nonempty folders, activate Rename, cancel, and attempt Delete/confirm. Verify no keyboard/editor state appears, no content is lost, and the visible disabled/adaptation treatment is compared to native before publication.
 
@@ -95,17 +95,17 @@ missing-UV sampling is a labelled adaptation; native initialization, selected
 states and whole-scenario input/motion/audio acceptance remain open. Desktop/
 mobile Notes touch and physical HOME return pass; other toolbar states remain.
 
-**Code/tests/evidence:** [state.ts](../../src/os/state.ts), [system.ts](../../src/os/system.ts), [home-cursor-presentation.ts](../../src/os/home-cursor-presentation.ts), [toolbar touch tests](../../tests/home-accepted-toolbar-touch.test.mjs), [footer evidence](../home-applet-footer-2026-10-01.md).
+**Code/tests/evidence:** [state.ts](../../src/os/state.ts), [system.ts](../../src/os/system.ts), [home-cursor-presentation.ts](../../src/os/home-cursor-presentation.ts), toolbar touch tests, [footer evidence](../home-applet-footer-2026-10-01.md).
 **Now/gap/dependency:** Settings/Home Design, Notes, Friends, Notifications, Browser, Miiverse, and two density groups have native focus geometry. Focuses 1..5 invoke system applets and use one full-width Open footer; applet interiors may be source-gap/adaptations per their own maps.
 **Next/acceptance:** From the same grid selection, traverse and open all five applets via D-pad+A and footer touch, close each, and confirm the grid selection never launches instead. Compare toolbar cursor, label, banner, footer, and transition frames.
 
 ### H-10 - HOME footer actions and Manual route
-**Code/tests/evidence:** [home-presentation.ts](../../src/os/home-presentation.ts), [screens.ts](../../src/os/screens.ts), [folder input tests](../../tests/home-folder-input.test.mjs), [applet footer tests](../../tests/home-accepted-toolbar-touch.test.mjs), [residual audit](../home-applet-footer-residual-audit-2026-10-01.md).
+**Code/tests/evidence:** [home-presentation.ts](../../src/os/home-presentation.ts), [screens.ts](../../src/os/screens.ts), folder input tests, applet footer tests, [residual audit](../home-applet-footer-residual-audit-2026-10-01.md).
 **Now/gap/dependency:** Open, Resume, Close folder, Close software, Settings, Create Folder, and the Settings/Camera Manual routes are state-derived. [Camera at `0e59c1a0`](../home-camera-manual-footer-2026-10-03.md) restores source Close/Manual/Resume and ordinary-close Decide persistence, with shared source hit bounds and exact retained-owner return. Applet glyph text meets its earlier bounded threshold; footer edge, native gesture/timing and whole-screen acceptance remain separate gaps.
 **Next/acceptance:** Capture each footer variant from a named state, exercise left/centre/right inclusive edges, and compare native/browser inputs and raw lower LCDs. No action may leak from the retained grid under toolbar focus.
 
 ### H-11 - HOME Design, themes, brightness, power-saving, and preferences
-**Code/tests/evidence:** [state.ts](../../src/os/state.ts), [screens.ts](../../src/os/screens.ts), [system.ts](../../src/os/system.ts), [menu tests](../../tests/menu.test.mjs), [portfolio validation](../portfolio-os-validation.md).
+**Code/tests/evidence:** [state.ts](../../src/os/state.ts), [screens.ts](../../src/os/screens.ts), [system.ts](../../src/os/system.ts), menu tests, [portfolio validation](../portfolio-os-validation.md).
 **Now/gap/dependency:** Source lower Settings, Save/Load, brightness/power, Image Share, StreetPass, scrolling and eight local saved arrangements are implemented. `home-design-lower-2026-10-04` binds `PtBtnM_Shr_00` / `PtBtn_Sft_00` / `N_Line_02` / `N_Line_03` with `MAX_SCROLL` 280; Open on those two rows stays inert; 88px thumb stays a labelled fit. Empty plates/Delete/footer and current paired preview follow through `5232b9c5`; see [latest comparison](../home-layout-native-comparison-2026-10-02.md) and [later rows](../home-design-lower-2026-10-04.md). Saved thumbnails/Zoom and first-use preparation remain missing. Theme picker is authored; preferences/reset and local persistence are adaptations. No whole native match.
 **Next/acceptance:** Deferred behind close/switch, power-on and HOME interactions. Recapture `settings-lower-integrated` and a scrolled choice-4/5 still, then finish saved previews and first-use states. Preserve selected tile/suspended owner; match motion/input separately from settled composition.
 
@@ -116,7 +116,7 @@ and after. Same-anchor Health body/text/tail positioning needs no correction.
 [Raw-pair diagnostics and remaining native limits](../home-balloon-density-2026-10-02.md).
 H-04/H-12 remain partial; whole scenario timing/input/audio is not accepted.
 
-**Code/tests/evidence:** [home-primary-cursor.ts](../../src/os/home-primary-cursor.ts), [home-cursor-loop.ts](../../src/os/home-cursor-loop.ts), [home-balloon-presentation.ts](../../src/os/home-balloon-presentation.ts), [balloon tests](../../tests/home-balloon-presentation.test.mjs), [upper composition audit](../native-upper-composition.md).
+**Code/tests/evidence:** [home-primary-cursor.ts](../../src/os/home-primary-cursor.ts), [home-cursor-loop.ts](../../src/os/home-cursor-loop.ts), [home-balloon-presentation.ts](../../src/os/home-balloon-presentation.ts), balloon tests, [upper composition audit](../native-upper-composition.md).
 **Now/gap/dependency:** Existing cursor/balloon routes are preserved. The [source window](../home-suspended-window-2026-10-02.md) at `81d0b3d8` now presents the selected retained owner with original panel/messages/icon, frozen upper frame and paired failure recovery. Health and Work suspension/resume/close/reselection are browser-inspected. Retained-native diagnostic95286/51107 still fails; flat capture, settled poses and fitted caption centering are adaptations. Compact window, native warp/tint, first-use notice, lower tint and motion remain missing.
 **Next/acceptance:** Capture the compact other-selection state and close/switch motion, then finish those source-backed presentations. Repeat native/browser inputs with the same selected tile, density, population and phase; require no stale owner/frame. The earlier failed native attempt below is superseded by the successful [held-HOME reference](../native-home-return-2026-10-02.md), not proof of timing parity.
 
@@ -125,50 +125,50 @@ adds two unchanged Health lower captures and no logged APT inquiry/jump. It does
 not distinguish host-delivery failure from the native notification boundary.
 
 ### H-13 - Selected banner host, readiness, motion, and failure
-**Code/tests/evidence:** [home-banner-host.ts](../../src/os/home-banner-host.ts), [home-banner-service.ts](../../src/os/home-banner-service.ts), [firmware-banner.ts](../../src/scene/firmware-banner.ts), [host tests](../../tests/home-banner-host.test.mjs), [News comparison](../home-news-motion-comparison-2026-10-01.md).
+**Code/tests/evidence:** [home-banner-host.ts](../../src/os/home-banner-host.ts), [home-banner-service.ts](../../src/os/home-banner-service.ts), [firmware-banner.ts](../../src/scene/firmware-banner.ts), host tests, [News comparison](../home-news-motion-comparison-2026-10-01.md).
 **Now/gap/dependency:** Folder/default, Settings, common stock banners, Friend type14, and Notifications type16 reuse generation/ticket/readiness/disposal paths. Memo/Web/Miiverse use separate renderers; failures are explicit. Activation first-frame, offsets, and several toolbar handoffs remain unproved.
 **Next/acceptance:** Reselect Settings, Friend, Notifications, Notes, Browser, and Miiverse under one fixed input movie; capture two motion phases each. Require no stale banner, blank pending state, or borrowed ticket, then compare pose/material/label pixels without guessing an epoch.
 
 ### H-14 - Physical, keyboard, analog, touch, repeat, and cancellation
-**Code/tests/evidence:** [console-scene.ts](../../src/scene/console-scene.ts), [app-input.ts](../../src/os/app-input.ts), [home-input-adapter.ts](../../src/os/home-input-adapter.ts), [adapter tests](../../tests/home-input-adapter.test.mjs), [input comparison](../home-input-comparison-2026-10-01.md).
+**Code/tests/evidence:** [console-scene.ts](../../src/scene/console-scene.ts), [app-input.ts](../../src/os/app-input.ts), [home-input-adapter.ts](../../src/os/home-input-adapter.ts), adapter tests, [input comparison](../home-input-comparison-2026-10-01.md).
 **Now/gap/dependency:** Physical model controls, keyboard, accessible controls, D-pad/circle-pad, and lower-LCD pointers enter one phase protocol; blur, visibility, lid, launch, and overlays release held input. Browser trusted holds were measured, but wall time does not prove native 4.273504 ms sampling.
 **Next/acceptance:** Use the same serialized down/up sequence for D-pad hold/repeat, A, B, HOME, touch, cancel, and two simultaneous sources. Compare sampled masks, repeat edges, actions, and visible frames; treat audio as open while muted.
 
 ### H-15 - HOME persistence and reset
-**Code/tests/evidence:** [app-persistence.ts](../../src/os/app-persistence.ts), [system.ts](../../src/os/system.ts), [home-layout.ts](../../src/os/home-layout.ts), [persistence tests](../../tests/app-persistence.test.mjs), [history tests](../../tests/home-navigation-history.test.mjs).
+**Code/tests/evidence:** [app-persistence.ts](../../src/os/app-persistence.ts), [system.ts](../../src/os/system.ts), [home-layout.ts](../../src/os/home-layout.ts), persistence tests, history tests.
 **Now/gap/dependency:** Versioned preferences retain layout, folders, root/child views, theme, brightness, power-saving, mute, and volume while rejecting corrupt/duplicate/retired entries. Transient gestures, clocks, controls, close sessions, and applet owners are not persisted.
 **Next/acceptance:** Save a rearranged multi-folder layout with independent densities, reload, reset, and cold boot. Require exact stable identities/views, safe migration of the prior default only, explicit storage failure notice, and no resurrection of transient owners.
 
 ### H-16 - HOME cues, mute, and accessibility
-**Code/tests/evidence:** [audio.ts](../../src/os/audio.ts), [menu-action-sound.ts](../../src/os/menu-action-sound.ts), [console-scene.ts](../../src/scene/console-scene.ts), [sound tests](../../tests/menu-action-sound.test.mjs), [audio contract](../native-home-audio-contract.md).
+**Code/tests/evidence:** [audio.ts](../../src/os/audio.ts), [menu-action-sound.ts](../../src/os/menu-action-sound.ts), [console-scene.ts](../../src/scene/console-scene.ts), sound tests, [audio contract](../native-home-audio-contract.md).
 **Now/gap/dependency:** Native menu cues, HOME music entry policy, announcements, focusable controls, mute, and volume exist. Audio timing/balance is unaccepted and must remain muted until the user permits validation; some descriptions summarize rather than reproduce native accessibility text.
 **Next/acceptance:** While muted, verify cue scheduling identifiers and accessible announcements for every H-03/H-05/H-07/H-09 action. Defer audible waveform/timing comparison and keep the matrix audio tier open.
 
 ## Cross-app lifecycle
 
 ### L-01 - Cold boot, Power menu, shutdown, and off
-**Code/tests/evidence:** [system.ts](../../src/os/system.ts), [native-system-presentation.ts](../../src/os/native-system-presentation.ts), [system-transitions.ts](../../src/os/system-transitions.ts), [transition tests](../../tests/system-transitions.test.mjs), [power note](../portfolio-power-transitions.md).
+**Code/tests/evidence:** [system.ts](../../src/os/system.ts), [native-system-presentation.ts](../../src/os/native-system-presentation.ts), [system-transitions.ts](../../src/os/system-transitions.ts), transition tests, [power note](../portfolio-power-transitions.md).
 **Now/gap/dependency:** Boot/home/power/shutdown/off phases, sourced fades and Power panes exist. [Power footer recapture](../home-power-footer-raster-2026-10-02.md) at `d4c96f26` closes the settled text-raster residuals: both HOME/app origins have zero pixels above delta 2 on both LCDs, maximum 2, empty masks. The source spacer lines and inert footer are retained. [Shutdown correction](../home-shutdown-fade-2026-10-03.md) at `cdc2926f` replaces the generic fade with lower Decide then paired Slp SceneOut; 14 native own PNGs identify the partial fade, not its terminal. The 3000/1200 ms boot/shutdown durations, final 350 ms reveal and reduced policies are browser adaptations. Whole scenarios remain fail for exact input/epochs, motion/audio, terminal publication under stalls and physical backlight/order.
 **Superseding evidence:** [Shutdown publication](../home-shutdown-publication-2026-10-03.md) through `ea6265de` closes the host-stall terminal skip with paired paint/render receipts and suspension/context invalidation; six production terminal pairs are native byte-black. [Power input](../home-power-input-2026-10-03.md) fixes outside-origin activation and held feedback. [Continuous re-entry](../home-power-reentry-2026-10-03.md) confirms native clears feedback outside and restores it inside before accepted release; four primary paired endpoints meet delta2. These supersede the terminal-publication and re-entry gaps above, not exact motion/audio or whole-scenario failure.
 **Next/acceptance:** Match native cold boot, LCD/backlight order and exact input/motion timing from HOME and running software. Preserve verified Power ownership and terminal publication; do not repeat those settled endpoint audits as missing implementation.
 
 ### L-02 - Lid close, sleep, wake, and document visibility
-**Code/tests/evidence:** [console-scene.ts](../../src/scene/console-scene.ts), [app-host.ts](../../src/os/app-host.ts), [home-navigation-motion tests](../../tests/home-navigation-motion.test.mjs), [runtime tests](../../tests/app-runtime.test.mjs).
+**Code/tests/evidence:** [console-scene.ts](../../src/scene/console-scene.ts), [app-host.ts](../../src/os/app-host.ts), home-navigation-motion tests, runtime tests.
 **Now/gap/dependency:** Hinge closure cancels pointers/controls, sends sleep to every instance, releases capabilities, freezes HOME clocks, and wake resumes without hidden catch-up. Browser-tab visibility similarly releases input but is not a 3DS lid event.
 **Next/acceptance:** Close/reopen the lid from HOME motion, an application, a system applet, and a loading screen. Require retained state/phase, no stuck input or late capability result, and matched first wake frames; visibility blur remains a labelled browser safety policy.
 
 ### L-03 - Application launch fade and logo
-**Code/tests/evidence:** [system-transitions.ts](../../src/os/system-transitions.ts), [native-system-presentation.ts](../../src/os/native-system-presentation.ts), [presentation tests](../../tests/native-system-presentation.test.mjs), [performance record](../performance-2026-10-01.md).
+**Code/tests/evidence:** [system-transitions.ts](../../src/os/system-transitions.ts), [native-system-presentation.ts](../../src/os/native-system-presentation.ts), presentation tests, [performance record](../performance-2026-10-01.md).
 **Now/gap/dependency:** HOME SceneOut (21 poses) darkens HOME first, then the source logo A/B/C 60/30/15 clips play over its black ([logo order](../home-launch-logo-order-2026-10-03.md)); 2100 ms is clip-derived, not measured title-load latency. Reduced motion jumps to a bounded pose.
 **Next/acceptance:** Launch one portfolio and one firmware application from settled HOME with identical A pulses. Compare all transition boundaries, first application pair, ownership, and cancellation-to-HOME; do not infer wall-clock parity from clip frame counts.
 
 ### L-04 - Application owner creation, foreground tick, and close
-**Code/tests/evidence:** [app-host.ts](../../src/os/app-host.ts), [app-registry.ts](../../src/os/app-registry.ts), [runtime tests](../../tests/app-runtime.test.mjs), [OS validation](../portfolio-os-validation.md).
+**Code/tests/evidence:** [app-host.ts](../../src/os/app-host.ts), [app-registry.ts](../../src/os/app-registry.ts), runtime tests, [OS validation](../portfolio-os-validation.md).
 **Now/gap/dependency:** One application owner, instance sequence, bounded tick delta, save migration, activity accounting, nested children, close callbacks, and owner removal are implemented. This is a browser runtime model, not full native APT equivalence.
 **Next/acceptance:** Launch, navigate, idle, close, relaunch, and inject a stale result for one portfolio and one firmware title. Require a new owner, correct restored state policy, no old frame/effect, and stable HOME selection.
 
 ### L-05 - HOME suspend, same-owner resume, and Notes retirement
-**Code/tests/evidence:** [app-host.ts](../../src/os/app-host.ts), [system.ts](../../src/os/system.ts), [runtime tests](../../tests/app-runtime.test.mjs), [Notes owner note](../notes-home-owner-exit.md), [eShop close route](../eshop-close-investigation.md).
+**Code/tests/evidence:** [app-host.ts](../../src/os/app-host.ts), [system.ts](../../src/os/system.ts), runtime tests, [Notes owner note](../notes-home-owner-exit.md), [eShop close route](../eshop-close-investigation.md).
 **Now/gap/dependency:** HOME suspends the active owner, releases capabilities, stores `homeReturn`, and A/HOME resumes it. Accepted Notes HOME exit is special: Notes retires while its caller stays suspended. Native per-title resume animation and clocks vary and remain app-specific.
 **Next/acceptance:** For Work, Settings, eShop, and Notes-with-Work-caller, run launch -> HOME -> resume -> HOME -> close. Require exact owner graph, retained page, first resumed LCD pair, Notes retirement semantics, and no stale resource generation.
 
@@ -179,51 +179,51 @@ pressed feedback are implemented/tested/browser-inspected for close and switch.
 [Evidence](../software-dialog-input-2026-10-02.md). That checkpoint added no
 native comparison. The later evidence below supersedes its authored-painter limitation.
 
-**Code/tests/evidence:** [system.ts](../../src/os/system.ts), [portfolio-screens.ts](../../src/os/portfolio-screens.ts), [portfolio tests](../../tests/portfolio.test.mjs), [power note](../portfolio-power-transitions.md).
+**Code/tests/evidence:** [system.ts](../../src/os/system.ts), [portfolio-screens.ts](../../src/os/portfolio-screens.ts), portfolio tests, [power note](../portfolio-power-transitions.md).
 **Now/gap/dependency:** B on root HOME with suspended software opens `dialog:'close'`; B cancels/resumes and A closes the owner. The [source close dialog](../home-software-closing-2026-10-02.md), [closing exit](../home-closing-fade-2026-10-02.md), [entry/footer departure](../home-postmodal-footer-2026-10-02.md), [Open return](../home-open-return-2026-10-03.md) and [banner return](../home-banner-return-2026-10-03.md) are implemented through `c01e1219`. Owner retirement and paired-publication gates are retained. Decoded source art replaces the old authored painter; capture-fitted bindings, exact native epochs/input/motion/audio and residual pixels remain unaccepted.
 **Next/acceptance:** Work -> HOME -> B, capture, cancel, reopen, confirm. Require correct frozen/suspended background, owner preservation/removal, selection, dialog text/buttons, touch bounds, and native/browser raw pairs.
 
 ### L-07 - Switch-software confirmation and pending launch
-**Code/tests/evidence:** [system.ts](../../src/os/system.ts), [app-host.ts](../../src/os/app-host.ts), [portfolio tests](../../tests/portfolio.test.mjs), [performance record](../performance-2026-10-01.md).
+**Code/tests/evidence:** [system.ts](../../src/os/system.ts), [app-host.ts](../../src/os/app-host.ts), portfolio tests, [performance record](../performance-2026-10-01.md).
 **Now/gap/dependency:** Selecting a different application while one is suspended stores `pending`, opens `dialog:'switch'`, cancels back to the old owner, or closes then launches the pending title. [Source dialog and input delivery](../software-dialog-input-2026-10-02.md) replaces the authored modal; [closing-exit ownership](../home-closing-fade-2026-10-02.md) deliberately keeps switch separate from ordinary-close departure. Native switch timing and departure/reveal still require matched capture; implemented source composition alone is not acceptance.
 **Next/acceptance:** Work -> HOME -> select About -> A, capture, cancel and resume Work; repeat and confirm About. Require no premature close/start, one fresh owner after confirm, correct pending cleanup, and distinct source/capture-backed switch presentation.
 
 ### L-08 - System/library applet invoke, result, cancel, and nesting
-**Code/tests/evidence:** [app-host.ts](../../src/os/app-host.ts), [system.ts](../../src/os/system.ts), [runtime tests](../../tests/app-runtime.test.mjs), [Notes lifecycle](../native-notes-accepted-home-entry-audit.md).
+**Code/tests/evidence:** [app-host.ts](../../src/os/app-host.ts), [system.ts](../../src/os/system.ts), runtime tests, [Notes lifecycle](../native-notes-accepted-home-entry-audit.md).
 **Now/gap/dependency:** System and library applet slots suspend callers, cap nesting, route typed results, recursively close children, and reject stale completions. Toolbar applets opened from HOME have explicit caller identities; Software Keyboard cannot be invoked.
 **Next/acceptance:** With and without a suspended application, open Notes plus one nested read-only applet, cancel and complete each, then close the caller. Require exact active/caller slots, returned state, frozen capture ownership, and no keyboard/network path.
 
 ### L-09 - Settings helper launch and return
-**Code/tests/evidence:** [app-host.ts](../../src/os/app-host.ts), [system.ts](../../src/os/system.ts), [helper tests](../../tests/settings-helper-return.test.mjs), [validation](../settings-transfer-update-return-validation.md).
+**Code/tests/evidence:** [app-host.ts](../../src/os/app-host.ts), [system.ts](../../src/os/system.ts), helper tests, [validation](../settings-transfer-update-return-validation.md).
 **Now/gap/dependency:** NNID, System Transfer, and Updater replace the Settings application slot while retaining the exact parent page, then HOME/back returns correctly. Operations are inert/read-only adaptations; account/update/network work is excluded.
 **Next/acceptance:** From the documented Settings pages, enter each helper, HOME suspend/resume, Back return, and Power cancel. Match parent focus/page, helper opening/closing frames, and no editable or online side effect.
 
 ### L-10 - Native loading, paired publication, timeout, failure, retry, and escape
-**Code/tests/evidence:** [stock-screen-presentation.ts](../../src/os/stock-screen-presentation.ts), [native-screen-input.ts](../../src/os/native-screen-input.ts), [native-screen-system.ts](../../src/os/native-screen-system.ts), [preparation tests](../../tests/stock-screen-preparation.test.mjs), [readiness note](../native-screen-readiness.md).
+**Code/tests/evidence:** [stock-screen-presentation.ts](../../src/os/stock-screen-presentation.ts), [native-screen-input.ts](../../src/os/native-screen-input.ts), [native-screen-system.ts](../../src/os/native-screen-system.ts), preparation tests, [readiness note](../native-screen-readiness.md).
 **Now/gap/dependency:** Owner/generation guards, atomic black/loading pairs, preparation deadline, explicit failure, retry, B/HOME escape, input quarantine, cache bounds, and disposal exist. The recovery screen is explicitly authored browser UI, not a native firmware dialog.
 **Next/acceptance:** Force delayed, failed, retried, replaced-owner, sleep, and HOME-escape cases for Settings and Sound. Require no partial/old pair, no action begun while hidden, deterministic recovery ownership, and explicit adaptation labelling.
 
 ### L-11 - Manual and overlay ownership
-**Code/tests/evidence:** [stock-apps.ts](../../src/os/stock-apps.ts), [stock-native-helpers.ts](../../src/os/stock-native-helpers.ts), [manual tests](../../tests/stock-manual-application.test.mjs), [Manual detail](../manual-upper-detail-fidelity-2026-09-27.md).
+**Code/tests/evidence:** [stock-apps.ts](../../src/os/stock-apps.ts), [stock-native-helpers.ts](../../src/os/stock-native-helpers.ts), manual tests, [Manual detail](../manual-upper-detail-fidelity-2026-09-27.md).
 **Now/gap/dependency:** Settings Manual opens with its explicit title argument, draws delivered Contents/page resources, supports page 1/Back/Close, and leaves unfinished controls inert. Camera now delivers its real 15-page/four-category English index and SMDH icon through the same applet, retaining the suspended Camera owner on Close or selected-resource failure. No Camera pages are delivered. Later pages, Enlarge, full scrolling and unknown-title Manual routes remain incomplete/source-gap; Settings-derived index geometry remains an adaptation.
 **Next/acceptance:** Settings selected -> footer Manual -> Contents -> page 1 -> Back -> X/Close, using touch and buttons. Match owner/caller return, scroll position, both LCDs, and inert unsupported controls; do not invent missing pages.
 
 ### L-12 - Effects, storage, capabilities, links, and late-result cancellation
-**Code/tests/evidence:** [runtime-effects.ts](../../src/os/runtime-effects.ts), [app-capabilities.ts](../../src/os/app-capabilities.ts), [app-persistence.ts](../../src/os/app-persistence.ts), [effect tests](../../tests/runtime-effects.test.mjs), [capability tests](../../tests/app-capabilities.test.mjs).
+**Code/tests/evidence:** [runtime-effects.ts](../../src/os/runtime-effects.ts), [app-capabilities.ts](../../src/os/app-capabilities.ts), [app-persistence.ts](../../src/os/app-persistence.ts), effect tests, capability tests.
 **Now/gap/dependency:** Ordered saves, safe links, owner-token capability results, offline Nintendo services, and suspend/close releases are implemented. Camera capture, recording, imports, NFC/network, and account actions are excluded even though generic adapters retain test coverage for portfolio use.
 **Next/acceptance:** Begin a permitted portfolio capability, then HOME, sleep, switch, close, and dispose before completion; separately attempt every excluded stock action. Require resource release, ignored late results, ordered saves, explicit offline/read-only UI, and no prompt from stock apps.
 
 ### L-13 - Persistence restore, corruption, migration, and failure notice
-**Code/tests/evidence:** [app-persistence.ts](../../src/os/app-persistence.ts), [system.ts](../../src/os/system.ts), [persistence tests](../../tests/app-persistence.test.mjs), [runtime effects tests](../../tests/runtime-effects.test.mjs).
+**Code/tests/evidence:** [app-persistence.ts](../../src/os/app-persistence.ts), [system.ts](../../src/os/system.ts), persistence tests, runtime effects tests.
 **Now/gap/dependency:** IndexedDB v2 stores saves/shared/preferences/media with validation, transaction ordering, quotas, legacy import, corruption reporting, and version-change closure. Storage failures surface one authored runtime notice without blocking navigation.
 **Next/acceptance:** Restore valid, old, corrupt, quota-failed, blocked, and unavailable profiles; then launch/close/reload. Require valid records only, no layout loss from unrelated corrupt data, one visible failure notice, and no duplicated write/effect.
 
 ### L-14 - Scene startup, retry boundary, and teardown/disposal
-**Code/tests/evidence:** [console-scene.ts](../../src/scene/console-scene.ts), [runtime-effects.ts](../../src/os/runtime-effects.ts), [native-title-session.ts](../../src/os/native-title-session.ts), [session tests](../../tests/native-title-session.test.mjs), [performance architecture](../performance-architecture.md).
+**Code/tests/evidence:** [console-scene.ts](../../src/scene/console-scene.ts), [runtime-effects.ts](../../src/os/runtime-effects.ts), [native-title-session.ts](../../src/os/native-title-session.ts), session tests, [performance architecture](../performance-architecture.md).
 **Now/gap/dependency:** React owns async scene creation; model-load failure aborts firmware work and disposes renderer resources. Normal teardown releases input/effects/audio/screens/models/textures/listeners/capture hooks. Initial scene startup is not uniformly deadline-bounded, and broad failure/leak verification remains open.
 **Next/acceptance:** Abort during model load, firmware load, active title load, capture, and queued save; recreate twice. Require no live listener/timer/GPU/media owner, no stale callback mutation, one clean retry, and bounded memory/resources.
 
 ### L-15 - Reduced motion and browser scheduling policy
-**Code/tests/evidence:** [system-transitions.ts](../../src/os/system-transitions.ts), [console-scene.ts](../../src/scene/console-scene.ts), [home-navigation-motion tests](../../tests/home-navigation-motion.test.mjs), [performance record](../performance-2026-10-01.md).
+**Code/tests/evidence:** [system-transitions.ts](../../src/os/system-transitions.ts), [console-scene.ts](../../src/scene/console-scene.ts), home-navigation-motion tests, [performance record](../performance-2026-10-01.md).
 **Now/gap/dependency:** Reduced motion shortens presentation transitions and freezes selected visual clips while preserving logical HOME update counts; hidden documents rebase rather than catch up. These are accessibility/browser adaptations, not native behavior.
 **Next/acceptance:** Repeat H-03, H-04, L-01, and L-03 with reduced motion toggled mid-transition and after tab hiding. Require identical final state/ownership, no accumulated hidden time, bounded first frame, and explicit adaptation metadata rather than native parity claims.

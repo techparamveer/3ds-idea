@@ -78,7 +78,7 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    ?stockScreens.status(view,s.runtime.active,nativeFonts.get(context)):'inactive' as const;
  }
  const nvidiaBanner=createNvidiaBanner();
- const hackLdnBanner=createHackLdnBanner(c=>label(c,'2025',200,165,17,'#454952','center'));
+ const hackLdnBanner=createHackLdnBanner();
  const menuIcons=new Map<string,HTMLCanvasElement>();
  const images=new Map<string,HTMLImageElement>();
  // HOME needs the menu icons before its first paint. Entry photos appear only

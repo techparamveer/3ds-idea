@@ -3,12 +3,14 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { isAbsolute, join } from 'node:path';
 import sharp from 'sharp';
 
-const [input, output] = process.argv.slice(2);
+const [input, output, frames = '80'] = process.argv.slice(2);
 if (!input || !output || !isAbsolute(input) || !isAbsolute(output)) {
-  throw new Error('Usage: node pack-nvidia-transform.mjs ABSOLUTE_FRAME_DIR ABSOLUTE_OUTPUT_DIR');
+  throw new Error('Usage: node pack-nvidia-transform.mjs ABSOLUTE_FRAME_DIR ABSOLUTE_OUTPUT_DIR [FRAMES]');
 }
 await mkdir(output, { recursive: true });
-const width = 180, height = 148, columns = 8, count = 80;
+// Hack LDN passes 104 frames; NVIDIA uses the default 80.
+const width = 180, height = 148, columns = 8, count = Number(frames);
+if (count % columns) throw new Error(`Frame count must be a multiple of ${columns}`);
 const layers = [];
 for (let i = 0; i < count; i++) {
   const { data, info } = await sharp(join(input, `frame-${String(i + 1).padStart(4, '0')}.png`))

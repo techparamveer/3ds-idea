@@ -124,6 +124,8 @@ export function createFirmwareHome(assets:FirmwarePresentationAssets){
   // Native 0x1e1070 selects the upper message; 0x1f8b0c applies its style.
   const label=`lau_title_${key}_u`,bank=renderer.packs.messages.messages.menu_msbt_LZ;
   if(bank?.labels[label]===undefined)throw new Error(`Native applet title unavailable: ${label}`);
+  // Portfolio adaptation: Notifications is presented as "Thoughts" in native banner text.
+  if(key==='news'){const layout=renderer.packs.banner?.layouts.BnrDsTitle_00;if(!layout)return;return bannerLabel('applet:news',nativeBannerLabelOverride(layout,assets.sharedFont.manifest,'Thoughts'));}
   return bannerLabel(`applet:${key}`,{T_Title_00:message('menu_msbt_LZ',label,'')});
  }
  function bannerLabel(key:string,overrides:PaneOverrides):NativePixels|undefined{

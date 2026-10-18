@@ -1,5 +1,5 @@
 /** Blender-authored portfolio adaptation, independent of native firmware packs. */
-const FRAME_WIDTH = 180;
+const FRAME_WIDTH = 280;
 const FRAME_HEIGHT = 148;
 const COLUMNS = 8;
 const FRAME_COUNT = 80;
@@ -42,7 +42,7 @@ export function createNvidiaBanner() {
       context.save();
       context.imageSmoothingEnabled = false;
       context.drawImage(image, (frame % COLUMNS) * FRAME_WIDTH, Math.floor(frame / COLUMNS) * FRAME_HEIGHT,
-        FRAME_WIDTH, FRAME_HEIGHT, 110, 35, FRAME_WIDTH, FRAME_HEIGHT);
+        FRAME_WIDTH, FRAME_HEIGHT, 200 - FRAME_WIDTH / 2, 35, FRAME_WIDTH, FRAME_HEIGHT);
       if (captionReady && (reduced || elapsedFrames >= FRAME_COUNT)) {
         context.font = '700 18px "NVIDIA-NALA"';
         context.textAlign = 'center';

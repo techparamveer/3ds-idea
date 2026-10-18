@@ -13,7 +13,7 @@ output.mkdir(parents=True, exist_ok=True)
 scene = bpy.data.scenes.new('NVIDIA box to logo')
 bpy.context.window.scene = scene
 scene.render.engine = 'BLENDER_EEVEE'
-scene.render.resolution_x = 180
+scene.render.resolution_x = 280
 scene.render.resolution_y = 148
 scene.render.resolution_percentage = 100
 scene.render.film_transparent = True
@@ -231,7 +231,8 @@ camera = bpy.data.objects.new('Banner orthographic camera', camera_data)
 scene.collection.objects.link(camera)
 camera.location = (0,0,8)
 camera.data.type = 'ORTHO'
-camera.data.ortho_scale = 5.0
+# 1.65x the first 180px/5.0-unit framing, so the held logo matches HACK LDN's visual area.
+camera.data.ortho_scale = 4.714
 scene.camera = camera
 
 for name, loc, energy, size in [
@@ -249,7 +250,7 @@ for frame,name in [(1,'Full cube spin'),(40,'Face on'),(43,'Slide and word revea
     scene.timeline_markers.new(name,frame=frame)
 scene['adaptation'] = 'User-requested portfolio artwork. Not native Nintendo firmware.'
 scene['reference'] = 'User video.mp4: green box turns face-on, slides left, reveals NVIDIA eye and wordmark.'
-scene['delivery'] = '80 transparent 180x148 frames at 30000/1001fps; one opening spin, spiral carve, original logo hold.'
+scene['delivery'] = '80 transparent 280x148 frames at 30000/1001fps; one opening spin, spiral carve, original logo hold.'
 scene.render.filepath = str(output / 'frame-')
 # Validate the evaluated animation, including the frame immediately after the
 # handoff. A tilted cube must stay solid; its front face must not jump in depth.

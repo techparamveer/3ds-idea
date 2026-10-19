@@ -212,7 +212,7 @@ All interiors and outbound links are user-scoped adaptations, not Nintendo UI.
 | P-HOB | `hobbies` | `buildings` | 2 pages, 3 bounded photos, explicit Gumroad Visit; images also seed Camera |
 | P-LIFE | `life` | `keele`, `hack-keele`, `rws`, `school` | One-page local details; A is Done and returns to entries; no external effect |
 | P-HACKUK | `hackuk` | `mission`, `leafhacks`, `campfire`, `counterspell` | Explicit HackUK links; mission has 2 pages and an image, counterspell reuses that image |
-| P-NVIDIA | `nvidia` | `renu` | Same Renu content identity as P-PROJ; explicit portfolio URL. [Blender box-to-logo banner](../nvidia-transform-2026-10-08.md) on HOME and app landing; opening cube spin, one-shot reveal, held extruded logo; detail photo preserved. Portfolio adaptation |
+| P-NVIDIA | `nvidia` | `renu` | Same Renu content identity as P-PROJ; explicit portfolio URL. [Blender box-to-logo banner](../nvidia-transform-2026-10-08.md) on HOME and app landing; opening cube spin and reveal, then a looping idle sway of the larger, deeper extruded logo; detail photo preserved. Portfolio adaptation |
 | P-ABOUT | `about` | `intro`, `stack` | Intro has 2 pages and Visit; toolkit is local Done |
 | P-CONTACT | `contact` | `email`, `book`, `github`, `instagram`, `youtube`, `twitter`, `tiktok` | Explicit mail/web link effects only after Visit; no form, keyboard or account flow |
 
@@ -326,6 +326,10 @@ adaptation only. See [evidence](../nvidia-transform-2026-10-08.md).
 User-requested caption enlarged to 18px in NVIDIA-NALA weight 700, centered
 below the logo. Playback unchanged. Portfolio adaptation. See [notes](../nvidia-transform-2026-10-08.md).
 
+Revision 9 enlarges the banner about 1.4× (260×148 frames) with deeper bevelled
+extrusion. After the intro, a 160-frame idle sway loops. The 25px caption and logo
+centre together. See [notes](../nvidia-transform-2026-10-08.md).
+
 
 ### Hack LDN 2025 portfolio app
 
@@ -334,3 +338,6 @@ chevron-led lettering animation. No cube. Transparent pixelated one-shot banner,
 2025 completion caption, reduced-motion hold and saved-layout migration. Muted
 port3049 browser inspected. Typecheck/build/shader pass; 2,168 tests pass, one
 known missing Camera fixture fails. Portfolio adaptation. See [evidence](../hack-ldn-2025-animation.md).
+
+Later the logo was centred lower and given deeper bevelled lettering, and a
+160-frame idle sway now loops after the intro. 2025 became 25 in the lettering.

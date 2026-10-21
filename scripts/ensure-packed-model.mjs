@@ -14,7 +14,7 @@ const GLB_MAGIC = 0x46546c67;
 const delivery = await readFile(join(root, 'src/scene/model-delivery.ts'), 'utf8');
 const url = delivery.match(/PACKED_MODEL_URL = '([^']+)'/)?.[1];
 if (!url) throw new Error('PACKED_MODEL_URL is missing from src/scene/model-delivery.ts');
-const packedPath = join(root, 'public', url.replace(/^\//, ''));
+const packedPath = join(root, 'public', url.replace(/^\//, '').split('?')[0]);
 
 const bytes = await readFile(packedPath);
 if (isGlb(bytes)) {

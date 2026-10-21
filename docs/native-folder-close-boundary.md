@@ -1,5 +1,11 @@
 # Native folder-close request boundary
 
+The initial source-only record below is historical. Later System integration
+is documented in [counted folder close](home-folder-close-system.md). The
+[12 October translation trace](workstream-handoffs/folder-origin-transition-20261012.md)
+also resolves ordinary entry/Back's RootPane offset and its applied-frame
+ordering; it does not resolve native task eligibility or display cadence.
+
 This source-only investigation establishes the normal folder-close boundary for
 European HOME Menu 10.7.0-32E. Closing starts an explicit type13 clear request;
 restored root selection is requested later, after the lower folder animation

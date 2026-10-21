@@ -2,13 +2,14 @@ import {nativeMessageOverride,nativeMessageColorSpans,nativeMessageGlyphScaleSpa
 import type {NativeLayoutRenderer} from './native-renderer.ts';
 import type {MenuState} from './state.ts';
 import {softwareDialogPressed} from './stock-screen-layout.ts';
-import {sampleSystemHomeApplicationTransition} from './system-home-application-transition.ts';
+import {samplePresentedSystemHomeApplicationTransition} from './system-home-application-transition.ts';
 
 /** The close display shares the existing controller identity, never its own timer. */
 export function homeSoftwareClosingDialogKey(state:MenuState):string|null{
  const s=state.system;
  if(!s||s.sleeping||s.preferences||s.dialog||state.panel)return null;
- const close=sampleSystemHomeApplicationTransition(state);
+ // The measured pre-dialog wait presents no closing dialog.
+ const close=samplePresentedSystemHomeApplicationTransition(state);
  const visible=close?.intent.kind==='close'?close.phase!=='complete'
   :close?.intent.kind==='switch'&&(close.phase==='closing'||close.phase==='terminal');
  return close&&visible

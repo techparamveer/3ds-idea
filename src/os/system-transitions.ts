@@ -100,3 +100,36 @@ export function appLaunchPose(elapsedMs:number,reduced=false):AppLaunchPose{
  if(elapsed<LAUNCH_LOGO_START_MS)return {fadeFrame:Math.min(LAUNCH_FADE_LAST_FRAME,Math.floor(elapsed*60/1000+1e-9)),logo:null};
  return {fadeFrame:LAUNCH_FADE_LAST_FRAME,logo:appLaunchLogoFrame(elapsed-LAUNCH_LOGO_START_MS)};
 }
+
+/** HOME toolbar applets (Notes, Friends, Thoughts, Browser, Miiverse) and the
+ * Manual skip the application logo. Native applet open/close motion is not
+ * captured, so this reuses the paired `CmnFadeNinLogo_*` SceneOut (HOME to
+ * black) then SceneIn (black to applet), and SceneIn over HOME on return.
+ * Portfolio adaptation: timing is one source pose per 60Hz frame with a
+ * two-frame black hold, not native evidence. */
+const APPLET_FADE_LAST_FRAME=20;
+const APPLET_BLACK_HOLD_FRAMES=2;
+export const APPLET_OPEN_MS=(APPLET_FADE_LAST_FRAME+1+APPLET_BLACK_HOLD_FRAMES)*LAUNCH_FRAME_MS;
+export const APPLET_REVEAL_MS=(APPLET_FADE_LAST_FRAME+1)*LAUNCH_FRAME_MS;
+export type AppletTransition=Readonly<{kind:'open'|'return';since:number}>;
+type AppletSystem=Readonly<{phase:string;since:number;appletTransition?:AppletTransition|null}>;
+/** The current launch phase is an adapted toolbar-applet open, not an application launch. */
+export function isAppletOpen(s:AppletSystem):boolean{return s.phase==='launch'&&s.appletTransition?.kind==='open'&&s.appletTransition.since===s.since;}
+/** Elapsed time into the SceneIn reveal after an applet open or return, or null. */
+export function appletRevealElapsed(s:AppletSystem,now:number):number|null{
+ const t=s.appletTransition;if(!t)return null;
+ if(t.kind==='open')return s.phase==='app'&&t.since===s.since?now-t.since-APPLET_OPEN_MS:null;
+ return s.phase==='home'?now-t.since:null;
+}
+export function appletOpenDuration(reduced=false):number{return reduced?0:APPLET_OPEN_MS;}
+/** SceneOut pose while HOME departs during an applet open. Reduced motion
+ * leaves the open immediately and draws no fade. */
+export function appletOpenFadeFrame(elapsedMs:number,reduced=false):number|null{
+ return reduced?null:systemTransitionFrame(elapsedMs,APPLET_FADE_LAST_FRAME);
+}
+/** SceneIn pose revealing the applet or HOME, or null once settled. Reduced
+ * motion has no reveal. */
+export function appletRevealFadeFrame(elapsedMs:number,reduced=false):number|null{
+ if(reduced||elapsedMs<0||elapsedMs>=APPLET_REVEAL_MS)return null;
+ return systemTransitionFrame(elapsedMs,APPLET_FADE_LAST_FRAME);
+}

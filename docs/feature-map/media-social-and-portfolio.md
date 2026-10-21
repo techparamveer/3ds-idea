@@ -170,7 +170,7 @@ and delivered Notifications/receive-lamp/slidebar packs. Tests:
 
 | ID | Reachable screen or route | Implemented behavior | Gap or adaptation |
 | --- | --- | --- | --- |
-| C-NTF-01 | populated `notifications/main` | Nine source-profile titles in timestamp order, eight unread flags, neutral entry, four full rows plus clipped fifth, decoded information badges and source blue lamps | Default source rows are deliberately disabled because bodies are unverified; opening does not mark read; title-local `HudMenu_00` is bound (SceneIn 40, no WalkCoin). The 3347 HUD source-gap claim was **REJECTED**. Matched-clock recapture leaves HUD `[0,0,400,28]` **182**, all in battery; [charging Bat](../notifications-hud-battery-2026-10-04.md) now follows shared `chargingBatteryFrame` / `0x181018` (odd → 4, even → 5; this atlas `HudBatPlg` is even 5). After pixels await recapture. Colon stays a visible even-path adaptation |
+| C-NTF-01 | populated `notifications/main` | Nine source-profile titles in timestamp order, nine unread flags (eight before the 16 October native-folder-slow fixture), neutral entry, four full rows plus clipped fifth, decoded information badges and source blue lamps | Default source rows are deliberately disabled because bodies are unverified; opening does not mark read; title-local `HudMenu_00` is bound (SceneIn 40, no WalkCoin). The 3347 HUD source-gap claim was **REJECTED**. Matched-clock recapture leaves HUD `[0,0,400,28]` **182**, all in battery; [charging Bat](../notifications-hud-battery-2026-10-04.md) now follows shared `chargingBatteryFrame` / `0x181018` (odd → 4, even → 5; this atlas `HudBatPlg` is even 5). After pixels await recapture. Colon stays a visible even-path adaptation |
 | C-NTF-02 | directional list movement | Activates focus, advances the selected row and windows later rows into view | Settled-entry scrollbar `[291,0,320,210]` **2479** is a labelled [source gap](../notifications-scrollbar-2479-2026-10-04.md) on already-bound `SlideBar` Select 0 plus unsupported `N_Slide_00` `[0,55,0]` (unused Invalid hides the thumb; Select 1 only darkens 22×22 chrome; dump has no second pre-sized thumb); native count rule, motion and lamp pulse remain unverified |
 | C-NTF-03 | empty `notifications/main` | Explicit saved empty array remains empty and shows the no-notifications state | Earlier empty-state assumption is superseded for new profiles, which seed the nine-row fixture |
 | C-NTF-04 | custom saved row -> `notifications/notification` | Non-source custom rows can open stored message text and B returns | Generic fallback only: no native detail painter, title/body provenance, read transition or detail scroll; not acceptance-ready |
@@ -178,7 +178,7 @@ and delivered Notifications/receive-lamp/slidebar packs. Tests:
 Persistence preserves explicit empty/custom arrays and never ships `news.db`.
 Default and custom rows remain read-only.
 
-Evidence: matrix v99 / unread-dot `f073581` compared the source-profile list
+Evidence (predates the 16 October nine-unread fixture; recapture before reuse): matrix v99 / unread-dot `f073581` compared the source-profile list
 at 6,239 upper / 3,876 lower pixels over 2/255. Badge and three unread-marker
 crops each have zero pixels above 2/255, and the unread balloon
 `[100,40,300,160]` is **0**, but the full scenario fails. The HUD 3347
@@ -212,7 +212,7 @@ All interiors and outbound links are user-scoped adaptations, not Nintendo UI.
 | P-HOB | `hobbies` | `buildings` | 2 pages, 3 bounded photos, explicit Gumroad Visit; images also seed Camera |
 | P-LIFE | `life` | `keele`, `hack-keele`, `rws`, `school` | One-page local details; A is Done and returns to entries; no external effect |
 | P-HACKUK | `hackuk` | `mission`, `leafhacks`, `campfire`, `counterspell` | Explicit HackUK links; mission has 2 pages and an image, counterspell reuses that image |
-| P-NVIDIA | `nvidia` | `renu` | Same Renu content identity as P-PROJ; explicit portfolio URL. [Blender box-to-logo banner](../nvidia-transform-2026-10-08.md) on HOME and app landing; opening cube spin, one-shot reveal, held extruded logo; detail photo preserved. Portfolio adaptation |
+| P-NVIDIA | `nvidia` | `renu` | Same Renu content identity as P-PROJ; explicit portfolio URL. [Blender box-to-logo banner](../nvidia-transform-2026-10-08.md) on HOME and app landing; opening cube spin and reveal, then a looping idle sway of the larger, deeper extruded logo; detail photo preserved. Portfolio adaptation |
 | P-ABOUT | `about` | `intro`, `stack` | Intro has 2 pages and Visit; toolkit is local Done |
 | P-CONTACT | `contact` | `email`, `book`, `github`, `instagram`, `youtube`, `twitter`, `tiktok` | Explicit mail/web link effects only after Visit; no form, keyboard or account flow |
 
@@ -326,6 +326,10 @@ adaptation only. See [evidence](../nvidia-transform-2026-10-08.md).
 User-requested caption enlarged to 18px in NVIDIA-NALA weight 700, centered
 below the logo. Playback unchanged. Portfolio adaptation. See [notes](../nvidia-transform-2026-10-08.md).
 
+Revision 9 enlarges the banner about 1.4× (260×148 frames) with deeper bevelled
+extrusion. After the intro, a 160-frame idle sway loops. The 25px caption and logo
+centre together. See [notes](../nvidia-transform-2026-10-08.md).
+
 
 ### Hack LDN 2025 portfolio app
 
@@ -334,3 +338,6 @@ chevron-led lettering animation. No cube. Transparent pixelated one-shot banner,
 2025 completion caption, reduced-motion hold and saved-layout migration. Muted
 port3049 browser inspected. Typecheck/build/shader pass; 2,168 tests pass, one
 known missing Camera fixture fails. Portfolio adaptation. See [evidence](../hack-ldn-2025-animation.md).
+
+Later the logo was centred lower and given deeper bevelled lettering, and a
+160-frame idle sway now loops after the intro. 2025 became 25 in the lettering.

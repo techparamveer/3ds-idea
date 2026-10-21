@@ -5,6 +5,7 @@ import {
   type HomeApplicationTransition,
   type HomeApplicationTransitionIntent,
   type HomeApplicationTransitionObservation,
+  type HomeApplicationTransitionOptions,
 } from './home-application-transition.ts';
 
 export type SystemHomeApplicationTransitionAdvance = Readonly<{
@@ -46,6 +47,21 @@ export function sampleSystemHomeApplicationTransition(state: MenuState): HomeApp
   return transition && valid(state, transition) ? transition : null;
 }
 
+/**
+ * Presentation view of the close. The measured pre-dialog 'waiting' phase
+ * keeps the suspended HOME exactly as presented, so presentation owners see no
+ * transition until AppQuit/FadeIn frame 0. Logic and telemetry keep the state.
+ */
+export function samplePresentedSystemHomeApplicationTransition(state: MenuState): HomeApplicationTransition | null {
+  const transition = sampleSystemHomeApplicationTransition(state);
+  return transition?.phase === 'waiting' ? null : transition;
+}
+
+/** Paint-only projection matching samplePresentedSystemHomeApplicationTransition. */
+export function presentedSystemHomeApplicationState(state: MenuState): MenuState {
+  return state.system?.homeApplicationTransition?.phase === 'waiting' ? write(state, null) : state;
+}
+
 export function isSystemHomeApplicationTransitionActive(state: MenuState): boolean {
   const transition = sampleSystemHomeApplicationTransition(state);
   return transition !== null && transition.phase !== 'complete';
@@ -63,7 +79,7 @@ export function cancelSystemHomeApplicationTransition(state: MenuState): MenuSta
  * generation because a resumed instance can publish a newer capture.
  */
 export function beginSystemHomeApplicationTransition(state: MenuState,
-  intent: HomeApplicationTransitionIntent): MenuState {
+  intent: HomeApplicationTransitionIntent, options: HomeApplicationTransitionOptions = {}): MenuState {
   state = reconcileSystemHomeApplicationTransition(state);
   if (isSystemHomeApplicationTransitionActive(state)) return state;
   const s = state.system, owner = s?.runtime.application, instance = owner ? s?.runtime.instances[owner] : undefined;
@@ -76,7 +92,7 @@ export function beginSystemHomeApplicationTransition(state: MenuState,
   }
   const begun = beginHomeApplicationTransition(null, {
     generation: generation(state)!, transitionId, owner,
-  }, intent).state!;
+  }, intent, options).state!;
   return { ...state, system: { ...s, homeApplicationTransition: begun,
     homeFolderClose: Object.freeze({ ...s.homeFolderClose, nextTransitionId: transitionId + 1 }) } };
 }

@@ -1,5 +1,5 @@
 import type { HomeApplicationTransition } from '../os/home-application-transition';
-import { appLaunchPose, bootRevealFrame, shutdownTransitionPose, systemTransitionDuration } from '../os/system-transitions';
+import { appLaunchPose, bootRevealFrame, isAppletOpen, shutdownTransitionPose, systemTransitionDuration, type AppletTransition } from '../os/system-transitions';
 
 export type RenderQuality = {
   tier: 'high' | 'balanced' | 'constrained';
@@ -38,7 +38,7 @@ export function screenPaintFps(quality: RenderQuality, transitionAdvanced: boole
 export function applicationCloseNeedsPaint(before: HomeApplicationTransition | null,
   after: HomeApplicationTransition | null, reduced: boolean, resumed = false): boolean {
   if (!after) return before !== after;
-  const endpoint = reduced || after.phase === 'terminal'
+  const endpoint = reduced || (after.phase === 'closing' && after.appQuitFrame === 0) || after.phase === 'terminal'
     || (after.phase === 'exiting' && after.dialogExitFrame === 0)
     || after.phase === 'exit-terminal'
     || (after.phase === 'footer-exiting' && after.footerExitFrame === 0)
@@ -99,6 +99,7 @@ type LaunchSystem = Readonly<{
   since: number;
   app: string | null;
   runtime: Readonly<{ application: string | null; active: string | null }>;
+  appletTransition?: AppletTransition | null;
 }>;
 
 /** Identity for the paired launch endpoint selected by the active application
@@ -120,7 +121,8 @@ export function sameLaunchTerminalIdentity(a: LaunchTerminalIdentity | null,
 }
 
 export function launchTerminalDeadlineReached(system: LaunchSystem, elapsedMs: number, reduced: boolean): boolean {
-  return system.phase === 'launch' && elapsedMs - system.since >= systemTransitionDuration('launch', reduced);
+  return system.phase === 'launch' && !isAppletOpen(system)
+    && elapsedMs - system.since >= systemTransitionDuration('launch', reduced);
 }
 
 export function launchTerminalPublicationPending(system: LaunchSystem, elapsedMs: number, reduced: boolean,

@@ -1,10 +1,18 @@
 /** Blender-authored portfolio adaptation, independent of native firmware packs. */
-const FRAME_WIDTH = 180;
+/** Wider than the other banners so the logo draws about 1.4x larger. */
+const FRAME_WIDTH = 260;
 const FRAME_HEIGHT = 148;
 const COLUMNS = 8;
-const FRAME_COUNT = 80;
+const INTRO_FRAMES = 80;
+/** Seamless idle sway after the intro, like the other portfolio banners. */
+const IDLE_FRAMES = 160;
+const FRAME_COUNT = INTRO_FRAMES + IDLE_FRAMES;
 const FPS = 30000 / 1001;
-const LOGO_HOLD_FRAME = FRAME_COUNT - 1;
+const LOGO_HOLD_FRAME = INTRO_FRAMES - 1;
+/** Centres the logo and caption between the status bar and the HOME toolbar. */
+const DRAW_X = (400 - FRAME_WIDTH) / 2;
+const DRAW_Y = 20;
+const CAPTION_Y = 152;
 
 export function createNvidiaBanner() {
   let image: HTMLImageElement | undefined;
@@ -38,17 +46,19 @@ export function createNvidiaBanner() {
         startedAt = time;
       }
       const elapsedFrames = Math.max(0, time - startedAt) * FPS / 1000;
-      const frame = reduced ? LOGO_HOLD_FRAME : Math.min(LOGO_HOLD_FRAME, Math.floor(elapsedFrames));
+      const played = Math.floor(elapsedFrames);
+      const frame = reduced ? LOGO_HOLD_FRAME
+        : played < INTRO_FRAMES ? played : INTRO_FRAMES + (played - INTRO_FRAMES) % IDLE_FRAMES;
       context.save();
       context.imageSmoothingEnabled = false;
       context.drawImage(image, (frame % COLUMNS) * FRAME_WIDTH, Math.floor(frame / COLUMNS) * FRAME_HEIGHT,
-        FRAME_WIDTH, FRAME_HEIGHT, 110, 35, FRAME_WIDTH, FRAME_HEIGHT);
-      if (captionReady && (reduced || elapsedFrames >= FRAME_COUNT)) {
-        context.font = '700 18px "NVIDIA-NALA"';
+        FRAME_WIDTH, FRAME_HEIGHT, DRAW_X, DRAW_Y, FRAME_WIDTH, FRAME_HEIGHT);
+      if (captionReady && (reduced || elapsedFrames >= INTRO_FRAMES)) {
+        context.font = '700 25px "NVIDIA-NALA"';
         context.textAlign = 'center';
         context.textBaseline = 'middle';
         context.fillStyle = '#454952';
-        context.fillText('Hack for Impact', 200, 150);
+        context.fillText('Hack for Impact', 200, CAPTION_Y);
       }
       context.restore();
       return true;

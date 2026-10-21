@@ -2,11 +2,17 @@
 const FRAME_WIDTH = 180;
 const FRAME_HEIGHT = 148;
 const COLUMNS = 8;
-const FRAME_COUNT = 80;
+const INTRO_FRAMES = 112;
+/** Seamless idle sway after the intro, like the other portfolio banners. */
+const IDLE_FRAMES = 160;
+const FRAME_COUNT = INTRO_FRAMES + IDLE_FRAMES;
 const FPS = 30000 / 1001;
-const LOGO_HOLD_FRAME = FRAME_COUNT - 1;
+const LOGO_HOLD_FRAME = INTRO_FRAMES - 1;
+/** Centres the three-row logo between the status bar and the HOME toolbar. */
+const DRAW_Y = 43;
 
-export function createHackLdnBanner(drawCaption: (context: CanvasRenderingContext2D) => void) {
+/** 25 is part of the render, written by the chevron in the logo's own lettering. */
+export function createHackLdnBanner() {
   let image: HTMLImageElement | undefined;
   let ready = false;
   let disposed = false;
@@ -32,12 +38,13 @@ export function createHackLdnBanner(drawCaption: (context: CanvasRenderingContex
         startedAt = time;
       }
       const elapsedFrames = Math.max(0, time - startedAt) * FPS / 1000;
-      const frame = reduced ? LOGO_HOLD_FRAME : Math.min(LOGO_HOLD_FRAME, Math.floor(elapsedFrames));
+      const played = Math.floor(elapsedFrames);
+      const frame = reduced ? LOGO_HOLD_FRAME
+        : played < INTRO_FRAMES ? played : INTRO_FRAMES + (played - INTRO_FRAMES) % IDLE_FRAMES;
       context.save();
       context.imageSmoothingEnabled = false;
       context.drawImage(image, (frame % COLUMNS) * FRAME_WIDTH, Math.floor(frame / COLUMNS) * FRAME_HEIGHT,
-        FRAME_WIDTH, FRAME_HEIGHT, 110, 35, FRAME_WIDTH, FRAME_HEIGHT);
-      if (reduced || elapsedFrames >= FRAME_COUNT) drawCaption(context);
+        FRAME_WIDTH, FRAME_HEIGHT, 110, DRAW_Y, FRAME_WIDTH, FRAME_HEIGHT);
       context.restore();
       return true;
     },

@@ -1,6 +1,7 @@
 """Run in Blender via MCP with ROOT and OUTPUT set to absolute paths.
 The SVG contours preserve the repository's original NVIDIA artwork.
 """
+import bmesh
 import bpy
 import json
 import math
@@ -10,11 +11,20 @@ from mathutils import Vector
 root = Path(ROOT)
 output = Path(OUTPUT)
 output.mkdir(parents=True, exist_ok=True)
+INTRO = 80
+# A seamless idle sway follows, like the other portfolio banners.
+IDLE = 160
+FRAMES = INTRO + IDLE
+# Wider than the shared 180px banner so the logo draws about 1.4x larger.
+WIDTH, HEIGHT = 260, 148
+# Deep extrusion so the sway shows the logo's sides.
+EYE_DEPTH, WORD_DEPTH, BEVEL = .14, .10, .022
 scene = bpy.data.scenes.new('NVIDIA box to logo')
-bpy.context.window.scene = scene
+if bpy.context.window:
+    bpy.context.window.scene = scene
 scene.render.engine = 'BLENDER_EEVEE'
-scene.render.resolution_x = 180
-scene.render.resolution_y = 148
+scene.render.resolution_x = WIDTH
+scene.render.resolution_y = HEIGHT
 scene.render.resolution_percentage = 100
 scene.render.film_transparent = True
 scene.render.image_settings.file_format = 'PNG'
@@ -22,7 +32,7 @@ scene.render.image_settings.color_mode = 'RGBA'
 scene.render.fps = 30
 scene.render.fps_base = 1.001
 scene.frame_start = 1
-scene.frame_end = 80
+scene.frame_end = FRAMES
 scene.world = bpy.data.worlds.new('NVIDIA studio')
 scene.world.use_nodes = True
 background = next(n for n in scene.world.node_tree.nodes if n.type == 'BACKGROUND')
@@ -63,8 +73,8 @@ def logo(name, paths, bounds, x, width, mat, depth):
     curve.fill_mode = 'BOTH'
     curve.resolution_u = 1
     curve.extrude = depth
-    curve.bevel_depth = 0.006
-    curve.bevel_resolution = 1
+    curve.bevel_depth = BEVEL
+    curve.bevel_resolution = 3
     for points in paths:
         spline = curve.splines.new('POLY')
         spline.points.add(len(points) - 1)
@@ -78,13 +88,18 @@ def logo(name, paths, bounds, x, width, mat, depth):
     return obj
 
 
-eye = logo('Extruded original eye', contours['Eye_Mark'], (722.36974,1641.28177,243.70607,852.87366), -2.15, 1.45, green, 0.075)
-word = logo('Extruded original wordmark', contours['NVIDIA'], (642.64727,1864.07388,960.3779,1189.31953), -0.46, 2.60, dark, 0.045)
+eye = logo('Extruded original eye', contours['Eye_Mark'], (722.36974,1641.28177,243.70607,852.87366), -2.15, 1.45, green, EYE_DEPTH)
+word = logo('Extruded original wordmark', contours['NVIDIA'], (642.64727,1864.07388,960.3779,1189.31953), -0.46, 2.60, dark, WORD_DEPTH)
 
 # The original green cube spins, faces the screen and is carved into the eye.
-bpy.ops.mesh.primitive_cube_add(size=1)
-cube = bpy.context.object
-cube.name = 'Transforming green box'
+# Built from data so headless Blender links it to this scene, not the default.
+cube_mesh = bpy.data.meshes.new('Transforming green box')
+cube_bm = bmesh.new()
+bmesh.ops.create_cube(cube_bm, size=1)
+cube_bm.to_mesh(cube_mesh)
+cube_bm.free()
+cube = bpy.data.objects.new('Transforming green box', cube_mesh)
+scene.collection.objects.link(cube)
 cube.data.materials.append(green)
 bevel = cube.modifiers.new('Small machined edge', 'BEVEL')
 bevel.width = 0.025
@@ -97,16 +112,16 @@ poses = [
     (13,(0,0,0),(1.38,1.38,1.38),(.24,turn*.5-.46,-.025)),
     (19,(0,0,0),(1.38,1.38,1.38),(.24,turn*.75-.46,-.025)),
     (25,(0,0,0),(1.38,1.38,1.38),(.24,turn-.46,-.025)),
-    (34,(0,0,0),(.91,.96,.15),(0,turn,0)),
-    (40,(0,0,0),(.91,.96,.15),(0,turn,0)),
-    (43,(0,0,0),(.91,.96,.15),(0,turn,0)),
-    (46,(-.102,0,0),(.91,.96,.15),(0,turn,0)),
-    (49,(-.276,0,0),(.91,.96,.15),(0,turn,0)),
-    (52,(-.662,0,0),(.91,.96,.15),(0,turn,0)),
-    (55,(-1.013,0,0),(.91,.96,.15),(0,turn,0)),
-    (58,(-1.137,0,0),(.91,.96,.15),(0,turn,0)),
-    (61,(-1.155,0,0),(.91,.96,.15),(0,turn,0)),
-    (80,(-1.155,0,0),(.91,.96,.15),(0,turn,0)),
+    (34,(0,0,0),(.91,.96,2*EYE_DEPTH),(0,turn,0)),
+    (40,(0,0,0),(.91,.96,2*EYE_DEPTH),(0,turn,0)),
+    (43,(0,0,0),(.91,.96,2*EYE_DEPTH),(0,turn,0)),
+    (46,(-.102,0,0),(.91,.96,2*EYE_DEPTH),(0,turn,0)),
+    (49,(-.276,0,0),(.91,.96,2*EYE_DEPTH),(0,turn,0)),
+    (52,(-.662,0,0),(.91,.96,2*EYE_DEPTH),(0,turn,0)),
+    (55,(-1.013,0,0),(.91,.96,2*EYE_DEPTH),(0,turn,0)),
+    (58,(-1.137,0,0),(.91,.96,2*EYE_DEPTH),(0,turn,0)),
+    (61,(-1.155,0,0),(.91,.96,2*EYE_DEPTH),(0,turn,0)),
+    (80,(-1.155,0,0),(.91,.96,2*EYE_DEPTH),(0,turn,0)),
 ]
 for f, loc, scale, rot in poses:
     cube.location, cube.scale, cube.rotation_euler = loc, scale, rot
@@ -126,12 +141,12 @@ for frame in range(1,41):
     cube.rotation_euler = (.28*(1-settle),yaw,-.025*(1-settle))
     side = 1.38+(.96-1.38)*resize
     # Keep the cube solid while any side is visible. Switch to the thin
-    # carving body only when face-on, with the front surface held at z=.075.
-    depth = side if frame < 40 else .15
+    # carving body only when face-on, with the front surface held at the eye's.
+    depth = side if frame < 40 else 2*EYE_DEPTH
     cube.scale = (1.38+(.91-1.38)*resize,side,depth)
     if frame >= 30:
         front_depth = .5*depth*math.cos(cube.rotation_euler.x)*math.cos(yaw)
-        cube.location = (0,0,(.075-front_depth)*ease((frame-30)/3))
+        cube.location = (0,0,(EYE_DEPTH-front_depth)*ease((frame-30)/3))
         cube.keyframe_insert('location',frame=frame)
     for path in ('rotation_euler','scale'):
         cube.keyframe_insert(path,frame=frame)
@@ -226,12 +241,26 @@ def carve(mat, outer):
 carve(green,False)
 carve(eye_mat,True)
 
+# After the intro the logo sways in place (yaw .32, pitch .06, small bob),
+# like the other portfolio banners. The loop starts and ends on the rest pose,
+# so frames INTRO+1..FRAMES repeat.
+pivot = bpy.data.objects.new('NVIDIA idle pivot', None)
+scene.collection.objects.link(pivot)
+for obj in (eye, word):
+    obj.parent = pivot
+for frame in [1, INTRO, *range(INTRO+1, FRAMES+1)]:
+    a = 2*math.pi*max(0, frame-INTRO)/IDLE
+    pivot.rotation_euler = (.06*math.sin(2*a), .32*math.sin(a), 0)
+    pivot.location = (0, .035*math.sin(a), 0)
+    for path in ('rotation_euler', 'location'):
+        pivot.keyframe_insert(path, frame=frame)
+
 camera_data = bpy.data.cameras.new('Banner orthographic camera')
 camera = bpy.data.objects.new('Banner orthographic camera', camera_data)
 scene.collection.objects.link(camera)
 camera.location = (0,0,8)
 camera.data.type = 'ORTHO'
-camera.data.ortho_scale = 5.0
+camera.data.ortho_scale = 5.0*WIDTH/180/1.4
 scene.camera = camera
 
 for name, loc, energy, size in [
@@ -245,11 +274,11 @@ for name, loc, energy, size in [
     obj.location = loc
     obj.rotation_euler = (Vector((0,0,0)) - obj.location).to_track_quat('-Z','Y').to_euler()
 
-for frame,name in [(1,'Full cube spin'),(40,'Face on'),(43,'Slide and word reveal'),(53,'Cut starts lower right'),(61,'Outer sweep'),(68,'Inner curl'),(74,'Original logo hold')]:
+for frame,name in [(1,'Full cube spin'),(40,'Face on'),(43,'Slide and word reveal'),(53,'Cut starts lower right'),(61,'Outer sweep'),(68,'Inner curl'),(74,'Original logo hold'),(INTRO+1,'Idle sway loop')]:
     scene.timeline_markers.new(name,frame=frame)
 scene['adaptation'] = 'User-requested portfolio artwork. Not native Nintendo firmware.'
 scene['reference'] = 'User video.mp4: green box turns face-on, slides left, reveals NVIDIA eye and wordmark.'
-scene['delivery'] = '80 transparent 180x148 frames at 30000/1001fps; one opening spin, spiral carve, original logo hold.'
+scene['delivery'] = f'{FRAMES} transparent {WIDTH}x{HEIGHT} frames at 30000/1001fps; opening spin and spiral carve in frames 1-{INTRO}, then a {IDLE}-frame idle sway loop.'
 scene.render.filepath = str(output / 'frame-')
 # Validate the evaluated animation, including the frame immediately after the
 # handoff. A tilted cube must stay solid; its front face must not jump in depth.
@@ -260,11 +289,11 @@ for check_frame in range(30,44):
         raise RuntimeError(f'Cube collapses while tilted at frame {check_frame}')
     if check_frame >= 33:
         front = cube.matrix_world @ Vector((0,0,.5))
-        if abs(front.z-.075) > 1e-5:
+        if abs(front.z-EYE_DEPTH) > 1e-5:
             raise RuntimeError(f'Cube front depth jumps at frame {check_frame}')
-scene.frame_set(80)
+scene.frame_set(INTRO)
 # Leave a camera view available for opening the editable source.
-for area in bpy.context.screen.areas:
+for area in (bpy.context.screen.areas if bpy.context.screen else ()):
     if area.type == 'VIEW_3D':
         area.spaces.active.region_3d.view_perspective = 'CAMERA'
 bpy.ops.wm.save_as_mainfile(filepath=str(root / 'assets/blender/nvidia-transform.blend'))

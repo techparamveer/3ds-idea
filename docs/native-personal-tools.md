@@ -53,6 +53,15 @@ Notifications. Record byte 1 is zero only for HOME Menu Settings; the other
 eight records are unread. This matches the native Unread Notifications count 8,
 the missing blue dot on the first row and the first four visible titles.
 
+The later animation reference profile `native-folder-slow` has a different
+11,216-byte news.db, SHA-256
+`4b35c1b201e96b46d9f205968f0ca73175cf3c165296a3136a3788c5fb4f2972`, with the
+same nine titles and timestamps but byte 1 set on all nine records. Its mtime is
+9 October; native Notifications opens on 15 and 16 October left it unwritten
+and showed Unread 9 with a row-1 lamp. On 16 October the browser default
+fixture moved to this profile: nine unread rows. Browser profiles that already
+saved notifications keep their saved read state through `restoreSharedData`.
+
 The browser initial shared profile carries only those source titles, order and
 read flags; no private database bytes are delivered. Record 50's exact source
 title contains the private-use glyph U+E073 immediately before HOME. Newly

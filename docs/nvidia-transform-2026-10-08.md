@@ -48,7 +48,7 @@ not a claim that the final PNG is byte-identical.
   rendered through Blender MCP in Blender 5.2.1 LTS. Earlier scenes remain;
   the active scene is the restored version. Original hardware files are untouched.
 - [Atlas](../public/portfolio/nvidia-transform/atlas.png): 80 transparent RGBA
-  frames, 180×148 each, 8 columns, 30000/1001 fps. Frames 1–36 turn, 40 is face-on,
+  frames, 280×148 each (logo scaled 1.65× on 18 October to match the HACK LDN banner's visual area), 8 columns, 30000/1001 fps. Frames 1–36 turn, 40 is face-on,
   43–61 slide/reveal, 53–72 carve, and 72–80 hold. Binary alpha, RGB555-style
   quantization and nearest-neighbour display retain the original pixel style.
 
@@ -186,3 +186,35 @@ pixels appearing only after completion, selection reset, reduced motion, no repe
 through 60 seconds and disposal guards. Evidence: private `revision-8/` folder,
 including `home-nala-caption.png` and `browser-checks.txt`. No native acceptance
 claim; no shader or Blender asset changes in this revision.
+
+
+## Revision 9 — larger banner, idle sway and deeper extrusion
+
+At the user's request, NVIDIA now matches the Hack LDN banner treatment, only
+larger. Frames are 260×148 (atlas 2080×4440, 240 frames), so the logo draws about
+1.4× its old size, at LCD (70,20). The eye extrudes 0.14 and the wordmark 0.10,
+both with 0.022 three-segment bevels. The carving cube's thin body is
+`2*EYE_DEPTH`, with its front held at `EYE_DEPTH`. The build script's handoff
+checks use that value. After the 80-frame intro, frames 81–240 loop as a
+seamless idle sway (yaw 0.32 rad, pitch 0.06 rad, 0.035 bob) like the other
+portfolio banners. Reduced motion holds frame 80 without sway. "Hack for Impact"
+is now 25px at (200,152), so the logo and caption centre together between the
+status bar and the HOME toolbar. The caption appears after the intro rather than
+after the full atlas.
+
+The cube is built from bmesh data instead of `primitive_cube_add`, so the scene
+builds and renders headlessly (`Blender -b --factory-startup`). The headless
+wrapper removes Blender's default scene before saving. The packer now takes an
+optional `WIDTHxHEIGHT`:
+
+```sh
+node scripts/blender/pack-nvidia-transform.mjs /absolute/frames /absolute/checkout/public/portfolio/nvidia-transform 240 260x148
+```
+
+Repacking the Hack LDN frames with the new packer gives a byte-identical atlas.
+The evidence folder is the private
+`/Users/paramveer/.codex/3ds-artifact-overflow/nvidia-idle-20261019/`
+(`sheet.png`, `nvidia-preview.gif`). The preview GIF composites the actual
+frames and a browser-rendered caption over a user HOME screenshot. It was not
+captured from the running console. Typecheck and production build pass.
+Portfolio adaptation only; no native acceptance claim.

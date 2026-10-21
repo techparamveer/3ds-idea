@@ -21,6 +21,7 @@ import {drawHomeSoftwareClosingDialog} from './home-software-closing-dialog';
 import { homeSuspendedApplication, homeSuspendedIconDisappeared, homeSuspendedWindowEntryFrame, retainedSuspendedApplication, selectedSuspendedApplication, drawHomeSuspendedWindow, type SuspendedWindowMetadata } from './home-suspended-window';
 import { homeCloseWindowOpacity } from './home-close-window-fit';
 import { presentedSystemHomeApplicationState, sampleSystemHomeApplicationTransition } from './system-home-application-transition';
+import { isAppletOpen } from './system-transitions';
 import { createHomeSuspendedPresentation, getHomeSuspendedSleepFrame, syncHomeSuspendedPresentation } from './home-suspended-presentation';
 import { sampleHomeEntryMotionCandidate, acknowledgeHomeEntryMotionCandidate, homeEntryMotionMatches, homeEntryMotionActive, homeFolderEntryPose, homePauseEntryPresentation, homePauseHudSceneInFrame, homePauseLowerPresentation, HOME_FOLDER_ENTRY_LAST_FRAME, type HomeEntryMotion, type HomeEntryMotionIdentity, type HomeFolderEntryPose, type HomePauseLowerPresentation, type HomeSuspendedBackgroundPresentation } from './home-entry-motion';
 import { acknowledgeHomeEntryBannerPresentation, acknowledgeHomeEntryFooterRelease, acknowledgeHomeEntryFooterTerminal, bypassHomeEntryBannerPresentation, createHomeEntryPresentation, getHomeEntryFooterReadiness, homeEntryBannerActivationDue,
@@ -237,7 +238,7 @@ function grid(c:Context,state:MenuState,time:number,reduced:boolean,graphics:Ret
  // Only authored grid scroll/drag suppress this group; ordinary press does not.
  // An eligible retained launch keeps the selected cursor beneath the source
  // fade: native shows its brackets until HOME reaches black.
- if(folderCursorReady&&nativeHome&&controls&&!capture&&state.powered&&(system?.phase==='home'||(!!launchRetained&&system?.phase==='launch'))
+ if(folderCursorReady&&nativeHome&&controls&&!capture&&state.powered&&(system?.phase==='home'||(!!launchRetained&&system?.phase==='launch')||(!!system&&isAppletOpen(system)))
   &&!system.sleeping&&!system.dialog&&!system.preferences&&!state.panel
   &&!(system.homeNavigation.gesture?.area==='grid'&&system.homeNavigation.gesture.mode!=='press')){
   const {primary,presentation}=controls;
@@ -1003,7 +1004,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
    // Pending/hidden native instances are handled without painting the incoming fallback.
    // Keep initial HOME's owner title suppressed, but let an outgoing primary
    // finish its native hide while the suspended window expands.
-   if(hostedBanner.status==='active'&&hostedBanner.primary.motion.visible&&!(hostedBanner.primary.selection.kind==='app'&&hostedBanner.primary.selection.id===suspended?.appId)&&(!state.panel||((state.panel==='folder-settings'||state.panel==='folder-not-empty')&&hostedBanner.primary.selection.kind==='folder'))&&(state.system?.phase==='home'||resumeUpper||launchPresentation!==null)){
+   if(hostedBanner.status==='active'&&hostedBanner.primary.motion.visible&&!(hostedBanner.primary.selection.kind==='app'&&hostedBanner.primary.selection.id===suspended?.appId)&&(!state.panel||((state.panel==='folder-settings'||state.panel==='folder-not-empty')&&hostedBanner.primary.selection.kind==='folder'))&&(state.system?.phase==='home'||resumeUpper||launchPresentation!==null||(!!state.system&&isAppletOpen(state.system)))){
     const {selection,motion}=hostedBanner.primary;
     homeEntryDrawnBannerIdentity=homeEntryBannerIdentity(hostedBanner);
     if(selection.kind==='default'){

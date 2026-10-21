@@ -3,15 +3,15 @@ import {nativeMessageLineAdvanceScales,nativeMessageOverride,type AnimationBindi
 import type {FirmwarePresentationAssets} from './firmware-presentation';
 import type {MenuState} from './state';
 import {powerMenuPressed} from './stock-screen-layout';
-import {appLaunchPose,bootRevealFrame,shutdownTransitionPose,systemTransitionFrame} from './system-transitions';
+import {appLaunchPose,appletOpenFadeFrame,appletRevealElapsed,appletRevealFadeFrame,bootRevealFrame,isAppletOpen,shutdownTransitionPose,systemTransitionFrame} from './system-transitions';
 
 type SystemFadeClip='SceneIn'|'SceneOut'|'SceneOutA'|'SceneOutB'|'SceneOutC';
 
 /** Source HOME power layouts and common black fades. Browser clock is explicit;
  * this does not claim measured hardware cold-boot or title-loading latency. */
 export function drawNativeSystemOverlay(top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,state:MenuState,now:number,reduced:boolean,assets:FirmwarePresentationAssets):boolean{
- const s=state.system;if(!s||s.sleeping||!['boot','launch','power','shutdown'].includes(s.phase))return false;
- const elapsed=Math.max(0,now-s.since),renderer=assets.renderer;
+ const s=state.system;if(!s||s.sleeping)return false;
+ const renderer=assets.renderer;
  const message=(key:string,fallback:string)=>nativeMessageOverride(renderer.packs.messages,'menu_msbt_LZ',key,fallback);
  const fade=(clip:SystemFadeClip,frame:number)=>{
   let ok=true;
@@ -21,6 +21,17 @@ export function drawNativeSystemOverlay(top:CanvasRenderingContext2D,bottom:Canv
   }
   return ok;
  };
+ if(!['boot','launch','power','shutdown'].includes(s.phase)){
+  // Adapted toolbar-applet reveal over the applet or the returned HOME.
+  const reveal=s.preferences||s.dialog?null:appletRevealElapsed(s,now),frame=reveal===null?null:appletRevealFadeFrame(reveal,reduced);
+  if(frame!==null)fade('SceneIn',frame);
+  return false;
+ }
+ const elapsed=Math.max(0,now-s.since);
+ if(isAppletOpen(s)){
+  const frame=appletOpenFadeFrame(elapsed,reduced);
+  return frame===null||fade('SceneOut',frame);
+ }
  if(s.phase==='boot'){
   return fade('SceneIn',bootRevealFrame(elapsed,reduced));
  }

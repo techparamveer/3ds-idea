@@ -34,7 +34,7 @@ import { createConsoleFraming } from './framing';
 import { ButtonMotion, buttonTravel } from './button-motion';
 import { createDirectionalRig, DirectionalMotion, DIRECTION_VECTOR, clampPad, padDirection, type PadVector } from './directional-motion';
 import { applicationCloseNeedsPaint, bootRevealNeedsPaint, bootTerminalIdentity, bootTerminalPublicationPending, browserRenderQuality, launchTerminalIdentity, launchTerminalPublicationPending, pixelRatioForViewport, screenPaintFps, shutdownTerminalIdentity, shutdownTerminalPublicationPending, type BootTerminalIdentity, type LaunchTerminalIdentity, type ShutdownTerminalIdentity } from './render-quality';
-import { bootRevealFrame } from '@/os/system-transitions';
+import { bootRevealFrame, isAppletOpen } from '@/os/system-transitions';
 import { applicationCloseAllowsInput, applicationCloseNeedsReadyScreen } from './application-close-input';
 import { PACKED_MODEL_URL } from './model-delivery';
 import { createRenderSchedule } from './render-schedule';
@@ -257,7 +257,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   // requests stop30. Launches from software (helpers) never start HOME music.
   let audioPhase:string|null=null,heldLaunchSince:number|null=null;
   function updateAudio(){const system=state.system!,now=performance.now()-start;
-    if(system.phase==='launch'&&audioPhase==='home')heldLaunchSince=system.since;else if(system.phase!=='launch')heldLaunchSince=null;
+    if(system.phase==='launch'&&audioPhase==='home'&&!isAppletOpen(system))heldLaunchSince=system.since;else if(system.phase!=='launch')heldLaunchSince=null;
     audioPhase=system.phase;const launching=system.phase==='launch'&&heldLaunchSince===system.since;
     audio.update({home:system.phase==='home'||launching,powered:state.powered,sleeping:system.sleeping,muted:system.muted,volume:system.volume,homeUpdates:system.homeClock.updateCount,elapsedMs:now,musicStopUpdates:launching?launchPreparationUpdates(now-system.since,reduced):null});}
   // One START_EFFECT per launch from HOME, keyed by its start; see launchStartEffectDue.

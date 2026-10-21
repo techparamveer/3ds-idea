@@ -7,37 +7,37 @@
     "frames": 46,
     "fps": 29.970029830932617
   },
-  "blender": "5.2.1 LTS",
-  "render": "Blender EEVEE; restored first-version original SVG eye/wordmark geometry, green enamel and graphite materials; original cube with one full spin and an animated spiral cut",
+  "blender": "5.2.1 LTS, headless build and render of the same scene script",
+  "render": "Blender EEVEE; restored first-version original SVG eye/wordmark geometry, green enamel and graphite materials; original cube with one full spin and an animated spiral cut; eye 0.14 and wordmark 0.10 extrusions with 0.022 rounded bevels so the idle sway shows depth",
   "delivery": {
-    "width": 280,
+    "width": 260,
     "height": 148,
-    "frames": 80,
+    "frames": 240,
     "fps": 29.97002997002997,
     "atlasColumns": 8,
     "reducedMotionFrame": 80,
     "color": "RGB555-style quantization; binary alpha; nearest-neighbour display",
-    "playback": "Play once per selection; clamp on final frame; never restart from painting gaps",
-    "motion": "Frames1-36 eased upright turn; solid cube until face-on at40 with front plane anchored;43-61 slide/reveal;53-72 spiral carve;72-80 logo hold",
-    "caption": "Hack for Impact, centered at LCD (200,150), NVIDIA-NALA 18px weight 700; appears after all 80 frames (2669.33ms), immediately in reduced motion"
+    "playback": "Intro frames 1-80 once per selection, then frames 81-240 loop as an idle sway; frame 80 immediately for reduced motion. Drawn at LCD (70,20), about 1.4x the earlier 180px banner, so logo and caption centre between the status bar and the HOME toolbar.",
+    "motion": "Frames1-36 eased upright turn; solid cube until face-on at40 with front plane anchored;43-61 slide/reveal;53-72 spiral carve;72-80 logo hold; then the eye and wordmark sway in place (yaw 0.32 rad, pitch 0.06 rad, 0.035 bob) over a seamless 160-frame loop, like the other portfolio banners",
+    "caption": "Hack for Impact, centered at LCD (200,152), NVIDIA-NALA 25px weight 700; appears after the 80 intro frames (2669.33ms), immediately in reduced motion"
   },
   "adaptations": [
     "First-version SVG artwork, dimensions and green/graphite materials restored at user request",
     "One upright opening turn; solid depth until face-on, then hidden depth change with anchored front surface",
     "Spiral cut follows the reference motion through the clean original eye artwork; geodesic reveal timing is fitted, not an exact frame reproduction",
     "Original dark wordmark for the light LCD, shallow depth with frontal orientation as in the first version",
-    "280x148 raster, RGB555-style quantization, binary alpha and one-shot hold",
+    "180x148 raster, RGB555-style quantization, binary alpha and one-shot hold",
     "User-requested flat Hack for Impact caption after animation completion",
-    "Logo framing scaled 1.65x (ortho scale 4.714) so the held logo matches the HACK LDN banner's visual area"
+    "Larger 260x148 frame, deeper bevelled extrusion and a 160-frame idle sway after the intro, at user request"
   ],
   "sha256": {
     "public/portfolio/nvidia.svg": "5347e5188c74204767d2d4daa17b59b5a18ccd7ad0a7281e7961a83c20c96808",
     "scripts/blender/nvidia-logo-contours.json": "913ebb09f53fb820f9f0efaaa895f451103af9f2c218fcf10cc2cc705549c998",
-    "scripts/blender/build-nvidia-transform.py": "8a26c1cbfe26246376c77595d7c1cf7623b24ccf70faa197f24e1f475b5fac0d",
-    "scripts/blender/pack-nvidia-transform.mjs": "c1277ced7ededa36fb8a5102b20c0522199cb6ac23848a3e77a3a486409a842a",
-    "assets/blender/nvidia-transform.blend": "f024a80e64297cd02fa83a55fa9bc81f232746e031b5641509e30d09567d12ab",
-    "public/portfolio/nvidia-transform/atlas.png": "d625084a24ef2609584e213105f67a236cfbdc81640492d88f64006802d72790",
-    "public/portfolio/nvidia-transform/poster.png": "3d05374574496181cf00c991262e98a479cdfd0f3f2346f8235dd693b02094f7",
+    "scripts/blender/build-nvidia-transform.py": "06b5dc3acf8e556e2733140d266424d7005af7f1f2f3de3f110bd7e6fa31b89f",
+    "scripts/blender/pack-nvidia-transform.mjs": "ce0f50cba1ea82bc40b3935e3214ca2125c255c9942a9505c209a942fa32c9a1",
+    "assets/blender/nvidia-transform.blend": "0664bd32a353cde85ec1461eb870f2c76318294b1a8d4e796fe98e7562b571e6",
+    "public/portfolio/nvidia-transform/atlas.png": "e47cfec26459545e8a4ad4232da4400938149c31250c47b2bd69a2aff05e78f4",
+    "public/portfolio/nvidia-transform/poster.png": "15423ea31aad20e6be8c7b458aa457eb2918ed103ab4b6da7cc3c6ef5a4d5c68",
     "scripts/blender/build-nvidia-carve-field.py": "3a5d146021d3cff43e0e518442e3a6f1a61780874a77381c58f0ecbead2a2a18",
     "scripts/blender/nvidia-carve-field.png": "679d388899c14b85ffb0356d1bfab249190eecc5e909849728f7578d63dbb2fb",
     "public/portfolio/nvidia-transform/nvidia-nala.woff2": "492b88c589db87ab3cc0ec5d8b3a35748dcfe6864a9023c814fd3848ddabb46b"

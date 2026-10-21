@@ -23,7 +23,7 @@ its runtime configuration is modeled.
 
 ## Resource and transport checks
 
-[native-empty-slot-opacity.test.mjs](../tests/native-empty-slot-opacity.test.mjs)
+native-empty-slot-opacity.test.mjs
 uses the actual converted firmware resources and real presenter/renderer:
 
 - **31 density samples** cover endpoints0–5, quarter steps, two irrational

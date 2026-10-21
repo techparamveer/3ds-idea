@@ -38,7 +38,7 @@ compatibility zoom commands remain outside the native toolbar behavior claim.
 
 ## Verification
 
-[home-density-controls.test.mjs](../tests/home-density-controls.test.mjs)
+home-density-controls.test.mjs
 covers the helper, actual presenter, actual posed firmware resources and
 System touch down/up:
 

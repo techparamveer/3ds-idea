@@ -20,7 +20,7 @@ EUR title `0004001000022300`, version3077, content `00000008`, product
 
 These paths are relative to the private artifact root
 `/Volumes/DeveloperStorage/CodexArtifacts/3ds-portfolio/firmware-10.7.0-32E/`.
-Run [replay_health_scroll.py](../scripts/replay_health_scroll.py) with absolute
+Run replay_health_scroll.py with absolute
 `--code` and `--output` arguments, using Python with `unicorn==2.1.4`.
 The executable stays private and its hash is checked before execution.
 

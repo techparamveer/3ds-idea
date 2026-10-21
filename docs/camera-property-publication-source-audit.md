@@ -17,7 +17,7 @@ The executable is private and hash-checked before Unicorn imports or executes.
 
 ## Executed boundary
 
-[`replay_camera_property_publication.py`](../scripts/replay_camera_property_publication.py)
+`replay_camera_property_publication.py`
 calls original `0x25a618` through return with the caller's nonzero third
 argument, which skips its prior-value comparison. The target has no prior
 resource or material. The source property's byte count is zero or four;

@@ -7,7 +7,7 @@ Delivery: the commit containing this handoff and the test below (exact SHA in
 chat delivery; no self-referential commit hash). Status: ready for coordinator
 review/integration; native scenarios remain unaccepted.
 
-Owned edits: [settings-completion-routes.test.mjs](../../tests/settings-completion-routes.test.mjs)
+Owned edits: settings-completion-routes.test.mjs
 and this handoff only. S-01–S-08, G-01–G-06/G-08 audited; G-07 Camera/Sound/Notes
 helpers stay delegated. No runtime, source assets, shared map, private matrix or
 shared handoff changed. No GUI, browser, native process or audio was used.
@@ -15,7 +15,7 @@ shared handoff changed. No GUI, browser, native process or audio was used.
 ## Compact route ledger
 
 Paths below start at Settings main. Existing action-level coverage is in
-[stock-apps tests](../../tests/stock-apps.test.mjs); the new 19 tests cover
+stock-apps tests; the new 19 tests cover
 previously missing full-menu touch/reducer wiring and directional A equivalence,
 button-up nonactivation, every leaf's touch/B return and A reopening, blocked
 operations and unchanged shared data. Touch points come from the production
@@ -42,7 +42,7 @@ Helper touch entry retains the parent's inactive pose; directional A retains its
 active pose. The test compares the same destination/selection/effect and explicitly
 preserves this difference, rather than asserting identical parent focus.
 
-[Helper-return tests](../../tests/settings-helper-return.test.mjs) own NNID,
+Helper-return tests own NNID,
 Transfer/Update retained-parent, HOME, close and return sequences. This slice
 adds no duplicate host ownership sequences; Lifecycle owns that workstream.
 

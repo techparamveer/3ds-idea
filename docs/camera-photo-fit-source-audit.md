@@ -12,7 +12,7 @@ would be incorrect.
 Pinned EUR Camera title `0004001000022400`, content index 0 / `0000001a`,
 ExeFS `code.bin`, SHA-256
 `3a3c4152ebcc74443ed245a0e9840d31219bbd2559295364cc8dab9497e4492c`,
-ARM base `0x100000`. [Replay script](../scripts/replay_camera_photo_fit.py)
+ARM base `0x100000`. Replay script
 executes the original `0x210230` instructions without intercepts or patches;
 [nine-case result](evidence/camera-photo-fit-replay.json) is reproducible with
 the private executable and Unicorn 2.1.4.

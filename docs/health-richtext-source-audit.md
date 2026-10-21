@@ -12,7 +12,7 @@ are still outside the verified sequence.
 
 ## Replay boundary
 
-[replay_health_article.py](../scripts/replay_health_article.py) runs the same
+replay_health_article.py runs the same
 hash-pinned Camera-independent Health executable as the earlier audit. It takes
 absolute `--code`, `--pack` and `--output` arguments. The pack is the converted
 `health-and-safety/messages-and-loose.json`; the report records its SHA256 and

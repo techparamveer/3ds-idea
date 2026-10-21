@@ -41,7 +41,7 @@ All are under
 
 ## Pre-integration named regions
 
-[`compare-home-power-menu.mjs`](../../scripts/compare-home-power-menu.mjs)
+`compare-home-power-menu.mjs`
 records source-pane-based empty-mask regions and bounded placement diagnostics.
 Its `power-regions.json` is SHA-256
 `a4476d87703800a585d5da64ee2106ed08991891f0a8619e49cdc48b3b416690`.

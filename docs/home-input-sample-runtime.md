@@ -79,7 +79,7 @@ SHA-256 `243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9`.
 The existing `HOME_INPUT_EVENT_EVIDENCE.md` documents the reader, primary-axis
 thresholds/edges and producer ordering.
 
-[The numeric fixture](../tests/fixtures/home-input-sample.json) pins the original
+The numeric fixture pins the original
 harness/results and copies its 9 threshold cases, 28 analog polls, 4 overlapping
 source polls and 8 digital reader transitions. An additional private original-ARM
 check provides 7 traces/55 polls, including digital source handoffs, independent

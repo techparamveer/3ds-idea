@@ -1,11 +1,11 @@
 # Hardware editing and validation index
 
 The live original Silver + Black 3DS XL rig is
-`model/candidates/joshua-xl/silver-audio-contacts.blend`, derived from the
-preserved `silver-audio-finish.blend`. Read its adjacent
+`model/candidates/joshua-xl/silver-audio-contacts.blend`, derived from
+`silver-audio-finish.blend` (now in Git history only). Read its adjacent
 [README](../model/candidates/joshua-xl/README.md), the
 [source evaluation](model-source-evaluation.md) and [silver adaptation](source-silver-validation.md)
-before changing it. Preserve the earlier procedural `.blend` and `.glb`.
+before changing it.
 
 The recorded closed envelope is **156 × 93 × 22 mm**. The upper opening's
 **115 mm** fit is image-derived; Y has **0.9138 mm** closed clearance.

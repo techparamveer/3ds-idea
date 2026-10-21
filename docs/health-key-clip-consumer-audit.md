@@ -8,7 +8,7 @@ unchanged: article-specific clip production and outer input ordering remain open
 
 ## Health overrides the generic repeat defaults
 
-[replay_health_key_clip.py](../scripts/replay_health_key_clip.py) executes original
+replay_health_key_clip.py executes original
 scene setup `0x1573ec`, capturing the two descriptors at the key constructor
 boundary. Allocation, owner lookup and final key/scroll construction are supplied;
 descriptor initialization and scene overrides execute source instructions.

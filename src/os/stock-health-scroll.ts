@@ -1,6 +1,6 @@
 /**
- * EUR Health and Safety article input, one update per LCD VBlank, as replayed by
- * scripts/replay_health_touch_scroll.py: HID sampler 0x13a5d0, manager 0x1015d4
+ * EUR Health and Safety article input, one update per LCD VBlank, as replayed
+ * from the original code: HID sampler 0x13a5d0, manager 0x1015d4
  * (Down, Up, G_Touch, SlideBar), controller 0x153868 and SlideBar_Select. State
  * is JSON so the reducer stays pure. See docs/health-touch-scroll-source-audit.md.
  */

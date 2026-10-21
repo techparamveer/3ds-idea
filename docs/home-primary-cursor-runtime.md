@@ -76,7 +76,7 @@ This follows `docs/native-primary-cursor-contract.md`,
 cursor audit. EUR HOME executable SHA-256 is
 `243a728e0abb04cb587e89a0bfa671c554ec7e9a347efc3c9c2739dbecd61ca9`.
 
-[The committed numeric fixture](../tests/fixtures/home-primary-cursor.json)
+The committed numeric fixture
 copies four original entry-through-completion sequences, eight mature
 completion cases, the earlier24 request/visibility cases and eight toolbar
 anchors. Source current grid coordinates and scroll are supplied directly;

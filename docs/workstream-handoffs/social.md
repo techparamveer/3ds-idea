@@ -5,7 +5,7 @@ Base: `f5ed204c7955880d59b097a632d48deaa7d80252` on
 the coordinator report records its exact SHA. Owned feature IDs are `C-NOT-01`
 through `C-NOT-05`, `C-FRD-01` through `C-FRD-04`, and `C-NTF-01` through
 `C-NTF-04`. This slice changes only
-[`tests/social-completion-routes.test.mjs`](../../tests/social-completion-routes.test.mjs)
+`tests/social-completion-routes.test.mjs`
 and this handoff.
 
 The new fixture-driven contract test ties together only already-implemented

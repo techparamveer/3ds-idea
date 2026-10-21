@@ -3,7 +3,7 @@
 25 September 2026. This is a bounded source and native-capture audit of the
 **settled main** lower LCD. It does not edit the live painter or claim whole-page
 visual acceptance. The repeatable checks and full hashes are in
-[`scripts/audit_settings_main_footer.py`](../scripts/audit_settings_main_footer.py)
+`scripts/audit_settings_main_footer.py`
 and [`evidence/settings-main-footer-source.json`](evidence/settings-main-footer-source.json).
 
 ## Source binding

@@ -80,7 +80,7 @@ Each reports 4,334/96,000 upper pixels and 668/76,800 lower pixels above
 
 ## Bounded raster diagnostic
 
-[`compare-home-power-menu.mjs`](../../scripts/compare-home-power-menu.mjs)
+`compare-home-power-menu.mjs`
 now separates zero-offset ink coverage from fractional sampling:
 
 - Upper ink is `min(R,G,B) > 100`; lower dark-label ink is

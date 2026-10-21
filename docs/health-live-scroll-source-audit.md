@@ -11,7 +11,7 @@ comparison remain coordinator work.
 
 ## Replay and pinned inputs
 
-[replay_health_live_scroll.py](../scripts/replay_health_live_scroll.py) runs
+replay_health_live_scroll.py runs
 with `unicorn==2.1.4` and checks three input hashes:
 
 | Input | SHA-256 |

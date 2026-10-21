@@ -27,7 +27,7 @@ No executable bytes or firmware resources are committed.
 
 ## One fixture, bounded stages
 
-[replay_camera_rebind_order.py](../scripts/replay_camera_rebind_order.py) uses
+replay_camera_rebind_order.py uses
 one Unicorn instance and one synthetic object graph:
 
 1. Complete `0x2d9450` allocates the page-11, large-density request queue for

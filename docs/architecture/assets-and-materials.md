@@ -70,18 +70,18 @@ part of the raster cache key, and invalid selected shapes fail. See the
 
 ```text
 licensed Joshua P. model
-  -> sequential Blender refinement checkpoints
-  -> model/candidates/joshua-xl/silver-audio-finish.blend
+  -> sequential Blender refinement checkpoints (Git history)
+  -> model/candidates/joshua-xl/silver-audio-contacts.blend
   -> full-resolution validation GLB and maps
   -> scripts/compress-delivery.mjs
-  -> public/models/candidates/joshua-xl.glb + EUR paint mask
+  -> public/models/candidates/joshua-xl.glb
 ```
 
 The compact GLB carries the base/hinge hierarchy, LCD/control metadata, UVs,
 tangents, PBR maps and paint roles. Renaming nodes, flattening hierarchy or
 losing attributes can break mechanics and materials even when Blender still
 looks plausible. Follow the [model validation index](../model-validation-index.md)
-and preserve earlier checkpoints and attribution.
+and preserve attribution. Earlier checkpoints live in Git history.
 
 Embedded maps are the complete fallback. VGPU generates bounded silver
 roughness variation once; `source-paint-surface.ts` applies it only through

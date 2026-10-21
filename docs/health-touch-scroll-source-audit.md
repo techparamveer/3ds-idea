@@ -11,7 +11,7 @@ coordinator work. Strict 1:1 fidelity is not claimed.
 
 ## Replay and pinned inputs
 
-[replay_health_touch_scroll.py](../scripts/replay_health_touch_scroll.py) runs
+replay_health_touch_scroll.py runs
 with `unicorn==2.1.4` and reuses the `Machine` of the live-scroll replay. It
 checks three input hashes:
 
@@ -25,7 +25,7 @@ It takes absolute `--code`, `--safehealth`, `--slidebar`, `--output` and
 `--traces` paths. The private report is
 `reference/health-touch-scroll/replay.json` under the firmware artifact root,
 SHA-256 `64288688a7f09df03b3aea824bb1ef168a952f952e363b506c69ecc695e955c8`.
-The traces go to [health-scroll-traces.json](../tests/fixtures/health-scroll-traces.json),
+The traces go to health-scroll-traces.json,
 SHA-256 `84da353f9953f92796f09f8a72c5219789bb0c0f494e6ae58d9750066c0def1c`.
 They hold only inputs and derived pane/thumb positions, never firmware bytes.
 Two runs produce identical bytes.

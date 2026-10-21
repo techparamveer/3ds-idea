@@ -46,7 +46,7 @@ is still the declared read-only portfolio adaptation.
 
 ## Ported, replayed arithmetic
 
-[replay_camera_strip.py](../scripts/replay_camera_strip.py) executes original
+replay_camera_strip.py executes original
 ARM with synthetic objects. Intercepts are only the sound request `0x220898`,
 item lookup `0x1fd048`, owner event dispatch, and cell writer `0x2d804c`.
 `src/os/camera-browse.ts` matches that oracle in

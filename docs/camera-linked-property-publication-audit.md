@@ -13,7 +13,7 @@ The script reads hash-pinned private bytes; no executable or media is committed.
 
 ## Linked source result
 
-[`replay_camera_rebind_order.py`](../scripts/replay_camera_rebind_order.py)
+`replay_camera_rebind_order.py`
 keeps its original selected logical-69 collision, current completion, root
 input traversal, two complete `0x2d425c` presentations, 64 ring routes per
 pass, and post-draw consumer rewrite in one Unicorn instance. Its three

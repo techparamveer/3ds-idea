@@ -114,7 +114,7 @@ at `0x100000`, those Settings ranges begin at `0x1eb290`, `0x1eb2d4`,
 `0x1eb35c`, and `0x1ebb3c`. The HOME and Settings `nwfont_TextWriterShader.shbin`
 files are also byte-identical (SHA-256
 `87e9a661a499dfe18818310d6758855eba5d56892fe266c155b18e3e0f4d881e`). The
-read-only probe is [`scripts/audit_settings_cached_writer_identity.py`](../scripts/audit_settings_cached_writer_identity.py);
+read-only probe is `scripts/audit_settings_cached_writer_identity.py`;
 it verifies input hashes and unique instruction windows. This establishes
 shared code and shader identity, but does **not** prove the Settings call site
 dispatches this path or supply the live vertex attributes, model/view/projection

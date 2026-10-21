@@ -26,7 +26,7 @@ and then installing the distinct Health vtable `0x16c734`:
 | +0x10 handler | 0 | `0x155abc` |
 | +0x14 handler | 0 | `0x155824` |
 
-[replay_health_glyph_owner.py](../scripts/replay_health_glyph_owner.py) runs the
+replay_health_glyph_owner.py runs the
 original constructor `0x127afc` and confirms the installed vtable and these four
 overridden slots. Three source sites construct this class: base article
 `0x127fbc` (embedded at object+0x70), a scene subobject at `0x158954` (+0x7c),
@@ -102,7 +102,7 @@ scene+0x100 and a global flag), distinct from scroll requests 2/4/5 routed to
 
 ## Verification and remaining gate
 
-[replay_health_glyph_owner.py](../scripts/replay_health_glyph_owner.py) passes
+replay_health_glyph_owner.py passes
 with `unicorn==2.1.4`, checking executable SHA256
 `74c813cc1f00a67c06ad85e10723b1440949b2d448e2e1f5532d2a61fb57600c`. Its only
 non-original behaviour is a single hooked type query for the synthetic non-txt

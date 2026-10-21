@@ -9,7 +9,7 @@ from `0x2d6ce0` through its 64-record loop, readiness reset, first
 post-reset service call and buffer binding in the same synthetic reuse sequence.
 The rest of the setup tail, SceneBrowse replacement caller and pixels remain open.
 
-The later [factory dispatch replay](../scripts/replay_camera_scene_factory.py)
+The later factory dispatch replay
 resolves the missing direct constructor call as an **indirect factory case**.
 It reaches the constructor entry, but not the SceneBrowse replacement caller
 or a new-owner presentation pass.
@@ -27,7 +27,7 @@ No firmware bytes, media or public assets are added.
 
 ## New executed evidence
 
-[replay_camera_scene_generation.py](../scripts/replay_camera_scene_generation.py)
+replay_camera_scene_generation.py
 runs these bounded stages against the original executable. Only allocation
 `0x262340` and free `0x262338` are intercepted; allocated buffers are filled
 with `0xcc`, not assumed to start at zero. The stages use synthetic objects.
@@ -130,7 +130,7 @@ Keep the live six-item page adapter until one linked scenario establishes:
    not measured native cadence.
 
 Browser URL/owner isolation remains covered by the existing
-[camera gallery lifecycle tests](../tests/camera-gallery-lifecycle.test.mjs).
+camera gallery lifecycle tests.
 No independent browser defect was found that licenses a runtime change here.
 The six-cell page jump, generic footer and upper preview adaptations remain.
 

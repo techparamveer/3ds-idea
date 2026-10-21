@@ -82,7 +82,7 @@ claim that an in-flight coordinator model changed through a worker override.
   publication, cache bounds and disposal. An unsupported selected resource is an
   explicit failure. Never substitute a reconstructed "native" screen for it.
 - Refine the sourced Blender rig through Blender MCP; don't resume procedural
-  shell reconstruction. Preserve attribution, earlier checkpoints, native display
+  shell reconstruction. Preserve attribution, native display
   proportions and the baked material fallback. Never overwrite original model or
   firmware files.
 

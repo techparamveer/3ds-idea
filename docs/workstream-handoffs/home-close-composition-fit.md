@@ -39,9 +39,9 @@ claimed.
 ## Reproducible inputs and method
 
 The deterministic fitter is
-[`scripts/fit-home-close-composition.mjs`](../../scripts/fit-home-close-composition.mjs),
+`scripts/fit-home-close-composition.mjs`,
 with pure arithmetic/geometry coverage in
-[`tests/fit-home-close-composition.test.mjs`](../../tests/fit-home-close-composition.test.mjs).
+`tests/fit-home-close-composition.test.mjs`.
 It requires absolute paths, verifies every PNG against `sequence.json`, and
 writes its report only to the private internal-overflow tree.
 

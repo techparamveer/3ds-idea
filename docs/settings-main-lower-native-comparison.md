@@ -11,7 +11,7 @@ The native image is
 Its lower LCD is the exact crop `(40,240,360,480)` in the 400 × 480 PNG.
 Neither image is a live browser capture.
 
-[`scripts/audit_settings_main_lower.py`](../scripts/audit_settings_main_lower.py)
+`scripts/audit_settings_main_lower.py`
 reproduces the comparison with Pillow and NumPy. It takes absolute `--native`,
 `--render` and `--output` paths and writes `comparison.json` and a fivefold
 difference map. The output for this comparison is

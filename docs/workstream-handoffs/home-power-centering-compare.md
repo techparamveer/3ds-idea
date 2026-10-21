@@ -88,7 +88,7 @@ or explain the preserved `03cc6590...` sample.
 The existing native CLI was run with the empty mask
 `dc4b320b16c2dd2d560b4bae62d9d061b0d93c83496c3c0902df1e3233b36e95`.
 The existing
-[`compare-home-power-menu.mjs`](../../scripts/compare-home-power-menu.mjs)
+`compare-home-power-menu.mjs`
 recorded route-specific before/after and source-pane regions. No comparison
 code, mask or diagnostic algorithm changed.
 

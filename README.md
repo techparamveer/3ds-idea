@@ -13,7 +13,7 @@ git lfs install
 git lfs pull
 ```
 
-Blender and GLB assets, including preserved model checkpoints, are stored in Git LFS. A checkout containing only LFS pointer files cannot render the console.
+Blender and GLB assets are stored in Git LFS. A checkout containing only LFS pointer files cannot render the console.
 
 ```sh
 npm install
@@ -35,13 +35,11 @@ Open http://localhost:3000. `npm run build` creates a production build; `npm sta
 
 ## Model and rendering
 
-The homepage uses the sourced silver model in `public/models/candidates/joshua-xl.glb`: **12.35 MB**, reduced from 110.58 MB. See [compact model delivery](docs/compact-model-delivery.md) for regeneration, precision limits and verification. Its editable source is `model/candidates/joshua-xl/silver-audio-finish.blend`. The earlier procedural model below is preserved.
+The homepage uses the sourced silver model in `public/models/candidates/joshua-xl.glb`: **12.35 MB**, reduced from 110.58 MB. See [compact model delivery](docs/compact-model-delivery.md) for regeneration, precision limits and verification. Its editable source is `model/candidates/joshua-xl/silver-audio-contacts.blend`. Earlier Blender checkpoints, the original procedural model and its renders were removed from the tree; they remain in Git history.
 
-- `model/silver-3ds-xl.blend`: native Blender model, studio lights, camera, packed surface map.
-- `public/models/silver-3ds-xl.glb`: web model, in metres, with hinge and separately named controls.
-- `model/dimensions.json`: physical measurements from evaluated Blender geometry.
-- `renders/`: intermediate and refined comparison renders.
-- `scripts/`: modeling passes executed through Blender MCP; the saved `.blend` is the current authoritative model.
+- `scripts/firmware/`: firmware conversion into `public/os/firmware/`.
+- `scripts/pack-model.mjs`, `scripts/compress-delivery.mjs`: web model delivery.
+- `scripts/native-compare/`, `scripts/perf/`: native capture diffs and performance checks.
 - `docs/references.md`: photo sources and honest fidelity gaps.
 
 The closed model measures **156 × 93 × 22 mm**. Display diagonals are **4.88 in / 4.18 in**, with **800 × 240 / 320 × 240** canvas textures. The upper physical panel uses the correct 5:3 monoscopic ratio.

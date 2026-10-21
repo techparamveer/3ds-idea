@@ -9,7 +9,7 @@ user instructions take precedence. Work only in the assigned worktree and
 owned paths; stage explicit paths, never `git add -A`.
 
 Implement only HOME, Settings/helpers, Health, read-only Camera gallery, Sound
-UI with an empty song manifest until tracks are supplied, eShop, Zone, Notes,
+UI with an empty song manifest until tracks are supplied, eShop, Notes,
 Friends, Notifications, local Browser/Miiverse, amiibo opening, power/launch,
 and eight portfolio apps. Do not build keyboard, Camera capture/editing,
 network/account operations, PIN entry or other stock titles.

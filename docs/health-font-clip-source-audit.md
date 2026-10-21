@@ -12,7 +12,7 @@ Live pagination and article drawing are unchanged.
 
 ## Original setter installs the source body style
 
-[replay_health_font.py](../scripts/replay_health_font.py) runs original
+replay_health_font.py runs original
 `0x113e6c`, reached by text assignment `0x13317c`. It receives style record2
 from the English Health message pack and the decoded shared-font metadata.
 Style lookup, font virtual methods and final text/capacity setters are explicit

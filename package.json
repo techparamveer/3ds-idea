@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0",
+    "prebuild": "node scripts/ensure-packed-model.mjs",
+    "predev": "node scripts/ensure-packed-model.mjs",
     "build": "next build",
     "start": "next start --hostname 0.0.0.0",
     "start:verify": "next start --hostname 127.0.0.1",

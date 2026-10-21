@@ -48,7 +48,7 @@ not a claim that the final PNG is byte-identical.
   rendered through Blender MCP in Blender 5.2.1 LTS. Earlier scenes remain;
   the active scene is the restored version. Original hardware files are untouched.
 - [Atlas](../public/portfolio/nvidia-transform/atlas.png): 80 transparent RGBA
-  frames, 180×148 each, 8 columns, 30000/1001 fps. Frames 1–36 turn, 40 is face-on,
+  frames, 280×148 each (logo scaled 1.65× on 18 October to match the HACK LDN banner's visual area), 8 columns, 30000/1001 fps. Frames 1–36 turn, 40 is face-on,
   43–61 slide/reveal, 53–72 carve, and 72–80 hold. Binary alpha, RGB555-style
   quantization and nearest-neighbour display retain the original pixel style.
 

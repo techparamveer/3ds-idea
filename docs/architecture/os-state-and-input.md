@@ -1,5 +1,21 @@
 # Software state, input and presentation
 
+[Accessibility title shortcuts](../workstream-handoffs/health-home-selection-20261010.md)
+resolve their destination before launch. Grid titles select root or child grid
+focus; the five top-row shortcuts select their corresponding toolbar focus.
+The scene uses the same OS adapter and preserves its existing entry-cover skip.
+This direct selection and cover skip are accessibility adaptations, not native
+cursor or opening-motion evidence. Ordinary touch and physical input are unchanged.
+
+[HOME pause release](../home-pause-release-2026-10-09.md) separates upper
+terminal frame 20 from complete motion update 22. The existing one-step-per-
+receipt policy holds lower fade 40 without a footer at updates 14 and 15,
+releases at 16 and preserves the six-step footer interval. Failed or pending
+pairs cannot spend either boundary. Reduced motion selects the complete
+endpoint; folder timing and owner/capture-generation guards are unchanged.
+The source completion order is recovered, but receipt cadence and the exact
+footer epoch remain adaptations.
+
 [Suspended Camera](../home-camera-manual-footer-2026-10-03.md) exposes source
 Close/Manual/Resume members. Shared half-open touch bounds are x `[0,105)`,
 `[107,213)`, `[215,320)` at y `[212,240)`; gaps are inert and press ownership
@@ -326,12 +342,27 @@ extending claims to a different route.
 
 ## Pixel production
 
+Top-row entry uses `applet-entry-presentation.ts` and paired publication receipts.
+Browser/Miiverse reveal the exact prepared stock pair under HOME common SceneIn;
+Friends/Notifications keep title-owned incoming resources and Notes keeps its
+own reveal. Common incoming20 must be acknowledged before a separate handoff.
+Reduced motion retains distinct endpoint receipts. Native scheduling remains
+unproven; see [the incoming contract](../browser-miiverse-incoming-2026-10-09.md).
+
 `screens.ts` owns native HOME composition and system overlays; `portfolio-screens.ts`
 routes app interiors to portfolio graphics or `stock-screen-presentation.ts`.
 Stock-specific adapters select explicit layouts, child mounts, messages and clips.
 `native-layout.ts` evaluates format data and poses; `NativeLayoutRenderer` owns
 Canvas raster/pose caches. The native PNG path retains independent RGB/alpha
 before material evaluation. Three.js CGFX banner rendering is injected separately.
+
+`NativeLayoutRenderer.drawLayout` treats each supplied, already-posed layout
+as authoritative, including in-place mutations and instantiated child parts.
+It bypasses pose-cache reads and writes for this path, then applies requested
+bindings, text and overrides. Ordinary `draw` retains its bounded 16-entry
+pose cache. Raster caching, ownership, disposal and paired publication are
+unchanged. The [Notes correction](../notes-supplied-pose-2026-10-09.md) changes
+rendering of existing scene-9/10 poses, not their assets or clocks.
 
 HOME's selected suspended-software panel borrows this same snapshot through
 `drawUpper`, without a second readback or retained canvas. Its selected owner

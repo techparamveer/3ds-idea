@@ -35,7 +35,7 @@ ROOT and OUTPUT values; it reads `scripts/blender/hack-ldn-2025-digits.json`,
 which `scripts/blender/build-hack-ldn-2025-digits.py` writes (standard library
 only). Render the saved scene over frames 1-272, then run
 `scripts/blender/pack-nvidia-transform.mjs` with absolute frame and output
-directories and a frame count of 272. Its packing format is shared with NVIDIA. Asset and reference
+directories, a frame count of 272 and a frame width of 180. Its packing format is shared with NVIDIA. Asset and reference
 hashes are in `public/portfolio/hack-ldn-2025/provenance.json`.
 
 ## Verification

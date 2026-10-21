@@ -1,3 +1,4 @@
+import { validateWebFooterFeedbackAssets, webFooterFeedbackFrame } from './web-footer-close-assets.ts';
 import type { AppView } from './app-types';
 import { REFERENCE_DEVICE_STATUS, deviceStatusBatteryFrame, hudColonVisible } from './device-status-profile';
 import { nativeMessageOverride } from './native-layout';
@@ -34,7 +35,7 @@ export const browserScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:browserPrefix+'layout-BG.json',alias:'web-bg',layouts:['BG'],animations:[]},
   {url:browserPrefix+'layout-start-dialog-StartDialog.json',alias:'web-menu',layouts:['StartDialog'],animations:['StartDialog_FadeIn']},
   ...browserButtons.map(([,name])=>({url:browserPrefix+'layout-start-dialog-'+name+'.json',alias:name,layouts:[name],animations:[name+'_FocusedOnOff']})),
-  {url:browserPrefix+'layout-toolbar-ExitButton.json',alias:'web-exit',layouts:['ExitButton'],animations:['ExitButton_FocusedOnOff']},
+  {url:browserPrefix+'layout-toolbar-ExitButton.json',alias:'web-exit',layouts:['ExitButton'],animations:['ExitButton_FocusedOnOff','ExitButton_DecidedOn']},
   {url:browserPrefix+'layout-sysinfo-SystemInfo.json',alias:'web-hud',layouts:['SystemInfo'],animations:[]},
   {url:browserPrefix+'layout-sysinfo-NetMode.json',alias:'web-hud-netmode',layouts:['NetMode'],animations:['NetMode_NetMode']},
   {url:browserPrefix+'layout-sysinfo-NetAntenna.json',alias:'web-hud-netatn',layouts:['NetAntenna'],animations:['NetAntenna_NetAtn']},
@@ -67,13 +68,17 @@ export function browserHudClock(date:Date){
 export const miiverseScreenPacks:readonly NativeTitlePackRequest[]=[
   {url:miiversePrefix+'layout-BG.json',alias:'web-bg',layouts:['BG'],animations:[]},
   ...miiverseButtons.map(([,name])=>({url:miiversePrefix+'layout-toolbar-'+name+'.json',alias:name,layouts:[name],animations:[name+'_ActiveOnOff',name+'_FocusedOnOff']})),
-  {url:miiversePrefix+'layout-toolbar-OliveBack.json',alias:'web-back',layouts:['OliveBack'],animations:['OliveBack_FocusedOnOff']},
+  {url:miiversePrefix+'layout-toolbar-OliveBack.json',alias:'web-back',layouts:['OliveBack'],animations:['OliveBack_FocusedOnOff','OliveBack_DecidedOn']},
   {url:miiversePrefix+'messages-and-loose.json',alias:'web-messages',layouts:[],animations:[]},
 ];
 
 /** Local source chrome only. Remote Browser pages and Miiverse feeds are absent. */
 export function drawNativeWebFrame(renderer:NativeLayoutRenderer,top:CanvasRenderingContext2D,bottom:CanvasRenderingContext2D,view:AppView,options:StockScreenPaintOptions):boolean{
   const browser=view.appId==='browser';if(!browser&&view.appId!=='miiverse')return false;
+  if(options.webFooterClose){
+    if(view.screen!=='main')throw Error('Web footer feedback requires main');
+    webFooterFeedbackFrame(options.webFooterClose.frame);validateWebFooterFeedbackAssets(renderer.packs,view.appId);
+  }
   const bank=browser?'spider':'cave',message=(label:string)=>{
     const pack=renderer.packs['web-messages'],data=pack.messages[bank],value=data?.messages[data.labels[label]];
     // These web applets can reference a message style table absent from the
@@ -131,7 +136,7 @@ export function drawNativeWebFrame(renderer:NativeLayoutRenderer,top:CanvasRende
       }
     }
     const close=view.screen==='main'?message('StartMenu_End'):{text:view.footer.left?.label??'Back'};
-    draw(bottom,'web-exit','ExitButton',{center:[53,226],bindings:[{name:'ExitButton_FocusedOnOff',frame:0}],overrides:{TextBox:close,EmbossTxb:close}});
+    draw(bottom,'web-exit','ExitButton',{center:[53,226],bindings:[{name:'ExitButton_FocusedOnOff',frame:0},...(options.webFooterClose?[{name:'ExitButton_DecidedOn',frame:options.webFooterClose.frame}]:[])],overrides:{TextBox:close,EmbossTxb:close}});
   }else{
     const active=view.screen==='main'?view.rows[view.selection]?.id:typeof view.data?.field==='string'?view.data.field:'';
     // The delivered cave bank has no empty-feed message. Its connection/error
@@ -140,7 +145,7 @@ export function drawNativeWebFrame(renderer:NativeLayoutRenderer,top:CanvasRende
     // Source icon buttons have different authoring-canvas sizes. Explicit mount
     // centers preserve their local geometry in the shared 64-pixel toolbar cells.
     miiverseButtons.forEach(([id,name],i)=>draw(bottom,name,name,{center:[32+i*64,226],bindings:[{name:name+'_ActiveOnOff',frame:active===id?1:0},{name:name+'_FocusedOnOff',frame:0}],overrides:{TextBox_00:{text:''}}}));
-    draw(bottom,'web-back','OliveBack',{center:[288,226],bindings:[{name:'OliveBack_FocusedOnOff',frame:0}]});
+    draw(bottom,'web-back','OliveBack',{center:[288,226],bindings:[{name:'OliveBack_FocusedOnOff',frame:0},...(options.webFooterClose?[{name:'OliveBack_DecidedOn',frame:options.webFooterClose.frame}]:[])]});
   }
   if(browser){
     const now=options.date??new Date(),status=REFERENCE_DEVICE_STATUS,clock=browserHudClock(now);

@@ -594,21 +594,22 @@ export function restoreSettings(state:MenuState,raw:string|null):MenuState {
  if(!raw||!state.system)return state;
  try{const v=JSON.parse(raw),home=restoreHomeLayout(v);if(!home)return state;
  const {folders,folderLayouts,nextFolderNumber}=home;
- // Only an exact, untouched pre-825b4c5 default adopts the new stock positions.
+ // Only an exact, untouched earlier default adopts the current default positions.
  const migrateDefault=isPreviousDefaultAppLayout(v.layout)&&!Object.keys(folders).length
    &&!Object.keys(folderLayouts).length&&nextFolderNumber===1;
  const layout=migrateDefault?initialAppLayout():home.layout;
  const restored = {...state,folders,nextFolderNumber,powerSaving:v.powerSaving===true,theme:['white','red','blue','yellow','pink','black'].includes(v.theme)?v.theme:'white',brightness:[.2,.4,.6,.8,1].includes(v.brightness)?v.brightness:1,columns:[3,4,6,8,10,12].includes(v.columns)?v.columns:4,system:{...state.system,layout,folderLayouts,homeNavigation:createHomeNavigation(),homeClock:createHomeUpdateClock(),homeFolderIdentities:createHomeFolderIdentities(folders),homeFolderClose:createSystemHomeFolderClose(state.system.homeFolderClose),homeApplicationTransition:null,muted:v.muted===true,volume:typeof v.volume==='number'&&Number.isFinite(v.volume)?Math.max(0,Math.min(1,v.volume)):.35}};
  let result=restoreHomeView(restored,v.version===4?v.homeView:null,homeDensityIndex(restored.columns));
  if(migrateDefault){
-  const before=getHomeNavigation(result).rootView.selectedSlot;
-  const selected=({7:11,8:9,9:8,11:7} as Record<number,number>)[before];
-  if(selected!==undefined){
+  // The selection follows its title to the new slot; a retired title hands it to slot 0.
+  const before=getHomeNavigation(result).rootView.selectedSlot,id=v.layout[before];
+  const moved=Object.entries(layout).find(([,title])=>title===id),selected=moved?Number(moved[0]):0;
+  if(typeof id==='string'&&selected!==before){
    result=settleHomeNavigation(selectHomeSlot(result,selected));
    const nav=getHomeNavigation(result),root=nav.rootView;
-   // Previously selected Settings was centered; the native captured position
-   // is the right lower column of this two-row viewport.
-   if(before===8&&root.density===1)result=writeHomeNavigation(result,{...nav,rootView:{...root,currentLeftSlot:4,targetLeftSlot:4}});
+   // Settling centers the selection; the native captured Settings position
+   // is the right lower column of this two-row, three-column viewport.
+   if(id==='system-settings'&&root.density===1){const left=Math.max(0,(Math.floor(selected/2)-2)*2);result=writeHomeNavigation(result,{...nav,rootView:{...root,currentLeftSlot:left,targetLeftSlot:left}});}
   }
  }
  return restoreHomeSavedLayouts(result,v.homeSavedLayouts);

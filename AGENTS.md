@@ -47,12 +47,13 @@ claim that an in-flight coordinator model changed through a worker override.
 
 - The page shows only an original **2012 Silver + Black Nintendo 3DS XL
   (SPR-001)** and its background. Preserve the sourced model, leftward spin,
-  opening, physical controls, lower touchscreen and nine portfolio apps,
-  including the merged Hack LDN 2025 addition.
+  opening, physical controls, lower touchscreen and the three portfolio apps:
+  HackUK, NVIDIA and Hack LDN 2025. The user removed Work, Side Projects,
+  Hobbies, Life, About and Contact on 28 October 2026.
 - Target **EUR 10.7.0-32E**, original hardware mode, English locale. In scope:
   HOME; Settings and helpers; Health; read-only Camera; Sound UI and supplied-song
   playback; eShop; Notes; Friends; Notifications; local Browser and
-  Miiverse; the amiibo helper; power/app transitions; and nine portfolio apps.
+  Miiverse; the amiibo helper; power/app transitions; and the three portfolio apps.
 - Excluded: Nintendo Zone Viewer, Software Keyboard, Activity Log, Download Play, Mii Maker,
   StreetPass Mii Plaza, AR Games, Face Raiders; capture, remote web, network,
   account and PIN operations. Internal helpers need no invented HOME entry.

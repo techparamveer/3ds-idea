@@ -39,7 +39,7 @@ export async function selectAnimationTitle(title, { key, touch, wait }) {
     await wait(300);
     return;
   }
-  const slot = { portfolio: 0, health: 8, settings: 9, camera: 10, sound: 7 }[title];
+  const slot = { portfolio: 0, health: 4, settings: 5, camera: 2, sound: 3 }[title];
   assert.ok(Number.isInteger(slot), 'Supported title selection');
   for (let n = 0; n < Math.floor(slot / 2); n++) { await key('ArrowRight'); await wait(180); }
   if (slot % 2) await key('ArrowDown');
@@ -473,7 +473,7 @@ assert.ok(['key', 'touch', 'physical', 'tile', 'accessible'].includes(values.act
 if (values.activation === 'accessible') assert.ok(['notes', 'friends', 'notifications', 'browser', 'miiverse'].includes(values.scenario), 'Accessible shortcut is top-row-only');
 assert.match(values.commit ?? '', /^[a-f0-9]{40}$/, 'Runtime commit must be supplied');
 const title = values.title ?? (values.scenario === 'manual' ? 'settings' : 'health');
-const pauseApp = { health: 'health-safety', camera: 'camera', sound: 'sound', portfolio: 'work' }[title];
+const pauseApp = { health: 'health-safety', camera: 'camera', sound: 'sound', portfolio: 'hackuk' }[title];
 const pauseNativeStatus = title === 'portfolio' ? 'inactive' : 'ready';
 if (values.scenario === 'manual') manualCaptureHeading(title);
 if (values.scenario === 'pause') assert.ok(['health', 'camera', 'sound', 'portfolio'].includes(title));

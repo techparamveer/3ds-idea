@@ -8,7 +8,7 @@ Camera is read-only and Sound may play user-supplied songs. Capture, editing,
 recording, import, remote services, accounts and text entry stay out.
 
 Stable IDs use `M-*` for Camera/Sound, `C-*` for Notes/Friends/Notifications,
-and `P-*` for the eight portfolio apps. App open/close, HOME suspension, lid and
+and `P-*` for the three portfolio apps. App open/close, HOME suspension, lid and
 power ownership are listed in the coordinator's lifecycle map; dependencies on
 those owners are called out here without duplicating their route inventory.
 ## Camera
@@ -199,7 +199,14 @@ the settled-entry thumb size/translation still has no unique delivered owner. Ac
 through row 6 -> verify thumb/window -> source-row Open remains inert -> custom
 row detail/Back adaptation), with default read flags unchanged.
 
-## Eight portfolio apps
+## Portfolio apps
+
+On 28 October 2026 the user removed Work, Side Projects, Hobbies, Life, About
+and Contact (`P-WORK`, `P-PROJ`, `P-HOB`, `P-LIFE`, `P-ABOUT`, `P-CONTACT`).
+Their IDs are retired: saved layouts drop them and keep the other placements.
+The default HOME order is HackUK, NVIDIA, Camera, Sound, Health and Safety,
+System Settings, eShop, Hack LDN 2025, which keeps Settings at the right lower
+position of the selected-Settings viewport.
 
 Shared code: `src/os/apps.ts`, `portfolio-app.ts`, `portfolio-screens.ts`,
 `system.ts`, `app-host.ts`, and persistence. Tests: `portfolio.test.mjs`,
@@ -207,29 +214,22 @@ Shared code: `src/os/apps.ts`, `portfolio-app.ts`, `portfolio-screens.ts`,
 All interiors and outbound links are user-scoped adaptations, not Nintendo UI.
 | ID | HOME title | Entry routes | Detail actions and known gaps |
 | --- | --- | --- | --- |
-| P-WORK | `work` | `alora`, `microsoft`, `myucat`, `hackuk-work` | URLs for first three; `hackuk-work` launches P-HACKUK. Alora is intentionally sparse |
-| P-PROJ | `projects` | `ankicram`, `cognilink`, `renu` | Each has an explicit Visit URL; Renu has 2 pages and 1 image |
-| P-HOB | `hobbies` | `buildings` | 2 pages, 3 bounded photos, explicit Gumroad Visit; images also seed Camera |
-| P-LIFE | `life` | `keele`, `hack-keele`, `rws`, `school` | One-page local details; A is Done and returns to entries; no external effect |
 | P-HACKUK | `hackuk` | `mission`, `leafhacks`, `campfire`, `counterspell` | Explicit HackUK links; mission has 2 pages and an image, counterspell reuses that image |
-| P-NVIDIA | `nvidia` | `renu` | Same Renu content identity as P-PROJ; explicit portfolio URL. [Blender box-to-logo banner](../nvidia-transform-2026-10-08.md) on HOME and app landing; opening cube spin and reveal, then a looping idle sway of the larger, deeper extruded logo; detail photo preserved. Portfolio adaptation |
-| P-ABOUT | `about` | `intro`, `stack` | Intro has 2 pages and Visit; toolkit is local Done |
-| P-CONTACT | `contact` | `email`, `book`, `github`, `instagram`, `youtube`, `twitter`, `tiktok` | Explicit mail/web link effects only after Visit; no form, keyboard or account flow |
+| P-NVIDIA | `nvidia` | `renu` | Explicit portfolio URL. [Blender box-to-logo banner](../nvidia-transform-2026-10-08.md) on HOME and app landing; opening cube spin and reveal, then a looping idle sway of the larger, deeper extruded logo; detail photo preserved. Portfolio adaptation |
+| P-HACKLDN | `hack-ldn-2025` | `cognilink` | Explicit CogniLink Visit URL. [Blender chevron-led banner](../hack-ldn-2025-animation.md). Portfolio adaptation |
 
 Shared routes: bounded Up/Down selects an entry; A opens `detail`; detail
-Up/Down changes page and Left/Right changes photo; A emits `launch`, explicit
+Up/Down changes page and Left/Right changes photo; A emits an explicit
 `link`, or Done; B resets page/photo and returns to entries, then HOME. HOME
 suspension retains live item/detail/page/photo, but every module saves `{}`;
 reload or a new instance starts at entry 0. HOME layout persistence is a separate
-system owner. Reused Renu and HackUK image identities intentionally deduplicate
+system owner. The reused HackUK image identity intentionally deduplicates
 Camera media.
 
 First tasks: run one complete route per app at iPad Sidecar dimensions, then repair
 only captured overflow, focus or unreachable-content defects. Named scenarios are
-`portfolio-work-cross-launch`, `portfolio-projects-pages`,
-`portfolio-hobbies-gallery`, `portfolio-life-done`, `portfolio-hackuk-pages`,
-`portfolio-nvidia-renu`, `portfolio-about-local-and-visit`, and
-`portfolio-contact-explicit-links`. Each must cover entry/detail return,
+`portfolio-hackuk-pages`, `portfolio-nvidia-renu` and
+`portfolio-hack-ldn-cognilink`. Each must cover entry/detail return,
 longest text, last entry, outbound intent, HOME suspend/resume and fresh-instance
 reset. Native comparison applies only to surrounding HOME/launch/lifecycle
 chrome; portfolio interior differences stay explicitly labelled adaptations.
@@ -333,7 +333,7 @@ centre together. See [notes](../nvidia-transform-2026-10-08.md).
 
 ### Hack LDN 2025 portfolio app
 
-Added the user-requested ninth app with existing CogniLink content and a Blender
+Added the user-requested ninth app (now one of three after the 28 October removal) with existing CogniLink content and a Blender
 chevron-led lettering animation. No cube. Transparent pixelated one-shot banner,
 2025 completion caption, reduced-motion hold and saved-layout migration. Muted
 port3049 browser inspected. Typecheck/build/shader pass; 2,168 tests pass, one

@@ -3,7 +3,9 @@
 The user's latest instruction supersedes the earlier complete-firmware behaviour
 brief: **remove the software keyboard; remaining stock apps need their UI only**.
 Also recreate **power-on, power-off and opening an app**. Preserve the existing
-console model, physical opening, background-only page and eight portfolio apps.
+console model, physical opening, background-only page and portfolio apps. On
+28 October 2026 the user removed Work, Side Projects, Hobbies, Life, About and
+Contact; the three portfolio apps are HackUK, NVIDIA and Hack LDN 2025.
 
 Activity Log, Download Play, Mii Maker, StreetPass Mii Plaza, AR Games and Face
 Raiders remain excluded. Software Keyboard is now excluded too, and Nintendo
@@ -13,7 +15,7 @@ existing title identities; internal helpers need no invented HOME entrypoints.
 The complete in-scope set is HOME; Settings and internal helpers; Health and
 Safety; read-only Camera; Sound UI and supplied-song playback; eShop; Game
 Notes; Friends; Notifications; local Internet Browser and Miiverse;
-the amiibo helper; power and app transitions; and the eight portfolio apps.
+the amiibo helper; power and app transitions; and the three portfolio apps.
 Remote browsing, account/network/PIN operations and capture stay excluded.
 
 The pinned firmware dump is the sole source for **native** visuals and audio.

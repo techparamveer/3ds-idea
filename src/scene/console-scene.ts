@@ -16,7 +16,7 @@ import { createPortfolioState, reduceSystem, tickSystem, tickHomeNavigationClock
 import { enableHomeControls, reconcileHomeControls, isHomeSwitchPresentationActive } from '@/os/home-controls';
 import { openFirmwareStorage, type FirmwareStorage } from '@/os/app-persistence';
 import { createRuntimeEffects } from '@/os/runtime-effects';
-import { createHomeBannerHost, crossHomeBannerBoundary, stepHomeBannerHost, skipHomeBannerHostPass, getHomeBannerHostView, getHomeBannerHostBackgroundFrame, getHomeBannerCloseReadyUpdate, homeApplicationBannerBoundary, resetHomeBannerPrimary, resolveHomeBannerHostSelection, resolveHomeBannerHostObservation, type HomeBannerHostSelection } from '@/os/home-banner-host';
+import { createHomeBannerHost, crossHomeBannerBoundary, stepHomeBannerHost, skipHomeBannerHostPass, getHomeBannerHostView, getHomeBannerHostBackgroundFrame, getHomeBannerCloseReadyUpdate, homeApplicationBannerBoundary, resetHomeBannerPrimary, resolveHomeBannerHostSelection, resolveHomeBannerHostObservation, homeToolbarBanner, type HomeBannerHostSelection } from '@/os/home-banner-host';
 import type { AppCommand, AppEvent } from '@/os/app-types';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -91,25 +91,18 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   let bannerObservedPhase=state.system!.phase,lastBannerRestartBootSince:number|null=null,bannerEntryFooterBootSince:number|null=null;
   let bannerLabelFailure=false;
   const nativeFolderAvailable=()=>{const value=folderBanner.status();return !!firmwareAssets&&value.ready&&!value.failure;};
-  const nativePrimaryAvailable=(selection:HomeBannerHostSelection)=>{const value=folderBanner.status();return selection.kind==='default'?value.defaultReady&&!value.defaultFailure:selection.kind==='app'?value.settingsReady&&!value.settingsFailure:selection.kind==='toolbar'?selection.focus===1?value.memoReady&&!value.memoFailure:selection.focus===2?value.friendReady&&!value.friendFailure:selection.focus===3?value.newsReady&&!value.newsFailure:selection.focus===4?value.webReady&&!value.webFailure:value.miiverseReady&&!value.miiverseFailure:selection.kind==='clear'||nativeFolderAvailable();};
+  const toolbarAvailable=(focus:Parameters<typeof homeToolbarBanner>[0])=>{const value=folderBanner.toolbarStatus(homeToolbarBanner(focus).kind);return value.ready&&!value.failure;};
+  const nativePrimaryAvailable=(selection:HomeBannerHostSelection)=>{const value=folderBanner.status();return selection.kind==='default'?value.defaultReady&&!value.defaultFailure:selection.kind==='app'?value.settingsReady&&!value.settingsFailure:selection.kind==='toolbar'?toolbarAvailable(selection.focus):selection.kind==='clear'||nativeFolderAvailable();};
   const hostedPrimaryFrame=(motion:HomeBannerMotion):PrimaryBannerRenderFrame=>({visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0});
   const screens=createScreens({soundRoom,cameraShoot,cameraTextProbe,measurePaint:diagnostics,reducedMotion:window.matchMedia('(prefers-reduced-motion: reduce)').matches,firmwareAssets,
     drawSuspendedBackground:(ctx,capture,presentation)=>folderBanner.drawSuspendedBackground(ctx,capture,presentation),
     getHomeBanner:()=>{const view=getHomeBannerHostView(bannerHost);return view.status==='pending'&&view.selection.kind!=='app'&&view.selection.kind!=='toolbar'&&(!nativePrimaryAvailable(view.selection)||bannerLabelFailure)?undefined:view;},
-    getMemoBannerFailure:()=>folderBanner.status().memoFailure??null,
-    getFriendBannerFailure:()=>folderBanner.status().friendFailure??null,
-    getNewsBannerFailure:()=>folderBanner.status().newsFailure??null,
-    getWebBannerFailure:()=>folderBanner.status().webFailure??null,
-    getMiiverseBannerFailure:()=>folderBanner.status().miiverseFailure??null,
+    getToolbarBannerFailure:kind=>folderBanner.toolbarStatus(kind).failure??null,
     // Idle-only native translation sample. Reactive +0x90 motion is not yet hosted.
     drawFolderBannerFrame:(ctx,motion,label)=>folderBanner.drawFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0},label),
     drawDefaultBannerFrame:(ctx,motion)=>folderBanner.drawDefaultFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0}),
     drawSettingsBannerFrame:(ctx,motion)=>{const phase=settingsBannerPhase(motion,reduced,verificationBannerFrame,verificationBannerSkeletalFrame);return folderBanner.drawSettingsFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:phase.yawRadians,skeletalFrame:phase.skeletalFrame,materialFrame:0,nativeDisplacementY:0,offsetX:0,offsetY:0});},
-    drawMemoBannerFrame:(ctx,motion,label)=>folderBanner.drawMemoFrame(ctx,hostedPrimaryFrame(motion),label),
-    drawFriendBannerFrame:(ctx,motion,label)=>folderBanner.drawFriendFrame(ctx,hostedPrimaryFrame(motion),label),
-    drawNewsBannerFrame:(ctx,motion,label)=>folderBanner.drawNewsFrame(ctx,hostedPrimaryFrame(motion),label),
-    drawWebBannerFrame:(ctx,motion,label)=>folderBanner.drawWebFrame(ctx,hostedPrimaryFrame(motion),label),
-    drawMiiverseBannerFrame:(ctx,motion,label)=>folderBanner.drawMiiverseFrame(ctx,hostedPrimaryFrame(motion),label),
+    drawToolbarBannerFrame:(ctx,kind,motion,label)=>folderBanner.drawToolbarFrame(ctx,kind,hostedPrimaryFrame(motion),label),
     drawStockTitleBannerFrame:(ctx,motion,ticket,kind)=>folderBanner.drawStockTitleFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:kind==='health'&&verificationHealthBannerFrame!==undefined?verificationHealthBannerFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0},{...ticket,kind}),
     drawHomeBackground:(ctx,_time,isReduced,frame)=>{
       if(frame!==undefined)return folderBanner.drawBackgroundFrame(ctx,frame);
@@ -333,7 +326,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
       const status=folderBanner.status(),selection=view.selection;
       const label=selection.kind==='folder'?screens.prepareFolderBannerLabel(selection.label):undefined;
       bannerLabelFailure=selection.kind==='folder'&&!label;
-      const ready=selection.kind==='folder'?status.ready&&!status.failure&&!!label:selection.kind==='default'?status.defaultReady&&!status.defaultFailure:selection.kind==='toolbar'?selection.focus===1?status.memoReady&&!status.memoFailure:selection.focus===2?status.friendReady&&!status.friendFailure:selection.focus===3?status.newsReady&&!status.newsFailure:selection.focus===4?status.webReady&&!status.webFailure:status.miiverseReady&&!status.miiverseFailure:selection.kind==='app'&&selection.id==='system-settings'?status.settingsReady&&!status.settingsFailure:selection.kind==='app'&&homeTitleBannerKind(selection.id)&&view.resourceTicket?folderBanner.stockTitleStatus({...view.resourceTicket,kind:homeTitleBannerKind(selection.id)!}).ready:false;
+      const ready=selection.kind==='folder'?status.ready&&!status.failure&&!!label:selection.kind==='default'?status.defaultReady&&!status.defaultFailure:selection.kind==='toolbar'?toolbarAvailable(selection.focus):selection.kind==='app'&&selection.id==='system-settings'?status.settingsReady&&!status.settingsFailure:selection.kind==='app'&&homeTitleBannerKind(selection.id)&&view.resourceTicket?folderBanner.stockTitleStatus({...view.resourceTicket,kind:homeTitleBannerKind(selection.id)!}).ready:false;
       const resourceReady=ready?view.resourceTicket:null;
       bannerHost=crossHomeBannerBoundary(bannerHost,clock,{inputs:{...inputs,resourceReady}});
       view=getHomeBannerHostView(bannerHost);

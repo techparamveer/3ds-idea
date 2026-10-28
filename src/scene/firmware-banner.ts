@@ -8,6 +8,7 @@ import type { HomeSuspendedBackgroundPresentation } from '../os/home-entry-motio
 import { copyNativeOverlay } from './native-overlay';
 import { paddedHomeCapture, suspendedBackgroundAsset, suspendedBackgroundPlayback } from './home-suspended-background';
 import type { SuspendedCapture } from '../os/notes-suspended-capture';
+import { HOME_TOOLBAR_BANNERS, type HomeToolbarBannerKind } from '../os/home-banner-host';
 
 /** A sampled lifecycle state; painting never advances these source-frame clocks. */
 export type PrimaryBannerRenderFrame=Readonly<{
@@ -20,6 +21,15 @@ export type HomeBackgroundRenderFrame=Readonly<{
 }>;
 
 const primaryOptions:FirmwareModelOptions={overlayCoverage:true,drawGroup:2,runtimeStencil:{enabled:true,function:'Equal',reference:1,compareMask:1,writeMask:0xff,fail:'Keep',depthFail:'Keep',depthPass:'Keep'}};
+/** Native toolbar applet banners, in load order. Each is validated against its
+ * pinned source and drawn through the one shared primary path. */
+const toolbarBannerSources:readonly Readonly<{kind:HomeToolbarBannerKind;model:string;sha256:string;clip:string}>[]=[
+  {kind:'news',model:'banner-applet-news',sha256:'c91a037f6462c2aef79fb5944225e8a4c36e7116de804e86cc780a233805a1bc',clip:'BannerAppletNews'},
+  {kind:'friend',model:'banner-applet-friend',sha256:'3a611b0356075dad06294f99e0ad45163d273707ecf42c46b0cc5f12942ca7bd',clip:'BannerAppletFriend'},
+  {kind:'memo',model:'banner-applet-memo',sha256:'1edaff090f935049048e6cd7d97256b355affe4d4688efb9257831cf7d7a9830',clip:'BannerAppletMemo'},
+  {kind:'web',model:'banner-applet-web',sha256:'0c69aaf1cdb35a8e54519e45af9008ad1b10c8ce28e64460be2d1e3c85a299be',clip:'BannerAppletWeb'},
+  {kind:'miiverse',model:'banner-applet-miiverse',sha256:'6ce7a4525fbada9b48f5a3dc846bb7a064f08b40af56f53e46b16e63866f46ea',clip:'BannerAppletMvs'},
+];
 const defaultSkeletalClip='BannerDef_anim00',defaultMaterialClip='BannerDef';
 const defaultTextures=['DefBnrFrd64x64','DefBnrHome64x64','DefBnrMemo64x64','DefBnrNews64x64','DefBnrOlv64x64','DefBnrWeb64x64'];
 function validateDefaultBanner(asset:FirmwareModelAsset){
@@ -51,8 +61,9 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
   target.texture.colorSpace = THREE.NoColorSpace;
   const canvas = document.createElement('canvas'); canvas.width = 400; canvas.height = 240;
   const context = canvas.getContext('2d')!, pixels = new Uint8Array(400 * 240 * 4), image = context.createImageData(400, 240);
-  let model: ReturnType<typeof createFirmwareModel> | undefined, defaultModel: ReturnType<typeof createFirmwareModel> | undefined, settingsModel: ReturnType<typeof createFirmwareModel> | undefined, newsModel: ReturnType<typeof createFirmwareModel> | undefined, friendModel: ReturnType<typeof createFirmwareModel> | undefined, memoModel: ReturnType<typeof createFirmwareModel> | undefined, webModel: ReturnType<typeof createFirmwareModel> | undefined, miiverseModel: ReturnType<typeof createFirmwareModel> | undefined, background: ReturnType<typeof createFirmwareModel> | undefined, mask: ReturnType<typeof createFirmwareModel> | undefined;
-  let disposed = false, failure: string | undefined, defaultFailure:string|undefined, settingsFailure:string|undefined, newsFailure:string|undefined, friendFailure:string|undefined, memoFailure:string|undefined, webFailure:string|undefined, miiverseFailure:string|undefined, backgroundFailure:string|undefined, frameFailure:string|undefined;
+  let model: ReturnType<typeof createFirmwareModel> | undefined, defaultModel: ReturnType<typeof createFirmwareModel> | undefined, settingsModel: ReturnType<typeof createFirmwareModel> | undefined, background: ReturnType<typeof createFirmwareModel> | undefined, mask: ReturnType<typeof createFirmwareModel> | undefined;
+  let disposed = false, failure: string | undefined, defaultFailure:string|undefined, settingsFailure:string|undefined, backgroundFailure:string|undefined, frameFailure:string|undefined;
+  const toolbar=new Map<HomeToolbarBannerKind,{model?:ReturnType<typeof createFirmwareModel>;failure?:string}>(toolbarBannerSources.map(source=>[source.kind,{}]));
   let suspendedBackground: ReturnType<typeof createFirmwareModel> | undefined;
   let suspendedBackgroundFailure: string | undefined;
   let suspendedPlaceholder: NativePixels | undefined;
@@ -122,36 +133,12 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
     settingsModel=createFirmwareModel(asset,{skeletal:[{name:'COMMON',frame:0}]},{...primaryOptions,nativeSphereMapping:true});
     settingsModel.group.visible=false;scene.add(settingsModel.group);
   }).catch(error=>{if(!disposed)settingsFailure=String(error);});
-  const newsReady=loadFirmwareModel('/os/firmware/10.7.0-32E/models/banner-applet-news/model.json').then(asset=>{
+  const toolbarReady=toolbarBannerSources.map(source=>loadFirmwareModel(`/os/firmware/10.7.0-32E/models/${source.model}/model.json`).then(asset=>{
     if(disposed)return;
-    const source=asset.data.models[0];
-    if(asset.data.sourceSha256!=='c91a037f6462c2aef79fb5944225e8a4c36e7116de804e86cc780a233805a1bc'||asset.data.models.length!==1||source.name!=='BannerAppletNews'||source.meshes.length!==3||asset.data.textures.length!==6||!asset.data.skeletalAnimations.some(clip=>clip.Name==='BannerAppletNews'&&clip.FramesCount===600)||!asset.data.materialAnimations.some(clip=>clip.Name==='BannerAppletNews'&&clip.FramesCount===300))throw new Error('Incomplete native HOME Notifications banner');
-    newsModel=createFirmwareModel(asset,{},primaryOptions);newsModel.group.visible=false;scene.add(newsModel.group);
-  }).catch(error=>{if(!disposed)newsFailure=String(error);});
-  const friendReady=loadFirmwareModel('/os/firmware/10.7.0-32E/models/banner-applet-friend/model.json').then(asset=>{
-    if(disposed)return;
-    const source=asset.data.models[0];
-    if(asset.data.sourceSha256!=='3a611b0356075dad06294f99e0ad45163d273707ecf42c46b0cc5f12942ca7bd'||asset.data.models.length!==1||source.name!=='BannerAppletFriend'||source.meshes.length!==3||asset.data.textures.length!==6||!asset.data.skeletalAnimations.some(clip=>clip.Name==='BannerAppletFriend'&&clip.FramesCount===600)||!asset.data.materialAnimations.some(clip=>clip.Name==='BannerAppletFriend'&&clip.FramesCount===300))throw new Error('Incomplete native HOME Friend List banner');
-    friendModel=createFirmwareModel(asset,{},primaryOptions);friendModel.group.visible=false;scene.add(friendModel.group);
-  }).catch(error=>{if(!disposed)friendFailure=String(error);});
-  const memoReady=loadFirmwareModel('/os/firmware/10.7.0-32E/models/banner-applet-memo/model.json').then(asset=>{
-    if(disposed)return;
-    const source=asset.data.models[0];
-    if(asset.data.sourceSha256!=='1edaff090f935049048e6cd7d97256b355affe4d4688efb9257831cf7d7a9830'||asset.data.models.length!==1||source.name!=='BannerAppletMemo'||source.meshes.length!==3||asset.data.textures.length!==6||!asset.data.skeletalAnimations.some(clip=>clip.Name==='BannerAppletMemo'&&clip.FramesCount===600)||!asset.data.materialAnimations.some(clip=>clip.Name==='BannerAppletMemo'&&clip.FramesCount===300))throw new Error('Incomplete native HOME Game Notes banner');
-    memoModel=createFirmwareModel(asset,{},primaryOptions);memoModel.group.visible=false;scene.add(memoModel.group);
-  }).catch(error=>{if(!disposed)memoFailure=String(error);});
-  const webReady=loadFirmwareModel('/os/firmware/10.7.0-32E/models/banner-applet-web/model.json').then(asset=>{
-    if(disposed)return;
-    const source=asset.data.models[0];
-    if(asset.data.sourceSha256!=='0c69aaf1cdb35a8e54519e45af9008ad1b10c8ce28e64460be2d1e3c85a299be'||asset.data.models.length!==1||source.name!=='BannerAppletWeb'||source.meshes.length!==3||asset.data.textures.length!==6||!asset.data.skeletalAnimations.some(clip=>clip.Name==='BannerAppletWeb'&&clip.FramesCount===600)||!asset.data.materialAnimations.some(clip=>clip.Name==='BannerAppletWeb'&&clip.FramesCount===300))throw new Error('Incomplete native HOME Internet Browser banner');
-    webModel=createFirmwareModel(asset,{},primaryOptions);webModel.group.visible=false;scene.add(webModel.group);
-  }).catch(error=>{if(!disposed)webFailure=String(error);});
-  const miiverseReady=loadFirmwareModel('/os/firmware/10.7.0-32E/models/banner-applet-miiverse/model.json').then(asset=>{
-    if(disposed)return;
-    const source=asset.data.models[0];
-    if(asset.data.sourceSha256!=='6ce7a4525fbada9b48f5a3dc846bb7a064f08b40af56f53e46b16e63866f46ea'||asset.data.models.length!==1||source.name!=='BannerAppletMvs'||source.meshes.length!==3||asset.data.textures.length!==6||!asset.data.skeletalAnimations.some(clip=>clip.Name==='BannerAppletMvs'&&clip.FramesCount===600)||!asset.data.materialAnimations.some(clip=>clip.Name==='BannerAppletMvs'&&clip.FramesCount===300))throw new Error('Incomplete native HOME Miiverse banner');
-    miiverseModel=createFirmwareModel(asset,{},primaryOptions);miiverseModel.group.visible=false;scene.add(miiverseModel.group);
-  }).catch(error=>{if(!disposed)miiverseFailure=String(error);});
+    const native=asset.data.models[0],title=HOME_TOOLBAR_BANNERS.find(banner=>banner.kind===source.kind)!.title;
+    if(asset.data.sourceSha256!==source.sha256||asset.data.models.length!==1||native.name!==source.clip||native.meshes.length!==3||asset.data.textures.length!==6||!asset.data.skeletalAnimations.some(clip=>clip.Name===source.clip&&clip.FramesCount===600)||!asset.data.materialAnimations.some(clip=>clip.Name===source.clip&&clip.FramesCount===300))throw new Error(`Incomplete native HOME ${title} banner`);
+    const primary=createFirmwareModel(asset,{},primaryOptions);toolbar.get(source.kind)!.model=primary;primary.group.visible=false;scene.add(primary.group);
+  }).catch(error=>{if(!disposed)toolbar.get(source.kind)!.failure=String(error);}));
   const frameReady=loadFirmwareModel('/os/firmware/10.7.0-32E/models/banner-frame/model.json').then(asset=>{
     if(disposed)return;
     // Native register headers preserve the global write mask despite JSON's
@@ -169,7 +156,7 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
     } catch (error) { suspendedBackgroundFailure = String(error); }
   }).catch(error=>{if(!disposed)backgroundFailure=String(error);});
   const cameraReady=loadFirmwareCamera('/os/firmware/10.7.0-32E/models/home-camera/camera.json').then(value=>{if(!disposed)camera=value;}).catch(error=>{if(!disposed){failure=String(error);backgroundFailure=String(error);frameFailure=String(error);}});
-  const ready=Promise.all([folderReady,defaultReady,settingsReady,newsReady,friendReady,memoReady,webReady,miiverseReady,frameReady,backgroundReady,cameraReady]);
+  const ready=Promise.all([folderReady,defaultReady,settingsReady,...toolbarReady,frameReady,backgroundReady,cameraReady]);
   function render(ctx:CanvasRenderingContext2D,source:THREE.Scene,overlay=false) {
     if(!camera)return false;
     const previous = renderer.getRenderTarget(), color = renderer.getClearColor(new THREE.Color()), alpha = renderer.getClearAlpha();
@@ -200,11 +187,7 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
     if(model)model.group.visible=primary===model;
     if(defaultModel)defaultModel.group.visible=primary===defaultModel;
     if(settingsModel)settingsModel.group.visible=primary===settingsModel;
-    if(newsModel)newsModel.group.visible=primary===newsModel;
-    if(friendModel)friendModel.group.visible=primary===friendModel;
-    if(memoModel)memoModel.group.visible=primary===memoModel;
-    if(webModel)webModel.group.visible=primary===webModel;
-    if(miiverseModel)miiverseModel.group.visible=primary===miiverseModel;
+    for(const entry of toolbar.values())if(entry.model)entry.model.group.visible=primary===entry.model;
     for(const slot of stockSlots.values())if(slot.model)slot.model.group.visible=primary===slot.model;
   }
   function renderPrimaryFrame(ctx:CanvasRenderingContext2D,primary:ReturnType<typeof createFirmwareModel>,frame:PrimaryBannerRenderFrame,skeletalClip:string,materialClip:string){
@@ -254,50 +237,20 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
       return render(ctx,scene,true);
     }catch(error){settingsFailure=String(error);return false;}
   }
-  function drawNewsFrame(ctx:CanvasRenderingContext2D,frame:PrimaryBannerRenderFrame,label?:NativePixels){
-    if(disposed||!newsModel||!mask||!camera||newsFailure||frameFailure)return false;
-    if(!frame.visible)return true;
-    try{
-      const labelReady=!!label&&newsModel.setTexture('DmyText_00',label);
-      newsModel.setMaterialVisible('mt_Text',labelReady);
-      return renderPrimaryFrame(ctx,newsModel,frame,'BannerAppletNews','BannerAppletNews');
-    }catch(error){newsFailure=String(error);return false;}
+  function toolbarStatus(kind:HomeToolbarBannerKind){
+    const entry=toolbar.get(kind)!;
+    return {ready:!disposed&&!!entry.model&&!!mask&&!!camera&&!entry.failure&&!frameFailure,failure:entry.failure??frameFailure};
   }
-  function drawFriendFrame(ctx:CanvasRenderingContext2D,frame:PrimaryBannerRenderFrame,label?:NativePixels){
-    if(disposed||!friendModel||!mask||!camera||friendFailure||frameFailure)return false;
+  function drawToolbarFrame(ctx:CanvasRenderingContext2D,kind:HomeToolbarBannerKind,frame:PrimaryBannerRenderFrame,label?:NativePixels){
+    const entry=toolbar.get(kind)!,primary=entry.model;
+    if(disposed||!primary||!mask||!camera||entry.failure||frameFailure)return false;
     if(!frame.visible)return true;
     try{
-      const labelReady=!!label&&friendModel.setTexture('DmyText_00',label);
-      friendModel.setMaterialVisible('mt_Text',labelReady);
-      return renderPrimaryFrame(ctx,friendModel,frame,'BannerAppletFriend','BannerAppletFriend');
-    }catch(error){friendFailure=String(error);return false;}
-  }
-  function drawMemoFrame(ctx:CanvasRenderingContext2D,frame:PrimaryBannerRenderFrame,label?:NativePixels){
-    if(disposed||!memoModel||!mask||!camera||memoFailure||frameFailure)return false;
-    if(!frame.visible)return true;
-    try{
-      const labelReady=!!label&&memoModel.setTexture('DmyText_00',label);
-      memoModel.setMaterialVisible('mt_Text',labelReady);
-      return renderPrimaryFrame(ctx,memoModel,frame,'BannerAppletMemo','BannerAppletMemo');
-    }catch(error){memoFailure=String(error);return false;}
-  }
-  function drawWebFrame(ctx:CanvasRenderingContext2D,frame:PrimaryBannerRenderFrame,label?:NativePixels){
-    if(disposed||!webModel||!mask||!camera||webFailure||frameFailure)return false;
-    if(!frame.visible)return true;
-    try{
-      const labelReady=!!label&&webModel.setTexture('DmyText_00',label);
-      webModel.setMaterialVisible('mt_Text',labelReady);
-      return renderPrimaryFrame(ctx,webModel,frame,'BannerAppletWeb','BannerAppletWeb');
-    }catch(error){webFailure=String(error);return false;}
-  }
-  function drawMiiverseFrame(ctx:CanvasRenderingContext2D,frame:PrimaryBannerRenderFrame,label?:NativePixels){
-    if(disposed||!miiverseModel||!mask||!camera||miiverseFailure||frameFailure)return false;
-    if(!frame.visible)return true;
-    try{
-      const labelReady=!!label&&miiverseModel.setTexture('DmyText_00',label);
-      miiverseModel.setMaterialVisible('mt_Text',labelReady);
-      return renderPrimaryFrame(ctx,miiverseModel,frame,'BannerAppletMvs','BannerAppletMvs');
-    }catch(error){miiverseFailure=String(error);return false;}
+      const labelReady=!!label&&primary.setTexture('DmyText_00',label);
+      primary.setMaterialVisible('mt_Text',labelReady);
+      const clip=toolbarBannerSources.find(source=>source.kind===kind)!.clip;
+      return renderPrimaryFrame(ctx,primary,frame,clip,clip);
+    }catch(error){entry.failure=String(error);return false;}
   }
   // The last rendered background sample. Replaying it goes through the same
   // putImageData/drawImage path, so the output bytes are identical.
@@ -364,5 +317,5 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
       return drawn;
     }catch(error){backgroundLifecycleSample=undefined;backgroundFailure=String(error);return false;}
   }
-  return { ready, drawSuspendedBackground, syncStockTitles, stockTitleStatus, drawStockTitleFrame, draw, drawFrame, drawDefaultFrame, drawSettingsFrame, drawNewsFrame, drawFriendFrame, drawMemoFrame, drawWebFrame, drawMiiverseFrame, drawBackground, drawBackgroundFrame, drawBackgroundLifecycleFrame, status: () => ({ ready: !disposed&&!!model&&!!mask&&!!camera, failure:failure??frameFailure, defaultReady:!disposed&&!!defaultModel&&!!mask&&!!camera&&!defaultFailure&&!frameFailure, defaultFailure:defaultFailure??frameFailure, settingsReady:!disposed&&!!settingsModel&&!!mask&&!!camera&&!settingsFailure&&!frameFailure, settingsFailure:settingsFailure??frameFailure, newsReady:!disposed&&!!newsModel&&!!mask&&!!camera&&!newsFailure&&!frameFailure, newsFailure:newsFailure??frameFailure, friendReady:!disposed&&!!friendModel&&!!mask&&!!camera&&!friendFailure&&!frameFailure, friendFailure:friendFailure??frameFailure, memoReady:!disposed&&!!memoModel&&!!mask&&!!camera&&!memoFailure&&!frameFailure, memoFailure:memoFailure??frameFailure, webReady:!disposed&&!!webModel&&!!mask&&!!camera&&!webFailure&&!frameFailure, webFailure:webFailure??frameFailure, miiverseReady:!disposed&&!!miiverseModel&&!!mask&&!!camera&&!miiverseFailure&&!frameFailure, miiverseFailure:miiverseFailure??frameFailure, frameReady:!disposed&&!!mask&&!!camera, frameFailure, backgroundReady:!disposed&&!!background&&!!camera, backgroundFailure, suspendedBackgroundReady:!disposed&&!!suspendedBackground&&!!camera&&!suspendedBackgroundFailure, suspendedBackgroundFailure }), dispose() { if(disposed)return;disposed = true; for(const slot of stockSlots.values()){if(slot.model)scene.remove(slot.model.group);slot.owner.dispose();}stockSlots.clear(); model?.dispose();defaultModel?.dispose();settingsModel?.dispose();newsModel?.dispose();friendModel?.dispose();memoModel?.dispose();webModel?.dispose();miiverseModel?.dispose();mask?.dispose();background?.dispose();suspendedBackground?.dispose();suspendedCaptureBinding=undefined;suspendedSample=undefined;target.dispose(); } };
+  return { ready, drawSuspendedBackground, syncStockTitles, stockTitleStatus, drawStockTitleFrame, draw, drawFrame, drawDefaultFrame, drawSettingsFrame, toolbarStatus, drawToolbarFrame, drawBackground, drawBackgroundFrame, drawBackgroundLifecycleFrame, status: () => ({ ready: !disposed&&!!model&&!!mask&&!!camera, failure:failure??frameFailure, defaultReady:!disposed&&!!defaultModel&&!!mask&&!!camera&&!defaultFailure&&!frameFailure, defaultFailure:defaultFailure??frameFailure, settingsReady:!disposed&&!!settingsModel&&!!mask&&!!camera&&!settingsFailure&&!frameFailure, settingsFailure:settingsFailure??frameFailure, ...Object.fromEntries(toolbarBannerSources.flatMap(({kind})=>{const value=toolbarStatus(kind);return [[`${kind}Ready`,value.ready],[`${kind}Failure`,value.failure]];})), frameReady:!disposed&&!!mask&&!!camera, frameFailure, backgroundReady:!disposed&&!!background&&!!camera, backgroundFailure, suspendedBackgroundReady:!disposed&&!!suspendedBackground&&!!camera&&!suspendedBackgroundFailure, suspendedBackgroundFailure }), dispose() { if(disposed)return;disposed = true; for(const slot of stockSlots.values()){if(slot.model)scene.remove(slot.model.group);slot.owner.dispose();}stockSlots.clear(); model?.dispose();defaultModel?.dispose();settingsModel?.dispose();for(const entry of toolbar.values())entry.model?.dispose();mask?.dispose();background?.dispose();suspendedBackground?.dispose();suspendedCaptureBinding=undefined;suspendedSample=undefined;target.dispose(); } };
 }

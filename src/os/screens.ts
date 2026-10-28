@@ -40,7 +40,7 @@ import { createNotificationsFooterClosePresentation, type NotificationsFooterClo
 import { createWebFooterClosePresentation, type WebFooterClosePose } from './web-footer-close';
 import { createFriendsFooterClosePresentation, type FriendsFooterClosePose } from './friends-footer-close';
 import { createManualFooterClosePresentation, type ManualFooterClosePose } from './manual-footer-close';
-import { resolveHomeBannerHostSelection, type HomeBannerHostView } from './home-banner-host';
+import { homeToolbarBanner, resolveHomeBannerHostSelection, type HomeBannerHostView, type HomeToolbarBannerKind } from './home-banner-host';
 import type { HomeBannerMotion } from './home-banner-lifecycle';
 import { createManualEntryPresentation, sameManualEntryIdentity, type ManualEntryIdentity, type ManualEntryPose } from './manual-entry-presentation';
 import { manualEntryIdentity, manualEntryEligible, manualEntryOrigin, sameManualEntryOrigin, manualEntryBackingMatches, type ManualEntryOrigin } from './manual-entry-identity';
@@ -324,7 +324,7 @@ function panel(c:Context,state:MenuState,time:number,reduced:boolean,themeSprite
   c.fillStyle=gradient(c,212,28,'#fff','#c9cdd5');c.fillRect(0,212,320,28);text(c,'Ⓑ Close',160,226,14,'#4d535e','center');
  }
 }
-export function createScreens(options: { soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground; font?: BitmapFont; reducedMotion?: boolean; measurePaint?:boolean; cameraTextProbe?:boolean; firmwareAssets?:FirmwarePresentationAssets; drawFolderBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; getHomeBanner?:()=>HomeBannerHostView|undefined; getMemoBannerFailure?:()=>string|null; getFriendBannerFailure?:()=>string|null; getNewsBannerFailure?:()=>string|null; getWebBannerFailure?:()=>string|null; getMiiverseBannerFailure?:()=>string|null; drawFolderBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawDefaultBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawSettingsBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawMemoBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawFriendBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawNewsBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawWebBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawMiiverseBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawStockTitleBannerFrame?:(ctx:Context,motion:HomeBannerMotion,ticket:Readonly<{generation:string;requestEpoch:number}>,kind:NonNullable<ReturnType<typeof homeTitleBannerKind>>)=>boolean; drawHomeBackground?:(ctx:Context,time:number,reduced:boolean,sourceFrame?:number,reuseWithinMs?:number)=>boolean; drawSuspendedBackground?:(ctx:Context,capture:SuspendedCapture,presentation?:HomeSuspendedBackgroundPresentation|null)=>boolean; runtimeNotice?:()=>string|null } = {}){
+export function createScreens(options: { soundRoom?:StockModelBackground;cameraShoot?:StockModelBackground; font?: BitmapFont; reducedMotion?: boolean; measurePaint?:boolean; cameraTextProbe?:boolean; firmwareAssets?:FirmwarePresentationAssets; drawFolderBanner?:(ctx:Context,time:number,reduced:boolean,label?:NativePixels)=>boolean; getHomeBanner?:()=>HomeBannerHostView|undefined; getToolbarBannerFailure?:(kind:HomeToolbarBannerKind)=>string|null; drawFolderBannerFrame?:(ctx:Context,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawDefaultBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawSettingsBannerFrame?:(ctx:Context,motion:HomeBannerMotion)=>boolean; drawToolbarBannerFrame?:(ctx:Context,kind:HomeToolbarBannerKind,motion:HomeBannerMotion,label?:NativePixels)=>boolean; drawStockTitleBannerFrame?:(ctx:Context,motion:HomeBannerMotion,ticket:Readonly<{generation:string;requestEpoch:number}>,kind:NonNullable<ReturnType<typeof homeTitleBannerKind>>)=>boolean; drawHomeBackground?:(ctx:Context,time:number,reduced:boolean,sourceFrame?:number,reuseWithinMs?:number)=>boolean; drawSuspendedBackground?:(ctx:Context,capture:SuspendedCapture,presentation?:HomeSuspendedBackgroundPresentation|null)=>boolean; runtimeNotice?:()=>string|null } = {}){
  const top=document.createElement('canvas');top.width=800;top.height=240;
  const bottom=document.createElement('canvas');bottom.width=320;bottom.height=240;
  const native=document.createElement('canvas');native.width=400;native.height=240;
@@ -974,10 +974,10 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   // retains that capture-fitted visibility history after folder re-entry; this
   // is not a recovered native controller. Initial folder-held HOME keeps it.
   const hideHeldRootBanner=!!view.pickup&&(!state.opened||view.pickup.suppressUpperBanner);
-  const toolbarUnavailableByFocus={1:'Native Game Notes toolbar banner unavailable.',2:'Native Friend List toolbar banner unavailable.',3:'Native Notifications toolbar banner unavailable.',4:'Native Internet Browser toolbar banner unavailable.',5:'Native Miiverse toolbar banner unavailable.'} as const;
-  const toolbarFailure=hostedToolbar?.focus===1?options.getMemoBannerFailure?.():hostedToolbar?.focus===2?options.getFriendBannerFailure?.():hostedToolbar?.focus===3?options.getNewsBannerFailure?.():hostedToolbar?.focus===4?options.getWebBannerFailure?.():hostedToolbar?.focus===5?options.getMiiverseBannerFailure?.():null;
-  const toolbarUnavailable=hostedToolbar&&toolbarUnavailableByFocus[hostedToolbar.focus];
-  if(hostedToolbar&&toolbarFailure&&toolbarUnavailable&&firmwareAssets&&!firmwareAssets.diagnostics.includes(toolbarUnavailable))firmwareAssets.diagnostics.push(toolbarUnavailable);
+  const toolbarUnavailable=(focus:Parameters<typeof homeToolbarBanner>[0])=>`Native ${homeToolbarBanner(focus).title} toolbar banner unavailable.`;
+  const toolbarFailure=hostedToolbar?options.getToolbarBannerFailure?.(homeToolbarBanner(hostedToolbar.focus).kind):null;
+  const hostedToolbarUnavailable=hostedToolbar&&toolbarUnavailable(hostedToolbar.focus);
+  if(hostedToolbar&&toolbarFailure&&hostedToolbarUnavailable&&firmwareAssets&&!firmwareAssets.diagnostics.includes(hostedToolbarUnavailable))firmwareAssets.diagnostics.push(hostedToolbarUnavailable);
   if(!diagnosticPaint&&nativeHome&&options.getHomeBanner&&!state.opened&&folderEntryEligible(state))rootFolderBannerCandidate={generation:entryMotionGeneration,source:null};
   if(rootFolderBannerCandidate&&hideHeldRootBanner&&hostedBanner){
    const stroke=folderEntryHeldStroke(state),owner=stroke?folderEntryBannerOwner(state,stroke.folderSlot):null;
@@ -1011,15 +1011,11 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
      const drawn=options.drawDefaultBannerFrame?.(t,motion)===true;homeEntryBannerDrawn=drawn;
      if(!drawn&&firmwareAssets&&!firmwareAssets.diagnostics.includes('Native default banner unavailable.'))firmwareAssets.diagnostics.push('Native default banner unavailable.');
     }else if(selection.kind==='toolbar'){
-     const key=selection.focus===1?'memo':selection.focus===2?'fri':selection.focus===3?'news':selection.focus===4?'web':'mvs';
-     const label=nativeHome?.appletBannerLabel(key);
-     const drawn=selection.focus===1?options.drawMemoBannerFrame?.(t,motion,label)
-      :selection.focus===2?options.drawFriendBannerFrame?.(t,motion,label)
-      :selection.focus===3?options.drawNewsBannerFrame?.(t,motion,label)
-      :selection.focus===4?options.drawWebBannerFrame?.(t,motion,label)
-      :options.drawMiiverseBannerFrame?.(t,motion,label);
+     const toolbar=homeToolbarBanner(selection.focus);
+     const label=nativeHome?.appletBannerLabel(toolbar.label);
+     const drawn=options.drawToolbarBannerFrame?.(t,toolbar.kind,motion,label);
      homeEntryBannerDrawn=drawn===true;
-     const unavailable=toolbarUnavailableByFocus[selection.focus];
+     const unavailable=toolbarUnavailable(selection.focus);
      if(!drawn&&firmwareAssets&&!firmwareAssets.diagnostics.includes(unavailable))firmwareAssets.diagnostics.push(unavailable);
     }else if(selection.kind==='app'&&homeTitleBannerKind(selection.id)){
      const drawn=options.drawStockTitleBannerFrame?.(t,motion,hostedBanner.primary,homeTitleBannerKind(selection.id)!);homeEntryBannerDrawn=drawn===true;if(verificationPaint&&selection.id==='health-safety')verificationPaint.healthBanner=drawn===true;if(!drawn&&launchPresentation)throw Error(`Native ${selection.id} launch banner unavailable.`);if(!drawn&&firmwareAssets&&!firmwareAssets.diagnostics.includes(`Native ${selection.id} banner unavailable.`))firmwareAssets.diagnostics.push(`Native ${selection.id} banner unavailable.`);

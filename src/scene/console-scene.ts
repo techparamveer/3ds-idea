@@ -38,6 +38,7 @@ import { bootRevealFrame, isAppletOpen } from '@/os/system-transitions';
 import { applicationCloseAllowsInput, applicationCloseNeedsReadyScreen } from './application-close-input';
 import { PACKED_MODEL_URL } from './model-delivery';
 import { createRenderSchedule } from './render-schedule';
+import { uploadModelTextures } from './texture-upload';
 import { healthTopLoopFrame } from '@/os/stock-health-scroll';
 import { cameraTextProbeEnabled, captureAtHealthFrame, encodeNativeLcdPair, lcdCaptureEnabled, lcdHomeHudSample, lcdDownloadPayload, lcdDownloadRequest } from './lcd-capture';
 import { mountLiveLcdRecorder } from './live-lcd-recorder';
@@ -74,6 +75,9 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   host.dataset.model=modelUrl;host.dataset.layout=layout.source;
   const powerLeds:THREE.Mesh[]=[];
   model.traverse(o=>{if(o instanceof THREE.Mesh){o.castShadow=true;o.receiveShadow=true;if(o.userData.console_replace_with_display===true)o.visible=false;if(/Blue.?power.?LED/i.test(o.name))powerLeds.push(o);}});
+  // Texture upload is the longest main-thread task before the first frame.
+  // Run it while storage, firmware and LCD assets load; awaited before rendering.
+  const modelTexturesResident=uploadModelTextures(renderer,model);
   let runtimeNotice:string|null=null,storage:FirmwareStorage|undefined,state=createPortfolioState();
   let legacyPreferences:string|null=null;try{legacyPreferences=localStorage.getItem(STORAGE_KEY);}catch{}
   const soundRoom=createSoundRoom(renderer);
@@ -707,6 +711,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   topScreen.visible=touchScreen.visible=angle>12;
   scene.updateMatrixWorld(true);
   fitConsole();
+  await modelTexturesResident;
   renderer.initTexture(topTexture);renderer.initTexture(bottomTexture);
   // compileAsync skips invisible objects. The LCD planes appear as the lid opens,
   // so compile their programs now rather than stalling the opening.

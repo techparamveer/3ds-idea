@@ -194,7 +194,7 @@ source Bounding_00/01; input retains same-button down/up ownership, and source
 Select feedback follows that same contact. Per-title policy/closing timing
 remain separate unfinished reducer work; source assembly is not native parity.
 
-The current [UI scope](../portfolio-ui-scope.md) preserves eight portfolio apps
+The current [UI scope](../portfolio-ui-scope.md) preserves three portfolio apps
 and native stock UI/basic navigation. Software Keyboard and six excluded apps
 are unregistered. Camera is a read-only portfolio gallery; Sound is an
 owner-scoped favourite-song player. Historical keyboard/device modules remain

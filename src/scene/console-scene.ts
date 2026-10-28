@@ -41,6 +41,7 @@ import { createRenderSchedule } from './render-schedule';
 import { healthTopLoopFrame } from '@/os/stock-health-scroll';
 import { cameraTextProbeEnabled, captureAtHealthFrame, encodeNativeLcdPair, lcdCaptureEnabled, lcdHomeHudSample, lcdDownloadPayload, lcdDownloadRequest } from './lcd-capture';
 import { mountLiveLcdRecorder } from './live-lcd-recorder';
+import { createLcdDisplayMaterial, createLcdDisplayTexture } from './lcd-display';
 import { homeHudReducedMotionParityPaintDue, hudSecondParity } from '../os/device-status-profile';
 
 const RAD = Math.PI / 180;
@@ -132,21 +133,13 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   // Accessibility adaptation only; physical/touch/keyboard keep source covers.
   for(const id of ['game-notes','friends','notifications','browser','miiverse'])addControl(`Open ${getTitle(id)!.title}`,()=>{if(state.system?.phase==='home')commit((current,now)=>{const next=launchHomeShortcut(current,id,now);screens.skipAppletEntryForAccessibilityShortcut(next);return next;},'open',true);});
   let announced='';
-  const topTexture=new THREE.CanvasTexture(screens.top),bottomTexture=new THREE.CanvasTexture(screens.bottom);
-  for(const tx of [topTexture,bottomTexture]){tx.colorSpace=THREE.SRGBColorSpace;tx.minFilter=THREE.LinearFilter;tx.magFilter=THREE.NearestFilter;tx.generateMipmaps=false;tx.anisotropy=renderer.capabilities.getMaxAnisotropy();}
+  const topTexture=createLcdDisplayTexture(screens.top,renderer),bottomTexture=createLcdDisplayTexture(screens.bottom,renderer);
   // All locations below are the same millimetre coordinates as the Blender file.
   // Screen planes have dedicated UVs, separate from the shell's paint unwrap.
   // Keep LCD artwork self-lit while the dark front surface catches restrained
   // glass reflections, including when the backlight is off.
-  const displayMaterial=(texture:THREE.Texture,roughness:number)=>new THREE.MeshPhysicalMaterial({
-    color:0x080b0e,metalness:0,roughness,ior:1.46,specularIntensity:.35,envMapIntensity:.65,
-    emissive:0xffffff,emissiveMap:texture,emissiveIntensity:.97,toneMapped:false,
-    // The live panel is only .02 mm ahead of the source glass. Bias raster depth
-    // so that precision at oblique views cannot make the two surfaces flicker.
-    polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-2,
-  });
-  const topMat=displayMaterial(topTexture,.18);
-  const bottomMat=displayMaterial(bottomTexture,.26);
+  const topMat=createLcdDisplayMaterial(topTexture,.18);
+  const bottomMat=createLcdDisplayMaterial(bottomTexture,.26);
   function addDisplay(name:string,placement:ScreenPlacement,material:THREE.Material){
     const screen=new THREE.Mesh(new THREE.PlaneGeometry(placement.widthMm,placement.heightMm),material);
     screen.name=name;screen.position.copy(placement.position);screen.quaternion.copy(placement.quaternion);placement.parent.add(screen);return screen;

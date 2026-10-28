@@ -1,10 +1,10 @@
 import type { AppEvent, AppState, JsonValue } from './app-types.ts';
 import type { RuntimeEffect } from './app-host.ts';
 import { FirmwareStorageError, type FirmwareStorage } from './app-persistence.ts';
+import { browserMotionSensor } from './motion-sensor.ts';
 
 type CapabilityResult = Extract<AppEvent, { type: 'capability-result' }>;
 type MotionSample = { x: number; y: number; z: number; interval: number };
-type MotionPermission = typeof DeviceMotionEvent & { requestPermission?: () => Promise<PermissionState> };
 /** Injectable browser boundary. No device is accessed when the adapter is constructed. */
 export type CapabilityEnvironment = {
   getUserMedia?: (constraints: MediaStreamConstraints) => Promise<MediaStream>;
@@ -39,21 +39,14 @@ function reason(error: unknown) {
   return name === 'NotAllowedError' || name === 'SecurityError' ? 'denied' : name === 'AbortError' ? 'cancelled' : 'unavailable';
 }
 function browserEnvironment(): CapabilityEnvironment {
-  const motion = globalThis.DeviceMotionEvent as MotionPermission | undefined;
+  const motion = browserMotionSensor(), listen = motion.listen;
   return {
     getUserMedia: globalThis.navigator?.mediaDevices?.getUserMedia.bind(globalThis.navigator.mediaDevices),
     createVideo: globalThis.document ? () => document.createElement('video') : undefined,
     createCanvas: globalThis.document ? () => document.createElement('canvas') : undefined,
     createRecorder: globalThis.MediaRecorder ? stream => new MediaRecorder(stream) : undefined,
-    requestMotionPermission: motion?.requestPermission?.bind(motion),
-    listenMotion: globalThis.window && motion ? callback => {
-      const listener = (event: DeviceMotionEvent) => {
-        const a = event.accelerationIncludingGravity;
-        if (a && [a.x, a.y, a.z].every(v => typeof v === 'number' && Number.isFinite(v))) callback({ x: a.x!, y: a.y!, z: a.z!, interval: Number.isFinite(event.interval) ? event.interval : 0 });
-      };
-      window.addEventListener('devicemotion', listener);
-      return () => window.removeEventListener('devicemotion', listener);
-    } : undefined,
+    requestMotionPermission: motion.requestPermission,
+    listenMotion: listen ? callback => listen(({ accelerationIncludingGravity: a, interval }) => { if (a) callback({ ...a, interval }); }) : undefined,
     pickFile: globalThis.document ? (kind, signal) => new Promise((resolve, reject) => {
       const input = document.createElement('input'); input.type = 'file'; input.accept = kind === 'photo' ? 'image/*' : 'audio/*'; input.hidden = true;
       const cleanup = () => { signal.removeEventListener('abort', cancel); input.remove(); input.onchange = input.oncancel = null; };

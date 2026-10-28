@@ -10,6 +10,7 @@
     "start": "next start --hostname 0.0.0.0",
     "start:verify": "next start --hostname 127.0.0.1",
     "typecheck": "tsc --noEmit",
+    "test": "node --test --experimental-strip-types 'src/**/*.test.ts'",
     "vgpu": "vgpu",
     "check:shader": "vgpu check src/shaders/silver.wgsl --require-validation"
   },

@@ -144,20 +144,12 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
  // HOME needs the menu icons before its first paint. Entry photos appear only
  // inside an app, so they download in the background instead of delaying startup.
  const load=(url:string)=>{if(images.has(url))return;const image=new Image();image.src=url;images.set(url,image);return image.decode();};
- const ready=Promise.allSettled([...([...new Set(apps.filter(a=>a.icon.startsWith('/')).map(a=>a.icon))].map(load)),nvidiaBanner.ready,hackLdnBanner.ready]).then(()=>{menuIcons.clear();});
+ const ready=Promise.allSettled([...([...new Set(apps.map(a=>a.icon))].map(load)),nvidiaBanner.ready,hackLdnBanner.ready]).then(()=>{menuIcons.clear();});
  for(const url of new Set(apps.flatMap(a=>a.entries.flatMap(e=>e.images??[]))))load(url)?.catch(()=>undefined);
  function fit(c:C,url:string,x:number,y:number,w:number,h:number){const im=images.get(url);if(!im?.naturalWidth)return false;const k=Math.min(w/im.naturalWidth,h/im.naturalHeight);c.drawImage(im,x+(w-im.naturalWidth*k)/2,y+(h-im.naturalHeight*k)/2,im.naturalWidth*k,im.naturalHeight*k);return true;}
  function icon(c:C,app:PortfolioApp,x:number,y:number,size:number){
   c.save();c.translate(x,y);c.scale(size/64,size/64);
-  if(app.icon.startsWith('/')){fit(c,app.icon,4,4,56,56);c.restore();return;}
-  const g=c.createLinearGradient(0,4,0,60);g.addColorStop(0,'#fff');g.addColorStop(.05,app.color);g.addColorStop(1,app.color+'bb');box(c,4,4,56,56,11,g);
-  c.strokeStyle='white';c.lineWidth=3;c.lineJoin='round';c.lineCap='round';c.fillStyle='white';
-  if(app.icon==='case'){c.strokeRect(24,16,16,9);box(c,14,24,36,25,3,'#fff');c.fillStyle=app.color;c.fillRect(14,33,36,2);c.fillRect(29,31,6,7);}
-  if(app.icon==='code'){c.beginPath();c.moveTo(24,22);c.lineTo(15,32);c.lineTo(24,42);c.moveTo(40,22);c.lineTo(49,32);c.lineTo(40,42);c.moveTo(35,20);c.lineTo(29,44);c.stroke();}
-  if(app.icon==='camera'){box(c,13,24,38,26,4,'white');box(c,20,18,15,10,2,'white');c.beginPath();c.arc(32,37,9,0,Math.PI*2);c.fillStyle=app.color;c.fill();c.beginPath();c.arc(32,37,6,0,Math.PI*2);c.stroke();}
-  if(app.icon==='leaf'){c.beginPath();c.moveTo(17,46);c.bezierCurveTo(10,22,32,17,48,16);c.bezierCurveTo(48,39,38,47,17,46);c.fill();c.strokeStyle=app.color;c.beginPath();c.moveTo(16,49);c.lineTo(40,26);c.stroke();}
-  if(app.icon==='person'){c.beginPath();c.arc(32,24,9,0,Math.PI*2);c.fill();c.beginPath();c.ellipse(32,45,16,10,0,Math.PI,0);c.fill();}
-  if(app.icon==='mail'){box(c,12,21,40,28,3,'white');c.strokeStyle=app.color;c.beginPath();c.moveTo(13,23);c.lineTo(32,37);c.lineTo(51,23);c.stroke();}
+  fit(c,app.icon,4,4,56,56);
   c.restore();
  }
  function menuArtwork(c:C,app:PortfolioApp,x:number,y:number,width:number,height:number){
@@ -213,7 +205,7 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
   }
   b.fillStyle='#d1d6de';b.fillRect(0,211,320,29);button(b,3,214,95,24,'Ⓑ Back');
   if(s.detail&&entry.images&&entry.images.length>1)label(b,`◀ ${s.photo+1}/${entry.images.length} ▶`,157,226,12,'#6b7380','center');
-  button(b,222,214,95,24,s.detail?(entry.app?'Ⓐ Open':entry.url?'Ⓐ Visit':'Ⓐ Done'):'Ⓐ Open');
+  button(b,222,214,95,24,s.detail?(entry.url?'Ⓐ Visit':'Ⓐ Done'):'Ⓐ Open');
  }
  function semanticApplication(t:C,b:C,view:AppView,state:MenuState,owner:string,date:Date,time:number,verification?:{sampleCalendar?:boolean},notesFooterClose?:NotesFooterClosePaint,notificationsFooterClose?:{frame:number},manualFooterClose?:{frame:number},friendsFooterClose?:FriendsFooterClosePaint,webFooterClose?:{frame:number},notificationsIncomingStart=false){
   const runtime=state.system!.runtime;

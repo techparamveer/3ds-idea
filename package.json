@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "vgpu": "vgpu",
     "check:shader": "vgpu check src/shaders/silver.wgsl --require-validation",
-    "check:lcd-display": "node scripts/check-lcd-display.mjs"
+    "check:lcd-display": "node scripts/check-lcd-display.mjs",
+    "test:lcd-display": "node scripts/test-lcd-display.mjs"
   },
   "dependencies": {
     "@vgpu/wgsl": "^0.4.1",

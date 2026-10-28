@@ -86,6 +86,15 @@ claim that an in-flight coordinator model changed through a worker override.
   proportions and the baked material fallback. Never overwrite original model or
   firmware files.
 
+## Enforced rules
+
+Each rule has a check that fails with the fix in its message. Add a row
+when a mistake class gets a guard; change the check, not the rule, to relax it.
+
+| Rule | Enforcer | Caught |
+| --- | --- | --- |
+| LCD canvases reach the console meshes only through `createLcdDisplayTexture` / `createLcdDisplayMaterial` in `src/scene/lcd-display.ts`. `NearestFilter` is for 1:1 native rasters only. Capture keeps reading the 2D canvases. | `scripts/check-lcd-display.mjs` (prebuild, `npm run check:lcd-display`); GPU behaviour test `npm run test:lcd-display` (`--sampler legacy` must fail) | `4ee6362`: nearest mag filter gave uneven, jagged LCD pixels at non-integer scales |
+
 ## Long-lived lanes and worktrees
 
 - Work only in your assigned worktree and branch. Start with `git status`,

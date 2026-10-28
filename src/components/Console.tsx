@@ -1,7 +1,13 @@
 'use client';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
+import { preload } from 'react-dom';
+import { PACKED_MODEL_URL } from '@/scene/model-delivery';
 export default function Console({modelUrl}:{modelUrl?:string}) {
+  // The model is the longest download. Start it from the HTML head instead of
+  // after the scene chunk; mode and credentials match GLTFLoader's fetch, so
+  // the scene consumes this response rather than requesting it again.
+  preload(modelUrl??PACKED_MODEL_URL,{as:'fetch',crossOrigin:'anonymous'});
   const host = useRef<HTMLDivElement>(null);
   const [attempt, retry] = useState(0);
   const [failed, setFailed] = useState(false);

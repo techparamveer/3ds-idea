@@ -157,12 +157,17 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
   }).catch(error=>{if(!disposed)backgroundFailure=String(error);});
   const cameraReady=loadFirmwareCamera('/os/firmware/10.7.0-32E/models/home-camera/camera.json').then(value=>{if(!disposed)camera=value;}).catch(error=>{if(!disposed){failure=String(error);backgroundFailure=String(error);frameFailure=String(error);}});
   const ready=Promise.all([folderReady,defaultReady,settingsReady,...toolbarReady,frameReady,backgroundReady,cameraReady]);
-  function render(ctx:CanvasRenderingContext2D,source:THREE.Scene,overlay=false) {
-    if(!camera)return false;
+  /** Renders `source` into the native target and runs `read` while it is
+   * bound, then restores the console renderer's own state. */
+  let stencilClear:number|undefined;
+  function renderTarget<T>(source:THREE.Scene,sourceCamera:THREE.Camera,read:()=>T):T {
     const previous = renderer.getRenderTarget(), color = renderer.getClearColor(new THREE.Color()), alpha = renderer.getClearAlpha();
     const toneMapping = renderer.toneMapping, autoClear = renderer.autoClear;
     const viewport = renderer.getViewport(new THREE.Vector4()), scissor = renderer.getScissor(new THREE.Vector4()), scissorTest = renderer.getScissorTest();
-    const gl=renderer.getContext(),stencilClear=gl.getParameter(gl.STENCIL_CLEAR_VALUE) as number;
+    // Only this module changes the stencil clear value, and it always restores
+    // it, so one read stays current. A per-render query is a synchronous GPU
+    // round trip that waits on all queued work.
+    const gl=renderer.getContext();stencilClear??=gl.getParameter(gl.STENCIL_CLEAR_VALUE) as number;
     try {
       // setRenderTarget installs target.viewport in physical target pixels.
       // setViewport would multiply it by the page DPR, shrinking the native
@@ -172,16 +177,24 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
       renderer.state.buffers.stencil.setClear(0);renderer.clear(true,true,true);
       // One traversal sorts Frame1 before primary2, including their internal
       // Groups. No target switch, clear or readback separates the stencil pair.
-      renderer.render(source, camera); renderer.readRenderTargetPixels(target, 0, 0, 400, 240, pixels);
-      if(overlay)copyNativeOverlay(pixels,image.data,400,240);
-      else for (let row = 0; row < 240; row++) image.data.set(pixels.subarray((239 - row) * 1600, (240 - row) * 1600), row * 1600);
-      context.putImageData(image, 0, 0); ctx.drawImage(canvas, 0, 0); return true;
+      renderer.render(source, sourceCamera); return read();
     }
     finally {
       renderer.setRenderTarget(previous); renderer.setViewport(viewport); renderer.setScissor(scissor); renderer.setScissorTest(scissorTest);
       renderer.setClearColor(color, alpha); renderer.toneMapping = toneMapping; renderer.autoClear = autoClear;
-      renderer.state.buffers.stencil.setClear(stencilClear);
+      renderer.state.buffers.stencil.setClear(stencilClear!);
     }
+  }
+  /** Copies a bottom-up target readback into top-down LCD rows. */
+  function flipRows(from:Uint8Array,to:Uint8ClampedArray){
+    for (let row = 0; row < 240; row++) to.set(from.subarray((239 - row) * 1600, (240 - row) * 1600), row * 1600);
+  }
+  function render(ctx:CanvasRenderingContext2D,source:THREE.Scene,overlay=false) {
+    if(!camera)return false;
+    renderTarget(source,camera,()=>renderer.readRenderTargetPixels(target, 0, 0, 400, 240, pixels));
+    if(overlay)copyNativeOverlay(pixels,image.data,400,240);
+    else flipRows(pixels,image.data);
+    context.putImageData(image, 0, 0); ctx.drawImage(canvas, 0, 0); return true;
   }
   function selectPrimary(primary:ReturnType<typeof createFirmwareModel>){
     if(model)model.group.visible=primary===model;
@@ -254,7 +267,6 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
   }
   // The last rendered background sample. Replaying it goes through the same
   // putImageData/drawImage path, so the output bytes are identical.
-  let backgroundSample:{data:Uint8ClampedArray;time:number}|undefined;
   let backgroundLifecycleSample:{data:Uint8ClampedArray;key:string}|undefined;
   function drawSuspendedBackground(ctx: CanvasRenderingContext2D, capture: SuspendedCapture,
     presentation: HomeSuspendedBackgroundPresentation | null = null) {
@@ -282,24 +294,64 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
       return drawn;
     } catch (error) { suspendedSample = undefined; suspendedBackgroundFailure = String(error); return false; }
   }
-  function drawBackground(ctx:CanvasRenderingContext2D,elapsedMs:number,reduced:boolean,reuseWithinMs?:number){
-    if(disposed||!background||backgroundFailure)return false;
-    const time=reduced?0:elapsedMs;
-    if(reuseWithinMs!==undefined&&backgroundSample&&time>=backgroundSample.time&&time-backgroundSample.time<=reuseWithinMs){
-      image.data.set(backgroundSample.data);context.putImageData(image,0,0);ctx.drawImage(canvas,0,0);return true;
-    }
-    try{
-      background.update(time,camera);const drawn=render(ctx,backgroundScene);
-      if(drawn){backgroundSample??={data:new Uint8ClampedArray(image.data.length),time};backgroundSample.data.set(image.data);backgroundSample.time=time;}
-      return drawn;
-    }
-    catch(error){backgroundSample=undefined;backgroundFailure=String(error);return false;}
-  }
   function drawBackgroundFrame(ctx:CanvasRenderingContext2D,frame:number){
     if(disposed||!background||backgroundFailure||!Number.isInteger(frame)||frame<0||frame>599)return false;
     try{background.setPlayback({skeletal:[{name:'BannerBG_SceneIn',frame:20}],material:[{name:'BannerBG_Loop',frame}]});background.update(0,camera);return render(ctx,backgroundScene);}
     catch(error){backgroundFailure=String(error);return false;}
     finally{background.setPlayback({skeletal:[{name:'BannerBG_SceneIn',frame:20}],material:[{name:'BannerBG_Loop'}]});}
+  }
+  // Once scene-in settles, the loop advances a steady number of source frames
+  // between LCD paints (three at 60 Hz with the 24 fps cadence). After each
+  // paint, render the frames the next paint is likely to request and queue
+  // their readback into a pixel buffer. A paint that requests one copies it
+  // out if the GPU has finished, instead of rendering and reading back
+  // synchronously; any other frame renders as before. Same scene, playback,
+  // camera and target, so the bytes are identical. The copy happens at the
+  // start of the next background paint, when little GPU work is queued ahead
+  // of it; a WebGL read waits for everything issued before it.
+  type BackgroundRead={buffer:WebGLBuffer;sync:WebGLSync};
+  const backgroundAhead=new Map<string,BackgroundRead>();
+  // The last two observed advances; both are rendered ahead when they differ.
+  let backgroundAdvances:number[]=[],steadyLoopFrame:number|undefined;
+  function setBackgroundPlayback(sceneInFrame:number,loopFrame:number){
+    background!.setPlayback({skeletal:[{name:'BannerBG_SceneIn',frame:sceneInFrame}],material:[{name:'BannerBG_Loop',frame:loopFrame}]});
+    background!.update(0,camera);
+  }
+  function releaseBackgroundRead(read:BackgroundRead){
+    const gl=renderer.getContext() as WebGL2RenderingContext;gl.deleteBuffer(read.buffer);gl.deleteSync(read.sync);
+  }
+  function takeBackgroundAhead(key:string,into:Uint8ClampedArray){
+    const read=backgroundAhead.get(key),gl=renderer.getContext() as WebGL2RenderingContext;
+    // Reads queued before a context loss belong to the lost context.
+    if(gl.isContextLost()){clearBackgroundAhead();return false;}
+    if(!read||gl.getSyncParameter(read.sync,gl.SYNC_STATUS)!==gl.SIGNALED)return false;
+    backgroundAhead.delete(key);
+    gl.bindBuffer(gl.PIXEL_PACK_BUFFER,read.buffer);gl.getBufferSubData(gl.PIXEL_PACK_BUFFER,0,pixels);gl.bindBuffer(gl.PIXEL_PACK_BUFFER,null);
+    releaseBackgroundRead(read);flipRows(pixels,into);return true;
+  }
+  function renderBackgroundAhead(loopFrame:number){
+    const sourceCamera=camera,gl=renderer.getContext() as WebGL2RenderingContext;
+    if(!sourceCamera||gl.isContextLost())return;
+    try{
+      for(const advance of new Set(backgroundAdvances)){
+        const key=`20:${(loopFrame+advance)%600}`;
+        if(backgroundAhead.has(key))continue;
+        setBackgroundPlayback(20,(loopFrame+advance)%600);
+        backgroundAhead.set(key,renderTarget(backgroundScene,sourceCamera,()=>{
+          const buffer=gl.createBuffer()!;
+          gl.bindBuffer(gl.PIXEL_PACK_BUFFER,buffer);gl.bufferData(gl.PIXEL_PACK_BUFFER,pixels.byteLength,gl.STREAM_READ);
+          gl.readPixels(0,0,400,240,gl.RGBA,gl.UNSIGNED_BYTE,0);gl.bindBuffer(gl.PIXEL_PACK_BUFFER,null);
+          const sync=gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE,0)!;gl.flush();return {buffer,sync};
+        }));
+        while(backgroundAhead.size>6){const [oldest,read]=backgroundAhead.entries().next().value!;backgroundAhead.delete(oldest);releaseBackgroundRead(read);}
+      }
+    }catch{clearBackgroundAhead();}
+    finally{setBackgroundPlayback(20,loopFrame);}
+  }
+  function clearBackgroundAhead(){
+    const lost=renderer.getContext().isContextLost();
+    for(const read of backgroundAhead.values())if(!lost)releaseBackgroundRead(read);
+    backgroundAhead.clear();
   }
   function drawBackgroundLifecycleFrame(ctx:CanvasRenderingContext2D,frame:HomeBackgroundRenderFrame){
     if(disposed||!background||backgroundFailure)return false;
@@ -310,12 +362,24 @@ export function createFirmwareBanner(renderer: THREE.WebGLRenderer) {
     if(backgroundLifecycleSample?.key===key){
       image.data.set(backgroundLifecycleSample.data);context.putImageData(image,0,0);ctx.drawImage(canvas,0,0);return true;
     }
+    const steady=frame.sceneInFrame===20;
+    if(steady&&steadyLoopFrame!==undefined){
+      const advance=(frame.loopFrame-steadyLoopFrame+600)%600;
+      if(advance>0&&advance<=8)backgroundAdvances=[advance,...backgroundAdvances].slice(0,2);
+    }
+    steadyLoopFrame=steady?frame.loopFrame:undefined;
     try{
-      background.setPlayback({skeletal:[{name:'BannerBG_SceneIn',frame:frame.sceneInFrame}],material:[{name:'BannerBG_Loop',frame:frame.loopFrame}]});
-      background.update(0,camera);const drawn=render(ctx,backgroundScene);
+      if(takeBackgroundAhead(key,image.data)){
+        context.putImageData(image,0,0);ctx.drawImage(canvas,0,0);
+        backgroundLifecycleSample??={data:new Uint8ClampedArray(image.data.length),key};backgroundLifecycleSample.data.set(image.data);backgroundLifecycleSample.key=key;
+        renderBackgroundAhead(frame.loopFrame);
+        return true;
+      }
+      setBackgroundPlayback(frame.sceneInFrame,frame.loopFrame);const drawn=render(ctx,backgroundScene);
       if(drawn){backgroundLifecycleSample??={data:new Uint8ClampedArray(image.data.length),key};backgroundLifecycleSample.data.set(image.data);backgroundLifecycleSample.key=key;}
+      if(drawn&&steady)renderBackgroundAhead(frame.loopFrame);
       return drawn;
     }catch(error){backgroundLifecycleSample=undefined;backgroundFailure=String(error);return false;}
   }
-  return { ready, drawSuspendedBackground, syncStockTitles, stockTitleStatus, drawStockTitleFrame, draw, drawFrame, drawDefaultFrame, drawSettingsFrame, toolbarStatus, drawToolbarFrame, drawBackground, drawBackgroundFrame, drawBackgroundLifecycleFrame, status: () => ({ ready: !disposed&&!!model&&!!mask&&!!camera, failure:failure??frameFailure, defaultReady:!disposed&&!!defaultModel&&!!mask&&!!camera&&!defaultFailure&&!frameFailure, defaultFailure:defaultFailure??frameFailure, settingsReady:!disposed&&!!settingsModel&&!!mask&&!!camera&&!settingsFailure&&!frameFailure, settingsFailure:settingsFailure??frameFailure, ...Object.fromEntries(toolbarBannerSources.flatMap(({kind})=>{const value=toolbarStatus(kind);return [[`${kind}Ready`,value.ready],[`${kind}Failure`,value.failure]];})), frameReady:!disposed&&!!mask&&!!camera, frameFailure, backgroundReady:!disposed&&!!background&&!!camera, backgroundFailure, suspendedBackgroundReady:!disposed&&!!suspendedBackground&&!!camera&&!suspendedBackgroundFailure, suspendedBackgroundFailure }), dispose() { if(disposed)return;disposed = true; for(const slot of stockSlots.values()){if(slot.model)scene.remove(slot.model.group);slot.owner.dispose();}stockSlots.clear(); model?.dispose();defaultModel?.dispose();settingsModel?.dispose();for(const entry of toolbar.values())entry.model?.dispose();mask?.dispose();background?.dispose();suspendedBackground?.dispose();suspendedCaptureBinding=undefined;suspendedSample=undefined;target.dispose(); } };
+  return { ready, drawSuspendedBackground, syncStockTitles, stockTitleStatus, drawStockTitleFrame, draw, drawFrame, drawDefaultFrame, drawSettingsFrame, toolbarStatus, drawToolbarFrame, drawBackgroundFrame, drawBackgroundLifecycleFrame, status: () => ({ ready: !disposed&&!!model&&!!mask&&!!camera, failure:failure??frameFailure, defaultReady:!disposed&&!!defaultModel&&!!mask&&!!camera&&!defaultFailure&&!frameFailure, defaultFailure:defaultFailure??frameFailure, settingsReady:!disposed&&!!settingsModel&&!!mask&&!!camera&&!settingsFailure&&!frameFailure, settingsFailure:settingsFailure??frameFailure, ...Object.fromEntries(toolbarBannerSources.flatMap(({kind})=>{const value=toolbarStatus(kind);return [[`${kind}Ready`,value.ready],[`${kind}Failure`,value.failure]];})), frameReady:!disposed&&!!mask&&!!camera, frameFailure, backgroundReady:!disposed&&!!background&&!!camera, backgroundFailure, suspendedBackgroundReady:!disposed&&!!suspendedBackground&&!!camera&&!suspendedBackgroundFailure, suspendedBackgroundFailure }), dispose() { if(disposed)return;disposed = true; for(const slot of stockSlots.values()){if(slot.model)scene.remove(slot.model.group);slot.owner.dispose();}stockSlots.clear(); model?.dispose();defaultModel?.dispose();settingsModel?.dispose();for(const entry of toolbar.values())entry.model?.dispose();mask?.dispose();background?.dispose();suspendedBackground?.dispose();suspendedCaptureBinding=undefined;suspendedSample=undefined;clearBackgroundAhead();target.dispose(); } };
 }

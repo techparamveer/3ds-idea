@@ -142,10 +142,11 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
  const menuIcons=new Map<string,HTMLCanvasElement>();
  const images=new Map<string,HTMLImageElement>();
  // HOME needs the menu icons before its first paint. Entry photos appear only
- // inside an app, so they download in the background instead of delaying startup.
+ // inside an app, so they download once those are settled rather than sharing
+ // bandwidth with the first-frame banner atlases.
  const load=(url:string)=>{if(images.has(url))return;const image=new Image();image.src=url;images.set(url,image);return image.decode();};
  const ready=Promise.allSettled([...([...new Set(apps.filter(a=>a.icon.startsWith('/')).map(a=>a.icon))].map(load)),nvidiaBanner.ready,hackLdnBanner.ready]).then(()=>{menuIcons.clear();});
- for(const url of new Set(apps.flatMap(a=>a.entries.flatMap(e=>e.images??[]))))load(url)?.catch(()=>undefined);
+ void ready.then(()=>{for(const url of new Set(apps.flatMap(a=>a.entries.flatMap(e=>e.images??[]))))load(url)?.catch(()=>undefined);});
  function fit(c:C,url:string,x:number,y:number,w:number,h:number){const im=images.get(url);if(!im?.naturalWidth)return false;const k=Math.min(w/im.naturalWidth,h/im.naturalHeight);c.drawImage(im,x+(w-im.naturalWidth*k)/2,y+(h-im.naturalHeight*k)/2,im.naturalWidth*k,im.naturalHeight*k);return true;}
  function icon(c:C,app:PortfolioApp,x:number,y:number,size:number){
   c.save();c.translate(x,y);c.scale(size/64,size/64);

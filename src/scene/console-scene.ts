@@ -16,7 +16,7 @@ import { createPortfolioState, reduceSystem, tickSystem, tickHomeNavigationClock
 import { enableHomeControls, reconcileHomeControls, isHomeSwitchPresentationActive } from '@/os/home-controls';
 import { openFirmwareStorage, type FirmwareStorage } from '@/os/app-persistence';
 import { createRuntimeEffects } from '@/os/runtime-effects';
-import { createHomeBannerHost, crossHomeBannerBoundary, stepHomeBannerHost, skipHomeBannerHostPass, getHomeBannerHostView, getHomeBannerHostBackgroundFrame, getHomeBannerCloseReadyUpdate, homeApplicationBannerBoundary, resetHomeBannerPrimary, resolveHomeBannerHostSelection, resolveHomeBannerHostObservation, type HomeBannerHostSelection } from '@/os/home-banner-host';
+import { createHomeBannerHost, crossHomeBannerBoundary, stepHomeBannerHost, skipHomeBannerHostPass, getHomeBannerHostView, getHomeBannerHostBackgroundFrame, getHomeBannerCloseReadyUpdate, homeApplicationBannerBoundary, resetHomeBannerPrimary, resolveHomeBannerHostSelection, resolveHomeBannerHostObservation, homeToolbarBanner, type HomeBannerHostSelection } from '@/os/home-banner-host';
 import type { AppCommand, AppEvent } from '@/os/app-types';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -38,6 +38,7 @@ import { bootRevealFrame, isAppletOpen } from '@/os/system-transitions';
 import { applicationCloseAllowsInput, applicationCloseNeedsReadyScreen } from './application-close-input';
 import { PACKED_MODEL_URL } from './model-delivery';
 import { createRenderSchedule } from './render-schedule';
+import { uploadModelTextures } from './texture-upload';
 import { healthTopLoopFrame } from '@/os/stock-health-scroll';
 import { cameraTextProbeEnabled, captureAtHealthFrame, encodeNativeLcdPair, lcdCaptureEnabled, lcdHomeHudSample, lcdDownloadPayload, lcdDownloadRequest } from './lcd-capture';
 import { mountLiveLcdRecorder } from './live-lcd-recorder';
@@ -74,6 +75,9 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   host.dataset.model=modelUrl;host.dataset.layout=layout.source;
   const powerLeds:THREE.Mesh[]=[];
   model.traverse(o=>{if(o instanceof THREE.Mesh){o.castShadow=true;o.receiveShadow=true;if(o.userData.console_replace_with_display===true)o.visible=false;if(/Blue.?power.?LED/i.test(o.name))powerLeds.push(o);}});
+  // Texture upload is the longest main-thread task before the first frame.
+  // Run it while storage, firmware and LCD assets load; awaited before rendering.
+  const modelTexturesResident=uploadModelTextures(renderer,model);
   let runtimeNotice:string|null=null,storage:FirmwareStorage|undefined,state=createPortfolioState();
   let legacyPreferences:string|null=null;try{legacyPreferences=localStorage.getItem(STORAGE_KEY);}catch{}
   const soundRoom=createSoundRoom(renderer);
@@ -91,25 +95,18 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   let bannerObservedPhase=state.system!.phase,lastBannerRestartBootSince:number|null=null,bannerEntryFooterBootSince:number|null=null;
   let bannerLabelFailure=false;
   const nativeFolderAvailable=()=>{const value=folderBanner.status();return !!firmwareAssets&&value.ready&&!value.failure;};
-  const nativePrimaryAvailable=(selection:HomeBannerHostSelection)=>{const value=folderBanner.status();return selection.kind==='default'?value.defaultReady&&!value.defaultFailure:selection.kind==='app'?value.settingsReady&&!value.settingsFailure:selection.kind==='toolbar'?selection.focus===1?value.memoReady&&!value.memoFailure:selection.focus===2?value.friendReady&&!value.friendFailure:selection.focus===3?value.newsReady&&!value.newsFailure:selection.focus===4?value.webReady&&!value.webFailure:value.miiverseReady&&!value.miiverseFailure:selection.kind==='clear'||nativeFolderAvailable();};
+  const toolbarAvailable=(focus:Parameters<typeof homeToolbarBanner>[0])=>{const value=folderBanner.toolbarStatus(homeToolbarBanner(focus).kind);return value.ready&&!value.failure;};
+  const nativePrimaryAvailable=(selection:HomeBannerHostSelection)=>{const value=folderBanner.status();return selection.kind==='default'?value.defaultReady&&!value.defaultFailure:selection.kind==='app'?value.settingsReady&&!value.settingsFailure:selection.kind==='toolbar'?toolbarAvailable(selection.focus):selection.kind==='clear'||nativeFolderAvailable();};
   const hostedPrimaryFrame=(motion:HomeBannerMotion):PrimaryBannerRenderFrame=>({visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0});
   const screens=createScreens({soundRoom,cameraShoot,cameraTextProbe,measurePaint:diagnostics,reducedMotion:window.matchMedia('(prefers-reduced-motion: reduce)').matches,firmwareAssets,
     drawSuspendedBackground:(ctx,capture,presentation)=>folderBanner.drawSuspendedBackground(ctx,capture,presentation),
     getHomeBanner:()=>{const view=getHomeBannerHostView(bannerHost);return view.status==='pending'&&view.selection.kind!=='app'&&view.selection.kind!=='toolbar'&&(!nativePrimaryAvailable(view.selection)||bannerLabelFailure)?undefined:view;},
-    getMemoBannerFailure:()=>folderBanner.status().memoFailure??null,
-    getFriendBannerFailure:()=>folderBanner.status().friendFailure??null,
-    getNewsBannerFailure:()=>folderBanner.status().newsFailure??null,
-    getWebBannerFailure:()=>folderBanner.status().webFailure??null,
-    getMiiverseBannerFailure:()=>folderBanner.status().miiverseFailure??null,
+    getToolbarBannerFailure:kind=>folderBanner.toolbarStatus(kind).failure??null,
     // Idle-only native translation sample. Reactive +0x90 motion is not yet hosted.
     drawFolderBannerFrame:(ctx,motion,label)=>folderBanner.drawFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0},label),
     drawDefaultBannerFrame:(ctx,motion)=>folderBanner.drawDefaultFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0}),
     drawSettingsBannerFrame:(ctx,motion)=>{const phase=settingsBannerPhase(motion,reduced,verificationBannerFrame,verificationBannerSkeletalFrame);return folderBanner.drawSettingsFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:phase.yawRadians,skeletalFrame:phase.skeletalFrame,materialFrame:0,nativeDisplacementY:0,offsetX:0,offsetY:0});},
-    drawMemoBannerFrame:(ctx,motion,label)=>folderBanner.drawMemoFrame(ctx,hostedPrimaryFrame(motion),label),
-    drawFriendBannerFrame:(ctx,motion,label)=>folderBanner.drawFriendFrame(ctx,hostedPrimaryFrame(motion),label),
-    drawNewsBannerFrame:(ctx,motion,label)=>folderBanner.drawNewsFrame(ctx,hostedPrimaryFrame(motion),label),
-    drawWebBannerFrame:(ctx,motion,label)=>folderBanner.drawWebFrame(ctx,hostedPrimaryFrame(motion),label),
-    drawMiiverseBannerFrame:(ctx,motion,label)=>folderBanner.drawMiiverseFrame(ctx,hostedPrimaryFrame(motion),label),
+    drawToolbarBannerFrame:(ctx,kind,motion,label)=>folderBanner.drawToolbarFrame(ctx,kind,hostedPrimaryFrame(motion),label),
     drawStockTitleBannerFrame:(ctx,motion,ticket,kind)=>folderBanner.drawStockTitleFrame(ctx,{visible:motion.visible,scale:reduced?1:motion.scale,yawRadians:reduced?0:motion.yawRadians,skeletalFrame:kind==='health'&&verificationHealthBannerFrame!==undefined?verificationHealthBannerFrame:reduced?0:motion.skeletal.frame,materialFrame:reduced?0:motion.material.frame,nativeDisplacementY:0,offsetX:0,offsetY:0},{...ticket,kind}),
     drawHomeBackground:(ctx,_time,isReduced,frame)=>{
       if(frame!==undefined)return folderBanner.drawBackgroundFrame(ctx,frame);
@@ -276,7 +273,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   let lastShutdownPaintIdentity:ShutdownTerminalIdentity|null=null,lastShutdownPresentedIdentity:ShutdownTerminalIdentity|null=null;
   let entryPublicationRepaintPending=false;
   const nativeScreenInput=createNativeScreenInputGate();
-  const revokeTerminalPublications=()=>{nativeScreenInput.cancelHomeResume();entryPublicationRepaintPending=true;lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastLaunchPaintIdentity=null;lastLaunchPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;screens.revokeHomeEntryFooterCandidate();screens.revokeHomeEntryBannerCandidate();screens.revokeHomeEntryNoBannerCandidate();screens.revokeHomeEntryMotionCandidate();screens.revokeNotesBootCoverCandidate();screens.revokeManualEntryCandidate();screens.revokeAppletEntryCandidate();screens.revokeNotesFooterCloseCandidate();};
+  const revokeTerminalPublications=()=>{nativeScreenInput.cancelHomeResume();entryPublicationRepaintPending=true;lastBootPaintIdentity=null;lastBootPresentedIdentity=null;lastLaunchPaintIdentity=null;lastLaunchPresentedIdentity=null;lastShutdownPaintIdentity=null;lastShutdownPresentedIdentity=null;screens.revokePublications();};
   function recordScreenPaint(elapsedMs:number,nativeSystem=false,entryMotion?:NonNullable<ReturnType<typeof screens.paint>>['entryMotion'],manualEntry?:NonNullable<ReturnType<typeof screens.paint>>['manualEntry'],appletEntry?:NonNullable<ReturnType<typeof screens.paint>>['appletEntry'],notesClose?:NonNullable<ReturnType<typeof screens.paint>>['notesClose'],notificationsClose?:NonNullable<ReturnType<typeof screens.paint>>['notificationsClose'],resume?:NonNullable<ReturnType<typeof screens.paint>>['resume'],manualClose?:NonNullable<ReturnType<typeof screens.paint>>['manualClose'],cameraText?:NonNullable<ReturnType<typeof screens.paint>>['cameraText'],friendsClose?:NonNullable<ReturnType<typeof screens.paint>>['friendsClose'],webClose?:NonNullable<ReturnType<typeof screens.paint>>['webClose']){
     const system=state.system!;lastBootPaintFrame=system.phase==='boot'?bootRevealFrame(elapsedMs-system.since,reduced):null;
     lastBootPaintIdentity=nativeSystem?bootTerminalIdentity(system,elapsedMs,reduced,contextGeneration):null;
@@ -333,7 +330,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
       const status=folderBanner.status(),selection=view.selection;
       const label=selection.kind==='folder'?screens.prepareFolderBannerLabel(selection.label):undefined;
       bannerLabelFailure=selection.kind==='folder'&&!label;
-      const ready=selection.kind==='folder'?status.ready&&!status.failure&&!!label:selection.kind==='default'?status.defaultReady&&!status.defaultFailure:selection.kind==='toolbar'?selection.focus===1?status.memoReady&&!status.memoFailure:selection.focus===2?status.friendReady&&!status.friendFailure:selection.focus===3?status.newsReady&&!status.newsFailure:selection.focus===4?status.webReady&&!status.webFailure:status.miiverseReady&&!status.miiverseFailure:selection.kind==='app'&&selection.id==='system-settings'?status.settingsReady&&!status.settingsFailure:selection.kind==='app'&&homeTitleBannerKind(selection.id)&&view.resourceTicket?folderBanner.stockTitleStatus({...view.resourceTicket,kind:homeTitleBannerKind(selection.id)!}).ready:false;
+      const ready=selection.kind==='folder'?status.ready&&!status.failure&&!!label:selection.kind==='default'?status.defaultReady&&!status.defaultFailure:selection.kind==='toolbar'?toolbarAvailable(selection.focus):selection.kind==='app'&&selection.id==='system-settings'?status.settingsReady&&!status.settingsFailure:selection.kind==='app'&&homeTitleBannerKind(selection.id)&&view.resourceTicket?folderBanner.stockTitleStatus({...view.resourceTicket,kind:homeTitleBannerKind(selection.id)!}).ready:false;
       const resourceReady=ready?view.resourceTicket:null;
       bannerHost=crossHomeBannerBoundary(bannerHost,clock,{inputs:{...inputs,resourceReady}});
       view=getHomeBannerHostView(bannerHost);
@@ -421,7 +418,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   function dispatch(event:AppEvent,userGesture=false){if(userGesture)void audio.unlock();const label=event.type==='button'||event.type==='command'?event.command:event.type;commit((current,now)=>{
     const decision=nativeScreenInput(event,screens.stockStatus(current),screens.homeResumeInputSource(current));
     if(decision==='home'){
-      const cancelled=screens.cancelWebFooterClose(current)||screens.cancelFriendsFooterClose(current)||screens.cancelManualFooterClose(current)||screens.cancelNotesFooterClose(current)||screens.cancelNotificationsFooterClose(current),escaped=escapeUnreadyNativeScreen(current,now);
+      const cancelled=screens.cancelFooterClose(current),escaped=escapeUnreadyNativeScreen(current,now);
       return cancelled?releaseSystemInputs(escaped,now):escaped;
     }
     if(decision==='retry'){screens.retryStockScreen();return releaseSystemInputs(current,now);}
@@ -584,49 +581,30 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     const sample=poseSample(),plan=schedule.plan(sample);
     if(plan.shadows)renderer.shadowMap.needsUpdate=true;
     scene.updateMatrixWorld(true);fitConsole();camera.updateProjectionMatrix();publishProjectedTargets(plan.shadows);
-    try{renderer.render(scene,camera);}catch(error){nativeScreenInput.cancelHomeResume();liveLcdRecorder?.unavailable('render-error');entryPublicationRepaintPending=true;screens.revokeHomeEntryMotionCandidate();screens.revokeNotesBootCoverCandidate();screens.revokeManualEntryCandidate();screens.revokeAppletEntryCandidate();screens.revokeNotesFooterCloseCandidate();throw error;}
+    try{renderer.render(scene,camera);}catch(error){nativeScreenInput.cancelHomeResume();liveLcdRecorder?.unavailable('render-error');entryPublicationRepaintPending=true;screens.revokeEntryPublications();throw error;}
     frame++;schedule.presented(sample);lastBootPresentedFrame=lastBootPaintFrame;
     const validPublication=!document.hidden&&state.powered&&!state.system!.sleeping&&angle>12&&topScreen.visible&&touchScreen.visible&&!renderer.getContext().isContextLost();
-    if(validPublication){screens.presentHomeEntryFooterTerminal();screens.presentHomeEntryFooterRelease();screens.presentHomeEntryBanner();screens.presentHomeEntryWithoutNativeBanner();screens.presentHomeEntryMotion(state);screens.presentAppletEntry(state,performance.now()-start);screens.presentNotesBootCover(state);screens.presentManualEntry(state,performance.now()-start);}
-    else{entryPublicationRepaintPending=true;screens.revokeHomeEntryFooterCandidate();screens.revokeHomeEntryBannerCandidate();screens.revokeHomeEntryNoBannerCandidate();screens.revokeHomeEntryMotionCandidate();screens.revokeNotesBootCoverCandidate();screens.revokeManualEntryCandidate();screens.revokeAppletEntryCandidate();screens.revokeNotesFooterCloseCandidate();}
+    if(validPublication)screens.presentPublications(state,()=>performance.now()-start);
+    else{entryPublicationRepaintPending=true;screens.revokePublications();}
     lastBootPresentedIdentity=validPublication?lastBootPaintIdentity:null;
     lastLaunchPresentedIdentity=validPublication?lastLaunchPaintIdentity:null;
     lastShutdownPresentedIdentity=validPublication?lastShutdownPaintIdentity:null;
     if(diagnostics)host.dataset.screenPresented=JSON.stringify({at:performance.now(),frame,validPublication,paint:JSON.parse(host.dataset.screenPaint??'null')});
     liveLcdRecorder?.observe(host.dataset.screenPresented,host.dataset.screenPaint);
     if(validPublication){
-      const owner=screens.presentNotesFooterClose(state,performance.now()-start);
-      if(owner){
-        const next=completeNotesFooterClose(state,owner,performance.now()-start);
-        // Capture-fitted return boundary: retire only this primary after the
-        // accepted outgoing pair. Its receipt-backed HOME handoff gates reuse.
+      // Capture-fitted return boundary: retire only this primary after the
+      // accepted outgoing pair. Its receipt-backed HOME handoff gates reuse.
+      const completeFooterClose=<Owner,>(owner:Owner|null|undefined,complete:(current:MenuState,owner:Owner,elapsedMs:number)=>MenuState)=>{
+        if(!owner)return;
+        const next=complete(state,owner,performance.now()-start);
         if(next!==state){state=next;bannerHost=resetHomeBannerPrimary(bannerHost);observeFolderBanner();effects.drain(false);paint();}
-        else screens.revokeNotesFooterCloseCandidate();
-      }
-      const notificationsOwner=screens.presentNotificationsFooterClose(state,performance.now()-start);
-      if(notificationsOwner){
-        const next=completeNotificationsFooterClose(state,notificationsOwner,performance.now()-start);
-        if(next!==state){state=next;bannerHost=resetHomeBannerPrimary(bannerHost);observeFolderBanner();effects.drain(false);paint();}
-        else screens.revokeNotesFooterCloseCandidate();
-      }
-      const webOwner=screens.presentWebFooterClose(state,performance.now()-start);
-      if(webOwner){
-        const next=completeWebFooterClose(state,webOwner,performance.now()-start);
-        if(next!==state){state=next;bannerHost=resetHomeBannerPrimary(bannerHost);observeFolderBanner();effects.drain(false);paint();}
-        else screens.revokeNotesFooterCloseCandidate();
-      }
-      const friendsOwner=screens.presentFriendsFooterClose(state,performance.now()-start);
-      if(friendsOwner){
-        const next=completeFriendsFooterClose(state,friendsOwner,performance.now()-start);
-        if(next!==state){state=next;bannerHost=resetHomeBannerPrimary(bannerHost);observeFolderBanner();effects.drain(false);paint();}
-        else screens.revokeNotesFooterCloseCandidate();
-      }
-      const manualIdentity=screens.presentManualFooterClose(state,performance.now()-start);
-      if(manualIdentity){
-        const next=completeManualFooterClose(state,manualIdentity,performance.now()-start);
-        if(next!==state){state=next;bannerHost=resetHomeBannerPrimary(bannerHost);observeFolderBanner();effects.drain(false);paint();}
-        else screens.revokeNotesFooterCloseCandidate();
-      }
+        else screens.revokeFooterCloseCandidates();
+      };
+      completeFooterClose(screens.presentNotesFooterClose(state,performance.now()-start),completeNotesFooterClose);
+      completeFooterClose(screens.presentNotificationsFooterClose(state,performance.now()-start),completeNotificationsFooterClose);
+      completeFooterClose(screens.presentWebFooterClose(state,performance.now()-start),completeWebFooterClose);
+      completeFooterClose(screens.presentFriendsFooterClose(state,performance.now()-start),completeFriendsFooterClose);
+      completeFooterClose(screens.presentManualFooterClose(state,performance.now()-start),completeManualFooterClose);
       screens.presentToolbarReturnReveal(state);
       // The input waits for this same owner's accepted pair, never a timer or paint alone.
       if(nativeScreenInput.takeHomeResume(screens.stockStatus(state),screens.homeResumeInputSource(state)))dispatch({type:'command',command:'home'});
@@ -691,7 +669,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     // cadence, and a high-refresh monitor cannot paint extra close updates.
     const closeAdvanced=(!!applicationCloseBeforeTick||!!closeBeforeTick&&closeBeforeTick.controller.phase!=='complete')&&state.system!.homeClock.updateCount!==updatesBeforeTick;
     const entryActive=state.powered&&angle>12&&!homeClockSuspended&&!document.hidden&&!state.system!.sleeping&&topScreen.visible&&touchScreen.visible&&!renderer.getContext().isContextLost()
-     &&(screens.homeEntryMotionActive(state)||screens.notesBootCoverActive(state)||screens.manualEntryActive(state)||screens.notesFooterCloseActive(state)||screens.notificationsFooterCloseActive(state)||screens.manualFooterCloseActive(state)||screens.friendsFooterCloseActive(state)||screens.webFooterCloseActive(state)||screens.toolbarReturnRevealActive(state)||screens.appletEntryActive(state));
+     &&screens.publicationActive(state);
     const lcdFps=screenPaintFps(quality,closeAdvanced||entryActive);
     const bootFrame=state.system!.phase==='boot'?bootRevealFrame(now-start-state.system!.since,reduced):null;
     const bootPaintDue=state.powered&&angle>12&&!document.hidden&&!state.system!.sleeping&&bootRevealNeedsPaint(bootFrame,lastBootPaintFrame,reduced);
@@ -714,6 +692,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   topScreen.visible=touchScreen.visible=angle>12;
   scene.updateMatrixWorld(true);
   fitConsole();
+  await modelTexturesResident;
   renderer.initTexture(topTexture);renderer.initTexture(bottomTexture);
   // compileAsync skips invisible objects. The LCD planes appear as the lid opens,
   // so compile their programs now rather than stalling the opening.

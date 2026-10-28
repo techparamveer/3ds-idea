@@ -29,3 +29,16 @@ Feature-level defects and their owners are tracked in the
 7. Capture state counts, presented LCD frames and audio onset on one timeline,
    then compare with native recordings. Keep reduced motion as an explicit web
    adaptation rather than folding it into native timing claims.
+8. Decide a GPU texture budget for the console model. Its 30 textures are 211
+   megapixels (eleven 4096² images, about 1.1 GB with mipmaps). They are not
+   uniform or duplicated, so any reduction (a per-tier size cap, or KTX2/Basis)
+   changes pixels and needs an explicit fidelity decision. It would cut upload
+   time, download size and the risk of context loss on phones.
+9. Route firmware and portfolio asset URLs through one resolver that appends a
+   content hash from the manifest, then serve them immutable. Today they are
+   `max-age=0`, so a returning visitor revalidates about 395 files. About 30
+   call sites build `/os/firmware/10.7.0-32E/...` paths directly.
+10. Apply the HOME background render-ahead to selected native banners. They
+    still read back synchronously on each paint; their frame inputs (selection,
+    skeletal and material frame, yaw, scale, label) would first need to become
+    one key.

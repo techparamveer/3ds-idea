@@ -330,6 +330,11 @@ Revision 9 enlarges the banner about 1.4× (260×148 frames) with deeper bevelle
 extrusion. After the intro, a 160-frame idle sway loops. The 25px caption and logo
 centre together. See [notes](../nvidia-transform-2026-10-08.md).
 
+Revision 10 cleans up the sway. Shallow, unbevelled extrusion keeps the eye
+cutouts open and the letters crisp. Darker walls give depth a clean edge.
+Neutral lighting restores the brand green. The sway is gentler (yaw 0.2 rad).
+The frame layout and runtime are unchanged. See [notes](../nvidia-transform-2026-10-08.md).
+
 
 ### Hack LDN 2025 portfolio app
 

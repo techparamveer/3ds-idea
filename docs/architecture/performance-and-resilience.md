@@ -26,10 +26,24 @@ Resize allocates the drawing buffer once (`setDrawingBufferSize`) and renders
 immediately, so a cleared buffer is never composited. Startup compiles the
 hidden LCD display materials before the opening clock starts, and fetches the
 firmware presentation pack and HOME banner models in parallel with the GLB.
+The page preloads the GLB from the HTML head (`Console.tsx`) with the same mode
+and credentials as `GLTFLoader`. Once it loads, `texture-upload.ts` uploads the
+visible model's textures one per task while storage, firmware and LCD assets
+finish, and the first frame awaits them. Portfolio entry photos start only
+after the HOME icons and banner atlases settle.
 
 State-driven LCD paints (keys, pointer, saves, minute) replay the HOME
 background sampled by the latest cadence paint instead of a synchronous
-`readPixels` in the handler; cadence sampling is unchanged. Full-screen native
+`readPixels` in the handler; cadence sampling is unchanged. Once scene-in
+settles, each cadence paint also renders the loop frame the next paint is
+likely to request (the last two observed advances) and queues its readback into
+a pixel buffer behind a fence. The next paint copies it out if the fence has
+signalled; otherwise, or for any other frame, it renders synchronously as
+before. Bytes are identical. Copy at the start of a paint: any WebGL read
+waits for all work queued ahead of it, so a read issued just after a frame's
+draws stalls as long as `readPixels` did. The banner renderer reads the
+stencil clear value once; it is the only writer and always restores it. See
+the [28 October note](../performance-2026-10-28.md). Full-screen native
 rasters (≥ 65536 px, including launch logos) use a structure-specialised TEV
 loop that is tested byte-identical to the generic loop. The `AudioContext` is
 constructed while idle after the opening and adopted by the first gesture
@@ -44,7 +58,7 @@ exponential-filter/v1 re-encoding accepted only where it decodes to identical
 bytes. Textures are byte-identical and every device loads the same model. It is
 served immutable. `tests/model-delivery.test.mjs` proves the packed model draws
 the source triangles with bit-identical vertex records and keeps the scene
-contract. Portfolio photos load after the first frame. See the
+contract. Portfolio photos load after the first-frame assets. See the
 [size note](../size-2026-10-01.md).
 
 Measure with `scripts/perf/benchmark.mjs` (see its README): headed Chromium,

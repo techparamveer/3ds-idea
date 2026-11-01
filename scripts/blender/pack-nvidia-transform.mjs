@@ -3,12 +3,13 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { isAbsolute, join } from 'node:path';
 import sharp from 'sharp';
 
-const [input, output, frames = '80', size = '180x148'] = process.argv.slice(2);
+const [input, output, frames = '80', size = '180x148', alpha = 'crisp'] = process.argv.slice(2);
 if (!input || !output || !isAbsolute(input) || !isAbsolute(output)) {
-  throw new Error('Usage: node pack-nvidia-transform.mjs ABSOLUTE_FRAME_DIR ABSOLUTE_OUTPUT_DIR [FRAMES] [WIDTHxHEIGHT]');
+  throw new Error('Usage: node pack-nvidia-transform.mjs ABSOLUTE_FRAME_DIR ABSOLUTE_OUTPUT_DIR [FRAMES] [WIDTHxHEIGHT] [crisp|soft]');
 }
 await mkdir(output, { recursive: true });
 // Hack LDN passes 272 frames at 180x148; NVIDIA passes 240 frames at 260x148.
+// OxHack passes soft alpha to keep its glass panel, glow and motion blur.
 const [width, height] = size.split('x').map(Number);
 const columns = 8, count = Number(frames);
 if (count % columns) throw new Error(`Frame count must be a multiple of ${columns}`);
@@ -18,7 +19,7 @@ for (let i = 0; i < count; i++) {
     .ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   if (info.width !== width || info.height !== height) throw new Error(`Wrong dimensions at frame ${i + 1}`);
   for (let p = 0; p < data.length; p += 4) {
-    data[p + 3] = data[p + 3] >= 128 ? 255 : 0;
+    data[p + 3] = alpha === 'soft' ? (data[p + 3] < 8 ? 0 : Math.round(Math.round(data[p + 3] * 31 / 255) * 255 / 31)) : data[p + 3] >= 128 ? 255 : 0;
     for (let c = 0; c < 3; c++) data[p + c] = data[p + 3] ? Math.round(Math.round(data[p + c] * 31 / 255) * 255 / 31) : 0;
   }
   const png = await sharp(data, { raw: { width, height, channels: 4 } }).png().toBuffer();

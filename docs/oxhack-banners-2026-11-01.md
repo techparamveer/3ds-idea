@@ -38,6 +38,12 @@ memory until disposal. The title's icon shows until the decode finishes, and the
 intro clock starts on the first painted frame. A failed or wrong-sized atlas keeps
 the icon.
 
+The idle LCD cadence (`screenFps`: 24, 18 or 12 by quality tier) is below these
+30 fps atlases, so it skipped frames. `frameDue` repaints the LCD whenever an
+on-screen OxHack banner reaches a new atlas frame. A muted raw LCD capture at
+quality tier high then drew 30.1 fps with no skipped frames, worst gap 49 ms. No
+stock title changes cadence. NVIDIA and Hack LDN keep the old cap.
+
 `restoreHomeLayout` accepts saves without these titles, so existing layouts keep
 their positions and the new titles enter free slots.
 

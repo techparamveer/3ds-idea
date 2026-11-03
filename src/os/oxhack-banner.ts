@@ -1,6 +1,8 @@
 /** Blender-authored portfolio adaptation, independent of native firmware packs. */
 const COLUMNS = 8;
 const FPS = 30000 / 1001;
+/** Longer than the slowest idle LCD cadence, so an on-screen banner stays "drawn". */
+const ON_SCREEN_MS = 200;
 
 export type OxHackBannerSpec = {
   url: string;
@@ -23,6 +25,8 @@ export function createOxHackBanner(spec: OxHackBannerSpec) {
   let ready = false;
   let disposed = false;
   let startedAt: number | undefined;
+  let drawnAt: number | undefined;
+  let drawnFrame = -1;
 
   function load() {
     const pending = new Image();
@@ -36,6 +40,13 @@ export function createOxHackBanner(spec: OxHackBannerSpec) {
     }).catch(() => { /* The existing source logo remains visible if loading fails. */ });
   }
 
+  function frameAt(time: number, reduced: boolean) {
+    const elapsedFrames = Math.max(0, time - (startedAt ?? time)) * FPS / 1000;
+    const played = Math.floor(elapsedFrames);
+    return reduced ? holdFrame
+      : played < introFrames ? played : introFrames + (played - introFrames) % idleFrames;
+  }
+
   return {
     draw(context: CanvasRenderingContext2D, time: number, reduced: boolean) {
       if (disposed) return false;
@@ -44,10 +55,9 @@ export function createOxHackBanner(spec: OxHackBannerSpec) {
       if (startedAt === undefined) {
         startedAt = time;
       }
-      const elapsedFrames = Math.max(0, time - startedAt) * FPS / 1000;
-      const played = Math.floor(elapsedFrames);
-      const frame = reduced ? holdFrame
-        : played < introFrames ? played : introFrames + (played - introFrames) % idleFrames;
+      const frame = frameAt(time, reduced);
+      drawnAt = time;
+      drawnFrame = frame;
       context.save();
       context.imageSmoothingEnabled = false;
       context.drawImage(image, (frame % COLUMNS) * frameWidth, Math.floor(frame / COLUMNS) * frameHeight,
@@ -55,8 +65,13 @@ export function createOxHackBanner(spec: OxHackBannerSpec) {
       context.restore();
       return true;
     },
+    /** The idle LCD cadence is below this atlas's frame rate, so it would drop frames. */
+    frameDue(time: number, reduced: boolean) {
+      return drawnAt !== undefined && time - drawnAt < ON_SCREEN_MS && frameAt(time, reduced) !== drawnFrame;
+    },
     reset() {
       startedAt = undefined;
+      drawnAt = undefined;
     },
     dispose() {
       disposed = true;

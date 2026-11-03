@@ -27,7 +27,9 @@ about the event have been supplied, and none should be invented.
   sheen turns the letters white.
 - **Wordmark:** the triangle spins alone through 5 turns from 5.8 rev/s and glides
   left. K, C and A fire out of its tip and run straight to their slots; H, x and O
-  hop over the row. 2 and 6 pop in last, then the navy glow and a sheen arrive.
+  hop over the row. 2 and 6 pop in last, then a faint navy glow and a sheen arrive.
+  The glow runs at .28 strength because the user found the source's full glow too
+  heavy on the LCD. At zero the white faces and 26 fade into the light screen.
 
 ## Runtime
 
@@ -69,8 +71,8 @@ Editable sources are `assets/blender/oxhack-compact.blend` and
 
 - The compact shader is unlit: surfaces emit colours measured from the reference,
   because the source's `mix-blend-mode:color` overlays are not in the contours.
-- Wordmark letters are faint on the light LCD from about frames 70-105, before the
-  glow arrives.
+- Wordmark letters are faint on the light LCD, most of all from about frames 70-105
+  before the glow arrives.
 - Atlases are 1.5 MB and 2.0 MB, two to three times the size of the other banners.
 - A HOME capture that includes slots 8 or 9 now shows these titles. Label that as
   an adaptation, not a native regression.

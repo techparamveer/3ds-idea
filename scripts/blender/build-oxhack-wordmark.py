@@ -1,7 +1,7 @@
 """Run through Blender MCP with absolute ROOT and OUTPUT paths.
 The wordmark's triangle spins down like a flywheel and glides left until its tip
 points right like a play button. O x H A C K then fire out of that tip, K first,
-and spring into their slots; 2 and 6 pop in last, the navy glow fades up behind
+and spring into their slots; 2 and 6 pop in last, a faint navy glow fades up behind
 the letters and one sheen crosses the logo. Frames 121-216 sway seamlessly.
 Colour comes from oxhack_rig's SVG gradients. Unlike the rig's defaults, emission
 carries most of each colour so it survives the light LCD, and side walls are
@@ -416,6 +416,8 @@ for char, start in (('2', 100), ('6', 104)):
         key(holder, frame, location=(sx, sy, LETTER_Z), scale=(size, size, size), rotation_euler=(0, -math.tau * (1 - min(s, 1)) - 1.4 * min(1 - s, 0), 0))
 
 # Finale: a charge runs the traces into the tip before the launch; glow and sheen last.
+# The source's full glow read too heavy on the LCD; this keeps the white faces legible.
+GLOW_STRENGTH = .28
 accent_values = {node.name: node for node in ACCENT.nodes if node.type == 'VALUE'}
 
 
@@ -445,7 +447,7 @@ for frame in range(1, INTRO + 1):
         at, gain = -500, 0
     key_value(accent_values['Sheen At'], frame, at)
     key_value(accent_values['Sheen Gain'], frame, gain)
-    key_value(glow_fade, frame, smooth((frame - 105) / 13))
+    key_value(glow_fade, frame, GLOW_STRENGTH * smooth((frame - 105) / 13))
 glow.hide_render = True
 glow.keyframe_insert('hide_render', frame=1)
 glow.hide_render = False

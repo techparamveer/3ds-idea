@@ -30,6 +30,9 @@ about the event have been supplied, and none should be invented.
   hop over the row. 2 and 6 pop in last, then a faint navy glow and a sheen arrive.
   The glow runs at .28 strength because the user found the source's full glow too
   heavy on the LCD. At zero the white faces and 26 fade into the light screen.
+  Before the rest pose, the compact logo's four-point stars burst on the three trace
+  pads over frames 107-118. They stay on the triangle because white only reads on
+  the coloured glass.
 
 ## Runtime
 

@@ -2,7 +2,8 @@
 The wordmark's triangle spins down like a flywheel and glides left until its tip
 points right like a play button. O x H A C K then fire out of that tip, K first,
 and spring into their slots; 2 and 6 pop in last, a faint navy glow fades up behind
-the letters and one sheen crosses the logo. Frames 121-216 sway seamlessly.
+the letters, one sheen crosses the logo and the trace pads sparkle. Frames 121-216
+sway seamlessly.
 Colour comes from oxhack_rig's SVG gradients. Unlike the rig's defaults, emission
 carries most of each colour so it survives the light LCD, and side walls are
 darker by object-space normal so the extrusion still reads at 340x160.
@@ -256,6 +257,29 @@ for name, contours, back, front, material, bevel in (
     part.location = (0, 0, 0)
     triangle_parts.append(part)
 
+# The compact logo's four-point stars, one on each trace pad. White only reads on the
+# coloured glass, so the wide wordmark keeps them on the triangle.
+PAD_TRACES = 2, 9, 13
+spark_material = bpy.data.materials.new('Wordmark Spark')
+spark_material.use_nodes = True
+spark_nodes = spark_material.node_tree.nodes
+spark_nodes.remove(next(n for n in spark_nodes if n.type == 'BSDF_PRINCIPLED'))
+spark_emission = spark_nodes.new('ShaderNodeEmission')
+spark_emission.inputs['Color'].default_value = (1, 1, 1, 1)
+spark_material.node_tree.links.new(spark_emission.outputs[0], next(n for n in spark_nodes if n.type == 'OUTPUT_MATERIAL').inputs['Surface'])
+spark_mesh = bpy.data.meshes.new('Wordmark Spark')
+spark_mesh.from_pydata([(math.cos(i * math.pi / 4) * (1 if i % 2 == 0 else .17), math.sin(i * math.pi / 4) * (1 if i % 2 == 0 else .17), 0) for i in range(8)], [], [list(range(8))])
+spark_mesh.materials.append(spark_material)
+sparks = []
+for index in PAD_TRACES:
+    x0, y0, x1, y1 = oxhack_rig.contour_bounds([layers['traces'][index]])
+    wx, wy = space.point((x0 + x1) / 2, (y0 + y1) / 2)
+    spark = bpy.data.objects.new(f'Wordmark Spark {index}', spark_mesh)
+    collection.objects.link(spark)
+    spark.parent = spin
+    spark.location = (wx - PIVOT[0], wy - PIVOT[1], .075)
+    sparks.append(spark)
+
 glow = bpy.data.objects.new('Wordmark Glow', bpy.data.meshes.new('Wordmark Glow'))
 half_x, half_y = canvas[0] * UNIT / 2, canvas[1] * UNIT / 2
 cx, cy = space.point(canvas[0] / 2, canvas[1] / 2)
@@ -448,6 +472,16 @@ for frame in range(1, INTRO + 1):
     key_value(accent_values['Sheen At'], frame, at)
     key_value(accent_values['Sheen Gain'], frame, gain)
     key_value(glow_fade, frame, GLOW_STRENGTH * smooth((frame - 105) / 13))
+# Stars burst one after another once 26 has landed, gone before the rest pose.
+SPARK_START, SPARK_LIFE, SPARK_STAGGER, SPARK_SIZE = 107, 7, 2, .15
+for index, spark in enumerate(sparks):
+    start = SPARK_START + index * SPARK_STAGGER
+    for frame in range(start, start + SPARK_LIFE + 1):
+        t = (frame - start) / SPARK_LIFE
+        key(spark, frame, scale=(max(.0001, math.sin(math.pi * t) * SPARK_SIZE),) * 3, rotation_euler=(0, 0, .55 * t))
+    for frame, hidden in ((1, True), (start, False), (start + SPARK_LIFE + 1, True)):
+        spark.hide_render = hidden
+        spark.keyframe_insert('hide_render', frame=frame)
 glow.hide_render = True
 glow.keyframe_insert('hide_render', frame=1)
 glow.hide_render = False
@@ -477,7 +511,7 @@ for name, direction, energy in (('Wordmark key', (-.45, .5, .74), .92), ('Wordma
     collection.objects.link(sun)
     sun.rotation_euler = Vector(direction).to_track_quat('Z', 'Y').to_euler()
 
-for frame, name in [(1, 'Triangle spins up'), (GLIDE_FROM, 'Glides left'), (LAND, 'Lands, tip right'), (60, 'K leaves the tip'), (85, 'O leaves the tip'), (100, '2 pops'), (104, '6 pops'), (106, 'Glow and sheen'), (INTRO, 'Rest pose'), (INTRO + 1, 'Idle sway loop')]:
+for frame, name in [(1, 'Triangle spins up'), (GLIDE_FROM, 'Glides left'), (LAND, 'Lands, tip right'), (60, 'K leaves the tip'), (85, 'O leaves the tip'), (100, '2 pops'), (104, '6 pops'), (106, 'Glow and sheen'), (SPARK_START, 'Pads sparkle'), (INTRO, 'Rest pose'), (INTRO + 1, 'Idle sway loop')]:
     scene.timeline_markers.new(name, frame=frame)
 scene['adaptation'] = 'User-requested OxHack portfolio logo animation. Extruded from the supplied wordmark SVG for the light LCD. Not native firmware.'
 scene['source_sha256'] = json.loads((root / 'scripts/blender/oxhack-logo-contours.json').read_text())['source']['wordmark']['sha256']

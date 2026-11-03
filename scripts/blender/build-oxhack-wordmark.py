@@ -2,8 +2,8 @@
 The wordmark's triangle spins down like a flywheel and glides left until its tip
 points right like a play button. O x H A C K then fire out of that tip, K first,
 and spring into their slots; 2 and 6 pop in last, a faint navy glow fades up behind
-the letters, one sheen crosses the logo and the trace pads sparkle. Frames 121-216
-sway seamlessly.
+the letters and the compact logo's power-on finale plays: pulses run the frame, charge
+runs the traces, the pads flash and spark, a sheen crosses. Frames 121-216 sway seamlessly.
 Colour comes from oxhack_rig's SVG gradients. Unlike the rig's defaults, emission
 carries most of each colour so it survives the light LCD, and side walls are
 darker by object-space normal so the extrusion still reads at 340x160.
@@ -90,9 +90,9 @@ def value_node(tree, name, value=0.):
 
 
 def build_accent():
-    """Shared SVG-space masks: one sheen band, a hot spot on the tip, a trace pulse."""
+    """Shared SVG-space masks: sheen band, tip hot spot, trace pulse and the finale's beats."""
     tree = bpy.data.node_groups.new('Wordmark Accent', 'ShaderNodeTree')
-    for socket in ('Sheen', 'Tip', 'Pulse'):
+    for socket in ('Sheen', 'Tip', 'Pulse', 'Comet', 'Wave', 'Pads'):
         tree.interface.new_socket(socket, in_out='OUTPUT', socket_type='NodeSocketFloat')
     nodes, links = tree.nodes, tree.links
 
@@ -123,19 +123,46 @@ def build_accent():
     sheen_at, sheen_gain = value_node(tree, 'Sheen At', -500), value_node(tree, 'Sheen Gain')
     tip_gain = value_node(tree, 'Tip Gain')
     pulse_at, pulse_gain = value_node(tree, 'Pulse At', -500), value_node(tree, 'Pulse Gain')
-    links.new(band(skewed, sheen_at.outputs[0], 150, sheen_gain.outputs[0]), out.inputs['Sheen'])
+    links.new(band(skewed, sheen_at.outputs[0], 450, sheen_gain.outputs[0]), out.inputs['Sheen'])
     dx, dy = math_node('SUBTRACT', x, 1475), math_node('SUBTRACT', y, 1247)
     distance = math_node('SQRT', math_node('ADD', math_node('MULTIPLY', dx, dx), math_node('MULTIPLY', dy, dy)))
     links.new(band(distance, 0, 460, tip_gain.outputs[0]), out.inputs['Tip'])
     links.new(band(x, pulse_at.outputs[0], 110, pulse_gain.outputs[0]), out.inputs['Pulse'])
+
+    def step(value, low, high):
+        node = nodes.new('ShaderNodeMapRange')
+        node.interpolation_type = 'SMOOTHSTEP'
+        links.new(value, node.inputs['Value'])
+        node.inputs['From Min'].default_value, node.inputs['From Max'].default_value = low, high
+        return node.outputs['Result']
+
+    def runner(position, tail, rise, head):
+        """Lit behind a head at position 0, as in the compact logo's frame and trace pulses."""
+        return math_node('MULTIPLY', step(position, -tail, -rise), math_node('SUBTRACT', 1, step(position, 0, head)))
+
+    # Distances match the compact logo's after scaling to this smaller triangle.
+    corners = logo['layers']['frame'][0]
+    apex = min(corners, key=lambda corner: corner[1])
+    cx, cy = sum(corner[0] for corner in corners) / 3, sum(corner[1] for corner in corners) / 3
+    reach = math.hypot(apex[0] - cx, apex[1] - cy)
+    px, py = math_node('SUBTRACT', x, cx), math_node('SUBTRACT', y, cy)
+    radius = math_node('SQRT', math_node('ADD', math_node('MULTIPLY', px, px), math_node('MULTIPLY', py, py)))
+    toward_apex = math_node('ADD', math_node('MULTIPLY', px, (apex[0] - cx) / reach), math_node('MULTIPLY', py, (apex[1] - cy) / reach))
+    around = math_node('DIVIDE', math_node('ARCCOSINE', math_node('DIVIDE', toward_apex, radius)), math.pi)
+    comet_at, wave_at = value_node(tree, 'Comet At', 2), value_node(tree, 'Wave At', -1)
+    links.new(runner(math_node('SUBTRACT', around, comet_at.outputs[0]), .34, .01, .025), out.inputs['Comet'])
+    links.new(runner(math_node('SUBTRACT', wave_at.outputs[0], math_node('DIVIDE', radius, COMPACT_UV)), .12, .005, .015), out.inputs['Wave'])
+    links.new(value_node(tree, 'Pads Gain').outputs[0], out.inputs['Pads'])
     return tree
 
 
+# SVG units per compact-logo UV, once its 2819-wide triangle is scaled to this 1085-wide one.
+COMPACT_UV = 4000 * 1084.54 / 2819.08
 ACCENT = build_accent()
 TIP_TINT = (1, .46, .05)
 
 
-def dress(material, front, side, sheen=1., tip=0., pulse=0.):
+def dress(material, front, side, sheen=1., tip=0., pulse=0., comet=0., wave=0., pads=0.):
     """Emission = logo colour * facing + accents. Front facing reaches the source colour with the lights."""
     tree = material.node_tree
     nodes, links = tree.nodes, tree.links
@@ -166,19 +193,29 @@ def dress(material, front, side, sheen=1., tip=0., pulse=0.):
     for axis, weight in zip(tint.inputs, TIP_TINT):
         add = nodes.new('ShaderNodeMath')
         add.operation = 'ADD'
-        white = nodes.new('ShaderNodeMath')
-        white.operation = 'ADD'
-        for index, (socket, gain) in enumerate((('Sheen', sheen), ('Pulse', pulse))):
+        add.inputs[0].default_value = 0
+        white = None
+        for socket, gain in (('Sheen', sheen), ('Pulse', pulse), ('Comet', comet), ('Wave', wave), ('Pads', pads)):
+            if not gain:
+                continue
             scaled_mask = nodes.new('ShaderNodeMath')
             scaled_mask.operation = 'MULTIPLY'
             links.new(accent.outputs[socket], scaled_mask.inputs[0])
             scaled_mask.inputs[1].default_value = gain
-            links.new(scaled_mask.outputs[0], white.inputs[index])
+            if white is None:
+                white = scaled_mask.outputs[0]
+            else:
+                total = nodes.new('ShaderNodeMath')
+                total.operation = 'ADD'
+                links.new(white, total.inputs[0])
+                links.new(scaled_mask.outputs[0], total.inputs[1])
+                white = total.outputs[0]
         hot = nodes.new('ShaderNodeMath')
         hot.operation = 'MULTIPLY'
         links.new(accent.outputs['Tip'], hot.inputs[0])
         hot.inputs[1].default_value = tip * weight
-        links.new(white.outputs[0], add.inputs[0])
+        if white is not None:
+            links.new(white, add.inputs[0])
         links.new(hot.outputs[0], add.inputs[1])
         links.new(add.outputs[0], axis)
     added = nodes.new('ShaderNodeVectorMath')
@@ -192,13 +229,14 @@ def dress(material, front, side, sheen=1., tip=0., pulse=0.):
 
 gradients = logo['gradients']
 FRONT, SIDE = .7, .34
-frame_material = dress(oxhack_rig.gradient_material('Wordmark Frame', gradients['shape'], canvas, roughness=.5), .75, .52, sheen=1.1, tip=1.4)
-trace_material = dress(oxhack_rig.gradient_material('Wordmark Traces', gradients['shape'], canvas, roughness=.5), .75, .55, sheen=1.1, tip=1.4, pulse=.95)
-glass_material = dress(oxhack_rig.gradient_material('Wordmark Glass', gradients['panel'], canvas, alpha=logo['panelOpacity'], roughness=.18), FRONT, FRONT, sheen=.55, tip=1.)
+frame_material = dress(oxhack_rig.gradient_material('Wordmark Frame', gradients['shape'], canvas, roughness=.5), .75, .52, sheen=0, tip=1.4, comet=1.25)
+trace_material = dress(oxhack_rig.gradient_material('Wordmark Traces', gradients['shape'], canvas, roughness=.5), .75, .55, sheen=0, tip=1.4, pulse=.95, wave=1.1)
+pad_material = dress(oxhack_rig.gradient_material('Wordmark Pads', gradients['shape'], canvas, roughness=.5), .75, .55, sheen=0, tip=1.4, pulse=.95, wave=1.1, pads=1)
+glass_material = dress(oxhack_rig.gradient_material('Wordmark Glass', gradients['panel'], canvas, alpha=logo['panelOpacity'], roughness=.18), FRONT, FRONT, sheen=.42, tip=1.)
 glass_material.use_backface_culling = True
 glass_material.use_transparency_overlap = False
-text_material = dress(oxhack_rig.gradient_material('Wordmark Letter Rim', gradients['text'], canvas, roughness=.32), FRONT, SIDE, sheen=1.3)
-year_material = dress(oxhack_rig.gradient_material('Wordmark Year Rim', gradients['year'], canvas, roughness=.32), FRONT, SIDE, sheen=1.3)
+text_material = dress(oxhack_rig.gradient_material('Wordmark Letter Rim', gradients['text'], canvas, roughness=.32), FRONT, SIDE, sheen=.85)
+year_material = dress(oxhack_rig.gradient_material('Wordmark Year Rim', gradients['year'], canvas, roughness=.32), FRONT, SIDE, sheen=.85)
 face_material = dress(oxhack_rig.solid_material('Wordmark Letter Face', logo['colors']['face'], roughness=.3), .78, .78, sheen=0)
 
 glow_image = bpy.data.images.load(str(root / 'scripts/blender/oxhack-wordmark-glow.png'))
@@ -257,9 +295,14 @@ for name, contours, back, front, material, bevel in (
     part.location = (0, 0, 0)
     triangle_parts.append(part)
 
-# The compact logo's four-point stars, one on each trace pad. White only reads on the
-# coloured glass, so the wide wordmark keeps them on the triangle.
-PAD_TRACES = 2, 9, 13
+# The compact logo's pads and four-point stars. White only reads on the coloured glass,
+# so the wide wordmark keeps them on the triangle.
+PAD_RINGS = (2, 3), (9, 10), (13, 14)
+for outer, inner in PAD_RINGS:
+    part = oxhack_rig.extrude_contours(collection, space, f'Wordmark Pad {outer}', [layers['traces'][outer], layers['traces'][inner]], .012, .062, pad_material, 0, origin=PIVOT)
+    part.parent = spin
+    part.location = (0, 0, 0)
+    triangle_parts.append(part)
 spark_material = bpy.data.materials.new('Wordmark Spark')
 spark_material.use_nodes = True
 spark_nodes = spark_material.node_tree.nodes
@@ -271,10 +314,10 @@ spark_mesh = bpy.data.meshes.new('Wordmark Spark')
 spark_mesh.from_pydata([(math.cos(i * math.pi / 4) * (1 if i % 2 == 0 else .17), math.sin(i * math.pi / 4) * (1 if i % 2 == 0 else .17), 0) for i in range(8)], [], [list(range(8))])
 spark_mesh.materials.append(spark_material)
 sparks = []
-for index in PAD_TRACES:
-    x0, y0, x1, y1 = oxhack_rig.contour_bounds([layers['traces'][index]])
+for outer, inner in PAD_RINGS:
+    x0, y0, x1, y1 = oxhack_rig.contour_bounds([layers['traces'][outer]])
     wx, wy = space.point((x0 + x1) / 2, (y0 + y1) / 2)
-    spark = bpy.data.objects.new(f'Wordmark Spark {index}', spark_mesh)
+    spark = bpy.data.objects.new(f'Wordmark Spark {outer}', spark_mesh)
     collection.objects.link(spark)
     spark.parent = spin
     spark.location = (wx - PIVOT[0], wy - PIVOT[1], .075)
@@ -439,10 +482,18 @@ for char, start in (('2', 100), ('6', 104)):
         size = max(.001, s + (s - 1) * 1.6 if s > 1 else s)
         key(holder, frame, location=(sx, sy, LETTER_Z), scale=(size, size, size), rotation_euler=(0, -math.tau * (1 - min(s, 1)) - 1.4 * min(1 - s, 0), 0))
 
-# Finale: a charge runs the traces into the tip before the launch; glow and sheen last.
+# A charge runs the traces into the tip before the launch; the glow and finale come last.
 # The source's full glow read too heavy on the LCD; this keeps the white faces legible.
 GLOW_STRENGTH = .28
 accent_values = {node.name: node for node in ACCENT.nodes if node.type == 'VALUE'}
+# The compact logo's power-on beats frame for frame, counted from its landing frame so
+# they finish just before the rest pose. Sweep values cross this wider logo at its pace.
+FINALE = 100
+SPARK_START, SPARK_LIFE, SPARK_STAGGER, SPARK_SIZE = FINALE + 10, 6, 1, .15
+
+
+def beat(frame, start, end, a, b, rest):
+    return lerp(a, b, smooth((frame - FINALE - start) / (end - start))) if start <= frame - FINALE <= end else rest
 
 
 def key_value(node, frame, value):
@@ -455,25 +506,19 @@ for frame in range(1, INTRO + 1):
     launch_flash = sum(math.exp(-(frame - start) / 3) for start in LAUNCH.values() if 0 <= frame - start < 14) * (1 - smooth((frame - 88) / 8))
     key_value(accent_values['Tip Gain'], frame, min(1.4, 1.1 * charge + .9 * launch_flash))
     pulse = (frame - 44) / 16
-    second = (frame - 103) / 13
     if 0 <= pulse <= 1:
         at, gain = lerp(420, 1500, pulse), math.sin(math.pi * pulse)
-    elif 0 <= second <= 1:
-        at, gain = lerp(420, 1500, second), .8 * math.sin(math.pi * second)
     else:
         at, gain = -500, 0
     key_value(accent_values['Pulse At'], frame, at)
     key_value(accent_values['Pulse Gain'], frame, gain)
-    sweep = (frame - 106) / 12
-    if 0 <= sweep <= 1:
-        at, gain = lerp(150, 3500, sweep), .9 * math.sin(math.pi * sweep) ** .5
-    else:
-        at, gain = -500, 0
-    key_value(accent_values['Sheen At'], frame, at)
-    key_value(accent_values['Sheen Gain'], frame, gain)
+    key_value(accent_values['Comet At'], frame, beat(frame, 1, 9, -.08, 1.08, 2))
+    key_value(accent_values['Wave At'], frame, beat(frame, 6, 12, .44, .04, -1))
+    key_value(accent_values['Sheen At'], frame, beat(frame, 8, 18, -1089, 4491, -500))
+    key_value(accent_values['Sheen Gain'], frame, 1 if 8 <= frame - FINALE <= 18 else 0)
+    flash = (frame - FINALE - 10) / 6
+    key_value(accent_values['Pads Gain'], frame, math.sin(math.pi * flash) if 0 < flash < 1 else 0)
     key_value(glow_fade, frame, GLOW_STRENGTH * smooth((frame - 105) / 13))
-# Stars burst one after another once 26 has landed, gone before the rest pose.
-SPARK_START, SPARK_LIFE, SPARK_STAGGER, SPARK_SIZE = 107, 7, 2, .15
 for index, spark in enumerate(sparks):
     start = SPARK_START + index * SPARK_STAGGER
     for frame in range(start, start + SPARK_LIFE + 1):
@@ -511,7 +556,7 @@ for name, direction, energy in (('Wordmark key', (-.45, .5, .74), .92), ('Wordma
     collection.objects.link(sun)
     sun.rotation_euler = Vector(direction).to_track_quat('Z', 'Y').to_euler()
 
-for frame, name in [(1, 'Triangle spins up'), (GLIDE_FROM, 'Glides left'), (LAND, 'Lands, tip right'), (60, 'K leaves the tip'), (85, 'O leaves the tip'), (100, '2 pops'), (104, '6 pops'), (106, 'Glow and sheen'), (SPARK_START, 'Pads sparkle'), (INTRO, 'Rest pose'), (INTRO + 1, 'Idle sway loop')]:
+for frame, name in [(1, 'Triangle spins up'), (GLIDE_FROM, 'Glides left'), (LAND, 'Lands, tip right'), (60, 'K leaves the tip'), (85, 'O leaves the tip'), (100, '2 pops'), (104, '6 pops'), (FINALE + 1, 'Frame pulses'), (FINALE + 6, 'Trace wave'), (FINALE + 8, 'Sheen'), (SPARK_START, 'Pads flash and spark'), (INTRO, 'Rest pose'), (INTRO + 1, 'Idle sway loop')]:
     scene.timeline_markers.new(name, frame=frame)
 scene['adaptation'] = 'User-requested OxHack portfolio logo animation. Extruded from the supplied wordmark SVG for the light LCD. Not native firmware.'
 scene['source_sha256'] = json.loads((root / 'scripts/blender/oxhack-logo-contours.json').read_text())['source']['wordmark']['sha256']

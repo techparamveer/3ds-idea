@@ -6,6 +6,10 @@ HOME, and the interfaces between the scene, the LCD painter and the banner
 renderer. LCD pixels, native timing and input behaviour are unchanged; no
 model, texture or LCD resolution is reduced.
 
+The figures below were measured with the nine-app set, before
+[PR #23](https://github.com/techparamveer/3ds-idea/pull/23) removed six apps.
+Entry photos are now about 0.32 MB rather than 1.1 MB.
+
 ## Method
 
 Both production builds (`next build` + `next start`) ran side by side from

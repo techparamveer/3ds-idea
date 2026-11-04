@@ -4,14 +4,17 @@
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0",
-    "prebuild": "node scripts/ensure-packed-model.mjs",
+    "prebuild": "node scripts/ensure-packed-model.mjs && node scripts/check-lcd-display.mjs",
     "predev": "node scripts/ensure-packed-model.mjs",
     "build": "next build",
     "start": "next start --hostname 0.0.0.0",
     "start:verify": "next start --hostname 127.0.0.1",
     "typecheck": "tsc --noEmit",
+    "test": "node --test --experimental-strip-types 'src/**/*.test.ts'",
     "vgpu": "vgpu",
-    "check:shader": "vgpu check src/shaders/silver.wgsl --require-validation"
+    "check:shader": "vgpu check src/shaders/silver.wgsl --require-validation",
+    "check:lcd-display": "node scripts/check-lcd-display.mjs",
+    "test:lcd-display": "node scripts/test-lcd-display.mjs"
   },
   "dependencies": {
     "@vgpu/wgsl": "^0.4.1",

@@ -27,7 +27,9 @@ import { rowCount, type MenuState, type Input } from '@/os/state';
 import { createFirmwareBanner, type PrimaryBannerRenderFrame } from './firmware-banner';
 import type { HomeBannerMotion } from '@/os/home-banner-lifecycle';
 import { settingsBannerPhase } from './banner-verification';
-import { MAX_LID_DEGREES, REST_YAW, sampleIntroPose } from './motion';
+import { HANDHELD_INTRO, MAX_LID_DEGREES, REST_YAW, sampleIntroPose } from './motion';
+import { browserMotionSensor } from '@/os/motion-sensor';
+import { createFlickDetector } from '@/os/flick-gesture';
 import { controlBoundsInBase, controlFromObject, isSilverPaintMaterial, resolveModelLayout, type ScreenPlacement, type DirectionalControlName, type ControlDirection } from './model-layout';
 import { installSourcePaintSurface } from './source-paint-surface';
 import { createConsoleFraming } from './framing';
@@ -42,12 +44,32 @@ import { uploadModelTextures } from './texture-upload';
 import { healthTopLoopFrame } from '@/os/stock-health-scroll';
 import { cameraTextProbeEnabled, captureAtHealthFrame, encodeNativeLcdPair, lcdCaptureEnabled, lcdHomeHudSample, lcdDownloadPayload, lcdDownloadRequest } from './lcd-capture';
 import { mountLiveLcdRecorder } from './live-lcd-recorder';
+import { createLcdDisplayMaterial, createLcdDisplayTexture } from './lcd-display';
 import { homeHudReducedMotionParityPaintDue, hudSecondParity } from '../os/device-status-profile';
 
 const RAD = Math.PI / 180;
+/** Ignore the re-grip after the permission sheet or prompt tap. */
+const FLICK_SETTLE_MS=400;
+/** A sensor that sends nothing this long after arming is treated as absent. */
+const MOTION_SILENT_MS=1500;
+/** Touch has no hover feedback; a near miss this close selects a physical control. */
+const TOUCH_SLOP_PX=24;
 let nextBannerSession=0;
-export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MODEL_URL):Promise<()=>void> {
-  const cameraTextProbe=cameraTextProbeEnabled(window.location);const quality=browserRenderQuality(host);const diagnostics=process.env.NODE_ENV==='development'||lcdCaptureEnabled(window.location,false);const lcdCapture=lcdCaptureEnabled(window.location,diagnostics);host.dataset.quality=quality.tier;
+export type ConsoleSceneOptions={
+  /** Phone or tablet: start closed at the bottom of the viewport and open on a flick or tap. */
+  handheld?:boolean;
+  /** Called when the lid's resting target changes, after the intro. */
+  onLid?:(open:boolean)=>void;
+  /** `active` on the first sensor reading after arming; `silent` if none arrive. */
+  onMotion?:(status:'active'|'silent')=>void;
+};
+export type ConsoleScene={dispose:()=>void;
+  /** Listen for a flick while the lid is shut. Call again after a permission grant. */
+  armFlickOpen:()=>void;
+  /** Call synchronously inside a user gesture; a flick is not one, so iOS audio stays locked without it. */
+  unlockAudio:()=>void};
+export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MODEL_URL,{handheld=false,onLid,onMotion}:ConsoleSceneOptions={}):Promise<ConsoleScene> {
+  const cameraTextProbe=cameraTextProbeEnabled(window.location);const quality=browserRenderQuality(host,handheld);const diagnostics=process.env.NODE_ENV==='development'||lcdCaptureEnabled(window.location,false);const lcdCapture=lcdCaptureEnabled(window.location,diagnostics);host.dataset.quality=quality.tier;host.dataset.handheld=String(handheld);
   const renderer=new THREE.WebGLRenderer({antialias:quality.antialias,alpha:true,powerPreference:'high-performance'});
   renderer.setPixelRatio(quality.pixelRatio);renderer.setClearColor(0xeae8e4,1);
   renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.0;
@@ -87,6 +109,8 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   catch(error){state=restoreSettings(state,legacyPreferences);runtimeNotice='Local saving is unavailable.';host.dataset.storageFailure=String(error);}
   const firmwareAssets=await nativeAssets;
   if(firmwareAssets)state=enableHomeControls(state);
+  // A shut lid is Sleep Mode, as when the lid is closed later.
+  if(handheld)state=setSystemSleeping(state,true,0);
   // Restore is complete before the host is created. A later System restore must
   // allocate a new session as well; individual folder scopes are owned by the host.
   const bannerGeneration=`console-session:${++nextBannerSession}`;
@@ -125,26 +149,19 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   const liveLcdRecorder=mountLiveLcdRecorder(host,window.location,screens);
   const addControl=(title:string,action:()=>void)=>{const button=document.createElement('button');button.textContent=title;button.addEventListener('click',action);button.addEventListener('keydown',event=>event.stopPropagation());accessible.appendChild(button);return button;};
   for(const [title,input]of [['Up','up'],['Down','down'],['Left','left'],['Right','right'],['A: Open or visit','open'],['B: Back','back'],['HOME: Suspend or resume','home'],['Power','power'],['Sound and layout','preferences']] as [string,Input][])addControl(title,()=>send(input));
+  addControl('Open or close the lid',()=>toggleLid());
   for(const app of homeTitles)addControl(`Open ${app.title}`,()=>{if(state.system?.phase==='home')commit((current,now)=>launchHomeShortcut(current,app.id,now),'open',true);});
   // Existing nonvisual direct shortcuts cannot supply a selected HOME render.
   // Accessibility adaptation only; physical/touch/keyboard keep source covers.
   for(const id of ['game-notes','friends','notifications','browser','miiverse'])addControl(`Open ${getTitle(id)!.title}`,()=>{if(state.system?.phase==='home')commit((current,now)=>{const next=launchHomeShortcut(current,id,now);screens.skipAppletEntryForAccessibilityShortcut(next);return next;},'open',true);});
   let announced='';
-  const topTexture=new THREE.CanvasTexture(screens.top),bottomTexture=new THREE.CanvasTexture(screens.bottom);
-  for(const tx of [topTexture,bottomTexture]){tx.colorSpace=THREE.SRGBColorSpace;tx.minFilter=THREE.LinearFilter;tx.magFilter=THREE.NearestFilter;tx.generateMipmaps=false;tx.anisotropy=renderer.capabilities.getMaxAnisotropy();}
+  const topTexture=createLcdDisplayTexture(screens.top,renderer),bottomTexture=createLcdDisplayTexture(screens.bottom,renderer);
   // All locations below are the same millimetre coordinates as the Blender file.
   // Screen planes have dedicated UVs, separate from the shell's paint unwrap.
   // Keep LCD artwork self-lit while the dark front surface catches restrained
   // glass reflections, including when the backlight is off.
-  const displayMaterial=(texture:THREE.Texture,roughness:number)=>new THREE.MeshPhysicalMaterial({
-    color:0x080b0e,metalness:0,roughness,ior:1.46,specularIntensity:.35,envMapIntensity:.65,
-    emissive:0xffffff,emissiveMap:texture,emissiveIntensity:.97,toneMapped:false,
-    // The live panel is only .02 mm ahead of the source glass. Bias raster depth
-    // so that precision at oblique views cannot make the two surfaces flicker.
-    polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-2,
-  });
-  const topMat=displayMaterial(topTexture,.18);
-  const bottomMat=displayMaterial(bottomTexture,.26);
+  const topMat=createLcdDisplayMaterial(topTexture,.18,[400,240]);
+  const bottomMat=createLcdDisplayMaterial(bottomTexture,.26,[320,240]);
   function addDisplay(name:string,placement:ScreenPlacement,material:THREE.Material){
     const screen=new THREE.Mesh(new THREE.PlaneGeometry(placement.widthMm,placement.heightMm),material);
     screen.name=name;screen.position.copy(placement.position);screen.quaternion.copy(placement.quaternion);placement.parent.add(screen);return screen;
@@ -186,11 +203,16 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   const motionPreference=window.matchMedia('(prefers-reduced-motion: reduce)');let reduced=motionPreference.matches;
   const schedule=createRenderSchedule();
   let started=false;
-  let frame=0,disposed=false,last=performance.now(),lastRender=0,lastScreenPaint=0,intro=!reduced,angle=reduced?MAX_LID_DEGREES:0,targetAngle=MAX_LID_DEGREES,yaw=reduced?REST_YAW:sampleIntroPose(0).yaw,targetYaw=REST_YAW,pitch=0,targetPitch=0,scale=1,targetScale=1,lastMinute=-1,lastHudParity:number|null=null;
+  const introPose=handheld?HANDHELD_INTRO:{},restAngle=handheld?0:MAX_LID_DEGREES,restYaw=handheld?HANDHELD_INTRO.restYaw:REST_YAW;
+  // Closed handheld framing sits on the bottom margin and leaves the upper
+  // viewport for the React prompt; it glides back to centre as the lid opens.
+  const framingMargin=handheld?.92:.88,anchorTarget=()=>handheld&&targetAngle===0?1:0;
+  let frameAnchor=handheld?1:0;
+  let frame=0,disposed=false,last=performance.now(),lastRender=0,lastScreenPaint=0,intro=!reduced,angle=reduced?restAngle:0,targetAngle=restAngle,yaw=reduced?restYaw:sampleIntroPose(0,introPose).yaw,targetYaw=restYaw,pitch=0,targetPitch=0,scale=1,targetScale=1,lastMinute=-1,lastHudParity:number|null=null;
   let start=last;
   let homeClockSuspended=document.hidden;
   const touches=new Map<number,{x:number;y:number}>();let pinchDistance=0,pinchZoom=1,viewZoom=1;
-  let drag:{x:number;y:number;startX:number;startY:number;moved:boolean;pointerId:number;control?:THREE.Object3D;command?:AppCommand;pad?:DirectionalControlName;padOrigin?:THREE.Vector3;padDirection?:ControlDirection;screen?:boolean;touch?:{x:number;y:number}}|null=null;
+  let drag:{x:number;y:number;startX:number;startY:number;moved:boolean;pointerId:number;control?:THREE.Object3D;slop?:string;command?:AppCommand;pad?:DirectionalControlName;padOrigin?:THREE.Vector3;padDirection?:ControlDirection;screen?:boolean;touch?:{x:number;y:number}}|null=null;
   type PressedCap={parts:{object:THREE.Object3D;y:number}[];motion:ButtonMotion};
   const pressed=new Map<THREE.Object3D,PressedCap>();
   let lastPress:{name:string;maxTravelMm:number}|undefined;
@@ -437,11 +459,28 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   }
   function release(source:string){for(const feedback of pressed.values())feedback.motion.release(source);for(const pad of directional.values())pad.motion.release(source);}
   function releaseAll(){for(const feedback of pressed.values())feedback.motion.cancel();for(const pad of directional.values())pad.motion.cancel();}
-  function hit(event:PointerEvent){
+  function hit(event:{clientX:number;clientY:number}){
     const rect=host.getBoundingClientRect();mouse.set((event.clientX-rect.left)/rect.width*2-1,-(event.clientY-rect.top)/rect.height*2+1);ray.setFromCamera(mouse,camera);
     // Raycaster includes invisible meshes. Baked screen artwork and displays
     // hidden while closed must not intercept the visible controls beneath them.
     return ray.intersectObject(model,true).find(hit=>{for(let node:THREE.Object3D|null=hit.object;node;node=node.parent)if(!node.visible)return false;return true;});
+  }
+  const slopBox=new THREE.Box3(),slopCenter=new THREE.Vector3();
+  /** Nearest visible base button within TOUCH_SLOP_PX of a touch that missed every control. Pads are excluded: a near miss must not turn a rotate-drag into pad input. */
+  function nearestControl(event:PointerEvent,direct:THREE.Object3D|undefined){
+    // A miss on the hinge or lid keeps its own meaning (close the lid).
+    for(let node=direct;node;node=node.parent??undefined)if(node===hinge||node.name.includes('Hinge'))return undefined;
+    const rect=host.getBoundingClientRect(),candidates:{cap:THREE.Object3D;x:number;y:number;distance:number}[]=[];
+    for(const [name,cap]of caps){
+      if(name==='L'||name==='R'||name==='DPAD'||name==='CIRCLE')continue;
+      const v=slopBox.setFromObject(cap).getCenter(slopCenter).project(camera);
+      const x=rect.left+(v.x+1)*rect.width/2,y=rect.top+(1-v.y)*rect.height/2,distance=Math.hypot(x-event.clientX,y-event.clientY);
+      if(distance<=TOUCH_SLOP_PX)candidates.push({cap,x,y,distance});
+    }
+    candidates.sort((a,b)=>a.distance-b.distance);
+    // The control must be the first visible surface at its own centre.
+    for(const {cap,x,y}of candidates.slice(0,3)){const seen=hit({clientX:x,clientY:y});if(seen&&controlName(seen.object)===controlName(cap))return seen.object;}
+    return undefined;
   }
   function controlName(o:THREE.Object3D){
     const physical=controlFromObject(layout,o);if(physical)return physical;
@@ -459,8 +498,14 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   function interruptIntro(){
     if(!intro)return;
     intro=false;targetYaw=yaw;targetPitch=pitch;
-    // Keep the current pose as the interaction origin; finish opening gently.
-    targetAngle=MAX_LID_DEGREES;
+    // Keep the current pose as the interaction origin; finish opening gently
+    // (a handheld intro stays shut until a flick or tap).
+    targetAngle=restAngle;notifyLid();
+  }
+  let notifiedLid:boolean|undefined;
+  function notifyLid(){
+    const open=targetAngle>0;if(intro||open===notifiedLid)return;
+    notifiedLid=open;host.dataset.lid=open?'open':'closed';syncFlick();onLid?.(open);
   }
   function toggleLid(open=false){
     void audio.unlock();
@@ -468,7 +513,27 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     targetAngle=open?MAX_LID_DEGREES:(interrupted?angle:targetAngle)>70?0:MAX_LID_DEGREES;
     if(targetAngle===0){pointerCancel();releaseAll();}
     commit((current,now)=>setSystemSleeping(current,targetAngle===0,now),'hinge');
+    notifyLid();
   }
+  // Flick to open joins the same lid path as a tap on the console or Space.
+  const flickSensor=handheld?browserMotionSensor():undefined,flick=createFlickDetector();
+  let flickArmed=false,flickSeen=false,stopFlick:(()=>void)|undefined;
+  function syncFlick(){
+    const listen=flickArmed&&!disposed&&targetAngle===0;
+    if(!listen){stopFlick?.();stopFlick=undefined;return;}
+    if(stopFlick||!flickSensor?.listen)return;
+    const armedAt=performance.now();flick.reset();
+    const silent=flickSeen?undefined:window.setTimeout(()=>{if(!flickSeen&&!disposed)onMotion?.('silent');},MOTION_SILENT_MS);
+    const stop=flickSensor.listen(reading=>{
+      const now=performance.now();
+      if(!flickSeen){flickSeen=true;onMotion?.('active');}
+      // A re-grip judged during the settle window would start a cooldown that swallows the first real flick.
+      if(now-armedAt<FLICK_SETTLE_MS)return;
+      if(flick.push({...reading,t:now})&&targetAngle===0&&!drag&&touches.size===0){lastInput='flick';host.dataset.lastFlick=String(Math.round(now));toggleLid(true);}
+    });
+    stopFlick=()=>{stop();if(silent!==undefined)clearTimeout(silent);};
+  }
+  function armFlickOpen(){if(disposed||!flickSensor?.listen)return;flickArmed=true;stopFlick?.();stopFlick=undefined;syncFlick();}
   const controlCommands:Record<string,AppCommand>={A:'open',B:'back',X:'x',Y:'y',HOME:'home',START:'start',SELECT:'select',POWER:'power',L:'l',R:'r'};
   function touchPosition(e:PointerEvent){
     const rect=host.getBoundingClientRect();mouse.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);ray.setFromCamera(mouse,camera);
@@ -483,9 +548,12 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     }
     if(!e.isPrimary||e.button!==0||drag)return;
     void audio.unlock();host.focus({preventScroll:true});host.setPointerCapture(e.pointerId);interruptIntro();
-    const h=hit(e);drag={x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY,moved:false,pointerId:e.pointerId,control:h?.object,screen:angle>90&&h?.object===touchScreen};
+    const h=hit(e),target=h?.object;
+    // A near miss acts only as a tap (on pointerup), so a drag starting beside a button still just rotates.
+    const slop=e.pointerType==='touch'&&angle>90&&target!==touchScreen&&!(target&&controlName(target))?nearestControl(e,target):undefined;
+    drag={x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY,moved:false,pointerId:e.pointerId,control:slop??target,screen:angle>90&&target===touchScreen,...(slop?{slop:controlName(slop)}:{})};
     if(drag.screen&&h?.uv){drag.touch={x:h.uv.x*320,y:(1-h.uv.y)*240};dispatch({type:'touch',phase:'down',...drag.touch,pointerId:e.pointerId},true);return;}
-    if(h&&angle>90){const name=controlName(h.object);if(name==='DPAD'||name==='CIRCLE'){drag.pad=name;pointerPad(name,e);}else{press(name,'pointer');drag.command=controlCommands[name];if(drag.command)button(drag.command,'down',`pointer:${e.pointerId}`,true);}}
+    if(target&&angle>90&&!slop){const name=controlName(target);if(name==='DPAD'||name==='CIRCLE'){drag.pad=name;pointerPad(name,e);}else{press(name,'pointer');drag.command=controlCommands[name];if(drag.command)button(drag.command,'down',`pointer:${e.pointerId}`,true);}}
   }
   function pointerMove(e:PointerEvent){
     if(touches.has(e.pointerId))touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
@@ -510,6 +578,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     if(wasPinching){if(touches.size===0)pinchDistance=0;if(host.hasPointerCapture(e.pointerId))host.releasePointerCapture(e.pointerId);return;}
     if(!drag||e.pointerId!==drag.pointerId)return;const was=drag;drag=null;endPointer(was,false,e);if(host.hasPointerCapture(e.pointerId))host.releasePointerCapture(e.pointerId);host.style.cursor='grab';
     if(was.screen||was.moved||was.pad||was.command)return;
+    if(was.slop){press(was.slop,'pointer');release('pointer');const command=controlCommands[was.slop];if(command){button(command,'down',`pointer:${e.pointerId}`,true);button(command,'up',`pointer:${e.pointerId}`,true);}return;}
     const h=hit(e);if(!h)return;if(angle<90){toggleLid(true);return;}
     if(!controlName(h.object)&&(h.object.parent===hinge||h.object.name.includes('Hinge')))toggleLid();
   }
@@ -529,7 +598,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   function keyup(e:KeyboardEvent){release(`key:${e.code}`);const command=heldKeys.get(e.code);heldKeys.delete(e.code);if(command)button(command,'up',`key:${e.code}`,true);}
   function blur(){nativeScreenInput.cancelHomeResume();touches.clear();pinchDistance=0;pointerCancel();releaseAll();heldKeys.clear();commit((current,now)=>releaseSystemInputs(current,now),'blur');}
   function visibilityChanged(){if(document.hidden){homeClockSuspended=true;blur();revokeTerminalPublications();observeFolderBanner();}else{homeClockSuspended=false;void audio.unlock();commit(current=>current,'visibility');}}
-  function motionChanged(e:MediaQueryListEvent){advanceBeforeMutation(performance.now()-start);reduced=e.matches;screens.setReducedMotion(reduced);observeFolderBanner();lastHudParity=null;if(reduced){interruptIntro();angle=targetAngle;yaw=targetYaw;pitch=targetPitch;scale=targetScale;}paint();}
+  function motionChanged(e:MediaQueryListEvent){advanceBeforeMutation(performance.now()-start);reduced=e.matches;screens.setReducedMotion(reduced);observeFolderBanner();lastHudParity=null;if(reduced){interruptIntro();angle=targetAngle;yaw=targetYaw;pitch=targetPitch;scale=targetScale;frameAnchor=anchorTarget();}paint();}
   function wheel(e:WheelEvent){e.preventDefault();interruptIntro();viewZoom=THREE.MathUtils.clamp(viewZoom-e.deltaY*.001,1,3);}
   function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;const ratio=pixelRatioForViewport(quality.tier,window.devicePixelRatio,w,h),size=renderer.getSize(new THREE.Vector2());
     if(size.x===w&&size.y===h&&renderer.getPixelRatio()===ratio)return;
@@ -550,7 +619,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   // Every transform the loop animates. An unchanged sample, with no invalidation,
   // would reproduce the previous frame exactly.
   function poseSample(){
-    const sample=[angle,yaw,pitch,scale,camera.zoom,camera.aspect];
+    const sample=[angle,yaw,pitch,scale,camera.zoom,camera.aspect,frameAnchor];
     for(const pad of directional.values())sample.push(pad.motion.vector.x,pad.motion.vector.y);
     for(const [cap,feedback] of pressed)sample.push(cap.id,feedback.motion.depth);
     return sample;
@@ -581,7 +650,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     if(entryPublicationRepaintPending&&!document.hidden&&state.powered&&!state.system!.sleeping&&angle>12&&topScreen.visible&&touchScreen.visible){paintScreens(performance.now());entryPublicationRepaintPending=false;}
     const sample=poseSample(),plan=schedule.plan(sample);
     if(plan.shadows)renderer.shadowMap.needsUpdate=true;
-    scene.updateMatrixWorld(true);fitConsole();camera.updateProjectionMatrix();publishProjectedTargets(plan.shadows);
+    scene.updateMatrixWorld(true);fitConsole({margin:framingMargin,bottomAnchor:frameAnchor});camera.updateProjectionMatrix();publishProjectedTargets(plan.shadows);
     try{renderer.render(scene,camera);}catch(error){nativeScreenInput.cancelHomeResume();liveLcdRecorder?.unavailable('render-error');entryPublicationRepaintPending=true;screens.revokeEntryPublications();throw error;}
     frame++;schedule.presented(sample);lastBootPresentedFrame=lastBootPaintFrame;
     const validPublication=!document.hidden&&state.powered&&!state.system!.sleeping&&angle>12&&topScreen.visible&&touchScreen.visible&&!renderer.getContext().isContextLost();
@@ -615,8 +684,9 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   }
   function animate(now:number){
     if(disposed)return;const dt=Math.min((now-last)/1000,.05);last=now;const elapsed=(now-start)/1000;
-    if(intro){const pose=sampleIntroPose(elapsed);yaw=pose.yaw;angle=pose.angle;if(pose.done){intro=false;targetYaw=REST_YAW;angle=targetAngle=MAX_LID_DEGREES;prepareAudioWhenIdle();}}
+    if(intro){const pose=sampleIntroPose(elapsed,introPose);yaw=pose.yaw;angle=pose.angle;if(pose.done){intro=false;targetYaw=restYaw;angle=targetAngle=restAngle;notifyLid();prepareAudioWhenIdle();}}
     else{angle=reduced?targetAngle:THREE.MathUtils.damp(angle,targetAngle,6,dt);yaw=reduced?targetYaw:THREE.MathUtils.damp(yaw,targetYaw,drag?.moved?18:7,dt);}
+    frameAnchor=reduced?anchorTarget():THREE.MathUtils.damp(frameAnchor,anchorTarget(),6,dt);if(Math.abs(frameAnchor-anchorTarget())<1e-3)frameAnchor=anchorTarget();
     angle=THREE.MathUtils.clamp(angle,0,MAX_LID_DEGREES);
     if(Math.abs(angle-targetAngle)<.01)angle=targetAngle;
     pitch=reduced?targetPitch:THREE.MathUtils.damp(pitch,targetPitch,drag?.moved?18:7,dt);scale=reduced?targetScale:THREE.MathUtils.damp(scale,targetScale,7,dt);
@@ -674,7 +744,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     const lcdFps=screenPaintFps(quality,closeAdvanced||entryActive);
     const bootFrame=state.system!.phase==='boot'?bootRevealFrame(now-start-state.system!.since,reduced):null;
     const bootPaintDue=state.powered&&angle>12&&!document.hidden&&!state.system!.sleeping&&bootRevealNeedsPaint(bootFrame,lastBootPaintFrame,reduced);
-    if(bootPaintDue||state.powered&&angle>12&&!document.hidden&&(!reduced||state.system?.phase==='app')&&(lcdFps>=60||now-lastScreenPaint>=1000/lcdFps))paintScreens(now);
+    if(bootPaintDue||state.powered&&angle>12&&!document.hidden&&(!reduced||state.system?.phase==='app')&&(lcdFps>=60||now-lastScreenPaint>=1000/lcdFps||quality.tier!=='constrained'&&screens.portfolioBannerFrameDue(now-start,reduced)))paintScreens(now);
     if(host.dataset.hinge!==angle.toFixed(1))host.dataset.hinge=angle.toFixed(1);if(host.dataset.intro!==String(intro))host.dataset.intro=String(intro);
     camera.zoom=reduced?viewZoom:THREE.MathUtils.damp(camera.zoom,viewZoom,10,dt);
     const bootPublishDue=state.powered&&angle>12&&!document.hidden&&!state.system!.sleeping&&bootRevealNeedsPaint(lastBootPaintFrame,lastBootPresentedFrame,reduced);
@@ -692,7 +762,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   hinge.rotation.x=-angle*RAD;pivot.rotation.set(pitch,yaw,0);
   topScreen.visible=touchScreen.visible=angle>12;
   scene.updateMatrixWorld(true);
-  fitConsole();
+  fitConsole({margin:framingMargin,bottomAnchor:frameAnchor});
   await modelTexturesResident;
   renderer.initTexture(topTexture);renderer.initTexture(bottomTexture);
   // compileAsync skips invisible objects. The LCD planes appear as the lid opens,
@@ -706,7 +776,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   // the opening, while idle, rather than inside the first key or pointer event.
   // Playback still begins only from a user gesture (unlock).
   function prepareAudioWhenIdle(){const run=()=>{if(!disposed)audio.prepare();};if(window.requestIdleCallback)window.requestIdleCallback(run,{timeout:2000});else setTimeout(run,0);}
-  if(!intro)prepareAudioWhenIdle();
+  if(!intro){notifyLid();prepareAudioWhenIdle();}
   let request=requestAnimationFrame(animate);writeState();
   if(hasPaintSurface&&quality.useVgpu){
     const idle=window.requestIdleCallback?.bind(window);
@@ -793,5 +863,6 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     window.addEventListener('keydown',shortcut,true);
     removeLcdDownload=()=>{captureAbort.abort();window.removeEventListener('keydown',shortcut,true);};
   }
-  return ()=>{liveLcdRecorder?.dispose();removeLcdDownload();if(diagnostics){Reflect.deleteProperty(host,'screenCanvases');Reflect.deleteProperty(host,'captureNativeBanner');}if(lcdCapture)Reflect.deleteProperty(host,'captureScreensAt');state=releaseSystemInputs(state,performance.now()-start);effects.drain(false);effects.dispose();accessible.remove();audio.dispose();screens.dispose();soundRoom.dispose();cameraShoot.dispose();folderBanner.dispose();surfaceDisposed=true;disposed=true;if(surfaceSchedule!==undefined){if(window.cancelIdleCallback)window.cancelIdleCallback(surfaceSchedule);else clearTimeout(surfaceSchedule);}for(const remove of removeSurfaceHooks)remove();for(const texture of surfaceTextures)texture.dispose();cancelAnimationFrame(request);observer.disconnect();renderer.domElement.removeEventListener('webglcontextlost',contextLost);renderer.domElement.removeEventListener('webglcontextrestored',contextRestored);host.removeEventListener('pointerdown',pointerDown);host.removeEventListener('pointermove',pointerMove);host.removeEventListener('pointerup',pointerUp);host.removeEventListener('pointercancel',pointerAbort);host.removeEventListener('lostpointercapture',pointerCancel);host.removeEventListener('keydown',keydown);host.removeEventListener('keyup',keyup);host.removeEventListener('blur',blur);host.removeEventListener('wheel',wheel);motionPreference.removeEventListener('change',motionChanged);document.removeEventListener('visibilitychange',visibilityChanged);scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material]){for(const v of Object.values(m))if(v instanceof THREE.Texture)v.dispose();m.dispose();}}});env.dispose();topTexture.dispose();bottomTexture.dispose();renderer.dispose();renderer.domElement.remove();};
+  const dispose=()=>{stopFlick?.();stopFlick=undefined;liveLcdRecorder?.dispose();removeLcdDownload();if(diagnostics){Reflect.deleteProperty(host,'screenCanvases');Reflect.deleteProperty(host,'captureNativeBanner');}if(lcdCapture)Reflect.deleteProperty(host,'captureScreensAt');state=releaseSystemInputs(state,performance.now()-start);effects.drain(false);effects.dispose();accessible.remove();audio.dispose();screens.dispose();soundRoom.dispose();cameraShoot.dispose();folderBanner.dispose();surfaceDisposed=true;disposed=true;if(surfaceSchedule!==undefined){if(window.cancelIdleCallback)window.cancelIdleCallback(surfaceSchedule);else clearTimeout(surfaceSchedule);}for(const remove of removeSurfaceHooks)remove();for(const texture of surfaceTextures)texture.dispose();cancelAnimationFrame(request);observer.disconnect();renderer.domElement.removeEventListener('webglcontextlost',contextLost);renderer.domElement.removeEventListener('webglcontextrestored',contextRestored);host.removeEventListener('pointerdown',pointerDown);host.removeEventListener('pointermove',pointerMove);host.removeEventListener('pointerup',pointerUp);host.removeEventListener('pointercancel',pointerAbort);host.removeEventListener('lostpointercapture',pointerCancel);host.removeEventListener('keydown',keydown);host.removeEventListener('keyup',keyup);host.removeEventListener('blur',blur);host.removeEventListener('wheel',wheel);motionPreference.removeEventListener('change',motionChanged);document.removeEventListener('visibilitychange',visibilityChanged);scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material]){for(const v of Object.values(m))if(v instanceof THREE.Texture)v.dispose();m.dispose();}}});env.dispose();topTexture.dispose();bottomTexture.dispose();renderer.dispose();renderer.domElement.remove();};
+  return {dispose,armFlickOpen,unlockAudio:()=>{void audio.unlock();}};
 }

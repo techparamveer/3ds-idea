@@ -76,10 +76,11 @@ export function isPreviousDefaultAppLayout(value: unknown): boolean {
  * Sound one column left of it and Health and Safety above it. The native
  * neighbors there are excluded Activity Log and Download Play; portfolio
  * NVIDIA and source-correct blue Sound remain visible adaptations. Portfolio
- * titles lead and Hack LDN follows the stock titles. Existing saved layouts
- * retain their own positions. */
+ * titles lead and Hack LDN and OxHack follow the stock titles. Existing saved
+ * layouts retain their own positions. */
 const defaultHomeOrder = [
   'hackuk', 'nvidia', 'camera', 'sound', 'health-safety', 'system-settings', 'eshop', 'hack-ldn-2025',
+  'oxhack', 'oxhack-wordmark',
 ] as const;
 export function initialAppLayout(): Record<number, string> {
   const installed = new Set(homeTitles.map(title => title.id));

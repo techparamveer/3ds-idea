@@ -17,8 +17,12 @@ IDLE = 160
 FRAMES = INTRO + IDLE
 # Wider than the shared 180px banner so the logo draws about 1.4x larger.
 WIDTH, HEIGHT = 260, 148
-# Deep extrusion so the sway shows the logo's sides.
-EYE_DEPTH, WORD_DEPTH, BEVEL = .14, .10, .022
+# Shallow extrusion: deep walls filled the eye's thin cutouts and fattened the
+# letters during the sway. No bevel, because the eye's pieces abut at the
+# square's edge and a rounded edge carved a groove through the mark.
+EYE_DEPTH, WORD_DEPTH, BEVEL = .055, .045, 0
+# Idle sway amplitude in radians and units.
+SWAY_YAW, SWAY_PITCH, SWAY_BOB = .2, .03, .02
 scene = bpy.data.scenes.new('NVIDIA box to logo')
 if bpy.context.window:
     bpy.context.window.scene = scene
@@ -36,32 +40,62 @@ scene.frame_end = FRAMES
 scene.world = bpy.data.worlds.new('NVIDIA studio')
 scene.world.use_nodes = True
 background = next(n for n in scene.world.node_tree.nodes if n.type == 'BACKGROUND')
-background.inputs['Color'].default_value = (0.7, 0.75, 0.8, 1)
-background.inputs['Strength'].default_value = 0.5
+# Neutral ambient. A blue world tinted the brand green toward (115,181,49).
+background.inputs['Color'].default_value = (0.5, 0.5, 0.5, 1)
+background.inputs['Strength'].default_value = 0.4
 try:
     scene.view_settings.view_transform = 'Standard'
 except TypeError:
     pass
 scene.render.image_settings.color_depth = '8'
+# More samples settle the soft-shadow speckle on the flat green face.
+scene.eevee.taa_render_samples = 128
+scene.eevee.shadow_ray_count = 2
 
 
-def material(name, color, metallic=0.0, roughness=0.38):
+def material(name, color, metallic=0.0, roughness=0.5):
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     bsdf = next(n for n in mat.node_tree.nodes if n.type == 'BSDF_PRINCIPLED')
     bsdf.inputs['Base Color'].default_value = (*color, 1)
     bsdf.inputs['Metallic'].default_value = metallic
     bsdf.inputs['Roughness'].default_value = roughness
+    # Less sheen, so the face stays close to the flat brand colour.
+    bsdf.inputs['Specular IOR Level'].default_value = .1
     mat.diffuse_color = (*color, 1)
     return mat
+
+
+def shade_sides(mat, side):
+    """Darken extrusion walls by object-space normal, so depth reads as a crisp edge."""
+    nodes, links = mat.node_tree.nodes, mat.node_tree.links
+    bsdf = next(n for n in nodes if n.type == 'BSDF_PRINCIPLED')
+    geometry = nodes.new('ShaderNodeNewGeometry')
+    to_object = nodes.new('ShaderNodeVectorTransform')
+    to_object.vector_type, to_object.convert_from, to_object.convert_to = 'NORMAL', 'WORLD', 'OBJECT'
+    xyz = nodes.new('ShaderNodeSeparateXYZ')
+    facing = nodes.new('ShaderNodeMath')
+    facing.operation = 'ABSOLUTE'
+    mix = nodes.new('ShaderNodeMix')
+    mix.data_type = 'RGBA'
+    # Mix repeats socket names per data type; use the colour sockets.
+    color = lambda sockets, name: next(x for x in sockets if x.name == name and x.type == 'RGBA')
+    color(mix.inputs, 'A').default_value = (*side, 1)
+    color(mix.inputs, 'B').default_value = bsdf.inputs['Base Color'].default_value
+    links.new(geometry.outputs['Normal'], to_object.inputs[0])
+    links.new(to_object.outputs[0], xyz.inputs[0])
+    links.new(xyz.outputs['Z'], facing.inputs[0])
+    links.new(facing.outputs[0], mix.inputs['Factor'])
+    links.new(color(mix.outputs, 'Result'), bsdf.inputs['Base Color'])
 
 
 def srgb(v):
     return ((v / 255 + 0.055) / 1.055) ** 2.4 if v > 10 else v / 3294.6
 
 
-green = material('NVIDIA green enamel', tuple(srgb(v) for v in (118,185,0)), 0.08)
-dark = material('Graphite wordmark', tuple(srgb(v) for v in (49,55,63)), 0.04)
+green = material('NVIDIA green enamel', tuple(srgb(v) for v in (118,185,0)), 0.0)
+dark = material('Graphite wordmark', tuple(srgb(v) for v in (49,55,63)), 0.0)
+shade_sides(dark, tuple(srgb(v) for v in (22,25,30)))
 contours = json.loads((root / 'scripts/blender/nvidia-logo-contours.json').read_text())['paths']
 
 
@@ -200,6 +234,8 @@ field.pack()
 eye_mat = green.copy()
 eye_mat.name = 'Original eye enamel with spiral reveal'
 eye.data.materials[0]=eye_mat
+# The spinning box keeps one colour on every face; only the logo walls darken.
+shade_sides(eye_mat, tuple(srgb(v) for v in (62,104,0)))
 # R is distance along the spiral, G marks cuts in the box, B marks the stroke
 # outside the box. Both objects use the eye's local coordinates, so the carve
 # stays attached while the square slides. The final eye mesh is unchanged.
@@ -223,7 +259,7 @@ def carve(mat, outer):
     links.new(compare.outputs[0],region.inputs[0]);links.new(channels.outputs['Blue' if outer else 'Green'],region.inputs[1])
     if outer:
         # The box supplies the uncut face until completion. Showing the full eye
-        # on top early would emboss its bevels into the still-solid square.
+        # on top early would emboss its outline into the still-solid square.
         inside=nodes.new('ShaderNodeMath');inside.operation='SUBTRACT';inside.inputs[0].default_value=1
         unfinished=nodes.new('ShaderNodeMath');unfinished.operation='LESS_THAN';unfinished.inputs[1].default_value=1
         hide_inside=nodes.new('ShaderNodeMath');hide_inside.operation='MULTIPLY'
@@ -241,7 +277,7 @@ def carve(mat, outer):
 carve(green,False)
 carve(eye_mat,True)
 
-# After the intro the logo sways in place (yaw .32, pitch .06, small bob),
+# After the intro the logo sways gently in place (SWAY_* above),
 # like the other portfolio banners. The loop starts and ends on the rest pose,
 # so frames INTRO+1..FRAMES repeat.
 pivot = bpy.data.objects.new('NVIDIA idle pivot', None)
@@ -250,8 +286,8 @@ for obj in (eye, word):
     obj.parent = pivot
 for frame in [1, INTRO, *range(INTRO+1, FRAMES+1)]:
     a = 2*math.pi*max(0, frame-INTRO)/IDLE
-    pivot.rotation_euler = (.06*math.sin(2*a), .32*math.sin(a), 0)
-    pivot.location = (0, .035*math.sin(a), 0)
+    pivot.rotation_euler = (SWAY_PITCH*math.sin(2*a), SWAY_YAW*math.sin(a), 0)
+    pivot.location = (0, SWAY_BOB*math.sin(a), 0)
     for path in ('rotation_euler', 'location'):
         pivot.keyframe_insert(path, frame=frame)
 
@@ -264,8 +300,8 @@ camera.data.ortho_scale = 5.0*WIDTH/180/1.4
 scene.camera = camera
 
 for name, loc, energy, size in [
-    ('Large soft key', (-3,4,6), 280, 4),
-    ('Cool fill', (3,1,4), 90, 3),
+    ('Large soft key', (-3,4,6), 400, 4),
+    ('Cool fill', (3,1,4), 130, 3),
 ]:
     data = bpy.data.lights.new(name, 'AREA')
     data.energy, data.shape, data.size = energy, 'DISK', size

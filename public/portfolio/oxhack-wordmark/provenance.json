@@ -1,0 +1,33 @@
+{
+  "kind": "portfolio-adaptation",
+  "nativeFirmware": false,
+  "reference": {
+    "file": "OxHack Logo (Wordmark, No Glowing Year) (1).svg",
+    "sha256": "336d8b00992f9d51d873bf28f96782a776f158150905f54711ec5f1baa4ca719"
+  },
+  "blender": "5.2.1 LTS, scene built through Blender MCP, frames rendered headless from the saved .blend with EEVEE",
+  "artwork": "The supplied wordmark SVG flattened to contours (extract-oxhack-logo.py). Triangle: 0.60-opacity glass panel, 0.12 deep frame, raised traces and labels. Letters: outline ring and white face extruded to the same 0.14 depth, the face 0.003 proud. Colour from the SVG's own shape, panel, text and year gradients; emission carries most of each colour so it holds on the light LCD, and side walls are darker by object-space normal. The navy glow is the source's blurred Shadow and g9 groups rasterized to scripts/blender/oxhack-wordmark-glow.png by oxhack-wordmark-tools.mjs, on a plane behind the letters at .28 strength, because the user found the full glow too heavy on the LCD.",
+  "delivery": {
+    "width": 340,
+    "height": 160,
+    "frames": 216,
+    "introFrames": 120,
+    "idleFrames": 96,
+    "fps": 29.97002997002997,
+    "atlasColumns": 8,
+    "color": "RGB555-style color and 5-bit soft alpha (values under 8 become 0); transparent background; nearest-neighbour display",
+    "playback": "Intro frames 1-120 once per selection, then frames 121-216 loop as an idle sway; frame 120 immediately for reduced motion. Frame 216 is pixel-identical to frame 120, and poster.png is that frame.",
+    "motion": "Triangle alone at the frame centre spins five turns around a tilted near-vertical axis, from 69 deg/frame (5.8 rev/s) with friction decay and EEVEE motion blur until frame 48, gliding from frame 26 to land tip-right on frame 52 with a damped overshoot. A charge runs the traces and heats the tip. K C A leave the tip from frame 60 and run straight into their slots; H x O follow, hop up over the row in front of the glass and drop in; launches are 5 frames apart, each letter flips, overshoots and springs back, and each launch recoils the triangle. 2 and 6 pop on frames 100 and 104. A faint navy glow fades up over frames 105-118. The compact logo's power-on finale then plays frame for frame, counted from frame 100: twin pulses run the frame's edges over frames 101-109, charge runs the traces over 106-112, a wide sheen crosses over 108-118, and the pads flash and throw four-point stars over 110-118. Then the whole logo sways (yaw 0.13 rad, pitch 0.04 rad, 0.022 bob) over a seamless 96-frame loop."
+  },
+  "sha256": {
+    "assets/blender/oxhack-wordmark.blend": "122a3052b4d7a7373cf6f677e24367f6e96645d11547bfe95eb1034931442dc3",
+    "scripts/blender/build-oxhack-wordmark.py": "016e84bb1a67e415c220c6398b75ea1163fd421817b78a927edfec289e72a34b",
+    "scripts/blender/oxhack_rig.py": "7e299283274024192025daa95a8d1c46052d91bafbd42df1652e0f4f99bcbbda",
+    "scripts/blender/oxhack-logo-contours.json": "31e7e2bd17c1aa5e75571823b59d7917597cfc9484a3ef2c980730e031028ea2",
+    "scripts/blender/oxhack-wordmark-glow.png": "e2667e5ed1a9726228e7f36211f0a96bb3cebda461fc421fd5bf26f0d48b01bd",
+    "scripts/blender/oxhack-wordmark-tools.mjs": "a4006c4f480b62283d0b7bfa5653b951f02aff1b4e52831e8fb0818a03822c1b",
+    "scripts/blender/pack-nvidia-transform.mjs": "621e973cf18b56609da7ce449e3a064783ee62faa6ee4b658c80bbfd181b3e33",
+    "public/portfolio/oxhack-wordmark/atlas.png": "5bb430580b3861af35a266e8c1605244b64c8937f3bc07f43999f27cc3fc0910",
+    "public/portfolio/oxhack-wordmark/poster.png": "1ad6e3a8c1d282b40530b3987a884ab3afa294bec1500e24b2d434e23d617143"
+  }
+}

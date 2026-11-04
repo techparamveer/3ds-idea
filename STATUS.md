@@ -52,12 +52,8 @@ fixture failure, 103 skips, one TODO; typecheck and build pass. Ten local-only
 worker branches and one uncommitted folder-hover WIP (commit 7626654) are
 pushed unmerged as `preserve/codex/*` on origin; none is integrated.
 
-17 October: per the user, subagents now run free models through the opencode
-CLI (`~/.opencode/bin/opencode`): workers `opencode run -m
-opencode/deepseek-v4.1-flash-free`, independent reviewer `opencode run -m
-opencode/glm-5.3-flash-free` (different model from the worker). Run them from
-the worker's own worktree with self-contained briefs; the coordinator verifies
-their commits and check results before integrating.
+1 November: per the user, every worker, reviewer and other subagent runs Claude
+Opus 5.5 at high effort. This replaces the 17 October free opencode models.
 
 One coordinator, at most two workers and one reviewer. Root alone owns shared
 docs, integration, Azahar and the production browser.

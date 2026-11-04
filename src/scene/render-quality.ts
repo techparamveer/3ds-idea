@@ -17,6 +17,8 @@ export type RenderCapabilities = {
   hardwareConcurrency?: number;
   deviceMemory?: number;
   saveData?: boolean;
+  /** Coarse-pointer phone or tablet: bound heat and battery, not just pixels. */
+  handheld?: boolean;
   width: number;
   height: number;
 };
@@ -182,6 +184,11 @@ export function chooseRenderQuality(capabilities: RenderCapabilities): RenderQua
     shadowMapSize: 512, renderFps: 30, screenFps: 12, surfaceSize: 256,
     useVgpu: false, antialias: false,
   };
+  if (capabilities.handheld) return {
+    tier: 'balanced', pixelRatio: pixelRatioForViewport('balanced', capabilities.devicePixelRatio, capabilities.width, capabilities.height),
+    shadowMapSize: 1024, renderFps: 30, screenFps: 15, surfaceSize: 512,
+    useVgpu: true, antialias: true,
+  };
   const high = (capabilities.hardwareConcurrency ?? 8) >= 8
     && (capabilities.deviceMemory ?? 8) >= 8
     && pixels <= 2_100_000;
@@ -197,7 +204,7 @@ export function chooseRenderQuality(capabilities: RenderCapabilities): RenderQua
   };
 }
 
-export function browserRenderQuality(host: HTMLElement): RenderQuality {
+export function browserRenderQuality(host: HTMLElement, handheld = false): RenderQuality {
   const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
   const deviceMemory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
   return chooseRenderQuality({
@@ -205,6 +212,7 @@ export function browserRenderQuality(host: HTMLElement): RenderQuality {
     hardwareConcurrency: navigator.hardwareConcurrency,
     deviceMemory,
     saveData: connection?.saveData,
+    handheld,
     width: host.clientWidth || window.innerWidth,
     height: host.clientHeight || window.innerHeight,
   });

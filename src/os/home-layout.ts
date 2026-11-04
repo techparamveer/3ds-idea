@@ -116,9 +116,9 @@ export function restoreHomeLayout(value: unknown): { layout: Record<number, stri
     if (!add(contents, target, FOLDER_SLOT_COUNT, true)) return null;
     folderLayouts[Number(key)] = target;
   }
-  // Saves from before Hack LDN was installed still require the original apps.
-  // The installed-title reconciliation below places the new app in a free slot.
-  if (!apps.every(app => app.id === 'hack-ldn-2025' || ids.has(app.id))) return null;
+  // Saves from before Hack LDN and OxHack were installed still require the original apps.
+  // The installed-title reconciliation below places the new apps in free slots.
+  if (!apps.every(app => app.id === 'hack-ldn-2025' || app.id === 'oxhack' || app.id === 'oxhack-wordmark' || ids.has(app.id))) return null;
   for (const title of homeTitles) if (!ids.has(title.id)) {
     let slot = 0; while (slot < SLOT_COUNT && (layout[slot] || Object.hasOwn(folders, slot))) slot++;
     if (slot >= SLOT_COUNT) return null;

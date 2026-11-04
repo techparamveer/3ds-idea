@@ -23,10 +23,10 @@ export function populatedFolderObservation({ stage, folderIdentity = null, rows 
     || !cursor || cursor.focus?.toolbarActive !== false) return null;
   const expected = {
     density: { menu: 'home', rows, selected: 0 },
-    health: { menu: 'home', rows: 6, selected: 8, center: [62, 110] },
+    health: { menu: 'home', rows: 6, selected: 4, center: [34, 166] },
     vacant: { menu: 'home', rows: 6, selected: 28, center: [146, 166] },
     root: { menu: 'home', rows: 6, selected: 28, center: [146, 166] },
-    pickup: { menu: 'home', rows: 6, selected: 8 },
+    pickup: { menu: 'home', rows: 6, selected: 4 },
     hover: { menu: 'folder', rows: 1, selected: 0 },
     child: { menu: 'folder', rows: 1, selected: 2, center: [244, 137] },
   }[stage];
@@ -35,7 +35,7 @@ export function populatedFolderObservation({ stage, folderIdentity = null, rows 
     || data.selected !== String(data.menu === 'folder' ? 28 : expected.selected)) return null;
   if (expected.center && (cursor.primary?.center?.x !== expected.center[0] || cursor.primary?.center?.y !== expected.center[1])) return null;
   if (stage === 'pickup' || stage === 'hover') {
-    if (cursor.mode !== 14 || cursor.tilePickup?.source?.folder !== null || cursor.tilePickup?.source?.slot !== 8) return null;
+    if (cursor.mode !== 14 || cursor.tilePickup?.source?.folder !== null || cursor.tilePickup?.source?.slot !== 4) return null;
   } else if (cursor.mode !== 0 || cursor.tilePickup || !cursor.tileTouch || cursor.tileTouch.globalCapture
     || cursor.tileTouch.pending.length || Object.values(cursor.tileTouch.widgets).some(widget => widget.state !== 0)) return null;
   if (stage === 'health' || stage === 'child') {
@@ -87,7 +87,7 @@ export async function preparePopulatedFolderFixture({ state, touch, pointer, wai
   const initial = await state();
   assert.equal(initial.menu, 'home'); assert.equal(initial.rows, '2'); assert.equal(initial.selected, '0');
   for (const rows of [3, 4, 5, 6]) { await touch(307, 16); await waitFor({ stage: 'density', rows }); }
-  await touch(62, 110);
+  await touch(34, 166);
   const health = await waitFor({ stage: 'health' });
   await touch(136, 160);
   const vacant = await waitFor({ stage: 'vacant' });
@@ -97,7 +97,7 @@ export async function preparePopulatedFolderFixture({ state, touch, pointer, wai
   const sourcePreparation = await prepareRoot(folderIdentity, '28');
   let pickup, hover, held = false;
   try {
-    await pointer.down(62, 110);
+    await pointer.down(34, 166);
     held = true;
     pickup = await waitFor({ stage: 'pickup', folderIdentity });
     await pointer.move(146, 166);
@@ -109,7 +109,7 @@ export async function preparePopulatedFolderFixture({ state, touch, pointer, wai
     child: { rows: 1, leftSlot: 0, selectedSlot: 2, app: 'health-safety' },
     entryRoute: { kind: 'touch', x: 136, y: 160 }, backRoute: returned.route,
     healthOrigin: { browserRootSlot: health.selectedSlot, nativeRootSlot: null },
-    adaptation: 'Browser portfolio population places Health at root slot 8. A matched native populated fixture has not been established. Pickup movement, folder hover/drop and setup waits use existing browser adaptations. No native timing or pixel match is established.',
-    method: 'Ordinary density and tile touches create root folder 28; long-press Health, observe pickup selecting root 8, then hover into the folder; wait for paired lower terminal and upper readiness before moving and releasing at child 2; header Back precedes both captured root-tile entries.',
+    adaptation: 'Browser portfolio population places Health at root slot 4. A matched native populated fixture has not been established. Pickup movement, folder hover/drop and setup waits use existing browser adaptations. No native timing or pixel match is established.',
+    method: 'Ordinary density and tile touches create root folder 28; long-press Health, observe pickup selecting root 4, then hover into the folder; wait for paired lower terminal and upper readiness before moving and releasing at child 2; header Back precedes both captured root-tile entries.',
     health, vacant, created, sourcePreparation, pickup, hover, returned, nativeCompared: false };
 }

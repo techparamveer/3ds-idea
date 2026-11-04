@@ -122,9 +122,9 @@ async function runOnce(profileName, runIndex, url) {
 
     await session.evaluate(`document.querySelector('.console-stage').focus()`);
     await mark('home-nav:start');
-    // Slots are column-major: 0 Work, 2 Hobbies, 4 HackUK, 6 About, 7 Sound,
-    // 5 NVIDIA, 3 Life. The walk ends on About (slot 6).
-    for (const name of ['ArrowRight', 'ArrowRight', 'ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowRight', 'ArrowLeft', 'ArrowRight']) {
+    // Slots are column-major: 0 HackUK, 2 Camera, 4 Health, 6 eShop, 7 Hack LDN,
+    // 5 Settings, 3 Sound. The walk ends on HackUK (slot 0).
+    for (const name of ['ArrowRight', 'ArrowRight', 'ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowLeft', 'ArrowLeft']) {
       await press(session, name);
       await sleep(230);
     }
@@ -132,7 +132,7 @@ async function runOnce(profileName, runIndex, url) {
     await mark('home-nav:end');
 
     const beforeApp = await session.evaluate(`document.querySelector('.console-stage [aria-live]').textContent`);
-    // Open About, return HOME (suspend), resume it, return HOME again.
+    // Open HackUK, return HOME (suspend), resume it, return HOME again.
     await mark('app:start');
     await press(session, 'Enter'); await sleep(3600);
     await press(session, 'h'); await sleep(2200);
@@ -167,7 +167,7 @@ function invalidReason(result) {
   const { raw } = result;
   if (raw.foreignInput) return `${raw.foreignInput} unscripted pointer/wheel events`;
   if (raw.introEnd - raw.ready < 2500) return 'opening interrupted';
-  if (!/About/.test(result.beforeApp) || result.afterApp.app !== 'about' || result.afterApp.menu !== 'home') return 'scripted navigation diverged';
+  if (!/HackUK/.test(result.beforeApp) || result.afterApp.app !== 'hackuk' || result.afterApp.menu !== 'home') return 'scripted navigation diverged';
   if (result.inputTimeouts) return 'input acknowledgements timed out';
   return null;
 }

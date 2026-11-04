@@ -407,10 +407,8 @@ These labels describe implementation, not native acceptance.
 | O-04, 05 | Preserve/finish | Local Browser start/settings/bookmarks/info exist; History state has no visible entry route. Upper HUD now binds title-local sysinfo (no `HudMenu_00`). Add only source-established menu route; keyboard and remote browsing remain excluded. Recapture `browser-start-menu-local`. | Services |
 | O-06 | Gated body; preserve chrome | Miiverse toolbar/background/Back exist; empty local interior has no source-supported offline body. Do not invent a feed or composer. | Services |
 | O-02, 07 | Gated | mint and Miiverse-post lack real callers/native presentation. Registered IDs are not a mandate to invent screens. | Services |
-| P-WORK, P-PROJ | Preserve | Work entries/links/HackUK cross-launch; Side Projects entries/Renu pages and Visit. Only repair captured overflow, unreachable controls or return failures. | Portfolio |
-| P-HOB, P-LIFE | Preserve | Hobbies pages/three photos/Visit; Life entries/detail/Done. Keep user design. | Portfolio |
 | P-HACKUK, P-NVIDIA | Preserve | HackUK pages/links and NVIDIA Renu detail/Visit. Keep user design. | Portfolio |
-| P-ABOUT, P-CONTACT | Preserve | About intro/toolkit/pages and Contact's seven explicit links. Verify longest labels/last rows and link intent; no new contact form. | Portfolio |
+| P-HACKLDN | Preserve | Hack LDN 2025 CogniLink detail/Visit and banner. Work, Side Projects, Hobbies, Life, About and Contact were removed on 28 October 2026. | Portfolio |
 
 ## Execution and Shipping Gates
 

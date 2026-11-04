@@ -65,7 +65,7 @@ other densities and exact motion/input/audio still need native comparison.
 
 ### H-02 - Installed grid, empty slots, and scoped population
 **Code/tests/evidence:** [app-registry.ts](../../src/os/app-registry.ts), [home-layout.ts](../../src/os/home-layout.ts), [state.ts](../../src/os/state.ts), runtime tests, [scope](../portfolio-ui-scope.md).
-**Now/gap/dependency:** Root capacity is 300 and folders 60, but only in-scope stock titles plus eight portfolio apps are installed. SMDH art is used when delivered; portfolio tiles/content are adaptations. Excluded native titles must not be added merely to match a screenshot.
+**Now/gap/dependency:** Root capacity is 300 and folders 60, but only in-scope stock titles plus three portfolio apps (HackUK, NVIDIA, Hack LDN 2025) are installed. SMDH art is used when delivered; portfolio tiles/content are adaptations. Excluded native titles must not be added merely to match a screenshot.
 **Next/acceptance:** From the clean saved layout, traverse every occupied and adjacent empty root slot at each visible edge. Compare the same scoped native arrangement or record population masks as adaptations; require stable identities through reload and no excluded launch routes.
 
 ### H-03 - D-pad navigation and grid/toolbar focus transfer

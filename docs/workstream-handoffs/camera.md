@@ -134,19 +134,16 @@ masks, diff reports or acceptance claims are supplied.
 ## Exact production state
 
 Default `portfolioMedia` is derived from the first unique image URLs already in
-the eight portfolio apps, in this order:
+the portfolio apps. Since the 28 October 2026 removal of Hobbies and five other
+portfolio apps, the order is:
 
-1. `renu/renu-1` — `/portfolio/renu.jpg`
-2. `buildings/buildings-1` — `/portfolio/building1.jpg`
-3. `buildings/buildings-2` — `/portfolio/building2.jpg`
-4. `buildings/buildings-3` — `/portfolio/building3.jpg`
-5. `mission/mission-1` — `/portfolio/hackuk-event.webp`
+1. `mission/mission-1` — `/portfolio/hackuk-event.webp`
+2. `renu/renu-1` — `/portfolio/renu.jpg`
 
-Because three folders and five photos exist, the application main route creates
-`folder:portfolio-camera-all`, labelled `View Photos/Videos`, before the three
+Because two folders and two photos exist, the application main route creates
+`folder:portfolio-camera-all`, labelled `View Photos/Videos`, before the two
 source-content folders. Opening it creates gallery rows
-`camera-date-group`, `photo:renu-1`, `photo:buildings-1`,
-`photo:buildings-2`, `photo:buildings-3`, `photo:mission-1`; the undated group is
+`camera-date-group`, `photo:mission-1`, `photo:renu-1`; the undated group is
 display-only and selection starts at row 1. This is a portfolio-content
 adaptation. It is not a native SD-card fixture.
 

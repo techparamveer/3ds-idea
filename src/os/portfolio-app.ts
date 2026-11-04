@@ -13,8 +13,7 @@ export function createPortfolioModule(app: PortfolioApp): AppModule {
       if (command === 'back') return { state: state.detail ? { ...state, detail: false, page: 0, photo: 0 } : state, effects: state.detail ? [] : [{ type: 'home' }] };
       if (command === 'open') {
         if (!state.detail) return { state: { ...state, detail: true, page: 0, photo: 0 } };
-        if (entry.app) effects.push({ type: 'launch', appId: entry.app });
-        else if (entry.url) effects.push({ type: 'link', url: entry.url });
+        if (entry.url) effects.push({ type: 'link', url: entry.url });
         else return { state: { ...state, detail: false } };
       }
       if (command === 'up' || command === 'down') {

@@ -33,9 +33,14 @@ export const stockTitles: readonly AppDescriptor[] = [
   firmware('mint', 'Nintendo eShop', '000400300000D602', 'library-applet'),
   firmware('memo', 'Memo', '000400300000F602', 'library-applet'),
 ];
-/** Removed from the portfolio scope on2026-09-23. Keep only their IDs so older
- * saved layouts can omit them without losing the user's other placements. */
-export const retiredHomeTitleIds: ReadonlySet<string> = new Set(['activity-log', 'download-play', 'mii-maker', 'streetpass', 'keyboard', 'nintendo-zone']);
+/** Removed from the portfolio scope (stock titles 2026-09-23 and 2026-10-18;
+ * Work, Side Projects, Hobbies, Life, About and Contact 2026-10-28). Keep only
+ * their IDs so older saved layouts can omit them without losing the user's
+ * other placements. Like deleted software on HOME, the vacated slot stays empty. */
+export const retiredHomeTitleIds: ReadonlySet<string> = new Set([
+  'activity-log', 'download-play', 'mii-maker', 'streetpass', 'keyboard', 'nintendo-zone',
+  'work', 'projects', 'hobbies', 'life', 'about', 'contact',
+]);
 const modules = new Map<string, AppModule>();
 for (const app of apps) modules.set(app.id, createPortfolioModule(app));
 const cameraFixture = cameraVerificationMedia(typeof window === 'undefined' ? undefined : window.location);
@@ -49,21 +54,35 @@ const previousDefaultHomeIds = [
   'work', 'projects', 'hobbies', 'life', 'hackuk', 'nvidia', 'about', 'contact',
   'system-settings', 'health-safety', 'camera', 'sound', 'eshop', 'nintendo-zone',
 ] as const;
+/** Exact selected-Settings default from 0b0d961 until 2026-10-28, also frozen.
+ * Saves from that period may additionally hold Nintendo Zone at slot 13 and
+ * Hack LDN after it; both are accepted below. */
+const capturedSettingsDefaultHomeIds = [
+  'work', 'projects', 'hobbies', 'life', 'hackuk', 'nvidia', 'about', 'sound',
+  'health-safety', 'system-settings', 'camera', 'contact', 'eshop',
+] as const;
+/** True for a saved root layout that is an untouched earlier default, which
+ * adopts {@link initialAppLayout} instead of keeping its own positions. */
 export function isPreviousDefaultAppLayout(value: unknown): boolean {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const layout = value as Record<string, unknown>;
-  return Object.keys(layout).length === previousDefaultHomeIds.length
-    && previousDefaultHomeIds.every((id, slot) => layout[String(slot)] === id);
+  if (Object.keys(layout).length === previousDefaultHomeIds.length
+    && previousDefaultHomeIds.every((id, slot) => layout[String(slot)] === id)) return true;
+  return capturedSettingsDefaultHomeIds.every((id, slot) => layout[String(slot)] === id)
+    && Object.entries(layout).every(([key, id]) => Number(key) < capturedSettingsDefaultHomeIds.length
+      || (Number(key) === 13 && id === 'nintendo-zone') || id === 'hack-ldn-2025');
 }
-/** Put Settings at the right lower position of the EUR selected capture.
- * The native neighbors there are excluded Activity Log and Download Play;
- * portfolio NVIDIA and source-correct blue Sound remain visible adaptations.
- * Existing saved layouts retain their own positions. */
+/** Put Settings at the right lower position of the EUR selected capture, with
+ * Sound one column left of it and Health and Safety above it. The native
+ * neighbors there are excluded Activity Log and Download Play; portfolio
+ * NVIDIA and source-correct blue Sound remain visible adaptations. Portfolio
+ * titles lead and Hack LDN follows the stock titles. Existing saved layouts
+ * retain their own positions. */
+const defaultHomeOrder = [
+  'hackuk', 'nvidia', 'camera', 'sound', 'health-safety', 'system-settings', 'eshop', 'hack-ldn-2025',
+] as const;
 export function initialAppLayout(): Record<number, string> {
-  const established = homeTitles.filter(title => title.id !== 'hack-ldn-2025');
-  const layout = Object.fromEntries(established.map((title, index) => [index, title.id]));
-  [layout[7], layout[11]] = [layout[11], layout[7]];
-  [layout[8], layout[9]] = [layout[9], layout[8]];
-  layout[established.length] = 'hack-ldn-2025';
-  return layout;
+  const installed = new Set(homeTitles.map(title => title.id));
+  const order = [...defaultHomeOrder.filter(id => installed.has(id)), ...[...installed].filter(id => !(defaultHomeOrder as readonly string[]).includes(id))];
+  return Object.fromEntries(order.map((id, slot) => [slot, id]));
 }

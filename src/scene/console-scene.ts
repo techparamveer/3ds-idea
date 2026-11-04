@@ -138,8 +138,8 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   // Screen planes have dedicated UVs, separate from the shell's paint unwrap.
   // Keep LCD artwork self-lit while the dark front surface catches restrained
   // glass reflections, including when the backlight is off.
-  const topMat=createLcdDisplayMaterial(topTexture,.18);
-  const bottomMat=createLcdDisplayMaterial(bottomTexture,.26);
+  const topMat=createLcdDisplayMaterial(topTexture,.18,[400,240]);
+  const bottomMat=createLcdDisplayMaterial(bottomTexture,.26,[320,240]);
   function addDisplay(name:string,placement:ScreenPlacement,material:THREE.Material){
     const screen=new THREE.Mesh(new THREE.PlaneGeometry(placement.widthMm,placement.heightMm),material);
     screen.name=name;screen.position.copy(placement.position);screen.quaternion.copy(placement.quaternion);placement.parent.add(screen);return screen;

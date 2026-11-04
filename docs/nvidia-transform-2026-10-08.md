@@ -232,8 +232,8 @@ blur. A blue world and specular pushed the green to (115,181,49) instead of
 
 The eye now extrudes 0.055 and the wordmark 0.045 with no bevel. Extrusion walls
 darken by object-space normal (the spinning box keeps one colour). A neutral
-world, lower specular and brighter lights give a face-on green of about
-(120,186,20) before RGB555. The sway is now yaw 0.2, pitch 0.03 and bob 0.02
+world, lower specular and brighter lights give a delivered face-on green of
+(115,181,16) after RGB555. The sway is now yaw 0.2, pitch 0.03 and bob 0.02
 (`SWAY_*` in the build script). EEVEE renders 128 samples. The frame layout,
 intro timing and runtime constants are unchanged. The last idle frame is still
 pixel-identical to the hold frame, so the loop and the intro handoff stay

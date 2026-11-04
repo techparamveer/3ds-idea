@@ -259,7 +259,7 @@ def carve(mat, outer):
     links.new(compare.outputs[0],region.inputs[0]);links.new(channels.outputs['Blue' if outer else 'Green'],region.inputs[1])
     if outer:
         # The box supplies the uncut face until completion. Showing the full eye
-        # on top early would emboss its bevels into the still-solid square.
+        # on top early would emboss its outline into the still-solid square.
         inside=nodes.new('ShaderNodeMath');inside.operation='SUBTRACT';inside.inputs[0].default_value=1
         unfinished=nodes.new('ShaderNodeMath');unfinished.operation='LESS_THAN';unfinished.inputs[1].default_value=1
         hide_inside=nodes.new('ShaderNodeMath');hide_inside.operation='MULTIPLY'

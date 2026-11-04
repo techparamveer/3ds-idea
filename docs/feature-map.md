@@ -1155,6 +1155,8 @@ Pick the first unmatched **Next** row, then any in-scope surface whose gap is `f
 
 HUD charging (HOME / Settings / Notifications / eShop / Sound) is a declared reference-session **adaptation**, not a live telemetry pass. See [scope](portfolio-ui-scope.md).
 
+Handheld (coarse-pointer-only) browsers get portfolio **adaptations** with no native counterpart: the console finishes its intro shut, a DeviceMotion flick (or a tap, Space or the hidden lid control) opens it, framing is anchored to the bottom of the portrait viewport, a touch within 24 px of a base button acts as a tap on it (pads excluded), and rendering is fixed at the `balanced` handheld tier (30 fps scene, 15 fps LCD). Implemented and unit-tested only; not device-tested or native-compared.
+
 ## Excluded (not backlog)
 
 Software Keyboard · Activity Log · Download Play · Mii Maker · StreetPass Mii Plaza · AR Games · Face Raiders.

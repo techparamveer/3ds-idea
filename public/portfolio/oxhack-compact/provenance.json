@@ -1,0 +1,31 @@
+{
+  "kind": "portfolio-adaptation",
+  "nativeFirmware": false,
+  "reference": {
+    "file": "OxHack Logo (Compact, Blue Outline) (1).svg",
+    "sha256": "92a9f9e92edeefb0477afccd72538c2484c2673c9ce90680aa1f6efcb93ac74d",
+    "lookReference": "compact-on-lcd.png (the supplied SVG on the LCD background #edf0f4)"
+  },
+  "blender": "5.2.1 LTS. Scene built through Blender MCP from scripts/blender/build-oxhack-compact.py, rendered headless with EEVEE from the saved .blend",
+  "artwork": "Supplied SVG flattened to contours (extract-oxhack-logo.py) and extruded in layers: navy back ring, 60% alpha glass panel, bevelled frame, traces, pads and hex labels, block letters with white faces. Surfaces are unlit emission shaders, so the rest pose keeps the logo's colours; shape, glints and rim come from the surface normal and vanish facing the camera. The SVG's mix-blend-mode:color overlays are not in the contours, so frame, trace and block colours use 25-stop ramps measured from the look reference along the SVG gradient axes. The glass uses the plain SVG gradient. Sparks on the pads, the spin, glints and the power-on are additions to the supplied logo.",
+  "delivery": {
+    "width": 208,
+    "height": 172,
+    "frames": 200,
+    "fps": 29.97002997002997,
+    "atlasColumns": 8,
+    "color": "RGB555-style quantization; soft alpha quantized to 5 bits with alpha under 8 cleared; nearest-neighbour display",
+    "playback": "Intro frames 1-104 once per selection, then frames 105-200 loop as an idle sway; frame 104 immediately for reduced motion. poster.png is frame 200, which matches frame 104 after compositing.",
+    "motion": "Frames 1-84: spin about a precessing tilted near-vertical axis, leftward, decaying from 6.6 rev/s through 6.6 revolutions; motion blur shutter .55 fading to none by frame 56. Dolly zoom from 62mm to 135mm from frame 44. Frames 42-82: block letters rise out of the glass in staggered order O X year H A C K, seen mirrored through the glass as the back passes. Frame 44 begins the last 40-frame turn. Frame 84: lands face-on with a damped overshoot and scale thunk, settled by frame 101. Frames 85-93: twin pulses run the frame from the apex. Frames 90-96: the charge runs inward along the traces. Frames 92-102: a sweep switches the letters to white. Frames 94-101: pads flash and spark. Frames 102-104 hold the rest pose. Frames 105-200: sway with yaw .22 rad, pitch .05 rad and .05 unit bob, holding on the logo at the seam."
+  },
+  "sha256": {
+    "assets/blender/oxhack-compact.blend": "662a015d20c1ab5f8cef404bcc2727b86941cba85c47464c5c70b2e87baa41db",
+    "scripts/blender/build-oxhack-compact.py": "40d7b2c3cd2af4c78ad1055d97805ad2ed1204dee2e106054f1c031d7611b1ea",
+    "scripts/blender/oxhack_rig.py": "7e299283274024192025daa95a8d1c46052d91bafbd42df1652e0f4f99bcbbda",
+    "scripts/blender/extract-oxhack-logo.py": "c0f3b93376ea09400124fa567690b5695c1bee63fe784b06517f6d3ceb6df3c2",
+    "scripts/blender/oxhack-logo-contours.json": "31e7e2bd17c1aa5e75571823b59d7917597cfc9484a3ef2c980730e031028ea2",
+    "scripts/blender/pack-nvidia-transform.mjs": "621e973cf18b56609da7ce449e3a064783ee62faa6ee4b658c80bbfd181b3e33",
+    "public/portfolio/oxhack-compact/atlas.png": "5ddc3001120d09f0d9d0b3c998dba7c3b8751007f16d7c45dc9dc65bdf3286d2",
+    "public/portfolio/oxhack-compact/poster.png": "4d3c47e412e7a617908917539b634a71ed38a363ed7cae2b3aadf9f2191e58c8"
+  }
+}

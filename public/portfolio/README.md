@@ -21,3 +21,13 @@ logo holds at the end. Delivery is 80 frames at 29.97 fps. This is a portfolio
 adaptation, not a Nintendo firmware resource.
 See `nvidia-transform/provenance.json` for hashes and
 [authoring and verification](../../docs/nvidia-transform-2026-10-08.md).
+
+## OxHack
+
+Two variations of the OxHack logo, supplied by the owner, sit side by side on
+HOME for comparison: `oxhack` from `OxHack Logo (Compact, Blue Outline).svg` and
+`oxhack-wordmark` from `OxHack Logo (Wordmark, No Glowing Year).svg`. `oxhack.png`
+and `oxhack-wordmark.png` are transparent, margin-trimmed 256 px rasterizations
+of those SVGs. The artwork itself is not redrawn. These and the Blender-rendered
+banners are portfolio adaptations, not Nintendo firmware resources. The write-up
+is a placeholder. Do not invent facts about the event.

@@ -29,19 +29,12 @@ STATUS **Product**. Reconcile git, then continue from STATUS **Next**.
 - **Subsystem** contract when Next names one: the matching doc from [architecture](docs/architecture/README.md).
 - **Archive** of older evidence: [progress](docs/progress-2026-09-24.md). STATUS Evidence is the live subset.
 
-## Agent model preference - 11 October 2026
+## Agent model preference - 1 November 2026
 
-The latest direct human request selects GPT-6 Astra extra-high for all work,
-including this chat and every subagent. Use `model=gpt-6-astra` with
-`reasoning_effort=xhigh` on bounded or empty context forks for new or restarted
-workers and reviewers. The tools cannot change or verify the coordinator model.
-This supersedes
-earlier Sol preferences and the different-model reviewer rule.
-Keep review independent by assigning a separate agent. Record the actual
-models of completed agents without claiming they changed retroactively.
-The tools do not
-expose a service-tier selector, so do not claim speed is verified. Do not
-claim that an in-flight coordinator model changed through a worker override.
+The latest direct human request selects Claude Opus 5.5 at high effort for every
+worker, reviewer and other subagent. Do not choose a cheaper or free model to save
+usage. This supersedes the earlier GPT-6 Astra, Sol and free opencode preferences.
+Keep review independent by assigning a separate agent.
 
 ## Product constraints
 
@@ -49,7 +42,8 @@ claim that an in-flight coordinator model changed through a worker override.
   (SPR-001)** and its background. Preserve the sourced model, leftward spin,
   opening, physical controls, lower touchscreen and the three portfolio apps:
   HackUK, NVIDIA and Hack LDN 2025. The user removed Work, Side Projects,
-  Hobbies, Life, About and Contact on 28 October 2026.
+  Hobbies, Life, About and Contact on 28 October 2026. OxHack and OxHack 26
+  are two variations added 1 November 2026 to compare before keeping one.
 - Target **EUR 10.7.0-32E**, original hardware mode, English locale. In scope:
   HOME; Settings and helpers; Health; read-only Camera; Sound UI and supplied-song
   playback; eShop; Notes; Friends; Notifications; local Browser and

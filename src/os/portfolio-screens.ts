@@ -2,6 +2,7 @@ import type { StockModelBackground } from './stock-model-background';
 import * as THREE from 'three';
 import { createNvidiaBanner } from './nvidia-banner';
 import { createHackLdnBanner } from './hack-ldn-banner';
+import { createOxHackBanner } from './oxhack-banner';
 import { apps, getApp, type PortfolioApp } from './apps';
 import { currentEntry, getActiveAppView, selectedApp } from './system';
 import { getTitle } from './app-registry';
@@ -139,6 +140,9 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
  }
  const nvidiaBanner=createNvidiaBanner();
  const hackLdnBanner=createHackLdnBanner();
+ // Large atlases that load on first draw, so they stay out of `ready` below.
+ const oxHackBanner=createOxHackBanner({url:'/portfolio/oxhack-compact/atlas.png',frameWidth:208,frameHeight:172,introFrames:104,idleFrames:96,x:96,y:34});
+ const oxHackWordmarkBanner=createOxHackBanner({url:'/portfolio/oxhack-wordmark/atlas.png',frameWidth:340,frameHeight:160,introFrames:120,idleFrames:96,x:30,y:40});
  const menuIcons=new Map<string,HTMLCanvasElement>();
  const images=new Map<string,HTMLImageElement>();
  // HOME needs the menu icons before its first paint. Entry photos appear only
@@ -175,11 +179,17 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
  const material=new THREE.MeshStandardMaterial({color:0xf4f5f7,roughness:.3,metalness:.1});group.add(new THREE.Mesh(geometry,material));
  const art=document.createElement('canvas');art.width=art.height=128;const ac=art.getContext('2d')!;const texture=new THREE.CanvasTexture(art);texture.colorSpace=THREE.SRGBColorSpace;texture.magFilter=THREE.NearestFilter;
  const faceMaterial=new THREE.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false});const face=new THREE.Mesh(new THREE.PlaneGeometry(1.75,1.75),faceMaterial);face.position.z=.22;group.add(face);let previous='';
+ function portfolioBannerFrameDue(time:number,reduced:boolean){return oxHackBanner.frameDue(time,reduced)||oxHackWordmarkBanner.frameDue(time,reduced);}
+ function hidePortfolioBanners(){oxHackBanner.hide();oxHackWordmarkBanner.hide();}
  function banner(c:C,app:PortfolioApp,time:number,reduced:boolean){
   if(app.id!=='nvidia')nvidiaBanner.reset();
   if(app.id!=='hack-ldn-2025')hackLdnBanner.reset();
+  if(app.id!=='oxhack')oxHackBanner.reset();
+  if(app.id!=='oxhack-wordmark')oxHackWordmarkBanner.reset();
   if(app.id==='nvidia'){if(!nvidiaBanner.draw(c,time,reduced))icon(c,app,151,62,98);}
   else if(app.id==='hack-ldn-2025'){if(!hackLdnBanner.draw(c,time,reduced))icon(c,app,151,62,98);}
+  else if(app.id==='oxhack'){if(!oxHackBanner.draw(c,time,reduced))icon(c,app,151,62,98);}
+  else if(app.id==='oxhack-wordmark'){if(!oxHackWordmarkBanner.draw(c,time,reduced))icon(c,app,151,62,98);}
   else {
   if(renderer){if(previous!==app.id){ac.clearRect(0,0,128,128);icon(ac,app,0,0,128);texture.needsUpdate=true;previous=app.id;}
    group.rotation.set(reduced?-.06:Math.sin(time/1800)*.06,reduced?-.12:Math.sin(time/2100)*.32,0);group.position.y=reduced?0:Math.sin(time/900)*.035;renderer.render(scene,camera);c.drawImage(renderer.domElement,110,35,180,148);
@@ -253,5 +263,5 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
    t.fillStyle=b.fillStyle=`rgba(0,0,0,${alpha})`;t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
   }
  }
- return {ready,icon,menuIcon,menuArtwork,banner,overlay,syncStockView,stockStatus,setAppletEntryCovered,preparedStockPair,notesFooterCloseResources,notificationsFooterCloseResources,manualFooterCloseResources,webFooterCloseResources,appletIncomingResources,drawAppletIncoming,presentNotesBootCover,notesBootCoverActive,revokeNotesBootCoverCandidate,clearPaintMeasurements:stockScreens.clearPaintMeasurements,titleIncomingMeasurement:stockScreens.titleIncomingMeasurement,paintMeasurement:stockScreens.paintMeasurement,clearTextDiagnostic:stockScreens.clearTextDiagnostic,textDiagnostic:stockScreens.textDiagnostic,readSuspendedCapture:suspendedCapture.read,readRetainedApplicationCapture:suspendedCapture.readRetained,setResumeCoveredOwner(owner:string|null){resumeCoveredOwner=owner;},retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){document.removeEventListener('visibilitychange',pauseNotesBootCover);nvidiaBanner.dispose();hackLdnBanner.dispose();stockScreens.dispose();notesIntro.dispose();notesBootCover.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
+ return {ready,icon,menuIcon,menuArtwork,banner,portfolioBannerFrameDue,hidePortfolioBanners,overlay,syncStockView,stockStatus,setAppletEntryCovered,preparedStockPair,notesFooterCloseResources,notificationsFooterCloseResources,manualFooterCloseResources,webFooterCloseResources,appletIncomingResources,drawAppletIncoming,presentNotesBootCover,notesBootCoverActive,revokeNotesBootCoverCandidate,clearPaintMeasurements:stockScreens.clearPaintMeasurements,titleIncomingMeasurement:stockScreens.titleIncomingMeasurement,paintMeasurement:stockScreens.paintMeasurement,clearTextDiagnostic:stockScreens.clearTextDiagnostic,textDiagnostic:stockScreens.textDiagnostic,readSuspendedCapture:suspendedCapture.read,readRetainedApplicationCapture:suspendedCapture.readRetained,setResumeCoveredOwner(owner:string|null){resumeCoveredOwner=owner;},retryStockScreen:stockScreens.retry,stockFailure:stockScreens.getFailure,dispose(){document.removeEventListener('visibilitychange',pauseNotesBootCover);nvidiaBanner.dispose();hackLdnBanner.dispose();oxHackBanner.dispose();oxHackWordmarkBanner.dispose();stockScreens.dispose();notesIntro.dispose();notesBootCover.dispose();notesMetadata.dispose();suspendedCapture.dispose();renderer?.dispose();geometry.dispose();material.dispose();texture.dispose();face.geometry.dispose();faceMaterial.dispose();},selectedApp};
 }

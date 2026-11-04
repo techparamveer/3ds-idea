@@ -206,7 +206,9 @@ and Contact (`P-WORK`, `P-PROJ`, `P-HOB`, `P-LIFE`, `P-ABOUT`, `P-CONTACT`).
 Their IDs are retired: saved layouts drop them and keep the other placements.
 The default HOME order is HackUK, NVIDIA, Camera, Sound, Health and Safety,
 System Settings, eShop, Hack LDN 2025, which keeps Settings at the right lower
-position of the selected-Settings viewport.
+position of the selected-Settings viewport. On 1 November 2026 the user added
+OxHack and OxHack 26 after Hack LDN 2025, two variations to compare before keeping
+one. See [OxHack banners](../oxhack-banners-2026-11-01.md).
 
 Shared code: `src/os/apps.ts`, `portfolio-app.ts`, `portfolio-screens.ts`,
 `system.ts`, `app-host.ts`, and persistence. Tests: `portfolio.test.mjs`,

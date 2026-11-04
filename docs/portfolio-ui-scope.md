@@ -5,7 +5,9 @@ brief: **remove the software keyboard; remaining stock apps need their UI only**
 Also recreate **power-on, power-off and opening an app**. Preserve the existing
 console model, physical opening, background-only page and portfolio apps. On
 28 October 2026 the user removed Work, Side Projects, Hobbies, Life, About and
-Contact; the three portfolio apps are HackUK, NVIDIA and Hack LDN 2025.
+Contact; the three portfolio apps are HackUK, NVIDIA and Hack LDN 2025. On
+1 November 2026 the user added OxHack in two variations, `oxhack` and
+`oxhack-wordmark`, to compare on HOME before keeping one.
 
 Activity Log, Download Play, Mii Maker, StreetPass Mii Plaza, AR Games and Face
 Raiders remain excluded. Software Keyboard is now excluded too, and Nintendo

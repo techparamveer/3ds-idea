@@ -24,6 +24,17 @@ const NEAREST_ALLOWED = {
   'scene/firmware-model.ts': [2, 'CGFX lookup-table DataTexture and native sampler emulation'],
   'os/portfolio-screens.ts': [1, '128px banner face is always minified (about 80px), so the mag filter never engages'],
 };
+// Canvas textures outside the owner that are not LCD panels. Maximum occurrences per file.
+const CANVAS_TEXTURE_ALLOWED = {
+  'os/portfolio-screens.ts': [1, '128px portfolio banner face for the HOME banner model, not an LCD panel'],
+};
+const CANVAS_TEXTURE_SCOPES = ['scene/', 'os/'];
+
+// Blanks // and /* */ comments, keeping line breaks and string/template literals.
+function stripComments(source) {
+  return source.replace(/'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"|`(?:\\[\s\S]|[^`\\])*`|\/\/[^\n]*|\/\*[\s\S]*?\*\//g,
+    match => match[0] === '/' ? match.replace(/[^\n]/g, ' ') : match);
+}
 
 async function* files(dir) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
@@ -33,25 +44,29 @@ async function* files(dir) {
   }
 }
 
+function overLimit(rel, kind, hits, allowed, advice) {
+  const [max, reason] = allowed[rel] ?? [0];
+  if (hits.length > max) errors.push(`${hits[max]}: ${kind} ${max ? `exceeds the ${max} allowed here (${reason})` : 'is not allowed in this file'}. ${advice}`);
+}
+
 const errors = [];
 for await (const path of files(root)) {
   const rel = relative(root, path).split(sep).join('/');
   if (rel === OWNER) continue;
-  const lines = (await readFile(path, 'utf8')).split('\n');
-  const nearest = [];
+  const lines = stripComments(await readFile(path, 'utf8')).split('\n');
+  const nearest = [], canvasTextures = [];
   lines.forEach((line, i) => {
     const at = `src/${rel}:${i + 1}`;
     for (const _ of line.matchAll(/\bNearestFilter\b/g)) nearest.push(at);
-    // Every texture shown on a console mesh is a display surface; in src/scene
-    // a canvas texture can only be the LCD panel or a new surface that needs
-    // the same treatment.
-    if (rel.startsWith('scene/') && /\bCanvasTexture\s*\(/.test(line))
-      errors.push(`${at}: canvas texture created outside ${OWNER}. Use ${HELPER}.`);
+    // Every canvas texture shown on a console mesh is a display surface: the
+    // LCD panel or a new surface that needs the same treatment.
+    if (CANVAS_TEXTURE_SCOPES.some(scope => rel.startsWith(scope))) for (const _ of line.matchAll(/\bCanvasTexture\s*\(/g)) canvasTextures.push(at);
   });
-  const [max, reason] = NEAREST_ALLOWED[rel] ?? [0];
-  if (nearest.length > max) errors.push(`${nearest[max]}: NearestFilter ${max ? `exceeds the ${max} allowed here (${reason})` : 'is not allowed in this file'}. `
-    + `LCD panels shown on the console must use ${HELPER}, which keeps texels crisp without uneven steps at non-integer scales. `
+  overLimit(rel, 'NearestFilter', nearest, NEAREST_ALLOWED,
+    `LCD panels shown on the console must use ${HELPER}, which keeps texels crisp without uneven steps at non-integer scales. `
     + 'Nearest filtering is only for 1:1 native rasters; if this is one, add it to NEAREST_ALLOWED in scripts/check-lcd-display.mjs with the reason.');
+  overLimit(rel, `canvas texture created outside ${OWNER}`, canvasTextures, CANVAS_TEXTURE_ALLOWED,
+    `Use ${HELPER}; if this is not an LCD panel, add it to CANVAS_TEXTURE_ALLOWED in scripts/check-lcd-display.mjs with the reason.`);
 }
 
 if (errors.length) {

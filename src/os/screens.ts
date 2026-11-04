@@ -825,6 +825,7 @@ export function createScreens(options: { soundRoom?:StockModelBackground;cameraS
   if(options.measurePaint)graphics.clearPaintMeasurements?.();
   lastPaintTiming=options.measurePaint?{startedAt:performance.now(),preOverlayMs:null,overlayMs:null,titleIncomingMs:null,titleIncomingDetail:null,notificationsStockDetail:null}:null;
   if(options.cameraTextProbe)graphics.clearTextDiagnostic();
+  graphics.hidePortfolioBanners();
   entryMotionCandidate=undefined;
   resumeCandidate=undefined;resumeSourceCandidate=undefined;
   rootFolderBannerCandidate=undefined;folderEntryBannerCandidate=null;folderEntryBannerReleaseCandidate=undefined;

@@ -27,17 +27,28 @@ export function createOxHackBanner(spec: OxHackBannerSpec) {
   let startedAt: number | undefined;
   let drawnAt: number | undefined;
   let drawnFrame = -1;
+  let loads = 0;
 
   function load() {
     const pending = new Image();
     image = pending;
+    loads++;
     pending.src = url;
     pending.decode().then(() => {
       if (!disposed && image === pending) {
         ready = pending.naturalWidth === frameWidth * COLUMNS
           && pending.naturalHeight === frameHeight * Math.ceil(frameCount / COLUMNS);
       }
-    }).catch(() => { /* The existing source logo remains visible if loading fails. */ });
+    }).catch(() => {
+      // The existing source logo remains visible; the next draw retries once per selection.
+      if (image === pending) release();
+    });
+  }
+
+  function release() {
+    ready = false;
+    image?.removeAttribute('src');
+    image = undefined;
   }
 
   function frameAt(time: number, reduced: boolean) {
@@ -50,7 +61,7 @@ export function createOxHackBanner(spec: OxHackBannerSpec) {
   return {
     draw(context: CanvasRenderingContext2D, time: number, reduced: boolean) {
       if (disposed) return false;
-      if (!image) load();
+      if (!image && loads < 2) load();
       if (!ready || !image) return false;
       if (startedAt === undefined) {
         startedAt = time;
@@ -69,15 +80,20 @@ export function createOxHackBanner(spec: OxHackBannerSpec) {
     frameDue(time: number, reduced: boolean) {
       return drawnAt !== undefined && time - drawnAt < ON_SCREEN_MS && frameAt(time, reduced) !== drawnFrame;
     },
+    /** A paint that leaves this banner off-screen must not keep frameDue forcing repaints. */
+    hide() {
+      drawnAt = undefined;
+    },
+    /** Deselection drops the decoded atlas (tens of MB); the next draw reloads it. */
     reset() {
       startedAt = undefined;
       drawnAt = undefined;
+      loads = 0;
+      release();
     },
     dispose() {
       disposed = true;
-      ready = false;
-      image?.removeAttribute('src');
-      image = undefined;
+      release();
     },
   };
 }

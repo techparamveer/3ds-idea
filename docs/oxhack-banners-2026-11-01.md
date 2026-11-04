@@ -39,16 +39,19 @@ about the event have been supplied, and none should be invented.
 
 [Banner renderer](../src/os/oxhack-banner.ts) follows the Hack LDN banner with one
 change: the atlases load on first draw instead of joining the portfolio `ready`
-promise, because they are large. They decode to about 28 MB and 47 MB and stay in
-memory until disposal. The title's icon shows until the decode finishes, and the
-intro clock starts on the first painted frame. A failed or wrong-sized atlas keeps
-the icon.
+promise, because they are large. They decode to about 28 MB and 47 MB, so a
+banner releases its atlas when another title is selected, keeping at most one
+resident; reselection reloads it. The title's icon shows until the decode finishes,
+and the intro clock starts on the first painted frame. A failed decode retries once
+per selection; a failed or wrong-sized atlas keeps the icon.
 
 The idle LCD cadence (`screenFps`: 24, 18 or 12 by quality tier) is below these
 30 fps atlases, so it skipped frames. `frameDue` repaints the LCD whenever an
 on-screen OxHack banner reaches a new atlas frame. A muted raw LCD capture at
 quality tier high then drew 30.1 fps with no skipped frames, worst gap 49 ms. No
-stock title changes cadence. NVIDIA and Hack LDN keep the old cap.
+stock title changes cadence. NVIDIA and Hack LDN keep the old cap, and so does the
+constrained tier. Every paint clears the drawn mark first, so `frameDue` stops as
+soon as a paint leaves the banner off-screen.
 
 `restoreHomeLayout` accepts saves without these titles, so existing layouts keep
 their positions and the new titles enter free slots.

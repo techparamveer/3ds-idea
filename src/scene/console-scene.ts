@@ -77,7 +77,8 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   model.traverse(o=>{if(o instanceof THREE.Mesh){o.castShadow=true;o.receiveShadow=true;if(o.userData.console_replace_with_display===true)o.visible=false;if(/Blue.?power.?LED/i.test(o.name))powerLeds.push(o);}});
   // Texture upload is the longest main-thread task before the first frame.
   // Run it while storage, firmware and LCD assets load; awaited before rendering.
-  const modelTexturesResident=uploadModelTextures(renderer,model);
+  // A setup throw before that await must not leave the rejection unhandled.
+  const modelTexturesResident=uploadModelTextures(renderer,model);modelTexturesResident.catch(()=>undefined);
   let runtimeNotice:string|null=null,storage:FirmwareStorage|undefined,state=createPortfolioState();
   let legacyPreferences:string|null=null;try{legacyPreferences=localStorage.getItem(STORAGE_KEY);}catch{}
   const soundRoom=createSoundRoom(renderer);

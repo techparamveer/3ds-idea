@@ -39,6 +39,20 @@ export type HomeToolbarBannerSelection =
   | HomeNewsBannerSelection
   | HomeWebBannerSelection
   | HomeMiiverseBannerSelection;
+/** HOME toolbar slots 1-5 in focus order. Each slot owns one native applet
+ * banner, the HOME label-pack key for its caption and its English title. */
+export const HOME_TOOLBAR_BANNERS = [
+  { kind: 'memo', label: 'memo', title: 'Game Notes' },
+  { kind: 'friend', label: 'fri', title: 'Friend List' },
+  { kind: 'news', label: 'news', title: 'Notifications' },
+  { kind: 'web', label: 'web', title: 'Internet Browser' },
+  { kind: 'miiverse', label: 'mvs', title: 'Miiverse' },
+] as const;
+export type HomeToolbarBanner = typeof HOME_TOOLBAR_BANNERS[number];
+export type HomeToolbarBannerKind = HomeToolbarBanner['kind'];
+export function homeToolbarBanner(focus: HomeToolbarBannerSelection['focus']): HomeToolbarBanner {
+  return HOME_TOOLBAR_BANNERS[focus - 1];
+}
 type UnsupportedSelection = Readonly<{ kind: 'app'; id: string }>;
 export type HomeBannerHostSelection = SupportedSelection | UnsupportedSelection;
 export type HomeBannerHostInputs = Pick<HomeBannerServiceInputs,

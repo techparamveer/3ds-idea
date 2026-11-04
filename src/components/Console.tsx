@@ -1,7 +1,9 @@
 'use client';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
+import { preload } from 'react-dom';
 import type { ConsoleScene } from '@/scene/console-scene';
+import { PACKED_MODEL_URL } from '@/scene/model-delivery';
 import { browserMotionSensor } from '@/os/motion-sensor';
 type Motion = 'pending' | 'permission' | 'requesting' | 'armed' | 'denied' | 'silent' | 'insecure' | 'unsupported';
 /** Phones and tablets: a touch screen is the only pointer. */
@@ -16,6 +18,10 @@ const promptCopy: Record<Exclude<Motion, 'pending'>, [title: string, hint: strin
   unsupported: ['Tap the 3DS to open', 'This browser has no motion sensor access.'],
 };
 export default function Console({modelUrl}:{modelUrl?:string}) {
+  // The model is the longest download. Start it from the HTML head instead of
+  // after the scene chunk; mode and credentials match GLTFLoader's fetch, so
+  // the scene consumes this response rather than requesting it again.
+  preload(modelUrl??PACKED_MODEL_URL,{as:'fetch',crossOrigin:'anonymous'});
   const host = useRef<HTMLDivElement>(null);
   const scene = useRef<ConsoleScene>(undefined);
   const [attempt, retry] = useState(0);

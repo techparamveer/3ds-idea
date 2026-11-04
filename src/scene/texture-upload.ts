@@ -15,6 +15,13 @@ export async function uploadModelTextures(renderer: THREE.WebGLRenderer, root: T
   });
   for (const texture of textures) {
     renderer.initTexture(texture);
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await yieldToMain();
   }
+}
+
+// setTimeout(0) is clamped to 4 ms once nested, which adds up over ~30 textures.
+function yieldToMain(): Promise<void> {
+  const scheduler = (globalThis as { scheduler?: { yield?: () => Promise<void> } }).scheduler;
+  if (scheduler?.yield) return scheduler.yield();
+  return new Promise(resolve => { const channel = new MessageChannel(); channel.port1.onmessage = () => { channel.port1.close(); resolve(); }; channel.port2.postMessage(null); });
 }

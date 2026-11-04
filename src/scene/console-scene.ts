@@ -63,7 +63,9 @@ export type ConsoleSceneOptions={
 };
 export type ConsoleScene={dispose:()=>void;
   /** Listen for a flick while the lid is shut. Call again after a permission grant. */
-  armFlickOpen:()=>void};
+  armFlickOpen:()=>void;
+  /** Call synchronously inside a user gesture; a flick is not one, so iOS audio stays locked without it. */
+  unlockAudio:()=>void};
 export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MODEL_URL,{handheld=false,onLid,onMotion}:ConsoleSceneOptions={}):Promise<ConsoleScene> {
   const cameraTextProbe=cameraTextProbeEnabled(window.location);const quality=browserRenderQuality(host,handheld);const diagnostics=process.env.NODE_ENV==='development'||lcdCaptureEnabled(window.location,false);const lcdCapture=lcdCaptureEnabled(window.location,diagnostics);host.dataset.quality=quality.tier;host.dataset.handheld=String(handheld);
   const renderer=new THREE.WebGLRenderer({antialias:quality.antialias,alpha:true,powerPreference:'high-performance'});
@@ -148,6 +150,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   const liveLcdRecorder=mountLiveLcdRecorder(host,window.location,screens);
   const addControl=(title:string,action:()=>void)=>{const button=document.createElement('button');button.textContent=title;button.addEventListener('click',action);button.addEventListener('keydown',event=>event.stopPropagation());accessible.appendChild(button);return button;};
   for(const [title,input]of [['Up','up'],['Down','down'],['Left','left'],['Right','right'],['A: Open or visit','open'],['B: Back','back'],['HOME: Suspend or resume','home'],['Power','power'],['Sound and layout','preferences']] as [string,Input][])addControl(title,()=>send(input));
+  addControl('Open or close the lid',()=>toggleLid());
   for(const app of homeTitles)addControl(`Open ${app.title}`,()=>{if(state.system?.phase==='home')commit((current,now)=>launchHomeShortcut(current,app.id,now),'open',true);});
   // Existing nonvisual direct shortcuts cannot supply a selected HOME render.
   // Accessibility adaptation only; physical/touch/keyboard keep source covers.
@@ -218,7 +221,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
   let start=last;
   let homeClockSuspended=document.hidden;
   const touches=new Map<number,{x:number;y:number}>();let pinchDistance=0,pinchZoom=1,viewZoom=1;
-  let drag:{x:number;y:number;startX:number;startY:number;moved:boolean;pointerId:number;control?:THREE.Object3D;command?:AppCommand;pad?:DirectionalControlName;padOrigin?:THREE.Vector3;padDirection?:ControlDirection;screen?:boolean;touch?:{x:number;y:number}}|null=null;
+  let drag:{x:number;y:number;startX:number;startY:number;moved:boolean;pointerId:number;control?:THREE.Object3D;slop?:string;command?:AppCommand;pad?:DirectionalControlName;padOrigin?:THREE.Vector3;padDirection?:ControlDirection;screen?:boolean;touch?:{x:number;y:number}}|null=null;
   type PressedCap={parts:{object:THREE.Object3D;y:number}[];motion:ButtonMotion};
   const pressed=new Map<THREE.Object3D,PressedCap>();
   let lastPress:{name:string;maxTravelMm:number}|undefined;
@@ -472,13 +475,13 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     return ray.intersectObject(model,true).find(hit=>{for(let node:THREE.Object3D|null=hit.object;node;node=node.parent)if(!node.visible)return false;return true;});
   }
   const slopBox=new THREE.Box3(),slopCenter=new THREE.Vector3();
-  /** Nearest visible base control within TOUCH_SLOP_PX of a touch that missed every control. */
+  /** Nearest visible base button within TOUCH_SLOP_PX of a touch that missed every control. Pads are excluded: a near miss must not turn a rotate-drag into pad input. */
   function nearestControl(event:PointerEvent,direct:THREE.Object3D|undefined){
     // A miss on the hinge or lid keeps its own meaning (close the lid).
     for(let node=direct;node;node=node.parent??undefined)if(node===hinge||node.name.includes('Hinge'))return undefined;
     const rect=host.getBoundingClientRect(),candidates:{cap:THREE.Object3D;x:number;y:number;distance:number}[]=[];
     for(const [name,cap]of caps){
-      if(name==='L'||name==='R')continue;
+      if(name==='L'||name==='R'||name==='DPAD'||name==='CIRCLE')continue;
       const v=slopBox.setFromObject(cap).getCenter(slopCenter).project(camera);
       const x=rect.left+(v.x+1)*rect.width/2,y=rect.top+(1-v.y)*rect.height/2,distance=Math.hypot(x-event.clientX,y-event.clientY);
       if(distance<=TOUCH_SLOP_PX)candidates.push({cap,x,y,distance});
@@ -533,7 +536,9 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     const stop=flickSensor.listen(reading=>{
       const now=performance.now();
       if(!flickSeen){flickSeen=true;onMotion?.('active');}
-      if(flick.push({...reading,t:now})&&now-armedAt>=FLICK_SETTLE_MS&&targetAngle===0&&!drag&&touches.size===0){lastInput='flick';host.dataset.lastFlick=String(Math.round(now));toggleLid(true);}
+      // A re-grip judged during the settle window would start a cooldown that swallows the first real flick.
+      if(now-armedAt<FLICK_SETTLE_MS)return;
+      if(flick.push({...reading,t:now})&&targetAngle===0&&!drag&&touches.size===0){lastInput='flick';host.dataset.lastFlick=String(Math.round(now));toggleLid(true);}
     });
     stopFlick=()=>{stop();if(silent!==undefined)clearTimeout(silent);};
   }
@@ -552,11 +557,12 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     }
     if(!e.isPrimary||e.button!==0||drag)return;
     void audio.unlock();host.focus({preventScroll:true});host.setPointerCapture(e.pointerId);interruptIntro();
-    const h=hit(e);let target=h?.object;
-    if(e.pointerType==='touch'&&angle>90&&target!==touchScreen&&!(target&&controlName(target)))target=nearestControl(e,target)??target;
-    drag={x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY,moved:false,pointerId:e.pointerId,control:target,screen:angle>90&&target===touchScreen};
+    const h=hit(e),target=h?.object;
+    // A near miss acts only as a tap (on pointerup), so a drag starting beside a button still just rotates.
+    const slop=e.pointerType==='touch'&&angle>90&&target!==touchScreen&&!(target&&controlName(target))?nearestControl(e,target):undefined;
+    drag={x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY,moved:false,pointerId:e.pointerId,control:slop??target,screen:angle>90&&target===touchScreen,...(slop?{slop:controlName(slop)}:{})};
     if(drag.screen&&h?.uv){drag.touch={x:h.uv.x*320,y:(1-h.uv.y)*240};dispatch({type:'touch',phase:'down',...drag.touch,pointerId:e.pointerId},true);return;}
-    if(target&&angle>90){const name=controlName(target);if(name==='DPAD'||name==='CIRCLE'){drag.pad=name;pointerPad(name,e);}else{press(name,'pointer');drag.command=controlCommands[name];if(drag.command)button(drag.command,'down',`pointer:${e.pointerId}`,true);}}
+    if(target&&angle>90&&!slop){const name=controlName(target);if(name==='DPAD'||name==='CIRCLE'){drag.pad=name;pointerPad(name,e);}else{press(name,'pointer');drag.command=controlCommands[name];if(drag.command)button(drag.command,'down',`pointer:${e.pointerId}`,true);}}
   }
   function pointerMove(e:PointerEvent){
     if(touches.has(e.pointerId))touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
@@ -581,6 +587,7 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     if(wasPinching){if(touches.size===0)pinchDistance=0;if(host.hasPointerCapture(e.pointerId))host.releasePointerCapture(e.pointerId);return;}
     if(!drag||e.pointerId!==drag.pointerId)return;const was=drag;drag=null;endPointer(was,false,e);if(host.hasPointerCapture(e.pointerId))host.releasePointerCapture(e.pointerId);host.style.cursor='grab';
     if(was.screen||was.moved||was.pad||was.command)return;
+    if(was.slop){press(was.slop,'pointer');release('pointer');const command=controlCommands[was.slop];if(command){button(command,'down',`pointer:${e.pointerId}`,true);button(command,'up',`pointer:${e.pointerId}`,true);}return;}
     const h=hit(e);if(!h)return;if(angle<90){toggleLid(true);return;}
     if(!controlName(h.object)&&(h.object.parent===hinge||h.object.name.includes('Hinge')))toggleLid();
   }
@@ -884,5 +891,5 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     removeLcdDownload=()=>{captureAbort.abort();window.removeEventListener('keydown',shortcut,true);};
   }
   const dispose=()=>{stopFlick?.();stopFlick=undefined;liveLcdRecorder?.dispose();removeLcdDownload();if(diagnostics){Reflect.deleteProperty(host,'screenCanvases');Reflect.deleteProperty(host,'captureNativeBanner');}if(lcdCapture)Reflect.deleteProperty(host,'captureScreensAt');state=releaseSystemInputs(state,performance.now()-start);effects.drain(false);effects.dispose();accessible.remove();audio.dispose();screens.dispose();soundRoom.dispose();cameraShoot.dispose();folderBanner.dispose();surfaceDisposed=true;disposed=true;if(surfaceSchedule!==undefined){if(window.cancelIdleCallback)window.cancelIdleCallback(surfaceSchedule);else clearTimeout(surfaceSchedule);}for(const remove of removeSurfaceHooks)remove();for(const texture of surfaceTextures)texture.dispose();cancelAnimationFrame(request);observer.disconnect();renderer.domElement.removeEventListener('webglcontextlost',contextLost);renderer.domElement.removeEventListener('webglcontextrestored',contextRestored);host.removeEventListener('pointerdown',pointerDown);host.removeEventListener('pointermove',pointerMove);host.removeEventListener('pointerup',pointerUp);host.removeEventListener('pointercancel',pointerAbort);host.removeEventListener('lostpointercapture',pointerCancel);host.removeEventListener('keydown',keydown);host.removeEventListener('keyup',keyup);host.removeEventListener('blur',blur);host.removeEventListener('wheel',wheel);motionPreference.removeEventListener('change',motionChanged);document.removeEventListener('visibilitychange',visibilityChanged);scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material]){for(const v of Object.values(m))if(v instanceof THREE.Texture)v.dispose();m.dispose();}}});env.dispose();topTexture.dispose();bottomTexture.dispose();renderer.dispose();renderer.domElement.remove();};
-  return {dispose,armFlickOpen};
+  return {dispose,armFlickOpen,unlockAudio:()=>{void audio.unlock();}};
 }

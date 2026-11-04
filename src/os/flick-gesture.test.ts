@@ -46,6 +46,13 @@ test('cooldown suppresses a second flick straight after the first', () => {
   assert.equal(run([...flickAt(0), ...flickAt(1600)]), 2);
 });
 
+test('reset clears the cooldown so a re-armed detector fires at once', () => {
+  const detector = createFlickDetector();
+  assert.equal([...flickAt(0), gyro(80, 0)].filter(sample => detector.push(sample)).length, 1);
+  detector.reset();
+  assert.equal([...flickAt(300), gyro(380, 0)].filter(sample => detector.push(sample)).length, 1);
+});
+
 test('a dropped-sample gap breaks the confirming run', () => {
   assert.equal(run([gyro(0, 300), gyro(400, 300)]), 0);
 });

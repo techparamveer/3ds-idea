@@ -66,6 +66,6 @@ export function createFlickDetector(options: Partial<typeof FLICK> = {}) {
       if (qualifies) { run = 1; runStart = runEnd = sample.t; runPeak = peak; } else { run = 0; runPeak = false; }
       return fired;
     },
-    reset() { gravity = null; run = 0; runPeak = false; lastT = -Infinity; },
+    reset() { gravity = null; run = 0; runPeak = false; lastT = -Infinity; cooldownUntil = -Infinity; },
   };
 }

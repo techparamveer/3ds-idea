@@ -46,6 +46,7 @@ export default function Console({modelUrl}:{modelUrl?:string}) {
     return () => { cancelled = true; scene.current = undefined; teardown?.(); };
   }, [attempt,modelUrl]);
   function enableMotion() {
+    scene.current?.unlockAudio();
     const { requestPermission } = browserMotionSensor();
     const granted = () => { scene.current?.armFlickOpen(); setMotion('armed'); };
     if (!requestPermission) { granted(); return; }

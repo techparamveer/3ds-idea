@@ -53,7 +53,9 @@ on-screen OxHack banner reaches a new atlas frame. A muted raw LCD capture at
 quality tier high then drew 30.1 fps with no skipped frames, worst gap 49 ms. No
 stock title changes cadence. NVIDIA and Hack LDN keep the old cap, and so does the
 constrained tier. Every paint clears the drawn mark first, so `frameDue` stops as
-soon as a paint leaves the banner off-screen.
+soon as a paint leaves the banner off-screen. Reduced motion has no HOME cadence,
+so `frameDue` asks for one paint when the atlas decodes or fails, on any tier.
+Later paints follow the existing HUD and input paints only.
 
 `restoreHomeLayout` accepts saves without these titles, so existing layouts keep
 their positions and the new titles enter free slots.

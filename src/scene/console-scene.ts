@@ -744,7 +744,10 @@ export async function createConsoleScene(host:HTMLDivElement,modelUrl=PACKED_MOD
     const lcdFps=screenPaintFps(quality,closeAdvanced||entryActive);
     const bootFrame=state.system!.phase==='boot'?bootRevealFrame(now-start-state.system!.since,reduced):null;
     const bootPaintDue=state.powered&&angle>12&&!document.hidden&&!state.system!.sleeping&&bootRevealNeedsPaint(bootFrame,lastBootPaintFrame,reduced);
-    if(bootPaintDue||state.powered&&angle>12&&!document.hidden&&(!reduced||state.system?.phase==='app')&&(lcdFps>=60||now-lastScreenPaint>=1000/lcdFps||quality.tier!=='constrained'&&screens.portfolioBannerFrameDue(now-start,reduced)))paintScreens(now);
+    // Reduced motion (any tier) still takes the one paint a lazily decoded
+    // banner asks for once its atlas lands or fails. Its frame never changes
+    // under reduced motion and every paint clears the request, so no cadence.
+    if(bootPaintDue||state.powered&&angle>12&&!document.hidden&&((!reduced||state.system?.phase==='app')&&(lcdFps>=60||now-lastScreenPaint>=1000/lcdFps||quality.tier!=='constrained'&&screens.portfolioBannerFrameDue(now-start,reduced))||reduced&&screens.portfolioBannerFrameDue(now-start,reduced)))paintScreens(now);
     if(host.dataset.hinge!==angle.toFixed(1))host.dataset.hinge=angle.toFixed(1);if(host.dataset.intro!==String(intro))host.dataset.intro=String(intro);
     camera.zoom=reduced?viewZoom:THREE.MathUtils.damp(camera.zoom,viewZoom,10,dt);
     const bootPublishDue=state.powered&&angle>12&&!document.hidden&&!state.system!.sleeping&&bootRevealNeedsPaint(lastBootPaintFrame,lastBootPresentedFrame,reduced);

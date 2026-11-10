@@ -244,7 +244,7 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
   }
   if(s.phase==='launch'&&!nativeSystem){
    t.fillStyle=b.fillStyle='#fff';t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
-   const app=getApp(s.app);if(app){if(app.id==='oxhack'||app.id==='oxhack-wordmark')banner(t,app,time,reduced);else icon(t,app,155,50,90);label(t,'Paramveer Singh',200,194,12,'#9398a0','center');}
+   const app=getApp(s.app);if(app){icon(t,app,155,50,90);label(t,'Paramveer Singh',200,194,12,'#9398a0','center');}
    label(t,getTitle(s.app)?.title??'',200,164,23,'#454952','center');
    label(b,'Starting software…',160,125,14,'#777e86','center');
   }

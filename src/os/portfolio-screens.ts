@@ -189,8 +189,8 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
   if(app.id!=='oxhack-wordmark')oxHackWordmarkBanner.reset();
   if(app.id==='nvidia'){if(!nvidiaBanner.draw(c,time,reduced))icon(c,app,151,62,98);}
   else if(app.id==='hack-ldn-2025'){if(!hackLdnBanner.draw(c,time,reduced))icon(c,app,151,62,98);}
-  else if(app.id==='oxhack')oxHackBanner.draw(c,time,reduced);
-  else if(app.id==='oxhack-wordmark')oxHackWordmarkBanner.draw(c,time,reduced);
+  else if(app.id==='oxhack'){if(!oxHackBanner.draw(c,time,reduced)&&oxHackBanner.failed())icon(c,app,151,62,98);}
+  else if(app.id==='oxhack-wordmark'){if(!oxHackWordmarkBanner.draw(c,time,reduced)&&oxHackWordmarkBanner.failed())icon(c,app,151,62,98);}
   else {
   if(renderer){if(previous!==app.id){ac.clearRect(0,0,128,128);icon(ac,app,0,0,128);texture.needsUpdate=true;previous=app.id;}
    group.rotation.set(reduced?-.06:Math.sin(time/1800)*.06,reduced?-.12:Math.sin(time/2100)*.32,0);group.position.y=reduced?0:Math.sin(time/900)*.035;renderer.render(scene,camera);c.drawImage(renderer.domElement,110,35,180,148);

@@ -43,8 +43,9 @@ promise, because they are large. They decode to about 28 MB and 47 MB, so a
 banner releases its atlas when another title is selected, keeping at most one
 resident; reselection reloads it. The upper banner stays empty until the atlas
 is decoded, then the intro clock starts on the first painted 3D frame. A failed
-decode retries once per selection; a failed or wrong-sized atlas stays empty
-rather than showing the source PNG.
+decode retries once per selection. The source PNG is never shown while the atlas
+is loading; it appears only after both loads fail or the atlas is the wrong size,
+so a broken atlas does not leave the banner empty. Reselecting the title tries again.
 
 The idle LCD cadence (`screenFps`: 24, 18 or 12 by quality tier) is below these
 30 fps atlases, so it skipped frames. `frameDue` repaints the LCD whenever an

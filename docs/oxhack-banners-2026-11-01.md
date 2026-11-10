@@ -41,9 +41,11 @@ about the event have been supplied, and none should be invented.
 change: the atlases load on first draw instead of joining the portfolio `ready`
 promise, because they are large. They decode to about 28 MB and 47 MB, so a
 banner releases its atlas when another title is selected, keeping at most one
-resident; reselection reloads it. The title's icon shows until the decode finishes,
-and the intro clock starts on the first painted frame. A failed decode retries once
-per selection; a failed or wrong-sized atlas keeps the icon.
+resident; reselection reloads it. The upper banner stays empty until the atlas
+is decoded, then the intro clock starts on the first painted 3D frame. A failed
+decode retries once per selection. The source PNG is never shown while the atlas
+is loading; it appears only after both loads fail or the atlas is the wrong size,
+so a broken atlas does not leave the banner empty. Reselecting the title tries again.
 
 The idle LCD cadence (`screenFps`: 24, 18 or 12 by quality tier) is below these
 30 fps atlases, so it skipped frames. `frameDue` repaints the LCD whenever an
@@ -51,7 +53,9 @@ on-screen OxHack banner reaches a new atlas frame. A muted raw LCD capture at
 quality tier high then drew 30.1 fps with no skipped frames, worst gap 49 ms. No
 stock title changes cadence. NVIDIA and Hack LDN keep the old cap, and so does the
 constrained tier. Every paint clears the drawn mark first, so `frameDue` stops as
-soon as a paint leaves the banner off-screen.
+soon as a paint leaves the banner off-screen. Reduced motion has no HOME cadence,
+so `frameDue` asks for one paint when the atlas decodes or fails, on any tier.
+Later paints follow the existing HUD and input paints only.
 
 `restoreHomeLayout` accepts saves without these titles, so existing layouts keep
 their positions and the new titles enter free slots.

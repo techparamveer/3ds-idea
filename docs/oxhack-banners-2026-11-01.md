@@ -41,9 +41,10 @@ about the event have been supplied, and none should be invented.
 change: the atlases load on first draw instead of joining the portfolio `ready`
 promise, because they are large. They decode to about 28 MB and 47 MB, so a
 banner releases its atlas when another title is selected, keeping at most one
-resident; reselection reloads it. The title's icon shows until the decode finishes,
-and the intro clock starts on the first painted frame. A failed decode retries once
-per selection; a failed or wrong-sized atlas keeps the icon.
+resident; reselection reloads it. The upper banner stays empty until the atlas
+is decoded, then the intro clock starts on the first painted 3D frame. A failed
+decode retries once per selection; a failed or wrong-sized atlas stays empty
+rather than showing the source PNG.
 
 The idle LCD cadence (`screenFps`: 24, 18 or 12 by quality tier) is below these
 30 fps atlases, so it skipped frames. `frameDue` repaints the LCD whenever an

@@ -189,8 +189,8 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
   if(app.id!=='oxhack-wordmark')oxHackWordmarkBanner.reset();
   if(app.id==='nvidia'){if(!nvidiaBanner.draw(c,time,reduced))icon(c,app,151,62,98);}
   else if(app.id==='hack-ldn-2025'){if(!hackLdnBanner.draw(c,time,reduced))icon(c,app,151,62,98);}
-  else if(app.id==='oxhack'){if(!oxHackBanner.draw(c,time,reduced))icon(c,app,151,62,98);}
-  else if(app.id==='oxhack-wordmark'){if(!oxHackWordmarkBanner.draw(c,time,reduced))icon(c,app,151,62,98);}
+  else if(app.id==='oxhack')oxHackBanner.draw(c,time,reduced);
+  else if(app.id==='oxhack-wordmark')oxHackWordmarkBanner.draw(c,time,reduced);
   else {
   if(renderer){if(previous!==app.id){ac.clearRect(0,0,128,128);icon(ac,app,0,0,128);texture.needsUpdate=true;previous=app.id;}
    group.rotation.set(reduced?-.06:Math.sin(time/1800)*.06,reduced?-.12:Math.sin(time/2100)*.32,0);group.position.y=reduced?0:Math.sin(time/900)*.035;renderer.render(scene,camera);c.drawImage(renderer.domElement,110,35,180,148);
@@ -244,7 +244,7 @@ export function createPortfolioGraphics(options:{soundRoom?:StockModelBackground
   }
   if(s.phase==='launch'&&!nativeSystem){
    t.fillStyle=b.fillStyle='#fff';t.fillRect(0,0,400,240);b.fillRect(0,0,320,240);
-   const app=getApp(s.app);if(app){icon(t,app,155,50,90);label(t,'Paramveer Singh',200,194,12,'#9398a0','center');}
+   const app=getApp(s.app);if(app){if(app.id==='oxhack'||app.id==='oxhack-wordmark')banner(t,app,time,reduced);else icon(t,app,155,50,90);label(t,'Paramveer Singh',200,194,12,'#9398a0','center');}
    label(t,getTitle(s.app)?.title??'',200,164,23,'#454952','center');
    label(b,'Starting software…',160,125,14,'#777e86','center');
   }

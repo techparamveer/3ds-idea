@@ -16,7 +16,8 @@ export type OxHackBannerSpec = {
 };
 
 /** Plays like the Hack LDN banner, but these large atlases load on the first
- * draw instead of delaying startup, and the intro clock waits for the decode. */
+ * draw instead of delaying startup, and the intro clock waits for the decode.
+ * The 2D source icon is not shown while the atlas is loading. */
 export function createOxHackBanner(spec: OxHackBannerSpec) {
   const { url, frameWidth, frameHeight, introFrames, idleFrames, x, y } = spec;
   const frameCount = introFrames + idleFrames;
@@ -28,6 +29,8 @@ export function createOxHackBanner(spec: OxHackBannerSpec) {
   let drawnAt: number | undefined;
   let drawnFrame = -1;
   let loads = 0;
+  /** Last paint asked for this banner before the atlas was ready. */
+  let awaitingFirstFrame = false;
 
   function load() {
     const pending = new Image();
@@ -40,7 +43,7 @@ export function createOxHackBanner(spec: OxHackBannerSpec) {
           && pending.naturalHeight === frameHeight * Math.ceil(frameCount / COLUMNS);
       }
     }).catch(() => {
-      // The existing source logo remains visible; the next draw retries once per selection.
+      // Leave the banner empty; the next draw retries once per selection.
       if (image === pending) release();
     });
   }
@@ -62,7 +65,11 @@ export function createOxHackBanner(spec: OxHackBannerSpec) {
     draw(context: CanvasRenderingContext2D, time: number, reduced: boolean) {
       if (disposed) return false;
       if (!image && loads < 2) load();
-      if (!ready || !image) return false;
+      if (!ready || !image) {
+        awaitingFirstFrame = true;
+        return false;
+      }
+      awaitingFirstFrame = false;
       if (startedAt === undefined) {
         startedAt = time;
       }
@@ -78,16 +85,19 @@ export function createOxHackBanner(spec: OxHackBannerSpec) {
     },
     /** The idle LCD cadence is below this atlas's frame rate, so it would drop frames. */
     frameDue(time: number, reduced: boolean) {
+      if (awaitingFirstFrame && ready) return true;
       return drawnAt !== undefined && time - drawnAt < ON_SCREEN_MS && frameAt(time, reduced) !== drawnFrame;
     },
     /** A paint that leaves this banner off-screen must not keep frameDue forcing repaints. */
     hide() {
       drawnAt = undefined;
+      awaitingFirstFrame = false;
     },
     /** Deselection drops the decoded atlas (tens of MB); the next draw reloads it. */
     reset() {
       startedAt = undefined;
       drawnAt = undefined;
+      awaitingFirstFrame = false;
       loads = 0;
       release();
     },
